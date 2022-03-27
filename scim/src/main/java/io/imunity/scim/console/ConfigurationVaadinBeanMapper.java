@@ -28,6 +28,7 @@ class ConfigurationVaadinBeanMapper
 		bean.setRootGroup(new GroupWithIndentIndicator(new Group(orgConfig.rootGroup), false));
 		bean.setSchemas(
 				orgConfig.schemas.stream().map(s -> mapFromConfigurationSchema(s)).collect(Collectors.toList()));
+		bean.setMembershipAttributes(orgConfig.membershipAttributes);
 		return bean;
 	}
 
@@ -72,6 +73,7 @@ class ConfigurationVaadinBeanMapper
 
 				.withSchemas(
 						bean.getSchemas().stream().map(s -> mapToConfigurationSchema(s)).collect(Collectors.toList()))
+				.withMembershipAttributes(bean.getMembershipAttributes())
 				.build();
 	}
 

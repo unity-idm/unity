@@ -59,6 +59,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
+import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
@@ -130,34 +131,23 @@ class OAuthServiceController implements IdpServiceController
 	private PolicyDocumentManagement policyDocumentManagement;
 	private NetworkServer server;
 	private final EndpointFileConfigurationManagement serviceFileConfigController;
+	private final SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry;
 
 	@Autowired
-	OAuthServiceController(MessageSource msg,
-			EndpointManagement endpointMan,
-			RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan,
-			AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan,
-			BulkGroupQueryService bulkService,
-			RegistrationsManagement registrationMan,
-			URIAccessService uriAccessService,
-			FileStorageService fileStorageService,
-			UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService,
-			PKIManagement pkiMan,
-			NetworkServer server,
-			AdvertisedAddressProvider advertisedAddrProvider,
+	OAuthServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
+			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, AttributeTypeManagement atMan,
+			BulkGroupQueryService bulkService, RegistrationsManagement registrationMan,
+			URIAccessService uriAccessService, FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig, AuthenticatorSupportService authenticatorSupportService,
+			PKIManagement pkiMan, NetworkServer server, AdvertisedAddressProvider advertisedAddrProvider,
 			IdentityTypeSupport idTypeSupport,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
-			AttributeTypeSupport attrTypeSupport,
-			AttributesManagement attrMan,
-			EntityManagement entityMan,
-			GroupsManagement groupMan,
-			EntityCredentialManagement entityCredentialManagement,
-			ImageAccessService imageService,
-			IdpUsersHelper idpUsersHelper,
+			AttributeTypeSupport attrTypeSupport, AttributesManagement attrMan, EntityManagement entityMan,
+			GroupsManagement groupMan, EntityCredentialManagement entityCredentialManagement,
+			ImageAccessService imageService, IdpUsersHelper idpUsersHelper,
 			PolicyDocumentManagement policyDocumentManagement,
-			EndpointFileConfigurationManagement serviceFileConfigController)
+			EndpointFileConfigurationManagement serviceFileConfigController,
+			SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -185,6 +175,7 @@ class OAuthServiceController implements IdpServiceController
 		this.server = server;
 		this.policyDocumentManagement = policyDocumentManagement;
 		this.serviceFileConfigController = serviceFileConfigController;
+		this.systemOAuthScopeProvidersRegistry = systemOAuthScopeProvidersRegistry;
 	}
 
 	@Override
@@ -199,8 +190,7 @@ class OAuthServiceController implements IdpServiceController
 			{
 				DefaultServiceDefinition oauthWebService = getServiceDef(endpoint);
 				oauthWebService.setBinding(OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding());
-				DefaultServiceDefinition tokenService = getTokenService(
-						endpoint.getConfiguration().getTag());
+				DefaultServiceDefinition tokenService = getTokenService(endpoint.getConfiguration().getTag());
 				if (tokenService != null)
 				{
 					ret.add(new OAuthServiceDefinition(oauthWebService, tokenService));
@@ -227,8 +217,7 @@ class OAuthServiceController implements IdpServiceController
 		}
 		if (matchingTokenEndpoints.size() > 1)
 		{
-			log.warn("Found {} token endpoints for OAuth AS endpoint with tag {}", 
-					matchingTokenEndpoints.size(), tag);
+			log.warn("Found {} token endpoints for OAuth AS endpoint with tag {}", matchingTokenEndpoints.size(), tag);
 			return null;
 		}
 
@@ -248,7 +237,8 @@ class OAuthServiceController implements IdpServiceController
 		serviceDef.setRealm(endpoint.getConfiguration().getRealm());
 		serviceDef.setDescription(endpoint.getConfiguration().getDescription());
 		serviceDef.setState(endpoint.getState());
-		serviceDef.setSupportsConfigReloadFromFile(serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
+		serviceDef.setSupportsConfigReloadFromFile(
+				serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
 		return serviceDef;
 	}
 
@@ -257,9 +247,8 @@ class OAuthServiceController implements IdpServiceController
 	{
 		try
 		{
-			Endpoint endpoint = endpointMan.getEndpoints().stream()
-					.filter(e -> e.getName().equals(name) && e.getTypeId()
-							.equals(OAuthAuthzWebEndpoint.Factory.TYPE.getName()))
+			Endpoint endpoint = endpointMan.getEndpoints().stream().filter(
+					e -> e.getName().equals(name) && e.getTypeId().equals(OAuthAuthzWebEndpoint.Factory.TYPE.getName()))
 					.findFirst().orElse(null);
 
 			if (endpoint == null)
@@ -289,16 +278,14 @@ class OAuthServiceController implements IdpServiceController
 			EndpointConfiguration wconfig = new EndpointConfiguration(webAuthzService.getDisplayedName(),
 					webAuthzService.getDescription(), webAuthzService.getAuthenticationOptions(),
 					webAuthzService.getConfiguration(), webAuthzService.getRealm(), tag);
-			endpointMan.deploy(webAuthzService.getType(), webAuthzService.getName(),
-					webAuthzService.getAddress(), wconfig);
+			endpointMan.deploy(webAuthzService.getType(), webAuthzService.getName(), webAuthzService.getAddress(),
+					wconfig);
 			if (tokenService != null)
 			{
-				EndpointConfiguration rconfig = new EndpointConfiguration(
-						tokenService.getDisplayedName(), tokenService.getDescription(),
-						tokenService.getAuthenticationOptions(),
+				EndpointConfiguration rconfig = new EndpointConfiguration(tokenService.getDisplayedName(),
+						tokenService.getDescription(), tokenService.getAuthenticationOptions(),
 						tokenService.getConfiguration(), tokenService.getRealm(), tag);
-				endpointMan.deploy(tokenService.getType(), tokenService.getName(),
-						tokenService.getAddress(), rconfig);
+				endpointMan.deploy(tokenService.getType(), tokenService.getName(), tokenService.getAddress(), rconfig);
 			}
 
 			if (groupMan.getChildGroups("/").stream().map(g -> g.toString())
@@ -313,8 +300,8 @@ class OAuthServiceController implements IdpServiceController
 				updateClients(def.getSelectedClients());
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("ServicesController.deployError", webAuthzService.getName()), e);
+			throw new ControllerException(msg.getMessage("ServicesController.deployError", webAuthzService.getName()),
+					e);
 		}
 
 	}
@@ -327,12 +314,11 @@ class OAuthServiceController implements IdpServiceController
 		Group serviceClientGroup = new Group(def.getAutoGeneratedClientsGroup());
 		serviceClientGroup.setDisplayedName(new I18nString(def.getWebAuthzService().getName()));
 		groupMan.addGroup(serviceClientGroup);
-		Group serviceClientGroupOAuth = new Group(
-				def.getAutoGeneratedClientsGroup() + "/" + OAUTH_CLIENTS_SUBGROUP);
+		Group serviceClientGroupOAuth = new Group(def.getAutoGeneratedClientsGroup() + "/" + OAUTH_CLIENTS_SUBGROUP);
 		serviceClientGroupOAuth.setDisplayedName(new I18nString(OAUTH_CLIENTS_SUBGROUP));
 		groupMan.addGroup(serviceClientGroupOAuth);
 	}
-	
+
 	@Override
 	public void undeploy(ServiceDefinition service) throws ControllerException
 	{
@@ -350,8 +336,7 @@ class OAuthServiceController implements IdpServiceController
 
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("ServicesController.undeployError", webAuthzService.getName()),
+			throw new ControllerException(msg.getMessage("ServicesController.undeployError", webAuthzService.getName()),
 					e);
 		}
 	}
@@ -371,28 +356,26 @@ class OAuthServiceController implements IdpServiceController
 			endpointMan.updateEndpoint(webAuthzService.getName(), wconfig);
 			if (tokenService != null)
 			{
-				EndpointConfiguration rconfig = new EndpointConfiguration(
-						tokenService.getDisplayedName(), tokenService.getDescription(),
-						tokenService.getAuthenticationOptions(),
+				EndpointConfiguration rconfig = new EndpointConfiguration(tokenService.getDisplayedName(),
+						tokenService.getDescription(), tokenService.getAuthenticationOptions(),
 						tokenService.getConfiguration(), tokenService.getRealm(), tag);
 				endpointMan.updateEndpoint(tokenService.getName(), rconfig);
 			}
 			updateClients(def.getSelectedClients());
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()),
-					e);
+			throw new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
 		}
 
 	}
-	
+
 	@Override
 	public void reloadConfigFromFile(ServiceDefinition service) throws ControllerException
 	{
 		OAuthServiceDefinition def = (OAuthServiceDefinition) service;
 		DefaultServiceDefinition webAuthzService = def.getWebAuthzService();
 		DefaultServiceDefinition tokenService = def.getTokenService();
-		
+
 		List<ControllerException> exs = new ArrayList<>();
 		try
 		{
@@ -402,7 +385,7 @@ class OAuthServiceController implements IdpServiceController
 		{
 			exs.add(new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e));
 		}
-		
+
 		try
 		{
 			if (tokenService != null)
@@ -509,17 +492,16 @@ class OAuthServiceController implements IdpServiceController
 		}
 		if (client.getFlows() != null)
 		{
-			Attribute flows = EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS, group,
-					client.getFlows());
+			Attribute flows = EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS, group, client.getFlows());
 			attrMan.setAttribute(entity, flows);
 		}
-		
+
 		if (!client.isAllowAnyScopes())
 		{
 			Attribute scopes = StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_SCOPES, group,
 					client.getScopes() != null ? client.getScopes() : Collections.emptyList());
 			attrMan.setAttribute(entity, scopes);
-		}else
+		} else
 		{
 			if (attrMan.getAttributes(entity, group, OAuthSystemAttributesProvider.ALLOWED_SCOPES).size() > 0)
 			{
@@ -529,15 +511,13 @@ class OAuthServiceController implements IdpServiceController
 
 		if (client.getTitle() != null)
 		{
-			Attribute title = StringAttribute.of(OAuthSystemAttributesProvider.CLIENT_NAME, group,
-					client.getTitle());
+			Attribute title = StringAttribute.of(OAuthSystemAttributesProvider.CLIENT_NAME, group, client.getTitle());
 			attrMan.setAttribute(entity, title);
 		}
 
 		if (client.getType() != null)
 		{
-			Attribute type = EnumAttribute.of(OAuthSystemAttributesProvider.CLIENT_TYPE, group,
-					client.getType());
+			Attribute type = EnumAttribute.of(OAuthSystemAttributesProvider.CLIENT_TYPE, group, client.getType());
 			attrMan.setAttribute(entity, type);
 		}
 
@@ -596,8 +576,8 @@ class OAuthServiceController implements IdpServiceController
 
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("ServicesController.removeError", webAuthzService.getName()), e);
+			throw new ControllerException(msg.getMessage("ServicesController.removeError", webAuthzService.getName()),
+					e);
 		}
 	}
 
@@ -653,7 +633,7 @@ class OAuthServiceController implements IdpServiceController
 		{
 			c.setAllowAnyScopes(true);
 		}
-		
+
 		if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_TYPE))
 		{
 			c.setType(attrs.get(OAuthSystemAttributesProvider.CLIENT_TYPE).getValues().get(0));
@@ -741,19 +721,19 @@ class OAuthServiceController implements IdpServiceController
 	{
 
 		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory,
-				advertisedAddrProvider.get().toString(), server.getUsedContextPaths(),
-				imageService, uriAccessService, fileStorageService, serverConfig,
+				advertisedAddrProvider.get().toString(), server.getUsedContextPaths(), imageService, uriAccessService,
+				fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 				atMan.getAttributeTypes().stream().map(a -> a.getName()).collect(Collectors.toList()),
-				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values()
-						.stream().map(g -> g.getGroup()).collect(Collectors.toList()),
+				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream()
+						.map(g -> g.getGroup()).collect(Collectors.toList()),
 				idpUsersHelper.getAllUsers(), this::getOAuthClients, getAllUsernames(),
-				registrationMan.getForms().stream().filter(r -> r.isPubliclyAvailable())
-						.map(r -> r.getName()).collect(Collectors.toList()),
-				pkiMan.getCredentialNames(), authenticatorSupportService,
-				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
-				.map(e -> e.getContextAddress()).collect(Collectors.toList()), policyDocumentManagement.getPolicyDocuments());
+				registrationMan.getForms().stream().filter(r -> r.isPubliclyAvailable()).map(r -> r.getName())
+						.collect(Collectors.toList()),
+				pkiMan.getCredentialNames(), authenticatorSupportService, idTypeSupport.getIdentityTypes(),
+				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(Collectors.toList()),
+				policyDocumentManagement.getPolicyDocuments(), systemOAuthScopeProvidersRegistry);
 	}
 }

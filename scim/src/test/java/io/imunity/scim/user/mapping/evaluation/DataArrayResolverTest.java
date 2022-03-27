@@ -6,6 +6,7 @@
 package io.imunity.scim.user.mapping.evaluation;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -25,6 +26,7 @@ import io.imunity.scim.config.DataArray.DataArrayType;
 import io.imunity.scim.user.User;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
+import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -73,6 +75,7 @@ public class DataArrayResolverTest
 		assertThat(resolve, is(List.of("id1")));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldConvertToMembershipArray() throws IllegalAttributeValueException
 	{
@@ -84,6 +87,6 @@ public class DataArrayResolverTest
 
 						.withUser(User.builder().withGroups(Set.of(new Group("/g1"), new Group("g2"))).build())
 						.build());
-		assertThat(resolve, is(List.of(provider.get("/g1"), provider.get("/g2"))));
+		assertThat((List<MVELGroup>) resolve, hasItems(provider.get("/g1"), provider.get("/g2")));
 	}
 }

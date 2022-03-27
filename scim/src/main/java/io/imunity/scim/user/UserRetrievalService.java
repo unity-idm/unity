@@ -72,9 +72,11 @@ class UserRetrievalService
 
 	private User getUser(Entity entity) throws EngineException
 	{
-		authzMan.checkReadUser(entity.getId().longValue());
 
 		Map<String, GroupMembership> groups = entityManagement.getGroups(new EntityParam(entity.getId()));
+
+		authzMan.checkReadUser(entity.getId().longValue(), groups.keySet());
+
 		Set<String> userGroups = groups.keySet().stream().filter(userGroup -> configuration.membershipGroups.stream()
 				.anyMatch(mgroup -> Group.isChildOrSame(userGroup, mgroup))).collect(Collectors.toSet());
 		Map<String, GroupContents> groupAndSubgroups = getAllMembershipGroups();

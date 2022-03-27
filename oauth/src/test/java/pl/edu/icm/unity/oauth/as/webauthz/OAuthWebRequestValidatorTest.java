@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import org.assertj.core.util.Maps;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
@@ -45,6 +46,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -215,7 +217,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.99.name", OIDCScopeValue.OFFLINE_ACCESS.getValue());
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 	
-		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthASProperties props = new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
@@ -244,7 +246,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
 		
-		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthASProperties props = new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
 				Optional.of(Arrays.asList("Scope1")));
 
@@ -271,7 +273,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
 		
-		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthASProperties props = new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
 				Optional.empty());
 
@@ -295,7 +297,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.99.name", OIDCScopeValue.OFFLINE_ACCESS.getValue());
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 	
-		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthASProperties props = new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
@@ -320,7 +322,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.signingAlgorithm", "HS256");
 		config.setProperty("unity.oauth2.as.signingSecret", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		return new OAuthASProperties(config, null, null);
+		return new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
 	}
 	
 	private static OAuthWebRequestValidator getValidator(OAuthASProperties oauthConfig,

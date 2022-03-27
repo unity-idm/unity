@@ -17,6 +17,7 @@ import com.vaadin.server.SerializablePredicate;
 import com.vaadin.server.SerializableSupplier;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.Grid.Column;
@@ -88,7 +89,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 			editor.addStyleName("u-gridEmbeddedEditor");
 			wrapper.addComponent(editor);
 			HorizontalLayout buttons;
-			if (newElement == t)
+			if (t.equals(newElement))
 			{
 
 				buttons = StandardButtonsHelper.buildConfirmNewButtonsBar(msg, () -> {
@@ -209,6 +210,13 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 	{
 		return addTextColumn(valueProvider, caption, expandRatio, false, false);
 	}
+	
+	public Column<T, ?> addCheckboxColumn(ValueProvider<T, Boolean> valueProvider, String caption, int expandRatio)
+	{
+		Column<T, CheckBox> column = grid.addCheckboxColumn(valueProvider, caption, expandRatio);
+		grid.refreshActionColumn();
+		return column;
+	}
 
 	public Column<T, ?> addTextColumn(ValueProvider<T, String> valueProvider, String caption, int expandRatio, boolean sortable, boolean hideable)
 
@@ -232,6 +240,11 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 						caption, expandRatio);
 		grid.refreshActionColumn();
 		return column;
+	}
+	
+	public void sort(String columnId)
+	{
+		grid.sort(columnId);
 	}
 
 	public void addElement(T el)

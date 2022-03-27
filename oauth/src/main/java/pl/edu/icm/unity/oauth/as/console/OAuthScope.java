@@ -14,14 +14,22 @@ import java.util.Objects;
  * @author P.Piernik
  *
  */
-public class OAuthScope
+public class OAuthScope 
 {
 	private String name;
+	private boolean enabled;
 	private String description;
 	private List<String> attributes;
 
+	public OAuthScope(String name, String desc)
+	{
+		this.name = name;
+		this.description = desc;
+	}
+	
 	public OAuthScope()
 	{
+		enabled = true;
 	}
 
 	public String getName()
@@ -57,9 +65,30 @@ public class OAuthScope
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(attributes, description, name);
+		return Objects.hash(attributes, description, enabled, name);
 	}
 
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+	}
+	
+	@Override
+	protected OAuthScope clone() 
+	{
+		OAuthScope clone = new OAuthScope();
+		clone.setName(getName());
+		clone.setAttributes(getAttributes());
+		clone.setEnabled(isEnabled());
+		clone.setDescription(getDescription());
+		return clone;
+	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -71,8 +100,6 @@ public class OAuthScope
 			return false;
 		OAuthScope other = (OAuthScope) obj;
 		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
-				&& Objects.equals(name, other.name);
+				&& enabled == other.enabled && Objects.equals(name, other.name);
 	}
-	
-	
 }

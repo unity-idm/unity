@@ -121,11 +121,14 @@ public class OAuthRequestValidator
 	public List<ScopeInfo> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
 	{
 		List<ScopeInfo> scopesDefinedOnServer = new ArrayList<>();
-		oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES)
-				.forEach(scopeKey -> scopesDefinedOnServer
-						.add(new ScopeInfo(oauthConfig.getValue(scopeKey + OAuthASProperties.SCOPE_NAME),
-								oauthConfig.getValue(scopeKey + OAuthASProperties.SCOPE_DESCRIPTION),
-								oauthConfig.getListOfValues(scopeKey + OAuthASProperties.SCOPE_ATTRIBUTES))));
+		oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES).forEach(scopeKey ->
+		{
+			if (oauthConfig.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_ENABLED))
+				scopesDefinedOnServer.add(new ScopeInfo(oauthConfig.getValue(scopeKey + OAuthASProperties.SCOPE_NAME),
+						oauthConfig.getValue(scopeKey + OAuthASProperties.SCOPE_DESCRIPTION),
+						oauthConfig.getListOfValues(scopeKey + OAuthASProperties.SCOPE_ATTRIBUTES)));
+		});
+		
 		Optional<Set<String>> allowedByClientScopes = getAllowedScopes(clientAttributes);
 		Set<String> notAllowedByClient = requestedScopes.stream().map(s -> s.getValue())
 				.filter(scope -> (allowedByClientScopes.isPresent() && !allowedByClientScopes.get().contains(scope)))

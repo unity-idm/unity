@@ -6,7 +6,6 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -78,13 +77,7 @@ public class DiscoveryResource extends BaseOAuthResource
 		
 		meta.setCodeChallengeMethods(Lists.newArrayList(CodeChallengeMethod.PLAIN, CodeChallengeMethod.S256));
 		
-		Set<String> scopeKeys = config.getStructuredListKeys(OAuthASProperties.SCOPES);
-		Set<String> scopes = new HashSet<>();
-		for (String scopeKey: scopeKeys)
-		{
-			String scope = config.getValue(scopeKey+OAuthASProperties.SCOPE_NAME);
-			scopes.add(scope);
-		}
+		Set<String> scopes = config.getActiveScopes();	
 		meta.setScopes(new Scope(scopes.toArray(new String[scopes.size()])));
 		
 		ResponseType rt1 = new ResponseType(ResponseType.Value.CODE);

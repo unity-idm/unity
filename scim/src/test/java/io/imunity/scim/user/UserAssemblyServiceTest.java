@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.is;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -57,7 +58,7 @@ public class UserAssemblyServiceTest
 				List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
 						.withEnable(true).build(),
 						SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
-								.withEnable(true).build())
+								.withEnable(true).build()), Collections.emptyList()
 
 		);
 		assemblyService = new UserAssemblyService(configuration, userSchemaEvaluator, groupsManagement);

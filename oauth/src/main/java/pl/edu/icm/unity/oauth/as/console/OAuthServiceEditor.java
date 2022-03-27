@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.MessageSource;
@@ -17,6 +18,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
+import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -60,6 +62,7 @@ class OAuthServiceEditor implements ServiceEditor
 	private List<String> allUsernames;
 	private URIAccessService uriAccessService;
 	private Collection<PolicyDocumentWithRevision> policyDocuments;
+	private SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry;
 
 	OAuthServiceEditor(MessageSource msg, 
 			SubViewSwitcher subViewSwitcher,
@@ -83,7 +86,8 @@ class OAuthServiceEditor implements ServiceEditor
 			AuthenticatorSupportService authenticatorSupportService, 
 			Collection<IdentityType> idTypes,
 			List<String> usedPaths,
-			Collection<PolicyDocumentWithRevision> policyDocuments)
+			Collection<PolicyDocumentWithRevision> policyDocuments,
+			SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
@@ -108,14 +112,16 @@ class OAuthServiceEditor implements ServiceEditor
 		this.systemClientsSupplier = systemClientsSupplier;
 		this.allUsernames = allUsernames;
 		this.policyDocuments = policyDocuments;
+		this.systemOAuthScopeProvidersRegistry = systemOAuthScopeProvidersRegistry;
 	}
 
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, serverPrefix, serverContextPaths, subViewSwitcher,
-				outputTranslationProfileFieldFactory, 
-				endpoint != null, credentials, idTypes, allAttributes, usedPaths);
+		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, serverPrefix, serverContextPaths,
+				subViewSwitcher, outputTranslationProfileFieldFactory, endpoint != null, credentials, idTypes,
+				allAttributes, usedPaths, systemOAuthScopeProvidersRegistry.getAll().stream().map(p -> p.getScopes())
+						.flatMap(Collection::stream).collect(Collectors.toList()));
 		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig, uriAccessService,
 				subViewSwitcher, flows, authenticators, allRealms, allUsernames, generalTab::getScopes,
 				OAuthTokenEndpoint.TYPE.getSupportedBinding());
@@ -129,7 +135,7 @@ class OAuthServiceEditor implements ServiceEditor
 		PolicyAgreementsTab policyAgreementTab = new PolicyAgreementsTab(msg, policyDocuments);
 		
 		editor = new OAuthServiceEditorComponent(msg, generalTab, clientsTab, usersTab, webAuthTab, policyAgreementTab,
-				fileStorageService, imageService, endpoint, allGroups, systemClientsSupplier, 
+				fileStorageService, imageService, systemOAuthScopeProvidersRegistry, endpoint, allGroups, systemClientsSupplier, 
 				serverConfig.getValue(UnityServerConfiguration.THEME));
 		return editor;
 	}

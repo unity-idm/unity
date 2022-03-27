@@ -5,12 +5,16 @@
 
 package io.imunity.scim.user;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.imunity.scim.SCIMSystemScopeProvider;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 
 class UserAuthzService
@@ -24,15 +28,55 @@ class UserAuthzService
 		this.configuration = configuration;
 	}
 
-	void checkReadUser(long entity) throws AuthorizationException
+	void checkReadUser(long entity, Set<String> userGroups) throws AuthorizationException
 	{
-		long callerId = InvocationContext.getCurrent().getLoginSession().getEntityId();
-		authzMan.checkReadCapability(entity == callerId, configuration.rootGroup);
+		InvocationContext invocationContext = InvocationContext.getCurrent();
+		if (invocationContext.getInvocationMaterial().equals(InvocationMaterial.DIRECT))
+		{
+			checkReadUserWithDirectInvocationMaterial(entity, invocationContext, userGroups);
+		} else
+		{
+			checkReadUserWithOAuthInvocationMaterial(entity, invocationContext, userGroups);
+		}
+	}
+
+	private void checkReadUserWithDirectInvocationMaterial(long entity, InvocationContext invocationContext,
+			Set<String> userGroups) throws AuthorizationException
+	{
+		long callerId = invocationContext.getLoginSession().getEntityId();
+
+		try
+		{
+			authzMan.checkReadCapability(entity == callerId, configuration.rootGroup);
+		} catch (AuthorizationException e)
+		{
+			if (entity == callerId && userGroups.contains(configuration.rootGroup))
+				return;
+			else
+				throw new AuthorizationException("Access is denied");
+		}
+	}
+
+	private void checkReadUserWithOAuthInvocationMaterial(long entity, InvocationContext invocationContext,
+			Set<String> userGroups) throws AuthorizationException
+	{
+		long callerId = invocationContext.getLoginSession().getEntityId();
+		if (entity != callerId || !userGroups.contains(configuration.rootGroup)
+				|| !invocationContext.getScopes().stream().anyMatch(SCIMSystemScopeProvider.getScopeNames()::contains))
+		{
+			throw new AuthorizationException("Access is denied");
+		}
 	}
 
 	void checkReadUsers() throws AuthorizationException
 	{
-		authzMan.checkReadCapability(false, configuration.rootGroup);
+		if (InvocationContext.getCurrent().getInvocationMaterial().equals(InvocationMaterial.DIRECT))
+		{
+			authzMan.checkReadCapability(false, configuration.rootGroup);
+		} else
+		{
+			throw new AuthorizationException("Access is denied");
+		}
 	}
 
 	@Component

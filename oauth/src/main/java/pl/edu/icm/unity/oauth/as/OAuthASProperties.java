@@ -5,13 +5,14 @@
 package pl.edu.icm.unity.oauth.as;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
-
-import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -22,6 +23,8 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
+import pl.edu.icm.unity.oauth.api.Scope;
+import pl.edu.icm.unity.oauth.api.SystemScopeProvider;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -74,6 +77,7 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String SCOPE_ATTRIBUTES = "attributes.";
 	public static final String SCOPE_DESCRIPTION = "description";
 	public static final String SCOPE_NAME = "name";
+	public static final String SCOPE_ENABLED = "enabled";
 	
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm"; 
 	public static final String SIGNING_SECRET = "signingSecret"; 
@@ -87,6 +91,9 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final int DEFAULT_ID_TOKEN_VALIDITY = 3600;
 	public static final int DEFAULT_ACCESS_TOKEN_VALIDITY = 3600;
 	public static final int DEFAULT_REFRESH_TOKEN_VALIDITY = 3600;
+	
+	private static final String SYSTEM_SCOPE_PREFIX = "_system_scope_";
+
 	
 	static
 	{
@@ -143,6 +150,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 						+ " defines a set of attribtues returned when it is requested."));
 		defaults.put(SCOPE_NAME, new PropertyMD().setStructuredListEntry(SCOPES).setMandatory().
 				setDescription("Name of the scope as used in OAuth protocol."));
+		defaults.put(SCOPE_ENABLED, new PropertyMD("true").setStructuredListEntry(SCOPES).
+				setDescription("Indicates whether the scope is available."));
 		defaults.put(SCOPE_DESCRIPTION, new PropertyMD().setStructuredListEntry(SCOPES).
 				setDescription("Human readable description of the scope meaning."));
 		defaults.put(SCOPE_ATTRIBUTES, new PropertyMD().setStructuredListEntry(SCOPES).setList(false).
@@ -171,33 +180,49 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	
 	private String baseAddress; 
 	private TokenSigner tokenSigner;
+
+	private SystemOAuthScopeProvidersRegistry systemScopeProvidersRegistry;
 	
 	public OAuthASProperties(Properties properties, PKIManagement pkiManamgenet, 
-			String baseAddress) throws ConfigurationException
+			String baseAddress, SystemOAuthScopeProvidersRegistry systemScopeProvidersRegistry) throws ConfigurationException
 	{
 		super(P, properties, defaults, log);
 		this.baseAddress = baseAddress;
+		this.systemScopeProvidersRegistry = systemScopeProvidersRegistry;
 		
 		tokenSigner = new TokenSigner(this, pkiManamgenet);
-		
-		validateOfflineAccess();
+		addSystemScopesInNeeded();
 	}
 	
-	private void validateOfflineAccess()
+	private void addSystemScopesInNeeded()
 	{
-		if (getEnumValue(REFRESH_TOKEN_ISSUE_POLICY, RefreshTokenIssuePolicy.class)
-				.equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED))
+		List<String> configured = getStructuredListKeys(OAuthASProperties.SCOPES).stream()
+				.map(s -> getValue(s + OAuthASProperties.SCOPE_NAME)).collect(Collectors.toList());
+
+		int nextKey = 1000;
+		for (SystemScopeProvider provider : systemScopeProvidersRegistry.getAll())
 		{
-			for (String scopeKey : getStructuredListKeys(OAuthASProperties.SCOPES))
+			for (Scope scope : provider.getScopes())
 			{
-				if (OIDCScopeValue.OFFLINE_ACCESS.getValue().equals(getValue(scopeKey + OAuthASProperties.SCOPE_NAME)))
-					return;
+				if (configured.contains(scope.name))
+				{
+					continue;
+				}
+				String key = OAuthASProperties.SCOPES + SYSTEM_SCOPE_PREFIX + nextKey + ".";
+				setProperty(key + OAuthASProperties.SCOPE_NAME, scope.name);
+				setProperty(key + OAuthASProperties.SCOPE_ENABLED,
+						String.valueOf(getSystemScopeDefaultStatusForNotAdded(scope.name)));
+				setProperty(key + OAuthASProperties.SCOPE_DESCRIPTION, scope.description);
+				nextKey++;
 			}
-			throw new ConfigurationException("Scope " + OIDCScopeValue.OFFLINE_ACCESS.getValue()
-					+ " is required, refresh token issue policy is " + RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED);
 		}
 	}
 
+	private boolean getSystemScopeDefaultStatusForNotAdded(String scope)
+	{
+		return scope.equals(OAuthSystemScopeProvider.OPENID_SCOPE) ? false : true;
+	}
+	
 	public OAuthASProperties(Properties properties) throws ConfigurationException
 	{
 		super(P, properties, defaults, log);
@@ -281,15 +306,29 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		return getValue(OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT);
 	}
 	
+	public Set<String> getActiveScopes()
+	{
+		Set<String> scopeKeys = getStructuredListKeys(OAuthASProperties.SCOPES);
+		Set<String> scopes = new HashSet<>();
+		for (String scopeKey : scopeKeys)
+		{
+			if (getBooleanValue(scopeKey + OAuthASProperties.SCOPE_ENABLED))
+			{
+				scopes.add(getValue(scopeKey + OAuthASProperties.SCOPE_NAME));
+			}
+		}
+		return scopes;
+	}
+	
 	public boolean isOpenIdConnect()
 	{
 		Set<String> scopeKeys = getStructuredListKeys(OAuthASProperties.SCOPES);
 		for (String scopeKey : scopeKeys)
 		{
 			String name = getValue(scopeKey + OAuthASProperties.SCOPE_NAME);
-			if (name.equals(OIDCScopeValue.OPENID.getValue().toString()))
+			if (name.equals(OAuthSystemScopeProvider.OPENID_SCOPE))
 			{
-				return true;
+				return getBooleanValue(scopeKey + OAuthASProperties.SCOPE_ENABLED);
 			}
 		}
 		return false;

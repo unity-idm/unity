@@ -105,7 +105,7 @@ class AttributeDefinitionComponent extends CustomField<AttributeDefinitionBean>
 		subAttrFormLayout.addComponent(attributesList);
 
 		binder.addValueChangeListener(
-				e -> fireEvent(new ValueChangeEvent<>(this, binder.getBean(), e.isUserOriginated())));
+				e -> fireEvent(new ValueChangeEvent<>(this, binder.getBean() , e.isUserOriginated())));
 		binder.setValidatorsDisabled(true);
 		headerLayout.addAttachListener(e -> binder.setValidatorsDisabled(false));
 	}

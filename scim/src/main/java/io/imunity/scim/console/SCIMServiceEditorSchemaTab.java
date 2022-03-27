@@ -7,17 +7,21 @@ package io.imunity.scim.console;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.CustomField;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
@@ -37,6 +41,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
@@ -64,10 +69,27 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.setMargin(false);
 
+		ChipsWithFreeText membershipAttributes = new ChipsWithFreeText(msg);
+		membershipAttributes.setCaption(msg.getMessage("SCIMServiceEditorSchemaTab.membershipAttributes"));
+		configBinder.forField(membershipAttributes).bind("membershipAttributes");
+		mainWrapper.addComponent(new FormLayout(membershipAttributes));
+		
 		SchemasComponent schemas = new SchemasComponent();
 		configBinder.forField(schemas).bind("schemas");
 		mainWrapper.addComponent(schemas);
 
+		schemas.addValueChangeListener(e -> {
+			Set<String> attr = new HashSet<>();
+			for (SchemaWithMappingBean schema : e.getValue())
+			{
+				if (schema == null)
+					continue;
+				schema.getAttributes().forEach(a -> attr.add(a.getAttributeDefinition().getName()));
+			}
+			membershipAttributes.setItems(attr);
+		});
+		
+		
 		setCompositionRoot(mainWrapper);
 	}
 
@@ -127,10 +149,19 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			schemasGrid.addComponentColumn(s -> StandardButtonsHelper.buildLinkButton(s.getId(), e -> gotoEdit(s)),
 					msg.getMessage("SCIMServiceEditorSchemaTab.schemaId"), 20);
 			schemasGrid.addCheckboxColumn(s -> s.isEnable(), msg.getMessage("SCIMServiceEditorSchemaTab.enabled"), 20);
-			schemasGrid.addCheckboxColumn(s -> !s
-					.getType().equals(SchemaType.GROUP_CORE) && s.hasInvalidMappings(), msg.getMessage("SCIMServiceEditorSchemaTab.invalidMapping"), 20);
-			
+			schemasGrid.addComponentColumn(
+					s -> getMappingStatusLabel(!s.getType().equals(SchemaType.GROUP_CORE) && s.hasInvalidMappings()),
+					msg.getMessage("SCIMServiceEditorSchemaTab.mappingStatus"), 20);
+
 			main.addComponent(schemasGrid);
+		}
+
+		private Label getMappingStatusLabel(boolean warn)
+		{
+			Label l = new Label();
+			l.setContentMode(ContentMode.HTML);
+			l.setValue(!warn? Images.ok.getHtml() : Images.warn.getHtml());
+			return l;
 		}
 
 		private void importUserSchema()

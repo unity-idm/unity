@@ -11,6 +11,7 @@ import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,7 +67,7 @@ public class SchemeAssemblyServiceTest
 														.build())
 												.withAttributeMapping(null).build()))
 
-								.build()));
+								.build()), Collections.emptyList());
 
 		schemaAssemblyService = new SchemaAssemblyService(configuration);
 	}

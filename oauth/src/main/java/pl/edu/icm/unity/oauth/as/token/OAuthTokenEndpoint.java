@@ -36,6 +36,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.oauth.as.token.exception.OAuthExceptionMapper;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
@@ -79,6 +80,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private EntityManagement identitiesMan;
 	private OAuthTokenRepository oauthTokenRepository;
 	private final EndpointManagement endpointMan;
+	private final SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry;
 	
 	
 	@Autowired
@@ -96,7 +98,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			OAuthTokenRepository oauthTokenRepository,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			ApplicationEventPublisher eventPublisher,
-			@Qualifier("insecure") EndpointManagement endpointManagement)
+			@Qualifier("insecure") EndpointManagement endpointManagement,
+			SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.tokensManagement = tokensMan;
@@ -109,6 +112,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.oauthTokenRepository = oauthTokenRepository;
 		this.eventPublisher = eventPublisher;
 		this.endpointMan = endpointManagement;
+		this.systemOAuthScopeProvidersRegistry = systemOAuthScopeProvidersRegistry;
 	}
 	
 	@Override
@@ -116,7 +120,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	{
 		super.setSerializedConfiguration(serializedState);
 		config = new OAuthASProperties(properties, pkiManagement, 
-				getServletUrl(PATH));
+				getServletUrl(PATH), systemOAuthScopeProvidersRegistry);
 		coordinator.registerTokenEndpoint(config.getValue(OAuthASProperties.ISSUER_URI), 
 				getServletUrl(""));
 		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH);

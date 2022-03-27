@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,23 +74,9 @@ public class UserRetrievalServiceTest
 	public void init()
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList());
+				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList());
 		userRetrievalService = new UserRetrievalService(authzMan, entityManagement, bulkService, attributesManagement,
 				configuration);
-	}
-
-	@Test
-	public void shouldThrowExceptionWhenUserIsNotMember() throws EngineException
-	{
-		Entity entity = SCIMTestHelper.createPersitentEntity("1", 1);
-		when(entityManagement.getEntity(eq(new EntityParam(new IdentityTaV(PersistentIdentity.ID, "1")))))
-				.thenReturn(entity);
-		Map<String, GroupMembership> groups = new HashMap<>();
-		groups.put("/", null);
-		when(entityManagement.getGroups(new EntityParam(1L))).thenReturn(groups);
-
-		Throwable error = Assertions.catchThrowable(() -> userRetrievalService.getUser(new PersistentId("1")));
-		Assertions.assertThat(error).isInstanceOf(UserNotFoundException.class);
 	}
 
 	@Test

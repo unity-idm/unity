@@ -28,6 +28,7 @@ import io.imunity.scim.schema.SCIMAttributeType;
 import io.imunity.scim.user.mapping.evaluation.SCIMMvelContextKey;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 
@@ -57,8 +58,8 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
 		header.setMargin(false);
 		main.addComponent(header);
-
 		dataArray = new ComboBox<>();
+		dataArray.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		dataArray.setCaption(msg.getMessage("AttributeDefinitionConfigurationEditor.dataArray"));
 		header.addComponent(dataArray);
 		List<DataArrayBean> items = new ArrayList<>();
@@ -94,6 +95,8 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 		{
 			return;
 		}
+		
+		
 		dataArray.setVisible(value.isMultiValued());
 		dataValue.setVisible(!(value.getType().equals(SCIMAttributeType.COMPLEX)
 				|| value.getType().equals(SCIMAttributeType.REFERENCE)));
@@ -129,6 +132,7 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 		private Tab staticValueTab;
 		private Tab mvelTab;
 		private MVELExpressionField expression;
+		private boolean multi;
 
 		public DataValueField(MessageSource msg, AttributeEditorData editorData)
 		{
@@ -146,6 +150,7 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 			VerticalLayout mainDataLayout = new VerticalLayout();
 			mainDataLayout.setMargin(new MarginInfo(true, false));
 			dataValue = new ComboBox<>();
+			dataValue.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 			mainDataLayout.addComponent(dataValue);
 			dataValue.addValueChangeListener(
 					e -> fireEvent(new ValueChangeEvent<>(this, getValue(), e.isUserOriginated())));
@@ -159,6 +164,8 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 					MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
 							.withEvalToKey("MVELExpressionField.evalToString").withVars(Collections.emptyMap())
 							.build());
+			expression.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+
 			expression.addValueChangeListener(
 					e -> fireEvent(new ValueChangeEvent<>(this, getValue(), e.isUserOriginated())));
 
@@ -172,6 +179,9 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 
 		public void setMulti(boolean multiValued)
 		{
+			if (multi == multiValued)
+				return;
+			multi = multiValued;
 			dataValue.setValue(null);
 			if (multiValued)
 				setItemsForMultiTypeSelect();
@@ -229,7 +239,6 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 		@Override
 		protected void doSetValue(DataValueBean value)
 		{
-
 			if (value == null)
 			{
 				dataValue.setValue(null);
@@ -278,6 +287,7 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 					MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
 							.withEvalToKey("MVELExpressionField.evalToUri").withVars(SCIMMvelContextKey.mapForSingle())
 							.build());
+			expression.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 
 			refToTypeCombo.addValueChangeListener(e ->
 			{

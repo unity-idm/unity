@@ -19,15 +19,19 @@ public class SCIMServiceConfigurationBean
 	private GroupWithIndentIndicator rootGroup;
 	private List<Group> membershipGroups;
 	private List<SchemaWithMappingBean> schemas;
+	private List<String> membershipAttributes;
 
 	SCIMServiceConfigurationBean()
 	{
 		allowedCORSheaders = new ArrayList<>();
 		allowedCORSorigins = new ArrayList<>();
 		membershipGroups = new ArrayList<>();
+		membershipAttributes = new ArrayList<>();
 		schemas = new ArrayList<>();
-		schemas.add(ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicGroupSchema()));
-		schemas.add(ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicUserSchema()));
+		schemas.add(
+				ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicGroupSchema()));
+		schemas.add(
+				ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicUserSchema()));
 	}
 
 	public List<String> getAllowedCORSheaders()
@@ -70,10 +74,30 @@ public class SCIMServiceConfigurationBean
 		this.membershipGroups = membershipGroups;
 	}
 
+	public List<SchemaWithMappingBean> getSchemas()
+	{
+		return schemas;
+	}
+
+	public void setSchemas(List<SchemaWithMappingBean> schemas)
+	{
+		this.schemas = schemas;
+	}
+
+	public List<String> getMembershipAttributes()
+	{
+		return membershipAttributes;
+	}
+
+	public void setMembershipAttributes(List<String> membershipAttributes)
+	{
+		this.membershipAttributes = membershipAttributes;
+	}
+
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(allowedCORSheaders, allowedCORSorigins, membershipGroups, rootGroup, schemas);
+		return Objects.hash(allowedCORSheaders, allowedCORSorigins, membershipGroups, rootGroup, schemas, membershipAttributes);
 	}
 
 	@Override
@@ -89,17 +113,7 @@ public class SCIMServiceConfigurationBean
 		return Objects.equals(allowedCORSheaders, other.allowedCORSheaders)
 				&& Objects.equals(allowedCORSorigins, other.allowedCORSorigins)
 				&& Objects.equals(membershipGroups, other.membershipGroups)
+				&& Objects.equals(membershipAttributes, other.membershipAttributes)
 				&& Objects.equals(rootGroup, other.rootGroup) && Objects.equals(schemas, other.schemas);
 	}
-
-	public List<SchemaWithMappingBean> getSchemas()
-	{
-		return schemas;
-	}
-
-	public void setSchemas(List<SchemaWithMappingBean> schemas)
-	{
-		this.schemas = schemas;
-	}
-
 }

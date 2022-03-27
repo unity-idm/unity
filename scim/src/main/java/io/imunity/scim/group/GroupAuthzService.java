@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.SCIMEndpointDescription;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 
 class GroupAuthzService
@@ -25,6 +27,11 @@ class GroupAuthzService
 
 	void checkReadGroups() throws AuthorizationException
 	{
+		InvocationContext invocationContext = InvocationContext.getCurrent();
+		if (!invocationContext.getInvocationMaterial().equals(InvocationMaterial.DIRECT))
+		{
+			throw new AuthorizationException("Access is denied");
+		}	
 		authzMan.checkReadCapability(false, configuration.rootGroup);
 	}
 
