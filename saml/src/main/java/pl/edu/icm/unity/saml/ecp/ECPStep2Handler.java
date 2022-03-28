@@ -44,8 +44,8 @@ import pl.edu.icm.unity.saml.SAMLResponseValidatorUtil;
 import pl.edu.icm.unity.saml.metadata.cfg.SPRemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPs.EndpointBindingCategory;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Body;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
@@ -261,9 +261,9 @@ public class ECPStep2Handler
 		if (issuer == null || issuer.isNil())
 			throw new ServletException("Invalid response: no issuer");
 		String issuerName = issuer.getStringValue();
-		TrustedIdPKey idPConfigKey = trustedIdPs.getIdPConfigKey(issuer);
-		if (idPConfigKey == null)
+		Optional<TrustedIdPConfiguration> idPConfig = trustedIdPs.getIdPBySamlRequester(issuer, EndpointBindingCategory.SOAP);
+		if (idPConfig.isEmpty())
 			throw new ServletException("The issuer " + issuerName + " is not among trusted issuers");
-		return trustedIdPs.get(idPConfigKey);
+		return idPConfig.get();
 	}
 }

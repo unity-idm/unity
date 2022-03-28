@@ -55,6 +55,7 @@ import pl.edu.icm.unity.saml.sp.config.SAMLSPConfigurationParser;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPs.EndpointBindingCategory;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
 import pl.edu.icm.unity.types.authn.IdPInfo;
 import pl.edu.icm.unity.types.authn.IdPInfo.IdpGroup;
@@ -191,16 +192,19 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			@Override
 			public Collection<SAMLEndpointDefinition> getSLOEndpoints(NameIDType samlId)
 			{
-				TrustedIdPKey idPConfigKey = getTrustedIdPs().getIdPConfigKey(samlId);
-				if (idPConfigKey == null)
-					return null;
-				return getTrustedIdPs().get(idPConfigKey).logoutEndpoints;
+				return getTrustedIdPs()
+						.getIdPBySamlRequester(samlId, EndpointBindingCategory.WEB)
+						.map(idp -> idp.logoutEndpoints)
+						.orElse(null);
 			}
 
 			@Override
-			public List<PublicKey> getTrustedKeys(NameIDType samlEntity)
+			public List<PublicKey> getTrustedKeys(NameIDType samlId)
 			{
-				return getTrustedIdPs().getPublicKeysOfIdp(samlEntity.getStringValue());
+				return getTrustedIdPs()
+						.getIdPBySamlRequester(samlId, EndpointBindingCategory.WEB)
+						.map(idp -> idp.publicKeys)
+						.orElse(null);
 			}
 		};
 

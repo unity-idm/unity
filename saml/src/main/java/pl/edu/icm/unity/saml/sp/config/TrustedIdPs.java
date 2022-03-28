@@ -4,23 +4,25 @@
  */
 package pl.edu.icm.unity.saml.sp.config;
 
-import java.security.PublicKey;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
+
+import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 public class TrustedIdPs
 {
 	private final Map<TrustedIdPKey, TrustedIdPConfiguration> trustedIdPs;
-	private final Map<String, TrustedIdPKey> samlEntityIdToKey;
+	private final Map<String, Set<TrustedIdPConfiguration>> samlEntityIdToKey;
 	
 	public TrustedIdPs(Collection<TrustedIdPConfiguration> trustedIdPs)
 	{
@@ -31,32 +33,31 @@ public class TrustedIdPs
 	public TrustedIdPs withWebBinding()
 	{
 		return new TrustedIdPs(trustedIdPs.values().stream()
-				.filter(idp -> idp.binding.isWeb())
+				.filter(idp -> EndpointBindingCategory.WEB.matches(idp.binding))
 				.collect(Collectors.toList()));
 	}
 
-	private Map<String, TrustedIdPKey> buildEntityToKeyMap()
+	private Map<String, Set<TrustedIdPConfiguration>> buildEntityToKeyMap()
 	{
-		return this.trustedIdPs.entrySet().stream()
-				.collect(Collectors.toMap(entry -> entry.getValue().samlId, entry -> entry.getKey()));
+		return this.trustedIdPs.values().stream()
+				.collect(Collectors.toMap(entry -> entry.samlId, 
+						entry -> Set.of(entry),
+						Sets::union));
 	}
 	
-	public TrustedIdPKey getIdPConfigKey(NameIDType requester)
+	public Optional<TrustedIdPConfiguration> getIdPBySamlRequester(NameIDType requester, EndpointBindingCategory bindingCategory)
 	{
-		return getKeyOfIdP(requester.getStringValue());
+		return getIdPBySamlEntityId(requester.getStringValue(), bindingCategory);
 	}
 
-	private TrustedIdPKey getKeyOfIdP(String entity)
+	private Optional<TrustedIdPConfiguration> getIdPBySamlEntityId(String entity, EndpointBindingCategory bindingCategory)
 	{
-		return samlEntityIdToKey.get(entity);
-	}
-	
-	public List<PublicKey> getPublicKeysOfIdp(String samlEntityId)
-	{
-		TrustedIdPKey idpKey = getKeyOfIdP(samlEntityId);
-		if (idpKey == null)
-			return null;
-		return get(idpKey).publicKeys;
+		Set<TrustedIdPConfiguration> idps = samlEntityIdToKey.get(entity);
+		if (idps == null)
+			return Optional.empty();
+		return idps.stream()
+			.filter(idp -> bindingCategory.matches(idp.binding))
+			.findFirst();
 	}
 	
 	public TrustedIdPConfiguration get(TrustedIdPKey key)
@@ -65,6 +66,11 @@ public class TrustedIdPs
 		if (trustedIdPConfiguration == null)
 			throw new IllegalArgumentException("There is no trusted IdP with key " + key);
 		return trustedIdPConfiguration;
+	}
+	
+	public boolean contains(TrustedIdPKey key)
+	{
+		return trustedIdPs.containsKey(key);
 	}
 	
 	public Collection<TrustedIdPConfiguration> getAll()
@@ -104,6 +110,24 @@ public class TrustedIdPs
 		trustedIdPs.trustedIdPs.values().stream()
 			.forEach(idp -> copy.put(idp.key, idp));
 		return new TrustedIdPs(copy.values());
+	}
+	
+	public enum EndpointBindingCategory
+	{
+		WEB(Binding.HTTP_POST, Binding.HTTP_REDIRECT), 
+		SOAP(Binding.SOAP);
+
+		private final Set<Binding> matchingBindings;
+		
+		private EndpointBindingCategory(Binding... matchingBindings)
+		{
+			this.matchingBindings = Set.of(matchingBindings);
+		}
+
+		boolean matches(Binding binding)
+		{
+			return matchingBindings.contains(binding);
+		}
 	}
 	
 	@Override

@@ -78,62 +78,7 @@ vIbXnZe8kmF7rOeaWEL/JGfkxFAo0scVr+DR+uODVBnmHja3vibkM+eoxOJH9urL
           </ds:X509Data>
         </ds:KeyInfo>
       </md:KeyDescriptor>
-      <md:KeyDescriptor use="signing">
-        <ds:KeyInfo>
-          <ds:KeyName>idp.scc.kit.edu</ds:KeyName>
-          <ds:X509Data>
-            <ds:X509SubjectName>CN=idp.scc.kit.edu,O=Karlsruhe Institute of Technology,L=Karlsruhe,ST=Baden-Wuerttemberg,C=DE</ds:X509SubjectName>
-            <ds:X509Certificate>MIIIxTCCB62gAwIBAgIMI0idSWD7/EqIuvQaMA0GCSqGSIb3DQEBCwUAMHsxCzAJ
-BgNVBAYTAkRFMRswGQYDVQQIDBJCYWRlbi1XdWVydHRlbWJlcmcxEjAQBgNVBAcM
-CUthcmxzcnVoZTEqMCgGA1UECgwhS2FybHNydWhlIEluc3RpdHV0ZSBvZiBUZWNo
-bm9sb2d5MQ8wDQYDVQQDDAZLSVQtQ0EwHhcNMjAwODA0MDg0MzM4WhcNMjIxMDI1
-MTAwMDAwWjCBhDELMAkGA1UEBhMCREUxGzAZBgNVBAgMEkJhZGVuLVd1ZXJ0dGVt
-YmVyZzESMBAGA1UEBwwJS2FybHNydWhlMSowKAYDVQQKDCFLYXJsc3J1aGUgSW5z
-dGl0dXRlIG9mIFRlY2hub2xvZ3kxGDAWBgNVBAMMD2lkcC5zY2Mua2l0LmVkdTCC
-AiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAJ6MtEt2KqyXL8JdrsEmmIzN
-mWzpcorm57lEriVKNRW/4fmnvC1xCWEvVys9TUWV4+tpFSiIxIZYX8SXsRJ5E+ta
-3Ap4NZ/83oRPFeAN6vgAbvO7AX/OTMOeFDYO0TAjyHIBcBHXw9m4qxXxYybkZXaC
-WX2vqmxACfrHTNCngpKw8YjrsN2rACkO4z9fsEAnqhhu/Pm4Vsm3DaSykZXmb8m4
-ALRfuCWzAXZYTs/iI8UOUHHlEiX6MZOb7PU3BhPA8cIkA914/Y6IzFxxW6D3jKTw
-2DxMgdShcb2n18XoKQz5KmBRhxuYN+tx4t8dVB883wWHE9NgFVTayu0WvSbEOrAT
-2gxTPfC25Q+QfIYkJR6LXLgZj2Ij33MvosZRXm+ZFw1bXg6cEiu8ZhGR/oa7yM/v
-7GEkY0x+B7MJz1rf7iCXxtWKmOAUGJCuHAjfrrxDyO9qRaMX4Wcbq/YwzGkUzTzd
-sUtnRLoJAiYL6AntgPzrnNwh2ZbAQMQulDAQy1Cb3H6sZ5IffXo1Dj+ugSvc/Bfm
-Yrt2GaO6wkROQmrCVwI0zMY7b9wp8m/nVNB0TXkoiqjea5+ojV1cSAp0mfs40+aX
-EJXQpG0EzNWuEwvmltEolpiYQmFVepL6euEDundH9FHt/QVeCaNSTctze7xte3Q2
-qQyjfPvXAfM2OUX2VL0fAgMBAAGjggQ9MIIEOTAJBgNVHRMEAjAAMA4GA1UdDwEB
-/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwHQYDVR0OBBYE
-FFpTokss/q8VjnYtJemjEeI1g7lAMB8GA1UdIwQYMBaAFAQavxyTkT3T2T2w3hMj
-5Zpw9C4IMBoGA1UdEQQTMBGCD2lkcC5zY2Mua2l0LmVkdTB9BgNVHR8EdjB0MDig
-NqA0hjJodHRwOi8vY2RwMS5wY2EuZGZuLmRlL2tpdC1jYS1nMi9wdWIvY3JsL2Nh
-Y3JsLmNybDA4oDagNIYyaHR0cDovL2NkcDIucGNhLmRmbi5kZS9raXQtY2EtZzIv
-cHViL2NybC9jYWNybC5jcmwwgc0GCCsGAQUFBwEBBIHAMIG9MDMGCCsGAQUFBzAB
-hidodHRwOi8vb2NzcC5wY2EuZGZuLmRlL09DU1AtU2VydmVyL09DU1AwQgYIKwYB
-BQUHMAKGNmh0dHA6Ly9jZHAxLnBjYS5kZm4uZGUva2l0LWNhLWcyL3B1Yi9jYWNl
-cnQvY2FjZXJ0LmNydDBCBggrBgEFBQcwAoY2aHR0cDovL2NkcDIucGNhLmRmbi5k
-ZS9raXQtY2EtZzIvcHViL2NhY2VydC9jYWNlcnQuY3J0MFcGA1UdIARQME4wCAYG
-Z4EMAQICMA0GCysGAQQBga0hgiweMA8GDSsGAQQBga0hgiwBAQQwEAYOKwYBBAGB
-rSGCLAEBBAcwEAYOKwYBBAGBrSGCLAIBBAcwggH3BgorBgEEAdZ5AgQCBIIB5wSC
-AeMB4QB2AEalVet1+pEgMLWiiWn0830RLEF0vv1JuIWr8vxw/m1HAAABc7ij93UA
-AAQDAEcwRQIhAPsYY8AfEfWIVKHo2Gc72ktRGu+2v6plbPY5f99Ecvr1AiAWUspJ
-MMFWZSj2GG7vUrCbvVZ9E5d0hNmN4lqkkuo+fgB2ACl5vvCeOTkh8FZzn2Old+W+
-V32cYAr4+U1dJlwlXceEAAABc7ij/GAAAAQDAEcwRQIhALKOgvD8TU/rObO2goSI
-3X6XsWc9g8CLRUNRQ9HAXAAsAiBVNuNaKXXlsOk2T7WrzdM8g9rKYRUeMeDwcofn
-fPdukQB3AG9Tdqwx8DEZ2JkApFEV/3cVHBHZAsEAKQaNsgiaN9kTAAABc7ij+W0A
-AAQDAEgwRgIhAOfgHsfO18TGk3eke74BMJTFbU5MvuN1gLvNux4ZCLD6AiEA+wBH
-nPlvMkmHm3TsRvXWymmynzyd42HYQ8a3PGB19k0AdgBVgdTCFpA2AUrqC5tXPFPw
-wOQ4eHAlCBcvo6odBxPTDAAAAXO4o/pWAAAEAwBHMEUCIQCKFZfUP7ebJV0Nb5gx
-rg3WfoF7tVEH0k9uOZz92Vl1twIgc2Bc1Hxh/rKsYF5837B8oFkAVL9wrPMwPO1+
-P3rtChYwDQYJKoZIhvcNAQELBQADggEBAHc74cd2WCAdMijyucu4kiyFN/0IiLzC
-jew3fOKHN5N/7F1u4ELwEVTwQHlGQiN6b14ypKBqdG+m8D4XetuWEOYKuCJGTZgh
-V50mpAsxFX8/+SZTr7UyytkCrFGbVC+OgPSwlXJoeiHTf5tjB43oGbz6r0VY7V8j
-wsPhJkH4U47XCoHtX21GzpYYAr94ClLRlZupoJzYaGwGqzGT/3b57avW100E7vqs
-paT6WdNxvsbvKwmpNXub0QjHGJ6jW74EdJa23HQeJUjPFchyO9vA2OLjA3zJC0CI
-HV952dVUNaw0RC44+DKksfTzsMX3qSHWnSXpPtciET36EdeKRFY9DU4=
-</ds:X509Certificate>
-          </ds:X509Data>
-        </ds:KeyInfo>
-      </md:KeyDescriptor>
+
       <md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://idp.scc.kit.edu:8443/idp/profile/SAML1/SOAP/ArtifactResolution" index="2"/>
       <md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://idp.scc.kit.edu:8443/idp/profile/SAML2/SOAP/ArtifactResolution" index="1"/>
       <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp.scc.kit.edu/idp/profile/SAML2/Redirect/SLO"/>
@@ -147,6 +92,7 @@ HV952dVUNaw0RC44+DKksfTzsMX3qSHWnSXpPtciET36EdeKRFY9DU4=
       <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://idp.scc.kit.edu/idp/profile/SAML2/POST/SSO"/>
       <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://idp.scc.kit.edu/idp/profile/SAML2/POST-Simple-Sign/SSO"/>
       <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp.scc.kit.edu/idp/profile/SAML2/Redirect/SSO"/>
+      <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://idp.scc.kit.edu/idp/profile/SAML2/SOAP/ECP"/>
     </md:IDPSSODescriptor>
     <md:AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
       <md:Extensions>
@@ -190,62 +136,6 @@ RLDE3DfDYfjIqFxfXdavpsScx7i5jp96DbRRxghnILCQCT1MKGvPVnu68maPvSWx
 6HaLhkE2OpPTCrv2Mp8Aq4yEOgMqmNNcuGuHqu4XKG4DnUDxbCUDTwJWa6d90bWY
 vIbXnZe8kmF7rOeaWEL/JGfkxFAo0scVr+DR+uODVBnmHja3vibkM+eoxOJH9urL
 0pMLNyY27Yco8NzBC++UBg1PFi9JWQZWgz/H1qV2t6PvFoxGeUOXQoC6LdUJngss
-</ds:X509Certificate>
-          </ds:X509Data>
-        </ds:KeyInfo>
-      </md:KeyDescriptor>
-      <md:KeyDescriptor use="signing">
-        <ds:KeyInfo>
-          <ds:KeyName>idp.scc.kit.edu</ds:KeyName>
-          <ds:X509Data>
-            <ds:X509SubjectName>CN=idp.scc.kit.edu,O=Karlsruhe Institute of Technology,L=Karlsruhe,ST=Baden-Wuerttemberg,C=DE</ds:X509SubjectName>
-            <ds:X509Certificate>MIIIxTCCB62gAwIBAgIMI0idSWD7/EqIuvQaMA0GCSqGSIb3DQEBCwUAMHsxCzAJ
-BgNVBAYTAkRFMRswGQYDVQQIDBJCYWRlbi1XdWVydHRlbWJlcmcxEjAQBgNVBAcM
-CUthcmxzcnVoZTEqMCgGA1UECgwhS2FybHNydWhlIEluc3RpdHV0ZSBvZiBUZWNo
-bm9sb2d5MQ8wDQYDVQQDDAZLSVQtQ0EwHhcNMjAwODA0MDg0MzM4WhcNMjIxMDI1
-MTAwMDAwWjCBhDELMAkGA1UEBhMCREUxGzAZBgNVBAgMEkJhZGVuLVd1ZXJ0dGVt
-YmVyZzESMBAGA1UEBwwJS2FybHNydWhlMSowKAYDVQQKDCFLYXJsc3J1aGUgSW5z
-dGl0dXRlIG9mIFRlY2hub2xvZ3kxGDAWBgNVBAMMD2lkcC5zY2Mua2l0LmVkdTCC
-AiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAJ6MtEt2KqyXL8JdrsEmmIzN
-mWzpcorm57lEriVKNRW/4fmnvC1xCWEvVys9TUWV4+tpFSiIxIZYX8SXsRJ5E+ta
-3Ap4NZ/83oRPFeAN6vgAbvO7AX/OTMOeFDYO0TAjyHIBcBHXw9m4qxXxYybkZXaC
-WX2vqmxACfrHTNCngpKw8YjrsN2rACkO4z9fsEAnqhhu/Pm4Vsm3DaSykZXmb8m4
-ALRfuCWzAXZYTs/iI8UOUHHlEiX6MZOb7PU3BhPA8cIkA914/Y6IzFxxW6D3jKTw
-2DxMgdShcb2n18XoKQz5KmBRhxuYN+tx4t8dVB883wWHE9NgFVTayu0WvSbEOrAT
-2gxTPfC25Q+QfIYkJR6LXLgZj2Ij33MvosZRXm+ZFw1bXg6cEiu8ZhGR/oa7yM/v
-7GEkY0x+B7MJz1rf7iCXxtWKmOAUGJCuHAjfrrxDyO9qRaMX4Wcbq/YwzGkUzTzd
-sUtnRLoJAiYL6AntgPzrnNwh2ZbAQMQulDAQy1Cb3H6sZ5IffXo1Dj+ugSvc/Bfm
-Yrt2GaO6wkROQmrCVwI0zMY7b9wp8m/nVNB0TXkoiqjea5+ojV1cSAp0mfs40+aX
-EJXQpG0EzNWuEwvmltEolpiYQmFVepL6euEDundH9FHt/QVeCaNSTctze7xte3Q2
-qQyjfPvXAfM2OUX2VL0fAgMBAAGjggQ9MIIEOTAJBgNVHRMEAjAAMA4GA1UdDwEB
-/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwHQYDVR0OBBYE
-FFpTokss/q8VjnYtJemjEeI1g7lAMB8GA1UdIwQYMBaAFAQavxyTkT3T2T2w3hMj
-5Zpw9C4IMBoGA1UdEQQTMBGCD2lkcC5zY2Mua2l0LmVkdTB9BgNVHR8EdjB0MDig
-NqA0hjJodHRwOi8vY2RwMS5wY2EuZGZuLmRlL2tpdC1jYS1nMi9wdWIvY3JsL2Nh
-Y3JsLmNybDA4oDagNIYyaHR0cDovL2NkcDIucGNhLmRmbi5kZS9raXQtY2EtZzIv
-cHViL2NybC9jYWNybC5jcmwwgc0GCCsGAQUFBwEBBIHAMIG9MDMGCCsGAQUFBzAB
-hidodHRwOi8vb2NzcC5wY2EuZGZuLmRlL09DU1AtU2VydmVyL09DU1AwQgYIKwYB
-BQUHMAKGNmh0dHA6Ly9jZHAxLnBjYS5kZm4uZGUva2l0LWNhLWcyL3B1Yi9jYWNl
-cnQvY2FjZXJ0LmNydDBCBggrBgEFBQcwAoY2aHR0cDovL2NkcDIucGNhLmRmbi5k
-ZS9raXQtY2EtZzIvcHViL2NhY2VydC9jYWNlcnQuY3J0MFcGA1UdIARQME4wCAYG
-Z4EMAQICMA0GCysGAQQBga0hgiweMA8GDSsGAQQBga0hgiwBAQQwEAYOKwYBBAGB
-rSGCLAEBBAcwEAYOKwYBBAGBrSGCLAIBBAcwggH3BgorBgEEAdZ5AgQCBIIB5wSC
-AeMB4QB2AEalVet1+pEgMLWiiWn0830RLEF0vv1JuIWr8vxw/m1HAAABc7ij93UA
-AAQDAEcwRQIhAPsYY8AfEfWIVKHo2Gc72ktRGu+2v6plbPY5f99Ecvr1AiAWUspJ
-MMFWZSj2GG7vUrCbvVZ9E5d0hNmN4lqkkuo+fgB2ACl5vvCeOTkh8FZzn2Old+W+
-V32cYAr4+U1dJlwlXceEAAABc7ij/GAAAAQDAEcwRQIhALKOgvD8TU/rObO2goSI
-3X6XsWc9g8CLRUNRQ9HAXAAsAiBVNuNaKXXlsOk2T7WrzdM8g9rKYRUeMeDwcofn
-fPdukQB3AG9Tdqwx8DEZ2JkApFEV/3cVHBHZAsEAKQaNsgiaN9kTAAABc7ij+W0A
-AAQDAEgwRgIhAOfgHsfO18TGk3eke74BMJTFbU5MvuN1gLvNux4ZCLD6AiEA+wBH
-nPlvMkmHm3TsRvXWymmynzyd42HYQ8a3PGB19k0AdgBVgdTCFpA2AUrqC5tXPFPw
-wOQ4eHAlCBcvo6odBxPTDAAAAXO4o/pWAAAEAwBHMEUCIQCKFZfUP7ebJV0Nb5gx
-rg3WfoF7tVEH0k9uOZz92Vl1twIgc2Bc1Hxh/rKsYF5837B8oFkAVL9wrPMwPO1+
-P3rtChYwDQYJKoZIhvcNAQELBQADggEBAHc74cd2WCAdMijyucu4kiyFN/0IiLzC
-jew3fOKHN5N/7F1u4ELwEVTwQHlGQiN6b14ypKBqdG+m8D4XetuWEOYKuCJGTZgh
-V50mpAsxFX8/+SZTr7UyytkCrFGbVC+OgPSwlXJoeiHTf5tjB43oGbz6r0VY7V8j
-wsPhJkH4U47XCoHtX21GzpYYAr94ClLRlZupoJzYaGwGqzGT/3b57avW100E7vqs
-paT6WdNxvsbvKwmpNXub0QjHGJ6jW74EdJa23HQeJUjPFchyO9vA2OLjA3zJC0CI
-HV952dVUNaw0RC44+DKksfTzsMX3qSHWnSXpPtciET36EdeKRFY9DU4=
 </ds:X509Certificate>
           </ds:X509Data>
         </ds:KeyInfo>

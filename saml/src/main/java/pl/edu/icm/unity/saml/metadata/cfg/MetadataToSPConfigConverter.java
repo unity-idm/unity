@@ -12,16 +12,19 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,6 +44,7 @@ import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration.Builder;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
@@ -52,8 +56,12 @@ import xmlbeans.org.oasis.saml2.metadata.ExtensionsType;
 import xmlbeans.org.oasis.saml2.metadata.IDPSSODescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.KeyTypes;
+import xmlbeans.org.oasis.saml2.metadata.LocalizedNameType;
+import xmlbeans.org.oasis.saml2.metadata.OrganizationType;
+import xmlbeans.org.oasis.saml2.metadata.SSODescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.extattribute.EntityAttributesDocument;
 import xmlbeans.org.oasis.saml2.metadata.extattribute.EntityAttributesType;
+import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
 import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;
 
@@ -66,17 +74,16 @@ class MetadataToSPConfigConverter
 	private final PKIManagement pkiManagement;
 	private final MessageSource msg;
 	
-	MetadataToSPConfigConverter(PKIManagement pkiManagement, MessageSource msg)
+	MetadataToSPConfigConverter(@Qualifier("insecure") PKIManagement pkiManagement, MessageSource msg)
 	{
 		this.pkiManagement = pkiManagement;
 		this.msg = msg;
 	}
 
 	TrustedIdPs convertToTrustedIdPs(EntitiesDescriptorDocument federationMetaDoc, 
-			Map<String, RemoteMetadataSource> metadataSourcesByFederationId)
+			RemoteMetadataSource metadataSource)
 	{
 		EntitiesDescriptorType federationMeta = federationMetaDoc.getEntitiesDescriptor();
-		RemoteMetadataSource metadataSource = metadataSourcesByFederationId.get(federationMeta.getID());
 		return new TrustedIdPs(convertToTrustedIdPs(federationMeta, metadataSource));
 	}
 	
@@ -198,8 +205,8 @@ class MetadataToSPConfigConverter
 			.withFederationId(federationId)
 			.withFederationName(federationName)
 			.withSignRequest(idpDef.isSetWantAuthnRequestsSigned())
-			.withName(MetaToConfigConverterHelper.getLocalizedNamesAsI18nString(msg, uiInfo, idpDef, entityMeta))
-			.withLogoURI(MetaToConfigConverterHelper.getLocalizedLogosAsI18nString(uiInfo));
+			.withName(getLocalizedNamesAsI18nString(msg, uiInfo, idpDef, entityMeta))
+			.withLogoURI(getLocalizedLogosAsI18nString(uiInfo));
 		
 		EndpointType redirectSLOEndpoint = selectEndpointByBinding(idpDef.getSingleLogoutServiceArray(),
 				SAMLConstants.BINDING_HTTP_REDIRECT);
@@ -378,5 +385,97 @@ class MetadataToSPConfigConverter
 				return endpoint;
 		}
 		return null;
+	}
+	
+	private static I18nString getLocalizedNamesAsI18nString(MessageSource msg, UIInfoType uiInfo,
+			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
+	{
+		I18nString ret = new I18nString();
+		ret.addAllValues(getLocalizedNames(msg, uiInfo, idpDesc, mainDescriptor));
+		return ret;
+	}
+	
+	private static Map<String, String> getLocalizedNames(MessageSource msg, UIInfoType uiInfo,
+			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
+	{
+		Map<String, String> ret = new HashMap<>();
+		OrganizationType mainOrg = mainDescriptor.getOrganization();
+		if (mainOrg != null)
+		{
+			addLocalizedNames(msg, mainOrg.getOrganizationNameArray(), ret);
+			addLocalizedNames(msg, mainOrg.getOrganizationDisplayNameArray(), ret);
+		}
+		OrganizationType org = idpDesc.getOrganization();
+		if (org != null)
+		{
+			addLocalizedNames(msg, org.getOrganizationNameArray(), ret);
+			addLocalizedNames(msg, org.getOrganizationDisplayNameArray(), ret);
+		}
+		if (uiInfo != null)
+		{
+			addLocalizedNames(msg, uiInfo.getDisplayNameArray(), ret);
+		}
+		return ret;
+	}
+
+	private static I18nString getLocalizedLogosAsI18nString(UIInfoType uiInfo)
+	{
+		I18nString ret = new I18nString();
+		Map<String, LogoType> asMap = getLocalizedLogos(uiInfo);
+		ret.addAllValues(asMap.entrySet().stream()
+				.collect(Collectors.toMap(entry -> entry.getKey(), 
+						entry -> entry.getValue().getStringValue())));
+		if (asMap.containsKey(""))
+			ret.setDefaultValue(asMap.get("").getStringValue());
+		return ret;
+	}
+	
+	private static Map<String, LogoType> getLocalizedLogos(UIInfoType uiInfo)
+	{
+		Map<String, LogoType> ret = new HashMap<>();
+		if (uiInfo != null)
+		{
+			LogoType[] logos = uiInfo.getLogoArray();
+			if (logos == null)
+				return ret;
+			for (LogoType logo : logos)
+			{
+				String key = logo.getLang() == null ? "" : logo.getLang();
+				LogoType e = ret.get(key);
+				if (e == null)
+				{
+					ret.put(key, logo);
+				} else
+				{
+					if (e.getHeight().longValue() < logo.getHeight().longValue())
+						ret.put(key, logo);
+				}
+			}
+		}
+		return ret;
+	}
+	
+	public static void addLocalizedNames(MessageSource msg, LocalizedNameType[] names, Map<String, String> ret)
+	{
+		if (names == null)
+			return;
+		String enName = null;
+		for (LocalizedNameType name : names)
+		{
+			String lang = name.getLang();
+			if (lang != null)
+			{
+				ret.put(lang, name.getStringValue());
+				if (lang.equals(msg.getDefaultLocaleCode()))
+					ret.put("", name.getStringValue());
+				if (lang.equals("en"))
+					enName = name.getStringValue();
+			} else
+			{
+				ret.put("", name.getStringValue());
+			}
+		}
+		if (enName != null && !ret.containsKey(""))
+			ret.put("", enName);
 	}
 }

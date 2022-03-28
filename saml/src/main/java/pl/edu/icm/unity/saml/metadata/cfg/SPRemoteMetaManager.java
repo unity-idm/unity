@@ -7,9 +7,8 @@ package pl.edu.icm.unity.saml.metadata.cfg;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,7 +35,7 @@ public class SPRemoteMetaManager
 	private final MetadataToSPConfigConverter converter;
 	private final MetadataVerificator verificator;
 	private final RemoteMetadataService metadataService;
-	private final Set<String> registeredConsumers = new HashSet<>();
+	private final Map<String, MetadataConsumer> registeredConsumers = new HashMap<>();
 	private TrustedIdPs combinedTrustedIdPs;
 	private SAMLSPConfiguration configuration;
 	
@@ -65,8 +64,8 @@ public class SPRemoteMetaManager
 			return;
 		}
 		
-		Map<String, RemoteMetadataSource> oldMetaSrcs = this.configuration.trustedMetadataSources;
-		Map<String, RemoteMetadataSource> newMetaSrcs = configuration.trustedMetadataSources;
+		Map<String, RemoteMetadataSource> oldMetaSrcs = this.configuration.trustedMetadataSourcesByUrl;
+		Map<String, RemoteMetadataSource> newMetaSrcs = configuration.trustedMetadataSourcesByUrl;
 		TrustedIdPs oldIndividualTrustedIdPs = this.configuration.individualTrustedIdPs;
 		TrustedIdPs newIndividualTrustedIdPs = configuration.individualTrustedIdPs;
 		
@@ -86,14 +85,14 @@ public class SPRemoteMetaManager
 	private void registerMetadataConsumers()
 	{
 		log.trace("Registering remote metadata consumers");
-		for (RemoteMetadataSource metadataSource: configuration.trustedMetadataSources.values())
+		for (RemoteMetadataSource metadataSource: configuration.trustedMetadataSourcesByUrl.values())
 		{
 			String url = metadataSource.url;
 			Duration refreshInterval = metadataSource.refreshInterval;
 			String customTruststore = metadataSource.httpsTruststore;
 			MetadataConsumer consumer = new MetadataConsumer(metadataSource);
 			String consumerId = metadataService.preregisterConsumer(url);
-			registeredConsumers.add(consumerId);
+			registeredConsumers.put(consumerId, consumer);
 			metadataService.registerConsumer(consumerId, refreshInterval, customTruststore, 
 					consumer::onUpdatedMetadata);
 		}
@@ -102,24 +101,34 @@ public class SPRemoteMetaManager
 	public synchronized void unregisterAll()
 	{
 		log.trace("Unregistering all remote metadata consumers");
-		registeredConsumers.forEach(id -> metadataService.unregisterConsumer(id));
+		registeredConsumers.keySet().forEach(id -> metadataService.unregisterConsumer(id));
 		registeredConsumers.clear();
 	}
 	
 	private synchronized void assembleProperties(TrustedIdPs idpsFromMeta, String federationId, String consumerId)
 	{
-		if (!registeredConsumers.contains(consumerId)) 
+		if (!registeredConsumers.containsKey(consumerId)) 
 			//not likely but can happen in case of race condition between 
 			//deregistration of a consumer happening at the same time as async refresh
 			return;
-		
+		checkDuplicatedFederations(federationId, consumerId);
 		TrustedIdPs withUpdatedFederation = combinedTrustedIdPs.replaceFederation(idpsFromMeta, federationId);
 		combinedTrustedIdPs = withUpdatedFederation.overrideIdPs(configuration.individualTrustedIdPs);
 	}
 
+	private void checkDuplicatedFederations(String federationId, String consumerId)
+	{
+		registeredConsumers.forEach((id, consumer) -> 
+		{
+			if (!consumerId.equals(id) && federationId.equals(consumer.federationId))
+				log.error("The federation {} is configured with two metadata sources. "
+						+ "This won't work, results will be unpredictible.", federationId);
+		});
+	}
+
 	private TrustedIdPs parseMetadata(EntitiesDescriptorDocument metadata, RemoteMetadataSource metadataConfig)
 	{
-		TrustedIdPs trustedIdPs = converter.convertToTrustedIdPs(metadata, configuration.trustedMetadataSources);
+		TrustedIdPs trustedIdPs = converter.convertToTrustedIdPs(metadata, metadataConfig);
 		log.trace("Converted metadata from {} to virtual configuration", metadataConfig.url);
 		return trustedIdPs;
 	}
@@ -148,6 +157,7 @@ public class SPRemoteMetaManager
 	private class MetadataConsumer
 	{
 		private final RemoteMetadataSource metadataConfig;
+		private String federationId;
 		
 		public MetadataConsumer(RemoteMetadataSource metadataConfig)
 		{
@@ -159,7 +169,9 @@ public class SPRemoteMetaManager
 			if (!isMetadataValid(metadata, metadataConfig))
 				return;
 			TrustedIdPs idpsFromMeta = parseMetadata(metadata, metadataConfig);
-			String federationId = metadata.getEntitiesDescriptor().getID(); 
+			String federationId = metadata.getEntitiesDescriptor().getID();
+			if (this.federationId == null)
+				this.federationId = federationId;
 			assembleProperties(idpsFromMeta, federationId, consumerId);
 		}
 	}

@@ -121,17 +121,23 @@ public class SAMLSPConfigurationParser
 				.withKey(new TrustedIdPKey(key))
 				.withEnableAccountsAssocation(accountAssociationEnabled)
 				.withSignRequest(samlProperties.isSignRequest(key))
-				.withBinding(samlProperties.getEnumValue(key + SAMLSPProperties.IDP_BINDING, Binding.class))
-				.withFederationId(samlProperties.getValue(key + SAMLSPProperties.IDP_FEDERATION_ID))
-				.withFederationName(samlProperties.getValue(key + SAMLSPProperties.IDP_FEDERATION_NAME))
+				.withBinding(samlProperties.getEnumValue(
+						key + SAMLSPProperties.IDP_BINDING, Binding.class))
+				.withFederationId(samlProperties.getValue(
+						key + SAMLSPProperties.IDP_FEDERATION_ID))
+				.withFederationName(samlProperties.getValue(
+						key + SAMLSPProperties.IDP_FEDERATION_NAME))
 				.withCertificateNames(samlProperties.getCertificateNames(key))
-				.withGroupMembershipAttribute(samlProperties.getValue(key + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE))
-				.withIdpEndpointURL(samlProperties.getValue(key + SAMLSPProperties.IDP_ADDRESS))
+				.withGroupMembershipAttribute(samlProperties.getValue(
+						key + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE))
+				.withIdpEndpointURL(samlProperties.getValue(
+						key + SAMLSPProperties.IDP_ADDRESS))
 				.withLogoURI(samlProperties.getLocalizedString(msg, key + SAMLSPProperties.IDP_LOGO))
 				.withLogoutEndpoints(samlProperties.getLogoutEndpointsFromStructuredList(key))
 				.withName(getIdpName(samlProperties, key))
 				.withPublicKeys(samlProperties.getPublicKeysOfIdp(key))
-				.withRegistrationForm(samlProperties.getValue(key + CommonWebAuthnProperties.REGISTRATION_FORM))
+				.withRegistrationForm(samlProperties.getValue(
+						key + CommonWebAuthnProperties.REGISTRATION_FORM))
 				.withRequestedNameFormat(samlProperties.getRequestedNameFormat(key))
 				.withSamlId(samlProperties.getValue(key + SAMLSPProperties.IDP_ID))
 				.withTags(Set.copyOf(samlProperties.getListOfValues(key + SAMLSPProperties.IDP_NAME + ".")))
@@ -152,12 +158,16 @@ public class SAMLSPConfigurationParser
 		return keys.stream()
 			.map(key -> 
 				RemoteMetadataSource.builder()
-					.withFederationId(null) //TODO
-					.withHttpsTruststore(samlProperties.getValue(key + SAMLSPProperties.METADATA_HTTPS_TRUSTSTORE))
-					.withIssuerCertificate(samlProperties.getValue(key + SAMLSPProperties.METADATA_ISSUER_CERT))
-					.withRefreshInterval(Duration.ofSeconds(samlProperties.getIntValue(key + SAMLSPProperties.METADATA_REFRESH)))
-					.withRegistrationForm(samlProperties.getValue(key + SAMLSPProperties.IDPMETA_REGISTRATION_FORM))
-					.withSignatureValidation(samlProperties.getEnumValue(key + SAMLSPProperties.METADATA_SIGNATURE, MetadataSignatureValidation.class))
+					.withHttpsTruststore(samlProperties.getValue(
+							key + SAMLSPProperties.METADATA_HTTPS_TRUSTSTORE))
+					.withIssuerCertificate(samlProperties.getValue(
+							key + SAMLSPProperties.METADATA_ISSUER_CERT))
+					.withRefreshInterval(Duration.ofSeconds(samlProperties.getIntValue(
+							key + SAMLSPProperties.METADATA_REFRESH)))
+					.withRegistrationForm(samlProperties.getValue(
+							key + SAMLSPProperties.IDPMETA_REGISTRATION_FORM))
+					.withSignatureValidation(samlProperties.getEnumValue(
+							key + SAMLSPProperties.METADATA_SIGNATURE, MetadataSignatureValidation.class))
 					.withTranslationProfile(generateMetadataTranslationProfile(samlProperties, key))
 					.withUrl(samlProperties.getValue(key + SAMLSPProperties.METADATA_URL))
 					.build())

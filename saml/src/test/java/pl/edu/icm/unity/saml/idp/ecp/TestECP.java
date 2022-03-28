@@ -78,6 +78,7 @@ public class TestECP extends AbstractTestIdpBase
 			"unity.saml.requester.metadataPath=metadata\n" +
 			"unity.saml.requester.remoteIdp.1.address=http://localhost:52443/\n" +
 			"unity.saml.requester.remoteIdp.1.samlId=http://example-saml-idp.org\n" +
+			"unity.saml.requester.remoteIdp.1.binding=SOAP\n" +
 			"unity.saml.requester.remoteIdp.1.certificate=MAIN\n" +
 			"unity.saml.requester.remoteIdp.1.translationProfile=testP\n" + 
 			"unity.saml.requester.jwt.credential=MAIN\n" +

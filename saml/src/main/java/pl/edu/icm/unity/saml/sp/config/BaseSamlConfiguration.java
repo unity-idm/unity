@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  */
 public abstract class BaseSamlConfiguration
 {
-	public final Map<String, RemoteMetadataSource> trustedMetadataSources;
+	public final Map<String, RemoteMetadataSource> trustedMetadataSourcesByUrl;
 	public final boolean publishMetadata;
 	public final String metadataURLPath;
 	public final String ourMetadataFilePath;
@@ -28,8 +28,8 @@ public abstract class BaseSamlConfiguration
 	public BaseSamlConfiguration(List<RemoteMetadataSource> trustedMetadataSources, boolean publishMetadata,
 			String metadataURLPath, String ourMetadataFilePath)
 	{
-		this.trustedMetadataSources = Map.copyOf(trustedMetadataSources.stream()
-				.collect(Collectors.toMap(src -> src.federationId, src -> src)));
+		this.trustedMetadataSourcesByUrl = Map.copyOf(trustedMetadataSources.stream()
+				.collect(Collectors.toMap(src -> src.url, src -> src)));
 		this.publishMetadata = publishMetadata;
 		this.metadataURLPath = metadataURLPath;
 		this.ourMetadataFilePath = ourMetadataFilePath;
@@ -38,7 +38,7 @@ public abstract class BaseSamlConfiguration
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(metadataURLPath, ourMetadataFilePath, publishMetadata, trustedMetadataSources);
+		return Objects.hash(metadataURLPath, ourMetadataFilePath, publishMetadata, trustedMetadataSourcesByUrl);
 	}
 
 	@Override
@@ -54,14 +54,13 @@ public abstract class BaseSamlConfiguration
 		return Objects.equals(metadataURLPath, other.metadataURLPath)
 				&& Objects.equals(ourMetadataFilePath, other.ourMetadataFilePath)
 				&& publishMetadata == other.publishMetadata
-				&& Objects.equals(trustedMetadataSources, other.trustedMetadataSources);
+				&& Objects.equals(trustedMetadataSourcesByUrl, other.trustedMetadataSourcesByUrl);
 	}
 
 
 	public static class RemoteMetadataSource
 	{
 		public final String url;
-		public final String federationId;
 		public final Duration refreshInterval;
 		public final String httpsTruststore;
 		public final MetadataSignatureValidation signatureValidation;
@@ -71,23 +70,22 @@ public abstract class BaseSamlConfiguration
 
 		private RemoteMetadataSource(Builder builder)
 		{
-			checkNotNull(builder.federationId);
 			checkNotNull(builder.translationProfile);
 			checkNotNull(builder.url);
+			checkNotNull(builder.refreshInterval);
 			this.url = builder.url;
 			this.refreshInterval = builder.refreshInterval;
 			this.httpsTruststore = builder.httpsTruststore;
 			this.signatureValidation = builder.signatureValidation;
 			this.issuerCertificate = builder.issuerCertificate;
 			this.registrationForm = builder.registrationForm;
-			this.federationId = builder.federationId;
 			this.translationProfile = builder.translationProfile;
 		}
 		
 		@Override
 		public int hashCode()
 		{
-			return Objects.hash(federationId, httpsTruststore, issuerCertificate, refreshInterval,
+			return Objects.hash(httpsTruststore, issuerCertificate, refreshInterval,
 					registrationForm, signatureValidation, translationProfile, url);
 		}
 
@@ -101,8 +99,7 @@ public abstract class BaseSamlConfiguration
 			if (getClass() != obj.getClass())
 				return false;
 			RemoteMetadataSource other = (RemoteMetadataSource) obj;
-			return Objects.equals(federationId, other.federationId)
-					&& Objects.equals(httpsTruststore, other.httpsTruststore)
+			return Objects.equals(httpsTruststore, other.httpsTruststore)
 					&& Objects.equals(issuerCertificate, other.issuerCertificate)
 					&& Objects.equals(refreshInterval, other.refreshInterval)
 					&& Objects.equals(registrationForm, other.registrationForm)
@@ -124,7 +121,6 @@ public abstract class BaseSamlConfiguration
 			private MetadataSignatureValidation signatureValidation;
 			private String issuerCertificate;
 			private String registrationForm;
-			private String federationId;
 			private TranslationProfile translationProfile;
 
 			private Builder()
@@ -167,12 +163,6 @@ public abstract class BaseSamlConfiguration
 				return this;
 			}
 			
-			public Builder withFederationId(String federationId)
-			{
-				this.federationId = federationId;
-				return this;
-			}			
-
 			public Builder withTranslationProfile(TranslationProfile translationProfile)
 			{
 				this.translationProfile = translationProfile;
