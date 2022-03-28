@@ -318,8 +318,7 @@ class MetadataToSPConfigConverter
 	}
 	
 	
-	//TODO move out
-	protected Set<String> updatePKICerts(List<X509Certificate> certs, String entityId, String prefix)
+	private Set<String> updatePKICerts(List<X509Certificate> certs, String entityId, String prefix)
 			throws EngineException
 	{
 		Set<String> keysOfCerts = new HashSet<>(); 

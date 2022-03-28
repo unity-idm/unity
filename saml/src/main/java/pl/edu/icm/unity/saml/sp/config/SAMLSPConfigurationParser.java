@@ -118,7 +118,7 @@ public class SAMLSPConfigurationParser
 				samlProperties.getBooleanValue(key + CommonWebAuthnProperties.ENABLE_ASSOCIATION) :
 				samlProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 		return TrustedIdPConfiguration.builder()
-				.withKey(new TrustedIdPKey(key))
+				.withKey(TrustedIdPKey.individuallyConfigured(key))
 				.withEnableAccountsAssocation(accountAssociationEnabled)
 				.withSignRequest(samlProperties.isSignRequest(key))
 				.withBinding(samlProperties.getEnumValue(

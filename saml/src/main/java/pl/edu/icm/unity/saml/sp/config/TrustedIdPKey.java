@@ -8,6 +8,8 @@ import java.util.Objects;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+
 public class TrustedIdPKey
 {
 	private final String key;
@@ -17,6 +19,14 @@ public class TrustedIdPKey
 		this.key = key;
 	}
 
+	public static TrustedIdPKey individuallyConfigured(String configurationEntryPrefix)
+	{
+		if (!configurationEntryPrefix.startsWith(SAMLSPProperties.IDP_PREFIX) || !configurationEntryPrefix.endsWith("."))
+			throw new IllegalArgumentException(configurationEntryPrefix + " doesn't look like trusted idp config prefix");
+		return new TrustedIdPKey(configurationEntryPrefix.substring(SAMLSPProperties.IDP_PREFIX.length(),
+				configurationEntryPrefix.length()-1));
+	}
+	
 	public static TrustedIdPKey metadataEntity(String samlEntityId, int index)
 	{
 		String entityHex = DigestUtils.md5Hex(samlEntityId);
