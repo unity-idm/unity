@@ -44,7 +44,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
-import pl.edu.icm.unity.oauth.api.Scope;
+import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
@@ -90,17 +90,17 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private ComboBox<SigningAlgorithms> signingAlg;
 	private ComboBox<AccessTokenFormat> accessTokenFormat;
 	private TextField signingSecret;
-	private GridWithEditorInDetails<OAuthScope> scopesGrid;
+	private GridWithEditorInDetails<OAuthScopeBean> scopesGrid;
 	private OutputTranslationProfileFieldFactory profileFieldFactory;
 	private SubViewSwitcher subViewSwitcher;
 	private TextField name;
 	private boolean editMode;
-	private List<Scope> systemScopes;
+	private List<OAuthScope> systemScopes;
 
 	OAuthEditorGeneralTab(MessageSource msg, String serverPrefix, Set<String> serverContextPaths,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory, boolean editMode,
 			Set<String> credentials, Collection<IdentityType> identityTypes, List<String> attrTypes,
-			List<String> usedEndpointsPaths, List<Scope> systemScopes)
+			List<String> usedEndpointsPaths, List<OAuthScope> systemScopes)
 	{
 		this.msg = msg;
 
@@ -435,11 +435,11 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 	private void refreshScope(boolean add, OIDCScopeValue value)
 	{
-		Optional<OAuthScope> scope = configBinder.getBean().getScopes().stream()
+		Optional<OAuthScopeBean> scope = configBinder.getBean().getScopes().stream()
 				.filter(s -> s.getName().equals(value.getValue())).findFirst();
 		if (scope.isPresent())
 		{
-			OAuthScope newScope = new OAuthScope();
+			OAuthScopeBean newScope = new OAuthScopeBean();
 			newScope.setAttributes(scope.get().getAttributes());
 			newScope.setEnabled(add);
 			newScope.setAttributes(scope.get().getAttributes());
@@ -478,10 +478,10 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		scopesLayout.setMargin(false);
 
 		List<String> systemScopesNames = systemScopes.stream().map(s -> s.name).collect(Collectors.toList());
-		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScope.class,
+		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScopeBean.class,
 				() -> new ScopeEditor(msg, attrTypes, systemScopesNames), s -> false,
 				s -> s != null && s.getName() != null && systemScopesNames.contains(s.getName()), false);
-		Column<OAuthScope, Component> addGotoEditColumn = scopesGrid.addGotoEditColumn(s -> s.getName(),
+		Column<OAuthScopeBean, Component> addGotoEditColumn = scopesGrid.addGotoEditColumn(s -> s.getName(),
 				msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10);
 		addGotoEditColumn.setId("name");
 		scopesGrid.addCheckboxColumn(s -> s.isEnabled(), msg.getMessage("OAuthEditorGeneralTab.scopeEnabled"), 10);
@@ -499,7 +499,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.scopes"), scopesLayout);
 	}
 
-	private int compareScopes(List<String> systemScopesNames, OAuthScope s1, OAuthScope s2)
+	private int compareScopes(List<String> systemScopesNames, OAuthScopeBean s1, OAuthScopeBean s2)
 	{
 		if (s1.getName() == null || s2.getName() == null)
 			return 1;
@@ -616,9 +616,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		return ValidationResult.ok();
 	}
 
-	public class ScopeEditor extends CustomComponent implements EmbeddedEditor<OAuthScope>
+	public class ScopeEditor extends CustomComponent implements EmbeddedEditor<OAuthScopeBean>
 	{
-		private Binder<OAuthScope> binder;
+		private Binder<OAuthScopeBean> binder;
 		private TextField name;
 		private ChipsWithFreeText attributes;
 		private boolean blockedEdit = false;
@@ -629,7 +629,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		{
 			this.systemScopes = systemScopes;
 
-			binder = new Binder<>(OAuthScope.class);
+			binder = new Binder<>(OAuthScopeBean.class);
 			name = new TextField();
 			name.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
 			binder.forField(name).asRequired().withValidator(new NoSpaceValidator(msg))
@@ -667,7 +667,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		}
 
 		@Override
-		public OAuthScope getValue() throws FormValidationException
+		public OAuthScopeBean getValue() throws FormValidationException
 		{
 			if (binder.validate().hasErrors())
 			{
@@ -678,7 +678,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		}
 
 		@Override
-		public void setValue(OAuthScope value)
+		public void setValue(OAuthScopeBean value)
 		{
 			binder.setBean(value.clone());
 			boolean enableDisableblock = value != null && value.getName() != null

@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 import org.assertj.core.util.Maps;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
@@ -45,6 +44,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -217,7 +217,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.99.name", OIDCScopeValue.OFFLINE_ACCESS.getValue());
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 	
-		OAuthASProperties props = new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
@@ -230,7 +230,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().stream()
-				.filter(s -> s.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
+				.filter(s -> s.name.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
 						.isTrue();
 
 	}
@@ -246,7 +246,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
 		
-		OAuthASProperties props = new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
 				Optional.of(Arrays.asList("Scope1")));
 
@@ -259,7 +259,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(1);
-		assertThat(context.getEffectiveRequestedScopes().iterator().next().getName()).isEqualTo("Scope1");
+		assertThat(context.getEffectiveRequestedScopes().iterator().next().name).isEqualTo("Scope1");
 	}
 	
 	@Test
@@ -273,7 +273,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
 		
-		OAuthASProperties props = new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
 				Optional.empty());
 
@@ -286,7 +286,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(2);
-		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.getName()).collect(Collectors.toSet())).contains("Scope1", "Scope2");
+		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.name).collect(Collectors.toSet())).contains("Scope1", "Scope2");
 	}
 	
 	@Test
@@ -297,7 +297,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.99.name", OIDCScopeValue.OFFLINE_ACCESS.getValue());
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 	
-		OAuthASProperties props = new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
@@ -311,7 +311,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().stream()
-				.filter(s -> s.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
+				.filter(s -> s.name.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
 						.isFalse();
 	}
 	
@@ -322,7 +322,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.signingAlgorithm", "HS256");
 		config.setProperty("unity.oauth2.as.signingSecret", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		return new OAuthASProperties(config, null, null, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+		return new OAuthASProperties(config, null, null);
 	}
 	
 	private static OAuthWebRequestValidator getValidator(OAuthASProperties oauthConfig,
@@ -352,6 +352,6 @@ public class OAuthWebRequestValidatorTest
 		when(attributesMan.getAllAttributes(eq(clientEntity), anyBoolean(), anyString(), any(), anyBoolean()))
 			.thenReturn( allowedScopesA == null ? Lists.newArrayList(allowedFlows, clientType) : Lists.newArrayList(allowedFlows, clientType, allowedScopesA));
 		
-		return new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan);
+		return new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan, new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
 	}
 }

@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Properties;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 
@@ -23,8 +22,9 @@ import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -44,10 +44,10 @@ public class OAuthServiceConfigurationTest
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(P, defaults).get();
 
 		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList(),
-				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
 
 		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList(),
-				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
 		String converted = processor.toProperties(msg);
 
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -62,10 +62,10 @@ public class OAuthServiceConfigurationTest
 	{
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithDefaults(P, OAuthASProperties.defaults).get();
 		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList(),
-				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
 
 		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList(),
-				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
 		String converted = processor.toProperties(msg);
 
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -89,10 +89,10 @@ public class OAuthServiceConfigurationTest
 
 				.get();
 		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList(),
-				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
 
 		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList(),
-				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
 		String converted = processor.toProperties(msg);
 
 		Properties result = ConfigurationComparator.fromString(converted, P).get();

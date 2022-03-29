@@ -33,7 +33,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
+import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
@@ -162,9 +162,9 @@ class OAuthConsentScreen extends CustomComponent
 		eiLayout.setSpacing(true);
 		exposedInfoPanel.setContent(eiLayout);
 
-		for (ScopeInfo si : ctx.getEffectiveRequestedScopes())
+		for (OAuthScope si : ctx.getEffectiveRequestedScopes())
 		{
-			String label = Strings.isNullOrEmpty(si.getDescription()) ? si.getName() : si.getDescription();
+			String label = Strings.isNullOrEmpty(si.description) ? si.name : si.description;
 			Label scope = new Label100("\u25CF " + label);
 			eiLayout.addComponents(scope);
 		}

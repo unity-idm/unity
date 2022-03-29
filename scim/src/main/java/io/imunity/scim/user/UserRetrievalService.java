@@ -40,7 +40,7 @@ class UserRetrievalService
 {
 	public static final String DEFAULT_META_VERSION = "v1";
 
-	private final UserAuthzService authzMan;
+	private final UserAuthzService authzService;
 	private final EntityManagement entityManagement;
 	private final BulkGroupQueryService bulkService;
 	private final AttributesManagement attrMan;
@@ -53,7 +53,7 @@ class UserRetrievalService
 		this.entityManagement = entityManagement;
 		this.configuration = configuration;
 		this.bulkService = bulkService;
-		this.authzMan = scimAuthzService;
+		this.authzService = scimAuthzService;
 		this.attrMan = attrMan;
 	}
 
@@ -75,7 +75,7 @@ class UserRetrievalService
 
 		Map<String, GroupMembership> groups = entityManagement.getGroups(new EntityParam(entity.getId()));
 
-		authzMan.checkReadUser(entity.getId().longValue(), groups.keySet());
+		authzService.checkReadUser(entity.getId().longValue(), groups.keySet());
 
 		Set<String> userGroups = groups.keySet().stream().filter(userGroup -> configuration.membershipGroups.stream()
 				.anyMatch(mgroup -> Group.isChildOrSame(userGroup, mgroup))).collect(Collectors.toSet());
@@ -91,7 +91,7 @@ class UserRetrievalService
 
 	List<User> getUsers() throws EngineException
 	{
-		authzMan.checkReadUsers();
+		authzService.checkReadUsers();
 
 		List<User> users = new ArrayList<>();
 		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");

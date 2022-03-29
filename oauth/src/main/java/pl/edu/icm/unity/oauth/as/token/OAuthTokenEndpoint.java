@@ -35,8 +35,8 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
-import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.oauth.as.token.exception.OAuthExceptionMapper;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
@@ -74,13 +74,14 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private TransactionalRunner tx;
 	private IdPEngine insecureIdPEngine;
 	private final ApplicationEventPublisher eventPublisher;
+	private final OAuthScopesService scopeService;
+
 	
 	//insecure
 	private AttributesManagement attributesMan;
 	private EntityManagement identitiesMan;
 	private OAuthTokenRepository oauthTokenRepository;
 	private final EndpointManagement endpointMan;
-	private final SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry;
 	
 	
 	@Autowired
@@ -99,7 +100,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			ApplicationEventPublisher eventPublisher,
 			@Qualifier("insecure") EndpointManagement endpointManagement,
-			SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry)
+			OAuthScopesService scopeService)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.tokensManagement = tokensMan;
@@ -112,7 +113,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.oauthTokenRepository = oauthTokenRepository;
 		this.eventPublisher = eventPublisher;
 		this.endpointMan = endpointManagement;
-		this.systemOAuthScopeProvidersRegistry = systemOAuthScopeProvidersRegistry;
+		this.scopeService = scopeService;
 	}
 	
 	@Override
@@ -120,7 +121,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	{
 		super.setSerializedConfiguration(serializedState);
 		config = new OAuthASProperties(properties, pkiManagement, 
-				getServletUrl(PATH), systemOAuthScopeProvidersRegistry);
+				getServletUrl(PATH));
 		coordinator.registerTokenEndpoint(config.getValue(OAuthASProperties.ISSUER_URI), 
 				getServletUrl(""));
 		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH);
@@ -141,9 +142,9 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		{
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new AccessTokenResource(tokensManagement, oauthTokenRepository, config, 
-					new OAuthRequestValidator(config, identitiesMan, attributesMan), 
+					new OAuthRequestValidator(config, identitiesMan, attributesMan, scopeService), 
 					insecureIdPEngine, identitiesMan, tx, eventPublisher, msg, endpointMan, description));
-			ret.add(new DiscoveryResource(config, coordinator));
+			ret.add(new DiscoveryResource(config, coordinator, scopeService));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(oauthTokenRepository));
 			ret.add(new TokenIntrospectionResource(tokensManagement, oauthTokenRepository));

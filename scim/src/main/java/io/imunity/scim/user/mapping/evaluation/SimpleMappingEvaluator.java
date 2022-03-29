@@ -103,7 +103,6 @@ class SimpleMappingEvaluator implements MappingEvaluator
 						mvelEvaluator.evalMVEL(mapping.dataValue.value.get(),
 								EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
 										.withScimEndpointDescription(context.scimEndpointDescription)
-										.withFilter(context.filter)
 										.withGroupProvider(context.groupProvider).build()),
 						attributeDefinitionWithMapping.attributeDefinition.type));
 				break;

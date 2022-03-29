@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.oauth.as;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,7 +39,7 @@ public class OAuthAuthzContext
 	private Attribute clientLogo;
 	private TranslationProfile translationProfile;
 	private String usersGroup;
-	private Set<ScopeInfo> effectiveRequestedScopes = new HashSet<>();
+	private Set<OAuthScope> effectiveRequestedScopes = new HashSet<>();
 	private Set<String> requestedScopes = new HashSet<>();
 	private Set<String> effectiveRequestedAttrs = new HashSet<>();
 	private Set<Prompt> prompts= new HashSet<>();
@@ -132,10 +131,10 @@ public class OAuthAuthzContext
 		this.translationProfile = translationProfile;
 	}
 	
-	public void addEffectiveScopeInfo(ScopeInfo scopeInfo)
+	public void addEffectiveScopeInfo(OAuthScope scopeInfo)
 	{
 		effectiveRequestedScopes.add(scopeInfo);
-		effectiveRequestedAttrs.addAll(scopeInfo.getAttributes());
+		effectiveRequestedAttrs.addAll(scopeInfo.attributes);
 	}
 	
 	public Set<String> getEffectiveRequestedAttrs()
@@ -143,7 +142,7 @@ public class OAuthAuthzContext
 		return effectiveRequestedAttrs;
 	}
 
-	public Set<ScopeInfo> getEffectiveRequestedScopes()
+	public Set<OAuthScope> getEffectiveRequestedScopes()
 	{
 		return effectiveRequestedScopes;
 	}
@@ -151,7 +150,7 @@ public class OAuthAuthzContext
 	public String[] getEffectiveRequestedScopesList()
 	{
 		String[] ret = new String[effectiveRequestedScopes.size()];
-		Iterator<ScopeInfo> sIt = effectiveRequestedScopes.iterator();
+		Iterator<OAuthScope> sIt = effectiveRequestedScopes.iterator();
 		for (int i=0; i<ret.length; i++)
 			ret[i] = sIt.next().name;
 		return ret;
@@ -190,9 +189,8 @@ public class OAuthAuthzContext
 	public boolean hasOfflineAccessScope()
 	{
 		return !getEffectiveRequestedScopes().stream()
-				.filter(a -> a.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty();
+				.filter(a -> a.name.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty();
 	}
-
 	
 	public long getClientEntityId()
 	{
@@ -232,37 +230,5 @@ public class OAuthAuthzContext
 	public void setClientType(ClientType clientType)
 	{
 		this.clientType = clientType;
-	}
-
-
-
-	public static class ScopeInfo
-	{
-		private String name;
-		private String description;
-		private Set<String> attributes;
-		
-		public ScopeInfo(String name, String description, Collection<String> attributes)
-		{
-			super();
-			this.name = name;
-			this.description = description;
-			this.attributes = new HashSet<String>(attributes);
-		}
-
-		public String getName()
-		{
-			return name;
-		}
-
-		public String getDescription()
-		{
-			return description;
-		}
-
-		public Set<String> getAttributes()
-		{
-			return attributes;
-		}
 	}
 }

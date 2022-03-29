@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.UriBuilder;
@@ -23,9 +24,11 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.common.Meta;
 import io.imunity.scim.common.ResourceType;
+import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.config.SchemaWithMapping;
+import io.imunity.scim.user.UserAuthzService.SCIMUserAuthzServiceFactory;
 import io.imunity.scim.user.mapping.evaluation.UserSchemaEvaluator;
 import io.imunity.scim.user.mapping.evaluation.UserSchemaEvaluator.UserSchemaEvaluatorFactory;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -39,27 +42,32 @@ class UserAssemblyService
 	private final SCIMEndpointDescription configuration;
 	private final UserSchemaEvaluator userSchemaEvaluator;
 	private final GroupsManagement groupsManagement;
+	private final UserAuthzService authzService;
 
 	UserAssemblyService(SCIMEndpointDescription configuration, UserSchemaEvaluator userSchemaEvaluator,
-			GroupsManagement groupsManagement)
+			GroupsManagement groupsManagement, UserAuthzService authzService)
 	{
 		this.configuration = configuration;
 		this.userSchemaEvaluator = userSchemaEvaluator;
 		this.groupsManagement = groupsManagement;
+		this.authzService = authzService;
 	}
 
 	SCIMUserResource mapToUserResource(User user) throws EngineException
 	{
-		return mapToSingleUserResource(user, getBasicUserSchema(), getExtensionSchemas(),
+		Predicate<AttributeDefinitionWithMapping> filter = authzService.getFilter();
+		return mapToSingleUserResource(user, getFilteredBasicUserSchema(filter), getFilteredExtensionSchemas(filter),
 				new CachingMVELGroupProvider(groupsManagement.getAllGroups()));
 	}
 
 	ListResponse<SCIMUserResource> mapToListUsersResource(List<User> users) throws EngineException
 	{
 		List<SCIMUserResource> usersResource = new ArrayList<>();
-		SchemaWithMapping basic = getBasicUserSchema();
-		List<SchemaWithMapping> extSchemas = getExtensionSchemas();
+		Predicate<AttributeDefinitionWithMapping> filter = authzService.getFilter();
+		SchemaWithMapping basic = getFilteredBasicUserSchema(filter);
+		List<SchemaWithMapping> extSchemas = getFilteredExtensionSchemas(filter);
 		CachingMVELGroupProvider groupProvider = new CachingMVELGroupProvider(groupsManagement.getAllGroups());
+		
 		for (User u : users)
 		{
 			usersResource.add(mapToSingleUserResource(u, basic, extSchemas, groupProvider));
@@ -94,20 +102,19 @@ class UserAssemblyService
 				.build();
 	}
 
-	private List<SchemaWithMapping> getExtensionSchemas()
+	private List<SchemaWithMapping> getFilteredExtensionSchemas(Predicate<AttributeDefinitionWithMapping> filter)
 	{
 		return configuration.schemas.stream().filter(s -> s.type.equals(SchemaType.USER) && s.enable)
-				.collect(Collectors.toList());
+				.map(s -> SchemaFilteringSupport.getSchemaWithFilteredAttributes(s, filter)).collect(Collectors.toList());
 	}
 
-	private SchemaWithMapping getBasicUserSchema()
+	private SchemaWithMapping getFilteredBasicUserSchema(Predicate<AttributeDefinitionWithMapping> filter)
 	{
 		SchemaWithMapping basicSchema = configuration.schemas.stream().filter(s -> s.type.equals(SchemaType.USER_CORE))
 				.findAny().get();
 		if (basicSchema == null)
 			throw new ConfigurationException("Basic user schema is not defined");
-		return basicSchema;
-
+		return SchemaFilteringSupport.getSchemaWithFilteredAttributes(basicSchema, filter);
 	}
 
 	@Component
@@ -115,18 +122,20 @@ class UserAssemblyService
 	{
 		private final UserSchemaEvaluatorFactory userSchemaEvaluator;
 		private final GroupsManagement groupsManagement;
+		private final SCIMUserAuthzServiceFactory authzManFactory;
 
 		public SCIMUserAssemblyServiceFactory(UserSchemaEvaluatorFactory userSchemaEvaluator,
-				@Qualifier("insecure") GroupsManagement groupsManagement)
+				@Qualifier("insecure") GroupsManagement groupsManagement, SCIMUserAuthzServiceFactory authzManFactory)
 		{
 			this.userSchemaEvaluator = userSchemaEvaluator;
 			this.groupsManagement = groupsManagement;
+			this.authzManFactory = authzManFactory;
 		}
 
 		UserAssemblyService getService(SCIMEndpointDescription configuration)
 		{
 			return new UserAssemblyService(configuration, userSchemaEvaluator.getService(configuration),
-					groupsManagement);
+					groupsManagement, authzManFactory.getService(configuration));
 		}
 	}
 }

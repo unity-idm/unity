@@ -11,6 +11,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.when;
+
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -49,7 +51,10 @@ public class UserAssemblyServiceTest
 	private UserSchemaEvaluator userSchemaEvaluator;
 	@Mock
 	private GroupsManagement groupsManagement;
+	@Mock
+	private UserAuthzService authzService;
 
+	
 	@Before
 	public void init()
 	{
@@ -61,7 +66,8 @@ public class UserAssemblyServiceTest
 								.withEnable(true).build()), Collections.emptyList()
 
 		);
-		assemblyService = new UserAssemblyService(configuration, userSchemaEvaluator, groupsManagement);
+		when(authzService.getFilter()).thenReturn(s -> true);
+		assemblyService = new UserAssemblyService(configuration, userSchemaEvaluator, groupsManagement, authzService);
 	}
 
 	@Test

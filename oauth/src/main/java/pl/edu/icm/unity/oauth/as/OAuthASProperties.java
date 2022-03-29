@@ -5,12 +5,9 @@
 package pl.edu.icm.unity.oauth.as;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
@@ -23,8 +20,6 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
-import pl.edu.icm.unity.oauth.api.Scope;
-import pl.edu.icm.unity.oauth.api.SystemScopeProvider;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -92,8 +87,6 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final int DEFAULT_ACCESS_TOKEN_VALIDITY = 3600;
 	public static final int DEFAULT_REFRESH_TOKEN_VALIDITY = 3600;
 	
-	private static final String SYSTEM_SCOPE_PREFIX = "_system_scope_";
-
 	
 	static
 	{
@@ -180,47 +173,13 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	
 	private String baseAddress; 
 	private TokenSigner tokenSigner;
-
-	private SystemOAuthScopeProvidersRegistry systemScopeProvidersRegistry;
 	
 	public OAuthASProperties(Properties properties, PKIManagement pkiManamgenet, 
-			String baseAddress, SystemOAuthScopeProvidersRegistry systemScopeProvidersRegistry) throws ConfigurationException
+			String baseAddress) throws ConfigurationException
 	{
 		super(P, properties, defaults, log);
-		this.baseAddress = baseAddress;
-		this.systemScopeProvidersRegistry = systemScopeProvidersRegistry;
-		
+		this.baseAddress = baseAddress;		
 		tokenSigner = new TokenSigner(this, pkiManamgenet);
-		addSystemScopesInNeeded();
-	}
-	
-	private void addSystemScopesInNeeded()
-	{
-		List<String> configured = getStructuredListKeys(OAuthASProperties.SCOPES).stream()
-				.map(s -> getValue(s + OAuthASProperties.SCOPE_NAME)).collect(Collectors.toList());
-
-		int nextKey = 1000;
-		for (SystemScopeProvider provider : systemScopeProvidersRegistry.getAll())
-		{
-			for (Scope scope : provider.getScopes())
-			{
-				if (configured.contains(scope.name))
-				{
-					continue;
-				}
-				String key = OAuthASProperties.SCOPES + SYSTEM_SCOPE_PREFIX + nextKey + ".";
-				setProperty(key + OAuthASProperties.SCOPE_NAME, scope.name);
-				setProperty(key + OAuthASProperties.SCOPE_ENABLED,
-						String.valueOf(getSystemScopeDefaultStatusForNotAdded(scope.name)));
-				setProperty(key + OAuthASProperties.SCOPE_DESCRIPTION, scope.description);
-				nextKey++;
-			}
-		}
-	}
-
-	private boolean getSystemScopeDefaultStatusForNotAdded(String scope)
-	{
-		return scope.equals(OAuthSystemScopeProvider.OPENID_SCOPE) ? false : true;
 	}
 	
 	public OAuthASProperties(Properties properties) throws ConfigurationException
@@ -304,20 +263,6 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public String getSubjectIdentityType()
 	{
 		return getValue(OAuthASProperties.IDENTITY_TYPE_FOR_SUBJECT);
-	}
-	
-	public Set<String> getActiveScopes()
-	{
-		Set<String> scopeKeys = getStructuredListKeys(OAuthASProperties.SCOPES);
-		Set<String> scopes = new HashSet<>();
-		for (String scopeKey : scopeKeys)
-		{
-			if (getBooleanValue(scopeKey + OAuthASProperties.SCOPE_ENABLED))
-			{
-				scopes.add(getValue(scopeKey + OAuthASProperties.SCOPE_NAME));
-			}
-		}
-		return scopes;
 	}
 	
 	public boolean isOpenIdConnect()

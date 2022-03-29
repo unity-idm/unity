@@ -25,13 +25,13 @@ import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -118,13 +118,13 @@ public class ClientCredentialsProcessor
 		if (scope != null && !scope.isEmpty())
 		{
 			Scope parsed = Scope.parse(scope);
-			List<ScopeInfo> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, parsed);
+			List<OAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, parsed);
 			String[] array = validRequestedScopes.stream().
-					map(si -> si.getName()).
+					map(si -> si.name).
 					toArray(String[]::new);
 			internalToken.setEffectiveScope(array);
-			for (ScopeInfo si: validRequestedScopes)
-				requestedAttributes.addAll(si.getAttributes());
+			for (OAuthScope si: validRequestedScopes)
+				requestedAttributes.addAll(si.attributes);
 		}
 		return requestedAttributes;
 	}

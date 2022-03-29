@@ -19,7 +19,7 @@ import pl.edu.icm.unity.oauth.api.SystemScopeProvider;
 @Component
 public class OAuthSystemScopeProvider implements SystemScopeProvider
 {
-	private static final String id = "OAuth";
+	public static final String id = "OAuth";
 	public static final String OPENID_SCOPE = OIDCScopeValue.OPENID.getValue();
 	public static final String OFFLINE_ACCESS_SCOPE = OIDCScopeValue.OFFLINE_ACCESS.getValue();
 	

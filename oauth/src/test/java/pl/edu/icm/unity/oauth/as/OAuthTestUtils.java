@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.google.common.collect.Lists;
@@ -46,7 +45,6 @@ import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -109,7 +107,7 @@ public class OAuthTestUtils
 		properties.setProperty(P + SCOPES + "4." + SCOPE_NAME, "offline_access");
 
 		PKIManagement pkiManagement = new MockPKIMan();
-		return new OAuthASProperties(properties, pkiManagement, BASE_ADDR, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+		return new OAuthASProperties(properties, pkiManagement, BASE_ADDR);
 	}
 	
 	public static OAuthAuthzContext createOIDCContext(OAuthASProperties config, 
@@ -130,7 +128,8 @@ public class OAuthTestUtils
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(true);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addEffectiveScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
+		ctx.addEffectiveScopeInfo(
+				OAuthScope.builder().withName("sc1").withDescription("scope 1").withAttributes(Lists.newArrayList("email")).withEnabled(true).build());
 		return ctx;
 	}
 
@@ -156,7 +155,8 @@ public class OAuthTestUtils
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(false);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addEffectiveScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
+		ctx.addEffectiveScopeInfo(
+				OAuthScope.builder().withName("sc1").withDescription("scope 1").withAttributes(Lists.newArrayList("email")).withEnabled(true).build());
 		return ctx;
 	}
 
