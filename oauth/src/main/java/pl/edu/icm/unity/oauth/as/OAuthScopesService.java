@@ -58,7 +58,6 @@ public class OAuthScopesService
 	public List<OAuthScope> getSystemScopes()
 	{
 		List<OAuthScope> systenScope = new ArrayList<>();
-
 		for (SystemScopeProvider provider : systemScopeProvidersRegistry.getAll())
 		{
 			for (Scope scope : provider.getScopes())
@@ -68,16 +67,13 @@ public class OAuthScopesService
 			}
 		}
 		return systenScope;
-
 	}
 
 	private List<OAuthScope> getMissingSystemScopes(OAuthASProperties config)
 	{
 		List<String> configured = config.getStructuredListKeys(OAuthASProperties.SCOPES).stream()
 				.map(s -> config.getValue(s + OAuthASProperties.SCOPE_NAME)).collect(Collectors.toList());
-
 		List<OAuthScope> missingSystemScope = new ArrayList<>();
-
 		for (SystemScopeProvider provider : systemScopeProvidersRegistry.getAll())
 		{
 			for (Scope scope : provider.getScopes())
@@ -86,7 +82,6 @@ public class OAuthScopesService
 				{
 					continue;
 				}
-
 				missingSystemScope.add(OAuthScope.builder().withName(scope.name)
 						.withEnabled(getSystemScopeDefaultStatusForNotAdded(scope, config))
 						.withDescription(scope.description).build());
@@ -101,7 +96,7 @@ public class OAuthScopesService
 		if (scope.name.equals(OAuthSystemScopeProvider.OPENID_SCOPE))
 		{
 			return false;
-
+			
 		} else if (scope.name.equals(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE))
 		{
 			if (config.getEnumValue(OAuthASProperties.REFRESH_TOKEN_ISSUE_POLICY, RefreshTokenIssuePolicy.class)
@@ -112,7 +107,7 @@ public class OAuthScopesService
 			{
 				return false;
 			}
-
+			
 		} else
 		{
 			return true;
