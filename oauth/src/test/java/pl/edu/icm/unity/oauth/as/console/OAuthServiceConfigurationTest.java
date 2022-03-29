@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -31,26 +33,26 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 public class OAuthServiceConfigurationTest
 {
 	private MessageSource msg = mock(MessageSource.class);
-	
-	private static final TranslationProfile DEF_PROFILE = new TranslationProfile("Embedded", "", ProfileType.OUTPUT, 
-			Lists.newArrayList(new TranslationRule("true", 
-					new IncludeOutputProfileActionFactory().getInstance("sys:default"))));
+
+	private static final TranslationProfile DEF_PROFILE = new TranslationProfile("Embedded", "", ProfileType.OUTPUT,
+			Lists.newArrayList(
+					new TranslationRule("true", new IncludeOutputProfileActionFactory().getInstance("sys:default"))));
 
 	@Test
 	public void serializationIsIdempotentForMinimalConfig()
 	{
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(P, defaults).get();
-		
-		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList());
-		
-		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList());
+
+		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList(),
+				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+
+		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList(),
+				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
 		String converted = processor.toProperties(msg);
-		
+
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
-		
-		createComparator(P, defaults)
-			.ignoringSuperflous("embeddedTranslationProfile")
-			.checkMatching(result, sourceCfg);
+
+		createComparator(P, defaults).ignoringSuperflous("embeddedTranslationProfile", "scopes.1.enabled").checkMatching(result, sourceCfg);
 		String defaultProfileJson = DEF_PROFILE.toJsonObject().toString();
 		assertThat(result.get(P + "embeddedTranslationProfile")).isEqualTo(defaultProfileJson);
 	}
@@ -58,18 +60,17 @@ public class OAuthServiceConfigurationTest
 	@Test
 	public void serializationIsIdempotentForMinimalExplicitDefaultsConfig()
 	{
-		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithDefaults(P, OAuthASProperties.defaults)
-				.get();
-		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList());
-		
-		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList());
+		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithDefaults(P, OAuthASProperties.defaults).get();
+		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList(),
+				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+
+		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList(),
+				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
 		String converted = processor.toProperties(msg);
-		
+
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
-		
-		createComparator(P, defaults)
-			.ignoringSuperflous("embeddedTranslationProfile")
-			.checkMatching(result, sourceCfg);
+
+		createComparator(P, defaults).ignoringSuperflous("embeddedTranslationProfile").checkMatching(result, sourceCfg);
 		String defaultProfileJson = DEF_PROFILE.toJsonObject().toString();
 		assertThat(result.get(P + "embeddedTranslationProfile")).isEqualTo(defaultProfileJson);
 	}
@@ -79,19 +80,19 @@ public class OAuthServiceConfigurationTest
 	{
 		TranslationProfile tp = new TranslationProfile("name", "description", ProfileType.OUTPUT,
 				Collections.emptyList());
-		Properties sourceCfg = ConfigurationGenerator
-				.generateCompleteWithNonDefaults(P, OAuthASProperties.defaults)
+		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, OAuthASProperties.defaults)
 				.update("embeddedTranslationProfile", tp.toJsonObject().toString())
 				.update("policyAgreements.1.policyDocuments", "1")
 				.update("policyAgreements.1.policyAgreementPresentationType",
 						PolicyAgreementPresentationType.CHECKBOX_NOTSELECTED.toString())
-				.update("refreshTokenIssuePolicy",
-						RefreshTokenIssuePolicy.ALWAYS.toString())
-				
-				.get();
-		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList());
+				.update("refreshTokenIssuePolicy", RefreshTokenIssuePolicy.ALWAYS.toString())
 
-		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList());
+				.get();
+		OAuthServiceConfiguration processor = new OAuthServiceConfiguration(msg, Collections.emptyList(),
+				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
+
+		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList(),
+				Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
 		String converted = processor.toProperties(msg);
 
 		Properties result = ConfigurationComparator.fromString(converted, P).get();

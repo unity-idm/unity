@@ -154,8 +154,9 @@ public enum Styles
 	vComboSmall(ValoTheme.COMBOBOX_SMALL),
 	vDropLayout("drop-layout"),	
 	vGroupBrowser("v-tree8"),
-	vPanelBorderless(ValoTheme.PANEL_BORDERLESS);
-	
+	vPanelBorderless(ValoTheme.PANEL_BORDERLESS),
+	vPanelWell(ValoTheme.PANEL_WELL);
+
 	
 	
 	/**

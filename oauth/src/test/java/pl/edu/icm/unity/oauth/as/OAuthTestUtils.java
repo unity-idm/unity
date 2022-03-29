@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
+import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.google.common.collect.Lists;
@@ -102,11 +103,13 @@ public class OAuthTestUtils
 		properties.setProperty(P + SCOPES + "1." + SCOPE_NAME, "s1");
 		properties.setProperty(P + SCOPES + "2." + SCOPE_NAME, "s2");
 		if (oidc)
+		{
 			properties.setProperty(P + SCOPES + "3." + SCOPE_NAME, "openid");
+		}
 		properties.setProperty(P + SCOPES + "4." + SCOPE_NAME, "offline_access");
 
 		PKIManagement pkiManagement = new MockPKIMan();
-		return new OAuthASProperties(properties, pkiManagement, BASE_ADDR);
+		return new OAuthASProperties(properties, pkiManagement, BASE_ADDR, Mockito.mock(SystemOAuthScopeProvidersRegistry.class));
 	}
 	
 	public static OAuthAuthzContext createOIDCContext(OAuthASProperties config, 

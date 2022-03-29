@@ -35,15 +35,18 @@ public class MVELExpressionField extends CustomField<String>
 	private HorizontalLayout layout;
 	private String value;
 	private boolean mandatory;
+	private MVELExpressionContext context;
 
 	public MVELExpressionField(MessageSource msg, String caption, String description, MVELExpressionContext context)
 	{
 		this.field = new TextField();
 		this.editorButton = new Button(Images.cogs.getResource());
+		this.context = context;
+
 		editorButton.addStyleName(Styles.toolbarButton.toString());
 		editorButton.addStyleName(Styles.vButtonLink.toString());
-		editorButton.addClickListener(
-				e -> new MVELExpressionEditorDialog(msg, context, mandatory, field.getValue(), v -> field.setValue(v)).show());
+		editorButton.addClickListener(e -> new MVELExpressionEditorDialog(msg, this.context, mandatory,
+				field.getValue(), v -> field.setValue(v)).show());
 		this.editor = new MVELExpressionEditor(this, msg);
 
 		layout = new HorizontalLayout();
@@ -81,7 +84,7 @@ public class MVELExpressionField extends CustomField<String>
 	{
 		return value;
 	}
-	
+
 	@Override
 	public String getEmptyValue()
 	{
@@ -97,8 +100,8 @@ public class MVELExpressionField extends CustomField<String>
 	@Override
 	protected void doSetValue(String value)
 	{
-		if (value != null )
-			field.setValue(value);	
+		if (value != null)
+			field.setValue(value);
 		this.value = value;
 	}
 
@@ -106,13 +109,13 @@ public class MVELExpressionField extends CustomField<String>
 	{
 		field.addBlurListener(listener);
 	}
-	
+
 	@Override
 	public void focus()
 	{
 		field.focus();
 	}
-	
+
 	@Override
 	public void setComponentError(ErrorMessage componentError)
 	{
@@ -122,7 +125,7 @@ public class MVELExpressionField extends CustomField<String>
 		else
 			field.removeStyleName("error");
 	}
-	
+
 	@Override
 	public void setStyleName(String style)
 	{
@@ -130,11 +133,21 @@ public class MVELExpressionField extends CustomField<String>
 		editorButton.addStyleName(style);
 		layout.addStyleName(style);
 	}
-	
+
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
 		field.setReadOnly(readOnly);
 		editorButton.setEnabled(!readOnly);
+	}
+
+	public void setContext(MVELExpressionContext context)
+	{
+		this.context = context;
+	}
+	
+	public MVELExpressionContext getContext()
+	{
+		return context;
 	}
 }

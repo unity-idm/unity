@@ -43,4 +43,11 @@ public class AuthorizationManagementImpl implements AuthorizationManagement
 		Set<AuthzRole> roles = authz.getRoles();
 		return roles.stream().map(r -> r.getName()).anyMatch(ADMIN_ROLES::contains);
 	}
+	
+	@Override
+	public void checkReadCapability(boolean selfAccess, String group) throws AuthorizationException 
+	{
+		authz.checkAuthorization(selfAccess, group, AuthzCapability.read);
+	}
+	
 }

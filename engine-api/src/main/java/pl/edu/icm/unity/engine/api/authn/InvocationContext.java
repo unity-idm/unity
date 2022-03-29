@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.authn;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,12 +25,16 @@ public class InvocationContext implements Serializable
 {
 	private static ThreadLocal<InvocationContext> threadLocal = new ThreadLocal<>();
 
+	public enum InvocationMaterial {DIRECT, OAUTH_DELEGATION};
+	
 	private LoginSession loginSession;
 	private Locale locale;
 	private IdentityTaV tlsIdentity;
 	private AuthenticationRealm realm;
 	private String currentURLUsed;
 	private List<AuthenticationFlow> endpointFlows;
+	private InvocationMaterial invocationMaterial = InvocationMaterial.DIRECT;
+	private List<String> scopes = new ArrayList<>();
 
 	/**
 	 * @param tlsIdentity TLS client-authenticated identity (of X500 type) or null if there is no TLS 
@@ -141,5 +146,25 @@ public class InvocationContext implements Serializable
 	public void setCurrentURLUsed(String currentURLUsed)
 	{
 		this.currentURLUsed = currentURLUsed;
+	}
+
+	public InvocationMaterial getInvocationMaterial()
+	{
+		return invocationMaterial;
+	}
+
+	public void setInvocationMaterial(InvocationMaterial invocationMaterial)
+	{
+		this.invocationMaterial = invocationMaterial;
+	}
+
+	public List<String> getScopes()
+	{
+		return scopes;
+	}
+
+	public void setScopes(List<String> scopes)
+	{
+		this.scopes = scopes;
 	}
 }

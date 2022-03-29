@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import pl.edu.icm.unity.engine.mvel.CachingMVELGroupProvider;
+import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeType;

@@ -21,4 +21,6 @@ public interface AuthorizationManagement
 	 * @throws AuthorizationException 
 	 */
 	boolean hasAdminAccess() throws AuthorizationException;
+
+	void checkReadCapability(boolean selfAccess, String group) throws AuthorizationException;
 }

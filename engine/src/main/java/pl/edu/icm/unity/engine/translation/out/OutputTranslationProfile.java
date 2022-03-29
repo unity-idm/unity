@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegis
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.engine.mvel.MVELGroup;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;

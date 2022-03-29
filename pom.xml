@@ -82,6 +82,7 @@
 		<module>composite-password</module>
 		<module>fido</module>
 		<module>web-attr-introspection</module>
+		<module>scim</module>
 	</modules>
 
 	<developers>

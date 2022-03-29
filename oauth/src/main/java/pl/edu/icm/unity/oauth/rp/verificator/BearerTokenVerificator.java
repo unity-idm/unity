@@ -26,7 +26,9 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
@@ -146,6 +148,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 				}
 				RemotelyAuthenticatedInput input = assembleBaseResult(status, 
 						cached.getAttributes(), getName());
+				updateInvocationContext(status);				
 				return getResultForNonInteractiveAuthn(input, translationProfile);				
 			} else
 			{
@@ -166,6 +169,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			attrs = getUserProfileInformation(token);
 			cache.cache(token.getValue(), status, attrs);
 			RemotelyAuthenticatedInput input = assembleBaseResult(status, attrs, getName());
+			updateInvocationContext(status);				
 			return getResultForNonInteractiveAuthn(input, translationProfile);
 		} else
 		{
@@ -174,6 +178,12 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		}
 	}
 
+	private void updateInvocationContext(TokenStatus status)
+	{
+		InvocationContext current = InvocationContext.getCurrent();
+		current.setInvocationMaterial(InvocationMaterial.OAUTH_DELEGATION);
+		current.setScopes(status.getScope().toStringList());
+	}
 	
 	private boolean checkScopes(TokenStatus status)
 	{

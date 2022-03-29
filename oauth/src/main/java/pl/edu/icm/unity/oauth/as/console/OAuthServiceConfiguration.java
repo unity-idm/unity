@@ -8,9 +8,12 @@ package pl.edu.icm.unity.oauth.as.console;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
@@ -22,10 +25,13 @@ import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfigurationParser;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.oauth.api.Scope;
+import pl.edu.icm.unity.oauth.api.SystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
+import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -72,7 +78,7 @@ public class OAuthServiceConfiguration
 		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
 	}
 
-	public OAuthServiceConfiguration(MessageSource msg, List<Group> allGroups)
+	public OAuthServiceConfiguration(MessageSource msg, List<Group> allGroups, SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry)
 	{
 		signingAlg = SigningAlgorithms.RS256;
 		idTokenExpiration = OAuthASProperties.DEFAULT_ID_TOKEN_VALIDITY;
@@ -82,7 +88,9 @@ public class OAuthServiceConfiguration
 		setAllowForWildcardsInAllowedURI(false);
 		setAllowForUnauthenticatedRevocation(false);
 		setIdentityTypeForSubject(TargetedPersistentIdentity.ID);
-		scopes = new ArrayList<>();
+		scopes = systemOAuthScopeProvidersRegistry.getAll().stream().map(p -> p.getScopes())
+				.flatMap(Collection::stream).map(s -> new OAuthScope(s.name, s.description)).collect(Collectors.toList());
+				
 		translationProfile = TranslationProfileGenerator.generateEmbeddedEmptyOutputProfile();
 		Group root = allGroups.stream().filter(g -> g.toString().equals("/")).findAny().orElse(new Group("/"));
 		usersGroup = new GroupWithIndentIndicator(root, false);
@@ -144,6 +152,8 @@ public class OAuthServiceConfiguration
 			{
 				String key = OAuthASProperties.SCOPES + (scopes.indexOf(scope) + 1) + ".";
 				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_NAME, scope.getName());
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_ENABLED, String.valueOf(scope.isEnabled()));
+				
 				if (scope.getDescription() != null)
 				{
 					raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_DESCRIPTION,
@@ -231,7 +241,7 @@ public class OAuthServiceConfiguration
 		return oauthProperties.getAsString();
 	}
 
-	public void fromProperties(MessageSource msg, String properties, List<Group> allGroups)
+	public void fromProperties(MessageSource msg, String properties, List<Group> allGroups, SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry)
 	{
 		Properties raw = new Properties();
 		try
@@ -271,9 +281,11 @@ public class OAuthServiceConfiguration
 
 		Set<String> scopeKeys = oauthProperties.getStructuredListKeys(OAuthASProperties.SCOPES);
 
+		scopes.clear();
 		for (String scopeKey : scopeKeys)
 		{
 			String name = oauthProperties.getValue(scopeKey + OAuthASProperties.SCOPE_NAME);
+			boolean enable = oauthProperties.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_ENABLED);
 			String desc = oauthProperties.getValue(scopeKey + OAuthASProperties.SCOPE_DESCRIPTION);
 			List<String> attributes = oauthProperties
 					.getListOfValues(scopeKey + OAuthASProperties.SCOPE_ATTRIBUTES);
@@ -281,14 +293,27 @@ public class OAuthServiceConfiguration
 			oauthScope.setName(name);
 			oauthScope.setDescription(desc);
 			oauthScope.setAttributes(attributes);
+			oauthScope.setEnabled(enable);
 			scopes.add(oauthScope);
-
-			if (name.equals(OIDCScopeValue.OPENID.getValue().toString()))
+		}
+	
+		for (SystemScopeProvider provider : systemOAuthScopeProvidersRegistry.getAll())
+		{
+			for (Scope scope : provider.getScopes())
 			{
-				openIDConnect = true;
+				if (scopes.stream().filter(s -> s.getName().equals(scope.name)).findAny().isEmpty())
+				{
+					OAuthScope oauthScope = new OAuthScope();
+					oauthScope.setName(scope.name);
+					oauthScope.setDescription(scope.description);
+					oauthScope.setEnabled(false);
+					scopes.add(oauthScope);
+				}
 			}
 		}
-
+		Optional<OAuthScope> openIdScope = scopes.stream().filter(s -> s.getName().equals(OIDCScopeValue.OPENID.getValue())).findFirst();
+		openIDConnect = openIdScope.isPresent() && openIdScope.get().isEnabled();
+		
 		if (oauthProperties.isSet(CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE))
 		{
 			translationProfile = TranslationProfileGenerator.getProfileFromString(
