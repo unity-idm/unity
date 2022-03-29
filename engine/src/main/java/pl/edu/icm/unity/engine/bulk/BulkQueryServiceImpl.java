@@ -4,31 +4,17 @@
  */
 package pl.edu.icm.unity.engine.bulk;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.stream.Collectors;
-
+import com.google.common.base.Stopwatch;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import com.google.common.base.Stopwatch;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityGroupAttributes;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.bulk.GroupsWithMembers;
 import pl.edu.icm.unity.engine.attribute.AttributeStatementProcessor;
@@ -50,6 +36,18 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Collectors;
 
 @Component
 @Primary
@@ -173,7 +171,7 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
 		return dataProvider.getCompositeGroupContents(group, Optional.empty());
 	}
-	
+
 	@Transactional
 	@Override
 	public GroupStructuralData getBulkStructuralData(String group) throws EngineException

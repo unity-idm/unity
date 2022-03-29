@@ -4,23 +4,10 @@
  */
 package pl.edu.icm.unity.engine.bulk;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider.AUTHORIZATION_ROLE;
-
-import java.util.Collections;
-import java.util.Map;
-
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
@@ -30,23 +17,35 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
+
+import java.util.Collections;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+import static pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider.AUTHORIZATION_ROLE;
 
 public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 {
 	@Autowired
 	private BulkGroupQueryService bulkService;
-	
+
+	final int currentUsersLimitAllowingEffectivelySearch = CompositeEntitiesInfoProvider.USERS_LIMIT_ALLOWING_EFFECTIVELY_SEARCH;
+
+	void changeUsersLimitAllowingToSearchToDefault()
+	{
+		CompositeEntitiesInfoProvider.USERS_LIMIT_ALLOWING_EFFECTIVELY_SEARCH = currentUsersLimitAllowingEffectivelySearch;
+	}
+
+	void changeUsersLimitAllowingToSearch(int value)
+	{
+		CompositeEntitiesInfoProvider.USERS_LIMIT_ALLOWING_EFFECTIVELY_SEARCH = value;
+	}
+
 	@Test
 	public void shouldRetrieveEntitiesFromSubgroup() throws EngineException
 	{
@@ -66,7 +65,46 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		assertThat(result.get(added.getEntityId()), is(notNullValue()));
 		assertThat(result.get(added.getEntityId()).getIdentities(), hasItem(added));
 	}
-	
+
+	@Test
+	public void shouldRetrieveAttributesOfEntitiesInGroupInEffectiveWay() throws EngineException
+	{
+		groupsMan.addGroup(new Group("/A"));
+
+		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"),
+				EntityState.valid);
+		EntityParam entity = new EntityParam(added.getEntityId());
+
+		Identity added2 = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "2"),
+				EntityState.valid);
+		EntityParam entity2 = new EntityParam(added2.getEntityId());
+
+		groupsMan.addMemberFromParent("/A", entity);
+		Attribute saRoot = EnumAttribute.of(AUTHORIZATION_ROLE,
+				"/", Lists.newArrayList("Anonymous User"));
+		Attribute saInA = EnumAttribute.of(AUTHORIZATION_ROLE,
+				"/A", Lists.newArrayList("Inspector"));
+		attrsMan.createAttribute(entity, saRoot);
+		attrsMan.createAttribute(entity2, saRoot);
+		attrsMan.createAttribute(entity, saInA);
+
+		changeUsersLimitAllowingToSearch(0);
+		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A");
+		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/A", bulkData);
+		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
+
+		assertThat(resultInA.size(), is(1));
+		assertThat(resultInA.get(added.getEntityId()), is(notNullValue()));
+		assertThat(resultInA.get(added.getEntityId()).size(), is(1));
+		assertThat(resultInA.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Inspector"));
+
+		assertThat(resultInRoot.size(), is(1));
+		assertThat(resultInRoot.get(added.getEntityId()), is(notNullValue()));
+		assertThat(resultInRoot.get(added.getEntityId()).size(), is(2)); //+ cred req mandatory attr
+		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Anonymous User"));
+		changeUsersLimitAllowingToSearchToDefault();
+	}
+
 	@Test
 	public void shouldRetrieveAttributesOfEntitiesInGroup() throws EngineException
 	{
@@ -89,7 +127,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity2, saRoot);
 		attrsMan.createAttribute(entity, saInA);
 		
-		
+		changeUsersLimitAllowingToSearch(0);
 		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A");
 		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/A", bulkData);
 		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
@@ -103,6 +141,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		assertThat(resultInRoot.get(added.getEntityId()), is(notNullValue()));
 		assertThat(resultInRoot.get(added.getEntityId()).size(), is(2)); //+ cred req mandatory attr
 		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Anonymous User"));
+		changeUsersLimitAllowingToSearchToDefault();
 	}
 	
 	@Test

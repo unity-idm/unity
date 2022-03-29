@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import java.util.List;
-
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+
+import java.util.List;
 
 public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 {
@@ -35,6 +35,12 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 	 * @return all attributes (in any group) of members of the given group
 	 */
 	List<StoredAttribute> getAttributesOfGroupMembers(String group);
+
+	/**
+	 * @return selected attributes (in any group) of members of the given group,
+	 * Attributes can be null or empty, meaning no restriction.
+	 */
+	List<StoredAttribute> getAttributesOfGroupMembers(List<String> attributes, List<String> groups, List<String> globalAttributes);
 	
 	/**
 	 * Simplified version of {@link #getEntityAttributes(long, String, String)}. 

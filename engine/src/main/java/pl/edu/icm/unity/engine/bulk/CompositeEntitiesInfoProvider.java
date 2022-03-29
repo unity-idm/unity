@@ -4,24 +4,11 @@
  */
 package pl.edu.icm.unity.engine.bulk;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Sets;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
@@ -45,10 +32,22 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @Component
 class CompositeEntitiesInfoProvider
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, CompositeEntitiesInfoProvider.class);
+	static int USERS_LIMIT_ALLOWING_EFFECTIVELY_SEARCH = 500;
 	@Autowired
 	private AttributeTypeDAO attributeTypeDAO;
 	@Autowired
@@ -69,7 +68,7 @@ class CompositeEntitiesInfoProvider
 	private CredentialReqRepository credentialReqRepository;
 	@Autowired
 	private EnquiryFormDB enquiryDB;
-	
+
 	public GroupMembershipData getCompositeGroupContents(String group, Optional<Set<Long>> filter) throws EngineException
 	{
 		Stopwatch watch = Stopwatch.createStarted();
@@ -88,9 +87,15 @@ class CompositeEntitiesInfoProvider
 
 	private EntitiesData getEntitiesDataOfSingleGroup(String group, Predicate<GroupMembership> groupMembershipFilter)
 	{
+		Map<Long, EntityInformation> entityInfo = getEntityInfo(group);
+		Map<Long, Set<String>> filteredMemberships;
+		if(entityInfo.size() < USERS_LIMIT_ALLOWING_EFFECTIVELY_SEARCH)
+			filteredMemberships = getFilteredMemberships(entityInfo.keySet());
+		else
+			filteredMemberships = getFilteredMemberships(groupMembershipFilter);
 		return EntitiesData.builder()
-				.withMemberships(getFilteredMemberships(groupMembershipFilter))
-				.withEntityInfo(getEntityInfo(group))
+				.withMemberships(filteredMemberships)
+				.withEntityInfo(entityInfo)
 				.withIdentities(getIdentities(group))
 				.withDirectAttributes(getAttributes(group))				
 				.build();
@@ -260,4 +265,20 @@ class CompositeEntitiesInfoProvider
 		return ret;
 	}
 
+	private Map<Long, Set<String>> getFilteredMemberships(Set<Long> entityIds)
+	{
+		Stopwatch w = Stopwatch.createStarted();
+		List<GroupMembership> all;
+		if(entityIds.isEmpty())
+			all = List.of();
+		else
+			all = membershipDAO.getEntityMemberships(entityIds);
+		log.debug("getMemberships {}", w.toString());
+		Map<Long, Set<String>> ret = new HashMap<>();
+		all
+			.forEach(membership -> ret
+				.computeIfAbsent(membership.getEntityId(), key -> new HashSet<>())
+				.add(membership.getGroup()));
+		return ret;
+	}
 }

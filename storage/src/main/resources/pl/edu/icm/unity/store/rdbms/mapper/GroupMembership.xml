@@ -51,6 +51,12 @@
 		select GROUP_ENTITIES.*, <include refid="io.imunity.sql.groups"/>.NAME from GROUP_ENTITIES, <include refid="io.imunity.sql.groups"/> 
 			where ENTITY_ID = #{value} AND <include refid="io.imunity.sql.groups"/>.ID = GROUP_ENTITIES.GROUP_ID
 	</select>
+
+	<select id="getEntityMemberships" parameterType="list" resultMap="groupMember">
+		select GROUP_ENTITIES.*, <include refid="io.imunity.sql.groups"/>.NAME from GROUP_ENTITIES, <include refid="io.imunity.sql.groups"/>
+		where ENTITY_ID IN <foreach item='item' index='index' collection='list' open='(' separator=',' close=')'> #{item} </foreach>
+		AND <include refid="io.imunity.sql.groups"/>.ID = GROUP_ENTITIES.GROUP_ID
+	</select>
 	
 	<select id="getByKey" parameterType="GroupElementB" resultMap="groupMember">
 		SELECT GROUP_ENTITIES.*, <include refid="io.imunity.sql.groups"/>.NAME FROM GROUP_ENTITIES, <include refid="io.imunity.sql.groups"/> 

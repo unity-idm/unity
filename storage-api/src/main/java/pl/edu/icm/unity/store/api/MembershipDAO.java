@@ -4,14 +4,13 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Group membership DAO
@@ -31,6 +30,8 @@ public interface MembershipDAO
 	boolean isMember(long entityId, String group);
 
 	List<GroupMembership> getEntityMembership(long entityId);
+
+	List<GroupMembership> getEntityMemberships(Set<Long> entityId);
 
 	List<GroupMembership> getMembers(String group);
 	

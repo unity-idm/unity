@@ -4,13 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.membership;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
@@ -20,6 +15,11 @@ import pl.edu.icm.unity.store.rdbms.RDBMSDAO;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupMembership;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Repository(MembershipRDBMSStore.BEAN)
@@ -91,6 +91,15 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 	{
 		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
 		List<GroupElementBean> entityMembershipB = mapper.getEntityMembership(entityId);
+		return deserializeList(entityMembershipB);
+	}
+
+	@Override
+	public List<GroupMembership> getEntityMemberships(Set<Long> entityIds)
+	{
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+
+		List<GroupElementBean> entityMembershipB = mapper.getEntityMemberships(new ArrayList<>(entityIds));
 		return deserializeList(entityMembershipB);
 	}
 
