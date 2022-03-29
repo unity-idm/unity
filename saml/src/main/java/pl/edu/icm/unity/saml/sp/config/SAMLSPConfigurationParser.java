@@ -201,7 +201,7 @@ public class SAMLSPConfigurationParser
 			return TranslationProfileGenerator.generateIncludeInputProfile(
 					samlProperties.getValue(key + translationProfileProperty));
 		} else 
-			return null;
+			return TranslationProfileGenerator.generateIncludeInputProfile("sys:saml");
 	}
 
 	

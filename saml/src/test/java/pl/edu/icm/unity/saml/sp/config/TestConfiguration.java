@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.saml.sp;
+package pl.edu.icm.unity.saml.sp.config;
 
 import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.CREDENTIAL;
@@ -22,8 +22,7 @@ import org.junit.Test;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.saml.SimplePKIManagement;
 import pl.edu.icm.unity.saml.metadata.SPMetadataGenerator;
-import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
-import pl.edu.icm.unity.saml.sp.config.SAMLSPConfigurationParser;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 
