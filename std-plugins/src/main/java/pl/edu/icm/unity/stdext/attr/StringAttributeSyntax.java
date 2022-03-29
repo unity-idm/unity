@@ -69,7 +69,7 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 		setRegexp(jsonN.get("regexp").asText());
 		minLength = jsonN.get("minLength").asInt();
 		maxLength = jsonN.get("maxLength").asInt();
-		editWithTextArea = jsonN.get("editWithTextArea").asBoolean();
+		editWithTextArea = jsonN.has("editWithTextArea") && jsonN.get("editWithTextArea").asBoolean();
 	}
 
 	/**
