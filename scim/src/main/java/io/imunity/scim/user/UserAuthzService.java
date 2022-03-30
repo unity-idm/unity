@@ -33,12 +33,17 @@ class UserAuthzService
 	void checkReadUser(long entity, Set<String> userGroups) throws AuthorizationException
 	{
 		InvocationContext invocationContext = InvocationContext.getCurrent();
-		if (invocationContext.getInvocationMaterial().equals(InvocationMaterial.DIRECT))
+
+		switch (invocationContext.getInvocationMaterial())
 		{
+		case DIRECT:
 			checkReadUserWithDirectInvocationMaterial(entity, invocationContext, userGroups);
-		} else
-		{
+			break;
+		case OAUTH_DELEGATION:
 			checkReadUserWithOAuthInvocationMaterial(entity, invocationContext, userGroups);
+			break;
+		default:
+			throw new AuthorizationException("Access is denied");
 		}
 	}
 
