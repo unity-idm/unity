@@ -89,7 +89,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 			editor.addStyleName("u-gridEmbeddedEditor");
 			wrapper.addComponent(editor);
 			HorizontalLayout buttons;
-			if (t.equals(newElement))
+			if (newElement != null && newElement.equals(t))
 			{
 
 				buttons = StandardButtonsHelper.buildConfirmNewButtonsBar(msg, () -> {
