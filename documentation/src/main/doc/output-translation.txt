@@ -85,7 +85,8 @@ is executed. Status of each importer is value of map entries. The following valu
 +success+.
 . +idp+ Identifier of a remote IdP that was used to authenticate the current user's session. 
 In case when only a local authentication was used, the value is set to +_LOCAL+.  
- 
+. +authentications+ List of authenticator ids used for authentication in the current user''s session.
+. +mfa+ Set to true only if 2nd factor was used in the current user''s session. 
 
 Example output profile:
 ------
