@@ -150,4 +150,13 @@ public class MVELExpressionField extends CustomField<String>
 	{
 		return context;
 	}
+	
+	@Override
+	public void setWidth(float width, Unit unit)
+	{
+		if (field != null)
+		{
+			field.setWidth(width, unit);
+		}
+	}
 }
