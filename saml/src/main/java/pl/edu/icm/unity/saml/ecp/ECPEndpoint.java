@@ -51,25 +51,26 @@ import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 @PrototypeComponent
 public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
+	private final PKIManagement pkiManagement;
+	private final ECPContextManagement samlContextManagement;
+	private final ReplayAttackChecker replayAttackChecker;
+	private final TokensManagement tokensMan;
+	private final EntityManagement identitiesMan;
+	private final SessionManagement sessionMan;
+	private final ExecutorsService executorsService;
+	private final SAMLSPConfigurationParser configurationParser;
+	private final RemoteAuthnResultTranslator remoteAuthnProcessor;
+	private final URIAccessService uriAccessService;
+	private final Factory remoteMetadataManagerFactory;
+	private final URL baseAddress;
+	private final String responseConsumerAddress;
+	
 	private Properties properties;
 	private SAMLECPProperties samlProperties;
-	private Map<String, SPRemoteMetaManager> remoteMetadataManagers;
+	private Map<String, SPRemoteMetaManager> remoteMetadataManagersBySamlId;
 	private SPRemoteMetaManager myMetadataManager;
-	private PKIManagement pkiManagement;
-	private ECPContextManagement samlContextManagement;
-	private URL baseAddress;
-	private ReplayAttackChecker replayAttackChecker;
-	private TokensManagement tokensMan;
-	private EntityManagement identitiesMan;
-	private SessionManagement sessionMan;
-	private ExecutorsService executorsService;
-	private String responseConsumerAddress;
 	private MultiMetadataServlet metadataServlet;
-	private RemoteAuthnResultTranslator remoteAuthnProcessor;
-	private URIAccessService uriAccessService;
-	private final SAMLSPConfigurationParser configurationParser;
 	private SAMLSPConfiguration spConfiguration;
-	private final Factory remoteMetadataManagerFactory;
 	
 	@Autowired
 	public ECPEndpoint(NetworkServer server,
@@ -104,10 +105,10 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 		this.uriAccessService = uriAccessService;
 	}
 
-	public void init(Map<String, SPRemoteMetaManager> remoteMetadataManagers, 
+	public void init(Map<String, SPRemoteMetaManager> remoteMetadataManagersBySamlId, 
 			MultiMetadataServlet metadataServlet)
 	{
-		this.remoteMetadataManagers = remoteMetadataManagers;
+		this.remoteMetadataManagersBySamlId = remoteMetadataManagersBySamlId;
 		this.metadataServlet = metadataServlet;
 	}
 	
@@ -130,12 +131,9 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 			exposeMetadata();
 		String myId = spConfiguration.requesterSamlId;
 		
-		myMetadataManager = remoteMetadataManagers.containsKey(myId) ?
-				remoteMetadataManagers.get(myId) : 
-				remoteMetadataManagerFactory.getInstance();
+		myMetadataManager = remoteMetadataManagersBySamlId.computeIfAbsent(myId, 
+				key -> remoteMetadataManagerFactory.getInstance());
 		myMetadataManager.setBaseConfiguration(spConfiguration);
-		if (!remoteMetadataManagers.containsKey(myId))
-			remoteMetadataManagers.put(myId, myMetadataManager);
 	}
 
 	@Override

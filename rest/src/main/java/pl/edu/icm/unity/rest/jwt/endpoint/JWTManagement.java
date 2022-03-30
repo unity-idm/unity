@@ -50,12 +50,12 @@ public class JWTManagement
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, JWTManagement.class);
 	public static final String JWT_TOKEN_ID = "simpleJWT";
 	
-	private TokensManagement tokensMan;
-	private EntityManagement identitiesMan;
-	private PKIManagement pkiManagement;
-	private String audience;
-	private String issuer;
-	private JWTAuthenticationConfig config;
+	private final TokensManagement tokensMan;
+	private final EntityManagement identitiesMan;
+	private final PKIManagement pkiManagement;
+	private final String audience;
+	private final String issuer;
+	private final JWTAuthenticationConfig config;
 
 	public JWTManagement(TokensManagement tokensMan, PKIManagement pkiManagement, EntityManagement identitiesMan,
 			String realm, String address, JWTAuthenticationConfig config)

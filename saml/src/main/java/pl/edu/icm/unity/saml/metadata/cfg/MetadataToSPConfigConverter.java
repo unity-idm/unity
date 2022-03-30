@@ -68,6 +68,8 @@ import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;
 @Component
 class MetadataToSPConfigConverter
 {
+	private static final String REFEDS_HIDE_FROM_DISCOVERY = "http://refeds.org/category/hide-from-discovery";
+	private static final String MACEDIR_ENTITY_CATEGORY = "http://macedir.org/entity-category";
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetadataToSPConfigConverter.class);
 	private static final String SP_META_CERT = "_SP_METADATA_CERT_";
 	
@@ -241,14 +243,14 @@ class MetadataToSPConfigConverter
 		AttributeType[] attributeArray = entityAttributes.getAttributeArray();
 		for (AttributeType a: attributeArray)
 		{
-			if ("http://macedir.org/entity-category".equals(a.getName()))
+			if (MACEDIR_ENTITY_CATEGORY.equals(a.getName()))
 			{
 				for (XmlObject value : a.getAttributeValueArray())
 				{
 					XmlCursor c = value.newCursor();
 					String valueStr = c.getTextValue();
 					c.dispose();
-					if (valueStr.equals("http://refeds.org/category/hide-from-discovery"))
+					if (valueStr.equals(REFEDS_HIDE_FROM_DISCOVERY))
 						return true;
 				}
 			}
@@ -454,7 +456,7 @@ class MetadataToSPConfigConverter
 		return ret;
 	}
 	
-	public static void addLocalizedNames(MessageSource msg, LocalizedNameType[] names, Map<String, String> ret)
+	private static void addLocalizedNames(MessageSource msg, LocalizedNameType[] names, Map<String, String> ret)
 	{
 		if (names == null)
 			return;
