@@ -19,7 +19,6 @@ import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
-import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
@@ -30,6 +29,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -47,7 +47,7 @@ class TokenUtils
 			Date now, OAuthToken newToken, Long owner) throws EngineException, JsonProcessingException
 	{
 		RefreshToken refreshToken = getRefreshToken(config,
-				Arrays.asList(newToken.getEffectiveScope()).contains(OIDCScopeValue.OFFLINE_ACCESS.getValue()));
+				Arrays.asList(newToken.getEffectiveScope()).contains(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE));
 		if (refreshToken != null)
 		{
 			newToken.setRefreshToken(refreshToken.getValue());

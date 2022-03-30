@@ -34,6 +34,7 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
@@ -186,12 +187,12 @@ class OAuthWebRequestValidator
 		{
 			List<OAuthScope> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes, requestedScopes);
 			Optional<OAuthScope> offlineScope = validRequestedScopes.stream()
-					.filter(s -> s.name.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny();
+					.filter(s -> s.name.equals(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE)).findAny();
 
 			if (!offlineScope.isEmpty()
 					&& !context.getPrompts().contains(pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt.CONSENT))
 			{
-				log.info("Client requested " + OIDCScopeValue.OFFLINE_ACCESS.getValue()
+				log.info("Client requested " + OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE
 						+ " with scope, but the prompt parameter not contains 'consent', ignore offline_access scope");
 				validRequestedScopes.remove(offlineScope.get());
 			}
