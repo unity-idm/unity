@@ -27,7 +27,6 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 public abstract class EditServiceViewBase extends ViewWithSubViewBase
 {
-	private MessageSource msg;
 	private ServiceControllerBase controller;
 	private MainServiceEditor editor;
 	private String mainServicesViewName;
@@ -36,7 +35,7 @@ public abstract class EditServiceViewBase extends ViewWithSubViewBase
 	public EditServiceViewBase(MessageSource msg, ServiceControllerBase controller,
 			String mainServicesViewName)
 	{
-		this.msg = msg;
+		super(msg);
 		this.controller = controller;
 		this.mainServicesViewName = mainServicesViewName;
 	}

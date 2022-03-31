@@ -47,7 +47,7 @@ class EditAuthenticatorView extends ViewWithSubViewBase
 	@Autowired
 	EditAuthenticatorView(MessageSource msg, AuthenticatorsController controller)
 	{
-		super();
+		super(msg);
 		this.msg = msg;
 		this.controller = controller;
 	}
