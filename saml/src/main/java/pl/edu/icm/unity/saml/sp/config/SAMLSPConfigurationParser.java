@@ -170,6 +170,7 @@ public class SAMLSPConfigurationParser
 							key + SAMLSPProperties.METADATA_SIGNATURE, MetadataSignatureValidation.class))
 					.withTranslationProfile(generateMetadataTranslationProfile(samlProperties, key))
 					.withUrl(samlProperties.getValue(key + SAMLSPProperties.METADATA_URL))
+					.withExcludedIdps(samlProperties.getListOfValues(key + SAMLSPProperties.IDPMETA_EXCLUDED_IDPS))
 					.build())
 			.collect(Collectors.toList());
 	}

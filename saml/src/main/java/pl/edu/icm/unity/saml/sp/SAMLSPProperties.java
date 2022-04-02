@@ -65,7 +65,8 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String IDPMETA_TRANSLATION_PROFILE = "perMetadataTranslationProfile";
 	public static final String IDPMETA_EMBEDDED_TRANSLATION_PROFILE = "perMetadataEmbeddedTranslationProfile";
 	public static final String IDPMETA_REGISTRATION_FORM = "perMetadataRegistrationForm";
-	
+	public static final String IDPMETA_EXCLUDED_IDPS = "excludedIdps.";
+
 	
 	public static final String IDP_FEDERATION_ID = "samlFederationId";
 	public static final String IDP_FEDERATION_NAME = "samlFederationName";
@@ -211,7 +212,10 @@ public class SAMLSPProperties extends SamlProperties
 				setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Deafult registration form for all the IdPs from the metadata. Can be overwritten by "
 				+ "individual IdP configuraiton entries."));
-		
+
+		META.put(IDPMETA_EXCLUDED_IDPS, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setList(false).setDescription(
+				"List of excluded saml idP ids"));
+	
 		META.put(IDENTITY_MAPPING_PFX, new PropertyMD().setStructuredList(false).setCategory(common).
 				setDescription("Prefix used to store mappings of SAML identity types to Unity identity types. "
 						+ "Those mappings are used to reverse the mapping process of remote identity "
