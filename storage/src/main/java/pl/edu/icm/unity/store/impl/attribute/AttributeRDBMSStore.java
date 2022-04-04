@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
+import com.google.common.base.Stopwatch;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
@@ -33,7 +36,9 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	public static final String BEAN = DAO_ID + "rdbms";
 	private final GroupDAO groupDAO;
 	private final Integer attributeSizeLimit;
-	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, AttributeRDBMSStore.class);
+
+
 	@Autowired
 	AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer,
 			GroupDAO groupDAO,
@@ -132,13 +137,19 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
 		List<AttributeBean> groupMembersAttributes;
 		List<AttributeBean> globalGroupMembersAttributes = List.of();
+
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		if(attributes != null && !attributes.isEmpty())
 			groupMembersAttributes = mapper.getSelectedGroupsMembersAttributes(groups, attributes);
 		else
 			groupMembersAttributes = mapper.getGroupsMembersAttributes(groups);
+		log.info("Direct attributes in groups retrieval: {}", stopwatch.toString());
 
+		stopwatch.reset();
+		stopwatch.start();
 		if(!globalAttributes.isEmpty())
 			globalGroupMembersAttributes = mapper.getSelectedGroupsMembersAttributes(List.of("/"), globalAttributes);
+		log.info("Global attributes in groups retrieval: {}", stopwatch.toString());
 
 		return convertList(Stream.concat(groupMembersAttributes.stream(), globalGroupMembersAttributes.stream())
 				.collect(toList()));

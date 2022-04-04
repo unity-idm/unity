@@ -4,20 +4,17 @@
  */
 package pl.edu.icm.unity.store.impl.identities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -27,8 +24,6 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Repository(IdentityRDBMSStore.BEAN)
 public class IdentityRDBMSStore extends GenericNamedRDBMSCRUD<StoredIdentity, IdentityBean> implements IdentityDAO
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, IdentityRDBMSStore.class);
-
 	public static final String BEAN = DAO_ID + "rdbms";
 
 	@Autowired
@@ -72,17 +67,11 @@ public class IdentityRDBMSStore extends GenericNamedRDBMSCRUD<StoredIdentity, Id
 	public List<StoredIdentity> getByGroup(String group)
 	{
 		IdentitiesMapper mapper = SQLTransactionTL.getSql().getMapper(IdentitiesMapper.class);
-		long a = System.currentTimeMillis();
 		List<IdentityBean> allInDB = mapper.getByGroup(group);
-		log.info("DB cost time {}", System.currentTimeMillis() - a);
 
 		List<StoredIdentity> ret = new ArrayList<>(allInDB.size());
-		a = System.currentTimeMillis();
 		for (IdentityBean bean: allInDB)
 			ret.add(jsonSerializer.fromDB(bean));
-
-		log.info("Serializer cost time {}", System.currentTimeMillis() - a);
-		log.info("Size {}", ret.size());
 
 		return ret;
 	}

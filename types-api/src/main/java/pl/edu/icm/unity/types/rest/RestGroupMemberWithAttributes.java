@@ -2,7 +2,12 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.types.rest;
+
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityInformation;
+import pl.edu.icm.unity.types.basic.Identity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,21 +17,21 @@ import java.util.Objects;
 /**
  * Entity as group member. Provides information on {@link Entity} and its all attributes in some group.
  */
-public class SimpleGroupMember
+public class RestGroupMemberWithAttributes
 {
 	private EntityInformation entityInformation;
 	private List<Identity> identities;
 	private Collection<AttributeExt> attributes;
 
-	public SimpleGroupMember(EntityInformation entityInformation, List<Identity> identities, Collection<AttributeExt> attributes)
+	public RestGroupMemberWithAttributes(EntityInformation entityInformation, List<Identity> identities, Collection<AttributeExt> attributes)
 	{
 		this.entityInformation = entityInformation;
-		this.identities = identities;
-		this.attributes = attributes;
+		this.identities = List.copyOf(identities);
+		this.attributes = List.copyOf(attributes);
 	}
 
 	//for Jackson
-	protected SimpleGroupMember()
+	protected RestGroupMemberWithAttributes()
 	{
 	}
 
@@ -50,7 +55,7 @@ public class SimpleGroupMember
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		SimpleGroupMember that = (SimpleGroupMember) o;
+		RestGroupMemberWithAttributes that = (RestGroupMemberWithAttributes) o;
 		return Objects.equals(entityInformation, that.entityInformation) &&
 				Objects.equals(identities, that.identities) &&
 				Objects.equals(attributes, that.attributes);

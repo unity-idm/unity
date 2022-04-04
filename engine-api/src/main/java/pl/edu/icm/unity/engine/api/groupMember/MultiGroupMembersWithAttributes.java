@@ -2,29 +2,25 @@
  * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.engine.api.groupMember;
+
+import pl.edu.icm.unity.types.rest.RestGroupMemberWithAttributes;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Provides details about members of groups.
- */
-public class SimpleMultiGroupMembers
+public class MultiGroupMembersWithAttributes
 {
-	public Map<String, List<SimpleGroupMember>> members;
+	public final Map<String, List<RestGroupMemberWithAttributes>> members;
 
-	public SimpleMultiGroupMembers(Map<String, List<SimpleGroupMember>> members)
+	public MultiGroupMembersWithAttributes(Map<String, List<RestGroupMemberWithAttributes>> members)
 	{
-		this.members = members;
+		this.members = Map.copyOf(members);
 	}
 
-	public SimpleMultiGroupMembers()
-	{
-	}
 
-	public Map<String, List<SimpleGroupMember>> getMembers()
+	public Map<String, List<RestGroupMemberWithAttributes>> getMembers()
 	{
 		return members;
 	}
@@ -34,7 +30,7 @@ public class SimpleMultiGroupMembers
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		SimpleMultiGroupMembers that = (SimpleMultiGroupMembers) o;
+		MultiGroupMembersWithAttributes that = (MultiGroupMembersWithAttributes) o;
 		return Objects.equals(members, that.members);
 	}
 

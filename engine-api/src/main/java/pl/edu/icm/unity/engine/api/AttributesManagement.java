@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.engine.api;
 
-import java.util.Collection;
-import java.util.List;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupPattern;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Attributes management API.
@@ -107,4 +107,9 @@ public interface AttributesManagement
 	 */
 	Collection<AttributeExt> getAllAttributes(EntityParam entity, boolean effective,
 			List<GroupPattern> groupPathPatterns, String attributeTypeId, boolean allowDegrade) throws EngineException;
+
+	/**
+	 * Returns direct attributes of all groups, including hidden ones.
+	 */
+	Collection<AttributeExt> getAllDirectAttributes(EntityParam entity);
 }

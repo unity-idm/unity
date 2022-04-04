@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +25,8 @@ import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
+import pl.edu.icm.unity.engine.api.groupMember.GroupMembersService;
+import pl.edu.icm.unity.engine.api.groupMember.MultiGroupMembersWithAttributes;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
@@ -45,6 +48,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.types.rest.RestGroupMemberWithAttributes;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
 import javax.ws.rs.*;
@@ -90,7 +94,7 @@ public class RESTAdmin implements RESTAdminHandler
 	private UserNotificationTriggerer userNotificationTriggerer;
 	private ExternalDataParser dataParser;
 	private IdpStatisticManagement idpStatisticManagement;
-	private GroupMemberOptimizedRESTService groupMemberOptimizedRESTService;
+	private GroupMembersService groupMembersService;
 
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan,
@@ -110,7 +114,7 @@ public class RESTAdmin implements RESTAdminHandler
 			UserNotificationTriggerer userNotificationTriggerer,
 			ExternalDataParser dataParser,
 			IdpStatisticManagement idpStatisticManagement,
-			GroupMemberOptimizedRESTService groupMemberOptimizedRESTService)
+			GroupMembersService groupMembersService)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -129,7 +133,7 @@ public class RESTAdmin implements RESTAdminHandler
 		this.userNotificationTriggerer = userNotificationTriggerer;
 		this.dataParser = dataParser;
 		this.idpStatisticManagement = idpStatisticManagement;
-		this.groupMemberOptimizedRESTService = groupMemberOptimizedRESTService;
+		this.groupMembersService = groupMembersService;
 	}
 
 	
@@ -280,24 +284,43 @@ public class RESTAdmin implements RESTAdminHandler
 		return mapper.writeValueAsString(attributes);
 	}
 
+	@Path("/entity/{entityId}/groups/direct/attributes")
+	@GET
+	public String getAttributesInAllGroups(@PathParam("entityId") String entityId,
+												@QueryParam("identityType") String idType)
+			throws EngineException, JsonProcessingException
+	{
+		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService.getAllDirectAttributes(getEP(entityId, idType));
+		return mapper.writeValueAsString(attributesInGroups);
+	}
+
 	@Path("/group-members-attributes/{groupPath}")
 	@GET
 	public String getGroupMembersAttributesResolved(@PathParam("groupPath") String group,
 	                                                @QueryParam("attributes") List<String> attributes)
-		throws EngineException, JsonProcessingException
+		throws JsonProcessingException
 	{
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		log.debug("getGroupMembersAttributesResolved query for " + group);
 		if (!group.startsWith("/"))
 			group = "/" + group;
-		List<SimpleGroupMember> groupMembers = groupMemberOptimizedRESTService.getGroupMembers(group, attributes);
-		return mapper.writeValueAsString(groupMembers);
+		List<RestGroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes(group, attributes).stream()
+				.map(groupMemberWithAttributes -> new RestGroupMemberWithAttributes(
+						groupMemberWithAttributes.getEntityInformation(),
+						groupMemberWithAttributes.getIdentities(),
+						groupMemberWithAttributes.getAttributes())
+				)
+				.collect(Collectors.toList());
+		String s = mapper.writeValueAsString(groupMembers);
+		log.info("Request completed: {}", stopwatch.toString());
+		return s;
 	}
 
 	@Path("/multi-group-members-attributes")
 	@GET
 	public String getMultiGroupMembersAttributesResolved(@QueryParam("attributes") List<String> attributes,
 	                                                @QueryParam("groups") List<String> groups)
-			throws EngineException, JsonProcessingException
+			throws JsonProcessingException
 	{
 		log.debug("getGroupMembersAttributesResolved query for " + groups);
 		if(groups.isEmpty()){
@@ -311,8 +334,19 @@ public class RESTAdmin implements RESTAdminHandler
 						return "/" + grp;
 					return grp;
 				}).collect(Collectors.toList());
-		Map<String, List<SimpleGroupMember>> groupMembers = groupMemberOptimizedRESTService.getGroupMembers(allGroups, attributes);
-		return mapper.writeValueAsString(new SimpleMultiGroupMembers(groupMembers));
+		Map<String, List<RestGroupMemberWithAttributes>> groupMembers = groupMembersService.getGroupsMembersInGroupsWithSelectedAttributes(allGroups, attributes)
+				.entrySet().stream()
+				.collect(Collectors.toMap(
+						Map.Entry::getKey,
+						entry -> entry.getValue().stream()
+								.map(groupMemberWithAttributes -> new RestGroupMemberWithAttributes(
+										groupMemberWithAttributes.getEntityInformation(),
+										groupMemberWithAttributes.getIdentities(),
+										groupMemberWithAttributes.getAttributes())
+								)
+								.collect(Collectors.toList())
+				));
+		return mapper.writeValueAsString(new MultiGroupMembersWithAttributes(groupMembers));
 	}
 
 	@Path("/entity/{entityId}/record")

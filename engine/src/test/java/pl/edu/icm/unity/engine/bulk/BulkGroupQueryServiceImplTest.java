@@ -34,16 +34,16 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 	@Autowired
 	private BulkGroupQueryService bulkService;
 
-	final int currentUsersLimitAllowingEffectivelySearch = CompositeEntitiesInfoProvider.USERS_LIMIT_ALLOWING_EFFECTIVELY_SEARCH;
+	final int currentUsersLimitAllowingEffectivelySearch = CompositeEntitiesInfoProvider.USERS_THRESHOLD_ALLOWING_EFFECTIVE_GET_OF_SELECTED_USERS;
 
 	void changeUsersLimitAllowingToSearchToDefault()
 	{
-		CompositeEntitiesInfoProvider.USERS_LIMIT_ALLOWING_EFFECTIVELY_SEARCH = currentUsersLimitAllowingEffectivelySearch;
+		CompositeEntitiesInfoProvider.USERS_THRESHOLD_ALLOWING_EFFECTIVE_GET_OF_SELECTED_USERS = currentUsersLimitAllowingEffectivelySearch;
 	}
 
 	void changeUsersLimitAllowingToSearch(int value)
 	{
-		CompositeEntitiesInfoProvider.USERS_LIMIT_ALLOWING_EFFECTIVELY_SEARCH = value;
+		CompositeEntitiesInfoProvider.USERS_THRESHOLD_ALLOWING_EFFECTIVE_GET_OF_SELECTED_USERS = value;
 	}
 
 	@Test

@@ -4,28 +4,10 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.ImmutableMap;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.ImmutableMap;
-
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
@@ -39,37 +21,25 @@ import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
-import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.exceptions.*;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.store.api.AttributeDAO;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.IdentityDAO;
-import pl.edu.icm.unity.store.api.MembershipDAO;
+import pl.edu.icm.unity.store.api.*;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
+import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
 
 /**
  * Attributes and ACs related operations, intended for reuse between other classes.
@@ -765,19 +735,14 @@ public class AttributesHelper
 	/**
 	 * @return map indexed with groups. Values are maps of all attributes in given group, indexed with attribute names.
 	 */
-	private Map<String, Map<String, AttributeExt>> getAllEntityAttributesMap(long entityId) 
+	public Map<String, Map<String, AttributeExt>> getAllEntityAttributesMap(long entityId)
 			throws IllegalTypeException, IllegalGroupValueException
 	{
 		List<StoredAttribute> attributes = attributeDAO.getAttributes(null, entityId, null);
 		Map<String, Map<String, AttributeExt>> ret = new HashMap<>();
 		for (StoredAttribute attribute: attributes)
 		{
-			Map<String, AttributeExt> attrsInGroup = ret.get(attribute.getAttribute().getGroupPath());
-			if (attrsInGroup == null)
-			{
-				attrsInGroup = new HashMap<>();
-				ret.put(attribute.getAttribute().getGroupPath(), attrsInGroup);
-			}
+			Map<String, AttributeExt> attrsInGroup = ret.computeIfAbsent(attribute.getAttribute().getGroupPath(), k -> new HashMap<>());
 			attrsInGroup.put(attribute.getAttribute().getName(), attribute.getAttribute());
 		}
 		return ret;

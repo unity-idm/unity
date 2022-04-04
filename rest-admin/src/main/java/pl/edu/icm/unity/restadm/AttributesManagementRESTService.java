@@ -4,25 +4,19 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
-import pl.edu.icm.unity.types.basic.GroupPattern;
+import pl.edu.icm.unity.types.basic.*;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -78,6 +72,17 @@ class AttributesManagementRESTService
 		return attributes.stream()
 			.map(ExternalizedAttribute::new)
 			.collect(groupingBy(Attribute::getGroupPath, toList()));
+	}
+
+	Map<String, List<ExternalizedAttribute>> getAllDirectAttributes(EntityParam entity)
+	{
+		LOG.debug("getAllDirectAttributes query for " + entity);
+
+		Collection<AttributeExt> attributes = attributesMan.getAllDirectAttributes(entity);
+
+		return attributes.stream()
+				.map(ExternalizedAttribute::new)
+				.collect(groupingBy(Attribute::getGroupPath, toList()));
 	}
 
 	private ExternalizedAttribute createWithSimpleValues(AttributeExt attribute)

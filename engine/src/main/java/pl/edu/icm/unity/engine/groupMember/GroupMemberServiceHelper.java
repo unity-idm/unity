@@ -8,12 +8,8 @@ import com.google.common.base.Stopwatch;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.groupMember.GroupMemberService;
-import pl.edu.icm.unity.engine.authz.AuthzCapability;
-import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.engine.api.groupMember.GroupMemberWithAttributes;
 import pl.edu.icm.unity.store.api.*;
-import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.*;
@@ -25,60 +21,38 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 
 @Component
-class GroupMemberServiceImpl implements GroupMemberService
+class GroupMemberServiceHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, GroupMemberServiceImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, GroupMemberServiceHelper.class);
 
 	private final EntityDAO entityDAO;
-	private final GroupDAO groupDAO;
 	private final AttributeTypeDAO attributeTypeDAO;
 	private final MembershipDAO membershipDAO;
 	private final AttributeDAO attributeDAO;
 	private final IdentityDAO identityDAO;
-	private final InternalAuthorizationManager authz;
 
-	GroupMemberServiceImpl(EntityDAO entityDAO, GroupDAO groupDAO, AttributeTypeDAO attributeTypeDAO,
-	                       MembershipDAO membershipDAO, AttributeDAO attributeDAO, IdentityDAO identityDAO,
-	                       InternalAuthorizationManager authz) {
+	GroupMemberServiceHelper(EntityDAO entityDAO, AttributeTypeDAO attributeTypeDAO,
+	                         MembershipDAO membershipDAO, AttributeDAO attributeDAO, IdentityDAO identityDAO) {
 		this.entityDAO = entityDAO;
-		this.groupDAO = groupDAO;
 		this.attributeTypeDAO = attributeTypeDAO;
 		this.membershipDAO = membershipDAO;
 		this.attributeDAO = attributeDAO;
 		this.identityDAO = identityDAO;
-		this.authz = authz;
 	}
 
-	@Override
-	@Transactional
-	public Group getGroup(String group) throws AuthorizationException {
-		authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
-		return groupDAO.get(group);
-	}
-
-	@Override
-	@Transactional
-	public List<SimpleGroupMember> getGroupMembers(String group, List<String> attributes) throws AuthorizationException {
-		authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
-		Stopwatch watch = Stopwatch.createStarted();
-
+	public List<GroupMemberWithAttributes> getGroupMembers(String group, List<String> attributes) {
 		List<String> globalAttr = getGlobalAttributes(attributes);
 
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		Map<Long, Map<String, Map<String, AttributeExt>>> groupedAttributes = getAttributes(List.of(group), attributes, globalAttr);
+		log.info("Attributes in groups retrieval: {}", stopwatch.toString());
 
-		List<SimpleGroupMember> groupMembers = getGroupMembers(group, globalAttr, groupedAttributes);
-
-		log.debug("Group membership data retrieval: {}", watch.toString());
-
-		return groupMembers;
+		return getGroupMembers(group, globalAttr, groupedAttributes);
 	}
 
-	@Override
-	@Transactional
-	public Map<String, List<SimpleGroupMember>> getGroupMembers(List<String> groups, List<String> attributes) throws AuthorizationException
+	public Map<String, List<GroupMemberWithAttributes>> getGroupMembers(List<String> groups, List<String> attributes)
 	{
-		authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
-		Map<String, List<SimpleGroupMember>> groupMembers = new HashMap<>();
+		Map<String, List<GroupMemberWithAttributes>> groupMembers = new HashMap<>();
 
 		Stopwatch watch = Stopwatch.createStarted();
 
@@ -99,6 +73,12 @@ class GroupMemberServiceImpl implements GroupMemberService
 	private List<String> getGlobalAttributes(List<String> attributes)
 	{
 		Map<String, AttributeType> allAsMap = attributeTypeDAO.getAllAsMap();
+		if(attributes.isEmpty())
+			return allAsMap.values().stream()
+					.filter(AttributeType::isGlobal)
+					.map(AttributeType::getName)
+					.collect(toList());
+
 		return attributes.stream()
 				.map(allAsMap::get)
 				.filter(Objects::nonNull)
@@ -107,13 +87,23 @@ class GroupMemberServiceImpl implements GroupMemberService
 				.collect(toList());
 	}
 
-	private List<SimpleGroupMember> getGroupMembers(String group, List<String> globalAttr, Map<Long, Map<String, Map<String, AttributeExt>>> groupedAttributes) throws AuthorizationException
+	private List<GroupMemberWithAttributes> getGroupMembers(String group, List<String> globalAttr, Map<Long, Map<String, Map<String, AttributeExt>>> groupedAttributes)
 	{
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		Map<Long, EntityInformation> entityInfo = getEntityInfo(group);
-		Map<Long, Set<String>> memberships = getMemberships(group);
-		Map<Long, List<Identity>> identities = getIdentities(group);
+		log.info("Entities data retrieval: {}", stopwatch.toString());
 
-		List<SimpleGroupMember> ret = new ArrayList<>();
+		stopwatch.reset();
+		stopwatch.start();
+		Map<Long, Set<String>> memberships = getMemberships(group);
+		log.info("Group membership data retrieval: {}", stopwatch.toString());
+
+		stopwatch.reset();
+		stopwatch.start();
+		Map<Long, List<Identity>> identities = getIdentities(group);
+		log.info("Identities data retrieval: {}", stopwatch.toString());
+
+		List<GroupMemberWithAttributes> ret = new ArrayList<>();
 		for (Long memberId: memberships.keySet())
 		{
 			Map<String, Map<String, AttributeExt>> memberGroupsWithAttr = groupedAttributes.getOrDefault(memberId, Map.of());
@@ -121,7 +111,7 @@ class GroupMemberServiceImpl implements GroupMemberService
 			List<AttributeExt> globalAttributes = memberGroupsWithAttr.getOrDefault("/", Map.of()).values().stream()
 					.filter(y -> globalAttr.contains(y.getName()))
 					.collect(toList());
-			ret.add(new SimpleGroupMember(entityInfo.get(memberId), identities.get(memberId), Stream.concat(groupAttributes.stream(), globalAttributes.stream()).collect(toList())));
+			ret.add(new GroupMemberWithAttributes(entityInfo.get(memberId), identities.get(memberId), Stream.concat(groupAttributes.stream(), globalAttributes.stream()).collect(toList())));
 		}
 
 		return ret;
