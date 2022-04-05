@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,7 +38,7 @@ public class OAuthToken
 	private int maxExtendedValidity;
 	private int tokenValidity;
 	private String responseType;
-	private String audience;
+	private List<String> audience;
 	private String issuerUri;
 	private ClientType clientType;
 	private PKCSInfo pkcsInfo;
@@ -263,12 +264,12 @@ public class OAuthToken
 		this.requestedScope = requestedScope;
 	}
 
-	public String getAudience()
+	public List<String> getAudience()
 	{
 		return audience;
 	}
 
-	public void setAudience(String audience)
+	public void setAudience(List<String> audience)
 	{
 		this.audience = audience;
 	}

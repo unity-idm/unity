@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.AntPathMatcher;
@@ -158,9 +159,17 @@ class OAuthWebRequestValidator
 		
 		validateAndRecordScopes(attributes, context, authzRequest);
 		
+		validateAndRecordResources(context, authzRequest);
+		
 		if (context.getClientType() == ClientType.PUBLIC)
 			validatePKCEIsUsedForCodeFlow(authzRequest, client);
 		
+	}
+
+	private void validateAndRecordResources(OAuthAuthzContext context, AuthorizationRequest authzRequest)
+	{
+		context.setAdditionalAudience(
+				authzRequest.getResources().stream().map(r -> r.toASCIIString()).collect(Collectors.toList()));
 	}
 
 	private void validateAndRecordPrompt(OAuthAuthzContext context, AuthorizationRequest authzRequest)

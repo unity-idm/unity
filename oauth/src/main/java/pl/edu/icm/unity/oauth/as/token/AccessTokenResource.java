@@ -276,7 +276,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 
 		newToken.setClientId(callerEntityId);
-		newToken.setAudience(audience);
+		newToken.setAudience(List.of(audience));
 		newToken.setClientUsername(audience);
 		newToken.setClientType(parsedSubjectToken.getClientType());
 

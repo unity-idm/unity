@@ -96,6 +96,7 @@ public class OAuthPreferences extends IdPPreferences
 		private boolean defaultAccept=true;
 		private String selectedIdentity;
 		private Set<String> effectiveRequestedScopes = new HashSet<>();
+		private Set<String> audience = new HashSet<>();
 		
 		protected OAuthClientSettings()
 		{
@@ -114,6 +115,16 @@ public class OAuthPreferences extends IdPPreferences
 					scopes.add(e.asText());
 				getEffectiveRequestedScopes().addAll(scopes);
 			}
+			
+			if (from.has("audience"))
+			{
+				ArrayNode jsonAcs = (ArrayNode) from.get("audience");
+				Set<String> audience = new HashSet<>();
+				for (JsonNode e : jsonAcs)
+					audience.add(e.asText());
+				getAudience().addAll(audience);
+			}
+			
 		}
 
 		public boolean isDoNotAsk()
@@ -151,6 +162,16 @@ public class OAuthPreferences extends IdPPreferences
 			this.effectiveRequestedScopes = effectiveRequestedScopes;
 		}
 
+		public Set<String> getAudience()
+		{
+			return audience;
+		}
+
+		public void setAudience(Set<String> audience)
+		{
+			this.audience = audience;
+		}
+		
 		protected ObjectNode serialize()
 		{
 			ObjectNode main = Constants.MAPPER.createObjectNode();
@@ -161,6 +182,9 @@ public class OAuthPreferences extends IdPPreferences
 			ArrayNode values = main.putArray("effectiveRequestedScopes");
 			for (String value : effectiveRequestedScopes)
 				values.add(value);
+			ArrayNode audienceNode = main.putArray("audience");
+			for (String value : audience)
+				audienceNode.add(value);	
 			return main;
 		}
 	}

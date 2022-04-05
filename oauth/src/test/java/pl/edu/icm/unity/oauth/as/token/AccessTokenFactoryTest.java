@@ -10,6 +10,7 @@ import static pl.edu.icm.unity.oauth.as.token.AccessTokenFactory.JWT_AT_MEDIA_TY
 import java.security.interfaces.ECPublicKey;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -139,7 +140,7 @@ public class AccessTokenFactoryTest
 		ret.setIssuerUri("issuer");
 		ret.setClientUsername("client");
 		ret.setEffectiveScope(new String []{"sc1"});
-		ret.setAudience("audience");
+		ret.setAudience(List.of("audience"));
 		return ret;
 	}
 }

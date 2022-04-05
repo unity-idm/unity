@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.webui.idpcommon;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
@@ -74,7 +71,7 @@ public class SPInfoComponent extends CustomComponent
 			if (url != null)
 			{
 				String presentationAddr = msg.getMessage("SPInfoComponent.requesterAddress", 
-						getHumanReadableDomain(url));
+						URIPresentationHelper.getHumanReadableDomain(url));
 				main.addComponent(getAddressInfoLabel(presentationAddr));
 			}
 		}
@@ -102,24 +99,11 @@ public class SPInfoComponent extends CustomComponent
 	{
 		if (url != null)
 		{
-			String presentationAddr = getHumanReadableDomain(url);
+			String presentationAddr = URIPresentationHelper.getHumanReadableDomain(url);
 			return msg.getMessage("SPInfoComponent.requesterAddressAndName", name, presentationAddr);
 		} else
 		{
 			return msg.getMessage("SPInfoComponent.requesterName", name);
-		}
-	}
-	
-	private String getHumanReadableDomain(String url)
-	{
-		try
-		{
-			URI uri = new URI(url);
-			String host = uri.getHost();
-			return host == null ? url : host;
-		} catch (URISyntaxException e)
-		{
-			return url;
 		}
 	}
 }
