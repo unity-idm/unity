@@ -143,17 +143,14 @@ public class UserRetrievalServiceTest
 		GroupMembershipData membershipData = new MockGroupMembershipData();
 		when(bulkService.getBulkMembershipData(eq("/"))).thenReturn(membershipData);
 		when(bulkService.getMembershipInfo(eq(membershipData))).thenReturn(ImmutableMap.of(0l, entity1, 1l, entity2));
-
 		AttributeExt attribute1 = new AttributeExt(
 				new Attribute("a", StringAttributeSyntax.ID, "/scim", List.of("a1v")), false);
-
 		when(bulkService.getGroupUsersAttributes(eq("/scim"), eq(membershipData)))
 				.thenReturn(Map.of(1l, Map.of("a", attribute1), 0l, Map.of("a", attribute1)));
 
 		List<User> users = userRetrievalService.getUsers();
 
 		assertThat(users.size(), is(2));
-
 		assertThat(users,
 				hasItems(User.builder().withEntityId(1L)
 						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
@@ -166,6 +163,33 @@ public class UserRetrievalServiceTest
 								.withIdentities(entity1.entity.getIdentities()).withAttributes(List.of(attribute1))
 
 								.build()));
+
+	}
+
+	@Test
+	public void shouldReturnUsersWithoutAttributesInScimRootGroup() throws EngineException
+	{
+		addTwoMembersGroupsWithSubgroups();
+		EntityInGroupData entity1 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("0", 0), null,
+				Set.of("/scim/Members1/Subgroup1"), new HashMap<>(), null, null);
+		EntityInGroupData entity2 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("1", 1), null,
+				Set.of("/scim/Members2"), new HashMap<>(), null, null);
+		GroupMembershipData membershipData = new MockGroupMembershipData();
+		when(bulkService.getBulkMembershipData(eq("/"))).thenReturn(membershipData);
+		when(bulkService.getMembershipInfo(eq(membershipData))).thenReturn(ImmutableMap.of(0l, entity1, 1l, entity2));
+		when(bulkService.getGroupUsersAttributes(eq("/scim"), eq(membershipData))).thenReturn(Collections.emptyMap());
+
+		List<User> users = userRetrievalService.getUsers();
+
+		assertThat(users.size(), is(2));
+		assertThat(users,
+				hasItems(User.builder().withEntityId(1L)
+						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
+						.withIdentities(entity2.entity.getIdentities()).build(),
+						User.builder().withEntityId(0L)
+								.withGroups(
+										Set.of(SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
+								.withIdentities(entity1.entity.getIdentities()).build()));
 
 	}
 
