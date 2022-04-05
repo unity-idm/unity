@@ -21,15 +21,17 @@ class SCIMServiceEditorComponent extends ServiceEditorBase
 {
 	private Binder<SCIMServiceConfigurationBean> restBinder;
 	private Binder<DefaultServiceDefinition> serviceBinder;
+	private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
 
-	public SCIMServiceEditorComponent(MessageSource msg, SCIMServiceEditorGeneralTab generalTab,
+	public SCIMServiceEditorComponent(MessageSource msg, ConfigurationVaadinBeanMapper configurationVaadinBeanMapper, SCIMServiceEditorGeneralTab generalTab,
 			AuthenticationTab authTab, SCIMServiceEditorSchemaTab schemaTab, DefaultServiceDefinition toEdit)
 	{
 		super(msg);
+		this.configurationVaadinBeanMapper = configurationVaadinBeanMapper;
+		
 		boolean editMode = toEdit != null;
 		restBinder = new Binder<>(SCIMServiceConfigurationBean.class);
-		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
-
+		serviceBinder = new Binder<>(DefaultServiceDefinition.class);		
 		generalTab.initUI(serviceBinder, restBinder, editMode);
 		registerTab(generalTab);
 		authTab.initUI(serviceBinder);
@@ -38,10 +40,10 @@ class SCIMServiceEditorComponent extends ServiceEditorBase
 		registerTab(schemaTab);
 
 		serviceBinder.setBean(editMode ? toEdit : new DefaultServiceDefinition(SCIMEndpoint.TYPE.getName()));
-		SCIMServiceConfigurationBean config = new SCIMServiceConfigurationBean();
+		SCIMServiceConfigurationBean config = new SCIMServiceConfigurationBean(configurationVaadinBeanMapper);
 		if (editMode && toEdit.getConfiguration() != null)
 		{
-			config = ConfigurationVaadinBeanMapper
+			config = configurationVaadinBeanMapper
 					.mapToBean(SCIMEndpointPropertiesConfigurationMapper.fromProperties(toEdit.getConfiguration()));
 		}
 		restBinder.setBean(config);
@@ -62,7 +64,7 @@ class SCIMServiceEditorComponent extends ServiceEditorBase
 		try
 		{
 			service.setConfiguration(SCIMEndpointPropertiesConfigurationMapper
-					.toProperties(ConfigurationVaadinBeanMapper.mapToConfigurationBean(restBinder.getBean())));
+					.toProperties(configurationVaadinBeanMapper.mapToConfigurationBean(restBinder.getBean())));
 		} catch (JsonProcessingException e)
 		{
 			setErrorInTabs();

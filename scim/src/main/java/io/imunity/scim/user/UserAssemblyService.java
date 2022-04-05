@@ -9,9 +9,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -56,7 +54,8 @@ class UserAssemblyService
 	SCIMUserResource mapToUserResource(User user) throws EngineException
 	{
 		Predicate<AttributeDefinitionWithMapping> filter = authzService.getFilter();
-		return mapToSingleUserResource(user, getFilteredBasicUserSchema(filter), getFilteredExtensionSchemas(filter),
+		List<SchemaWithMapping> schemas = getFilteredSchemas(filter);
+		return mapToSingleUserResource(user, schemas,
 				new CachingMVELGroupProvider(groupsManagement.getAllGroups()));
 	}
 
@@ -64,57 +63,46 @@ class UserAssemblyService
 	{
 		List<SCIMUserResource> usersResource = new ArrayList<>();
 		Predicate<AttributeDefinitionWithMapping> filter = authzService.getFilter();
-		SchemaWithMapping basic = getFilteredBasicUserSchema(filter);
-		List<SchemaWithMapping> extSchemas = getFilteredExtensionSchemas(filter);
+		List<SchemaWithMapping> schemas = getFilteredSchemas(filter);
 		CachingMVELGroupProvider groupProvider = new CachingMVELGroupProvider(groupsManagement.getAllGroups());
-		
 		for (User u : users)
 		{
-			usersResource.add(mapToSingleUserResource(u, basic, extSchemas, groupProvider));
+			usersResource.add(mapToSingleUserResource(u, schemas, groupProvider));
 		}
 
 		return ListResponse.<SCIMUserResource>builder().withResources(usersResource)
 				.withTotalResults(usersResource.size()).build();
 	}
 
-	private SCIMUserResource mapToSingleUserResource(User user, SchemaWithMapping basicSchema,
-			List<SchemaWithMapping> extSchemas, CachingMVELGroupProvider cachingMVELGroupProvider)
+	private SCIMUserResource mapToSingleUserResource(User user, 
+			List<SchemaWithMapping> schemas, CachingMVELGroupProvider cachingMVELGroupProvider)
 			throws EngineException
 	{
 		Identity persistenceIdentity = user.identities.stream().filter(i -> i.getTypeId().equals(PersistentIdentity.ID))
 				.findFirst().get();
 		Instant lastModified = user.identities.stream().map(i -> i.getUpdateTs().toInstant())
 				.sorted(Comparator.reverseOrder()).findFirst().get();
-
 		URI location = UriBuilder.fromUri(configuration.baseLocation)
 				.path(UserRestController.USER_LOCATION + "/" + persistenceIdentity.getValue()).build();
-
-		Set<String> usedSchemas = new HashSet<>();
-		usedSchemas.add(basicSchema.id);
-		extSchemas.stream().map(s -> s.id).forEach(s -> usedSchemas.add(s));
-
-		return SCIMUserResource.builder().withId(persistenceIdentity.getValue()).withSchemas(usedSchemas)
+		return SCIMUserResource.builder().withId(persistenceIdentity.getValue()).withSchemas(schemas.stream().map(s -> s.id).collect(Collectors.toSet()))
 				.withMeta(Meta.builder().withResourceType(ResourceType.USER.getName())
 						.withCreated(persistenceIdentity.getCreationTs().toInstant()).withLastModified(lastModified)
 						.withLocation(location).build())
 				.withAttributes(
-						userSchemaEvaluator.evalUserSchema(user, basicSchema, extSchemas, cachingMVELGroupProvider))
+						userSchemaEvaluator.evalUserSchema(user, schemas, cachingMVELGroupProvider))
 				.build();
 	}
-
-	private List<SchemaWithMapping> getFilteredExtensionSchemas(Predicate<AttributeDefinitionWithMapping> filter)
+	
+	private List<SchemaWithMapping> getFilteredSchemas(Predicate<AttributeDefinitionWithMapping> filter)
 	{
-		return configuration.schemas.stream().filter(s -> s.type.equals(SchemaType.USER) && s.enable)
-				.map(s -> SchemaFilteringSupport.getSchemaWithFilteredAttributes(s, filter)).collect(Collectors.toList());
-	}
+		List<SchemaWithMapping> schemas = configuration.schemas.stream()
+				.filter(s -> (s.type.equals(SchemaType.USER) || s.type.equals(SchemaType.USER_CORE)) && s.enable)
+				.map(s -> SchemaFilteringSupport.getSchemaWithFilteredAttributes(s, filter))
+				.collect(Collectors.toList());
+		if (schemas.isEmpty())
+			throw new ConfigurationException("No user schemas are active");
 
-	private SchemaWithMapping getFilteredBasicUserSchema(Predicate<AttributeDefinitionWithMapping> filter)
-	{
-		SchemaWithMapping basicSchema = configuration.schemas.stream().filter(s -> s.type.equals(SchemaType.USER_CORE))
-				.findAny().get();
-		if (basicSchema == null)
-			throw new ConfigurationException("Basic user schema is not defined");
-		return SchemaFilteringSupport.getSchemaWithFilteredAttributes(basicSchema, filter);
+		return schemas;
 	}
 
 	@Component

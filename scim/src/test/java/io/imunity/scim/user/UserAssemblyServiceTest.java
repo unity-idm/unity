@@ -80,9 +80,8 @@ public class UserAssemblyServiceTest
 		SCIMUserResource userRes = assemblyService.mapToUserResource(user);
 
 		verify(userSchemaEvaluator).evalUserSchema(eq(user),
-				eq(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
-						.withEnable(true).build()),
-				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
+				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
+						.withEnable(true).build(), SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
 						.withEnable(true).build())),
 				any());
 
@@ -104,16 +103,14 @@ public class UserAssemblyServiceTest
 		ListResponse<SCIMUserResource> userRes = assemblyService.mapToListUsersResource(List.of(user1, user2));
 
 		verify(userSchemaEvaluator).evalUserSchema(eq(user1),
-				eq(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
-						.withEnable(true).build()),
-				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
+				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
+						.withEnable(true).build(),SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
 						.withEnable(true).build())),
 				any());
 
 		verify(userSchemaEvaluator).evalUserSchema(eq(user2),
-				eq(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
-						.withEnable(true).build()),
-				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
+				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
+						.withEnable(true).build(), SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
 						.withEnable(true).build())),
 				any());
 		assertThat(userRes.totalResults, is(2));

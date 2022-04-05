@@ -21,17 +21,17 @@ public class SCIMServiceConfigurationBean
 	private List<SchemaWithMappingBean> schemas;
 	private List<String> membershipAttributes;
 
-	SCIMServiceConfigurationBean()
+	SCIMServiceConfigurationBean(ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
 	{
 		allowedCORSheaders = new ArrayList<>();
 		allowedCORSorigins = new ArrayList<>();
 		membershipGroups = new ArrayList<>();
-		membershipAttributes = new ArrayList<>();
+		membershipAttributes = new ArrayList<>(DefaultSchemaProvider.getBasicUserSchemaMembershipAttributes());
 		schemas = new ArrayList<>();
 		schemas.add(
-				ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicGroupSchema()));
+				configurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicGroupSchema()));
 		schemas.add(
-				ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicUserSchema()));
+				configurationVaadinBeanMapper.mapFromConfigurationSchema(DefaultSchemaProvider.getBasicUserSchema()));
 	}
 
 	public List<String> getAllowedCORSheaders()

@@ -32,11 +32,16 @@ public class UserSchemaEvaluator
 		this.configuration = configuration;
 	}
 
-	public Map<String, Object> evalUserSchema(User user, SchemaWithMapping basicSchema, List<SchemaWithMapping> schemas,
+	public Map<String, Object> evalUserSchema(User user, List<SchemaWithMapping> schemas,
 			CachingMVELGroupProvider cachingMVELGroupProvider) throws EngineException
 	{
 		Map<String, Object> attributeEvaluationResult = new LinkedHashMap<>();
-		attributeEvaluationResult.putAll(evalSchema(basicSchema, user, cachingMVELGroupProvider));
+	
+		for (SchemaWithMapping basicSchema : schemas.stream().filter(s -> s.type.equals(SchemaType.USER_CORE) && s.enable)
+				.collect(Collectors.toList()))
+		{
+			attributeEvaluationResult.putAll(evalSchema(basicSchema, user, cachingMVELGroupProvider));
+		}
 		
 		for (SchemaWithMapping schema : schemas.stream().filter(s -> s.type.equals(SchemaType.USER) && s.enable)
 				.collect(Collectors.toList()))

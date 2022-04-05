@@ -306,20 +306,47 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 			{
 				expression.setCaption(msg.getMessage("ReferenceField.referenceUri"));
 				expression.setContext(
-						MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
+						MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.referenceGeneralDataValue")
 								.withEvalToKey("MVELExpressionField.evalToUri").withVars(context.vars).build());
 
 			} else
 			{
 				expression.setCaption(msg.getMessage("ReferenceField.referencedResourceId"));
 				expression.setContext(
-						MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
-								.withEvalToKey("MVELExpressionField.evalToString").withVars(context.vars).build());
+						MVELExpressionContext.builder().withTitleKey(getMvelEditorTitleKey())
+								.withEvalToKey(getMvelEditorTypeKey()).withVars(context.vars).build());
 			}
 
 			fireEvent(new ValueChangeEvent<>(this, getValue(), e.isUserOriginated()));
 		}
 
+		private String getMvelEditorTitleKey()
+		{
+			switch (refToTypeCombo.getValue())
+			{
+			case USER:
+				return "AttributeDefinitionConfigurationEditor.referenceUserDataValue";
+			case GROUP:
+				return "AttributeDefinitionConfigurationEditor.referenceGroupDataValue";
+			default:
+				return "AttributeDefinitionConfigurationEditor.referenceGeneralDataValue";
+			}
+		}
+
+		private String getMvelEditorTypeKey()
+		{
+			switch (refToTypeCombo.getValue())
+			{
+			case USER:
+				return "MVELExpressionField.evalToStringWithUserId";
+			case GROUP:
+				return "MVELExpressionField.evalToStringWithGroupPath";
+			default:
+				return "MVELExpressionField.evalToUri";
+			}
+		}
+		
+		
 		@Override
 		public ReferenceDataBean getValue()
 		{

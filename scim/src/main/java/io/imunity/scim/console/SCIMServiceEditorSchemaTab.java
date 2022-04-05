@@ -53,14 +53,17 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 	private final SubViewSwitcher subViewSwitcher;
 	private final UnityServerConfiguration unityServerConfiguration;
 	private final EditSchemaSubViewFactory editSchemaSubViewFactory;
-
+	private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
+	
 	private SCIMServiceEditorSchemaTab(MessageSource msg, EditSchemaSubViewFactory editSchemaSubViewFactory,
-			UnityServerConfiguration unityServerConfiguration, SubViewSwitcher subViewSwitcher)
+			UnityServerConfiguration unityServerConfiguration, SubViewSwitcher subViewSwitcher,
+			ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
 	{
 		this.msg = msg;
 		this.unityServerConfiguration = unityServerConfiguration;
 		this.subViewSwitcher = subViewSwitcher;
 		this.editSchemaSubViewFactory = editSchemaSubViewFactory;
+		this.configurationVaadinBeanMapper = configurationVaadinBeanMapper;
 	}
 
 	void initUI(Binder<SCIMServiceConfigurationBean> configBinder)
@@ -172,7 +175,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 				SchemaWithMappingBean schema;
 				try
 				{
-					schema = ConfigurationVaadinBeanMapper.mapFromConfigurationSchema(
+					schema = configurationVaadinBeanMapper.mapFromConfigurationSchema(
 							SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(uploader.getFile()));
 				} catch (EngineException|RuntimeEngineException  e)
 				{
@@ -310,18 +313,21 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		private final EditSchemaSubViewFactory editSchemaSubViewFactory;
 		private final MessageSource msg;
 		private final UnityServerConfiguration configuration;
+		private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
 
 		SCIMServiceEditorSchemaTabFactory(EditSchemaSubViewFactory editSchemaSubViewFactory, MessageSource msg,
-				UnityServerConfiguration configuration)
+				ConfigurationVaadinBeanMapper configurationVaadinBeanMapper, UnityServerConfiguration configuration)
 		{
 			this.editSchemaSubViewFactory = editSchemaSubViewFactory;
 			this.msg = msg;
 			this.configuration = configuration;
+			this.configurationVaadinBeanMapper = configurationVaadinBeanMapper;
 		}
 
 		SCIMServiceEditorSchemaTab getSCIMServiceEditorSchemaTab(SubViewSwitcher subViewSwitcher)
 		{
-			return new SCIMServiceEditorSchemaTab(msg, editSchemaSubViewFactory, configuration, subViewSwitcher);
+			return new SCIMServiceEditorSchemaTab(msg, editSchemaSubViewFactory, configuration, subViewSwitcher,
+					configurationVaadinBeanMapper);
 		}
 
 	}

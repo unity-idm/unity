@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -100,7 +99,7 @@ public class UserSchemaEvaluatorTest
 				.withAttributeMapping(ComplexAttributeMapping.builder().build()).build();
 
 		SchemaWithMapping basicUserSchema = SchemaWithMapping.builder().withType(SchemaType.USER_CORE)
-				.withAttributesWithMapping(List.of(complexAttr)).build();
+				.withAttributesWithMapping(List.of(complexAttr)).withEnable(true).build();
 
 		SchemaWithMapping extUserSchema = SchemaWithMapping.builder().withType(SchemaType.USER).withEnable(true)
 				.withAttributesWithMapping(List.of(AttributeDefinitionWithMapping.builder()
@@ -125,7 +124,7 @@ public class UserSchemaEvaluatorTest
 		when(simpleMappingEvaluator.eval(any(), any(), eq(mappingEvaluatorRegistry)))
 				.thenReturn(EvaluationResult.builder().build());
 
-		evaluator.evalUserSchema(user, basicUserSchema, List.of(extUserSchema),
+		evaluator.evalUserSchema(user, List.of(basicUserSchema, extUserSchema),
 				new CachingMVELGroupProvider(new HashMap<>()));
 
 		verify(complexMappingEvaluator).eval(any(), any(), eq(mappingEvaluatorRegistry));
@@ -159,7 +158,7 @@ public class UserSchemaEvaluatorTest
 				.withAttributeMapping(ComplexAttributeMapping.builder().build()).build();
 
 		SchemaWithMapping basicUserSchema = SchemaWithMapping.builder().withType(SchemaType.USER_CORE)
-				.withAttributesWithMapping(List.of(complexAttr)).build();
+				.withAttributesWithMapping(List.of(complexAttr)).withEnable(true).build();
 
 		User user = User.builder()
 				.withAttributes(List.of(new AttributeExt(
@@ -170,7 +169,7 @@ public class UserSchemaEvaluatorTest
 		when(complexMappingEvaluator.eval(any(), any(), eq(mappingEvaluatorRegistry)))
 				.thenReturn(EvaluationResult.builder().build());
 
-		evaluator.evalUserSchema(user, basicUserSchema, new ArrayList<>(),
+		evaluator.evalUserSchema(user, List.of(basicUserSchema),
 				new CachingMVELGroupProvider(new HashMap<>()));
 
 		ArgumentCaptor<AttributeDefinitionWithMapping> attrWithMappingCaptor = ArgumentCaptor

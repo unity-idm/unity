@@ -7,6 +7,7 @@ package io.imunity.scim.user;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -109,7 +110,7 @@ class UserRetrievalService
 			users.add(mapToUser(entityInGroup.entity,
 					groupAndSubgroups.entrySet().stream().filter(e -> groups.contains(e.getKey()))
 							.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()),
-					groupUsersAttributes.get(entityInGroup.entity.getId())));
+					groupUsersAttributes.getOrDefault(entityInGroup.entity.getId(), Collections.emptyMap())));
 		}
 
 		return users;
