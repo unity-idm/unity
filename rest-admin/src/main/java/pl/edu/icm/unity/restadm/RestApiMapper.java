@@ -14,6 +14,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 class RestApiMapper
@@ -55,9 +56,13 @@ class RestApiMapper
 	static RestEntityInformation map(EntityInformation entityInformation) {
 		return new RestEntityInformation(
 				entityInformation.getId(),
-				entityInformation.getEntityState().name(),
+				Optional.ofNullable(entityInformation.getEntityState())
+						.map(Enum::name)
+						.orElse(null),
 				entityInformation.getScheduledOperationTime(),
-				entityInformation.getScheduledOperation().name(),
+				Optional.ofNullable(entityInformation.getScheduledOperation())
+						.map(Enum::name)
+						.orElse(null),
 				entityInformation.getRemovalByUserTime()
 		);
 	}
