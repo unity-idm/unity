@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.engine.authz;
 
-import java.util.Set;
-
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.AuthorizationExceptionRT;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;
+
+import java.util.Set;
 
 
 /**
@@ -36,6 +36,8 @@ public interface InternalAuthorizationManager
 	 * @throws AuthorizationException 
 	 */
 	void checkAuthorization(AuthzCapability... requiredCapabilities) throws AuthorizationException;
+
+	void checkAuthorizationRT(AuthzCapability... requiredCapabilities);
 
 	/**
 	 * As {@link #checkAuthorization(boolean, Group, AuthzCapability...)} with the second argument being the root group

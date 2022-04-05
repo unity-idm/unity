@@ -40,8 +40,14 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 	 * @return selected attributes (in any group) of members of the given group,
 	 * Attributes can be null or empty, meaning no restriction.
 	 */
-	List<StoredAttribute> getAttributesOfGroupMembers(List<String> attributes, List<String> groups, List<String> globalAttributes);
-	
+	List<StoredAttribute> getAttributesOfGroupMembers(List<String> attributes, List<String> groups);
+
+	/**
+	 * @return all attributes (in any group) of members of the given group,
+	 * Attributes can be null or empty, meaning no restriction.
+	 */
+	List<StoredAttribute> getAttributesOfGroupMembers(List<String> groups);
+
 	/**
 	 * Simplified version of {@link #getEntityAttributes(long, String, String)}. 
 	 * Retrieves all attributes of a given entity.

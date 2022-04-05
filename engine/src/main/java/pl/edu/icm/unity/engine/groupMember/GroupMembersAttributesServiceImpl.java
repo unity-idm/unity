@@ -12,9 +12,7 @@ import pl.edu.icm.unity.engine.api.groupMember.GroupMemberWithAttributes;
 import pl.edu.icm.unity.engine.api.groupMember.GroupMembersService;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.RuntimeAuthorizationException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -28,18 +26,18 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Component
-class GroupMembersOptimizedServiceImpl implements GroupMembersService
+class GroupMembersAttributesServiceImpl implements GroupMembersService
 {
-	private final GroupMemberServiceHelper groupMemberServiceHelper;
+	private final GroupMemberService groupMemberService;
 	private final BulkGroupQueryService bulkQueryService;
 	private final GroupDAO groupDAO;
 	private final InternalAuthorizationManager authz;
 
 
-	GroupMembersOptimizedServiceImpl(GroupMemberServiceHelper groupMemberService,
-	                                 BulkGroupQueryService bulkQueryService,
-	                                 GroupDAO groupDAO, InternalAuthorizationManager authz) {
-		this.groupMemberServiceHelper = groupMemberService;
+	GroupMembersAttributesServiceImpl(GroupMemberService groupMemberService,
+	                                  BulkGroupQueryService bulkQueryService,
+	                                  GroupDAO groupDAO, InternalAuthorizationManager authz) {
+		this.groupMemberService = groupMemberService;
 		this.bulkQueryService = bulkQueryService;
 		this.groupDAO = groupDAO;
 		this.authz = authz;
@@ -49,41 +47,30 @@ class GroupMembersOptimizedServiceImpl implements GroupMembersService
 	@Transactional
 	public List<GroupMemberWithAttributes> getGroupsMembersWithSelectedAttributes(String group, List<String> attributes)
 	{
-		checkAuthorization();
+		authz.checkAuthorizationRT(AuthzCapability.readHidden, AuthzCapability.read);
 		Group groupObj = groupDAO.get(group);
 
-		if (isAnyOfAttributesIsDynamic(groupObj, attributes))
+		if (isAnyOfAttributesDynamic(groupObj, attributes))
 		{
-			return getBulkGroupMembers(group, attributes::contains);
+			return getGroupMembersWithBulkAPI(group, attributes::contains);
 		}
-		return groupMemberServiceHelper.getGroupMembers(group, attributes);
-	}
-
-	private void checkAuthorization()
-	{
-		try
-		{
-			authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
-		} catch (AuthorizationException e)
-		{
-			throw new RuntimeAuthorizationException(e);
-		}
+		return groupMemberService.getGroupMembersWithAttributes(group, attributes);
 	}
 
 	@Override
 	@Transactional
 	public Map<String, List<GroupMemberWithAttributes>> getGroupsMembersInGroupsWithSelectedAttributes(List<String> groups, List<String> attributes)
 	{
-		checkAuthorization();
+		authz.checkAuthorizationRT(AuthzCapability.readHidden, AuthzCapability.read);
 		boolean isAnyOfAttributesIsDynamic = groups.stream()
 				.map(groupDAO::get)
-				.anyMatch(group -> isAnyOfAttributesIsDynamic(group, attributes));
+				.anyMatch(group -> isAnyOfAttributesDynamic(group, attributes));
 
 		if(isAnyOfAttributesIsDynamic)
 		{
 			return getMultiBulkGroupMembers(groups, attributes);
 		}
-		return groupMemberServiceHelper.getGroupMembers(groups, attributes);
+		return groupMemberService.getGroupMembersWithAttributes(groups, attributes);
 	}
 
 	private Map<String, List<GroupMemberWithAttributes>> getMultiBulkGroupMembers(List<String> groups, List<String> attributes)
@@ -109,15 +96,14 @@ class GroupMembersOptimizedServiceImpl implements GroupMembersService
 		return attributesByGroup;
 	}
 
-	private boolean isAnyOfAttributesIsDynamic(Group groupObj, List<String> attributes)
+	private boolean isAnyOfAttributesDynamic(Group groupObj, List<String> attributes)
 	{
 		return Arrays.stream(groupObj.getAttributeStatements())
-				.filter(AttributeStatement::dynamicAttributeMode)
 				.map(AttributeStatement::getAssignedAttributeName)
 				.anyMatch(attributes::contains);
 	}
 
-	private List<GroupMemberWithAttributes> getBulkGroupMembers(String group, Predicate<String> attributesFilter)
+	private List<GroupMemberWithAttributes> getGroupMembersWithBulkAPI(String group, Predicate<String> attributesFilter)
 	{
 		GroupMembershipData bulkMembershipData = null;
 		try

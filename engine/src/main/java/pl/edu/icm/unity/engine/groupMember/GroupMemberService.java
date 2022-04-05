@@ -15,15 +15,16 @@ import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 
 @Component
-class GroupMemberServiceHelper
+class GroupMemberService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, GroupMemberServiceHelper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, GroupMemberService.class);
 
 	private final EntityDAO entityDAO;
 	private final AttributeTypeDAO attributeTypeDAO;
@@ -31,8 +32,8 @@ class GroupMemberServiceHelper
 	private final AttributeDAO attributeDAO;
 	private final IdentityDAO identityDAO;
 
-	GroupMemberServiceHelper(EntityDAO entityDAO, AttributeTypeDAO attributeTypeDAO,
-	                         MembershipDAO membershipDAO, AttributeDAO attributeDAO, IdentityDAO identityDAO) {
+	GroupMemberService(EntityDAO entityDAO, AttributeTypeDAO attributeTypeDAO,
+	                   MembershipDAO membershipDAO, AttributeDAO attributeDAO, IdentityDAO identityDAO) {
 		this.entityDAO = entityDAO;
 		this.attributeTypeDAO = attributeTypeDAO;
 		this.membershipDAO = membershipDAO;
@@ -40,68 +41,67 @@ class GroupMemberServiceHelper
 		this.identityDAO = identityDAO;
 	}
 
-	public List<GroupMemberWithAttributes> getGroupMembers(String group, List<String> attributes) {
-		List<String> globalAttr = getGlobalAttributes(attributes);
+	List<GroupMemberWithAttributes> getGroupMembersWithAttributes(String group, List<String> attributes) {
+		Set<String> globalAttr = getGlobalAttributes(attributes);
 
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		Map<Long, Map<String, Map<String, AttributeExt>>> groupedAttributes = getAttributes(List.of(group), attributes, globalAttr);
-		log.info("Attributes in groups retrieval: {}", stopwatch.toString());
+		log.debug("Attributes in groups retrieval: {}", stopwatch.toString());
 
-		return getGroupMembers(group, globalAttr, groupedAttributes);
+		return getGroupMembersWithAttributes(group, globalAttr, groupedAttributes);
 	}
 
-	public Map<String, List<GroupMemberWithAttributes>> getGroupMembers(List<String> groups, List<String> attributes)
+	Map<String, List<GroupMemberWithAttributes>> getGroupMembersWithAttributes(List<String> groups, List<String> attributes)
 	{
 		Map<String, List<GroupMemberWithAttributes>> groupMembers = new HashMap<>();
 
-		Stopwatch watch = Stopwatch.createStarted();
-
-		List<String> globalAttr = getGlobalAttributes(attributes);
+		Set<String> globalAttr = getGlobalAttributes(attributes);
 
 		Map<Long, Map<String, Map<String, AttributeExt>>> groupedAttributes = getAttributes(groups, attributes, globalAttr);
 
 		for (String grp: groups)
 		{
-			groupMembers.put(grp, getGroupMembers(grp, globalAttr, groupedAttributes));
+			groupMembers.put(grp, getGroupMembersWithAttributes(grp, globalAttr, groupedAttributes));
 		}
-
-		log.debug("Group membership data retrieval: {}", watch.toString());
 
 		return groupMembers;
 	}
 
-	private List<String> getGlobalAttributes(List<String> attributes)
+	private Set<String> getGlobalAttributes(List<String> attributes)
 	{
 		Map<String, AttributeType> allAsMap = attributeTypeDAO.getAllAsMap();
 		if(attributes.isEmpty())
-			return allAsMap.values().stream()
-					.filter(AttributeType::isGlobal)
-					.map(AttributeType::getName)
-					.collect(toList());
+			return getGlobalAttributes(allAsMap.values().stream());
 
-		return attributes.stream()
+		return getGlobalAttributes(attributes.stream()
 				.map(allAsMap::get)
 				.filter(Objects::nonNull)
-				.filter(AttributeType::isGlobal)
-				.map(AttributeType::getName)
-				.collect(toList());
+		);
 	}
 
-	private List<GroupMemberWithAttributes> getGroupMembers(String group, List<String> globalAttr, Map<Long, Map<String, Map<String, AttributeExt>>> groupedAttributes)
+	private Set<String> getGlobalAttributes(Stream<AttributeType> allAsMap)
+	{
+		return allAsMap
+				.filter(AttributeType::isGlobal)
+				.map(AttributeType::getName)
+				.collect(Collectors.toSet());
+	}
+
+	private List<GroupMemberWithAttributes> getGroupMembersWithAttributes(String group, Set<String> globalAttr, Map<Long, Map<String, Map<String, AttributeExt>>> groupedAttributes)
 	{
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		Map<Long, EntityInformation> entityInfo = getEntityInfo(group);
-		log.info("Entities data retrieval: {}", stopwatch.toString());
+		log.debug("Entities data retrieval: {}", stopwatch.toString());
 
 		stopwatch.reset();
 		stopwatch.start();
 		Map<Long, Set<String>> memberships = getMemberships(group);
-		log.info("Group membership data retrieval: {}", stopwatch.toString());
+		log.debug("Group membership data retrieval: {}", stopwatch.toString());
 
 		stopwatch.reset();
 		stopwatch.start();
 		Map<Long, List<Identity>> identities = getIdentities(group);
-		log.info("Identities data retrieval: {}", stopwatch.toString());
+		log.debug("Identities data retrieval: {}", stopwatch.toString());
 
 		List<GroupMemberWithAttributes> ret = new ArrayList<>();
 		for (Long memberId: memberships.keySet())
@@ -109,9 +109,12 @@ class GroupMemberServiceHelper
 			Map<String, Map<String, AttributeExt>> memberGroupsWithAttr = groupedAttributes.getOrDefault(memberId, Map.of());
 			Collection<AttributeExt> groupAttributes = memberGroupsWithAttr.getOrDefault(group, Map.of()).values();
 			List<AttributeExt> globalAttributes = memberGroupsWithAttr.getOrDefault("/", Map.of()).values().stream()
-					.filter(y -> globalAttr.contains(y.getName()))
+					.filter(attributeExt -> globalAttr.contains(attributeExt.getName()))
 					.collect(toList());
-			ret.add(new GroupMemberWithAttributes(entityInfo.get(memberId), identities.get(memberId), Stream.concat(groupAttributes.stream(), globalAttributes.stream()).collect(toList())));
+			Collection<AttributeExt> values = Stream.concat(groupAttributes.stream(), globalAttributes.stream())
+					.collect(toMap(Attribute::getName, identity(), (attr1, attr2) -> attr1.getGroupPath().equals("/") ? attr2 : attr1))
+					.values();
+			ret.add(new GroupMemberWithAttributes(entityInfo.get(memberId), identities.get(memberId), values));
 		}
 
 		return ret;
@@ -145,17 +148,26 @@ class GroupMemberServiceHelper
 
 	private Map<Long, Map<String, Map<String, AttributeExt>>> getAttributes(List<String> groups,
 	                                                                        List<String> attributes,
-	                                                                        List<String> globalAttributes)
+	                                                                        Set<String> globalAttributes)
 	{
-		Stopwatch w = Stopwatch.createStarted();
-		List<StoredAttribute> all = attributeDAO.getAttributesOfGroupMembers(attributes, groups, globalAttributes);
-		log.debug("getAttrs {}", w.toString());
+		List<StoredAttribute> groupAttr;
+		List<StoredAttribute> globalAttr = new ArrayList<>();
+		if(attributes != null && !attributes.isEmpty())
+			groupAttr = attributeDAO.getAttributesOfGroupMembers(attributes, groups);
+		else
+			groupAttr = attributeDAO.getAttributesOfGroupMembers(groups);
+		if(!globalAttributes.isEmpty())
+			globalAttr = attributeDAO.getAttributesOfGroupMembers(new ArrayList<>(globalAttributes), List.of("/"));
 
-		return all.stream()
+		return Stream.concat(groupAttr.stream(), globalAttr.stream())
 				.collect(
 						groupingBy(StoredAttribute::getEntityId,
 								groupingBy(attribute -> attribute.getAttribute().getGroupPath(),
-										toMap(attribute -> attribute.getAttribute().getName(), StoredAttribute::getAttribute)))
+										toMap(
+												attribute -> attribute.getAttribute().getName(),
+												StoredAttribute::getAttribute,
+												(attr1, attr2) -> attr1.getGroupPath().equals("/") ? attr2 : attr1))
+						)
 				);
 	}
 

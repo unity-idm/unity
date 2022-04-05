@@ -3,8 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.engine.api.groupMember;
-
-import pl.edu.icm.unity.types.rest.RestGroupMemberWithAttributes;
+;
 
 import java.util.List;
 import java.util.Map;
@@ -12,15 +11,15 @@ import java.util.Objects;
 
 public class MultiGroupMembersWithAttributes
 {
-	public final Map<String, List<RestGroupMemberWithAttributes>> members;
+	public final Map<String, List<GroupMemberWithAttributes>> members;
 
-	public MultiGroupMembersWithAttributes(Map<String, List<RestGroupMemberWithAttributes>> members)
+	public MultiGroupMembersWithAttributes(Map<String, List<GroupMemberWithAttributes>> members)
 	{
 		this.members = Map.copyOf(members);
 	}
 
 
-	public Map<String, List<RestGroupMemberWithAttributes>> getMembers()
+	public Map<String, List<GroupMemberWithAttributes>> getMembers()
 	{
 		return members;
 	}

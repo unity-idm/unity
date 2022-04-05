@@ -26,7 +26,6 @@ import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
 import pl.edu.icm.unity.engine.api.groupMember.GroupMembersService;
-import pl.edu.icm.unity.engine.api.groupMember.MultiGroupMembersWithAttributes;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
@@ -35,6 +34,8 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.json.Token2JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.model.RestGroupMemberWithAttributes;
+import pl.edu.icm.unity.model.RestMultiGroupMembersWithAttributes;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -48,7 +49,6 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
-import pl.edu.icm.unity.types.rest.RestGroupMemberWithAttributes;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
 import javax.ws.rs.*;
@@ -305,14 +305,10 @@ public class RESTAdmin implements RESTAdminHandler
 		if (!group.startsWith("/"))
 			group = "/" + group;
 		List<RestGroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes(group, attributes).stream()
-				.map(groupMemberWithAttributes -> new RestGroupMemberWithAttributes(
-						groupMemberWithAttributes.getEntityInformation(),
-						groupMemberWithAttributes.getIdentities(),
-						groupMemberWithAttributes.getAttributes())
-				)
+				.map(RestApiMapper::map)
 				.collect(Collectors.toList());
 		String s = mapper.writeValueAsString(groupMembers);
-		log.info("Request completed: {}", stopwatch.toString());
+		log.debug("Request completed: {}", stopwatch.toString());
 		return s;
 	}
 
@@ -339,14 +335,10 @@ public class RESTAdmin implements RESTAdminHandler
 				.collect(Collectors.toMap(
 						Map.Entry::getKey,
 						entry -> entry.getValue().stream()
-								.map(groupMemberWithAttributes -> new RestGroupMemberWithAttributes(
-										groupMemberWithAttributes.getEntityInformation(),
-										groupMemberWithAttributes.getIdentities(),
-										groupMemberWithAttributes.getAttributes())
-								)
+								.map(RestApiMapper::map)
 								.collect(Collectors.toList())
 				));
-		return mapper.writeValueAsString(new MultiGroupMembersWithAttributes(groupMembers));
+		return mapper.writeValueAsString(new RestMultiGroupMembersWithAttributes(groupMembers));
 	}
 
 	@Path("/entity/{entityId}/record")

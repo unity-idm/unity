@@ -174,7 +174,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			membershipDao.create(new GroupMembership("/", entityId, new Date(1)));
 			membershipDao.create(new GroupMembership("/", entityId2, new Date(1)));
 
-			List<StoredAttribute> attributes = dao.getAttributesOfGroupMembers(List.of("attr3"), List.of("/C"), List.of());
+			List<StoredAttribute> attributes = dao.getAttributesOfGroupMembers(List.of("attr3"), List.of("/C"));
 
 			assertAllAndOnlyAllInSA(Lists.newArrayList(obj4), attributes);
 		});

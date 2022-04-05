@@ -1,29 +1,22 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.types.rest;
+package pl.edu.icm.unity.model;
 
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.Identity;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Entity as group member. Provides information on {@link Entity} and its all attributes in some group.
- */
 public class RestGroupMemberWithAttributes
 {
-	private EntityInformation entityInformation;
-	private List<Identity> identities;
-	private Collection<AttributeExt> attributes;
+	private RestEntityInformation entityInformation;
+	private List<RestIdentity> identities;
+	private Collection<RestAttributeExt> attributes;
 
-	public RestGroupMemberWithAttributes(EntityInformation entityInformation, List<Identity> identities, Collection<AttributeExt> attributes)
+	public RestGroupMemberWithAttributes(RestEntityInformation entityInformation, List<RestIdentity> identities, Collection<RestAttributeExt> attributes)
 	{
 		this.entityInformation = entityInformation;
 		this.identities = List.copyOf(identities);
@@ -35,17 +28,17 @@ public class RestGroupMemberWithAttributes
 	{
 	}
 
-	public EntityInformation getEntityInformation()
+	public RestEntityInformation getEntityInformation()
 	{
 		return entityInformation;
 	}
 
-	public List<Identity> getIdentities()
+	public List<RestIdentity> getIdentities()
 	{
 		return identities;
 	}
 
-	public Collection<AttributeExt> getAttributes()
+	public Collection<RestAttributeExt> getAttributes()
 	{
 		return new ArrayList<>(attributes);
 	}

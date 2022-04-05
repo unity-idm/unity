@@ -4,16 +4,9 @@
  */
 package pl.edu.icm.unity.engine.authz;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -24,6 +17,8 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;
+
+import java.util.*;
 
 
 /**
@@ -167,6 +162,19 @@ public class InternalAuthorizationManagerImpl implements InternalAuthorizationMa
 	public void checkAuthorization(AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), false, null, requiredCapabilities);
+	}
+
+	@Override
+	@Transactional
+	public void checkAuthorizationRT(AuthzCapability... requiredCapabilities)
+	{
+		try
+		{
+			checkAuthorizationInternal(getCallerMethodName(2), false, null, requiredCapabilities);
+		} catch (AuthorizationException e)
+		{
+			throw new AuthorizationExceptionRT(e);
+		}
 	}
 
 	@Override

@@ -119,6 +119,75 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 	}
 
 	@Test
+	public void shouldRetrieveDirectGroupMemberAttributesIfDuplicatedWithGlobalAttribute() throws EngineException
+	{
+		AttributeType at = new AttributeType("name", "string");
+		at.setGlobal(true);
+		aTypeMan.addAttributeType(at);
+		groupsMan.addGroup(new Group("/A"));
+
+		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"),
+				EntityState.valid);
+		EntityParam entity = new EntityParam(added.getEntityId());
+
+		groupsMan.addMemberFromParent("/A", entity);
+		Attribute saRoot = EnumAttribute.of(AUTHORIZATION_ROLE,
+				"/", Lists.newArrayList("Anonymous User"));
+		Attribute saRootName = StringAttribute.of("name", "/", "ala");
+		Attribute saInA = EnumAttribute.of(AUTHORIZATION_ROLE,
+				"/A", Lists.newArrayList("Inspector"));
+		Attribute saInAName = StringAttribute.of("name", "/A", "ola");
+
+		attrsMan.createAttribute(entity, saRoot);
+		attrsMan.createAttribute(entity, saRootName);
+		attrsMan.createAttribute(entity, saInA);
+		attrsMan.createAttribute(entity, saInAName);
+
+
+		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes("/A", List.of());
+
+		assertThat(groupMembers.size(), is(1));
+		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
+		assertThat(groupMembers.get(0).getIdentities(), hasItem(added));
+		assertThat(groupMembers.get(0).getAttributes().size(), is(2));
+		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList()), hasItems(AUTHORIZATION_ROLE, "name"));
+		assertThat(groupMembers.get(0).getAttributes().stream().flatMap(attributeExt -> attributeExt.getValues().stream()).collect(Collectors.toList()), hasItems("ola"));
+	}
+
+	@Test
+	public void shouldRetrieveGlobalGroupMemberAttributes() throws EngineException
+	{
+		AttributeType at = new AttributeType("name", "string");
+		at.setGlobal(true);
+		aTypeMan.addAttributeType(at);
+		groupsMan.addGroup(new Group("/A"));
+
+		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"),
+				EntityState.valid);
+		EntityParam entity = new EntityParam(added.getEntityId());
+
+		groupsMan.addMemberFromParent("/A", entity);
+		Attribute saRoot = EnumAttribute.of(AUTHORIZATION_ROLE,
+				"/", Lists.newArrayList("Anonymous User"));
+		Attribute saRootName = StringAttribute.of("name", "/", "ala");
+		Attribute saInA = EnumAttribute.of(AUTHORIZATION_ROLE,
+				"/A", Lists.newArrayList("Inspector"));
+
+		attrsMan.createAttribute(entity, saRoot);
+		attrsMan.createAttribute(entity, saRootName);
+		attrsMan.createAttribute(entity, saInA);
+
+		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes("/A", List.of());
+
+		assertThat(groupMembers.size(), is(1));
+		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
+		assertThat(groupMembers.get(0).getIdentities(), hasItem(added));
+		assertThat(groupMembers.get(0).getAttributes().size(), is(2));
+		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList()), hasItems(AUTHORIZATION_ROLE, "name"));
+		assertThat(groupMembers.get(0).getAttributes().stream().flatMap(attributeExt -> attributeExt.getValues().stream()).collect(Collectors.toList()), hasItems("ala"));
+	}
+
+	@Test
 	public void shouldRetrieveGroupMemberAttributesForTwoGroups() throws EngineException
 	{
 		groupsMan.addGroup(new Group("/A"));
