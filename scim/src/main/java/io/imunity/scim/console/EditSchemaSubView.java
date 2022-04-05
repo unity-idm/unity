@@ -174,7 +174,7 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 	private List<String> getIdentityTypes() throws EngineException
 	{
 		return identityTypeSupport.getIdentityTypes().stream()
-				.filter(t -> !identityTypeSupport.getTypeDefinition(t.getName()).isDynamic()).map(t -> t.getName())
+				.filter(t -> !identityTypeSupport.getTypeDefinition(t.getName()).isTargeted()).map(t -> t.getName())
 				.collect(Collectors.toList());
 	}
 
