@@ -26,7 +26,8 @@ public class TrustedIdPs
 	
 	public TrustedIdPs(Collection<TrustedIdPConfiguration> trustedIdPs)
 	{
-		this.trustedIdPs = trustedIdPs.stream().collect(Collectors.toMap(idp -> idp.key, idp -> idp));
+		this.trustedIdPs = trustedIdPs.stream()
+				.collect(Collectors.toUnmodifiableMap(idp -> idp.key, idp -> idp));
 		this.samlEntityIdToKey = buildEntityToKeyMap(); 
 	}
 	
@@ -40,7 +41,7 @@ public class TrustedIdPs
 	private Map<String, Set<TrustedIdPConfiguration>> buildEntityToKeyMap()
 	{
 		return this.trustedIdPs.values().stream()
-				.collect(Collectors.toMap(entry -> entry.samlId, 
+				.collect(Collectors.toUnmodifiableMap(entry -> entry.samlId, 
 						entry -> Set.of(entry),
 						Sets::union));
 	}
