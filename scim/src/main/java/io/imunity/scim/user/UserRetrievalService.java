@@ -15,12 +15,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.user.UserAuthzService.SCIMUserAuthzServiceFactory;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -39,6 +41,8 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 class UserRetrievalService
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, UserRetrievalService.class);
+	
 	public static final String DEFAULT_META_VERSION = "v1";
 
 	private final UserAuthzService authzService;
@@ -74,12 +78,18 @@ class UserRetrievalService
 	private User getUser(Entity entity) throws EngineException
 	{
 
-		Map<String, GroupMembership> groups = entityManagement.getGroups(new EntityParam(entity.getId()));
-
+		Map<String, GroupMembership> groups = entityManagement.getGroups(new EntityParam(entity.getId()));	
 		authzService.checkReadUser(entity.getId().longValue(), groups.keySet());
-
+		if (!groups.keySet().contains(configuration.rootGroup))
+		{
+			log.error("User " + entity.getId() + " is out of range for configured membership groups");
+			throw new UserNotFoundException("Invalid user");
+		}
+		
 		Set<String> userGroups = groups.keySet().stream().filter(userGroup -> configuration.membershipGroups.stream()
 				.anyMatch(mgroup -> Group.isChildOrSame(userGroup, mgroup))).collect(Collectors.toSet());
+	
+		
 		Map<String, GroupContents> groupAndSubgroups = getAllMembershipGroups();
 		Collection<AttributeExt> attributes = attrMan.getAttributes(new EntityParam(entity.getId()),
 				configuration.rootGroup, null);
@@ -104,9 +114,12 @@ class UserRetrievalService
 
 		for (EntityInGroupData entityInGroup : membershipInfo.values())
 		{
+			if (!entityInGroup.groups.contains(configuration.rootGroup))
+				continue;
+			
 			Set<String> groups = new HashSet<>(entityInGroup.groups);
 			groups.retainAll(groupAndSubgroups.keySet());
-
+			
 			users.add(mapToUser(entityInGroup.entity,
 					groupAndSubgroups.entrySet().stream().filter(e -> groups.contains(e.getKey()))
 							.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()),

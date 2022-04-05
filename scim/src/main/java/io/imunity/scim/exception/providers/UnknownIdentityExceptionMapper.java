@@ -25,7 +25,7 @@ class UnknownIdentityExceptionMapper implements ExceptionMapper<UnknownIdentityE
 
 		log.debug("Unknown identity", ex);
 		return Response.status(Status.NOT_FOUND).entity(ErrorResponse.builder()
-				.withStatus(Status.NOT_FOUND.getStatusCode()).withDetail(ex.getMessage()).build().toJsonString())
+				.withStatus(Status.NOT_FOUND.getStatusCode()).withDetail("Invalid user").build().toJsonString())
 				.type(MediaType.APPLICATION_JSON).build();
 
 	}

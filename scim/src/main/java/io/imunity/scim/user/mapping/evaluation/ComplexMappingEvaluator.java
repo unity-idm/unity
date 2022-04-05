@@ -96,6 +96,6 @@ class ComplexMappingEvaluator implements MappingEvaluator
 			}
 		}
 		return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
-				.withValue(Optional.of(ret)).build();
+				.withValue(Optional.ofNullable(ret.isEmpty() ? null : ret)).build();
 	}
 }
