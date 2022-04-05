@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<groupId>pl.edu.icm.unity</groupId>
+		<groupId>io.imunity</groupId>
 		<artifactId>unity-perf-tests-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
@@ -24,85 +24,85 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-storage</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-web-admin</artifactId>
-			<version>${unity.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-saml</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-std-plugins</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ldap</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-oauth</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest-admin</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-unicore</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-pam</artifactId>
 			<version>${unity.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-composite-password</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>		
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-console</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-upman</artifactId>
+			<version>${unity.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-user-home</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
 		</dependency>

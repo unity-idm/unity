@@ -6,10 +6,19 @@ package io.imunity.perfromance;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class PerformanceTest
 {
+	@Before
+	public void before()
+	{
+		// FIXME: this should be set in env, not test
+		System.setProperty("webdriver.chrome.driver", "/opt/homebrew/bin/chromedriver");
+	}
+	
+	
 	@Test
 	public void loginLogoutTest() throws InterruptedException
 	{

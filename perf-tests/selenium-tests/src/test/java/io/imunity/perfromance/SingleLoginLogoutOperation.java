@@ -54,7 +54,8 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 	public void beforeRun()
 	{
 		ChromeOptions chromeOptions = new ChromeOptions();
-		chromeOptions.addArguments("window-size=1280,1024", "no-sandbox", "force-device-scale-factor=1");
+		chromeOptions.addArguments("window-size=1280,1024", "no-sandbox", "force-device-scale-factor=1",
+				"allow-insecure-localhost");
 		String seleniumOpts = System.getProperty("unity.selenium.opts");
 		if (seleniumOpts != null && !seleniumOpts.isEmpty())
 		{
@@ -89,7 +90,7 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 		
 		waitForPageLoad(By.id("MainHeader.logout"));
 		
-		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("Perf user"));
+		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("user id:"));
 		driver.findElement(By.id("MainHeader.logout"));
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
 		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
