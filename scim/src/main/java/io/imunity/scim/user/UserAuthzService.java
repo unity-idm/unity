@@ -8,12 +8,14 @@ package io.imunity.scim.user;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.SCIMSystemScopeProvider;
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.SCIMEndpointDescription;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
@@ -21,6 +23,8 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 
 class UserAuthzService
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, UserAuthzService.class);
+
 	private final AuthorizationManagement authzMan;
 	private final SCIMEndpointDescription configuration;
 
@@ -60,7 +64,10 @@ class UserAuthzService
 			if (entity == callerId && userGroups.contains(configuration.rootGroup))
 				return;
 			else
+			{
+				log.debug("Access is denied. Caller not a member of root SCIM group");
 				throw new AuthorizationException("Access is denied");
+			}
 		}
 	}
 
@@ -68,9 +75,21 @@ class UserAuthzService
 			Set<String> userGroups) throws AuthorizationException
 	{
 		long callerId = invocationContext.getLoginSession().getEntityId();
-		if (entity != callerId || !userGroups.contains(configuration.rootGroup)
-				|| !invocationContext.getScopes().stream().anyMatch(SCIMSystemScopeProvider.getScopeNames()::contains))
+		if (entity != callerId)
 		{
+			log.debug("Access is denied. Caller wants to read data that is not his own");
+			throw new AuthorizationException("Access is denied");
+		}
+
+		if (!userGroups.contains(configuration.rootGroup))
+		{
+			log.debug("Access is denied. Caller not a member of root SCIM group");
+			throw new AuthorizationException("Access is denied");
+		}
+
+		if (!invocationContext.getScopes().stream().anyMatch(SCIMSystemScopeProvider.getScopeNames()::contains))
+		{
+			log.debug("Access is denied. Client does not have the required scopes");
 			throw new AuthorizationException("Access is denied");
 		}
 	}
@@ -82,10 +101,11 @@ class UserAuthzService
 			authzMan.checkReadCapability(false, configuration.rootGroup);
 		} else
 		{
+			log.debug("Access is denied. Reading users is available only via direct access");
 			throw new AuthorizationException("Access is denied");
 		}
 	}
-	
+
 	Predicate<AttributeDefinitionWithMapping> getFilter()
 	{
 		InvocationContext current = InvocationContext.getCurrent();

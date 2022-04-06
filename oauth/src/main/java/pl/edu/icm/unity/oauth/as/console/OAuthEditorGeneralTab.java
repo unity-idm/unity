@@ -482,7 +482,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 				() -> new ScopeEditor(msg, attrTypes, systemScopesNames), s -> false,
 				s -> s != null && s.getName() != null && systemScopesNames.contains(s.getName()), false);
 		Column<OAuthScopeBean, Component> addGotoEditColumn = scopesGrid.addGotoEditColumn(s -> s.getName(),
-				msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10);
+				msg.getMessage("OAuthEditorGeneralTab.scopeName"), 30);
 		addGotoEditColumn.setId("name");
 		scopesGrid.addCheckboxColumn(s -> s.isEnabled(), msg.getMessage("OAuthEditorGeneralTab.scopeEnabled"), 10);
 		scopesGrid.addTextColumn(s -> s.getDescription(), msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 10);
@@ -631,6 +631,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 			binder = new Binder<>(OAuthScopeBean.class);
 			name = new TextField();
+			name.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 			name.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
 			binder.forField(name).asRequired().withValidator(new NoSpaceValidator(msg))
 					.withValidator((value, context) ->
@@ -684,8 +685,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			boolean enableDisableblock = value != null && value.getName() != null
 					&& OAuthSystemScopeProvider.getScopeNames().contains(value.getName());
 			boolean fullBlock = value != null && value.getName() != null && systemScopes.contains(value.getName());
-			enable.setEnabled(!enableDisableblock);
-			name.setEnabled(!fullBlock);
+			enable.setReadOnly(enableDisableblock);
+			name.setReadOnly(fullBlock);
 			attributes.setEnabled(!fullBlock);
 			blockedEdit = fullBlock || enableDisableblock;
 		}
