@@ -72,6 +72,11 @@ class SimpleMappingEvaluator implements MappingEvaluator
 		case IDENTITY:
 			value = targetDataConverter.convertUserIdentityToType(context.user, mapping.dataValue.value.get(),
 					attributeDefinitionWithMapping.attributeDefinition.type);
+		
+		case ARRAY:
+			value = Optional.ofNullable(context.arrayObj == null ? null
+					: targetDataConverter.convertToType(context.arrayObj,
+							attributeDefinitionWithMapping.attributeDefinition.type));
 			break;
 		default:
 			throw new UnsupportedOperationException(
@@ -99,16 +104,16 @@ class SimpleMappingEvaluator implements MappingEvaluator
 			switch (mapping.dataValue.type)
 			{
 			case MVEL:
-				evalRet.add(targetDataConverter.convertToType(
+				Optional.ofNullable(targetDataConverter.convertToType(
 						mvelEvaluator.evalMVEL(mapping.dataValue.value.get(),
 								EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
 										.withScimEndpointDescription(context.scimEndpointDescription)
 										.withGroupProvider(context.groupProvider).build()),
-						attributeDefinitionWithMapping.attributeDefinition.type));
+						attributeDefinitionWithMapping.attributeDefinition.type)).ifPresent(c -> evalRet.add(c));
 				break;
 			case ARRAY:
-				evalRet.add(targetDataConverter.convertToType(arrayObj,
-						attributeDefinitionWithMapping.attributeDefinition.type));
+				Optional.ofNullable(targetDataConverter.convertToType(arrayObj,
+						attributeDefinitionWithMapping.attributeDefinition.type)).ifPresent(c -> evalRet.add(c));
 				break;
 			default:
 				throw new UnsupportedOperationException(

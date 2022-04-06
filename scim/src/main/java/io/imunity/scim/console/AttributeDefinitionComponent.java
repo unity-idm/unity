@@ -31,6 +31,7 @@ class AttributeDefinitionComponent extends CustomField<AttributeDefinitionBean>
 	private final VerticalLayout subAttrLayout;
 	private final AttributeEditContext context;
 	private final AttributeEditorData attributeEditorData;
+	private AttributeEditContext editContext;
 
 	AttributeDefinitionComponent(MessageSource msg, AttributeEditContext context, AttributeEditorData attributeEditorData, VerticalLayout attrDefHeaderSlot,
 			VerticalLayout subAttrSlot)
@@ -84,15 +85,23 @@ class AttributeDefinitionComponent extends CustomField<AttributeDefinitionBean>
 		FormLayoutWithFixedCaptionWidth subAttrFormLayout = new FormLayoutWithFixedCaptionWidth();
 		subAttrFormLayout.setMargin(false);
 		subAttrLayout.addComponent(subAttrFormLayout);
+		editContext = AttributeEditContext.builder().withDisableComplexAndMulti(true)
+				.withAttributesEditMode(context.attributesEditMode).build();
 		AttributeDefinitionConfigurationList attributesList = new AttributeDefinitionConfigurationList(msg,
-				msg.getMessage("AttributeDefinitionConfigurationList.addSubAttribute"), AttributeEditContext.builder()
-						.withDisableComplexAndMulti(true).withAttributesEditMode(context.attributesEditMode).build(), attributeEditorData);
+				msg.getMessage("AttributeDefinitionConfigurationList.addSubAttribute"), () -> editContext, attributeEditorData);
 		attributesList.setRequiredIndicatorVisible(false);
+	
 		binder.forField(attributesList)
 				.withValidator((value, context) -> (value == null || value.stream().filter(a -> a == null).count() > 0)
 						? ValidationResult.error(msg.getMessage("fieldRequired"))
 						: ValidationResult.ok())
 				.bind("subAttributesWithMapping");
+		multi.addValueChangeListener(e ->{
+			editContext =  AttributeEditContext.builder()
+					.withDisableComplexAndMulti(true).withAttributesEditMode(context.attributesEditMode).withComplexMultiParent(e.getValue()).build();
+			attributesList.refreshEditors();
+		});
+		
 		type.addValueChangeListener(v ->
 		{
 			if (!v.getValue().equals(SCIMAttributeType.COMPLEX))

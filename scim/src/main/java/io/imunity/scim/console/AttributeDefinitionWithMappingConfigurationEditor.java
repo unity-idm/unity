@@ -5,6 +5,8 @@
 
 package io.imunity.scim.console;
 
+import java.util.function.Supplier;
+
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
@@ -19,10 +21,11 @@ class AttributeDefinitionWithMappingConfigurationEditor extends Editor<Attribute
 	private Binder<AttributeDefinitionWithMappingBean> binder;
 	private VerticalLayout main;
 	private AttributeDefinitionComponent attributeDefinitionComponent;
-	private final AttributeEditContext context;
+	private final Supplier<AttributeEditContext> context;
 	private final AttributeEditorData editorData;
+	private AttributeMappingComponent attributeMappingComponent;
 
-	AttributeDefinitionWithMappingConfigurationEditor(MessageSource msg, AttributeEditContext context,
+	AttributeDefinitionWithMappingConfigurationEditor(MessageSource msg, Supplier<AttributeEditContext> context,
 			AttributeEditorData editorData)
 	{
 		this.msg = msg;
@@ -42,10 +45,10 @@ class AttributeDefinitionWithMappingConfigurationEditor extends Editor<Attribute
 		subAttrSlot.setMargin(false);
 
 		binder = new Binder<>(AttributeDefinitionWithMappingBean.class);
-		attributeDefinitionComponent = new AttributeDefinitionComponent(msg, context, editorData, attrDefHeaderSlot,
+		attributeDefinitionComponent = new AttributeDefinitionComponent(msg, context.get(), editorData, attrDefHeaderSlot,
 				subAttrSlot);
 		main.addComponent(attrDefHeaderSlot);
-		AttributeMappingComponent attributeMappingComponent = new AttributeMappingComponent(msg, editorData);
+		attributeMappingComponent = new AttributeMappingComponent(msg, editorData, context);
 		attributeDefinitionComponent.addValueChangeListener(e -> attributeMappingComponent.update(e.getValue()));
 		main.addComponent(attributeMappingComponent);
 		main.addComponent(subAttrSlot);
@@ -54,7 +57,7 @@ class AttributeDefinitionWithMappingConfigurationEditor extends Editor<Attribute
 				e -> fireEvent(new ValueChangeEvent<>(this, binder.getBean(), e.isUserOriginated())));
 		binder.setValidatorsDisabled(true);
 		binder.forField(attributeMappingComponent).bind("attributeMapping");
-		attributeMappingComponent.setVisible(!context.attributesEditMode.equals(AttributesEditMode.HIDE_MAPPING));
+		attributeMappingComponent.setVisible(!context.get().attributesEditMode.equals(AttributesEditMode.HIDE_MAPPING));
 
 	}
 
@@ -93,5 +96,10 @@ class AttributeDefinitionWithMappingConfigurationEditor extends Editor<Attribute
 	protected void doSetValue(AttributeDefinitionWithMappingBean value)
 	{
 		binder.setBean(value);
+	}
+	
+	void refresh()
+	{
+		attributeMappingComponent.update(attributeDefinitionComponent.getValue());
 	}
 }

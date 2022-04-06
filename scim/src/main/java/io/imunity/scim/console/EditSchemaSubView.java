@@ -86,7 +86,7 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 		header.setMargin(true);
 
 		TextField id = new TextField(msg.getMessage("EditSchemaSubView.id"));
-		id.setReadOnly(editMode);
+		id.setReadOnly(!attributesEditMode.equals(AttributesEditMode.FULL_EDIT));
 		id.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		header.addComponent(id);
 		binder.forField(id)

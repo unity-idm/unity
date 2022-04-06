@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
@@ -42,11 +43,14 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 	private AttributeMappingComponent.DataValueField dataValue;
 	private AttributeMappingComponent.ReferenceField referenceEditor;
 	private final AttributeEditorData editorData;
+	private final Supplier<AttributeEditContext> editContextSupplier;
 
-	AttributeMappingComponent(MessageSource msg, AttributeEditorData editorData)
+	AttributeMappingComponent(MessageSource msg, AttributeEditorData editorData,
+			Supplier<AttributeEditContext> editContextSupplier)
 	{
 		this.msg = msg;
 		this.editorData = editorData;
+		this.editContextSupplier = editContextSupplier;
 		init();
 	}
 
@@ -63,10 +67,10 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 		dataArray.setCaption(msg.getMessage("AttributeDefinitionConfigurationEditor.dataArray"));
 		header.addComponent(dataArray);
 		List<DataArrayBean> items = new ArrayList<>();
-		items.addAll(editorData.identityTypes.stream()
+		items.addAll(editorData.identityTypes.stream().sorted()
 				.map(i -> new DataArrayBean(DataArrayType.IDENTITY, Optional.of(i))).collect(Collectors.toList()));
 
-		items.addAll(editorData.attributeTypes.stream()
+		items.addAll(editorData.attributeTypes.stream().sorted()
 				.map(a -> new DataArrayBean(DataArrayType.ATTRIBUTE, Optional.of(a))).collect(Collectors.toList()));
 		items.add(new DataArrayBean(DataArrayType.MEMBERSHIP, Optional.empty()));
 
@@ -95,12 +99,11 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 		{
 			return;
 		}
-		
-		
+
 		dataArray.setVisible(value.isMultiValued());
 		dataValue.setVisible(!(value.getType().equals(SCIMAttributeType.COMPLEX)
 				|| value.getType().equals(SCIMAttributeType.REFERENCE)));
-		dataValue.setMulti(value.isMultiValued());
+		dataValue.setMulti(value.isMultiValued(), editContextSupplier.get().complexMultiParent);
 		referenceEditor.setVisible(value.getType().equals(SCIMAttributeType.REFERENCE));
 		referenceEditor.setMulti(value.isMultiValued());
 	}
@@ -133,6 +136,7 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 		private Tab mvelTab;
 		private MVELExpressionField expression;
 		private boolean multi;
+		private boolean parentMulti;
 
 		public DataValueField(MessageSource msg, AttributeEditorData editorData)
 		{
@@ -154,9 +158,9 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 			mainDataLayout.addComponent(dataValue);
 			dataValue.addValueChangeListener(
 					e -> fireEvent(new ValueChangeEvent<>(this, getValue(), e.isUserOriginated())));
-			dataValue.setItemCaptionGenerator(i -> i != null && i.getType() != null
-					? (msg.getMessage("DataValueType." + i.getType()) + (i.getValue().isEmpty() ? "" : i.getValue().get()))
-					: "");
+			dataValue.setItemCaptionGenerator(
+					i -> i != null && i.getType() != null ? (msg.getMessage("DataValueType." + i.getType())
+							+ (i.getValue().isEmpty() ? "" : i.getValue().get())) : "");
 			dataValue.setEmptySelectionAllowed(false);
 			VerticalLayout mainExpressionLayout = new VerticalLayout();
 			mainExpressionLayout.setMargin(new MarginInfo(true, false));
@@ -177,16 +181,35 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 			setItemsForSingleTypeSelect();
 		}
 
-		public void setMulti(boolean multiValued)
+		public void setMulti(boolean multiValued, boolean parentMultiValued)
 		{
-			if (multi == multiValued)
+			if (multi == multiValued && parentMulti == parentMultiValued)
 				return;
 			multi = multiValued;
-			dataValue.setValue(null);
+			parentMulti = parentMultiValued;
+
+			if (parentMultiValued)
+			{
+				setAllItems();
+				return;
+			}
+			List<DataValueBean> items = null;
 			if (multiValued)
-				setItemsForMultiTypeSelect();
-			else
-				setItemsForSingleTypeSelect();
+			{
+				items = setItemsForMultiTypeSelect();
+			} else
+			{
+				items = setItemsForSingleTypeSelect();
+			}
+
+			DataValueBean value = dataValue.getValue();
+			if (value != null)
+			{
+				if (items.stream().filter(a -> a.getType().equals(value.getType())).findAny().isEmpty())
+				{
+					dataValue.setValue(null);
+				}
+			}
 
 		}
 
@@ -202,29 +225,51 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 			}
 		}
 
-		void setItemsForSingleTypeSelect()
+		private List<DataValueBean> setAllItems()
 		{
-			List<DataValueBean> items = new ArrayList<>();
-			items.addAll(editorData.identityTypes.stream()
-					.map(a -> new DataValueBean(DataValueType.IDENTITY, Optional.ofNullable(a)))
-					.collect(Collectors.toList()));
-			items.addAll(editorData.attributeTypes.stream()
-					.map(a -> new DataValueBean(DataValueType.ATTRIBUTE, Optional.ofNullable(a)))
-					.collect(Collectors.toList()));
+			List<DataValueBean> items = getIdentitiesAndAttributesItems();
+			items.add(new DataValueBean(DataValueType.ARRAY, Optional.empty()));
+			dataValue.setItems(items);
+			expression.setContext(
+					MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
+							.withEvalToKey("MVELExpressionField.evalToString")
+							.withVars(SCIMMvelContextKey.mapForMulti()).build());
+			return items;
+		}
+
+		private List<DataValueBean> setItemsForSingleTypeSelect()
+		{
+			List<DataValueBean> items = getIdentitiesAndAttributesItems();
 			dataValue.setItems(items);
 			expression.setContext(
 					MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
 							.withEvalToKey("MVELExpressionField.evalToString")
 							.withVars(SCIMMvelContextKey.mapForSingle()).build());
+			return items;
 		}
 
-		void setItemsForMultiTypeSelect()
+		private List<DataValueBean> getIdentitiesAndAttributesItems()
 		{
+			List<DataValueBean> items = new ArrayList<>();
+			items.addAll(editorData.identityTypes.stream().sorted()
+					.map(a -> new DataValueBean(DataValueType.IDENTITY, Optional.ofNullable(a)))
+					.collect(Collectors.toList()));
+			items.addAll(editorData.attributeTypes.stream().sorted()
+					.map(a -> new DataValueBean(DataValueType.ATTRIBUTE, Optional.ofNullable(a)))
+					.collect(Collectors.toList()));
+			return items;
+
+		}
+
+		private List<DataValueBean> setItemsForMultiTypeSelect()
+		{
+			List<DataValueBean> items = List.of(new DataValueBean(DataValueType.ARRAY, Optional.empty()));
 			dataValue.setItems(List.of(new DataValueBean(DataValueType.ARRAY, Optional.empty())));
 			expression.setContext(
 					MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
 							.withEvalToKey("MVELExpressionField.evalToString")
 							.withVars(SCIMMvelContextKey.mapForMulti()).build());
+			return items;
 
 		}
 
@@ -245,7 +290,7 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 				expression.setValue(null);
 				return;
 			}
-			
+
 			if (value.getType() == null)
 			{
 				tab.setSelectedTab(staticValueTab);
@@ -305,16 +350,15 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 			if (refToTypeCombo.getValue().equals(ReferenceType.GENERIC))
 			{
 				expression.setCaption(msg.getMessage("ReferenceField.referenceUri"));
-				expression.setContext(
-						MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.referenceGeneralDataValue")
-								.withEvalToKey("MVELExpressionField.evalToUri").withVars(context.vars).build());
+				expression.setContext(MVELExpressionContext.builder()
+						.withTitleKey("AttributeDefinitionConfigurationEditor.referenceGeneralDataValue")
+						.withEvalToKey("MVELExpressionField.evalToUri").withVars(context.vars).build());
 
 			} else
 			{
 				expression.setCaption(msg.getMessage("ReferenceField.referencedResourceId"));
-				expression.setContext(
-						MVELExpressionContext.builder().withTitleKey(getMvelEditorTitleKey())
-								.withEvalToKey(getMvelEditorTypeKey()).withVars(context.vars).build());
+				expression.setContext(MVELExpressionContext.builder().withTitleKey(getMvelEditorTitleKey())
+						.withEvalToKey(getMvelEditorTypeKey()).withVars(context.vars).build());
 			}
 
 			fireEvent(new ValueChangeEvent<>(this, getValue(), e.isUserOriginated()));
@@ -345,8 +389,7 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 				return "MVELExpressionField.evalToUri";
 			}
 		}
-		
-		
+
 		@Override
 		public ReferenceDataBean getValue()
 		{

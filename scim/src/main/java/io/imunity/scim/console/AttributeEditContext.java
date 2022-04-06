@@ -8,41 +8,50 @@ package io.imunity.scim.console;
 class AttributeEditContext
 {
 	final boolean disableComplexAndMulti;
+	final boolean complexMultiParent;
 	final AttributesEditMode attributesEditMode;
 
 	private AttributeEditContext(Builder builder)
 	{
 		this.disableComplexAndMulti = builder.disableComplexAndMulti;
+		this.complexMultiParent = builder.complexMultiParent;
 		this.attributesEditMode = builder.attributesEditMode;
 	}
 
-	static Builder builder()
+	public static Builder builder()
 	{
 		return new Builder();
 	}
 
-	static final class Builder
+	public static final class Builder
 	{
 		private boolean disableComplexAndMulti;
+		private boolean complexMultiParent;
 		private AttributesEditMode attributesEditMode;
 
 		private Builder()
 		{
 		}
 
-		Builder withDisableComplexAndMulti(boolean disableComplexAndMulti)
+		public Builder withDisableComplexAndMulti(boolean disableComplexAndMulti)
 		{
 			this.disableComplexAndMulti = disableComplexAndMulti;
 			return this;
 		}
 
-		Builder withAttributesEditMode(AttributesEditMode attributesEditMode )
+		public Builder withComplexMultiParent(boolean complexMultiParent)
+		{
+			this.complexMultiParent = complexMultiParent;
+			return this;
+		}
+
+		public Builder withAttributesEditMode(AttributesEditMode attributesEditMode)
 		{
 			this.attributesEditMode = attributesEditMode;
 			return this;
 		}
 
-		AttributeEditContext build()
+		public AttributeEditContext build()
 		{
 			return new AttributeEditContext(this);
 		}
