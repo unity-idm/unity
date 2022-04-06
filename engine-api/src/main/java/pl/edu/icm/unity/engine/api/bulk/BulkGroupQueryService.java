@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.bulk;
 
-import java.util.Map;
-import java.util.Set;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupContents;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Supports fast resolving of data about a group contents in bulk. Usage pattern:
@@ -23,9 +23,8 @@ public interface BulkGroupQueryService
 	//TODO this method should not be in this service. It is higher-level, it internally gets bulk data and then resolves it.
 	GroupsWithMembers getMembersWithAttributeForAllGroups(String rootGroup, Set<String> groupFilter);
 	
-	
 	GroupMembershipData getBulkMembershipData(String group) throws EngineException;
-	
+
 	GroupMembershipData getBulkMembershipData(String group, Set<Long> filter) throws EngineException;
 
 	Map<Long, Map<String, AttributeExt>> getGroupUsersAttributes(String group, GroupMembershipData dataO);

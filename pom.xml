@@ -83,7 +83,8 @@
 		<module>fido</module>
 		<module>web-attr-introspection</module>
 		<module>scim</module>
-	</modules>
+        <module>unity-rest-api</module>
+    </modules>
 
 	<developers>
 		<developer>

@@ -4,66 +4,28 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
-import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.IdpStatisticManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
-import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
+import pl.edu.icm.unity.engine.api.groupMember.GroupMembersService;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
@@ -72,24 +34,12 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.json.Token2JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.model.RestGroupMemberWithAttributes;
+import pl.edu.icm.unity.model.RestMultiGroupMembersWithAttributes;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.EntityWithAttributes;
-import pl.edu.icm.unity.types.basic.ExternalizedAttribute;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -100,6 +50,18 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.types.translation.TranslationRule;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 /**
  * RESTful API implementation.
@@ -132,6 +94,7 @@ public class RESTAdmin implements RESTAdminHandler
 	private UserNotificationTriggerer userNotificationTriggerer;
 	private ExternalDataParser dataParser;
 	private IdpStatisticManagement idpStatisticManagement;
+	private GroupMembersService groupMembersService;
 
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan,
@@ -150,7 +113,8 @@ public class RESTAdmin implements RESTAdminHandler
 			Token2JsonFormatter jsonFormatter,
 			UserNotificationTriggerer userNotificationTriggerer,
 			ExternalDataParser dataParser,
-			IdpStatisticManagement idpStatisticManagement)
+			IdpStatisticManagement idpStatisticManagement,
+			GroupMembersService groupMembersService)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -169,6 +133,7 @@ public class RESTAdmin implements RESTAdminHandler
 		this.userNotificationTriggerer = userNotificationTriggerer;
 		this.dataParser = dataParser;
 		this.idpStatisticManagement = idpStatisticManagement;
+		this.groupMembersService = groupMembersService;
 	}
 
 	
@@ -317,6 +282,63 @@ public class RESTAdmin implements RESTAdminHandler
 		List<ExternalizedAttribute> attributes = attributesService.getAttributes(
 				getEP(entityId, idType), group, effective, idType, includeSimpleValues);
 		return mapper.writeValueAsString(attributes);
+	}
+
+	@Path("/entity/{entityId}/groups/direct/attributes")
+	@GET
+	public String getAttributesInAllGroups(@PathParam("entityId") String entityId,
+												@QueryParam("identityType") String idType)
+			throws EngineException, JsonProcessingException
+	{
+		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService.getAllDirectAttributes(getEP(entityId, idType));
+		return mapper.writeValueAsString(attributesInGroups);
+	}
+
+	@Path("/group-members-attributes/{groupPath}")
+	@GET
+	public String getGroupMembersAttributesResolved(@PathParam("groupPath") String group,
+	                                                @QueryParam("attributes") List<String> attributes)
+		throws JsonProcessingException
+	{
+		Stopwatch stopwatch = Stopwatch.createStarted();
+		log.debug("getGroupMembersAttributesResolved query for " + group);
+		if (!group.startsWith("/"))
+			group = "/" + group;
+		List<RestGroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes(group, attributes).stream()
+				.map(RestApiMapper::map)
+				.collect(Collectors.toList());
+		String s = mapper.writeValueAsString(groupMembers);
+		log.debug("Request completed: {}", stopwatch.toString());
+		return s;
+	}
+
+	@Path("/multi-group-members-attributes")
+	@GET
+	public String getMultiGroupMembersAttributesResolved(@QueryParam("attributes") List<String> attributes,
+	                                                @QueryParam("groups") List<String> groups)
+			throws JsonProcessingException
+	{
+		log.debug("getGroupMembersAttributesResolved query for " + groups);
+		if(groups.isEmpty()){
+			return mapper.writeValueAsString(Map.of());
+		}
+
+		List<String> allGroups = groups.stream()
+				.map(grp ->
+				{
+					if (!grp.startsWith("/"))
+						return "/" + grp;
+					return grp;
+				}).collect(Collectors.toList());
+		Map<String, List<RestGroupMemberWithAttributes>> groupMembers = groupMembersService.getGroupsMembersInGroupsWithSelectedAttributes(allGroups, attributes)
+				.entrySet().stream()
+				.collect(Collectors.toMap(
+						Map.Entry::getKey,
+						entry -> entry.getValue().stream()
+								.map(RestApiMapper::map)
+								.collect(Collectors.toList())
+				));
+		return mapper.writeValueAsString(new RestMultiGroupMembersWithAttributes(groupMembers));
 	}
 
 	@Path("/entity/{entityId}/record")

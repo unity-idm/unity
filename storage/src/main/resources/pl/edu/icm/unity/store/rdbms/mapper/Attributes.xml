@@ -90,7 +90,26 @@
 			AND A.TYPE_ID = AT.ID 
 			AND G.ID = A.GROUP_ID
 	</select>
-	
+
+	<select id="getGroupsMembersAttributes" parameterType="list" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH
+		from ATTRIBUTES A, ATTRIBUTE_TYPES AT, <include refid="io.imunity.sql.groups"/> G
+		where
+		G.NAME IN <foreach item='item' index='index' collection='list' open='(' separator=',' close=')'> #{item} </foreach>
+		AND A.TYPE_ID = AT.ID
+		AND G.ID = A.GROUP_ID
+	</select>
+
+	<select id="getSelectedGroupsMembersAttributes" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH
+		from ATTRIBUTES A, ATTRIBUTE_TYPES AT, <include refid="io.imunity.sql.groups"/> G
+		where
+		AT.NAME IN <foreach item='item' index='index' collection='param2' open='(' separator=',' close=')'> #{item} </foreach>
+		AND G.NAME IN <foreach item='item' index='index' collection='param1' open='(' separator=',' close=')'> #{item} </foreach>
+		AND A.TYPE_ID = AT.ID
+		AND G.ID = A.GROUP_ID
+	</select>
+
 	<select id="getCount" resultType="long">
 		SELECT COUNT(*) FROM ATTRIBUTES
 	</select>

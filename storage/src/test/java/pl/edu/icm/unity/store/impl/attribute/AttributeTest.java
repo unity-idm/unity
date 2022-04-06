@@ -4,10 +4,17 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import com.google.common.collect.Lists;
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import pl.edu.icm.unity.store.api.*;
+import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
+import pl.edu.icm.unity.store.impl.StorageLimits.SizeLimitExceededException;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.types.basic.*;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,28 +22,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Lists;
-
-import pl.edu.icm.unity.store.api.AttributeDAO;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.api.MembershipDAO;
-import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
-import pl.edu.icm.unity.store.impl.StorageLimits.SizeLimitExceededException;
-import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMembership;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 {
@@ -157,7 +146,40 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			assertAllAndOnlyAllInSA(Lists.newArrayList(obj, obj2), attributes);
 		});
 	}
-	
+
+
+	@Test
+	public void selectedAttributesFormSelectedGroupsOfGroupMembersAreReturned()
+	{
+		tx.runInTransaction(() -> {
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getObject("");
+			obj.getAttribute().setGroupPath("/");
+			obj.getAttribute().setName("attr");
+			dao.create(obj);
+
+			StoredAttribute obj2 = getObject("");
+			obj2.getAttribute().setGroupPath("/C");
+			obj2.getAttribute().setName("attr2");
+			dao.create(obj2);
+
+			StoredAttribute obj4 = getObject("");
+			obj4.getAttribute().setGroupPath("/C");
+			obj4.getAttribute().setName("attr3");
+			obj4 = new StoredAttribute(obj4.getAttribute(), entityId2);
+			dao.create(obj4);
+
+
+			membershipDao.create(new GroupMembership("/C", entityId, new Date(1)));
+			membershipDao.create(new GroupMembership("/", entityId, new Date(1)));
+			membershipDao.create(new GroupMembership("/", entityId2, new Date(1)));
+
+			List<StoredAttribute> attributes = dao.getAttributesOfGroupMembers(List.of("attr3"), List.of("/C"));
+
+			assertAllAndOnlyAllInSA(Lists.newArrayList(obj4), attributes);
+		});
+	}
+
 	@Test
 	public void allAttributesByNameAndGroupAreReturned()
 	{

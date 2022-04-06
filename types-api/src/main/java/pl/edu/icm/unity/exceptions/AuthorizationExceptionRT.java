@@ -19,4 +19,9 @@ public class AuthorizationExceptionRT extends RuntimeException
 	{
 		super(msg);
 	}
+
+	public AuthorizationExceptionRT(Throwable cause)
+	{
+		super(cause);
+	}
 }

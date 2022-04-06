@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
-import java.util.List;
-
 import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
+
+import java.util.List;
 
 
 
@@ -21,6 +21,10 @@ public interface AttributesMapper extends BasicCRUDMapper<AttributeBean>
 	List<AttributeBean> getAttributes(AttributeBean a);
 	
 	List<AttributeBean> getGroupMembersAttributes(String group);
-	
+
+	List<AttributeBean> getGroupsMembersAttributes(List<String> groups);
+
+	List<AttributeBean> getSelectedGroupsMembersAttributes(List<String> groups, List<String> attributes);
+
 	long getCountWithoutType(List<String> types);
 }

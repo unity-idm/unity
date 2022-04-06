@@ -4,51 +4,37 @@
  */
 package pl.edu.icm.unity.engine.bulk;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Sets;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.store.api.AttributeDAO;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.api.IdentityDAO;
-import pl.edu.icm.unity.store.api.MembershipDAO;
+import pl.edu.icm.unity.store.api.*;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.*;
+
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.function.Function.identity;
 
 @Component
 class CompositeEntitiesInfoProvider
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, CompositeEntitiesInfoProvider.class);
+	static int USERS_THRESHOLD_ALLOWING_EFFECTIVE_GET_OF_SELECTED_USERS = 500;
 	@Autowired
 	private AttributeTypeDAO attributeTypeDAO;
 	@Autowired
@@ -69,7 +55,7 @@ class CompositeEntitiesInfoProvider
 	private CredentialReqRepository credentialReqRepository;
 	@Autowired
 	private EnquiryFormDB enquiryDB;
-	
+
 	public GroupMembershipData getCompositeGroupContents(String group, Optional<Set<Long>> filter) throws EngineException
 	{
 		Stopwatch watch = Stopwatch.createStarted();
@@ -88,9 +74,15 @@ class CompositeEntitiesInfoProvider
 
 	private EntitiesData getEntitiesDataOfSingleGroup(String group, Predicate<GroupMembership> groupMembershipFilter)
 	{
+		Map<Long, EntityInformation> entityInfo = getGroupEntitiesInfo(group);
+		Map<Long, Set<String>> filteredMemberships;
+		if(entityInfo.size() < USERS_THRESHOLD_ALLOWING_EFFECTIVE_GET_OF_SELECTED_USERS)
+			filteredMemberships = getMemberships(entityInfo.keySet());
+		else
+			filteredMemberships = getFilteredMemberships(groupMembershipFilter);
 		return EntitiesData.builder()
-				.withMemberships(getFilteredMemberships(groupMembershipFilter))
-				.withEntityInfo(getEntityInfo(group))
+				.withMemberships(filteredMemberships)
+				.withEntityInfo(entityInfo)
 				.withIdentities(getIdentities(group))
 				.withDirectAttributes(getAttributes(group))				
 				.build();
@@ -197,10 +189,10 @@ class CompositeEntitiesInfoProvider
 		return ret;
 	}
 	
-	private Map<Long, EntityInformation> getEntityInfo(String group)
+	private Map<Long, EntityInformation> getGroupEntitiesInfo(String group)
 	{
 		return entityDAO.getByGroup(group).stream()
-			.collect(Collectors.toMap(entity -> entity.getId(), entity->entity));
+			.collect(Collectors.toMap(EntityInformation::getId, identity()));
 	}
 
 	private Map<Long, EntityInformation> getEntityInfo(Predicate<Long> entityTester)
@@ -260,4 +252,17 @@ class CompositeEntitiesInfoProvider
 		return ret;
 	}
 
+	private Map<Long, Set<String>> getMemberships(Set<Long> entityIds)
+	{
+		Stopwatch w = Stopwatch.createStarted();
+		List<GroupMembership> all = entityIds.isEmpty() ? List.of() : membershipDAO.getEntityMemberships(entityIds);
+		log.debug("getMemberships {}", w.toString());
+		Map<Long, Set<String>> ret = new HashMap<>();
+		for (GroupMembership membership : all)
+		{
+			ret.computeIfAbsent(membership.getEntityId(), key -> new HashSet<>())
+				.add(membership.getGroup());
+		}
+		return ret;
+	}
 }

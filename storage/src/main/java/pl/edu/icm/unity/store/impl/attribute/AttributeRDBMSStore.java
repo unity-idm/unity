@@ -4,14 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
@@ -21,6 +15,11 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -33,7 +32,7 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	public static final String BEAN = DAO_ID + "rdbms";
 	private final GroupDAO groupDAO;
 	private final Integer attributeSizeLimit;
-	
+
 	@Autowired
 	AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer,
 			GroupDAO groupDAO,
@@ -124,6 +123,20 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
 		List<AttributeBean> groupMembersAttributes = mapper.getGroupMembersAttributes(group);
 		return convertList(groupMembersAttributes);
+	}
+
+	@Override
+	public List<StoredAttribute> getAttributesOfGroupMembers(List<String> attributes, List<String> groups)
+	{
+		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
+		return convertList(mapper.getSelectedGroupsMembersAttributes(groups, attributes));
+	}
+
+	@Override
+	public List<StoredAttribute> getAttributesOfGroupMembers(List<String> groups)
+	{
+		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
+		return convertList(mapper.getGroupsMembersAttributes(groups));
 	}
 
 	@Override
