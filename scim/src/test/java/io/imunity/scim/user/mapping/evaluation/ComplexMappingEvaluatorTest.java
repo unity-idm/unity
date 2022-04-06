@@ -184,5 +184,48 @@ public class ComplexMappingEvaluatorTest
 		assertThat(value.attributeName, is("name"));
 		assertThat(value.value.get(), is(List.of(Map.of("familyName", "f1"), Map.of("familyName", "f1"))));
 	}
+	
+	@Test
+	public void shouldEvalComplexMultiWithSimpleSubAttributeWithArrayMapping() throws EngineException
+	{
+		AttributeDefinitionWithMapping complexAttr = AttributeDefinitionWithMapping.builder()
+				.withAttributeDefinition(AttributeDefinition.builder().withName("name").withMultiValued(true)
+						.withType(SCIMAttributeType.COMPLEX)
+						.withSubAttributesWithMapping(List.of(AttributeDefinitionWithMapping.builder()
+								.withAttributeDefinition(AttributeDefinition.builder().withName("familyName")
+										.withMultiValued(false).withType(SCIMAttributeType.STRING).build())
+								.withAttributeMapping(SimpleAttributeMapping
+
+										.builder()
+										.withDataValue(DataValue.builder().withType(DataValueType.ARRAY)
+												.build())
+										.withDataArray(Optional.empty()).build())
+								.build()))
+						.build())
+				.withAttributeMapping(ComplexAttributeMapping.builder()
+						.withDataArray(Optional.of(
+								DataArray.builder().withType(DataArrayType.ATTRIBUTE).withValue("familyName").build()))
+						.build())
+				.build();
+
+		doReturn(List.of("f1", "f2")).when(dataArrayResolver).resolve(
+				eq(DataArray.builder().withType(DataArrayType.ATTRIBUTE).withValue("familyName").build()), any());
+
+		when(simpleMappingEvaluator.eval(eq(AttributeDefinitionWithMapping.builder()
+				.withAttributeDefinition(AttributeDefinition.builder().withName("familyName").withMultiValued(false)
+						.withType(SCIMAttributeType.STRING).build())
+				.withAttributeMapping(SimpleAttributeMapping.builder()
+						.withDataValue(
+								DataValue.builder().withType(DataValueType.ARRAY).build())
+						.withDataArray(Optional.empty()).build())
+				.build()), any(), eq(mappingEvaluatorRegistry))).then(i -> EvaluationResult.builder().withAttributeName("familyName")
+						.withValue(Optional.of(i.getArgument(1, EvaluatorContext.class).arrayObj)).build());
+
+		EvaluationResult value = evaluator.eval(complexAttr, EvaluatorContext.builder().build(),
+				mappingEvaluatorRegistry);
+
+		assertThat(value.attributeName, is("name"));
+		assertThat(value.value.get(), is(List.of(Map.of("familyName", "f1"), Map.of("familyName", "f2"))));
+	}
 
 }
