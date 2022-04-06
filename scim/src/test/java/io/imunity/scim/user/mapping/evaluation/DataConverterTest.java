@@ -73,12 +73,6 @@ public class DataConverterTest
 		assertThat(convertToType, is(true));
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
-	public void shouldThrowExceptionWhenConvertFromUnsupportedTypeToBoolean()
-	{
-		converter.convertToType(Instant.now(), SCIMAttributeType.BOOLEAN);
-	}
-
 	@Test
 	public void shouldConvertFromDateToDatetime()
 	{
@@ -93,12 +87,6 @@ public class DataConverterTest
 		String date = "2007-12-03T10:15:30.00Z";
 		Object convertToType = converter.convertToType(date, SCIMAttributeType.DATETIME);
 		assertThat(convertToType, is(Instant.parse(date)));
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void shouldThrowExceptionWhenConvertFromUnsupportedTypeToDatetime()
-	{
-		converter.convertToType(Boolean.TRUE, SCIMAttributeType.DATETIME);
 	}
 
 }
