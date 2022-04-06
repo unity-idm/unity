@@ -49,7 +49,11 @@ class RestApiMapper
 				identity.getEntityId(),
 				identity.getCreationTs(),
 				identity.getUpdateTs(),
-				identity.getComparableValue()
+				identity.getComparableValue(),
+				identity.getTypeId(),
+				identity.getValue(),
+				identity.getTarget(),
+				identity.getRealm()
 		);
 	}
 
