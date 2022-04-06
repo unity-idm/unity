@@ -17,11 +17,6 @@
 
     <artifactId>unity-rest-api</artifactId>
 
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-    </properties>
-
     <scm>
         <connection>${scm.base}/${m.name}</connection>
         <developerConnection>${scm.base}/${m.name}</developerConnection>

@@ -292,7 +292,8 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Transactional
 	public Collection<AttributeExt> getAllDirectAttributes(EntityParam entity)
 	{
-		authz.checkAuthorizationRT(AuthzCapability.readHidden, AuthzCapability.read);		try
+		authz.checkAuthorizationRT(AuthzCapability.readHidden, AuthzCapability.read);
+		try
 		{
 			long entityId = idResolver.getEntityId(entity);
 			return attributesHelper.getAllEntityAttributesMap(entityId)
