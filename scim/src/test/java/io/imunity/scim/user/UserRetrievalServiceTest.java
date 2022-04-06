@@ -88,6 +88,10 @@ public class UserRetrievalServiceTest
 				new Attribute("a", StringAttributeSyntax.ID, "/scim", List.of("a1v")), false);
 		when(attributesManagement.getAttributes(eq(new EntityParam(entity.getId())), eq("/scim"), any()))
 				.thenReturn(List.of(attribute1));
+		when(entityManagement.getGroups(eq(new EntityParam(1L))))
+				.thenReturn(Map.of("/scim", new GroupMembership("/scim", 1L, new Date()), "/scim/Members1/Subgroup1",
+						new GroupMembership("/scim/Members1/Subgroup1", 1L, new Date()), "/scim/Members1",
+						new GroupMembership("/scim/Members1", 1L, new Date())));
 
 		User user = userRetrievalService.getUser(new PersistentId("1"));
 
@@ -98,6 +102,17 @@ public class UserRetrievalServiceTest
 				SCIMTestHelper.getGroupContent("/scim/Members1").getGroup()));
 		assertThat(user.attributes, hasItems(attribute1));
 
+	}
+
+	@Test(expected = UserNotFoundException.class)
+	public void shouldThrowExceptionWhenNotInScimRootGroup() throws EngineException
+	{
+		addEntityWithTwoIdentitiesToMemebersSubgroup();
+		when(entityManagement.getGroups(eq(new EntityParam(1L)))).thenReturn(
+				Map.of("/scim2/Members1/Subgroup1", new GroupMembership("/scim2/Members1/Subgroup1", 1L, new Date()),
+						"/scim2/Members1", new GroupMembership("/scim2/Members1", 1L, new Date())));
+
+		userRetrievalService.getUser(new PersistentId("1"));
 	}
 
 	private Entity addEntityWithTwoIdentitiesToMemebersSubgroup() throws EngineException
@@ -121,39 +136,30 @@ public class UserRetrievalServiceTest
 		when(entityManagement.getEntity(eq(new EntityParam(new IdentityTaV(PersistentIdentity.ID, "1")))))
 				.thenReturn(entity);
 
-		Map<String, GroupMembership> groups = new HashMap<>();
-		groups.put("/scim/Members1", null);
-		groups.put("/scim/Members1/Subgroup1", null);
-
-		when(entityManagement.getGroups(new EntityParam(1L))).thenReturn(groups);
-
 		return entity;
 	}
 
 	@Test
-	public void shouldReturnUsersFromAllMembersGroups() throws EngineException
+	public void shouldReturnUsersFromRootGroup() throws EngineException
 	{
 
 		addTwoMembersGroupsWithSubgroups();
 		EntityInGroupData entity1 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("0", 0), null,
-				Set.of("/scim/Members1/Subgroup1"), new HashMap<>(), null, null);
+				Set.of("/scim", "/scim/Members1/Subgroup1"), new HashMap<>(), null, null);
 		EntityInGroupData entity2 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("1", 1), null,
-				Set.of("/scim/Members2"), new HashMap<>(), null, null);
+				Set.of("/scim", "/scim/Members2"), new HashMap<>(), null, null);
 
 		GroupMembershipData membershipData = new MockGroupMembershipData();
 		when(bulkService.getBulkMembershipData(eq("/"))).thenReturn(membershipData);
 		when(bulkService.getMembershipInfo(eq(membershipData))).thenReturn(ImmutableMap.of(0l, entity1, 1l, entity2));
-
 		AttributeExt attribute1 = new AttributeExt(
 				new Attribute("a", StringAttributeSyntax.ID, "/scim", List.of("a1v")), false);
-
 		when(bulkService.getGroupUsersAttributes(eq("/scim"), eq(membershipData)))
 				.thenReturn(Map.of(1l, Map.of("a", attribute1), 0l, Map.of("a", attribute1)));
 
 		List<User> users = userRetrievalService.getUsers();
 
 		assertThat(users.size(), is(2));
-
 		assertThat(users,
 				hasItems(User.builder().withEntityId(1L)
 						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
@@ -166,6 +172,56 @@ public class UserRetrievalServiceTest
 								.withIdentities(entity1.entity.getIdentities()).withAttributes(List.of(attribute1))
 
 								.build()));
+
+	}
+
+	@Test
+	public void shouldReturnUsersWithoutAttributesInScimRootGroup() throws EngineException
+	{
+		addTwoMembersGroupsWithSubgroups();
+		EntityInGroupData entity1 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("0", 0), null,
+				Set.of("/scim", "/scim/Members1/Subgroup1"), new HashMap<>(), null, null);
+		EntityInGroupData entity2 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("1", 1), null,
+				Set.of("/scim", "/scim/Members2"), new HashMap<>(), null, null);
+		GroupMembershipData membershipData = new MockGroupMembershipData();
+		when(bulkService.getBulkMembershipData(eq("/"))).thenReturn(membershipData);
+		when(bulkService.getMembershipInfo(eq(membershipData))).thenReturn(ImmutableMap.of(0l, entity1, 1l, entity2));
+		when(bulkService.getGroupUsersAttributes(eq("/scim"), eq(membershipData))).thenReturn(Collections.emptyMap());
+
+		List<User> users = userRetrievalService.getUsers();
+
+		assertThat(users.size(), is(2));
+		assertThat(users,
+				hasItems(User.builder().withEntityId(1L)
+						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
+						.withIdentities(entity2.entity.getIdentities()).build(),
+						User.builder().withEntityId(0L)
+								.withGroups(
+										Set.of(SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
+								.withIdentities(entity1.entity.getIdentities()).build()));
+
+	}
+
+	@Test
+	public void shouldSkipUsersWithoutScimRootGroup() throws EngineException
+	{
+		addTwoMembersGroupsWithSubgroups();
+		EntityInGroupData entity1 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("0", 0), null,
+				Set.of("/scim2"), new HashMap<>(), null, null);
+		EntityInGroupData entity2 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("1", 1), null,
+				Set.of("/scim", "/scim/Members2"), new HashMap<>(), null, null);
+		GroupMembershipData membershipData = new MockGroupMembershipData();
+		when(bulkService.getBulkMembershipData(eq("/"))).thenReturn(membershipData);
+		when(bulkService.getMembershipInfo(eq(membershipData))).thenReturn(ImmutableMap.of(0l, entity1, 1l, entity2));
+		when(bulkService.getGroupUsersAttributes(eq("/scim"), eq(membershipData))).thenReturn(Collections.emptyMap());
+
+		List<User> users = userRetrievalService.getUsers();
+
+		assertThat(users.size(), is(1));
+		assertThat(users,
+				hasItems(User.builder().withEntityId(1L)
+						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
+						.withIdentities(entity2.entity.getIdentities()).build()));
 
 	}
 

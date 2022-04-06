@@ -62,13 +62,13 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -437,9 +437,9 @@ public class AccessTokenResource extends BaseOAuthResource
 		// get new attributes for identity
 		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
 
-		List<ScopeInfo> newValidRequestedScopes = requestValidator
+		List<OAuthScope> newValidRequestedScopes = requestValidator
 				.getValidRequestedScopes(getClientAttributes(new EntityParam(clientId)), Scope.parse(String.join(" ", newRequestedScopeList)));
-		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.getName()).toArray(String[]::new));
+		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.name).toArray(String[]::new));
 
 		UserInfo userInfoClaimSet = createUserInfo(newValidRequestedScopes, newToken.getSubject(), userInfoRes);
 		newToken.setUserInfo(userInfoClaimSet.toJSONObject().toJSONString());
@@ -501,11 +501,11 @@ public class AccessTokenResource extends BaseOAuthResource
 		return userInfoRes;
 	}
 
-	private UserInfo createUserInfo(List<ScopeInfo> validScopes, String userIdentity, TranslationResult userInfoRes)
+	private UserInfo createUserInfo(List<OAuthScope> validScopes, String userIdentity, TranslationResult userInfoRes)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
-		for (ScopeInfo si : validScopes)
-			requestedAttributes.addAll(si.getAttributes());
+		for (OAuthScope si : validScopes)
+			requestedAttributes.addAll(si.attributes);
 
 		Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfoRes, requestedAttributes);
 		return OAuthProcessor.prepareUserInfoClaimSet(userIdentity, attributes);

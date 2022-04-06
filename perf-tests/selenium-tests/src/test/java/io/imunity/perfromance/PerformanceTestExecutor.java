@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -123,7 +124,7 @@ public class PerformanceTestExecutor
 	{
 		private final PerformanceTestRunnable runnable;
 		private final LoopedRunnableStats stats;
-		private boolean working = true;
+		private AtomicBoolean working = new AtomicBoolean(true);
 		
 		LoopedRunnable(PerformanceTestRunnable runnable)
 		{
@@ -134,7 +135,7 @@ public class PerformanceTestExecutor
 		@Override
 		public void run()
 		{
-			while (this.working)
+			while (this.working.get())
 			{
 				stats.incInteration();
 				try
@@ -152,7 +153,7 @@ public class PerformanceTestExecutor
 
 		void stop()
 		{
-			this.working = false;
+			this.working.set(false);
 		}
 
 		LoopedRunnableStats getStats()

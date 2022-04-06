@@ -11,6 +11,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.when;
+
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -49,7 +51,10 @@ public class UserAssemblyServiceTest
 	private UserSchemaEvaluator userSchemaEvaluator;
 	@Mock
 	private GroupsManagement groupsManagement;
+	@Mock
+	private UserAuthzService authzService;
 
+	
 	@Before
 	public void init()
 	{
@@ -61,7 +66,8 @@ public class UserAssemblyServiceTest
 								.withEnable(true).build()), Collections.emptyList()
 
 		);
-		assemblyService = new UserAssemblyService(configuration, userSchemaEvaluator, groupsManagement);
+		when(authzService.getFilter()).thenReturn(s -> true);
+		assemblyService = new UserAssemblyService(configuration, userSchemaEvaluator, groupsManagement, authzService);
 	}
 
 	@Test
@@ -74,9 +80,8 @@ public class UserAssemblyServiceTest
 		SCIMUserResource userRes = assemblyService.mapToUserResource(user);
 
 		verify(userSchemaEvaluator).evalUserSchema(eq(user),
-				eq(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
-						.withEnable(true).build()),
-				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
+				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
+						.withEnable(true).build(), SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
 						.withEnable(true).build())),
 				any());
 
@@ -98,16 +103,14 @@ public class UserAssemblyServiceTest
 		ListResponse<SCIMUserResource> userRes = assemblyService.mapToListUsersResource(List.of(user1, user2));
 
 		verify(userSchemaEvaluator).evalUserSchema(eq(user1),
-				eq(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
-						.withEnable(true).build()),
-				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
+				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
+						.withEnable(true).build(),SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
 						.withEnable(true).build())),
 				any());
 
 		verify(userSchemaEvaluator).evalUserSchema(eq(user2),
-				eq(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
-						.withEnable(true).build()),
-				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
+				eq(List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
+						.withEnable(true).build(), SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
 						.withEnable(true).build())),
 				any());
 		assertThat(userRes.totalResults, is(2));

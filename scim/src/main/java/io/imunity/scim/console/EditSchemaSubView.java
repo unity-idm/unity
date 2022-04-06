@@ -23,7 +23,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
@@ -41,17 +41,17 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 	private Binder<SchemaWithMappingBean> binder;
 	private boolean editMode = false;
 	private AttributesEditMode attributesEditMode;
-	private final IdentityTypesManagement identityTypesManagement;
+	private final IdentityTypeSupport identityTypeSupport;
 	private final AttributeTypeManagement attributeTypeManagement;
 
-	private EditSchemaSubView(MessageSource msg, IdentityTypesManagement identityTypesManagement,
+	private EditSchemaSubView(MessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeTypeManagement, List<String> alreadyUseIds, SchemaWithMappingBean toEdit,
 			AttributesEditMode maapingEditMode, Consumer<SchemaWithMappingBean> onConfirm, Runnable onCancel)
 			throws EngineException
 	{
 		this.msg = msg;
 		this.attributesEditMode = maapingEditMode;
-		this.identityTypesManagement = identityTypesManagement;
+		this.identityTypeSupport = identityTypeSupport;
 		this.attributeTypeManagement = attributeTypeManagement;
 
 		editMode = toEdit != null;
@@ -173,7 +173,9 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 
 	private List<String> getIdentityTypes() throws EngineException
 	{
-		return identityTypesManagement.getIdentityTypes().stream().map(t -> t.getName()).collect(Collectors.toList());
+		return identityTypeSupport.getIdentityTypes().stream()
+				.filter(t -> !identityTypeSupport.getTypeDefinition(t.getName()).isTargeted()).map(t -> t.getName())
+				.collect(Collectors.toList());
 	}
 
 	private SchemaWithMappingBean getSchema() throws FormValidationException
@@ -197,22 +199,22 @@ class EditSchemaSubView extends CustomComponent implements UnitySubView
 	static class EditSchemaSubViewFactory
 	{
 		final MessageSource msg;
-		final IdentityTypesManagement identityTypesManagement;
 		final AttributeTypeManagement attributeTypeManagement;
+		final IdentityTypeSupport identityTypeSupport;
 
 		EditSchemaSubViewFactory(MessageSource msg, AttributeTypeManagement attributeTypeManagement,
-				IdentityTypesManagement identityTypesManagement)
+				IdentityTypeSupport identityTypeSupport)
 		{
 			this.msg = msg;
-			this.identityTypesManagement = identityTypesManagement;
 			this.attributeTypeManagement = attributeTypeManagement;
+			this.identityTypeSupport = identityTypeSupport;
 		}
 
 		EditSchemaSubView getSubView(List<String> alreadyUseIds, SchemaWithMappingBean toEdit,
 				AttributesEditMode attributesEditMode, Consumer<SchemaWithMappingBean> onConfirm, Runnable onCancel)
 				throws EngineException
 		{
-			return new EditSchemaSubView(msg, identityTypesManagement, attributeTypeManagement, alreadyUseIds, toEdit,
+			return new EditSchemaSubView(msg, identityTypeSupport, attributeTypeManagement, alreadyUseIds, toEdit,
 					attributesEditMode, onConfirm, onCancel);
 		}
 

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
 
@@ -31,7 +32,7 @@ public class DiscoveryResourceTest
 		OAuthEndpointsCoordinator coordinator = new OAuthEndpointsCoordinator();
 		coordinator.registerAuthzEndpoint("https://localhost:233/foo/token", "https://localhost:233/as");
 		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
-		DiscoveryResource tested = new DiscoveryResource(config, coordinator);
+		DiscoveryResource tested = new DiscoveryResource(config, coordinator, new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
 		
 		Response resp = tested.getMetadata();
 		String body = resp.readEntity(String.class);

@@ -37,7 +37,6 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -207,7 +206,9 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 
 		ctx.setRequestedScopes(new HashSet<>(scopes));
 		for (String scope: scopes)
-			ctx.addEffectiveScopeInfo(new ScopeInfo(scope, scope, Lists.newArrayList(scope + " attr")));
+			ctx.addEffectiveScopeInfo(OAuthScope.builder().withName(scope).withDescription(scope)
+					.withAttributes(Lists.newArrayList(scope + " attr")).withEnabled(true).build());					
+					
 		ctx.setOpenIdMode(true);
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx, identity);

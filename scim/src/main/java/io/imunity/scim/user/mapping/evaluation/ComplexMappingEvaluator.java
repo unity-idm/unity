@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -69,7 +68,7 @@ class ComplexMappingEvaluator implements MappingEvaluator
 						.eval(subAttr,
 								EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
 										.withScimEndpointDescription(context.scimEndpointDescription)
-										.withFilter(context.filter).withGroupProvider(context.groupProvider).build(),
+										.withGroupProvider(context.groupProvider).build(),
 								mappingEvaluatorRegistry);
 				if (sResult.value.isPresent())
 				{
@@ -87,8 +86,7 @@ class ComplexMappingEvaluator implements MappingEvaluator
 			EvaluatorContext context, MappingEvaluatorRegistry mappingEvaluatorRegistry) throws EngineException
 	{
 		Map<String, Object> ret = new HashMap<>();
-		for (AttributeDefinitionWithMapping subAttr : attributeDefinitionWithMapping.attributeDefinition.subAttributesWithMapping
-				.stream().filter(context.filter).collect(Collectors.toList()))
+		for (AttributeDefinitionWithMapping subAttr : attributeDefinitionWithMapping.attributeDefinition.subAttributesWithMapping)
 		{
 			EvaluationResult sResult = mappingEvaluatorRegistry.getByName(subAttr.attributeMapping.getEvaluatorId())
 					.eval(subAttr, context, mappingEvaluatorRegistry);
@@ -98,6 +96,6 @@ class ComplexMappingEvaluator implements MappingEvaluator
 			}
 		}
 		return EvaluationResult.builder().withAttributeName(attributeDefinitionWithMapping.attributeDefinition.name)
-				.withValue(Optional.of(ret)).build();
+				.withValue(Optional.ofNullable(ret.isEmpty() ? null : ret)).build();
 	}
 }

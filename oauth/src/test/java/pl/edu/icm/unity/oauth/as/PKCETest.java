@@ -32,7 +32,6 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -231,7 +230,8 @@ public class PKCETest
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(false);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addEffectiveScopeInfo(new ScopeInfo("sc1", "scope 1", Lists.newArrayList("email")));
+		ctx.addEffectiveScopeInfo(OAuthScope.builder().withName("sc1").withDescription("scope 1")
+				.withAttributes(Lists.newArrayList("email")).withEnabled(true).build());
 		return ctx;
 	}
 }

@@ -16,8 +16,7 @@ The typical authenticator's configuration will look as follows:
 ----
 unityServer.core.authenticators.x.authenticatorName=ldapWeb
 unityServer.core.authenticators.x.authenticatorType=ldap
-unityServer.core.authenticators.x.verificatorConfigurationFile=conf/authenticators/ldap.properties
-unityServer.core.authenticators.x.retrievalConfigurationFile=conf/authenticators/passwordRetrieval-ldap.json
+unityServer.core.authenticators.x.configurationFile=conf/authenticators/ldap.properties
 ----
 
 LDAP communication can be set up in several different ways:

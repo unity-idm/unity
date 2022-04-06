@@ -45,11 +45,13 @@ class SCIMServiceEditor implements ServiceEditor
 	private final SubViewSwitcher subViewSwitcher;
 	private SCIMServiceEditorComponent editor;
 	private final SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory;
+	private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
 
 	SCIMServiceEditor(MessageSource msg, SubViewSwitcher subViewSwitcher, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths,
 			Set<String> serverContextPaths, List<Group> allGroups,
-			SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory)
+			SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory,
+			ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
@@ -60,6 +62,7 @@ class SCIMServiceEditor implements ServiceEditor
 		this.allGroups = allGroups;
 		this.subViewSwitcher = subViewSwitcher;
 		this.editorSchemaTabFactory = editorSchemaTabFactory;
+		this.configurationVaadinBeanMapper = configurationVaadinBeanMapper;
 	}
 
 	@Override
@@ -74,7 +77,7 @@ class SCIMServiceEditor implements ServiceEditor
 
 		SCIMServiceEditorSchemaTab schemaTab = editorSchemaTabFactory.getSCIMServiceEditorSchemaTab(subViewSwitcher);
 
-		editor = new SCIMServiceEditorComponent(msg, restAdminServiceEditorGeneralTab, authenticationTab, schemaTab,
+		editor = new SCIMServiceEditorComponent(msg, configurationVaadinBeanMapper, restAdminServiceEditorGeneralTab, authenticationTab, schemaTab,
 				(DefaultServiceDefinition) endpoint);
 		return editor;
 	}
@@ -96,12 +99,14 @@ class SCIMServiceEditor implements ServiceEditor
 		private final NetworkServer networkServer;
 		private final BulkGroupQueryService bulkService;
 		private final SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory;
+		private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
 
 		@Autowired
 		SCIMServiceEditorFactory(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 				AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
 				BulkGroupQueryService bulkService,
-				SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory)
+				SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory,
+				ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
 		{
 			this.msg = msg;
 			this.endpointMan = endpointMan;
@@ -111,6 +116,7 @@ class SCIMServiceEditor implements ServiceEditor
 			this.networkServer = networkServer;
 			this.bulkService = bulkService;
 			this.editorSchemaTabFactory = editorSchemaTabFactory;
+			this.configurationVaadinBeanMapper = configurationVaadinBeanMapper;
 		}
 
 		public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
@@ -123,7 +129,7 @@ class SCIMServiceEditor implements ServiceEditor
 					networkServer.getUsedContextPaths(),
 					bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream()
 							.map(g -> g.getGroup()).collect(Collectors.toList()),
-					editorSchemaTabFactory);
+					editorSchemaTabFactory, configurationVaadinBeanMapper);
 		}
 	}
 

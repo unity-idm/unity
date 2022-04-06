@@ -14,20 +14,20 @@ import java.util.Objects;
  * @author P.Piernik
  *
  */
-public class OAuthScope 
+public class OAuthScopeBean 
 {
 	private String name;
 	private boolean enabled;
 	private String description;
 	private List<String> attributes;
 
-	public OAuthScope(String name, String desc)
+	public OAuthScopeBean(String name, String desc)
 	{
 		this.name = name;
 		this.description = desc;
 	}
 	
-	public OAuthScope()
+	public OAuthScopeBean()
 	{
 		enabled = true;
 	}
@@ -79,9 +79,9 @@ public class OAuthScope
 	}
 	
 	@Override
-	protected OAuthScope clone() 
+	protected OAuthScopeBean clone() 
 	{
-		OAuthScope clone = new OAuthScope();
+		OAuthScopeBean clone = new OAuthScopeBean();
 		clone.setName(getName());
 		clone.setAttributes(getAttributes());
 		clone.setEnabled(isEnabled());
@@ -98,7 +98,7 @@ public class OAuthScope
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		OAuthScope other = (OAuthScope) obj;
+		OAuthScopeBean other = (OAuthScopeBean) obj;
 		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
 				&& enabled == other.enabled && Objects.equals(name, other.name);
 	}

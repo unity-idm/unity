@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.base.Stopwatch;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
@@ -33,6 +35,7 @@ import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
  */
 class MetadataSourceHandler
 {
+	private static final Duration MAX_REFRESH_INTERVAL = Duration.ofDays(365);
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
 			MetadataSourceHandler.class);
 	private static final long DEFAULT_RERUN_INTERVAL = 5000;
@@ -122,7 +125,7 @@ class MetadataSourceHandler
 	
 	private Duration getNewRefreshInterval()
 	{
-		Duration interval = Duration.ofDays(365);
+		Duration interval = MAX_REFRESH_INTERVAL;
 		for (MetadataConsumer consumer: consumersById.values())
 			if (consumer.refreshInterval.compareTo(interval) < 0)
 				interval = consumer.refreshInterval;
@@ -156,6 +159,7 @@ class MetadataSourceHandler
 	private void doRefresh()
 	{
 		log.info("Refreshing metadata for {}", source.url);
+		Stopwatch watch = Stopwatch.createStarted();
 		EntitiesDescriptorDocument metadata;
 		try
 		{
@@ -166,6 +170,7 @@ class MetadataSourceHandler
 			return;
 		}
 		notifyConsumers(metadata);
+		log.info("Metadata refresh for {} done in {}", source.url, watch);
 	}
 
 	private boolean feedWithCached(MetadataConsumer consumer)

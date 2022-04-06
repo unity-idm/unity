@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>pl.edu.icm.unity</groupId>
+		<groupId>io.imunity</groupId>
 		<artifactId>unity-perf-tests-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>

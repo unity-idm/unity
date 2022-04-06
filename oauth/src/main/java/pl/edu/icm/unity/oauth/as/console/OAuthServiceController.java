@@ -58,8 +58,8 @@ import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
-import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
@@ -131,7 +131,7 @@ class OAuthServiceController implements IdpServiceController
 	private PolicyDocumentManagement policyDocumentManagement;
 	private NetworkServer server;
 	private final EndpointFileConfigurationManagement serviceFileConfigController;
-	private final SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry;
+	private final OAuthScopesService scopesService;
 
 	@Autowired
 	OAuthServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
@@ -147,7 +147,7 @@ class OAuthServiceController implements IdpServiceController
 			ImageAccessService imageService, IdpUsersHelper idpUsersHelper,
 			PolicyDocumentManagement policyDocumentManagement,
 			EndpointFileConfigurationManagement serviceFileConfigController,
-			SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry)
+			OAuthScopesService scopesService)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -175,7 +175,7 @@ class OAuthServiceController implements IdpServiceController
 		this.server = server;
 		this.policyDocumentManagement = policyDocumentManagement;
 		this.serviceFileConfigController = serviceFileConfigController;
-		this.systemOAuthScopeProvidersRegistry = systemOAuthScopeProvidersRegistry;
+		this.scopesService = scopesService;
 	}
 
 	@Override
@@ -734,6 +734,6 @@ class OAuthServiceController implements IdpServiceController
 						.collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), authenticatorSupportService, idTypeSupport.getIdentityTypes(),
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(Collectors.toList()),
-				policyDocumentManagement.getPolicyDocuments(), systemOAuthScopeProvidersRegistry);
+				policyDocumentManagement.getPolicyDocuments(), scopesService);
 	}
 }

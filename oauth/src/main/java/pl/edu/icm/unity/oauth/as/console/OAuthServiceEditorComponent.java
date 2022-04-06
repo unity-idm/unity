@@ -20,7 +20,7 @@ import com.vaadin.data.Binder;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
@@ -54,7 +54,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 	OAuthServiceEditorComponent(MessageSource msg, OAuthEditorGeneralTab generalTab, OAuthEditorClientsTab clientsTab,
 			IdpEditorUsersTab usersTab, WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab,
 			FileStorageService fileStorageService, ImageAccessService imageAccessService,
-			SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry, ServiceDefinition toEdit,
+			OAuthScopesService scopeService, ServiceDefinition toEdit,
 			List<Group> allGroups, Function<String, List<OAuthClient>> systemClientsSupplier, String systemTheme)
 	{
 		super(msg);
@@ -105,7 +105,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		registerTab(policyAgreementTab);
 
 		OAuthServiceDefinition oauthServiceToEdit;
-		OAuthServiceConfiguration oauthConfig = new OAuthServiceConfiguration(msg, allGroups, systemOAuthScopeProvidersRegistry);
+		OAuthServiceConfiguration oauthConfig = new OAuthServiceConfiguration(msg, allGroups, scopeService);
 		oauthConfig.setClientGroup(new GroupWithIndentIndicator(generatedClientsGroup, false));
 
 		DefaultServiceDefinition webAuthzService = new DefaultServiceDefinition(
@@ -122,7 +122,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 			if (webAuthzService != null && webAuthzService.getConfiguration() != null)
 			{
-				oauthConfig.fromProperties(msg, webAuthzService.getConfiguration(), allGroups, systemOAuthScopeProvidersRegistry);
+				oauthConfig.fromProperties(msg, webAuthzService.getConfiguration(), allGroups, scopeService);
 				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, imageAccessService, systemTheme);
 			}
 			clientsBean.setClients(cloneClients(

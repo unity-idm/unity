@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.oauth.api.SystemScopeProvider;
 
-@Component("SystemOAuthScopeProvidersRegistry")
+@Component
 public class SystemOAuthScopeProvidersRegistry extends TypesRegistryBase<SystemScopeProvider>
 {
 	@Autowired

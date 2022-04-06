@@ -108,6 +108,11 @@ class GroupRetrievalService
 			Map<String, GroupContents> groupAndSubgroups = bulkService
 					.getGroupAndSubgroups(bulkService.getBulkStructuralData(configuredMemebershipGroup));
 			GroupContents main = groupAndSubgroups.get(configuredMemebershipGroup);
+			if (main == null)
+			{
+				log.warn("Can not get configured membership group " + configuredMemebershipGroup);
+				continue;
+			}
 			fillMembersAndAddGroupResource(main, nameAttribute, membershipInfo, attributesInfo, groupAndSubgroups,
 					groups);
 		}

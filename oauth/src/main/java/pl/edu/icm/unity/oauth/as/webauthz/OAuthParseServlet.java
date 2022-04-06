@@ -49,6 +49,7 @@ import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.authn.LanguageCookie;
@@ -79,12 +80,13 @@ public class OAuthParseServlet extends HttpServlet
 	private final UnityServerConfiguration serverConfig;
 
 	public OAuthParseServlet(OAuthASProperties oauthConfig, String oauthUiServletPath, ErrorHandler errorHandler,
-			EntityManagement identitiesMan, AttributesManagement attributesMan, UnityServerConfiguration serverConfig)
+			EntityManagement identitiesMan, AttributesManagement attributesMan, OAuthScopesService scopeService,
+			UnityServerConfiguration serverConfig)
 	{
 		this.oauthConfig = oauthConfig;
 		this.oauthUiServletPath = oauthUiServletPath;
 		this.errorHandler = errorHandler;
-		this.validator = new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan);
+		this.validator = new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan, scopeService);
 		this.serverConfig = serverConfig;
 	}
 

@@ -76,7 +76,6 @@ class ReferenceMappingEvaluator implements MappingEvaluator
 					mvelEvaluator.evalMVEL(mapping.expression,
 							EvaluatorContext.builder().withUser(context.user).withArrayObj(arrayObj)
 									.withScimEndpointDescription(context.scimEndpointDescription)
-									.withFilter(context.filter)
 									.withGroupProvider(context.groupProvider).build()),
 					context));
 		}

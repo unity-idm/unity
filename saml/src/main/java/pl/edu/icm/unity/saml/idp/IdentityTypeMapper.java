@@ -26,7 +26,7 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
  */
 public class IdentityTypeMapper
 {
-	private Map<String, String> effectiveMappings;
+	private final Map<String, String> effectiveSamlToUnityIdMappings;
 	public static final Map<String, String> DEFAULTS = Map.of(
 			SAMLConstants.NFORMAT_PERSISTENT, TargetedPersistentIdentity.ID,
 			SAMLConstants.NFORMAT_UNSPEC, TargetedPersistentIdentity.ID,
@@ -38,8 +38,8 @@ public class IdentityTypeMapper
 	
 	public IdentityTypeMapper(Map<String, String> configuredMappings)
 	{
-		effectiveMappings = new HashMap<>(DEFAULTS);
-		effectiveMappings.putAll(configuredMappings);
+		effectiveSamlToUnityIdMappings = new HashMap<>(DEFAULTS);
+		effectiveSamlToUnityIdMappings.putAll(configuredMappings);
 	}
 
 	@Deprecated
@@ -47,16 +47,16 @@ public class IdentityTypeMapper
 	public IdentityTypeMapper(SamlProperties config)
 	{
 		Set<String> keys = config.getStructuredListKeys(SamlProperties.IDENTITY_MAPPING_PFX);
-		effectiveMappings = new HashMap<>(keys.size());
-		effectiveMappings.putAll(DEFAULTS);
+		effectiveSamlToUnityIdMappings = new HashMap<>(keys.size());
+		effectiveSamlToUnityIdMappings.putAll(DEFAULTS);
 		for (String key: keys)
 		{
 			String localId = config.getValue(key+SamlProperties.IDENTITY_LOCAL);
 			String samlId = config.getValue(key+SamlProperties.IDENTITY_SAML);
 			if (localId.trim().equals(""))
-				effectiveMappings.remove(samlId);
+				effectiveSamlToUnityIdMappings.remove(samlId);
 			else
-				effectiveMappings.put(samlId, localId);
+				effectiveSamlToUnityIdMappings.put(samlId, localId);
 		}
 	}
 	
@@ -67,7 +67,7 @@ public class IdentityTypeMapper
 	 */
 	public String mapIdentity(String samlIdentity) throws SAMLRequesterException
 	{
-		String ret = effectiveMappings.get(samlIdentity);
+		String ret = effectiveSamlToUnityIdMappings.get(samlIdentity);
 		if (ret != null)
 			return ret;
 		throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_INVALID_NAMEID_POLICY,
@@ -76,6 +76,6 @@ public class IdentityTypeMapper
 	
 	public Set<String> getSupportedIdentityTypes()
 	{
-		return new HashSet<>(effectiveMappings.keySet());
+		return new HashSet<>(effectiveSamlToUnityIdMappings.keySet());
 	}
 }

@@ -12,12 +12,16 @@ import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.config.SchemaWithMapping;
 
-//TODO UY-1219 Fill User and Group schema with default mappings. Add this defaults to newly created SCIM endpoint config. 
 public class DefaultSchemaProvider
 {
 	public static final String DEFAULT_USER_SCHEMA_ID = "urn:ietf:params:scim:schemas:core:2.0:User";
 	public static final String DEFAULT_GROUP_SCHEMA_ID = "urn:ietf:params:scim:schemas:core:2.0:Group";
 
+	public static final List<String> getBasicUserSchemaMembershipAttributes()
+	{
+		return List.of("groups");
+	}
+	
 	public static SchemaWithMapping getBasicUserSchema()
 	{
 		return SchemaWithMapping.builder().withId(DEFAULT_USER_SCHEMA_ID).withType(SchemaType.USER_CORE)

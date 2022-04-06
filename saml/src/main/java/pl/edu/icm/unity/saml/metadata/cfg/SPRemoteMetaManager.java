@@ -172,6 +172,9 @@ public class SPRemoteMetaManager
 			String federationId = metadata.getEntitiesDescriptor().getID();
 			if (this.federationId == null)
 				this.federationId = federationId;
+			else if (!this.federationId.equals(federationId))
+				throw new IllegalStateException("Consumer got metadata from different federation than before. "
+						+ "Was " + this.federationId + " now it is " + federationId); 
 			assembleProperties(idpsFromMeta, federationId, consumerId);
 		}
 	}

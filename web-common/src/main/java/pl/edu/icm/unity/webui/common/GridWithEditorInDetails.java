@@ -89,7 +89,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 			editor.addStyleName("u-gridEmbeddedEditor");
 			wrapper.addComponent(editor);
 			HorizontalLayout buttons;
-			if (t.equals(newElement))
+			if (newElement != null && newElement.equals(t))
 			{
 
 				buttons = StandardButtonsHelper.buildConfirmNewButtonsBar(msg, () -> {
@@ -303,6 +303,7 @@ public class GridWithEditorInDetails<T> extends CustomField<List<T>> implements 
 					grid.setDetailsVisible(t, false);
 				}
 				grid.setDetailsVisible(newElement, true);
+				grid.scrollTo(grid.getElements().indexOf(newElement));
 			}
 
 		});

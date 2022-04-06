@@ -31,11 +31,13 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.OAuthScope;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -59,11 +61,12 @@ class OAuthWebRequestValidator
 	
 	public OAuthWebRequestValidator(OAuthASProperties oauthConfig, 
 			EntityManagement identitiesMan,
-			AttributesManagement attributesMan)
+			AttributesManagement attributesMan,
+			OAuthScopesService scopeService)
 	{
 		this.oauthConfig = oauthConfig;
 		this.identitiesMan = identitiesMan;
-		this.baseRequestValidator = new OAuthRequestValidator(oauthConfig, identitiesMan, attributesMan);
+		this.baseRequestValidator = new OAuthRequestValidator(oauthConfig, identitiesMan, attributesMan, scopeService);
 	}
 
 	/**
@@ -182,14 +185,14 @@ class OAuthWebRequestValidator
 		Scope requestedScopes = authzRequest.getScope();
 		if (requestedScopes != null)
 		{
-			List<ScopeInfo> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes, requestedScopes);
-			Optional<ScopeInfo> offlineScope = validRequestedScopes.stream()
-					.filter(s -> s.getName().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny();
+			List<OAuthScope> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes, requestedScopes);
+			Optional<OAuthScope> offlineScope = validRequestedScopes.stream()
+					.filter(s -> s.name.equals(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE)).findAny();
 
 			if (!offlineScope.isEmpty()
 					&& !context.getPrompts().contains(pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt.CONSENT))
 			{
-				log.info("Client requested " + OIDCScopeValue.OFFLINE_ACCESS.getValue()
+				log.info("Client requested " + OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE
 						+ " with scope, but the prompt parameter not contains 'consent', ignore offline_access scope");
 				validRequestedScopes.remove(offlineScope.get());
 			}
@@ -201,11 +204,11 @@ class OAuthWebRequestValidator
 		}
 	}
 	
-	private void assertScopeSupportedByServer(OIDCScopeValue scope, Scope requestedScopes, List<ScopeInfo> validRequestedScopes) throws OAuthValidationException
+	private void assertScopeSupportedByServer(OIDCScopeValue scope, Scope requestedScopes, List<OAuthScope> validRequestedScopes) throws OAuthValidationException
 	{
 		boolean scopeRequested = requestedScopes.contains(scope.getValue());
 		boolean scopeAvailable = validRequestedScopes.stream()
-				.filter(vscope -> vscope.getName().equals(scope.getValue())).findAny().isPresent();
+				.filter(vscope -> vscope.name.equals(scope.getValue())).findAny().isPresent();
 		if (scopeRequested && !scopeAvailable)
 			throw new OAuthValidationException("Client requested " + scope.getValue() + " with scope, which is "
 					+ "not enabled on this server");

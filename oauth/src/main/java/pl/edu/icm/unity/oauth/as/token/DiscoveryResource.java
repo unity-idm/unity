@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.as.token;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -29,6 +28,7 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 
 /**
  * RESTful implementation of the OIDC Discovery endpoint. Free access.
@@ -41,11 +41,14 @@ public class DiscoveryResource extends BaseOAuthResource
 {
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
+	private OAuthScopesService scopeService;
 	
-	public DiscoveryResource(OAuthASProperties config, OAuthEndpointsCoordinator coordinator)
+	public DiscoveryResource(OAuthASProperties config, OAuthEndpointsCoordinator coordinator,
+			OAuthScopesService scopeService)
 	{
 		this.config = config;
 		this.coordinator = coordinator;
+		this.scopeService = scopeService;
 	}
 
 	@Path("/openid-configuration")
@@ -77,7 +80,7 @@ public class DiscoveryResource extends BaseOAuthResource
 		
 		meta.setCodeChallengeMethods(Lists.newArrayList(CodeChallengeMethod.PLAIN, CodeChallengeMethod.S256));
 		
-		Set<String> scopes = config.getActiveScopes();	
+		List<String> scopes = scopeService.getActiveScopeNames(config);	
 		meta.setScopes(new Scope(scopes.toArray(new String[scopes.size()])));
 		
 		ResponseType rt1 = new ResponseType(ResponseType.Value.CODE);

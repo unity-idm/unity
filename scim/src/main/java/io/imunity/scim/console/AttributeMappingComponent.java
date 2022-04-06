@@ -72,7 +72,7 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 
 		dataArray.setItems(items);
 		dataArray.setItemCaptionGenerator(i -> i != null && i.getType() != null
-				? (i.getType() + (i.getValue().isEmpty() ? "" : ": " + i.getValue().get()))
+				? (msg.getMessage("DataArrayType." + i.getType()) + (i.getValue().isEmpty() ? "" : i.getValue().get()))
 				: "");
 		dataArray.setEmptySelectionAllowed(false);
 
@@ -155,7 +155,7 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 			dataValue.addValueChangeListener(
 					e -> fireEvent(new ValueChangeEvent<>(this, getValue(), e.isUserOriginated())));
 			dataValue.setItemCaptionGenerator(i -> i != null && i.getType() != null
-					? (i.getType() + (i.getValue().isEmpty() ? "" : ": " + i.getValue().get()))
+					? (msg.getMessage("DataValueType." + i.getType()) + (i.getValue().isEmpty() ? "" : i.getValue().get()))
 					: "");
 			dataValue.setEmptySelectionAllowed(false);
 			VerticalLayout mainExpressionLayout = new VerticalLayout();
@@ -282,6 +282,7 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 			refToTypeCombo.setItems(ReferenceType.values());
 			refToTypeCombo.setValue(ReferenceType.GENERIC);
 			refToTypeCombo.setEmptySelectionAllowed(false);
+			refToTypeCombo.setItemCaptionGenerator(s -> s == null ? "" : msg.getMessage("ReferenceType." + s));
 
 			expression = new MVELExpressionField(msg, msg.getMessage("ReferenceField.referenceUri"), "",
 					MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
@@ -305,20 +306,47 @@ class AttributeMappingComponent extends CustomField<AttributeMappingBean>
 			{
 				expression.setCaption(msg.getMessage("ReferenceField.referenceUri"));
 				expression.setContext(
-						MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
+						MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.referenceGeneralDataValue")
 								.withEvalToKey("MVELExpressionField.evalToUri").withVars(context.vars).build());
 
 			} else
 			{
 				expression.setCaption(msg.getMessage("ReferenceField.referencedResourceId"));
 				expression.setContext(
-						MVELExpressionContext.builder().withTitleKey("AttributeDefinitionConfigurationEditor.dataValue")
-								.withEvalToKey("MVELExpressionField.evalToString").withVars(context.vars).build());
+						MVELExpressionContext.builder().withTitleKey(getMvelEditorTitleKey())
+								.withEvalToKey(getMvelEditorTypeKey()).withVars(context.vars).build());
 			}
 
 			fireEvent(new ValueChangeEvent<>(this, getValue(), e.isUserOriginated()));
 		}
 
+		private String getMvelEditorTitleKey()
+		{
+			switch (refToTypeCombo.getValue())
+			{
+			case USER:
+				return "AttributeDefinitionConfigurationEditor.referenceUserDataValue";
+			case GROUP:
+				return "AttributeDefinitionConfigurationEditor.referenceGroupDataValue";
+			default:
+				return "AttributeDefinitionConfigurationEditor.referenceGeneralDataValue";
+			}
+		}
+
+		private String getMvelEditorTypeKey()
+		{
+			switch (refToTypeCombo.getValue())
+			{
+			case USER:
+				return "MVELExpressionField.evalToStringWithUserId";
+			case GROUP:
+				return "MVELExpressionField.evalToStringWithGroupPath";
+			default:
+				return "MVELExpressionField.evalToUri";
+			}
+		}
+		
+		
 		@Override
 		public ReferenceDataBean getValue()
 		{

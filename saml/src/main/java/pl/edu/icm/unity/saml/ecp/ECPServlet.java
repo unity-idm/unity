@@ -33,8 +33,8 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  */
 public class ECPServlet extends HttpServlet
 {
-	private ECPStep1Handler step1Handler;
-	private ECPStep2Handler step2Handler;
+	private final ECPStep1Handler step1Handler;
+	private final ECPStep2Handler step2Handler;
 
 	public ECPServlet(JWTAuthenticationConfig jwtConfig, 
 			Supplier<SAMLSPConfiguration> configProvider,

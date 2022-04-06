@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +21,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthParseServlet;
@@ -43,14 +41,15 @@ public class OAuthRequestValidator
 	protected OAuthASProperties oauthConfig;
 	protected EntityManagement identitiesMan;
 	protected AttributesManagement attributesMan;
-	
+	protected OAuthScopesService scopeService;
 	
 	public OAuthRequestValidator(OAuthASProperties oauthConfig,
-			EntityManagement identitiesMan, AttributesManagement attributesMan)
+			EntityManagement identitiesMan, AttributesManagement attributesMan, OAuthScopesService scopeService)
 	{
 		this.oauthConfig = oauthConfig;
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
+		this.scopeService = scopeService;
 	}
 
 	/**
@@ -118,17 +117,9 @@ public class OAuthRequestValidator
 		}
 	}
 
-	public List<ScopeInfo> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
+	public List<OAuthScope> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
 	{
-		List<ScopeInfo> scopesDefinedOnServer = new ArrayList<>();
-		oauthConfig.getStructuredListKeys(OAuthASProperties.SCOPES).forEach(scopeKey ->
-		{
-			if (oauthConfig.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_ENABLED))
-				scopesDefinedOnServer.add(new ScopeInfo(oauthConfig.getValue(scopeKey + OAuthASProperties.SCOPE_NAME),
-						oauthConfig.getValue(scopeKey + OAuthASProperties.SCOPE_DESCRIPTION),
-						oauthConfig.getListOfValues(scopeKey + OAuthASProperties.SCOPE_ATTRIBUTES)));
-		});
-		
+		List<OAuthScope> scopesDefinedOnServer = scopeService.getActiveScopes(oauthConfig);
 		Optional<Set<String>> allowedByClientScopes = getAllowedScopes(clientAttributes);
 		Set<String> notAllowedByClient = requestedScopes.stream().map(s -> s.getValue())
 				.filter(scope -> (allowedByClientScopes.isPresent() && !allowedByClientScopes.get().contains(scope)))
@@ -141,7 +132,7 @@ public class OAuthRequestValidator
 
 		Set<String> notDefinedOnServer = requestedScopes.stream().map(s -> s.getValue())
 				.filter(scope -> !scopesDefinedOnServer.stream()
-						.filter(serverScope -> scope.equals(serverScope.getName())).findAny().isPresent())
+						.filter(serverScope -> scope.equals(serverScope.name)).findAny().isPresent())
 				.collect(Collectors.toSet());
 		if (!notDefinedOnServer.isEmpty())
 		{
@@ -149,7 +140,7 @@ public class OAuthRequestValidator
 					+ String.join(",", notDefinedOnServer));
 		}
 		return scopesDefinedOnServer.stream().filter(
-				scope -> (requestedScopes.contains(scope.getName()) && !notAllowedByClient.contains(scope.getName())))
+				scope -> (requestedScopes.contains(scope.name) && !notAllowedByClient.contains(scope.name)))
 				.collect(Collectors.toList());
 	}
 }

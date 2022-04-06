@@ -51,8 +51,8 @@ import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
-import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
@@ -89,9 +89,10 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	private final OAuthEndpointsCoordinator coordinator;
 	private final ASConsentDeciderServletFactory dispatcherServletFactory;
 	private final OAuthIdpStatisticReporterFactory idpReporterFactory;
-	private final SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry;
 
 	private OAuthASProperties oauthProperties;
+
+	private final OAuthScopesService scopeService;
 
 	@Autowired
 	public OAuthAuthzWebEndpoint(NetworkServer server,
@@ -106,7 +107,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 			MessageSource msg,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 			OAuthIdpStatisticReporterFactory idpReporterFactory,
-			SystemOAuthScopeProvidersRegistry systemOAuthScopeProvidersRegistry)
+			OAuthScopesService scopeService)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, OAuthAuthzUI.class.getSimpleName(),
 				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter);
@@ -117,7 +118,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		this.coordinator = coordinator;
 		this.dispatcherServletFactory = dispatcherServletFactory;
 		this.idpReporterFactory = idpReporterFactory;
-		this.systemOAuthScopeProvidersRegistry = systemOAuthScopeProvidersRegistry;
+		this.scopeService = scopeService;
 
 	}
 
@@ -128,7 +129,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		try
 		{
 			oauthProperties = new OAuthASProperties(this.properties, pkiManagement,
-					getServletUrl(OAUTH_CONSUMER_SERVLET_PATH), systemOAuthScopeProvidersRegistry);
+					getServletUrl(OAUTH_CONSUMER_SERVLET_PATH));
 			coordinator.registerAuthzEndpoint(oauthProperties.getValue(OAuthASProperties.ISSUER_URI),
 					getServletUrl(OAUTH_CONSUMER_SERVLET_PATH));
 		} catch (Exception e)
@@ -144,7 +145,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.setContextPath(description.getEndpoint().getContextAddress());
 
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_ROUTING_SERVLET_PATH),
-				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, serverConfig);
+				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, scopeService, serverConfig);
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet, true);
 		context.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 

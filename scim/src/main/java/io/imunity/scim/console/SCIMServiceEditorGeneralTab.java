@@ -7,7 +7,6 @@ package io.imunity.scim.console;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
@@ -58,9 +57,10 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 		restBinder.forField(rootGroup).asRequired().bind("rootGroup");
 
 		OptionalGroupExcludingChildrenSelection memeberShipGroups = new OptionalGroupExcludingChildrenSelection(msg);
+		memeberShipGroups.setSkipRemoveInvalidSelections(true);
 		memeberShipGroups.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroups"));
 		//simplification
-		memeberShipGroups.setItems(allGroups.stream().map(g -> new Group(g.getPathEncoded())).collect(Collectors.toList()));
+		memeberShipGroups.setItems(allGroups);
 		main.addComponent(memeberShipGroups);
 		restBinder.forField(memeberShipGroups).asRequired().withValidator((value, context) ->
 		{

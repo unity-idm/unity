@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
@@ -68,18 +69,26 @@ import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;
 @Component
 class MetadataToSPConfigConverter
 {
+	private static final String REFEDS_HIDE_FROM_DISCOVERY = "http://refeds.org/category/hide-from-discovery";
+	private static final String MACEDIR_ENTITY_CATEGORY = "http://macedir.org/entity-category";
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetadataToSPConfigConverter.class);
 	private static final String SP_META_CERT = "_SP_METADATA_CERT_";
 	
 	private final PKIManagement pkiManagement;
-	private final MessageSource msg;
+	private final String defaultLocaleCode;
 	
+	@Autowired
 	MetadataToSPConfigConverter(@Qualifier("insecure") PKIManagement pkiManagement, MessageSource msg)
 	{
-		this.pkiManagement = pkiManagement;
-		this.msg = msg;
+		this(pkiManagement, msg.getDefaultLocaleCode());
 	}
-
+	
+	MetadataToSPConfigConverter(PKIManagement pkiManagement, String defaultLocaleCode)
+	{
+		this.pkiManagement = pkiManagement;
+		this.defaultLocaleCode = defaultLocaleCode;
+	}
+	
 	TrustedIdPs convertToTrustedIdPs(EntitiesDescriptorDocument federationMetaDoc, 
 			RemoteMetadataSource metadataSource)
 	{
@@ -205,7 +214,7 @@ class MetadataToSPConfigConverter
 			.withFederationId(federationId)
 			.withFederationName(federationName)
 			.withSignRequest(idpDef.isSetWantAuthnRequestsSigned())
-			.withName(getLocalizedNamesAsI18nString(msg, uiInfo, idpDef, entityMeta))
+			.withName(getLocalizedNamesAsI18nString(uiInfo, idpDef, entityMeta))
 			.withLogoURI(getLocalizedLogosAsI18nString(uiInfo));
 		
 		EndpointType redirectSLOEndpoint = selectEndpointByBinding(idpDef.getSingleLogoutServiceArray(),
@@ -241,14 +250,14 @@ class MetadataToSPConfigConverter
 		AttributeType[] attributeArray = entityAttributes.getAttributeArray();
 		for (AttributeType a: attributeArray)
 		{
-			if ("http://macedir.org/entity-category".equals(a.getName()))
+			if (MACEDIR_ENTITY_CATEGORY.equals(a.getName()))
 			{
 				for (XmlObject value : a.getAttributeValueArray())
 				{
 					XmlCursor c = value.newCursor();
 					String valueStr = c.getTextValue();
 					c.dispose();
-					if (valueStr.equals("http://refeds.org/category/hide-from-discovery"))
+					if (valueStr.equals(REFEDS_HIDE_FROM_DISCOVERY))
 						return true;
 				}
 			}
@@ -386,33 +395,33 @@ class MetadataToSPConfigConverter
 		return null;
 	}
 	
-	private static I18nString getLocalizedNamesAsI18nString(MessageSource msg, UIInfoType uiInfo,
+	private I18nString getLocalizedNamesAsI18nString(UIInfoType uiInfo,
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
 		I18nString ret = new I18nString();
-		ret.addAllValues(getLocalizedNames(msg, uiInfo, idpDesc, mainDescriptor));
+		ret.addAllValues(getLocalizedNames(uiInfo, idpDesc, mainDescriptor));
 		return ret;
 	}
 	
-	private static Map<String, String> getLocalizedNames(MessageSource msg, UIInfoType uiInfo,
+	private Map<String, String> getLocalizedNames(UIInfoType uiInfo,
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
 		Map<String, String> ret = new HashMap<>();
 		OrganizationType mainOrg = mainDescriptor.getOrganization();
 		if (mainOrg != null)
 		{
-			addLocalizedNames(msg, mainOrg.getOrganizationNameArray(), ret);
-			addLocalizedNames(msg, mainOrg.getOrganizationDisplayNameArray(), ret);
+			addLocalizedNames(mainOrg.getOrganizationNameArray(), ret);
+			addLocalizedNames(mainOrg.getOrganizationDisplayNameArray(), ret);
 		}
 		OrganizationType org = idpDesc.getOrganization();
 		if (org != null)
 		{
-			addLocalizedNames(msg, org.getOrganizationNameArray(), ret);
-			addLocalizedNames(msg, org.getOrganizationDisplayNameArray(), ret);
+			addLocalizedNames(org.getOrganizationNameArray(), ret);
+			addLocalizedNames(org.getOrganizationDisplayNameArray(), ret);
 		}
 		if (uiInfo != null)
 		{
-			addLocalizedNames(msg, uiInfo.getDisplayNameArray(), ret);
+			addLocalizedNames(uiInfo.getDisplayNameArray(), ret);
 		}
 		return ret;
 	}
@@ -454,7 +463,7 @@ class MetadataToSPConfigConverter
 		return ret;
 	}
 	
-	public static void addLocalizedNames(MessageSource msg, LocalizedNameType[] names, Map<String, String> ret)
+	private void addLocalizedNames(LocalizedNameType[] names, Map<String, String> ret)
 	{
 		if (names == null)
 			return;
@@ -465,7 +474,7 @@ class MetadataToSPConfigConverter
 			if (lang != null)
 			{
 				ret.put(lang, name.getStringValue());
-				if (lang.equals(msg.getDefaultLocaleCode()))
+				if (lang.equals(defaultLocaleCode))
 					ret.put("", name.getStringValue());
 				if (lang.equals("en"))
 					enName = name.getStringValue();

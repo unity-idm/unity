@@ -6,11 +6,13 @@
 package io.imunity.scim.user;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.SCIMSystemScopeProvider;
+import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -31,12 +33,17 @@ class UserAuthzService
 	void checkReadUser(long entity, Set<String> userGroups) throws AuthorizationException
 	{
 		InvocationContext invocationContext = InvocationContext.getCurrent();
-		if (invocationContext.getInvocationMaterial().equals(InvocationMaterial.DIRECT))
+
+		switch (invocationContext.getInvocationMaterial())
 		{
+		case DIRECT:
 			checkReadUserWithDirectInvocationMaterial(entity, invocationContext, userGroups);
-		} else
-		{
+			break;
+		case OAUTH_DELEGATION:
 			checkReadUserWithOAuthInvocationMaterial(entity, invocationContext, userGroups);
+			break;
+		default:
+			throw new AuthorizationException("Access is denied");
 		}
 	}
 
@@ -76,6 +83,25 @@ class UserAuthzService
 		} else
 		{
 			throw new AuthorizationException("Access is denied");
+		}
+	}
+	
+	Predicate<AttributeDefinitionWithMapping> getFilter()
+	{
+		InvocationContext current = InvocationContext.getCurrent();
+		if (current.getInvocationMaterial().equals(InvocationMaterial.DIRECT))
+		{
+			return s -> true;
+		} else
+		{
+			Predicate<AttributeDefinitionWithMapping> attributeFilter = s -> false;
+			if (current.getScopes().contains(SCIMSystemScopeProvider.READ_PROFILE_SCOPE))
+				attributeFilter = attributeFilter
+						.or(s -> !configuration.membershipAttributes.contains(s.attributeDefinition.name));
+			if (current.getScopes().contains(SCIMSystemScopeProvider.READ_MEMBERSHIPS_SCOPE))
+				attributeFilter = attributeFilter
+						.or(s -> configuration.membershipAttributes.contains(s.attributeDefinition.name));
+			return attributeFilter;
 		}
 	}
 

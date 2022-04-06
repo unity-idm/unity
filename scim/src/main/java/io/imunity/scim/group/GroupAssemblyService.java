@@ -15,10 +15,12 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.springframework.stereotype.Component;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.common.Meta;
 import io.imunity.scim.common.ResourceType;
 import io.imunity.scim.config.SCIMEndpointDescription;
+import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.user.UserRestController;
 
 class GroupAssemblyService
@@ -32,11 +34,13 @@ class GroupAssemblyService
 
 	SCIMGroupResource mapToGroupResource(GroupData group)
 	{
+		assertGroupSchemasAreActive();
 		return mapToSingleGroupResource(group);
 	}
 
 	ListResponse<SCIMGroupResource> mapToGroupsResource(List<GroupData> groups)
 	{
+		assertGroupSchemasAreActive();
 		List<SCIMGroupResource> groupsResource = groups.stream().map(u -> mapToSingleGroupResource(u))
 				.collect(Collectors.toList());
 		return ListResponse.<SCIMGroupResource>builder().withResources(groupsResource)
@@ -73,6 +77,16 @@ class GroupAssemblyService
 
 		return UriBuilder.fromUri(configuration.baseLocation)
 				.path(UserRestController.USER_LOCATION + "/" + user).build();
+	}
+
+	private void assertGroupSchemasAreActive()
+	{
+		if (configuration.schemas.stream()
+				.filter(s -> (s.type.equals(SchemaType.GROUP) || s.type.equals(SchemaType.GROUP_CORE)) && s.enable)
+				.count() == 0)
+		{
+			throw new ConfigurationException("No group schemas are active");
+		}
 	}
 
 	@Component

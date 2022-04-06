@@ -5,26 +5,52 @@
 
 package io.imunity.scim.console;
 
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.AttributeDefinition;
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.AttributeMapping;
-import io.imunity.scim.config.UndefinedMapping;
 import io.imunity.scim.config.SCIMEndpointConfiguration;
 import io.imunity.scim.config.SchemaWithMapping;
+import io.imunity.scim.config.UndefinedMapping;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
+@Component
 class ConfigurationVaadinBeanMapper
 {
-	static SCIMServiceConfigurationBean mapToBean(SCIMEndpointConfiguration orgConfig)
+	private final GroupsManagement groupsManagement;
+
+	
+	 ConfigurationVaadinBeanMapper(GroupsManagement groupsManagement)
 	{
-		SCIMServiceConfigurationBean bean = new SCIMServiceConfigurationBean();
+		this.groupsManagement = groupsManagement;
+	}
+
+	SCIMServiceConfigurationBean mapToBean(SCIMEndpointConfiguration orgConfig) 
+	{
+		
+		Map<String, Group> allGroups;
+		try
+		{
+			allGroups = groupsManagement.getAllGroups();
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can not get all groups", e);
+		}
+		
+		SCIMServiceConfigurationBean bean = new SCIMServiceConfigurationBean(this);
 		bean.getAllowedCORSheaders().addAll(orgConfig.allowedCorsHeaders);
 		bean.getAllowedCORSorigins().addAll(orgConfig.allowedCorsOrigins);
-		bean.getMembershipGroups()
-				.addAll(orgConfig.membershipGroups.stream().map(g -> new Group(g)).collect(Collectors.toList()));
+		bean.getMembershipGroups().addAll(orgConfig.membershipGroups.stream()
+				.map(g -> allGroups.getOrDefault(g, new Group(g)))
+				.collect(Collectors.toList()));
 		bean.setRootGroup(new GroupWithIndentIndicator(new Group(orgConfig.rootGroup), false));
 		bean.setSchemas(
 				orgConfig.schemas.stream().map(s -> mapFromConfigurationSchema(s)).collect(Collectors.toList()));
@@ -32,7 +58,7 @@ class ConfigurationVaadinBeanMapper
 		return bean;
 	}
 
-	static SchemaWithMappingBean mapFromConfigurationSchema(SchemaWithMapping schema)
+	SchemaWithMappingBean mapFromConfigurationSchema(SchemaWithMapping schema)
 	{
 		SchemaWithMappingBean schemaBean = new SchemaWithMappingBean();
 		schemaBean.setId(schema.id);
@@ -46,7 +72,7 @@ class ConfigurationVaadinBeanMapper
 		return schemaBean;
 	}
 
-	private static AttributeDefinitionWithMappingBean mapFromAttributeDefinitionWithMapping(
+	private AttributeDefinitionWithMappingBean mapFromAttributeDefinitionWithMapping(
 			AttributeDefinitionWithMapping a)
 	{
 		AttributeDefinitionWithMappingBean bean = new AttributeDefinitionWithMappingBean();
@@ -63,7 +89,7 @@ class ConfigurationVaadinBeanMapper
 		return bean;
 	}
 
-	static SCIMEndpointConfiguration mapToConfigurationBean(SCIMServiceConfigurationBean bean)
+	SCIMEndpointConfiguration mapToConfigurationBean(SCIMServiceConfigurationBean bean)
 	{
 		return SCIMEndpointConfiguration.builder().withAllowedCorsHeaders(bean.getAllowedCORSheaders())
 				.withAllowedCorsOrigins(bean.getAllowedCORSorigins())
@@ -73,11 +99,10 @@ class ConfigurationVaadinBeanMapper
 
 				.withSchemas(
 						bean.getSchemas().stream().map(s -> mapToConfigurationSchema(s)).collect(Collectors.toList()))
-				.withMembershipAttributes(bean.getMembershipAttributes())
-				.build();
+				.withMembershipAttributes(bean.getMembershipAttributes()).build();
 	}
 
-	private static SchemaWithMapping mapToConfigurationSchema(SchemaWithMappingBean schemaBean)
+	private SchemaWithMapping mapToConfigurationSchema(SchemaWithMappingBean schemaBean)
 	{
 		return SchemaWithMapping.builder().withName(schemaBean.getName()).withId(schemaBean.getId())
 				.withType(schemaBean.getType()).withDescription(schemaBean.getDescription())
@@ -87,8 +112,7 @@ class ConfigurationVaadinBeanMapper
 
 	}
 
-	private static AttributeDefinitionWithMapping mapToAttributeDefinition(
-			AttributeDefinitionWithMappingBean attrDefBean)
+	private AttributeDefinitionWithMapping mapToAttributeDefinition(AttributeDefinitionWithMappingBean attrDefBean)
 	{
 		return AttributeDefinitionWithMapping.builder()
 				.withAttributeDefinition(AttributeDefinition.builder()
@@ -99,25 +123,25 @@ class ConfigurationVaadinBeanMapper
 						.withSubAttributesWithMapping(attrDefBean.getAttributeDefinition().getSubAttributesWithMapping()
 								.stream().map(sa -> mapToAttributeDefinition(sa)).collect(Collectors.toList()))
 						.build())
-				.withAttributeMapping(
-						mapToConfigurationMapping(attrDefBean.getAttributeMapping(), attrDefBean.getAttributeDefinition()))
+				.withAttributeMapping(mapToConfigurationMapping(attrDefBean.getAttributeMapping(),
+						attrDefBean.getAttributeDefinition()))
 				.build();
 	}
 
-	private static AttributeMapping mapToConfigurationMapping(AttributeMappingBean bean, AttributeDefinitionBean attributeDefinition)
+	private AttributeMapping mapToConfigurationMapping(AttributeMappingBean bean,
+			AttributeDefinitionBean attributeDefinition)
 	{
 		if (bean == null)
 			return new UndefinedMapping();
 		return bean.toConfiguration(attributeDefinition);
 	}
 
-	private static AttributeMappingBean mapToConfigurationMappingBean(AttributeMapping mapping)
+	private AttributeMappingBean mapToConfigurationMappingBean(AttributeMapping mapping)
 	{
 		AttributeMappingBean bean = new AttributeMappingBean();
-		if (mapping == null )
+		if (mapping == null)
 			return bean;
 		return mapping.toBean();
 	}
 
-	
 }

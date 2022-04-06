@@ -9,7 +9,7 @@ The typical authenticator's configuration will look as follows:
 ----
 unityServer.core.authenticators.x.authenticatorName=oauthWeb
 unityServer.core.authenticators.x.authenticatorType=oauth2
-unityServer.core.authenticators.x.verificatorConfigurationFile=conf/authenticators/remoteOAuth.properties
+unityServer.core.authenticators.x.configurationFile=conf/authenticators/remoteOAuth.properties
 ----
 
 Let's consider an example of a configuration of the OAuth2 verificator 
@@ -110,7 +110,7 @@ The typical authenticator's configuration looks as follows:
 ----
 unityServer.core.authenticators.x.authenticatorName=oauthRP-Rest
 unityServer.core.authenticators.x.authenticatorType=oauth-rp
-unityServer.core.authenticators.x.verificatorConfigurationFile=conf/authenticators/remoteOAuth-RP.properties
+unityServer.core.authenticators.x.configurationFile=conf/authenticators/remoteOAuth-RP.properties
 ----
 
 An example configuration of the OAuth2 RP verificator 

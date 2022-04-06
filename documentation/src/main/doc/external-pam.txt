@@ -35,8 +35,7 @@ The typical authenticator's configuration will look as follows:
 ----
 unityServer.core.authenticators.x.authenticatorName=pamWeb
 unityServer.core.authenticators.x.authenticatorType=pam
-unityServer.core.authenticators.x.verificatorConfigurationFile=conf/authenticators/pam.properties
-unityServer.core.authenticators.x.retrievalConfigurationFile=conf/authenticators/passwordRetrieval-pam.json
+unityServer.core.authenticators.x.configurationFile=conf/authenticators/pam.properties
 ----
 
 PAM access is configured by providing a name of PAM facility that should be used by Unity and input translation profile

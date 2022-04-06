@@ -27,8 +27,10 @@ public enum OutputTranslationMVELContextKey
 	subGroups(OutputTranslationMVELContextKey.descriptionPrefix + "subGroups"),
 	groupsObj(OutputTranslationMVELContextKey.descriptionPrefix + "groupsObj"),
 	authenticatedWith(OutputTranslationMVELContextKey.descriptionPrefix + "authenticatedWith"),
-	idp(OutputTranslationMVELContextKey.descriptionPrefix + "idp");
-
+	idp(OutputTranslationMVELContextKey.descriptionPrefix + "idp"),
+	authentications(OutputTranslationMVELContextKey.descriptionPrefix + "authentications"),
+	mfa(OutputTranslationMVELContextKey.descriptionPrefix + "mfa");
+	
 	public static final String descriptionPrefix = "OutputTranslationMVELContextKey.";
 	public final String descriptionKey;
 
