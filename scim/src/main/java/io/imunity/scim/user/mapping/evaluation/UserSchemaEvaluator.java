@@ -5,7 +5,6 @@
 
 package io.imunity.scim.user.mapping.evaluation;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class UserSchemaEvaluator
 		for (SchemaWithMapping basicSchema : schemas.stream().filter(s -> s.type.equals(SchemaType.USER_CORE) && s.enable)
 				.collect(Collectors.toList()))
 		{
-			attributeEvaluationResult.putAll(evalSchema(basicSchema, user, cachingMVELGroupProvider));
+			evalSchema(basicSchema, user, cachingMVELGroupProvider).forEach(attributeEvaluationResult::put);
 		}
 		
 		for (SchemaWithMapping schema : schemas.stream().filter(s -> s.type.equals(SchemaType.USER) && s.enable)
@@ -54,7 +53,7 @@ public class UserSchemaEvaluator
 	private Map<String, Object> evalSchema(SchemaWithMapping schema, User user,
 			CachingMVELGroupProvider cachingMVELGroupProvider) throws EngineException
 	{
-		Map<String, Object> ret = new HashMap<>();
+		Map<String, Object> ret = new LinkedHashMap<>();
 		for (AttributeDefinitionWithMapping attributeWithMapping : schema.attributesWithMapping)
 		{
 			MappingEvaluator evaluator = mappingEvaluatorRegistry

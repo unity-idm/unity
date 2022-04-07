@@ -6,6 +6,7 @@
 package io.imunity.scim.user;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ class SCIMUserResource extends BasicSCIMResource
 	private SCIMUserResource(Builder builder)
 	{
 		super(builder);
-		this.attributes = Map.copyOf(builder.attributes);
+		this.attributes = new LinkedHashMap<>(builder.attributes);
 	}
 
 	static Builder builder()

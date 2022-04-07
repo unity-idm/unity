@@ -72,7 +72,7 @@ class SimpleMappingEvaluator implements MappingEvaluator
 		case IDENTITY:
 			value = targetDataConverter.convertUserIdentityToType(context.user, mapping.dataValue.value.get(),
 					attributeDefinitionWithMapping.attributeDefinition.type);
-		
+			break;
 		case ARRAY:
 			value = Optional.ofNullable(context.arrayObj == null ? null
 					: targetDataConverter.convertToType(context.arrayObj,
