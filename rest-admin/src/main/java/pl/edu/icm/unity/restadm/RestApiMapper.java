@@ -6,10 +6,10 @@
 package pl.edu.icm.unity.restadm;
 
 import pl.edu.icm.unity.engine.api.groupMember.GroupMemberWithAttributes;
-import pl.edu.icm.unity.model.RestAttributeExt;
-import pl.edu.icm.unity.model.RestEntityInformation;
-import pl.edu.icm.unity.model.RestGroupMemberWithAttributes;
-import pl.edu.icm.unity.model.RestIdentity;
+import io.imunity.rest.api.RestAttributeExt;
+import io.imunity.rest.api.RestEntityInformation;
+import io.imunity.rest.api.RestGroupMemberWithAttributes;
+import io.imunity.rest.api.RestIdentity;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
