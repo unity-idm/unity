@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.trust.SamlTrustChecker;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -183,12 +182,6 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	{
 		SamlTrustProvider samlTrustProvider = new SamlTrustProvider()
 		{
-			@Override
-			public SamlTrustChecker getTrustChecker()
-			{
-				return spConfiguration.trustChecker;
-			}
-
 			@Override
 			public Collection<SAMLEndpointDefinition> getSLOEndpoints(NameIDType samlId)
 			{

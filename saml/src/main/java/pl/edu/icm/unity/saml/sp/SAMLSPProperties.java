@@ -17,10 +17,6 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 
 import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.trust.CheckingMode;
-import eu.unicore.samly2.trust.SamlTrustChecker;
-import eu.unicore.samly2.trust.StrictSamlTrustChecker;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -241,8 +237,6 @@ public class SAMLSPProperties extends SamlProperties
 
 	/**
 	 * For cloning only.
-	 * @param pkiMan
-	 * @throws ConfigurationException
 	 */
 	protected SAMLSPProperties(SAMLSPProperties cloned) throws ConfigurationException
 	{
@@ -322,12 +316,11 @@ public class SAMLSPProperties extends SamlProperties
 			}
 		}
 		
-		//test drive
-		getTrustChecker();
+		verifyTrustdedCertificatesExistence();
 		
 		if (getBooleanValue(PUBLISH_METADATA) && !isSet(METADATA_PATH))
 			throw new ConfigurationException("Metadata path " + getKeyDescription(METADATA_PATH) + 
-					" must be set if metadata publication is enabled.");
+					" must be set if CheckingMode modemetadata publication is enabled.");
 	}
 	
 	@Override
@@ -353,34 +346,24 @@ public class SAMLSPProperties extends SamlProperties
 		}
 	}
 	
-	public SamlTrustChecker getTrustChecker() throws ConfigurationException
+	private void verifyTrustdedCertificatesExistence() throws ConfigurationException
 	{
 		Set<String> idpKeys = getStructuredListKeys(IDP_PREFIX);
-		CheckingMode mode = getBooleanValue(REQUIRE_SIGNED_ASSERTION) ? 
-					CheckingMode.REQUIRE_SIGNED_ASSERTION : 
-					CheckingMode.REQUIRE_SIGNED_RESPONSE_OR_ASSERTION;
-		StrictSamlTrustChecker trustChecker = new StrictSamlTrustChecker(mode);
 		for (String idpKey: idpKeys)
 		{
-			String idpId = getValue(idpKey+IDP_ID);
 			Set<String> idpCertNames = getCertificateNames(idpKey);
-			
 			for (String idpCertName: idpCertNames)
 			{
-				X509Certificate idpCert;
 				try
 				{
-					idpCert = pkiManagement.getCertificate(idpCertName).value;
+					pkiManagement.getCertificate(idpCertName);
 				} catch (EngineException e)
 				{
 					throw new ConfigurationException("Remote SAML IdP certificate can not be loaded " 
 							+ idpCertName, e);
 				}
-				trustChecker.addTrustedIssuer(idpId, SAMLConstants.NFORMAT_ENTITY, 
-						idpCert.getPublicKey());
 			}
 		}
-		return trustChecker;
 	}
 	
 	public List<PublicKey> getPublicKeysOfIdp(String idpKey)

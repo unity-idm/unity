@@ -8,7 +8,6 @@ import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
 
-import eu.unicore.samly2.trust.SamlTrustChecker;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
@@ -25,14 +24,6 @@ public class IdpSamlTrustProvider implements SamlTrustProvider
 	public IdpSamlTrustProvider(RemoteMetaManager myMetadataManager)
 	{
 		this.myMetadataManager = myMetadataManager;
-	}
-
-	@Override
-	public SamlTrustChecker getTrustChecker()
-	{
-		SamlIdpProperties virtualConf = (SamlIdpProperties) 
-				myMetadataManager.getVirtualConfiguration();
-		return virtualConf.getSloTrustChecker();
 	}
 
 	@Override

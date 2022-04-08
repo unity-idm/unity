@@ -97,7 +97,7 @@ public class SAMLSPConfigurationParser
 				.withSignRequestByDefault(samlProperties.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST))
 				.withSloPath(samlProperties.getValue(SAMLSPProperties.SLO_PATH))
 				.withSloRealm(samlProperties.getValue(SAMLSPProperties.SLO_REALM))
-				.withTrustChecker(samlProperties.getTrustChecker())
+				.withRequireSignedAssertion(samlProperties.getBooleanValue(SAMLSPProperties.REQUIRE_SIGNED_ASSERTION))
 				.withTrustedMetadataSources(getMetadataSources(samlProperties))
 				.build();
 	}

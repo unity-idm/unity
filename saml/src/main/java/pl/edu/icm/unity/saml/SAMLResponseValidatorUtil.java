@@ -15,6 +15,7 @@ import eu.unicore.samly2.assertion.AttributeAssertionParser;
 import eu.unicore.samly2.attrprofile.ParsedAttribute;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
+import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
@@ -57,7 +58,8 @@ public class SAMLResponseValidatorUtil
 
 	public RemotelyAuthenticatedInput verifySAMLResponse(ResponseDocument responseDocument, 
 			SAMLVerifiableElement verifiableResponse,
-			String requestId, SAMLBindings binding, String groupAttribute, TrustedIdPConfiguration idp) 
+			String requestId, SAMLBindings binding, String groupAttribute, TrustedIdPConfiguration idp,
+			SamlTrustChecker trustChecker) 
 					throws RemoteAuthenticationException
 	{
 		X509Credential credential = spConfiguration.requesterCredential;
@@ -65,7 +67,7 @@ public class SAMLResponseValidatorUtil
 		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(
 				spConfiguration.requesterSamlId, responseConsumerAddress, 
 				requestId, AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
-				spConfiguration.trustChecker, replayAttackChecker, binding, 
+				trustChecker, replayAttackChecker, binding, 
 				decryptKey);
 		try
 		{

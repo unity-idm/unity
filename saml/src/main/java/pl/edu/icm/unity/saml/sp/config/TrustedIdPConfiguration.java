@@ -70,7 +70,7 @@ public class TrustedIdPConfiguration
 		this.binding = builder.binding;
 		this.translationProfile = builder.translationProfile;
 	}	
-
+	
 	public static Builder builder()
 	{
 		return new Builder();

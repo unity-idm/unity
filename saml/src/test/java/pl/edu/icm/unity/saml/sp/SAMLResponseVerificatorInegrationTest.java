@@ -111,7 +111,9 @@ public class SAMLResponseVerificatorInegrationTest extends DBIntegrationTestBase
 
 	private SAMLSPConfiguration createConfig()
 	{
-		return FakeSAMLSPConfiguration.getFakeBuilder().build();
+		return FakeSAMLSPConfiguration.getFakeBuilder()
+				.withTrustCheckerFactory(idp -> new TrustAllTrustChecker())
+				.build();
 	}
 	
 	private TrustedIdPConfiguration getTrustedIdPConfig() throws EngineException

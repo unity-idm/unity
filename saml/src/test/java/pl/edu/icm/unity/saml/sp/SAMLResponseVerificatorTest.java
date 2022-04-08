@@ -13,6 +13,8 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -97,7 +99,9 @@ public class SAMLResponseVerificatorTest
 
 	private SAMLSPConfiguration createConfig() throws EngineException
 	{
-		return FakeSAMLSPConfiguration.getFakeBuilder().build();
+		return FakeSAMLSPConfiguration.getFakeBuilder()
+				.withTrustCheckerFactory(idp -> new TrustAllTrustChecker())
+				.build();
 	}
 	
 	private TrustedIdPConfiguration getTrustedIdPConfig() throws EngineException
@@ -105,6 +109,7 @@ public class SAMLResponseVerificatorTest
 		return FakeTrustedIdPConfiguration.getFakeBuilder()
 			.withSamlId("idp")
 			.withBinding(Binding.HTTP_POST)
+			.withPublicKeys(List.of(mock(PublicKey.class)))
 			.build();
 	}
 }
