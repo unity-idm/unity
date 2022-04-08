@@ -33,11 +33,6 @@ public class ExternalSignupSpec
 		return specs;
 	}
 
-	public void setSpecs(List<AuthenticationOptionsSelector> specs)
-	{
-		this.specs = specs;
-	}
-	
 	@JsonIgnore
 	public boolean isEnabled()
 	{

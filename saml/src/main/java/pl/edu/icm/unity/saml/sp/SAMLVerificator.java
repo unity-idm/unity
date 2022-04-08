@@ -290,7 +290,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 
 			providers.add(IdPInfo.builder()
 					.withId(idp.samlId)
-					.withConfigId(idp.key.toString())
+					.withConfigId(idp.key.asString())
 					.withDisplayedName(idp.name)
 					.withGroup(group).build());
 		});
