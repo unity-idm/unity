@@ -4,13 +4,11 @@
   ~ See LICENCE.txt file for licensing information.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>unity-server-parent</artifactId>
         <groupId>io.imunity</groupId>
-        <version>3.9.0-SNAPSHOT</version>
+        <version>3.9.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -20,7 +18,7 @@
     <scm>
         <connection>${scm.base}/${m.name}</connection>
         <developerConnection>${scm.base}/${m.name}</developerConnection>
-        <tag>HEAD</tag>
+        <tag>unity-server-parent-3.9.0</tag>
     </scm>
 
     <dependencies>
