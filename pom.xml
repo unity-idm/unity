@@ -4,7 +4,7 @@
 	<groupId>io.imunity</groupId>
 	<artifactId>unity-server-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.9.0</version>
+	<version>3.10.0-SNAPSHOT</version>
 	<name>UNITY aggregation and parent module</name>
 	<description>UNITY aggregation and parent module</description>
 	<url>https://unity-idm.eu</url>
@@ -39,7 +39,7 @@
 		<connection>${scm.base}</connection>
 		<developerConnection>${scm.base}</developerConnection>
 		<url>https://github.com/unity-idm/unity</url>
-		<tag>unity-server-parent-3.9.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<licenses>
