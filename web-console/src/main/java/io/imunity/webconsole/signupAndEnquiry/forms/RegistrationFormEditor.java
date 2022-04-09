@@ -255,7 +255,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		}
 			
 		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
-		remoteAuthnGridSelections.setItems(toEdit.getExternalSignupSpec().getSpecs());
+		remoteAuthnGridSelections.setItems(remoteAuthnSelections.getSelectedItems());
 		remoteAuthnGridSelections.setSelectedItems(toEdit.getExternalSignupGridSpec().getSpecs());
 		showCancel.setValue(toEdit.getLayoutSettings().isShowCancel());
 		localSignupEmbeddedAsButton.setValue(toEdit.getFormLayouts().isLocalSignupEmbeddedAsButton());
