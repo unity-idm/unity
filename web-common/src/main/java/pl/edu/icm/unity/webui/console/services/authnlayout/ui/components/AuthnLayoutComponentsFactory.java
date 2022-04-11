@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
@@ -39,13 +38,13 @@ public class AuthnLayoutComponentsFactory
 	private Runnable dragStart;
 	private Runnable dragStop;
 	private Runnable valueChange;
-	private AuthenticatorSupportService authenticatorSupportService;
+	private AuthenticationOptionsSelectorProvider authenticationOptionsSelectorProvider;
 	private Supplier<List<String>> authnOptionSupplier;
 	private boolean blockRemoveLastAndExpand;
 
 	public AuthnLayoutComponentsFactory(MessageSource msg, Consumer<AuthnLayoutColumn> removeListener,
 			Consumer<ColumnComponent> removeElementListener, Runnable dragStart, Runnable dragStop,
-			Runnable valueChange, AuthenticatorSupportService authenticatorSupportService,
+			Runnable valueChange, AuthenticationOptionsSelectorProvider authenticationOptionsSelectorProvider,
 			Supplier<List<String>> authnOptionSupplier, boolean blockRemoveLastAndExpand)
 	{
 		this.msg = msg;
@@ -54,7 +53,7 @@ public class AuthnLayoutComponentsFactory
 		this.dragStart = dragStart;
 		this.dragStop = dragStop;
 		this.valueChange = valueChange;
-		this.authenticatorSupportService = authenticatorSupportService;
+		this.authenticationOptionsSelectorProvider = authenticationOptionsSelectorProvider;
 		this.authnOptionSupplier = authnOptionSupplier;
 		this.blockRemoveLastAndExpand = blockRemoveLastAndExpand;
 	}
@@ -80,7 +79,7 @@ public class AuthnLayoutComponentsFactory
 
 	public SingleAuthnColumnComponent getSingleAuthn()
 	{
-		return new SingleAuthnColumnComponent(msg, authenticatorSupportService, authnOptionSupplier,
+		return new SingleAuthnColumnComponent(msg, authenticationOptionsSelectorProvider, authnOptionSupplier,
 				removeElementListener, valueChange, dragStart, dragStop);
 	}
 
@@ -96,7 +95,7 @@ public class AuthnLayoutComponentsFactory
 
 	public GridAuthnColumnComponent getGrid()
 	{
-		return new GridAuthnColumnComponent(msg, authenticatorSupportService, authnOptionSupplier,
+		return new GridAuthnColumnComponent(msg, authenticationOptionsSelectorProvider, authnOptionSupplier,
 				removeElementListener, valueChange, dragStart, dragStop);
 	}
 
