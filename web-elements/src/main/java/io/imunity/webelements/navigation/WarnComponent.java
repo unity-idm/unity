@@ -17,7 +17,7 @@ public class WarnComponent extends HorizontalLayout
 {
 	
 	
-	private Consumer<Boolean> visibleChangeListener;
+	private Consumer<Boolean> visibilityChangeListener;
 
 	public WarnComponent()
 	{
@@ -35,19 +35,19 @@ public class WarnComponent extends HorizontalLayout
 		addComponent(new Label(info));
 	}
 
-	public void addVisibleChangeListener(Consumer<Boolean> visibleChangeListener)
+	public void addVisibilityChangeListener(Consumer<Boolean> visibilityChangeListener)
 	{
 		
-		this.visibleChangeListener = visibleChangeListener;
+		this.visibilityChangeListener = visibilityChangeListener;
 	}
 	
 	@Override
 	public void setVisible(boolean visible)
 	{
 		super.setVisible(visible);
-		if (visibleChangeListener != null)
+		if (visibilityChangeListener != null)
 		{
-			visibleChangeListener.accept(visible);
+			visibilityChangeListener.accept(visible);
 		}
 	}
 }

@@ -38,7 +38,7 @@ public class WebConsoleWarnViewComponent extends CustomComponent implements View
 		{
 			UnityViewWithSubViews view = (UnityViewWithSubViews) event.getNewView();
 			WarnComponent warnComponent = view.getWarnComponent();
-			warnComponent.addVisibleChangeListener(v -> setVisible(v));
+			warnComponent.addVisibilityChangeListener(v -> setVisible(v));
 			main.addComponent(warnComponent);
 		}
 	}
