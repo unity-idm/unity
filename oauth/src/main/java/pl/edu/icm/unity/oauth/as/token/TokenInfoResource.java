@@ -86,7 +86,7 @@ public class TokenInfoResource extends BaseTokenResource
 	}
 	
 	
-	private JSONObject toJSON(String subject, String clientId, Date expiration, String[] scopes, String audience)
+	private JSONObject toJSON(String subject, String clientId, Date expiration, String[] scopes, List<String> audience)
 	{
 		JSONObject ret = new JSONObject();
 		ret.put(SUBJECT, subject);

@@ -133,7 +133,7 @@ class OAuthTokenViewer extends VerticalLayout
 		}
 
 
-		audience.setValue(oauthToken.getAudience());
+		audience.setValue(String.join(",", oauthToken.getAudience()));
 		redirectUri.setValue(oauthToken.getRedirectUri());
 		Date maxValidity = new Date(
 				rawToken.getCreated().getTime() + oauthToken.getMaxExtendedValidity() * 1000);

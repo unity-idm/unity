@@ -5,9 +5,11 @@
 package pl.edu.icm.unity.oauth.as;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
@@ -43,6 +45,7 @@ public class OAuthAuthzContext
 	private Set<String> requestedScopes = new HashSet<>();
 	private Set<String> effectiveRequestedAttrs = new HashSet<>();
 	private Set<Prompt> prompts= new HashSet<>();
+	private List<String> additionalAudience = new ArrayList<>();
 	private GrantFlow flow;
 	private ClientType clientType;
 	private boolean openIdMode;
@@ -230,5 +233,15 @@ public class OAuthAuthzContext
 	public void setClientType(ClientType clientType)
 	{
 		this.clientType = clientType;
+	}
+
+	public List<String> getAdditionalAudience()
+	{
+		return additionalAudience;
+	}
+
+	public void setAdditionalAudience(List<String> additionalAudience)
+	{
+		this.additionalAudience = additionalAudience;
 	}
 }

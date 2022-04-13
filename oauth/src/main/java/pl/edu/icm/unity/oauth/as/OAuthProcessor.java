@@ -9,15 +9,17 @@ import static com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue.ID_TOKEN;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.Curve;
@@ -106,7 +108,7 @@ public class OAuthProcessor
 		internalToken.setSubject(identity.getValue());
 		internalToken.setMaxExtendedValidity(config.getMaxExtendedAccessTokenValidity());
 		internalToken.setTokenValidity(config.getAccessTokenValidity()); 
-		internalToken.setAudience(ctx.getClientUsername());
+		internalToken.setAudience(Stream.concat(Stream.of(ctx.getClientName()), ctx.getAdditionalAudience().stream()).collect(Collectors.toList()));
 		internalToken.setIssuerUri(config.getIssuerName());
 		internalToken.setClientType(ctx.getClientType());
 		
@@ -270,14 +272,14 @@ public class OAuthProcessor
 	 * not issued in the flow. This is the case if the only response type is 'id_token'. Section 5.4 of 
 	 * OIDC specification.
 	 */
-	private IDTokenClaimsSet prepareIdInfoClaimSet(String userIdentity, String audience, OAuthAuthzContext context, 
+	private IDTokenClaimsSet prepareIdInfoClaimSet(String userIdentity, List<String> audience, OAuthAuthzContext context, 
 			ClaimsSet regularAttributes, Date now)
 	{
 		AuthenticationRequest request = (AuthenticationRequest) context.getRequest();
 		IDTokenClaimsSet idToken = new IDTokenClaimsSet(
 				new Issuer(context.getConfig().getIssuerName()), 
 				new Subject(userIdentity), 
-				Lists.newArrayList(new Audience(audience)), 
+				audience.stream().map(Audience::new).collect(Collectors.toList()), 
 				new Date(now.getTime() + context.getConfig().getIdTokenValidity()*1000), 
 				now);
 		ResponseType responseType = request.getResponseType();

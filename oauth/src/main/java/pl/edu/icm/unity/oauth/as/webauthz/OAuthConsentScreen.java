@@ -7,8 +7,10 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
@@ -53,7 +55,7 @@ import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar;
 import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar.Action;
 import pl.edu.icm.unity.webui.idpcommon.IdentitySelectorComponent;
 import pl.edu.icm.unity.webui.idpcommon.SPInfoComponent;
-
+import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
 /**
  * Consent screen after resource owner login and obtaining set of effective attributes.
  * 
@@ -120,10 +122,13 @@ class OAuthConsentScreen extends CustomComponent
 		vmain.addComponent(contents);
 		vmain.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);
 		
+		String oauthRequester = ctx.getClientName();
+		if (oauthRequester == null)
+			oauthRequester = ctx.getRequest().getClientID().getValue();
 		
-		createInfoPart(ctx, contents);
+		createInfoPart(ctx, oauthRequester, contents);
 
-		createExposedDataPart(ctx, contents, attributes, identity);
+		createExposedDataPart(ctx, oauthRequester, contents, attributes, identity);
 
 		createButtonsPart(contents);
 
@@ -132,11 +137,8 @@ class OAuthConsentScreen extends CustomComponent
 		loadPreferences(ctx);
 	}
 
-	private void createInfoPart(OAuthAuthzContext oauthCtx, VerticalLayout contents)
+	private void createInfoPart(OAuthAuthzContext oauthCtx, String oauthRequester, VerticalLayout contents)
 	{
-		String oauthRequester = oauthCtx.getClientName();
-		if (oauthRequester == null)
-			oauthRequester = oauthCtx.getRequest().getClientID().getValue();
 		String returnAddress = oauthCtx.getReturnURI().toASCIIString();
 
 		Resource clientLogo = null;
@@ -152,7 +154,7 @@ class OAuthConsentScreen extends CustomComponent
 		contents.addComponents(spInfo);
 	}
 
-	private void createExposedDataPart(OAuthAuthzContext ctx, VerticalLayout contents,
+	private void createExposedDataPart(OAuthAuthzContext ctx, String oauthRequester, VerticalLayout contents,
 			Collection<DynamicAttribute> attributes, IdentityParam identity)
 	{
 		SafePanel exposedInfoPanel = new SafePanel();
@@ -164,15 +166,19 @@ class OAuthConsentScreen extends CustomComponent
 
 		for (OAuthScope si : ctx.getEffectiveRequestedScopes())
 		{
+			
 			String label = Strings.isNullOrEmpty(si.description) ? si.name : si.description;
 			Label scope = new Label100("\u25CF " + label);
 			eiLayout.addComponents(scope);
 		}
-
-		Label spacer = HtmlTag.br();
-		spacer.addStyleName(Styles.vLabelSmall.toString());
-		eiLayout.addComponent(spacer);
-
+		eiLayout.addComponent(getSpacer());
+		
+		if (!ctx.getAdditionalAudience().isEmpty())
+		{
+			eiLayout.addComponent(new AudienceInfoComponent(msg, ctx.getAdditionalAudience(), oauthRequester));
+			eiLayout.addComponent(getSpacer());			
+		}
+		
 		createIdentityPart(identity, eiLayout);
 		attrsPresenter = new ExposedAttributesComponent(msg, idTypeSupport, handlersRegistry, attributes,
 				Optional.of(identity));
@@ -181,6 +187,13 @@ class OAuthConsentScreen extends CustomComponent
 		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
 		contents.addComponent(rememberCB);
 		rememberCB.setVisible(!(ctx.getClientType() == ClientType.PUBLIC) && !ctx.getPrompts().contains(Prompt.CONSENT));
+	}
+	
+	private Label getSpacer()
+	{
+		Label spacer = HtmlTag.br();
+		spacer.addStyleName(Styles.vLabelSmall.toString());
+		return spacer;
 	}
 	
 	private void createIdentityPart(IdentityParam validIdentity, VerticalLayout contents)
@@ -227,8 +240,10 @@ class OAuthConsentScreen extends CustomComponent
 		String selId = settings.getSelectedIdentity();
 		idSelector.setSelected(selId);
 		
-		if (settings.isDoNotAsk() && ctx.getClientType() != ClientType.PUBLIC && settings.getEffectiveRequestedScopes()
-				.containsAll(Arrays.asList(ctx.getEffectiveRequestedScopesList())) && !ctx.getPrompts().contains(Prompt.CONSENT) )
+		if (settings.isDoNotAsk() && ctx.getClientType() != ClientType.PUBLIC
+				&& settings.getEffectiveRequestedScopes()
+						.containsAll(Arrays.asList(ctx.getEffectiveRequestedScopesList()))
+				&& settings.getAudience().containsAll(ctx.getAdditionalAudience()) && !ctx.getPrompts().contains(Prompt.CONSENT))
 		{
 			setCompositionRoot(new VerticalLayout());
 			if (settings.isDefaultAccept())
@@ -254,6 +269,7 @@ class OAuthConsentScreen extends CustomComponent
 		String identityValue = idSelector.getSelectedIdentityForPreferences();
 		if (identityValue != null)
 			settings.setSelectedIdentity(identityValue);
+		settings.setAudience(ctx.getAdditionalAudience().stream().collect(Collectors.toSet()));
 		preferences.setSPSettings(reqIssuer, settings);
 		
 	}
@@ -284,5 +300,32 @@ class OAuthConsentScreen extends CustomComponent
 		Collection<DynamicAttribute> attributes = attrsPresenter.getUserFilteredAttributes();
 		IdentityParam identity = idSelector.getSelectedIdentity();
 		acceptHandler.accept(identity, attributes);
+	}
+	
+	
+	public static class AudienceInfoComponent extends CustomComponent
+	{
+		private final MessageSource msg;
+		
+		public AudienceInfoComponent(MessageSource msg, List<String> audience, String clientName)
+		{
+			this.msg = msg;
+			init(audience, clientName);
+		}
+
+		private void init(List<String> audience, String clientName)
+		{
+			VerticalLayout main = new VerticalLayout();
+			main.setMargin(false);
+			main.addComponent(new Label(msg.getMessage("AudienceInfoComponent.infoHeader", clientName)));
+
+			for (String si : audience)
+			{
+				String label = URIPresentationHelper.getHumanReadableDomain(si);
+				Label aud = new Label100("\u25CF " + label);
+				main.addComponent(aud);
+			}
+			setCompositionRoot(main);
+		}
 	}
 }
