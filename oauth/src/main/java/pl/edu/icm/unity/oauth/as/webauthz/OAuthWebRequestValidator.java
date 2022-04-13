@@ -168,8 +168,13 @@ class OAuthWebRequestValidator
 
 	private void validateAndRecordResources(OAuthAuthzContext context, AuthorizationRequest authzRequest)
 	{
+		if (authzRequest.getResources() == null)
+		{
+			return;
+		}
+		
 		context.setAdditionalAudience(
-				authzRequest.getResources().stream().map(r -> r.toASCIIString()).collect(Collectors.toList()));
+				authzRequest.getResources().stream().filter(r -> r != null).map(r -> r.toASCIIString()).collect(Collectors.toList()));
 	}
 
 	private void validateAndRecordPrompt(OAuthAuthzContext context, AuthorizationRequest authzRequest)
