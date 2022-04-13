@@ -214,7 +214,7 @@ public class SAMLSPProperties extends SamlProperties
 				+ "individual IdP configuraiton entries."));
 
 		META.put(IDPMETA_EXCLUDED_IDPS, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setList(false).setDescription(
-				"List of excluded saml idP ids"));
+				"List of excluded SAML IdP entity identifiers"));
 	
 		META.put(IDENTITY_MAPPING_PFX, new PropertyMD().setStructuredList(false).setCategory(common).
 				setDescription("Prefix used to store mappings of SAML identity types to Unity identity types. "

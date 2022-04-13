@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
@@ -68,7 +69,7 @@ public abstract class BaseSamlConfiguration
 		public final String issuerCertificate;
 		public final String registrationForm;
 		public final TranslationProfile translationProfile;
-		public final List<String> excludedIdps;
+		public final Set<String> excludedIdps;
 		
 		private RemoteMetadataSource(Builder builder)
 		{
@@ -83,7 +84,7 @@ public abstract class BaseSamlConfiguration
 			this.issuerCertificate = builder.issuerCertificate;
 			this.registrationForm = builder.registrationForm;
 			this.translationProfile = builder.translationProfile;
-			this.excludedIdps = List.copyOf(builder.excludedIdps);
+			this.excludedIdps = Set.copyOf(builder.excludedIdps);
 		}
 		
 		@Override
@@ -127,7 +128,7 @@ public abstract class BaseSamlConfiguration
 			private String issuerCertificate;
 			private String registrationForm;
 			private TranslationProfile translationProfile;
-			private List<String> excludedIdps = Collections.emptyList();
+			private Set<String> excludedIdps = Collections.emptySet();
 			
 			private Builder()
 			{
@@ -175,7 +176,7 @@ public abstract class BaseSamlConfiguration
 				return this;
 			}
 			
-			public Builder withExcludedIdps(List<String> excludedIdps)
+			public Builder withExcludedIdps(Set<String> excludedIdps)
 			{
 				this.excludedIdps = excludedIdps;
 				return this;
