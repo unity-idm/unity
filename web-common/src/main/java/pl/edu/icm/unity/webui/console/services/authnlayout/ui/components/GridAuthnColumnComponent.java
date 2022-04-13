@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBas
 public class GridAuthnColumnComponent extends ColumnComponentBase
 {
 	private final AuthenticationOptionsSelectorProvider authenticationOptionsSelectorProvider;
-	private Supplier<List<String>> authnOptionSupplier;
+	private final Supplier<List<String>> authnOptionSupplier;
 
 	private ChipsWithDropdown<AuthenticationOptionsSelector> valueComboField;
 	private Binder<GridStateBindingValue> binder;
