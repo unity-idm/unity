@@ -137,7 +137,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		JSONObject parsed = getTokenInfo(exchangeParsedResp.getTokens().getAccessToken());
 		assertThat(parsed.get("sub"), is("userA"));
 		assertThat(parsed.get("client_id"), is("client2"));
-		assertThat(parsed.get("aud"), is("client2"));
+		assertThat(parsed.get("aud"), is(List.of("client2")));
 		assertThat(((JSONArray) parsed.get("scope")).get(0), is("foo"));
 		assertThat(parsed.get("exp"), notNullValue());
 	}
@@ -175,7 +175,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertEquals("userA", parsed.get("sub"));
 		assertThat(parsed.get("sub"), is("userA"));
 		assertThat(parsed.get("client_id"), is("client2"));
-		assertThat(parsed.get("aud"), is("client2"));
+		assertThat(parsed.get("aud"), is(List.of("client2")));
 		assertThat(((JSONArray) parsed.get("scope")).get(0), is("foo"));
 		assertThat(parsed.get("exp"), notNullValue());
 	}
