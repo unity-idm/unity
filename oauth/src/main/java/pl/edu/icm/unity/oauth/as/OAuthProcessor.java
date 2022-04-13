@@ -279,7 +279,7 @@ public class OAuthProcessor
 		IDTokenClaimsSet idToken = new IDTokenClaimsSet(
 				new Issuer(context.getConfig().getIssuerName()), 
 				new Subject(userIdentity), 
-				audience.stream().map(a -> new Audience(a)).collect(Collectors.toList()), 
+				audience.stream().map(Audience::new).collect(Collectors.toList()), 
 				new Date(now.getTime() + context.getConfig().getIdTokenValidity()*1000), 
 				now);
 		ResponseType responseType = request.getResponseType();

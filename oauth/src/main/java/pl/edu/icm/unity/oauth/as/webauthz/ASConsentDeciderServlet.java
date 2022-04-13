@@ -211,20 +211,20 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		if (preferences.isDoNotAsk() && oauthCtx.getClientType() == ClientType.CONFIDENTIAL)
-			return isScopesChanges(preferences, oauthCtx) || isAudienceChanges(preferences, oauthCtx);
+			return isScopesChanged(preferences, oauthCtx) || isAudienceChanged(preferences, oauthCtx);
 
-		return isScopesChanges(preferences, oauthCtx) || isAudienceChanges(preferences, oauthCtx)
+		return isScopesChanged(preferences, oauthCtx) || isAudienceChanged(preferences, oauthCtx)
 				|| !oauthCtx.getConfig().isSkipConsent();
 	}
 	
-	private boolean isScopesChanges(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
+	private boolean isScopesChanged(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		return !preferences.getEffectiveRequestedScopes()
 				.containsAll(Arrays.asList(oauthCtx.getEffectiveRequestedScopesList()));
 	}
 
 	
-	private boolean isAudienceChanges(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
+	private boolean isAudienceChanged(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		return !preferences.getAudience()
 				.containsAll(oauthCtx.getAdditionalAudience());
