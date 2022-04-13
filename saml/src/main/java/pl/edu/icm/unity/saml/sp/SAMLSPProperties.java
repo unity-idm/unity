@@ -209,7 +209,7 @@ public class SAMLSPProperties extends SamlProperties
 				"Deafult registration form for all the IdPs from the metadata. Can be overwritten by "
 				+ "individual IdP configuraiton entries."));
 
-		META.put(IDPMETA_EXCLUDED_IDPS, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setList(false).setDescription(
+		META.put(IDPMETA_EXCLUDED_IDPS, new PropertyMD().setStructuredListEntry(IDPMETA_PREFIX).setCategory(idp).setList(false).setDescription(
 				"List of excluded SAML IdP entity identifiers"));
 	
 		META.put(IDENTITY_MAPPING_PFX, new PropertyMD().setStructuredList(false).setCategory(common).
