@@ -108,7 +108,7 @@ public class OAuthProcessor
 		internalToken.setSubject(identity.getValue());
 		internalToken.setMaxExtendedValidity(config.getMaxExtendedAccessTokenValidity());
 		internalToken.setTokenValidity(config.getAccessTokenValidity()); 
-		internalToken.setAudience(Stream.concat(Stream.of(ctx.getClientName()), ctx.getAdditionalAudience().stream()).collect(Collectors.toList()));
+		internalToken.setAudience(Stream.concat(Stream.of(ctx.getClientUsername()), ctx.getAdditionalAudience().stream()).collect(Collectors.toList()));
 		internalToken.setIssuerUri(config.getIssuerName());
 		internalToken.setClientType(ctx.getClientType());
 		
@@ -279,7 +279,7 @@ public class OAuthProcessor
 		IDTokenClaimsSet idToken = new IDTokenClaimsSet(
 				new Issuer(context.getConfig().getIssuerName()), 
 				new Subject(userIdentity), 
-				audience.stream().map(Audience::new).collect(Collectors.toList()), 
+				audience.stream().filter(a -> a != null).map(Audience::new).collect(Collectors.toList()), 
 				new Date(now.getTime() + context.getConfig().getIdTokenValidity()*1000), 
 				now);
 		ResponseType responseType = request.getResponseType();
