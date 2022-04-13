@@ -7,9 +7,11 @@ package pl.edu.icm.unity.saml.sp.config;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
@@ -67,12 +69,14 @@ public abstract class BaseSamlConfiguration
 		public final String issuerCertificate;
 		public final String registrationForm;
 		public final TranslationProfile translationProfile;
-
+		public final Set<String> excludedIdps;
+		
 		private RemoteMetadataSource(Builder builder)
 		{
 			checkNotNull(builder.translationProfile);
 			checkNotNull(builder.url);
 			checkNotNull(builder.refreshInterval);
+			checkNotNull(builder.excludedIdps);
 			this.url = builder.url;
 			this.refreshInterval = builder.refreshInterval;
 			this.httpsTruststore = builder.httpsTruststore;
@@ -80,13 +84,14 @@ public abstract class BaseSamlConfiguration
 			this.issuerCertificate = builder.issuerCertificate;
 			this.registrationForm = builder.registrationForm;
 			this.translationProfile = builder.translationProfile;
+			this.excludedIdps = Set.copyOf(builder.excludedIdps);
 		}
 		
 		@Override
 		public int hashCode()
 		{
 			return Objects.hash(httpsTruststore, issuerCertificate, refreshInterval,
-					registrationForm, signatureValidation, translationProfile, url);
+					registrationForm, signatureValidation, translationProfile, url, excludedIdps);
 		}
 
 		@Override
@@ -105,7 +110,8 @@ public abstract class BaseSamlConfiguration
 					&& Objects.equals(registrationForm, other.registrationForm)
 					&& signatureValidation == other.signatureValidation
 					&& Objects.equals(translationProfile, other.translationProfile)
-					&& Objects.equals(url, other.url);
+					&& Objects.equals(url, other.url)
+					&& Objects.equals(excludedIdps, other.excludedIdps);
 		}
 
 		public static Builder builder()
@@ -122,7 +128,8 @@ public abstract class BaseSamlConfiguration
 			private String issuerCertificate;
 			private String registrationForm;
 			private TranslationProfile translationProfile;
-
+			private Set<String> excludedIdps = Collections.emptySet();
+			
 			private Builder()
 			{
 			}
@@ -166,6 +173,12 @@ public abstract class BaseSamlConfiguration
 			public Builder withTranslationProfile(TranslationProfile translationProfile)
 			{
 				this.translationProfile = translationProfile;
+				return this;
+			}
+			
+			public Builder withExcludedIdps(Set<String> excludedIdps)
+			{
+				this.excludedIdps = excludedIdps;
 				return this;
 			}
 			

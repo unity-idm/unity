@@ -29,6 +29,7 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
@@ -119,6 +120,12 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		url.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		binder.forField(url).asRequired(msg.getMessage("fieldRequired")).bind("url");
 		header.addComponent(url);
+		
+		ChipsWithTextfield excludedIdps = new ChipsWithTextfield(msg);
+		excludedIdps.setCaption(msg.getMessage("EditTrustedFederationSubView.excludedIdps"));
+		url.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
+		binder.forField(excludedIdps).bind("excludedIdps");
+		header.addComponent(excludedIdps);
 
 		ComboBox<String> httpsTruststore = new ComboBox<>(
 				msg.getMessage("EditTrustedFederationSubView.httpsTruststore"));

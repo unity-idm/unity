@@ -134,6 +134,12 @@ class MetadataToSPConfigConverter
 			EntityDescriptorType entityMeta, IDPSSODescriptorType idpDef, RemoteMetadataSource metadataSource)
 	{
 		String entityId = entityMeta.getEntityID();
+		if (metadataSource.excludedIdps.contains(entityId))
+		{
+			log.trace("IDP of entity {} is excluded, ignoring.", entityId);
+			return emptyList();
+		}
+		
 		if (!MetaToConfigConverterHelper.supportsSaml2(idpDef))
 		{
 			log.trace("IDP of entity {} doesn't support SAML2 - ignoring.", entityId);
