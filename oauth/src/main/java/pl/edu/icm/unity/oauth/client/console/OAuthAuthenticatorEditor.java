@@ -259,7 +259,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		{
 			gotoEditSubView(null, providersList.getElements().stream().map(p -> p.getId())
 					.collect(Collectors.toSet()), c -> {
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 						providersList.addElement(c);
 					});
 
@@ -272,7 +272,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 							.map(p -> p.getId()).collect(Collectors.toSet()),
 					c -> {
 						providersList.replaceElement(edited, c);
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 					});
 		}
 

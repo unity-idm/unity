@@ -1655,5 +1655,11 @@
 		height : 0;
 	}
 	
+	.u-warnBar {
+		background: $bgWarnColor;
+		height: auto;
+    	font-size: 10px;	
+	}
+	
 }
 

@@ -34,6 +34,12 @@ public class SidebarLayout extends CustomComponent
 	public SidebarLayout(NavigationHierarchyManager viewMan, Layout naviContent,
 			Component topComponent)
 	{
+		this(viewMan, naviContent, topComponent, null);
+	}
+	
+	public SidebarLayout(NavigationHierarchyManager viewMan, Layout naviContent,
+			Component topComponent, Component warn)
+	{
 		setSizeFull();
 		setStyleName(Styles.sidebar.toString());
 		this.topRightMenu = new TopRightMenu();
@@ -76,7 +82,10 @@ public class SidebarLayout extends CustomComponent
 		rightSpace.setMargin(false);
 		rightSpace.setSpacing(false);
 		rightSpace.setSizeFull();
-		rightSpace.addComponents(headerBar, naviContent);
+		rightSpace.addComponent(headerBar);
+		if (warn != null)
+			rightSpace.addComponent(warn);
+		rightSpace.addComponent(naviContent);
 		rightSpace.setExpandRatio(naviContent, 1f);
 
 		rootContent.addComponents(leftMenu, rightSpace);

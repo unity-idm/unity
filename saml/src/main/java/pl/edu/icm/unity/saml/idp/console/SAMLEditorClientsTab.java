@@ -175,7 +175,7 @@ public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 		{
 			gotoEditSubView(null, federationList.getElements().stream().map(p -> p.getName())
 					.collect(Collectors.toSet()), c -> {
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 						federationList.addElement(c);
 						federationList.focus();
 						fireChange();
@@ -191,7 +191,7 @@ public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 					c -> {
 						federationList.replaceElement(edited, c);
 						fireChange();
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 					});
 		}
 
@@ -303,7 +303,7 @@ public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 			gotoEditSubView(null,
 					spList.getElements().stream().map(p -> p.getName()).collect(Collectors.toSet()),
 					c -> {
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 						spList.addElement(c);
 						spList.focus();
 						fireChange();
@@ -318,7 +318,7 @@ public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 					c -> {
 						spList.replaceElement(edited, c);
 						fireChange();
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 					});
 		}
 

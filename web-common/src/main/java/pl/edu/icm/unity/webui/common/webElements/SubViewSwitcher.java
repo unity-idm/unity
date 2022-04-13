@@ -15,4 +15,5 @@ public interface SubViewSwitcher
 {
 	void exitSubView();
 	void goToSubView(UnitySubView subview);
+	void exitSubViewAndShowUpdateInfo();
 }

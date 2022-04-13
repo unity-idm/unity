@@ -11,6 +11,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 
 import io.imunity.webelements.menu.MenuButton;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
 
@@ -27,11 +28,16 @@ public abstract class ViewWithSubViewBase extends CustomComponent implements Sub
 	private LinkedList<UnitySubView> subViews;
 	private Component mainView;
 	private BreadcrumbsComponent breadCrumbs;
+	private WarnComponent warnComponent;
 
-	public ViewWithSubViewBase()
+	protected final MessageSource msg;
+	
+	public ViewWithSubViewBase(MessageSource msg)
 	{
+		this.msg = msg;
 		subViews = new LinkedList<>();
 		breadCrumbs = new BreadcrumbsComponent();
+		warnComponent = new WarnComponent();
 		breadCrumbs.setMargin(false);
 	}
 
@@ -53,6 +59,20 @@ public abstract class ViewWithSubViewBase extends CustomComponent implements Sub
 			setCompositionRoot(subViews.getLast());
 		}
 		refreshBreadCrumbs();
+	}
+
+	@Override
+	public void exitSubViewAndShowUpdateInfo()
+	{
+		warnComponent.setWarn(msg.getMessage("ViewWithSubViewBase.unsavedEdits"));
+		exitSubView();
+	}
+
+	@Override
+	public WarnComponent getWarnComponent()
+	{
+		return warnComponent;
+			
 	}
 
 	@Override

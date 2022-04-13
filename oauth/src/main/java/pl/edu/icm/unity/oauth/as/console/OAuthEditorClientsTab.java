@@ -259,7 +259,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		private void gotoNew()
 		{
 			gotoEditSubView(null, c -> {
-				subViewSwitcher.exitSubView();
+				subViewSwitcher.exitSubViewAndShowUpdateInfo();
 				c.setGroup(group);
 				clientsList.addElement(c);
 			});
@@ -271,7 +271,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 			gotoEditSubView(edited, c -> {
 				c.setUpdated(true);
 				clientsList.replaceElement(edited, c);
-				subViewSwitcher.exitSubView();
+				subViewSwitcher.exitSubViewAndShowUpdateInfo();
 			});
 		}
 

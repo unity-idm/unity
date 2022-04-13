@@ -229,7 +229,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		{
 			gotoEditSubView(null, s ->
 			{
-				subViewSwitcher.exitSubView();
+				subViewSwitcher.exitSubViewAndShowUpdateInfo();
 				schemasGrid.addElement(s);
 			});
 
@@ -240,7 +240,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			gotoEditSubView(edited, s ->
 			{
 				schemasGrid.replaceElement(edited, s);
-				subViewSwitcher.exitSubView();
+				subViewSwitcher.exitSubViewAndShowUpdateInfo();
 			});
 		}
 
