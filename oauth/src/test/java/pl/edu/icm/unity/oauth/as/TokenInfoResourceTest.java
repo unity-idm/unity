@@ -8,6 +8,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
+import java.util.List;
+
 import javax.ws.rs.core.Response;
 
 import org.junit.Test;
@@ -59,7 +61,7 @@ public class TokenInfoResourceTest
 		JSONObject parsed = (JSONObject) JSONValue.parse((resp.getEntity().toString()));
 		assertEquals("userA", parsed.get("sub"));
 		assertEquals("clientC", parsed.get("client_id"));
-		assertEquals("clientC", parsed.get("aud"));
+		assertEquals(List.of("clientC"), parsed.get("aud"));
 		assertEquals("sc1", ((JSONArray)parsed.get("scope")).get(0));
 		assertNotNull(parsed.get("exp"));
 	}
