@@ -287,24 +287,27 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/entity/{entityId}/groups/direct/attributes")
 	@GET
 	public String getAttributesInAllGroups(@PathParam("entityId") String entityId,
-												@QueryParam("identityType") String idType)
+			@QueryParam("identityType") String idType)
 			throws EngineException, JsonProcessingException
 	{
-		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService.getAllDirectAttributes(getEP(entityId, idType));
+		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService.getAllDirectAttributes(
+				getEP(entityId, idType));
 		return mapper.writeValueAsString(attributesInGroups);
 	}
 
 	@Path("/group-members-attributes/{groupPath}")
 	@GET
-	public String getGroupMembersAttributesResolved(@PathParam("groupPath") String group,
-	                                                @QueryParam("attributes") List<String> attributes)
-		throws JsonProcessingException
+	public String getGroupMembersWithSelectedAttributes(@PathParam("groupPath") String group,
+			@QueryParam("attributes") List<String> attributes)
+			throws JsonProcessingException
 	{
 		Stopwatch stopwatch = Stopwatch.createStarted();
-		log.debug("getGroupMembersAttributesResolved query for " + group);
+		log.debug("getGroupMembersWithSelectedAttributes query for " + group);
 		if (!group.startsWith("/"))
 			group = "/" + group;
-		List<RestGroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes(group, attributes).stream()
+		List<RestGroupMemberWithAttributes> groupMembers = groupMembersService
+				.getGroupMembersWithSelectedAttributes(group, attributes)
+				.stream()
 				.map(RestApiMapper::map)
 				.collect(Collectors.toList());
 		String s = mapper.writeValueAsString(groupMembers);
@@ -314,11 +317,11 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/multi-group-members-attributes")
 	@GET
-	public String getMultiGroupMembersAttributesResolved(@QueryParam("attributes") List<String> attributes,
+	public String getMultiGroupsMembersInGroupsWithSelectedAttributes(@QueryParam("attributes") List<String> attributes,
 	                                                @QueryParam("groups") List<String> groups)
 			throws JsonProcessingException
 	{
-		log.debug("getGroupMembersAttributesResolved query for " + groups);
+		log.debug("getMultiGroupsMembersInGroupsWithSelectedAttributes query for " + groups);
 		if(groups.isEmpty()){
 			return mapper.writeValueAsString(Map.of());
 		}
