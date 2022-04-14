@@ -44,7 +44,7 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, saInA);
 
 
-		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes("/A", List.of(AUTHORIZATION_ROLE));
+		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of(AUTHORIZATION_ROLE));
 
 		assertThat(groupMembers.size(), is(1));
 		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
@@ -76,7 +76,7 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, saInAName);
 
 
-		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes("/A", List.of(AUTHORIZATION_ROLE));
+		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of(AUTHORIZATION_ROLE));
 
 		assertThat(groupMembers.size(), is(1));
 		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
@@ -109,7 +109,7 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, saInAName);
 
 
-		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes("/A", List.of());
+		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of());
 
 		assertThat(groupMembers.size(), is(1));
 		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
@@ -144,7 +144,7 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, saInAName);
 
 
-		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes("/A", List.of());
+		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of());
 
 		assertThat(groupMembers.size(), is(1));
 		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
@@ -177,7 +177,7 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, saRootName);
 		attrsMan.createAttribute(entity, saInA);
 
-		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupsMembersWithSelectedAttributes("/A", List.of());
+		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of());
 
 		assertThat(groupMembers.size(), is(1));
 		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));

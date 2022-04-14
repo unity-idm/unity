@@ -45,7 +45,7 @@ class GroupMembersAttributesServiceImpl implements GroupMembersService
 
 	@Override
 	@Transactional
-	public List<GroupMemberWithAttributes> getGroupsMembersWithSelectedAttributes(String group, List<String> attributes)
+	public List<GroupMemberWithAttributes> getGroupMembersWithSelectedAttributes(String group, List<String> attributes)
 	{
 		authz.checkAuthorizationRT(AuthzCapability.readHidden, AuthzCapability.read);
 		Group groupObj = groupDAO.get(group);
