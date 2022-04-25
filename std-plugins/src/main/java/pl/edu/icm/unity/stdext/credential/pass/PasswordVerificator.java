@@ -44,6 +44,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
@@ -280,7 +281,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			if (credentials.isEmpty())
 			{
 				log.info("The user has no password set: {}", username);
-				return LocalAuthenticationResult.failed(GENERIC_ERROR);
+				return LocalAuthenticationResult.failed(GENERIC_ERROR, DenyReason.notDefinedCredential);
 			}
 			PasswordInfo current = credentials.getFirst();
 			if (!passwordEngine.verify(current, password))

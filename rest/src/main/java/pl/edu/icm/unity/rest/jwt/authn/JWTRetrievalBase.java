@@ -18,6 +18,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 
@@ -57,7 +59,8 @@ public abstract class JWTRetrievalBase extends AbstractCredentialRetrieval<JWTEx
 	{
 		String token = getToken();
 		if (token == null)
-			return LocalAuthenticationResult.notApplicable();
+			return LocalAuthenticationResult.failed(new ResolvableError("JWTRetrievalBase.tokenNotFound"),
+					DenyReason.notDefinedCredential);
 		log.debug("JWT token found: " + token);
 		try
 		{

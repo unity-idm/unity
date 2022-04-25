@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.api.authn;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.NotApplicableResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 
@@ -242,5 +244,11 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 	private interface RemotePrincipalProvider
 	{
 		RemotelyAuthenticatedPrincipal getRemotelyAuthenticatedPrincipal();
+	}
+
+	@Override
+	public Optional<DenyReason> getDenyReason()
+	{
+		return Optional.empty();
 	}
 }

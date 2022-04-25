@@ -10,6 +10,7 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -30,6 +31,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -105,14 +108,17 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 				clientCert[0].getSubjectX500Principal().getName());
 		InvocationContext ctx = new InvocationContext(tlsId, realm, authenticators); 
 		InvocationContext.setCurrent(ctx);
-		AuthenticationException firstError = null;
-		EntityWithAuthenticators client = null;
+		AuthenticationException authenticationError = null;
+		Optional<EntityWithAuthenticators> client = Optional.empty();
 		
 		if (isToNotProtected(message))
 			return;
 		
 		for (AuthenticationFlow authenticatorFlow: authenticators)
 		{
+			if (log.isDebugEnabled())
+				log.debug("Client authentication attempt using flow " + authenticatorFlow.getId());
+			
 			try
 			{
 				client = processAuthnFlow(authnCache, authenticatorFlow);
@@ -120,18 +126,18 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			{
 				if (log.isDebugEnabled())
 					log.debug("Authentication set failed to authenticate the client using flow "
-							+ authenticatorFlow.getId() + ", "
-							+ "will try another: " + e);
-				if (firstError == null)
-					firstError = new AuthenticationException(msg.getMessage(e.getMessage()));
-				continue;
+							+ authenticatorFlow.getId() + ", " + e);
+					authenticationError = new AuthenticationException(msg.getMessage(e.getMessage()));
+				break;
 			}
-			break;
+			
+			if (client.isPresent())
+				break;
 		}
 		
-		if (client == null)
+		if (client.isEmpty())
 		{
-			if (isToOptionallyAuthenticatedPath(message))
+			if (isToOptionallyAuthenticatedPath(message) && authenticationError == null)
 			{
 				log.debug("Request to an address with optional authentication - {} - "
 						+ "invocation will proceed without authentication", 
@@ -141,11 +147,11 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			{
 				log.info("Authentication failed for client");
 				UnsuccessfulAuthenticationCounterImpl.unsuccessfulAttempt(ip);
-				throw new Fault(firstError == null ? new Exception("Authentication failed") : firstError);
+				throw new Fault(authenticationError == null ? new Exception("Authentication failed") : authenticationError);
 			}
 		} else
 		{
-			authnSuccess(client, ip, ctx);
+			authnSuccess(client.get(), ip, ctx);
 		}
 	}
 
@@ -212,34 +218,39 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		return null;
 	}
 	
-	private EntityWithAuthenticators processAuthnFlow(Map<String, AuthenticationResult> authnCache,
+	private Optional<EntityWithAuthenticators> processAuthnFlow(Map<String, AuthenticationResult> authnCache,
 			AuthenticationFlow authenticationFlow) throws AuthenticationException
 	{
 		PartialAuthnState state = null;
-		AuthenticationException firstError = null;
 		for (AuthenticatorInstance authn : authenticationFlow.getFirstFactorAuthenticators())
 		{
+			if (log.isDebugEnabled())
+				log.debug("Client authentication attempt using authenticator " + authn.getMetadata().getId());
+			
 			try
 			{
 				AuthenticationResult result = processAuthenticator(authnCache,
 						(CXFAuthentication) authn.getRetrieval());
+				if (result.getStatus().equals(Status.deny) && (result.getDenyReason().isPresent()
+						&& result.getDenyReason().get().equals(DenyReason.notDefinedCredential)))
+				{
+					log.debug("Not defined credential for " + authn.getMetadata().getId());
+					continue;
+				}
+			
 				state = authenticationProcessor.processPrimaryAuthnResult(result,
 						authenticationFlow, 
 						authenticatorOnlyKey(authn.getRetrieval().getAuthenticatorId()));
 			} catch (AuthenticationException e)
 			{
-				if (firstError == null)
-					firstError = new AuthenticationException(e.getMessage());
-				continue;
+				 throw  new AuthenticationException(e.getMessage());
 			}
 			break;
 		}
 
 		if (state == null)
 		{
-			throw firstError == null
-					? new AuthenticationException("Authentication failed")
-					: firstError;
+			return Optional.empty();		
 		}
 
 		if (state.isSecondaryAuthenticationRequired())
@@ -248,12 +259,12 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			AuthenticationResult result2 = processAuthenticator(authnCache, secondFactorAuthn);
 			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterSecondaryAuthentication(state,
 					result2);
-			return new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), 
-					authenticatorOnlyKey(secondFactorAuthn.getAuthenticatorId()));			
+			return Optional.of(new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), 
+					authenticatorOnlyKey(secondFactorAuthn.getAuthenticatorId())));			
 		} else
 		{
 			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterPrimaryAuthentication(state, false);
-			return new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), null);
+			return  Optional.of(new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), null));
 		}
 	}
 

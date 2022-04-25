@@ -21,6 +21,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
@@ -63,7 +65,7 @@ public abstract class BearerRetrievalBase extends AbstractCredentialRetrieval<Ac
 		if (authnToken == null)
 		{
 			log.trace("No HTTP Bearer access token header was found");
-			return LocalAuthenticationResult.notApplicable();
+			return LocalAuthenticationResult.failed(new ResolvableError("BearerRetrievalBase.tokenNotFound"), DenyReason.notDefinedCredential);
 		}
 		log.trace("HTTP Bearer access token header found");
 		try
