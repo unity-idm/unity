@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -23,29 +22,23 @@ import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.SerializeException;
-import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
@@ -70,11 +63,9 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private OAuthSessionService oauthSessionService;
 	private String oauthUiServletPath;
 	private String authenticationUIServletPath;
-	private EnquiryManagement enquiryManagement;
 	private final OAuthProcessor oauthProcessor;
-	private final PolicyAgreementManagement policyAgreementsMan;
 	private final OAuthIdpStatisticReporter statReporter;
-	private final MessageSource msg;
+	private final ASConsentDecider consentDecider;
 
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			OAuthProcessor oauthProcessor, OAuthSessionService oauthSessionService, String oauthUiServletPath,
@@ -85,12 +76,10 @@ public class ASConsentDeciderServlet extends HttpServlet
 		this.preferencesMan = preferencesMan;
 		this.oauthSessionService = oauthSessionService;
 		this.authenticationUIServletPath = authenticationUIServletPath;
-		this.enquiryManagement = enquiryManagement;
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.oauthUiServletPath = oauthUiServletPath;
-		this.policyAgreementsMan = policyAgreementsMan;
 		this.statReporter = idpStatisticReporter;
-		this.msg = msg;
+		this.consentDecider = new ASConsentDecider(enquiryManagement, policyAgreementsMan, msg);
 	}
 
 	@Override
@@ -143,14 +132,14 @@ public class ASConsentDeciderServlet extends HttpServlet
 			return;
 
 		}
-		if (forceConsentIfConsentPrompt(oauthCtx))
+		if (consentDecider.forceConsentIfConsentPrompt(oauthCtx))
 		{
 			log.trace("Consent is required for OAuth request, 'consent' prompt was given , forwarding to consent UI");
 			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
 		} 
-		else if (isInteractiveUIRequired(preferences, oauthCtx))
+		else if (consentDecider.isInteractiveUIRequired(preferences, oauthCtx))
 		{
-			if (isNonePrompt(oauthCtx))
+			if (consentDecider.isNonePrompt(oauthCtx))
 			{
 				sendNonePromptError(oauthCtx, req, resp);
 				return;
@@ -174,90 +163,11 @@ public class ASConsentDeciderServlet extends HttpServlet
 				oauthCtx.getRequest().impliedResponseMode());
 		sendReturnRedirect(oauthResponse, req, resp, true);
 	}
-	
-	private boolean isNonePrompt(OAuthAuthzContext oauthCtx)
-	{
-		return oauthCtx.getPrompts().contains(Prompt.NONE);	
-	}
-	
-	private boolean forceConsentIfConsentPrompt(OAuthAuthzContext oauthCtx)
-	{
-		return oauthCtx.getPrompts().contains(Prompt.CONSENT);
-	}
 
 	protected OAuthClientSettings loadPreferences(OAuthAuthzContext oauthCtx) throws EngineException
 	{
 		OAuthPreferences preferences = OAuthPreferences.getPreferences(preferencesMan);
 		return preferences.getSPSettings(oauthCtx.getRequest().getClientID().getValue());
-	}
-
-	private boolean isInteractiveUIRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
-	{
-		return isConsentRequired(preferences, oauthCtx) || isActiveValueSelectionRequired(oauthCtx)
-				|| isEnquiryWaiting() || isPolicyAgreementWaiting(oauthCtx);
-	}
-
-	private boolean isActiveValueSelectionRequired(OAuthAuthzContext oauthCtx)
-	{
-		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(oauthCtx.getConfig(),
-				oauthCtx.getClientUsername());
-	}
-
-	/**
-	 * According to native OAuth profile, public clients needs to have consent shown
-	 * regardless of user's saved "trust" for the client. Still we honor admin
-	 * setting disabling consent globally.
-	 */
-	private boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
-	{
-		if (preferences.isDoNotAsk() && oauthCtx.getClientType() == ClientType.CONFIDENTIAL)
-			return isScopesChanged(preferences, oauthCtx) || isAudienceChanged(preferences, oauthCtx);
-
-		return isScopesChanged(preferences, oauthCtx) || isAudienceChanged(preferences, oauthCtx)
-				|| !oauthCtx.getConfig().isSkipConsent();
-	}
-	
-	private boolean isScopesChanged(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
-	{
-		return !preferences.getEffectiveRequestedScopes()
-				.containsAll(Arrays.asList(oauthCtx.getEffectiveRequestedScopesList()));
-	}
-
-	
-	private boolean isAudienceChanged(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
-	{
-		return !preferences.getAudience()
-				.containsAll(oauthCtx.getAdditionalAudience());
-	}
-
-	private boolean isEnquiryWaiting()
-	{
-		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		EntityParam entity = new EntityParam(ae.getEntityId());
-		try
-		{
-			return !enquiryManagement.getPendingEnquires(entity).isEmpty();
-		} catch (EngineException e)
-		{
-			log.warn("Can't retrieve pending enquiries for user", e);
-			return false;
-		}
-	}
-
-	private boolean isPolicyAgreementWaiting(OAuthAuthzContext oauthCtx)
-	{
-		try
-		{
-			return !policyAgreementsMan
-					.filterAgreementToPresent(
-							new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
-							CommonIdPProperties.getPolicyAgreementsConfig(msg, oauthCtx.getConfig()).agreements)
-					.isEmpty();
-		} catch (EngineException e)
-		{
-			log.error("Unable to determine policy agreements to accept");
-		}
-		return false;
 	}
 
 	/**

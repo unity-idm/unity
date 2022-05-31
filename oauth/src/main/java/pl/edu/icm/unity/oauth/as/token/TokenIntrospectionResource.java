@@ -112,7 +112,10 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 		ret.put("iat", DateUtils.toSecondsSinceEpoch(tokens.tokenSrc.getCreated()));
 		ret.put("nbf", DateUtils.toSecondsSinceEpoch(tokens.tokenSrc.getCreated()));
 		ret.put("sub", tokens.parsedToken.getSubject());
-		ret.put("aud", tokens.parsedToken.getAudience());
+		ret.put("aud",
+				tokens.parsedToken.getAudience() != null && tokens.parsedToken.getAudience().size() == 1
+						? tokens.parsedToken.getAudience().get(0)
+						: tokens.parsedToken.getAudience());
 		ret.put("iss", tokens.parsedToken.getIssuerUri());
 		log.debug("Returning token information: {}", ret.toJSONString());
 		return ret;
