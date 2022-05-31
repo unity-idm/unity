@@ -76,7 +76,7 @@ public class MetadataSourceHandlerTest
 	@Test
 	public void shouldNotifyFirstConsumer() throws Exception
 	{
-		MetadataDownloader downloader = new MetadataDownloader(uriAccessService, fileStorageService);
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 15);
 		
@@ -92,7 +92,7 @@ public class MetadataSourceHandlerTest
 	@Test
 	public void shouldNotify2Consumers() throws Exception
 	{
-		MetadataDownloader downloader = new MetadataDownloader(uriAccessService, fileStorageService);
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 15);
 		
@@ -111,7 +111,7 @@ public class MetadataSourceHandlerTest
 	@Test
 	public void shouldNotNotifyDeregisteredConsumer() throws Exception
 	{
-		MetadataDownloader downloader = new MetadataDownloader(uriAccessService, fileStorageService);
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 15);
 		
@@ -131,7 +131,7 @@ public class MetadataSourceHandlerTest
 	@Test
 	public void shouldStopRefreshAfterDeregistrationOfLastConsumer() throws Exception
 	{
-		MetadataDownloader downloader = mock(MetadataDownloader.class);
+		CachedMetadataLoader downloader = mock(CachedMetadataLoader.class);
 		when(downloader.getFresh("http://url", null)).thenAnswer((a) -> {
 			String xml = IOUtils.toString(new FileInputStream("src/test/resources/unity-as-sp-meta.xml"),
 					StandardCharsets.UTF_8);
@@ -153,7 +153,7 @@ public class MetadataSourceHandlerTest
 	@Test
 	public void shouldStartNotificationsAfterStopping() throws Exception
 	{
-		MetadataDownloader downloader = new MetadataDownloader(uriAccessService, fileStorageService);
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 15);
 		
@@ -173,7 +173,7 @@ public class MetadataSourceHandlerTest
 	@Test
 	public void shouldUseLowestNotificationIntervalAfterRegistration() throws Exception
 	{
-		MetadataDownloader downloader = new MetadataDownloader(uriAccessService, fileStorageService);
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 1000);
 		
@@ -189,7 +189,7 @@ public class MetadataSourceHandlerTest
 	@Test
 	public void shouldUseLowestNotificationIntervalAfterDeregistration() throws Exception
 	{
-		MetadataDownloader downloader = new MetadataDownloader(uriAccessService, fileStorageService);
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 1000);
 		
@@ -208,7 +208,7 @@ public class MetadataSourceHandlerTest
 	@Test
 	public void shouldImmediatellyNotifyWithCachedDataAfterRegistration() throws Exception
 	{
-		MetadataDownloader downloader = new MetadataDownloader(uriAccessService, fileStorageService);
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, 10000);
 		

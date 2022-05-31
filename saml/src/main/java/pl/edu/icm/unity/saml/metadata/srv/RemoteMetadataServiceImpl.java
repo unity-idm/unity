@@ -31,7 +31,7 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
 			RemoteMetadataServiceImpl.class);
 	private final ExecutorsService executorsService;
-	private final MetadataDownloader downloader;
+	private final CachedMetadataLoader downloader;
 
 	private long nextConsumerId = 0;
 	private Map<String, MetadataSourceHandler> metadataHandlersByURL = new HashMap<>();
@@ -42,10 +42,10 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 			ExecutorsService executorsService)
 	{
 		this.executorsService = executorsService;
-		this.downloader = new MetadataDownloader(uriAccessService, fileStorageService);
+		this.downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 	}
 
-	RemoteMetadataServiceImpl(ExecutorsService executorsService, MetadataDownloader downloader)
+	RemoteMetadataServiceImpl(ExecutorsService executorsService, CachedMetadataLoader downloader)
 	{
 		this.executorsService = executorsService;
 		this.downloader = downloader;
