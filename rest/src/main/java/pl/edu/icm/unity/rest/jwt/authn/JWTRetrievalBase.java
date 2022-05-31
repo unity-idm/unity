@@ -60,7 +60,7 @@ public abstract class JWTRetrievalBase extends AbstractCredentialRetrieval<JWTEx
 		String token = getToken();
 		if (token == null)
 			return LocalAuthenticationResult.failed(new ResolvableError("JWTRetrievalBase.tokenNotFound"),
-					DenyReason.notDefinedCredential);
+					DenyReason.undefinedCredential);
 		log.debug("JWT token found: " + token);
 		try
 		{

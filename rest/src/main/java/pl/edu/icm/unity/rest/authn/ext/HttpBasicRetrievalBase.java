@@ -72,7 +72,7 @@ public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval
 		{
 			log.trace("No HTTP BASIC auth header was found");
 			return LocalAuthenticationResult.failed(new ResolvableError("HttpBasicRetrievalBase.basicAuthNotFound"),
-					DenyReason.notDefinedCredential);
+					DenyReason.undefinedCredential);
 		}
 		log.trace("HTTP BASIC auth header found");
 		try

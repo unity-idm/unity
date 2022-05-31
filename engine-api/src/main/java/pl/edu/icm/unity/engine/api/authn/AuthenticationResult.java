@@ -39,7 +39,7 @@ public interface AuthenticationResult
 	
 	public enum DenyReason
 	{
-		notDefinedCredential
+		undefinedCredential
 	}
 	
 	Status getStatus();

@@ -281,7 +281,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			if (credentials.isEmpty())
 			{
 				log.info("The user has no password set: {}", username);
-				return LocalAuthenticationResult.failed(GENERIC_ERROR, DenyReason.notDefinedCredential);
+				return LocalAuthenticationResult.failed(GENERIC_ERROR, DenyReason.undefinedCredential);
 			}
 			PasswordInfo current = credentials.getFirst();
 			if (!passwordEngine.verify(current, password))

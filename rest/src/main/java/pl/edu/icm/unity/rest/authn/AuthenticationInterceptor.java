@@ -116,8 +116,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		
 		for (AuthenticationFlow authenticatorFlow: authenticators)
 		{
-			if (log.isDebugEnabled())
-				log.debug("Client authentication attempt using flow " + authenticatorFlow.getId());
+			log.debug("Client authentication attempt using flow " + authenticatorFlow.getId());
 			
 			try
 			{
@@ -224,26 +223,24 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		PartialAuthnState state = null;
 		for (AuthenticatorInstance authn : authenticationFlow.getFirstFactorAuthenticators())
 		{
-			if (log.isDebugEnabled())
-				log.debug("Client authentication attempt using authenticator " + authn.getMetadata().getId());
+			log.debug("Client authentication attempt using authenticator {}", authn.getMetadata().getId());
 			
 			try
 			{
 				AuthenticationResult result = processAuthenticator(authnCache,
 						(CXFAuthentication) authn.getRetrieval());
 				if (result.getStatus().equals(Status.deny) && (result.getDenyReason().isPresent()
-						&& result.getDenyReason().get().equals(DenyReason.notDefinedCredential)))
+						&& result.getDenyReason().get().equals(DenyReason.undefinedCredential)))
 				{
-					log.debug("Not defined credential for " + authn.getMetadata().getId());
+					log.debug("Not defined credential for {}", authn.getMetadata().getId());
 					continue;
 				}
-			
-				state = authenticationProcessor.processPrimaryAuthnResult(result,
-						authenticationFlow, 
+
+				state = authenticationProcessor.processPrimaryAuthnResult(result, authenticationFlow,
 						authenticatorOnlyKey(authn.getRetrieval().getAuthenticatorId()));
 			} catch (AuthenticationException e)
 			{
-				 throw  new AuthenticationException(e.getMessage());
+				throw new AuthenticationException(e.getMessage());
 			}
 			break;
 		}

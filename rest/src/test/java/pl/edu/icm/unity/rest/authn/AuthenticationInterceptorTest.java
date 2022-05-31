@@ -156,7 +156,7 @@ public class AuthenticationInterceptorTest
 		public AuthenticationResult getAuthenticationResult(Properties endpointFeatures)
 		{
 			return LocalAuthenticationResult.failed(new AuthenticationResult.ResolvableError(""),
-					DenyReason.notDefinedCredential);
+					DenyReason.undefinedCredential);
 		}
 
 		@Override

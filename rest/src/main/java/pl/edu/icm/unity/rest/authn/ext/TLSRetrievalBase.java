@@ -58,7 +58,7 @@ public abstract class TLSRetrievalBase extends AbstractCredentialRetrieval<Certi
 		X509Certificate[] certificates = getTLSCertificates();
 		if (certificates == null)
 			return LocalAuthenticationResult.failed(new ResolvableError("TLSRetrievalBase.certificatesNotFound"),
-					DenyReason.notDefinedCredential);
+					DenyReason.undefinedCredential);
 		try
 		{
 			return credentialExchange.checkCertificate(certificates, null, false,

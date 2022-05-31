@@ -99,7 +99,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 		} catch (IllegalIdentityValueException e)
 		{
 			log.warn("Checking certificate failed", e);
-			return LocalAuthenticationResult.failed(e, DenyReason.notDefinedCredential);
+			return LocalAuthenticationResult.failed(e, DenyReason.undefinedCredential);
 		}
 
 		catch (Exception e)

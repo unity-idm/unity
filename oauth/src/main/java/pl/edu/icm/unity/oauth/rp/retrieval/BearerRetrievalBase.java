@@ -65,7 +65,7 @@ public abstract class BearerRetrievalBase extends AbstractCredentialRetrieval<Ac
 		if (authnToken == null)
 		{
 			log.trace("No HTTP Bearer access token header was found");
-			return LocalAuthenticationResult.failed(new ResolvableError("BearerRetrievalBase.tokenNotFound"), DenyReason.notDefinedCredential);
+			return LocalAuthenticationResult.failed(new ResolvableError("BearerRetrievalBase.tokenNotFound"), DenyReason.undefinedCredential);
 		}
 		log.trace("HTTP Bearer access token header found");
 		try
