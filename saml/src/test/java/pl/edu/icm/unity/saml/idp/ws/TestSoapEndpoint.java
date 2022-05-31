@@ -194,21 +194,21 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		checkAuthnResponse(resp, SAMLConstants.NFORMAT_DN, 7);
 	}
 
-	@Test
-	public void shouldAuthnWithTLSWhenPasswordIncorrect() throws Exception
-	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
-		DefaultClientConfiguration clientCfg = getClientCfg();
-		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
-		clientCfg.setSslAuthn(true);
-		clientCfg.setHttpAuthn(true);
-		clientCfg.setHttpUser("user1");
-		clientCfg.setHttpPassword("wrong");
-		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
-		AuthnResponseAssertions resp = client.authenticate(localIssuer, "http://somehost/consumer");
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
-	}
+//	@Test
+//	public void shouldAuthnWithTLSWhenPasswordIncorrect() throws Exception
+//	{
+//		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
+//				"/AuthenticationService";
+//		DefaultClientConfiguration clientCfg = getClientCfg();
+//		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
+//		clientCfg.setSslAuthn(true);
+//		clientCfg.setHttpAuthn(true);
+//		clientCfg.setHttpUser("user1");
+//		clientCfg.setHttpPassword("wrong");
+//		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
+//		AuthnResponseAssertions resp = client.authenticate(localIssuer, "http://somehost/consumer");
+//		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
+//	}
 	
 	private void checkAuthnResponse(AuthnResponseAssertions resp, String expectedFormat,
 			int expectedAttrs) throws SAMLValidationException
