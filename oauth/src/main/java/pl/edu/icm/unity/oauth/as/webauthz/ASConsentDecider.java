@@ -72,13 +72,13 @@ class ASConsentDecider
 	private boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		if (preferences.isDoNotAsk() && oauthCtx.getClientType() == ClientType.CONFIDENTIAL)
-			return isScopesChanged(preferences, oauthCtx) || isAudienceChanged(preferences, oauthCtx);
+			return areScopesChanged(preferences, oauthCtx) || isAudienceChanged(preferences, oauthCtx);
 
-		return isScopesChanged(preferences, oauthCtx) || isAudienceChanged(preferences, oauthCtx)
+		return areScopesChanged(preferences, oauthCtx) || isAudienceChanged(preferences, oauthCtx)
 				|| !oauthCtx.getConfig().isSkipConsent();
 	}
 	
-	private boolean isScopesChanged(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
+	private boolean areScopesChanged(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		return !preferences.getEffectiveRequestedScopes()
 				.containsAll(Arrays.asList(oauthCtx.getEffectiveRequestedScopesList()));
