@@ -18,6 +18,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
@@ -26,6 +27,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -90,12 +92,17 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 		String identity = chain[0].getSubjectX500Principal().getName();
 		try
 		{
-			EntityWithCredential resolved = identityResolver.resolveIdentity(identity, 
-				IDENTITY_TYPES, credentialName);
-			AuthenticatedEntity entity = new AuthenticatedEntity(resolved.getEntityId(), 
+			EntityWithCredential resolved = identityResolver.resolveIdentity(identity, IDENTITY_TYPES, credentialName);
+			AuthenticatedEntity entity = new AuthenticatedEntity(resolved.getEntityId(),
 					X500NameUtils.getReadableForm(identity), null);
 			return LocalAuthenticationResult.successful(entity);
-		} catch (Exception e)
+		} catch (IllegalIdentityValueException e)
+		{
+			log.warn("Checking certificate failed", e);
+			return LocalAuthenticationResult.failed(e, DenyReason.undefinedCredential);
+		}
+
+		catch (Exception e)
 		{
 			log.warn("Checking certificate failed", e);
 			return LocalAuthenticationResult.failed(e);
