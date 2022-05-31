@@ -14,13 +14,12 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.exceptions.EngineException;
 
-
-public class MetadataDownloader
+class MetadataDownloader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetadataDownloader.class);
 	private final URIAccessService uriAccessService;
 	
-	public MetadataDownloader(URIAccessService uriAccessService)
+	MetadataDownloader(URIAccessService uriAccessService)
 	{
 		this.uriAccessService = uriAccessService;
 
