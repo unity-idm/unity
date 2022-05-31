@@ -98,7 +98,7 @@ public class OAuthPreferences extends IdPPreferences
 		private Set<String> effectiveRequestedScopes = new HashSet<>();
 		private Set<String> audience = new HashSet<>();
 		
-		protected OAuthClientSettings()
+		public OAuthClientSettings()
 		{
 		}
 

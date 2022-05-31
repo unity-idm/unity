@@ -97,7 +97,14 @@ public class TokenInfoResource extends BaseTokenResource
 			List<String> scopesAsList = Lists.newArrayList(scopes);
 			ret.put(SCOPE, scopesAsList);
 		}
-		ret.put(AUDIENCE, audience);
+	
+		if (audience != null && audience.size() == 1)
+			ret.put(AUDIENCE, audience.get(0));
+		else
+		{
+			ret.put(AUDIENCE, audience);
+		}
+		
 		return ret;
 	}
 }
