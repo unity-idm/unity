@@ -20,6 +20,8 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
@@ -69,7 +71,8 @@ public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval
 		if (authnTokens == null)
 		{
 			log.trace("No HTTP BASIC auth header was found");
-			return LocalAuthenticationResult.notApplicable();
+			return LocalAuthenticationResult.failed(new ResolvableError("HttpBasicRetrievalBase.basicAuthNotFound"),
+					DenyReason.undefinedCredential);
 		}
 		log.trace("HTTP BASIC auth header found");
 		try
