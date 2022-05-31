@@ -106,7 +106,7 @@ public class TestRESTCore extends TestRESTBase
 		//no password, should fail.
 		HttpResponse response2 = client.execute(host, get);
 
-		assertThat(response2.getStatusLine().getStatusCode(), is(Status.FORBIDDEN.getStatusCode()));
+		assertThat(response2.getStatusLine().getStatusCode(), is(Status.BAD_REQUEST.getStatusCode()));
 	}
 	
 	@Test
