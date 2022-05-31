@@ -42,7 +42,7 @@ class MetadataSourceHandler
 	private final long rerunInterval;
 	private final RemoteMetadataSrc source;
 	private final ExecutorsService executorsService;
-	private final MetadataDownloader downloader;
+	private final CachedMetadataLoader downloader;
 
 	private Duration refreshInterval;
 	private Instant lastRefresh;
@@ -50,13 +50,13 @@ class MetadataSourceHandler
 	private ScheduledFuture<?> scheduleWithFixedDelay;
 	
 	MetadataSourceHandler(RemoteMetadataSrc source, ExecutorsService executorsService,
-			MetadataDownloader downloader)
+			CachedMetadataLoader downloader)
 	{
 		this(source, executorsService, downloader, DEFAULT_RERUN_INTERVAL);
 	}
 	
 	MetadataSourceHandler(RemoteMetadataSrc source, ExecutorsService executorsService,
-			MetadataDownloader downloader, long reRunInterval)
+			CachedMetadataLoader downloader, long reRunInterval)
 	{
 		this.source = source;
 		this.executorsService = executorsService;

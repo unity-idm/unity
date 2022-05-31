@@ -36,7 +36,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.saml.idp.console.SimpleIDPMetaConverter.SAMLEntityWithLogo;
-import pl.edu.icm.unity.saml.metadata.srv.MetadataDownloader;
+import pl.edu.icm.unity.saml.metadata.srv.CachedMetadataLoader;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
@@ -207,7 +207,7 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 
 				try
 				{
-					MetadataDownloader metaDownloader = new MetadataDownloader(uriAccessService,
+					CachedMetadataLoader metaDownloader = new CachedMetadataLoader(uriAccessService,
 							fileStorageService);
 
 					EntitiesDescriptorDocument entDoc = metaDownloader.getCached(url.getValue())
