@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import javax.ws.rs.core.Response;
@@ -71,7 +70,7 @@ public class TokenIntrospectionResourceTest
 				parsed.getAsNumber("iat").intValue() + OAuthTestUtils.DEFAULT_ACCESS_TOKEN_VALIDITY);
 		assertThat(parsed.getAsString("nbf")).isEqualTo(parsed.getAsString("iat"));
 		assertThat(parsed.getAsString("sub")).isEqualTo("userA");
-		assertThat(parsed.get("aud")).isEqualTo(List.of("clientC"));
+		assertThat(parsed.get("aud")).isEqualTo("clientC");
 		assertThat(parsed.getAsString("iss")).isEqualTo(OAuthTestUtils.ISSUER);
 	}
 
@@ -98,7 +97,7 @@ public class TokenIntrospectionResourceTest
 				parsed.getAsNumber("iat").intValue() + OAuthTestUtils.DEFAULT_ACCESS_TOKEN_VALIDITY);
 		assertThat(parsed.getAsString("nbf")).isEqualTo(parsed.getAsString("iat"));
 		assertThat(parsed.getAsString("sub")).isEqualTo("userA");
-		assertThat(parsed.get("aud")).isEqualTo(List.of("clientC"));
+		assertThat(parsed.get("aud")).isEqualTo("clientC");
 		assertThat(parsed.getAsString("iss")).isEqualTo(OAuthTestUtils.ISSUER);
 	}
 	
@@ -145,7 +144,7 @@ public class TokenIntrospectionResourceTest
 				parsed.getAsNumber("iat").intValue() + 3600);
 		assertThat(parsed.getAsString("nbf")).isEqualTo(parsed.getAsString("iat"));
 		assertThat(parsed.getAsString("sub")).isEqualTo("userA");
-		assertThat(parsed.get("aud")).isEqualTo(List.of("clientC"));
+		assertThat(parsed.get("aud")).isEqualTo("clientC");
 		assertThat(parsed.getAsString("iss")).isEqualTo(OAuthTestUtils.ISSUER);
 	}
 
