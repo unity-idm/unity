@@ -102,7 +102,7 @@ class ConfigurationVaadinBeanMapper
 				.withMembershipAttributes(bean.getMembershipAttributes()).build();
 	}
 
-	private SchemaWithMapping mapToConfigurationSchema(SchemaWithMappingBean schemaBean)
+	SchemaWithMapping mapToConfigurationSchema(SchemaWithMappingBean schemaBean)
 	{
 		return SchemaWithMapping.builder().withName(schemaBean.getName()).withId(schemaBean.getId())
 				.withType(schemaBean.getType()).withDescription(schemaBean.getDescription())
