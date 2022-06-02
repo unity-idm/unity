@@ -257,7 +257,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			StreamResource resource = null;
 			try
 			{
-				byte[] content = Constants.MAPPER
+				byte[] content = Constants.MAPPER.writerWithDefaultPrettyPrinter()
 						.writeValueAsBytes(configurationVaadinBeanMapper.mapToConfigurationSchema(mapping));
 				resource = new StreamResource(() -> new ByteArrayInputStream(content), mapping.getName() + ".json");
 
