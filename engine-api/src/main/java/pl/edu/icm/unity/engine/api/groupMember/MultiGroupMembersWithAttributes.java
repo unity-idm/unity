@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.engine.api.groupMember;
-;
 
 import java.util.List;
 import java.util.Map;

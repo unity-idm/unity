@@ -22,6 +22,7 @@ import org.w3c.dom.NodeList;
 
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
+import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -249,9 +250,10 @@ public class ECPStep2Handler
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(samlConfiguration, 
 				replayAttackChecker, myAddress);
 		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(responseDoc, responseDoc.getResponse());
+		SamlTrustChecker trustChecker = samlConfiguration.getTrustCheckerForIdP(trustedIdP);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				verifiableMessage,
-				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, trustedIdP);
+				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, trustedIdP, trustChecker);
 		return remoteAuthnProcessor.getTranslatedResult(input, profile, false, Optional.empty(), null, false);
 	}
 	

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
@@ -61,5 +62,12 @@ public class RemoteAuthnProvidersMultiSelection extends ChipsWithDropdown<Authen
 	protected void sortItems(List<AuthenticationOptionsSelector> items)
 	{
 		items.sort(new AuthenticationOptionsSelectorComparator(msg));
+	}
+	
+	public void setSelectedItems(List<AuthenticationOptionsSelector> items)
+	{
+		super.setSelectedItems(items == null ? null
+				: items.stream().map(i -> getAllItems().stream().filter(it -> i.equals(it)).findFirst().orElse(i))
+						.collect(Collectors.toList()));
 	}
 }

@@ -14,4 +14,5 @@ package io.imunity.webelements.navigation;
 public interface UnityViewWithSubViews extends UnityView
 {
 	BreadcrumbsComponent getBreadcrumbsComponent();
+	WarnComponent getWarnComponent();
 }

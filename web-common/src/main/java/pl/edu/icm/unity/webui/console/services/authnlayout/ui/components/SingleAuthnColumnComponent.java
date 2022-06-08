@@ -16,7 +16,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector.AuthenticationOptionsSelectorComparator;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -28,20 +27,20 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBas
 
 public class SingleAuthnColumnComponent extends ColumnComponentBase
 {
-	private AuthenticatorSupportService authenticatorSupport;
+	private final AuthenticationOptionsSelectorProvider authenticationOptionsSelectorProvider;
 	private Supplier<List<String>> authnOptionSupplier;
 
 	private ComboBox<AuthenticationOptionsSelector> valueComboField;
 	private Binder<AuthnOptionKeyBindingValue> binder;
 	private List<AuthenticationOptionsSelector> items;
 
-	public SingleAuthnColumnComponent(MessageSource msg, AuthenticatorSupportService authenticatorSupport,
+	public SingleAuthnColumnComponent(MessageSource msg, AuthenticationOptionsSelectorProvider authenticationOptionsSelectorProvider,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.singleAuthn"), Images.sign_in, dragStart, dragStop,
 				removeElementListener);
-		this.authenticatorSupport = authenticatorSupport;
+		this.authenticationOptionsSelectorProvider = authenticationOptionsSelectorProvider;
 		this.authnOptionSupplier = authnOptionSupplier;
 		addContent(getContent());
 		addValueChangeListener(valueChangeListener);
@@ -75,8 +74,7 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 	
 	private void refreshItems()
 	{
-		items = AuthnColumnComponentHelper.getSinglePickerCompatibleAuthnSelectors(
-				authenticatorSupport, authnOptionSupplier.get());
+		items = authenticationOptionsSelectorProvider.getSinglePickerCompatibleAuthnSelectors(authnOptionSupplier.get());
 		items.sort(new AuthenticationOptionsSelectorComparator(msg));
 		valueComboField.setItems(items);
 	}

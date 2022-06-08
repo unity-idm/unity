@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" 
+	xmlns:ds="http://www.w3.org/2000/09/xmldsig#" 
+	xmlns:idpdisc="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" 
+	xmlns:mdattr="urn:oasis:names:tc:SAML:metadata:attribute" 
+	xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi" 
+	xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" 
+	xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" 
+	xmlns:saml1md="urn:mace:shibboleth:metadata:1.0" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	ID="unity-1" 
+	Name="https://unity-test" 
+	validUntil="2064-11-24T13:00:28Z" 
+	xsi:schemaLocation="urn:oasis:names:tc:SAML:2.0:metadata saml-schema-metadata-2.0.xsd urn:mace:shibboleth:metadata:1.0 shibboleth-metadata-1.0.xsd http://www.w3.org/2000/09/xmldsig# xmldsig-core-schema.xsd">
+  <EntityDescriptor entityID="http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php">
+    <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+      <Extensions>
+        <mdui:UIInfo>
+          <mdui:DisplayName xml:lang="en">Test - Unity</mdui:DisplayName>
+          <mdui:Description xml:lang="en">Unity SP endpoint for testing</mdui:Description>
+        </mdui:UIInfo>
+      </Extensions>
+      <KeyDescriptor use="signing">
+        <ds:KeyInfo>
+          <ds:KeyName>unity-test</ds:KeyName>
+          <ds:X509Data>
+            <ds:X509SubjectName>C=EU,L=Testing City,O=Testing Organization,CN=Simple saml php idp</ds:X509SubjectName>
+            <ds:X509Certificate>MIIDizCCAnOgAwIBAgIJAPm9oVHHE5w4MA0GCSqGSIb3DQEBBQUAMDoxCzAJBgNVBAYTAkVVMQ4wDAYDVQQKDAVVbml0eTEbMBkGA1UEAwwSVW5pdHkgTG93IFRydXN0IENBMB4XDTE0MDEwODE2MzcwM1oXDTE5MDEwNzE2MzcwM1owYTELMAkGA1UEBhMCRVUxFTATBgNVBAcMDFRlc3RpbmcgQ2l0eTEdMBsGA1UECgwUVGVzdGluZyBPcmdhbml6YXRpb24xHDAaBgNVBAMME1NpbXBsZSBzYW1sIHBocCBpZHAwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCVQhyfeJgVA/IhVxRqJYizR7Lec8yLCWmKnoD8cnUVbSTpeT5RwWLA57WBMVDWFDE/c7W/cxZeL6Viyetbl79i+jxQGn+VlHcc01Oh1bt8W+jRRc1i63q6B3/ZlUtF1pes5ZhyGe8HBRIPbTbUYBk0ptXVgGOLnnonZVSzmICfXCdpHJ6HSGM7BbJRp5c20JRieCI7hhLJwkBoxDHMegNPOplIeJjWhPYcqRCWe7zTvihpCPI38xsUDUCb8wt8Oa67RujtfWBoXtiyc7+oqYkwaA9T4/KbexmTCXLb/JpwzMOAVBDhHfgNwCDSEM1zqQlj1+wk0Q2YFbgwbZYEFooPAgMBAAGjbTBrMAkGA1UdEwQCMAAwEQYJYIZIAYb4QgEBBAQDAgTwMAsGA1UdDwQEAwIE8DAdBgNVHQ4EFgQUWRxIv5zxm3n2zuyvzpgUL0AZUxEwHwYDVR0jBBgwFoAUZt7NHNaS2qdSukbwJHs+DHIHwBYwDQYJKoZIhvcNAQEFBQADggEBABal2dagEYHaJcAXFqZpX0bC3sxKfiqjoJy1NQyVjNxUimDKKs0Xn29sx/PQDLUPSYvFiJl+o81ZZRobxzpdz+cGlUxGerxJfVupwCtaEYtsxbTnnQTbQHiz2WGTKQCGanT5+Pc9xUaMzTOEKuuMAG5dSfv2oWdPSIICdAzNL9aFvvy3I3kUZum9trHDxHGP4QTZh2lC9XNAH1JGy5+F/ifCo5gOkmDuAH0QNBzkuNTFx3njqeTrvRQMgTDhfZY9/RlXOMrAMm8q6UvJOYa+o2WXb3laruj+ZGfuOAIW1p72uA5zMBJxtc4n0tk/qf0f3T+LIS6ZbFlO271o/cT4Ogw=</ds:X509Certificate>
+          </ds:X509Data>
+        </ds:KeyInfo>
+      </KeyDescriptor>
+      <KeyDescriptor use="encryption">
+        <ds:KeyInfo>
+          <ds:KeyName>unity-test</ds:KeyName>
+          <ds:X509Data>
+            <ds:X509SubjectName>C=EU,L=Testing City,O=Testing Organization,CN=Simple saml php idp</ds:X509SubjectName>
+            <ds:X509Certificate>MIIDizCCAnOgAwIBAgIJAPm9oVHHE5w4MA0GCSqGSIb3DQEBBQUAMDoxCzAJBgNVBAYTAkVVMQ4wDAYDVQQKDAVVbml0eTEbMBkGA1UEAwwSVW5pdHkgTG93IFRydXN0IENBMB4XDTE0MDEwODE2MzcwM1oXDTE5MDEwNzE2MzcwM1owYTELMAkGA1UEBhMCRVUxFTATBgNVBAcMDFRlc3RpbmcgQ2l0eTEdMBsGA1UECgwUVGVzdGluZyBPcmdhbml6YXRpb24xHDAaBgNVBAMME1NpbXBsZSBzYW1sIHBocCBpZHAwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCVQhyfeJgVA/IhVxRqJYizR7Lec8yLCWmKnoD8cnUVbSTpeT5RwWLA57WBMVDWFDE/c7W/cxZeL6Viyetbl79i+jxQGn+VlHcc01Oh1bt8W+jRRc1i63q6B3/ZlUtF1pes5ZhyGe8HBRIPbTbUYBk0ptXVgGOLnnonZVSzmICfXCdpHJ6HSGM7BbJRp5c20JRieCI7hhLJwkBoxDHMegNPOplIeJjWhPYcqRCWe7zTvihpCPI38xsUDUCb8wt8Oa67RujtfWBoXtiyc7+oqYkwaA9T4/KbexmTCXLb/JpwzMOAVBDhHfgNwCDSEM1zqQlj1+wk0Q2YFbgwbZYEFooPAgMBAAGjbTBrMAkGA1UdEwQCMAAwEQYJYIZIAYb4QgEBBAQDAgTwMAsGA1UdDwQEAwIE8DAdBgNVHQ4EFgQUWRxIv5zxm3n2zuyvzpgUL0AZUxEwHwYDVR0jBBgwFoAUZt7NHNaS2qdSukbwJHs+DHIHwBYwDQYJKoZIhvcNAQEFBQADggEBABal2dagEYHaJcAXFqZpX0bC3sxKfiqjoJy1NQyVjNxUimDKKs0Xn29sx/PQDLUPSYvFiJl+o81ZZRobxzpdz+cGlUxGerxJfVupwCtaEYtsxbTnnQTbQHiz2WGTKQCGanT5+Pc9xUaMzTOEKuuMAG5dSfv2oWdPSIICdAzNL9aFvvy3I3kUZum9trHDxHGP4QTZh2lC9XNAH1JGy5+F/ifCo5gOkmDuAH0QNBzkuNTFx3njqeTrvRQMgTDhfZY9/RlXOMrAMm8q6UvJOYa+o2WXb3laruj+ZGfuOAIW1p72uA5zMBJxtc4n0tk/qf0f3T+LIS6ZbFlO271o/cT4Ogw=</ds:X509Certificate>
+          </ds:X509Data>
+        </ds:KeyInfo>
+      </KeyDescriptor>
+      <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:2443/unitygw/spSAMLResponseConsumer"/>
+    </IDPSSODescriptor>
+    <Organization>
+      <OrganizationName xml:lang="en">unity</OrganizationName>
+      <OrganizationDisplayName xml:lang="en">Unity</OrganizationDisplayName>
+      <OrganizationURL xml:lang="en">http://unity-idm.eu</OrganizationURL>
+    </Organization>
+  </EntityDescriptor>
+</EntitiesDescriptor>

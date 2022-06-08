@@ -14,7 +14,7 @@ public interface GroupMembersService
 	 * Argument attributes decides about what attributes will be return.
 	 * If null or empty is returns all group members with all attributes in selected group.
 	 */
-	List<GroupMemberWithAttributes> getGroupsMembersWithSelectedAttributes(String group, List<String> attributes);
+	List<GroupMemberWithAttributes> getGroupMembersWithSelectedAttributes(String group, List<String> attributes);
 
 	/**
 	 * Method returns list of group members with attributes in selected groups.

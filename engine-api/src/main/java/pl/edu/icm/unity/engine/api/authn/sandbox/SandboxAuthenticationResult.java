@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn.sandbox;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 
@@ -71,6 +73,12 @@ public class SandboxAuthenticationResult implements AuthenticationResult
 	public RemoteAuthenticationResult asRemote()
 	{
 		return baseResult.asRemote();
+	}
+
+	@Override
+	public Optional<DenyReason> getDenyReason()
+	{
+		return Optional.empty();
 	}
 	
 	

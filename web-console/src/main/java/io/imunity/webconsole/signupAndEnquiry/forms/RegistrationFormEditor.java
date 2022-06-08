@@ -255,7 +255,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		}
 			
 		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
-		remoteAuthnGridSelections.setItems(toEdit.getExternalSignupSpec().getSpecs());
+		remoteAuthnGridSelections.setItems(remoteAuthnSelections.getSelectedItems());
 		remoteAuthnGridSelections.setSelectedItems(toEdit.getExternalSignupGridSpec().getSpecs());
 		showCancel.setValue(toEdit.getLayoutSettings().isShowCancel());
 		localSignupEmbeddedAsButton.setValue(toEdit.getFormLayouts().isLocalSignupEmbeddedAsButton());
@@ -388,6 +388,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		remoteAuthnGridHeight = new IntStepper(msg.getMessage("RegistrationFormEditor.remoteAuthGridHeight"));
 		remoteAuthnGridHeight.setInvalidValuesAllowed(false);
 		remoteAuthnGridHeight.setWidth(5, Unit.EM);
+		remoteAuthnGridHeight.setValue(5);
+		remoteAuthnGridHeight.setMinValue(1);
 		
 		FormLayout main = new CompactFormLayout();
 		main.setWidth(60, Unit.PERCENTAGE);

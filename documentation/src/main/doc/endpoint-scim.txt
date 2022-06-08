@@ -1,12 +1,106 @@
-[[endp-rest-admin]]
+[[endp-scim-admin]]
 === SCIM RESTful API endpoint
 
 Endpoint type:: +SCIM+
 Binding:: RESTful
 
 
-This endpoint exposes SCIM RESTful API. SCIM is a standard protocol, more details can be found on http://www.simplecloud.info and in RFC: https://datatracker.ietf.org/doc/html/rfc7644.
-Unity exposes only a read only part of the SCIM API.
+This endpoint exposes SCIM RESTful API. SCIM is a standard protocol, more details can be found on http://www.simplecloud.info and in the RFC: https://datatracker.ietf.org/doc/html/rfc7644.
 
-The options of the endpoint (besides the standard options for all REST endpoints) are:
+==== Limitations of the Unity implementation
+
+Unity exposes only the read only part of the SCIM API. What is more it has couple of limitations:
+
+* The Query part of the API is not supported; resources can be only retrieved by their base paths (like `/Users` or `/Users/{user-id}`).
+* The `decimal`, `integer` and `binary` SCIM attribute types are not supported. 
+* The `/ServiceProvider` and `/ResourceTypes` metadata endpoints are not yet supported.
+
+We don't have any plans at the moment to support the write SCIM API, however the missing bits of the read API are going to be filled in future.
+
+==== Exposing data over SCIM: the schema
+
+The general configuration of the SCIM endpoint requires two decisions: 
+
+* Selection of the `root group`. The root group is used to resolve Unity attributes, which are mapped onto SCIM attributes using SCIM schema configuration. What is more only the members of the root group will be exposed over SCIM. 
+* Selection of one or more `membership groups`. The membership groups are typically subgroups of the root group (or are just the root group). Only the groups selected here, and their children are exposed over SCIM as SCIM groups. This settings allows for excluding some of the child groups of the root group from the SCIM API.
+
+
+SCIM endpoint is extremely flexible with respect to the contents of produced responses. The returned information about users is defined by SCIM schema. Unity supports both the standard, `core` schema, as well as provides an ability to create custom ones.
+
+Regardless of whether the core or a custom schema is used, it must be also mapped to data stored in Unity.
+
+
+
+==== Configuring SCIM schema and its mapping
+
+Creation of SCIM schema is a pretty straightforward process when performed with the help of Unity console. After creating a new schema in the `Schemas` tab of the SCIM service configuration, administrator has to provide a unique identifier for the schema as well as its name. 
+
+Note that each schema (including the core schema) can be enabled or disabled. A disabled schema will be saved, and can be edited, but won't influence the returned attributes in any way.
+
+To create a useful schema some attributes need to be added to it. Each attribute requires a name and a type. What is more an attribute can be either single- or multi-valued. 
+
+Mapping of Unity data onto the attributes depends on their type. Let's evaluate them one by one.
+
+===== Simple types: string, boolean, dateTime
+
+A single valued, simple type can be linked with Unity data in two ways. The default and easiest is to map the SCIM attribute directly to a Unity attribute or identity as presented on the screenshot below:
+
+image::./figures/scim-simple-string.png[alt="Configuration of a single-valued string attribute",align="center"]
+
+If the selected source Unity attribute or identity has multiple values then the first one is used. In case of data type mismatch an automatic conversion is tried.
+
+In case when more advanced processing is required, mapping can be switched to use a dynamic MVEL expression. Using MVEL expression, user can merge multiple Unity attributes onto one SCIM attributes, change value syntax and choose arbitrary values.
+
+Mapping of Unity data onto a multi-valued SCIM attributes requires additional step of selection of a `data array`. Data array is the base Unity multi-valued data element (like an attribute or an identity). The resulting SCIM attribute will have as many values as the data array, each of which will be corresponding to the unity value. 
+
+What is more, in case of multi-valued attributes data value is selected differently. For the default mode, it is only possible to use the corresponding Unity array value as the value of the SCIM attribute. The MVEL capabilities are not restricted to that, however MVEL context in case of multi-valued attributes has an access to an additional variable: `arrayObj`. It gives access to the base Unity array value which is corresponding to the actually generated value.
+
+Note: multi-valued MVEL expression will be executed multiple times, each time generating a single value of the resulting SCIM attribute, corresponding to the `arrayObj` context variable.      
+
+image::./figures/scim-multi-string.png[alt="Configuration of a multi-valued string attribute",align="center"]
+
+===== References
+
+Unity supports three types of references:
+
+* References to Users: will always produce a URL to SCIM User resource. Data mapping shall only produce a persistent identifier of the referenced user, the remaining URL elements are automatically added. 
+* References to Groups: will always produce a URL to SCIM Group resource. Data mapping shall only result in Unity group path of the referenced group, the remaining URL elements are automatically added.
+* Generic references: allows to add an arbitrary URI, which needs to be created from scratch.
+
+In all cases, the proper value (either user persistent-id or group path or a complete URI) needs to be generated with a help of MVEL expression. 
+
+Multi-valued references follow the same rules as the multi-valued simple attributes described above: data array has to be chosen, the MVEL expressions gets access to the `arrayObj` variable.
+
+===== Complex types
+
+Complex SCIM attributes allows for creating SCIM attributes which are JSON objects. 
+
+Unity do not support nesting of complex attributes, i.e. the complex attribute can have only non-complex members. Complex attributes can be multi-valued, however its member attributes must be single valued.
+
+A complex attribute must have its name defined, and the remaining contents is defined by a list of its child sub-attributes. Defining child sub-attributes is performed in the same way as simple attributes defined above. 
+
+Multi-valued complex attributes have one data array, and it can be used in all of its child sub-attributes.
+
+==== Authorization and access with OAuth token
+
+From authorization standpoint, a SCIM endpoint can be accessed in two ways:
+
+* with direct authentication, i.e. using regular Unity credential
+* with OAuth token, which can be verified by Unity (usually it is a token also issued by Unity OAuth AS).
+
+In case of direct authentication, SCIM endpoint allows for full access to privileged admin users. Regular user has access to the `/Me` endpoint (or its alternative `/Users/{my-id}` variant) only.
+
+In case of access using the OAuth access token, the situation is more complex:
+
+* it is mandatory to hold the scope `sys:scim:read_profile` to be able to read the `/Me` or the `/Users/{my-id}` resource. The returned attributes will exclude all attributes, which are marked as `group membership attributes` in SCIM endpoint Schemas configuration tab.
+* if additionally the scope `sys:scim:read_memberships` is also added to the OAuth token, then filtering of group membership attributes does not take place, and all attributes are returned.
+
+When accessing the endpoint with an OAuth token, it is not possible to read all resources (e.g. `/Groups`) - access is limited to the record defining the user who issued the access token.
+
+==== File configuration
+
+If configuring the endpoint from file, the following options of the endpoint (besides the standard options for all REST endpoints) are available:
+
 include::ref-scimEndpointProperties.txt[]
+
+

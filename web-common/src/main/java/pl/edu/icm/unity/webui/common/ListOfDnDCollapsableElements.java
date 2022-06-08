@@ -44,7 +44,7 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 {
 	private MessageSource msg;
 	private VerticalLayout elementsLayout;
-	private List<ElementComponent> elements;
+	protected List<ElementComponent> elements;
 	private VerticalLayout main;
 	private Supplier<Editor<T>> editorProvider;
 	private List<SingleActionHandler<T>> additionalActionHandlers;
@@ -390,6 +390,11 @@ public abstract class ListOfDnDCollapsableElements<T> extends CustomField<List<T
 		{
 			editor.focus();
 
+		}
+		
+		public Editor<T> getEditor()
+		{
+			return editor;
 		}
 	}
 

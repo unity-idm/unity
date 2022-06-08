@@ -12,6 +12,7 @@ import org.apache.xmlbeans.XmlException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.unicore.samly2.SAMLBindings;
+import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -114,12 +115,12 @@ public class SAMLResponseVerificator
 		
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(
 				context.getSpConfiguration(), replayAttackChecker, responseConsumerAddress);
-
+		SamlTrustChecker trustChecker = context.getSpConfiguration().getTrustCheckerForIdP(context.getIdp());
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDocument, 
 				context.getVerifiableResponse(),
 				context.getRequestId(), 
 				SAMLBindings.valueOf(context.getResponseBinding().toString()), 
-				context.getGroupAttribute(), context.getIdp());
+				context.getGroupAttribute(), context.getIdp(), trustChecker);
 		return input;
 	}
 }

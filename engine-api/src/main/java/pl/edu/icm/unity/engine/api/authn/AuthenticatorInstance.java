@@ -35,46 +35,17 @@ public interface AuthenticatorInstance
 	 */
 	void updateConfiguration(String vConfiguration, String retrievalConfiguration, String localCredential);
 
-	/**
-	 * Get authenticator retrieval
-	 * 
-	 * @return
-	 */
 	CredentialRetrieval getRetrieval();
 
-	/**
-	 * Get authenticator instance
-	 * 
-	 * @return
-	 */
 	AuthenticatorInstanceMetadata getMetadata();
 
-	/**
-	 * Set authenticator revision
-	 * 
-	 * @param revision
-	 *                to set
-	 */
 	void setRevision(long revision);
 
-	/**
-	 * Get authenticator revision
-	 * 
-	 * @return authenticator revision
-	 */
 	long getRevision();
 	
-	
-	/**
-	 * Get authenticator verificator
-	 * @return 
-	 */
 	CredentialVerificator getCredentialVerificator();
-	
 	
 	List<AuthenticationOptionsSelector> getAuthnOptionSelectors();
 	
-	
 	List<IdPInfo> extractIdPs();
-	
 }

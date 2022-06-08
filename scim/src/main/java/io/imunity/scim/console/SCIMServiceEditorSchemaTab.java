@@ -5,6 +5,7 @@
 
 package io.imunity.scim.console;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -13,7 +14,10 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.vaadin.simplefiledownloader.SimpleFileDownloader;
+
 import com.vaadin.data.Binder;
+import com.vaadin.server.StreamResource;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
@@ -31,6 +35,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.console.EditSchemaSubView.EditSchemaSubViewFactory;
 import io.imunity.scim.schema.SchemaResourceDeserialaizer;
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -46,6 +51,7 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 {
@@ -54,7 +60,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 	private final UnityServerConfiguration unityServerConfiguration;
 	private final EditSchemaSubViewFactory editSchemaSubViewFactory;
 	private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
-	
+
 	private SCIMServiceEditorSchemaTab(MessageSource msg, EditSchemaSubViewFactory editSchemaSubViewFactory,
 			UnityServerConfiguration unityServerConfiguration, SubViewSwitcher subViewSwitcher,
 			ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
@@ -77,12 +83,13 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		membershipAttributes.setCaption(msg.getMessage("SCIMServiceEditorSchemaTab.membershipAttributes"));
 		configBinder.forField(membershipAttributes).bind("membershipAttributes");
 		mainWrapper.addComponent(new FormLayout(membershipAttributes));
-		
+
 		SchemasComponent schemas = new SchemasComponent();
 		configBinder.forField(schemas).bind("schemas");
 		mainWrapper.addComponent(schemas);
 
-		schemas.addValueChangeListener(e -> {
+		schemas.addValueChangeListener(e ->
+		{
 			Set<String> attr = new HashSet<>();
 			for (SchemaWithMappingBean schema : e.getValue())
 			{
@@ -92,8 +99,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			}
 			membershipAttributes.setItems(attr);
 		});
-		
-		
+
 		setCompositionRoot(mainWrapper);
 	}
 
@@ -164,7 +170,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		{
 			Label l = new Label();
 			l.setContentMode(ContentMode.HTML);
-			l.setValue(!warn? Images.ok.getHtml() : Images.warn.getHtml());
+			l.setValue(!warn ? Images.ok.getHtml() : Images.warn.getHtml());
 			return l;
 		}
 
@@ -177,7 +183,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 				{
 					schema = configurationVaadinBeanMapper.mapFromConfigurationSchema(
 							SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(uploader.getFile()));
-				} catch (EngineException|RuntimeEngineException  e)
+				} catch (EngineException | RuntimeEngineException e)
 				{
 					NotificationPopup.showError(msg, "", e);
 					return;
@@ -203,6 +209,11 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 
 		private List<SingleActionHandler<SchemaWithMappingBean>> getActionsHandlers()
 		{
+
+			SingleActionHandler<SchemaWithMappingBean> export = SingleActionHandler.builder(SchemaWithMappingBean.class)
+					.withCaption(msg.getMessage("SCIMServiceEditorSchemaTab.exportAction"))
+					.withIcon(Images.export.getResource()).withHandler(r -> export(r.iterator().next())).build();
+
 			SingleActionHandler<SchemaWithMappingBean> edit = SingleActionHandler
 					.builder4Edit(msg, SchemaWithMappingBean.class).withHandler(r ->
 					{
@@ -222,14 +233,49 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 						fireChange();
 					}).withDisabledPredicate(s -> !getEditMode(s).equals(AttributesEditMode.FULL_EDIT)).build();
 
-			return Arrays.asList(edit, remove);
+			return Arrays.asList(export, edit, remove);
+		}
+
+		private void export(SchemaWithMappingBean mapping)
+		{
+			SimpleFileDownloader downloader;
+			try
+			{
+				downloader = getDownloader(mapping);
+			} catch (ControllerException e)
+			{
+				NotificationPopup.showError(msg, e);
+				return;
+			}
+			addExtension(downloader);
+			downloader.download();
+		}
+
+		SimpleFileDownloader getDownloader(SchemaWithMappingBean mapping) throws ControllerException
+		{
+			SimpleFileDownloader downloader = new SimpleFileDownloader();
+			StreamResource resource = null;
+			try
+			{
+				byte[] content = Constants.MAPPER.writerWithDefaultPrettyPrinter()
+						.writeValueAsBytes(configurationVaadinBeanMapper.mapToConfigurationSchema(mapping));
+				resource = new StreamResource(() -> new ByteArrayInputStream(content), mapping.getName() + ".json");
+
+			} catch (Exception e)
+			{
+				throw new ControllerException(
+						msg.getMessage("SCIMServiceEditorSchemaTab.exportError", mapping.getName()), e);
+			}
+
+			downloader.setFileDownloadResource(resource);
+			return downloader;
 		}
 
 		private void gotoNew()
 		{
 			gotoEditSubView(null, s ->
 			{
-				subViewSwitcher.exitSubView();
+				subViewSwitcher.exitSubViewAndShowUpdateInfo();
 				schemasGrid.addElement(s);
 			});
 
@@ -240,7 +286,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			gotoEditSubView(edited, s ->
 			{
 				schemasGrid.replaceElement(edited, s);
-				subViewSwitcher.exitSubView();
+				subViewSwitcher.exitSubViewAndShowUpdateInfo();
 			});
 		}
 

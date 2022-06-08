@@ -134,6 +134,12 @@ class MetadataToSPConfigConverter
 			EntityDescriptorType entityMeta, IDPSSODescriptorType idpDef, RemoteMetadataSource metadataSource)
 	{
 		String entityId = entityMeta.getEntityID();
+		if (metadataSource.excludedIdps.contains(entityId))
+		{
+			log.trace("IDP of entity {} is excluded, ignoring.", entityId);
+			return emptyList();
+		}
+		
 		if (!MetaToConfigConverterHelper.supportsSaml2(idpDef))
 		{
 			log.trace("IDP of entity {} doesn't support SAML2 - ignoring.", entityId);
@@ -160,10 +166,10 @@ class MetadataToSPConfigConverter
 		if (webEndpoint == null && soapEndpoint == null)
 			return emptyList();
 		
-		Set<String> pkiCerts;
+		Set<String> pkiCertNames;
 		try
 		{
-			pkiCerts = updatePKICerts(certs, entityId, SP_META_CERT);
+			pkiCertNames = updatePKICerts(certs, entityId, SP_META_CERT);
 		} catch (EngineException e)
 		{
 			log.error("Adding remote IDPs certs to local certs store failed, skipping IdP: " + entityId, e);
@@ -174,7 +180,7 @@ class MetadataToSPConfigConverter
 		if (webEndpoint != null)
 		{
 			Builder builder = TrustedIdPConfiguration.builder();
-			fillMetadataWideSettings(builder, metadataSource, pkiCerts);
+			fillMetadataWideSettings(builder, metadataSource, pkiCertNames, certs);
 			fillIdPSettings(builder, federationMeta, entityMeta, idpDef, 1);
 			fillEndpointData(builder, webEndpoint);
 			ret.add(builder.build());
@@ -183,7 +189,7 @@ class MetadataToSPConfigConverter
 		if (soapEndpoint != null)
 		{
 			Builder builder = TrustedIdPConfiguration.builder();
-			fillMetadataWideSettings(builder, metadataSource, pkiCerts);
+			fillMetadataWideSettings(builder, metadataSource, pkiCertNames, certs);
 			fillIdPSettings(builder, federationMeta, entityMeta, idpDef, 2);
 			fillEndpointData(builder, soapEndpoint);
 			ret.add(builder.build());
@@ -192,11 +198,13 @@ class MetadataToSPConfigConverter
 	}
 
 
-	private void fillMetadataWideSettings(Builder builder, RemoteMetadataSource metadataSource, Set<String> pkiCerts)
+	private void fillMetadataWideSettings(Builder builder, RemoteMetadataSource metadataSource, 
+			Set<String> pkiCertNames, List<X509Certificate> certs)
 	{
 		builder.withRegistrationForm(metadataSource.registrationForm);
-		builder.withCertificateNames(pkiCerts);
+		builder.withCertificateNames(pkiCertNames);
 		builder.withTranslationProfile(metadataSource.translationProfile);
+		builder.withPublicKeys(certs.stream().map(X509Certificate::getPublicKey).collect(Collectors.toList()));
 	}
 
 	private void fillIdPSettings(Builder builder, EntitiesDescriptorType federationMeta, 

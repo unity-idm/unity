@@ -120,8 +120,10 @@ public class WebConsoleUI extends UnityEndpointUIBase
 		navigator.addProvider(new WebConsoleAppContextViewProvider(navigationMan, sandboxRouter));
 		WebConsoleBreadCrumbs breadCrumbs = new WebConsoleBreadCrumbs(navigationMan);
 		navigator.addViewChangeListener(breadCrumbs);
+		WebConsoleWarnViewComponent webConsoleWarnComponent = new WebConsoleWarnViewComponent();
+		navigator.addViewChangeListener(webConsoleWarnComponent);
 		
-		webConsoleLayout =  new SidebarLayout(navigationMan, naviContent, breadCrumbs);
+		webConsoleLayout =  new SidebarLayout(navigationMan, naviContent, breadCrumbs, webConsoleWarnComponent);
 	
 		buildTopRightMenu();
 		buildLeftMenu();

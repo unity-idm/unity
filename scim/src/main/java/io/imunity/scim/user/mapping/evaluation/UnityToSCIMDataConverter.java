@@ -13,10 +13,12 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Optional;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.schema.SCIMAttributeType;
 import io.imunity.scim.user.User;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -25,6 +27,8 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Component
 class UnityToSCIMDataConverter
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, UnityToSCIMDataConverter.class);
+	
 	private final AttributeValueConverter attrValueConverter;
 
 	UnityToSCIMDataConverter(AttributeValueConverter attrValueConverter)
@@ -39,7 +43,7 @@ class UnityToSCIMDataConverter
 				.findFirst();
 		if (attribute.isPresent() && !attribute.get().getValues().isEmpty())
 		{
-			return Optional.of(convertToType(attrValueConverter
+			return Optional.ofNullable(convertToType(attrValueConverter
 					.internalValuesToObjectValues(attribute.get().getName(), attribute.get().getValues()).get(0),
 					type));
 		}
@@ -52,7 +56,7 @@ class UnityToSCIMDataConverter
 				.findFirst();
 		if (identity.isPresent() && !identity.get().getValue().isEmpty())
 		{
-			return Optional.of(convertToType(identity.get().getValue(), type));
+			return Optional.ofNullable(convertToType(identity.get().getValue(), type));
 		}
 
 		return Optional.empty();
@@ -72,7 +76,8 @@ class UnityToSCIMDataConverter
 		case DATETIME:
 			return convertToDateTime(value);
 		default:
-			throw new UnsupportedOperationException("Can not convert from " + value.getClass() + " to " + type);
+			log.warn("Can not convert from " + value.getClass() + " to " + type);
+			return null;
 		}
 	}
 
@@ -95,7 +100,8 @@ class UnityToSCIMDataConverter
 			return Instant.parse((String) value);
 		}
 
-		throw new UnsupportedOperationException("Can not convert to date from " + value.getClass());
+		log.warn("Can not convert to date from " + value.getClass());
+		return null;
 	}
 
 	private String convertToString(Object value)
@@ -110,8 +116,13 @@ class UnityToSCIMDataConverter
 			return (Boolean) value;
 		} else if (value instanceof String)
 		{
-			return Boolean.valueOf((String) value);
+			String booleanValue = (String) value;
+			if (booleanValue.equalsIgnoreCase("true") || booleanValue.equalsIgnoreCase("false"))
+			{
+				return Boolean.valueOf(booleanValue);
+			}
 		}
-		throw new UnsupportedOperationException("Can not convert to boolean from " + value.getClass());
+		log.warn("Can not convert to boolean from " + value.getClass() + ", value=" + value);
+		return null;
 	}
 }

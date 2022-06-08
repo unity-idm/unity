@@ -77,7 +77,7 @@ public class TranslationProfileField extends CustomField<TranslationProfile>
 
 		EditTranslationProfileSubView editProfileSubView = getEditTranslationProfileSubViewInstance(p -> {
 
-			subViewSwitcher.exitSubView();
+			subViewSwitcher.exitSubViewAndShowUpdateInfo();
 			editProfile.focus();
 			doSetValue(p);
 			fireEvent(new ValueChangeEvent<TranslationProfile>(this, value, true));

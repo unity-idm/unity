@@ -97,7 +97,7 @@ public class SAMLSPConfigurationParser
 				.withSignRequestByDefault(samlProperties.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST))
 				.withSloPath(samlProperties.getValue(SAMLSPProperties.SLO_PATH))
 				.withSloRealm(samlProperties.getValue(SAMLSPProperties.SLO_REALM))
-				.withTrustChecker(samlProperties.getTrustChecker())
+				.withRequireSignedAssertion(samlProperties.getBooleanValue(SAMLSPProperties.REQUIRE_SIGNED_ASSERTION))
 				.withTrustedMetadataSources(getMetadataSources(samlProperties))
 				.build();
 	}
@@ -170,6 +170,7 @@ public class SAMLSPConfigurationParser
 							key + SAMLSPProperties.METADATA_SIGNATURE, MetadataSignatureValidation.class))
 					.withTranslationProfile(generateMetadataTranslationProfile(samlProperties, key))
 					.withUrl(samlProperties.getValue(key + SAMLSPProperties.METADATA_URL))
+					.withExcludedIdps(samlProperties.getListOfValues(key + SAMLSPProperties.IDPMETA_EXCLUDED_IDPS).stream().collect(Collectors.toSet()))
 					.build())
 			.collect(Collectors.toList());
 	}

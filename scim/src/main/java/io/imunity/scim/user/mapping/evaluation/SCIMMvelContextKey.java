@@ -14,8 +14,11 @@ public enum SCIMMvelContextKey
 	idsByType(SCIMMvelContextKey.descriptionPrefix + "idsByType"),
 	attrObj(SCIMMvelContextKey.descriptionPrefix + "attrObj"),
 	groups(SCIMMvelContextKey.descriptionPrefix + "groups"),
-	arrayObj(SCIMMvelContextKey.descriptionPrefix + "arrayObj");
-
+	groupsObj(SCIMMvelContextKey.descriptionPrefix + "groupsObj"),
+	arrayObj(SCIMMvelContextKey.descriptionPrefix + "arrayObj"),
+	attr(SCIMMvelContextKey.descriptionPrefix + "attr"),
+	attrs(SCIMMvelContextKey.descriptionPrefix + "attrs");
+	
 	public static final String descriptionPrefix = "SCIMContextKey.";
 	public final String descriptionKey;
 

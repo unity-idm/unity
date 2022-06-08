@@ -1655,5 +1655,13 @@
 		height : 0;
 	}
 	
+	.u-warnBar {
+		background: $bgWarnColor;
+		height: 2em;	
+    	text-align: center;
+    	color: white;
+    	font-weight: bold;
+	}
+	
 }
 

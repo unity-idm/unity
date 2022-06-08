@@ -33,7 +33,7 @@ import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 public class RemoteMetadataServiceTest
 {
 	private ExecutorsService executorsService;
-	private MetadataDownloader downloader;
+	private CachedMetadataLoader downloader;
 	
 	@Before
 	public void init() throws Exception
@@ -41,7 +41,7 @@ public class RemoteMetadataServiceTest
 		executorsService = mock(ExecutorsService.class);
 		ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
 		when(executorsService.getService()).thenReturn(pool);
-		downloader = mock(MetadataDownloader.class);
+		downloader = mock(CachedMetadataLoader.class);
 		when(downloader.getFresh("url", null)).thenAnswer((a) -> {
 			String xml = IOUtils.toString(new FileInputStream("src/test/resources/unity-as-sp-meta.xml"),
 					StandardCharsets.UTF_8);

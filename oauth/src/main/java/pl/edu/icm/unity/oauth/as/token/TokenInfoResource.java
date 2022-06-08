@@ -86,7 +86,7 @@ public class TokenInfoResource extends BaseTokenResource
 	}
 	
 	
-	private JSONObject toJSON(String subject, String clientId, Date expiration, String[] scopes, String audience)
+	private JSONObject toJSON(String subject, String clientId, Date expiration, String[] scopes, List<String> audience)
 	{
 		JSONObject ret = new JSONObject();
 		ret.put(SUBJECT, subject);
@@ -97,7 +97,14 @@ public class TokenInfoResource extends BaseTokenResource
 			List<String> scopesAsList = Lists.newArrayList(scopes);
 			ret.put(SCOPE, scopesAsList);
 		}
-		ret.put(AUDIENCE, audience);
+	
+		if (audience != null && audience.size() == 1)
+			ret.put(AUDIENCE, audience.get(0));
+		else
+		{
+			ret.put(AUDIENCE, audience);
+		}
+		
 		return ret;
 	}
 }

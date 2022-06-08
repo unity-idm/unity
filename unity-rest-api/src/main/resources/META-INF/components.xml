@@ -8,7 +8,7 @@
 
 	<context:annotation-config/>
 
-	<context:component-scan base-package="io.imunity"/>
+	<context:component-scan base-package="io.imunity.rest.api"/>
 	
 	<aop:aspectj-autoproxy/>
 </beans>

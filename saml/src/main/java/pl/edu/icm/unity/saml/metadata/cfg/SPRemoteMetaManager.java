@@ -105,7 +105,7 @@ public class SPRemoteMetaManager
 		registeredConsumers.clear();
 	}
 	
-	private synchronized void assembleProperties(TrustedIdPs idpsFromMeta, String federationId, String consumerId)
+	private synchronized void assembleCombinedConfiguration(TrustedIdPs idpsFromMeta, String federationId, String consumerId)
 	{
 		if (!registeredConsumers.containsKey(consumerId)) 
 			//not likely but can happen in case of race condition between 
@@ -175,7 +175,7 @@ public class SPRemoteMetaManager
 			else if (!this.federationId.equals(federationId))
 				throw new IllegalStateException("Consumer got metadata from different federation than before. "
 						+ "Was " + this.federationId + " now it is " + federationId); 
-			assembleProperties(idpsFromMeta, federationId, consumerId);
+			assembleCombinedConfiguration(idpsFromMeta, federationId, consumerId);
 		}
 	}
 	

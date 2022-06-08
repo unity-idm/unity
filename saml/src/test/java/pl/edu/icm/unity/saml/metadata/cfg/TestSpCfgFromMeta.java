@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
-import pl.edu.icm.unity.saml.sp.TrustAllTrustChecker;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
@@ -70,7 +69,6 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 				.withRequesterCredential(pkiManagement.getCredential("MAIN"))
 				.withRequesterSamlId("me")
 				.withPublishMetadata(false)
-				.withTrustChecker(new TrustAllTrustChecker())
 				.withTrustedMetadataSources(List.of(
 						RemoteMetadataSource.builder()
 							.withUrl("file:src/test/resources/metadata.switchaai.xml")
@@ -143,7 +141,6 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 				.withRequesterCredential(pkiManagement.getCredential("MAIN"))
 				.withRequesterSamlId("me")
 				.withPublishMetadata(false)
-				.withTrustChecker(new TrustAllTrustChecker())
 				.withIndividualTrustedIdPs(new TrustedIdPs(List.of()))
 				.withTrustedMetadataSources(List.of(
 						RemoteMetadataSource.builder()
@@ -182,7 +179,6 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 				.withRequesterCredential(pkiManagement.getCredential("MAIN"))
 				.withRequesterSamlId("me")
 				.withPublishMetadata(false)
-				.withTrustChecker(new TrustAllTrustChecker())
 				.withTrustedMetadataSources(List.of(
 						RemoteMetadataSource.builder()
 						.withUrl("file:src/test/resources/DFN-AAI-metadata-2certs.xml")
@@ -217,7 +213,6 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 				.withRequesterCredential(pkiManagement.getCredential("MAIN"))
 				.withRequesterSamlId("me")
 				.withPublishMetadata(false)
-				.withTrustChecker(new TrustAllTrustChecker())
 				.withTrustedMetadataSources(List.of(
 						RemoteMetadataSource.builder()
 						.withUrl("file:src/test/resources/DFN-AAI-metadata-2endpoints.xml")

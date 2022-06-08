@@ -9,9 +9,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.trust.CheckingMode;
 import eu.unicore.samly2.trust.SamlTrustChecker;
+import eu.unicore.samly2.trust.StrictSamlTrustChecker;
 
 public class SAMLSPConfiguration extends BaseSamlConfiguration
 {
@@ -20,20 +24,20 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 	public final String sloRealm;
 	public final X509Credential requesterCredential;
 	public final String requesterCredentialName;
-	public final SamlTrustChecker trustChecker;
 	public final boolean signRequestByDefault;
 	public final List<String> acceptedNameFormats;
 	public final boolean signPublishedMetadata;
 	public final Map<String, String> effectiveMappings;
 	public final TrustedIdPs individualTrustedIdPs;
 	public final String defaultRequestedNameFormat;
+	public final boolean requireSignedAssertion;
+	private final Function<TrustedIdPConfiguration, SamlTrustChecker> trustCheckerFactory;
 
 	private SAMLSPConfiguration(Builder builder)
 	{
 		super(builder.trustedMetadataSources, builder.publishMetadata, builder.metadataURLPath,
 				builder.ourMetadataFilePath);
 		checkNotNull(builder.requesterSamlId);
-		checkNotNull(builder.trustChecker);
 		checkNotNull(builder.acceptedNameFormats);
 		checkNotNull(builder.effectiveMappings);
 		checkNotNull(builder.individualTrustedIdPs);
@@ -43,13 +47,30 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		this.sloRealm = builder.sloRealm;
 		this.requesterCredential = builder.requesterCredential;
 		this.requesterCredentialName = builder.requesterCredentialName;
-		this.trustChecker = builder.trustChecker;
 		this.signRequestByDefault = builder.signRequestByDefault;
 		this.acceptedNameFormats = List.copyOf(builder.acceptedNameFormats);
 		this.signPublishedMetadata = builder.signPublishedMetadata;
 		this.effectiveMappings = Map.copyOf(builder.effectiveMappings);
 		this.individualTrustedIdPs = builder.individualTrustedIdPs;
 		this.defaultRequestedNameFormat = builder.defaultRequestedNameFormat;
+		this.requireSignedAssertion = builder.requireSignedAssertion;
+		this.trustCheckerFactory = builder.trustCheckerFactory == null ? 
+				this::defaultTrustCheckerFactory : builder.trustCheckerFactory; 
+	}
+
+	public SamlTrustChecker getTrustCheckerForIdP(TrustedIdPConfiguration trustedIdP)
+	{
+		return trustCheckerFactory.apply(trustedIdP);
+	}
+
+	private SamlTrustChecker defaultTrustCheckerFactory(TrustedIdPConfiguration trustedIdP)
+	{
+		CheckingMode mode = requireSignedAssertion ? 
+				CheckingMode.REQUIRE_SIGNED_ASSERTION : 
+				CheckingMode.REQUIRE_SIGNED_RESPONSE_OR_ASSERTION;
+		StrictSamlTrustChecker trustChecker = new StrictSamlTrustChecker(mode);
+		trustChecker.addTrustedIssuer(trustedIdP.samlId, SAMLConstants.NFORMAT_ENTITY, trustedIdP.publicKeys);
+		return trustChecker;
 	}
 
 	public static Builder builder()
@@ -68,13 +89,14 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		private String sloRealm;
 		private X509Credential requesterCredential;
 		private String requesterCredentialName;
-		private SamlTrustChecker trustChecker;
 		private boolean signRequestByDefault;
 		private List<String> acceptedNameFormats = Collections.emptyList();
 		private boolean signPublishedMetadata;
 		private Map<String, String> effectiveMappings = Collections.emptyMap();
 		private TrustedIdPs individualTrustedIdPs;
 		private String defaultRequestedNameFormat;
+		private boolean requireSignedAssertion;
+		private Function<TrustedIdPConfiguration, SamlTrustChecker> trustCheckerFactory;
 
 		private Builder()
 		{
@@ -134,12 +156,6 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 			return this;
 		}
 
-		public Builder withTrustChecker(SamlTrustChecker trustChecker)
-		{
-			this.trustChecker = trustChecker;
-			return this;
-		}
-
 		public Builder withSignRequestByDefault(boolean signRequestByDefault)
 		{
 			this.signRequestByDefault = signRequestByDefault;
@@ -173,6 +189,18 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		public Builder withDefaultRequestedNameFormat(String nameFormat)
 		{
 			this.defaultRequestedNameFormat = nameFormat;
+			return this;
+		}
+
+		public Builder withRequireSignedAssertion(boolean requireSignedAssertion)
+		{
+			this.requireSignedAssertion = requireSignedAssertion;
+			return this;
+		}
+
+		public Builder withTrustCheckerFactory(Function<TrustedIdPConfiguration, SamlTrustChecker> trustCheckerFactory)
+		{
+			this.trustCheckerFactory = trustCheckerFactory;
 			return this;
 		}
 		

@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.saml.sp.console;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import pl.edu.icm.unity.Constants;
@@ -31,11 +33,13 @@ public class SAMLAuthnTrustedFederationConfiguration
 	private int refreshInterval;
 	private String registrationForm;
 	private TranslationProfile translationProfile;
+	private List<String> excludedIdps;
 
 	public SAMLAuthnTrustedFederationConfiguration()
 	{
 		setRefreshInterval(SamlProperties.DEFAULT_METADATA_REFRESH);
 		setIgnoreSignatureVerification(true);
+		setExcludedIdps(new ArrayList<>());
 	}
 
 	public void fromProperties(SAMLSPProperties source, String name)
@@ -72,6 +76,8 @@ public class SAMLAuthnTrustedFederationConfiguration
 			setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(
 					source.getValue(prefix + SAMLSPProperties.IDPMETA_TRANSLATION_PROFILE)));
 		}
+		
+		setExcludedIdps(source.getListOfValues(prefix + SAMLSPProperties.IDPMETA_EXCLUDED_IDPS));
 	}
 
 	public void toProperties(Properties raw)
@@ -118,6 +124,14 @@ public class SAMLAuthnTrustedFederationConfiguration
 						e);
 			}
 		}
+		
+		if (getExcludedIdps() != null && !getExcludedIdps().isEmpty())
+		{
+			getExcludedIdps().forEach(exIdp -> raw.put(
+					prefix + SAMLSPProperties.IDPMETA_EXCLUDED_IDPS + (getExcludedIdps().indexOf(exIdp) + 1), exIdp));
+		}
+
+		
 	}
 
 	public String getName()
@@ -200,6 +214,16 @@ public class SAMLAuthnTrustedFederationConfiguration
 		this.translationProfile = translationProfile;
 	}
 
+	public List<String> getExcludedIdps()
+	{
+		return excludedIdps;
+	}
+
+	public void setExcludedIdps(List<String> excludedIdps)
+	{
+		this.excludedIdps = excludedIdps;
+	}
+	
 	public SAMLAuthnTrustedFederationConfiguration clone()
 	{
 		SAMLAuthnTrustedFederationConfiguration clone = new SAMLAuthnTrustedFederationConfiguration();
@@ -222,6 +246,7 @@ public class SAMLAuthnTrustedFederationConfiguration
 				this.getRegistrationForm() != null ? new String(this.getRegistrationForm()) : null);
 		clone.setTranslationProfile(
 				this.getTranslationProfile() != null ? this.getTranslationProfile().clone() : null);
+		clone.setExcludedIdps(getExcludedIdps());	
 		return clone;
 	}
 }

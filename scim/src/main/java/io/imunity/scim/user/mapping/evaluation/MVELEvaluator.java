@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
@@ -20,8 +19,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
+import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Identity;
 
 @Component
@@ -43,7 +44,7 @@ class MVELEvaluator
 	{
 		if (mvel == null)
 			return null;
-		
+
 		Serializable expressionCompiled = getCompiledMvel(mvel);
 		return MVEL.executeExpression(expressionCompiled, createContext(context), new HashMap<>());
 	}
@@ -62,9 +63,22 @@ class MVELEvaluator
 	{
 		Map<String, Object> ret = new HashMap<>();
 		ret.put(SCIMMvelContextKey.idsByType.toString(), createIdentityContextElement(context));
-		ret.put(SCIMMvelContextKey.attrObj.toString(), createAttributeObjContextElement(context));
-		ret.put(SCIMMvelContextKey.groups.toString(),
-				context.user.groups.stream().map(g -> g.getPathEncoded()).collect(Collectors.toList()));
+		addAttributesToContext(SCIMMvelContextKey.attr.name(),
+				SCIMMvelContextKey.attrObj.name(), SCIMMvelContextKey.attrs.name(), ret,
+				context.user.attributes, attrValueConverter);
+
+		List<String> groups = new ArrayList<>();
+		Map<String, MVELGroup> groupsObj = new HashMap<>();
+
+		context.user.groups.forEach(g ->
+		{
+			groups.add(g.getPathEncoded());
+			groupsObj.put(g.getName(), context.groupProvider.get(g.getPathEncoded()));
+		});
+
+		ret.put(SCIMMvelContextKey.groups.toString(), groups);
+		ret.put(SCIMMvelContextKey.groupsObj.name(), groupsObj);
+
 		if (context.arrayObj != null)
 		{
 			ret.put(SCIMMvelContextKey.arrayObj.toString(), context.arrayObj);
@@ -73,16 +87,25 @@ class MVELEvaluator
 		return ret;
 	}
 
-	private Map<String, Object> createAttributeObjContextElement(EvaluatorContext context)
-			throws IllegalAttributeValueException
+	private void addAttributesToContext(String attrKey, String attrObjKey, String attrsKey, Map<String, Object> ret,
+			List<AttributeExt> attributes, AttributeValueConverter attrConverter) throws IllegalAttributeValueException
 	{
+		Map<String, Object> attr = new HashMap<>();
 		Map<String, Object> attrObj = new HashMap<>();
-		for (Attribute ra : context.user.attributes)
+		Map<String, List<? extends Object>> attrs = new HashMap<>();
+
+		for (Attribute ra : attributes)
 		{
-			attrObj.put(ra.getName(), ra.getValues().isEmpty() ? ""
-					: attrValueConverter.internalValuesToObjectValues(ra.getName(), ra.getValues()));
+			List<String> values = attrConverter.internalValuesToExternal(ra.getName(), ra.getValues());
+			String v = values.isEmpty() ? "" : values.get(0);
+			attr.put(ra.getName(), v);
+			attrs.put(ra.getName(), values);
+			attrObj.put(ra.getName(),
+					values.isEmpty() ? "" : attrConverter.internalValuesToObjectValues(ra.getName(), ra.getValues()));
 		}
-		return attrObj;
+		ret.put(attrKey, attr);
+		ret.put(attrObjKey, attrObj);
+		ret.put(attrsKey, attrs);
 	}
 
 	private Map<String, List<String>> createIdentityContextElement(EvaluatorContext context)

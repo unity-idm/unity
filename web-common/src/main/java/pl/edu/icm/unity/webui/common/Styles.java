@@ -133,6 +133,7 @@ public enum Styles
 	subMenuOpen("u-open"),
 	tooltip("u-toolTip"),
 	breadcrumbs("u-breadcrumbs"),
+	warnBar("u-warnBar"),
 	viewHeader("u-viewHeader"),
 	contentBackgroud("u-content-backgroud"),
 	

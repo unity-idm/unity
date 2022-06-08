@@ -384,7 +384,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 						remoteAuthnList.getElements().stream().map(p -> p.name)
 								.collect(Collectors.toSet()),
 						c -> {
-							subViewSwitcher.exitSubView();
+							subViewSwitcher.exitSubViewAndShowUpdateInfo();
 							remoteAuthnList.addElement(new SimpleAuthenticatorInfo(forType,
 									c.id, c.configuration));
 						});

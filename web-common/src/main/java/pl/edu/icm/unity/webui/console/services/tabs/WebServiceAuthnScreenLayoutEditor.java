@@ -34,6 +34,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.AuthenticationLayo
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.AuthnLayoutColumn;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.PaletteButton;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.AuthenticationOptionsSelectorProvider;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.AuthnLayoutComponentsFactory;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.GridAuthnColumnComponent;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ui.components.HeaderColumnComponent;
@@ -56,7 +57,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 	private HorizontalLayout separatorsLayout;
 	private List<I18nTextField> separators;
 
-	private AuthenticatorSupportService authenticatorSupportService;
+	private AuthenticationOptionsSelectorProvider authenticationOptionsSelectorProvider;
 	private Supplier<List<String>> authnOptionSupplier;
 
 	private Runnable dragStart = () -> dragElementStart();
@@ -79,7 +80,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 			Supplier<List<String>> authnOptionSupplier)
 	{
 		this.msg = msg;
-		this.authenticatorSupportService = authenticatorSupportService;
+		this.authenticationOptionsSelectorProvider = new AuthenticationOptionsSelectorProvider(authenticatorSupportService);
 		this.authnOptionSupplier = authnOptionSupplier;
 		this.columns = new ArrayList<>();
 		this.separators = new ArrayList<>();
@@ -140,13 +141,13 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 		HorizontalLayout componentsPalette = new HorizontalLayout();
 		componentsPalette.addComponent(new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.singleAuthn"),
 				Images.sign_in.getResource(), dragStart, dragStop,
-				() -> new SingleAuthnColumnComponent(msg, authenticatorSupportService,
+				() -> new SingleAuthnColumnComponent(msg, authenticationOptionsSelectorProvider,
 						authnOptionSupplier, removeElementListener, valueChange, dragStart,
 						dragStop)));
 
 		componentsPalette.addComponent(new PaletteButton(msg.getMessage("AuthnColumnLayoutElement.gridAuthn"),
 				Images.grid_v.getResource(), dragStart, dragStop,
-				() -> new GridAuthnColumnComponent(msg, authenticatorSupportService,
+				() -> new GridAuthnColumnComponent(msg, authenticationOptionsSelectorProvider,
 						authnOptionSupplier, removeElementListener, valueChange, dragStart,
 						dragStop)));
 
@@ -344,7 +345,7 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 	{
 		AuthenticationLayoutContent content = AuthnLayoutConfigToUIConverter.convertToUI(value,
 				new AuthnLayoutComponentsFactory(msg, removeListener, removeElementListener, dragStart,
-						dragStop, valueChange, authenticatorSupportService, authnOptionSupplier,
+						dragStop, valueChange, authenticationOptionsSelectorProvider, authnOptionSupplier,
 						false));	
 		columns.clear(); 
 		columns.addAll(content.columns);

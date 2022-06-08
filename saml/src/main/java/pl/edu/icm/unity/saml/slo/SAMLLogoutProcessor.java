@@ -28,7 +28,6 @@ import eu.unicore.samly2.proto.LogoutResponse;
 import eu.unicore.samly2.slo.LogoutRequestParser;
 import eu.unicore.samly2.slo.LogoutRequestValidator;
 import eu.unicore.samly2.slo.ParsedLogoutRequest;
-import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.security.dsig.DSigException;
 import pl.edu.icm.unity.base.utils.Log;
@@ -356,6 +355,8 @@ public class SAMLLogoutProcessor
 					parsedRequest.getIssuer().getStringValue(), realm);
 		} catch (EngineException e)
 		{
+			log.warn("Can't find local entity to be logged out. Requested was {} in SAML format {} "
+					+ "which was mapped to Unity type {}", identity, loggedOut.getFormat(), unityType);
 			throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPAL,
 					"The principal is not known");
 		}
@@ -398,7 +399,6 @@ public class SAMLLogoutProcessor
 	 */
 	public interface SamlTrustProvider
 	{
-		SamlTrustChecker getTrustChecker();
 		Collection<SAMLEndpointDefinition> getSLOEndpoints(NameIDType samlEntity);
 		List<PublicKey> getTrustedKeys(NameIDType samlEntity);
 	}

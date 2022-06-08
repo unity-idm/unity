@@ -106,29 +106,32 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	
 	private EndpointInstance updateEndpoint(Endpoint endpointInDB, Map<String, EndpointInstance> endpointsDeployed) throws EngineException
 	{
-		EndpointInstance instance = createEndpointInstance(endpointInDB);
-		String name = instance.getEndpointDescription().getName();
+		String name = endpointInDB.getName();
 		EndpointInstance runtimeEndpointInstance = endpointsDeployed.get(name);
-		
+		EndpointInstance updatedInstance = null;
 		if (runtimeEndpointInstance == null)
 		{
+			updatedInstance = createEndpointInstance(endpointInDB);
 			log.info("Endpoint " + name + " will be deployed");
-			endpointMan.deploy(instance);
+			endpointMan.deploy(updatedInstance);
 		} else if (endpointInDB.getRevision() > runtimeEndpointInstance.getEndpointDescription()
 				.getEndpoint().getRevision())
 		{
+			updatedInstance = createEndpointInstance(endpointInDB);
 			log.info("Endpoint " + name + " will be re-deployed");
 			endpointMan.undeploy(name);
-			endpointMan.deploy(instance);
+			endpointMan.deploy(updatedInstance);
 		} else if (hasChangedAuthenticationFlow(runtimeEndpointInstance))
 		{
-			updateEndpointAuthenticators(name, instance, endpointsDeployed);
+			updatedInstance = createEndpointInstance(endpointInDB);
+			updateEndpointAuthenticators(name, updatedInstance, endpointsDeployed);
 		} else if (hasChangedAuthenticator(runtimeEndpointInstance))
 		{
-			updateEndpointAuthenticators(name, instance, endpointsDeployed);
+			updatedInstance = createEndpointInstance(endpointInDB);
+			updateEndpointAuthenticators(name, updatedInstance, endpointsDeployed);
 		}
 		
-		return instance;
+		return updatedInstance == null ? runtimeEndpointInstance : updatedInstance;
 	}
 	
 	

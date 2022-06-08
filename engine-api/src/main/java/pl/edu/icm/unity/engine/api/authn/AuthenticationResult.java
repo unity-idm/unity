@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.MessageSource;
 
 /**
@@ -35,7 +37,14 @@ public interface AuthenticationResult
 		success
 	}
 	
+	public enum DenyReason
+	{
+		undefinedCredential
+	}
+	
 	Status getStatus();
+	
+	Optional<DenyReason> getDenyReason();
 	
 	boolean isRemote();
 	

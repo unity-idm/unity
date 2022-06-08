@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.model;
+package io.imunity.rest.api;
 
 import java.util.Date;
 import java.util.Objects;

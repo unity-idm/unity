@@ -37,7 +37,6 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 {
 	public static final String VIEW_NAME = "NewAuthenticator";
 
-	private MessageSource msg;
 	private AuthenticatorsController controller;
 	private MainAuthenticatorEditor editor;
 
@@ -48,7 +47,7 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 	@Autowired
 	NewAuthenticatorView(MessageSource msg, AuthenticatorsController controller)
 	{
-		this.msg = msg;
+		super(msg);
 		this.controller = controller;
 	}
 

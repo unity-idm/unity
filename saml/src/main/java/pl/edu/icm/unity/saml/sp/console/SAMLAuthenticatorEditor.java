@@ -424,7 +424,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		{
 			gotoEditSubView(null, federationList.getElements().stream().map(p -> p.getName())
 					.collect(Collectors.toSet()), c -> {
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 						federationList.addElement(c);
 						federationList.focus();
 						fireChange();
@@ -440,7 +440,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 					c -> {
 						federationList.replaceElement(edited, c);
 						fireChange();
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 					});
 		}
 
@@ -553,7 +553,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		{
 			gotoEditSubView(null, idpList.getElements().stream().map(p -> p.getName())
 					.collect(Collectors.toSet()), c -> {
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 						idpList.addElement(c);
 						idpList.focus();
 						fireChange();
@@ -568,7 +568,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 					c -> {
 						idpList.replaceElement(edited, c);
 						fireChange();
-						subViewSwitcher.exitSubView();
+						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 					});
 		}
 

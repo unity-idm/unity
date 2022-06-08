@@ -417,6 +417,140 @@ Example output:
 ----
 
 
+=== Get direct attributes of an entity 
+
++@Path("/entity/{entityId}/groups/direct/attributes")+ +
++@GET+ +
+
+Returns all direct attributes of a given entity. Results are grouped by group path in which attributes are defined.
+Note that while this method is not applicable in all cases (as the dynamic attributes from attribute statements are not
+returned), it is much faster than the regular retrieval of all attributes.
+
+Example output:
+
+----
+{
+  "/": [
+     {
+      "values": [
+        "2022-04-14T16:23:01"
+      ],
+      "creationTs": 1649946007973,
+      "updateTs": 1649946181417,
+      "direct": true,
+      "name": "sys:LastAuthentication",
+      "groupPath": "/",
+      "valueSyntax": "string"
+    },
+    {
+      "values": [
+        "Default Administrator"
+      ],
+      "creationTs": 1649945937183,
+      "updateTs": 1649945937183,
+      "direct": true,
+      "name": "name",
+      "groupPath": "/",
+      "valueSyntax": "string"
+    }
+  ],
+  "/projects/FBI": [
+    {
+      "values": [
+        "Long street 13"
+      ],
+      "creationTs": 1649946239973,
+      "updateTs": 1649946239973,
+      "direct": true,
+      "name": "address",
+      "groupPath": "/projects/FBI",
+      "valueSyntax": "string"
+    }
+  ]
+}
+----
+
+=== Get groups members with selected attributes
+
++@Path("/group-members-attributes/{groupPath}")+ +
++@QueryParam("attributes")+ +
++@GET+ +
+
+This API endpoint allows for retrieving given group members but also limiting output to a subset of attributes 
+which are interesting to the caller. This endpoint is useful in case when number of attributes is large in a large group,
+to minimize transfered data size. Additionally, if all requested attributes are direct or global attributes,
+this endpoint is significantly faster then the generic one returning all attributes.
+
+The +attributes+ parameter accepts a list of strings.
+
+Example output:
+
+----
+[
+  {
+    "entityInformation": {
+      "id": 2,
+      "entityState": "valid",
+      "scheduledOperationTime": null,
+      "scheduledOperation": null,
+      "removalByUserTime": null
+    },
+    "identities": [
+      {
+        "entityId": 2,
+        "creationTs": 1649945937691,
+        "updateTs": 1649945937691,
+        "comparableValue": "b11008fe-fa76-45fe-b20a-2825be972fbd",
+        "typeId": "persistent",
+        "value": "b11008fe-fa76-45fe-b20a-2825be972fbd",
+        "target": null,
+        "realm": null
+      }
+    ],
+    "attributes": [
+      {
+        "direct": true,
+        "creationTs": 1649948449977,
+        "updateTs": 1649948449977,
+        "name": "address",
+        "valueSyntax": "string",
+        "groupPath": "/A",
+        "values": [
+          "Long street"
+        ],
+        "translationProfile": null,
+        "remoteIdp": null
+      },
+      {
+        "direct": true,
+        "creationTs": 1649945937765,
+        "updateTs": 1649945937765,
+        "name": "name",
+        "valueSyntax": "string",
+        "groupPath": "/",
+        "values": [
+          "Demo user"
+        ],
+        "translationProfile": null,
+        "remoteIdp": null
+      }
+    ]
+  }
+]
+---- 
+
+
+=== Get multiple groups members with selected attributes
+
++@Path("/multi-group-members-attributes")+ +
++@QueryParam("attributes")+ +
++@QueryParam("groups")+ +
++@GET+ +
+
+The same functionality as offered by the +/group-members-attributes+ endpoint, but allows for retrieving data from 
+multiple groups with a single call. Result is additionally grouped by group paths.
+
+
 === Get group metadata
 
 +@Path("/group/{groupPath}/meta")+ +

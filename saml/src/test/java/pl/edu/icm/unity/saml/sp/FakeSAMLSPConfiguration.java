@@ -23,7 +23,6 @@ public class FakeSAMLSPConfiguration
 				.withSignRequestByDefault(true)
 				.withMetadataURLPath("meta")
 				.withRequesterCredential(mock(X509Credential.class))
-				.withTrustChecker(new TrustAllTrustChecker())
 				.withAcceptedNameFormats(List.of())
 				.withEffectiveMappings(Map.of())
 				.withIndividualTrustedIdPs(new TrustedIdPs(Set.of()));

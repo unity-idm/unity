@@ -30,7 +30,7 @@ class GroupAuthzService
 		InvocationContext invocationContext = InvocationContext.getCurrent();
 		if (!invocationContext.getInvocationMaterial().equals(InvocationMaterial.DIRECT))
 		{
-			throw new AuthorizationException("Access is denied");
+			throw new AuthorizationException("Access is denied. Reading groups is available only via direct access");
 		}	
 		authzMan.checkReadCapability(false, configuration.rootGroup);
 	}

@@ -63,7 +63,6 @@ public class MetadataToSPConfigConverterTest
 		assertThat(trustedIdP.logoutEndpoints).isEmpty();
 	}
 	
-	
 	private EntitiesDescriptorDocument loadMetadata(String path)
 	{
 		try

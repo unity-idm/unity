@@ -24,7 +24,6 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector.AuthenticationOptionsSelectorComparator;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -37,20 +36,20 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponentBas
 
 public class GridAuthnColumnComponent extends ColumnComponentBase
 {
-	private AuthenticatorSupportService authenticatorSupport;
-	private Supplier<List<String>> authnOptionSupplier;
+	private final AuthenticationOptionsSelectorProvider authenticationOptionsSelectorProvider;
+	private final Supplier<List<String>> authnOptionSupplier;
 
 	private ChipsWithDropdown<AuthenticationOptionsSelector> valueComboField;
 	private Binder<GridStateBindingValue> binder;
 	private List<AuthenticationOptionsSelector> items;
 
-	public GridAuthnColumnComponent(MessageSource msg, AuthenticatorSupportService authenticatorSupport,
+	public GridAuthnColumnComponent(MessageSource msg, AuthenticationOptionsSelectorProvider authenticationOptionsSelectorProvider,
 			Supplier<List<String>> authnOptionSupplier, Consumer<ColumnComponent> removeElementListener,
 			Runnable valueChangeListener, Runnable dragStart, Runnable dragStop)
 	{
 		super(msg, msg.getMessage("AuthnColumnLayoutElement.gridAuthn"), Images.grid_v, dragStart, dragStop,
 				removeElementListener);
-		this.authenticatorSupport = authenticatorSupport;
+		this.authenticationOptionsSelectorProvider = authenticationOptionsSelectorProvider;
 		this.authnOptionSupplier = authnOptionSupplier;
 
 		addContent(getContent());
@@ -100,8 +99,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 	
 	private void refreshItems()
 	{
-		items = AuthnColumnComponentHelper.getGridCompatibleAuthnSelectors(
-					authenticatorSupport, authnOptionSupplier.get());
+		items = authenticationOptionsSelectorProvider.getGridCompatibleAuthnSelectors(authnOptionSupplier.get());
 		valueComboField.setItems(items);
 	}
 
