@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -53,7 +52,6 @@ public abstract class SeleniumTestBase
 	public static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(
 			System.getProperty("unity.selenium.delay", "1500"));
 	protected WebDriver driver;
-	protected WebDriverWait waitDriver;
 
 	@Autowired
 	protected JettyServer httpServer;
