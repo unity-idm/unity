@@ -4,14 +4,6 @@
  */
 package pl.edu.icm.unity.test.headlessui;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
@@ -21,20 +13,24 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.server.JettyServer;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 
 /**
  * This is a base class for Selenium WebDriver based headless Web UI testing.
@@ -57,6 +53,7 @@ public abstract class SeleniumTestBase
 	public static final int SIMPLE_WAIT_TIME_MS = Integer.parseInt(
 			System.getProperty("unity.selenium.delay", "1500"));
 	protected WebDriver driver;
+	protected WebDriverWait waitDriver;
 
 	@Autowired
 	protected JettyServer httpServer;
@@ -75,7 +72,7 @@ public abstract class SeleniumTestBase
 			chromeOptions.addArguments(opts);
 		}
 		driver = new ChromeDriver(chromeOptions);
-		driver.manage().timeouts().implicitlyWait(WAIT_TIME_S, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(WAIT_TIME_S));
 	}
 
 	@Rule

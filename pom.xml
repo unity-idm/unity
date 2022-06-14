@@ -24,7 +24,7 @@
 		<cxf.version>3.4.5</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
 		<bc.version>1.69</bc.version>
-		<selenium.version>3.141.59</selenium.version>
+		<selenium.version>4.2.1</selenium.version>
 		<jackson.version>2.13.2</jackson.version>
 		<junit5.version>5.8.2</junit5.version>
 
@@ -785,6 +785,18 @@
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-chrome-driver</artifactId>
+				<version>${selenium.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-api</artifactId>
+				<version>${selenium.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-remote-driver</artifactId>
 				<version>${selenium.version}</version>
 				<scope>test</scope>
 			</dependency>
