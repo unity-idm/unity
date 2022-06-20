@@ -10,7 +10,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<selenium.version>3.141.59</selenium.version>
+		<selenium.version>4.2.1</selenium.version>
 		<unity.version>3.9.0-SNAPSHOT</unity.version>
 		<slf.version>1.7.28</slf.version>
 	</properties>
