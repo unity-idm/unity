@@ -4,13 +4,9 @@
  */
 package pl.edu.icm.unity.webui;
 
-import java.util.List;
+import com.vaadin.server.*;
 
-import com.vaadin.server.DeploymentConfiguration;
-import com.vaadin.server.RequestHandler;
-import com.vaadin.server.ServiceException;
-import com.vaadin.server.VaadinServlet;
-import com.vaadin.server.VaadinServletService;
+import java.util.List;
 
 
 /**
@@ -37,5 +33,10 @@ public class UnityVaadinServletService extends VaadinServletService
 		List<RequestHandler> handlers = super.createRequestHandlers();
 		handlers.set(0, bootstrapHandler);
 		return handlers;
+	}
+
+	@Override
+	protected boolean isAtmosphereAvailable() {
+		return false;
 	}
 }
