@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -848,7 +849,7 @@ public class EngineInitialization extends LifecycleBase
 			String firstFactorSpec = config.getValue(authenticationFlowKey
 					+ UnityServerConfiguration.AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS);
 			String[] firstFactorAuthn = firstFactorSpec.split(",");
-			Set<String> firstFactorAuthnSet = new HashSet<>(Arrays.asList(firstFactorAuthn));
+			Set<String> firstFactorAuthnSet = new LinkedHashSet<>(Arrays.asList(firstFactorAuthn));
 
 			String secondFactorSpec = config.getValue(authenticationFlowKey
 					+ UnityServerConfiguration.AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS);

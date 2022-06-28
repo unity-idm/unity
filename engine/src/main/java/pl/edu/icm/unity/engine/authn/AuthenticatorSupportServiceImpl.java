@@ -79,7 +79,7 @@ public class AuthenticatorSupportServiceImpl implements AuthenticatorSupportServ
 			if (verificator.getType().equals(VerificatorType.Remote))
 			{
 				AuthenticationFlowDefinition authnFlow = new AuthenticationFlowDefinition(authenticator.getId(),
-						Policy.NEVER, Sets.newHashSet(authenticator.getId()));
+						Policy.NEVER, Sets.newLinkedHashSet(List.of(authenticator.getId())));
 				flows.add(authnFlow);
 			}
 		}
