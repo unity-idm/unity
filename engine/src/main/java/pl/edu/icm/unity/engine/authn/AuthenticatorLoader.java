@@ -95,7 +95,7 @@ public class AuthenticatorLoader
 			
 			ret.add(new AuthenticationFlow(authenticationFlowDefinition.getName(),
 					authenticationFlowDefinition.getPolicy(),
-					Sets.newHashSet(firstFactorAuthImpl),
+					Sets.newLinkedHashSet(firstFactorAuthImpl),
 					secondFactorFactorAuthImpl, authenticationFlowDefinition.getRevision()));
 		}
 		return ret;
@@ -131,7 +131,7 @@ public class AuthenticatorLoader
 		{
 			return new AuthenticationFlowDefinition(
 					authenticator.getName(), Policy.NEVER,
-					Sets.newHashSet(authenticator.getName()));
+					Sets.newLinkedHashSet(List.of(authenticator.getName())));
 		} else
 		{
 			throw new IllegalArgumentException(

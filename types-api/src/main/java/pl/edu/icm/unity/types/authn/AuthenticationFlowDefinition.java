@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.types.authn;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -59,7 +59,7 @@ public class AuthenticationFlowDefinition implements NamedObject
 	@JsonIgnore
 	public Set<String> getAllAuthenticators()
 	{
-		Set<String> ret = new HashSet<>();
+		Set<String> ret = new LinkedHashSet<>();
 		ret.addAll(firstFactorAuthenticators);
 		ret.addAll(secondFactorAuthenticators);
 		return ret;	
