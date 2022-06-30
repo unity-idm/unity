@@ -1,0 +1,68 @@
+/*
+ * html style generated using https://demo.vaadin.com/lumo-editor/
+ */ 
+html {
+  --lumo-font-size: 1rem;
+  --lumo-font-size-xxxl: 3rem;
+  --lumo-font-size-xxl: 2.25rem;
+  --lumo-font-size-xl: 1.75rem;
+  --lumo-font-size-l: 1.375rem;
+  --lumo-font-size-m: 1.125rem;
+  --lumo-font-size-xs: 0.875rem;
+  --lumo-font-size-xxs: 0.8125rem;
+  --lumo-font-size-s: 1rem;
+  --lumo-font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
+  --lumo-size-xl: 4rem;
+  --lumo-size-l: 3rem;
+  --lumo-size-m: 2.5rem;
+  --lumo-size-s: 2rem;
+  --lumo-size-xs: 1.75rem;
+  --lumo-primary-text-color: rgb(0, 105, 151);
+  --lumo-primary-color-50pct: rgba(0, 105, 151, 0.5);
+  --lumo-primary-color-10pct: rgba(0, 105, 151, 0.1);
+  --lumo-primary-color: #006997;
+  --lumo-shade-90pct: hsla(214, 40%, 16%, 0.94);
+  --lumo-header-text-color: #006997;
+  --lumo-error-color: #FF4637;
+  --lumo-success-color: #00B720;
+  
+  /* custom furms variables */
+  --unity-font-weight: 500;
+
+  --vaadin-text-field-default-width: 16em;
+}
+
+h1, h2, h3, h4, h5, h6, b, strong {
+	font-weight: var(--unity-font-weight);
+}
+
+vaadin-tab {
+	font-size: var(--lumo-font-size-s);
+	height: var(--lumo-size-l);
+	font-weight: var(--unity-font-weight);
+	color: white;
+}
+
+vaadin-tab:hover {
+	background-color: var(--lumo-contrast-5pct);
+}
+
+vaadin-tab[selected] {
+    background-color: #013842;
+    color: white;
+}
+
+vaadin-context-menu-item {
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-right: 0.5em;
+	padding-left: 0.5em;
+}
+
+vaadin-icon {
+    color: #04859d;
+}
+
+#scroller {
+	bottom: unset;
+}

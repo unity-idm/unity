@@ -1,0 +1,16 @@
+[part~="input-field"] {
+	background-color: white;
+}
+
+[part~="label"] {
+    align-self: center;
+    color: white;
+}
+
+:host(:hover:not([readonly]):not([focused])) [part='label'] {
+    color: white;
+}
+
+:host([focused]:not([readonly])) [part='label'] {
+    color: white;
+}
