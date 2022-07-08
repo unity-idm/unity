@@ -16,4 +16,10 @@ public class InvitationsView extends UnityViewComponent
 	public InvitationsView() {
 		getContent().add(new H1("Invitations"));
 	}
+
+	@Override
+	public void loadData()
+	{
+
+	}
 }

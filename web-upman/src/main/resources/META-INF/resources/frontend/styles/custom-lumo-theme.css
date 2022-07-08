@@ -59,8 +59,21 @@ vaadin-context-menu-item {
 	padding-left: 0.5em;
 }
 
+vaadin-notification-card > vaadin-icon {
+    width: var(--lumo-icon-size-l);
+    height: var(--lumo-icon-size-l);
+}
+
+vaadin-tab > vaadin-icon {
+    color: white;
+    width: var(--lumo-icon-size-m);
+    height: var(--lumo-icon-size-m);
+}
+
 vaadin-icon {
     color: #04859d;
+    width: var(--lumo-icon-size-s);
+    height: var(--lumo-icon-size-s);
 }
 
 #scroller {

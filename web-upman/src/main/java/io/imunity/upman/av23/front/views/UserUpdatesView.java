@@ -16,4 +16,10 @@ public class UserUpdatesView extends UnityViewComponent
 		getContent().add(new H1("User updates"));
 
 	}
+
+	@Override
+	public void loadData()
+	{
+
+	}
 }

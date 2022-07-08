@@ -19,7 +19,6 @@ import io.imunity.upman.av23.front.components.MenuComponent;
 
 import java.util.List;
 
-@CssImport(value = "./styles/vaadin-combo-box.css", themeFor = "vaadin-combo-box")
 @CssImport("./styles/views/main-layout.css")
 @CssImport("./styles/custom-lumo-theme.css")
 @PreserveOnRefresh

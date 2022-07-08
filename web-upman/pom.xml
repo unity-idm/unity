@@ -76,7 +76,7 @@
 			<plugin>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
-				<version>23.0.8</version>
+				<version>23.1.2</version>
 				<executions>
 					<execution>
 						<goals>
