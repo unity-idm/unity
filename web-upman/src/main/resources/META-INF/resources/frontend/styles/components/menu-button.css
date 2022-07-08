@@ -1,0 +1,12 @@
+.menu-button {
+	color: var(--lumo-primary-text-color);
+	cursor: pointer;
+}
+
+.menu-button vaadin-icon {
+	margin-right: 1em;
+}
+
+.menu-button[disabled] {
+	color: var(--lumo-disabled-text-color);
+}
