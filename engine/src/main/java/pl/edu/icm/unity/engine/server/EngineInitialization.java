@@ -8,12 +8,7 @@ import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.CONFIG
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.USE_CONFIG_FILE_AS_INITIAL_TEMPLATE_ONLY;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -32,7 +27,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +85,6 @@ import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
 import pl.edu.icm.unity.engine.translation.TranslationProfileChecker;
 import pl.edu.icm.unity.engine.translation.in.SystemInputTranslationProfileProvider;
 import pl.edu.icm.unity.engine.translation.out.SystemOutputTranslationProfileProvider;
-import pl.edu.icm.unity.engine.utils.FileWatcher;
 import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -264,7 +257,6 @@ public class EngineInitialization extends LifecycleBase
 				initializeDatabaseContents();
 			else
 				log.info("Unity is configured to SKIP DATABASE LOADING FROM CONFIGURATION");
-			startLogConfigurationMonitoring();
 			initializeBackgroundTasks();
 			deployConfirmationServlet();
 			deployAttributeContentPublicServlet();
@@ -1093,61 +1085,6 @@ public class EngineInitialization extends LifecycleBase
 				throw new ConfigurationException(
 						"There is no content intializer " + enabled + " defined in the system");
 			initializersMap.get(enabled).run();
-		}
-	}
-
-	private void startLogConfigurationMonitoring()
-	{
-		final String logConfig = System.getProperty("log4j.configurationFile");
-		if (logConfig == null)
-		{
-			log.warn("No log configuration file set.");
-			return;
-		}
-		Runnable r = new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					reConfigureLog4j(logConfig);
-				} catch (MalformedURLException me)
-				{
-					throw new RuntimeException(me);
-				}
-			}
-		};
-		try
-		{
-			File logProperties = logConfig.startsWith("file:") ? new File(new URI(logConfig))
-					: new File(logConfig);
-			FileWatcher fw = new FileWatcher(logProperties, r);
-			final int DELAY = 7;
-			executors.getService().scheduleWithFixedDelay(fw, DELAY, DELAY, TimeUnit.SECONDS);
-			log.info("Started logging subsystem configuration file monitoring with " + DELAY
-					+ "s interval.");
-		} catch (URISyntaxException e)
-		{
-			log.warn("Logging configuration file is not a valid URI: '" + logConfig + "'", e);
-		} catch (FileNotFoundException e)
-		{
-			log.warn("Logging configuration file '" + logConfig + "' not found.");
-		}
-	}
-
-	/**
-	 * Re-configure log4j from the named properties file.
-	 */
-	private void reConfigureLog4j(String logConfig) throws MalformedURLException
-	{
-		log.info("Logging subsystem configuration file was modified, re-configuring logging.");
-		if (logConfig.startsWith("file:"))
-		{
-			PropertyConfigurator.configure(new URL(logConfig));
-		} else
-		{
-			PropertyConfigurator.configure(logConfig);
 		}
 	}
 }
