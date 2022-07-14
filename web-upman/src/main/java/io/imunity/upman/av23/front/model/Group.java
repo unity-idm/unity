@@ -12,14 +12,31 @@ public class Group
 	public final String path;
 	public final String displayedName;
 	public final boolean delegationEnabled;
+	public final boolean delegationEnableSubprojects;
+	public final String logoUrl;
+	public final boolean isPublic;
 	public final int level;
 
-	public Group(String path, String displayedName, boolean delegationEnabled, int level)
+	public Group(String path, String displayedName, boolean delegationEnabled, boolean delegationEnableSubprojects, String logoUrl, boolean isPublic, int level)
 	{
 		this.path = path;
 		this.displayedName = displayedName;
 		this.delegationEnabled = delegationEnabled;
+		this.delegationEnableSubprojects = delegationEnableSubprojects;
+		this.logoUrl = logoUrl;
+		this.isPublic = isPublic;
 		this.level = level;
+	}
+
+	public Group(Group group)
+	{
+		this.path = group.path;
+		this.displayedName = group.displayedName;
+		this.delegationEnabled = group.delegationEnabled;
+		this.delegationEnableSubprojects = group.delegationEnableSubprojects;
+		this.logoUrl = group.logoUrl;
+		this.isPublic = group.isPublic;
+		this.level = group.level;
 	}
 
 	@Override

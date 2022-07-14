@@ -39,8 +39,8 @@ public class MembersView extends UnityViewComponent
 {
 	enum ViewMode {PROJECT_MODE, SUBPROJECT_MODE, SUBGROUP_MODE}
 
-	private final ProjectService projectController;
-	private final GroupMembersService groupMembersController;
+	private final ProjectService projectService;
+	private final GroupMembersService groupMembersService;
 	private final MessageSource msg;
 
 	private final ComboBox<Group> groupsComboBox;
@@ -55,12 +55,12 @@ public class MembersView extends UnityViewComponent
 	private ProjectGroup projectGroup;
 	private List<Group> groups;
 
-	public MembersView(MessageSource msg, ProjectService projectController, GroupMembersService groupMembersService)
+	public MembersView(MessageSource msg, ProjectService projectService, GroupMembersService groupMembersService)
 	{
 		this.msg = msg;
 		this.menuItemFactory = new MenuItemFactory(msg, groupMembersService, getContent(), this::reload);
-		this.projectController = projectController;
-		this.groupMembersController = groupMembersService;
+		this.projectService = projectService;
+		this.groupMembersService = groupMembersService;
 
 		groupsComboBox = createGroupComboBox();
 
@@ -159,12 +159,12 @@ public class MembersView extends UnityViewComponent
 	public void loadData()
 	{
 		projectGroup = ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class);
-		currentUserRole = projectController.getCurrentUserProjectRole(projectGroup);
+		currentUserRole = projectService.getCurrentUserProjectRole(projectGroup);
 
-		Group projectGroup = projectController.getProjectGroup(this.projectGroup);
-		GroupTreeNode groupTreeNode = groupMembersController.getProjectGroups(projectGroup);
+		Group projectGroup = projectService.getProjectGroup(this.projectGroup);
+		GroupTreeNode groupTreeNode = projectService.getProjectGroups(projectGroup);
 
-		groups = groupTreeNode.getAllChildren();
+		groups = groupTreeNode.getAllElements();
 		groupsComboBox.setItems(groups);
 		if (groups.iterator().hasNext())
 			groupsComboBox.setValue(groups.iterator().next());
@@ -184,10 +184,10 @@ public class MembersView extends UnityViewComponent
 	{
 		if(grid == null)
 		{
-			grid = createMembersGrid(groupMembersController.getAdditionalAttributeNamesForProject(projectGroup));
+			grid = createMembersGrid(groupMembersService.getAdditionalAttributeNamesForProject(projectGroup));
 			getContent().add(grid);
 		}
-		List<MemberModel> members = groupMembersController.getGroupMembers(projectGroup, selectedGroup).stream()
+		List<MemberModel> members = groupMembersService.getGroupMembers(projectGroup, selectedGroup).stream()
 				.filter(member -> rowContains(member, searchField.getValue()))
 				.collect(Collectors.toList());
 		grid.setItems(members);

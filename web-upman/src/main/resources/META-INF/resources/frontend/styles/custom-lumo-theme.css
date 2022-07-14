@@ -76,6 +76,14 @@ vaadin-icon {
     height: var(--lumo-icon-size-s);
 }
 
+vaadin-form-item {
+    --vaadin-form-item-label-width: 11em;
+}
+
+vaadin-text-field > label {
+    overflow: unset;
+}
+
 #scroller {
 	bottom: unset;
 }

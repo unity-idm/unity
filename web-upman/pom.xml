@@ -51,6 +51,10 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.vaadin.componentfactory</groupId>
+			<artifactId>tooltip</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>
@@ -76,7 +80,7 @@
 			<plugin>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
-				<version>23.1.2</version>
+				<version>${vaadin.version.new}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -103,6 +107,7 @@
 								<artifactItem>
 									<groupId>com.vaadin</groupId>
 									<artifactId>vaadin-spring</artifactId>
+									<version>${vaadin.version.new}</version>
 								</artifactItem>
 							</artifactItems>
 							<outputDirectory>${project.build.outputDirectory}</outputDirectory>

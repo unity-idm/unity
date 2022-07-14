@@ -9,12 +9,22 @@ import java.util.*;
 
 public class GroupTreeNode
 {
-	private final Group group;
+	public final Group group;
+	public final Optional<GroupTreeNode> parent;
 	private final TreeSet<GroupTreeNode> children;
 	private final int level;
 
+	private GroupTreeNode(GroupTreeNode parent, Group group, int level)
+	{
+		this.parent = Optional.of(parent);
+		this.group = group;
+		this.level = level;
+		this.children = new TreeSet<>(Comparator.comparing(GroupTreeNode::getDisplayedName));
+	}
+
 	public GroupTreeNode(Group group, int level)
 	{
+		this.parent = Optional.empty();
 		this.group = group;
 		this.level = level;
 		this.children = new TreeSet<>(Comparator.comparing(GroupTreeNode::getDisplayedName));
@@ -31,7 +41,7 @@ public class GroupTreeNode
 			if(child.addChild(group))
 				return true;
 		}
-		children.add(new GroupTreeNode(group, level + 1));
+		children.add(new GroupTreeNode(this, group, level + 1));
 		return true;
 	}
 
@@ -40,9 +50,9 @@ public class GroupTreeNode
 		return group.path;
 	}
 
-	public boolean isBaseLevel()
+	public boolean isRoot()
 	{
-		return level == 0;
+		return parent.isEmpty();
 	}
 
 	public String getDisplayedName()
@@ -55,11 +65,34 @@ public class GroupTreeNode
 		return List.copyOf(children);
 	}
 
-	public List<Group> getAllChildren()
+	public boolean isPublic()
+	{
+		return group.isPublic;
+	}
+
+	public boolean isDelegationEnabled()
+	{
+		return group.delegationEnabled;
+	}
+
+	public boolean isDelegationEnableSubprojects()
+	{
+		return group.delegationEnableSubprojects;
+	}
+
+	public List<Group> getAllElements()
 	{
 		List<Group> groups = new LinkedList<>();
-		groups.add(new Group(group.path, group.displayedName, group.delegationEnabled, level));
-		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllChildren()));
+		groups.add(new Group(group));
+		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllElements()));
+		return groups;
+	}
+
+	public List<GroupTreeNode> getAllNodes()
+	{
+		List<GroupTreeNode> groups = new LinkedList<>();
+		groups.add(this);
+		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllNodes()));
 		return groups;
 	}
 

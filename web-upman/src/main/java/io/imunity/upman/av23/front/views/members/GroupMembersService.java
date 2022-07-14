@@ -7,9 +7,7 @@ package io.imunity.upman.av23.front.views.members;
 
 import io.imunity.upman.av23.front.components.NotificationPresenter;
 import io.imunity.upman.av23.front.model.Group;
-import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
-import io.imunity.upman.utils.DelegatedGroupsHelper;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;
@@ -26,22 +24,19 @@ import java.util.*;
 
 
 @Service
-public class GroupMembersService
+class GroupMembersService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, GroupMembersService.class);
 
 	private final DelegatedGroupManagement delGroupMan;
-	private final DelegatedGroupsHelper delGroupHelper;
 	private final CachedAttributeHandlers cachedAttrHandlerRegistry;
 	private final MessageSource msg;
 
 	public GroupMembersService(MessageSource msg,
-	                           AttributeHandlerRegistry attrHandlerRegistry, DelegatedGroupManagement delGroupMan,
-	                           DelegatedGroupsHelper delGroupHelper)
+	                           AttributeHandlerRegistry attrHandlerRegistry, DelegatedGroupManagement delGroupMan)
 	{
 		this.msg = msg;
 		this.delGroupMan = delGroupMan;
-		this.delGroupHelper = delGroupHelper;
 		this.cachedAttrHandlerRegistry = new CachedAttributeHandlers(attrHandlerRegistry);
 	}
 
@@ -111,25 +106,6 @@ public class GroupMembersService
 			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 		return attrs;
-	}
-
-	public GroupTreeNode getProjectGroups(Group projectGroup)
-	{
-		GroupTreeNode groupTreeNode = new GroupTreeNode(projectGroup, 0);
-		try
-		{
-			delGroupHelper.getProjectGroups(projectGroup.path)
-					.stream()
-					.sorted(Comparator.comparing(x -> x.path))
-					.map(group -> new Group(group.path, group.displayedName, group.delegationConfiguration.enabled, 0))
-					.forEach(groupTreeNode::addChild);
-			return groupTreeNode;
-		} catch (Exception e)
-		{
-			log.warn("Can not get group " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
-		}
-		return groupTreeNode;
 	}
 
 	public void addToGroup(String projectPath, String groupPath, Set<MemberModel> items)
