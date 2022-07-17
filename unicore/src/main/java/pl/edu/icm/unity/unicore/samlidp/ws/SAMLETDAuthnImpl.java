@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -50,9 +51,10 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	public SAMLETDAuthnImpl(AttributeTypeSupport aTypeSupport,
 			SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan, SamlIdpStatisticReporter idpStatisticReporter)
+			PreferencesManagement preferencesMan, SamlIdpStatisticReporter idpStatisticReporter,
+			LastAccessAttributeManagement lastAccessAttributeManagement)
 	{
-		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan, idpStatisticReporter);
+		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan, idpStatisticReporter, lastAccessAttributeManagement);
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 			throw new Fault(e1);
 		}
 		
-		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, context);
+		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, lastAccessAttributeManagement, context);
 		NameIDType samlRequester = context.getRequest().getIssuer();
 		
 		ResponseDocument respDoc;

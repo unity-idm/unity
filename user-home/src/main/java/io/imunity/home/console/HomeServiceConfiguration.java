@@ -52,13 +52,12 @@ public class HomeServiceConfiguration
 		enquiryForms = new ArrayList<>();
 	}
 
-	public String toProperties(String extraTab)
+	public String toProperties()
 	{
 		Properties raw = new Properties();
 		List<String> allComponents = Stream.of(HomeEndpointProperties.Components.values())
 				.map(HomeEndpointProperties.Components::toString).collect(Collectors.toList());
-		allComponents.add(extraTab);
-
+	
 		allComponents.removeAll(enabledTabs);
 		allComponents.removeAll(enabledUserDetailsControls);
 
@@ -120,7 +119,7 @@ public class HomeServiceConfiguration
 		return prop.getAsString();
 	}
 
-	public void fromProperties(String properties, MessageSource msg, String extraTab,
+	public void fromProperties(String properties, MessageSource msg, 
 			List<Group> allGroups)
 	{
 		Properties raw = new Properties();
@@ -139,7 +138,6 @@ public class HomeServiceConfiguration
 
 		enabledTabs = HomeServiceEditorComponent.getAvailableTabs();
 		enabledUserDetailsControls = HomeServiceEditorComponent.getAvailableControls();
-		enabledUserDetailsControls.add(extraTab);
 
 		enabledTabs.removeAll(disabledComponents);
 		enabledUserDetailsControls.removeAll(disabledComponents);

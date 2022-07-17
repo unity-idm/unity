@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -56,19 +57,20 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastAccessAttributeManagement lastAccessAttributeManagement
 			)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				SamlUnicoreIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory,
 				logoutProcessorFactory, sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
-				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory);
+				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory, lastAccessAttributeManagement);
 	}
 
 	@Override
 	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
 		return new SamlETDParseServlet(myMetadataManager, 
-				endpointURL, uiUrl, new ErrorHandler(aTypeSupport, freemarkerHandler));
+				endpointURL, uiUrl, new ErrorHandler(aTypeSupport, lastAccessAttributeManagement, freemarkerHandler));
 	}
 }

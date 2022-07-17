@@ -1,0 +1,139 @@
+/*
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+
+package pl.edu.icm.unity.engine.api.home;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+public class TrustedApplicationData
+{
+	public enum AccessProtocol
+	{
+		SAML, OAuth
+	}
+
+	public enum AccessStatus
+	{
+		allow, allowWithoutAsking, disallowWithoutAsking
+	}
+
+	public final String applicationId;
+	public final String applicationName;
+	public final AccessStatus accessStatus;
+	public final AccessProtocol accessProtocol;
+	public final Optional<List<String>> accessScopes;
+	public final Optional<Instant> accessGrantTime;
+	public final Optional<Instant> lastAccessTime;
+	public final Optional<String> applicationDomain;
+	public final Optional<byte[]> logo;
+
+	public final List<TechnicalInformationProperty> technicalInformations;
+
+	private TrustedApplicationData(Builder builder)
+	{
+		this.applicationId = builder.applicationId;
+		this.applicationName = builder.applicationName;
+		this.accessStatus = builder.accessStatus;
+		this.accessProtocol = builder.accessProtocol;
+		this.accessScopes = builder.accessScopes;
+		this.accessGrantTime = builder.accessGrantTime;
+		this.lastAccessTime = builder.lastAccessTime;
+		this.applicationDomain = builder.applicationDomain;
+		this.logo = builder.logo;
+		this.technicalInformations = builder.technicalInformations;
+	}
+
+	public static Builder builder()
+	{
+		return new Builder();
+	}
+
+	public static final class Builder
+	{
+		private String applicationId;
+		private String applicationName;
+		private AccessStatus accessStatus;
+		private AccessProtocol accessProtocol;
+		private Optional<List<String>> accessScopes = Optional.empty();
+		private Optional<Instant> accessGrantTime = Optional.empty();
+		private Optional<Instant> lastAccessTime = Optional.empty();
+		private Optional<String> applicationDomain = Optional.empty();
+		private Optional<byte[]> logo = Optional.empty();
+		private List<TechnicalInformationProperty> technicalInformations = Collections.emptyList();
+
+		private Builder()
+		{
+		}
+
+		public Builder withApplicationId(String applicationId)
+		{
+			this.applicationId = applicationId;
+			return this;
+		}
+
+		public Builder withApplicationName(String applicationName)
+		{
+			this.applicationName = applicationName;
+			return this;
+		}
+
+		public Builder withAccessStatus(AccessStatus accessStatus)
+		{
+			this.accessStatus = accessStatus;
+			return this;
+		}
+
+		public Builder withAccessProtocol(AccessProtocol accessProtocol)
+		{
+			this.accessProtocol = accessProtocol;
+			return this;
+		}
+
+		public Builder withAccessScopes(Optional<List<String>> accessScopes)
+		{
+			this.accessScopes = accessScopes;
+			return this;
+		}
+
+		public Builder withAccessGrantTime(Optional<Instant> accessGrantTime)
+		{
+			this.accessGrantTime = accessGrantTime;
+			return this;
+		}
+
+		public Builder withLastAccessTime(Optional<Instant> lastAccessTime)
+		{
+			this.lastAccessTime = lastAccessTime;
+			return this;
+		}
+
+		public Builder withApplicationDomain(Optional<String> applicationDomain)
+		{
+			this.applicationDomain = applicationDomain;
+			return this;
+		}
+
+		public Builder withLogo(Optional<byte[]> logo)
+		{
+			this.logo = logo;
+			return this;
+		}
+
+		public Builder withTechnicalInformations(List<TechnicalInformationProperty> technicalInformations)
+		{
+			this.technicalInformations = technicalInformations;
+			return this;
+		}
+
+		public TrustedApplicationData build()
+		{
+			return new TrustedApplicationData(this);
+		}
+	}
+
+}

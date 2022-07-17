@@ -34,6 +34,7 @@ import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -69,10 +70,12 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
 			MessageSource msg,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(aTypeSupport, preferencesMan, idpEngine, 
-				freemarker, sessionMan, enquiryManagement, policyAgreementsMan, msg, idpStatisticReporterFactory);
+				freemarker, sessionMan, enquiryManagement, policyAgreementsMan, msg, idpStatisticReporterFactory, 
+				lastAccessAttributeManagement);
 	}
 	
 	
@@ -92,7 +95,7 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 	protected void autoReplay(SPSettings spPreferences, SAMLAuthnContext samlCtx, HttpServletRequest request,
 			HttpServletResponse response) throws EopException, IOException
 	{
-		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport,
+		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, lastAccessAttributeManagement,
 				samlCtx, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		
 		String serviceUrl = getServiceUrl(samlCtx);

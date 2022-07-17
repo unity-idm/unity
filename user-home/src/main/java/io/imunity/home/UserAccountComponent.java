@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -20,6 +21,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.home.externalApplication.TrustedApplicationTab;
 import io.imunity.home.iddetails.EntityDetailsWithActions;
 import io.imunity.home.iddetails.EntityRemovalButton;
 import io.imunity.home.iddetails.UserAttributesPanel;
@@ -30,10 +32,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
-import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -60,10 +60,8 @@ import pl.edu.icm.unity.webui.common.bigtab.BigTabPanel;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
 import pl.edu.icm.unity.webui.forms.enquiry.StickyEnquiryUpdatableComponent;
-import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 
 /**
  * Component with user's account management UI.
@@ -78,9 +76,7 @@ public class UserAccountComponent extends VerticalLayout
 	private CredentialManagement credMan;
 	private EntityManagement idsMan;
 	private CredentialEditorRegistry credEditorReg;
-	private PreferencesHandlerRegistry registry;
-	private PreferencesManagement prefMan;
-	private EndpointManagement endpMan; 
+
 	private AttributeSupport atSupport;
 	private StandardWebLogoutHandler authnProcessor;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
@@ -93,27 +89,27 @@ public class UserAccountComponent extends VerticalLayout
 	private CredentialRequirementManagement credReqMan;
 	private IdentityTypeSupport idTypeSupport;
 	private EntityManagement insecureIdsMan;
-	private HomeUITabProvider tabProvider;
 	private TokensManagement tokenMan;
 	private AdditionalAuthnHandler additionalAuthnHandler;
 	private EnquiryResponseEditorController enquiryResController;
+	private final ObjectFactory<TrustedApplicationTab> externalAppFactory;
 	
 	@Autowired
 	public UserAccountComponent(MessageSource msg, CredentialManagement credMan,
 			EntityManagement idsMan, EntityCredentialManagement ecredMan,
 			CredentialRequirementManagement credReqMan, CredentialEditorRegistry credEditorReg,
 			@Qualifier("insecure") EntityManagement insecureIdsMan,
-			PreferencesHandlerRegistry registry, PreferencesManagement prefMan,
-			EndpointManagement endpMan, AttributeSupport attrMan,
+			AttributeSupport attrMan,
 			StandardWebLogoutHandler authnProcessor,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
 			InputTranslationEngine inputTranslationEngine,
 			IdentityTypeSupport idTypeSupport,
-			HomeUITabProvider tabProvider, 
 			TokensManagement tokenMan,
 			AdditionalAuthnHandler additionalAuthnHandler,
-			EnquiryResponseEditorController enquiryResController)
+			EnquiryResponseEditorController enquiryResController,
+			ObjectFactory<TrustedApplicationTab> externalAppFactory
+			)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -122,9 +118,6 @@ public class UserAccountComponent extends VerticalLayout
 		this.credReqMan = credReqMan;
 		this.credEditorReg = credEditorReg;
 		this.insecureIdsMan = insecureIdsMan;
-		this.registry = registry;
-		this.prefMan = prefMan;
-		this.endpMan = endpMan;
 		this.atSupport = attrMan;
 		this.authnProcessor = authnProcessor;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
@@ -132,10 +125,10 @@ public class UserAccountComponent extends VerticalLayout
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.idTypeSupport = idTypeSupport;
-		this.tabProvider = tabProvider;
 		this.tokenMan = tokenMan;
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.enquiryResController = enquiryResController;
+		this.externalAppFactory = externalAppFactory;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -162,19 +155,24 @@ public class UserAccountComponent extends VerticalLayout
 		if (!disabled.contains(HomeEndpointProperties.Components.credentialTab.toString()))
 			addCredentials(tabPanel, theUser, config.getBooleanValue(HomeEndpointProperties.DISABLE_2ND_FACTOR_OPT_IN));
 
-		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
-			addPreferences(tabPanel);
+		if (!disabled.contains(HomeEndpointProperties.Components.trustedApplicationTab.toString()))
+			addTrustedApplicationATab(tabPanel);
 		
 		if (!disabled.contains(HomeEndpointProperties.Components.accountUpdateTab.toString()))
 			addAccountUpdate(tabPanel, config.getEnabledEnquiries());
-		
-		if (!disabled.contains(tabProvider.getId().toString()))
-			addExtraTab(tabPanel);
 		
 		if (tabPanel.getTabsCount() > 0)
 			tabPanel.select(0);
 	}
 	
+	private void addTrustedApplicationATab(BigTabPanel tabPanel)
+	{
+		TrustedApplicationTab externalApplicationAccessTab = externalAppFactory.getObject();
+		tabPanel.addTab("UserHomeUI.trustedApplicationLabel", "UserHomeUI.trustedApplicationDesc",
+				Images.globe, externalApplicationAccessTab);
+		
+	}
+
 	private void addAccountUpdate(BigTabPanel tabPanel, List<String> enquiries)
 	{
 		try
@@ -279,19 +277,6 @@ public class UserAccountComponent extends VerticalLayout
 					Images.key_o, errorC);
 			}
 		}
-	}
-	
-	private void addPreferences(BigTabPanel tabPanel)
-	{
-		PreferencesComponent preferencesComponent = new PreferencesComponent(msg, registry, prefMan, endpMan);
-		tabPanel.addTab("UserHomeUI.preferencesLabel", "UserHomeUI.preferencesDesc", 
-				Images.settings, preferencesComponent);
-	}
-	
-	private void addExtraTab(BigTabPanel tabPanel)
-	{
-		tabPanel.addTab(tabProvider.getLabelKey(), tabProvider.getDescriptionKey(), 
-				tabProvider.getIcon(), tabProvider.getUI());
 	}
 	
 	private UserDetailsPanel getUserInfoComponent(long entityId, EntityManagement idsMan, 

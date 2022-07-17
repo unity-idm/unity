@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.preferences;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -62,6 +63,13 @@ public class SamlPreferences extends IdPPreferences
 		
 		if (what.selectedIdentity != null)
 			main.put("selectedIdentity", what.selectedIdentity);
+		
+		if (what.timestamp != null)
+		{
+			main.put("timestamp", what.timestamp.toEpochMilli());
+		}
+		
+		
 		return main;
 	}
 	
@@ -105,6 +113,12 @@ public class SamlPreferences extends IdPPreferences
 		
 		if (from.has("selectedIdentity"))
 			ret.setSelectedIdentity(from.get("selectedIdentity").asText());
+		
+		if (from.has("timestamp"))
+		{
+			ret.setTimestamp(Instant.ofEpochMilli(from.get("timestamp").asLong()));
+		}
+		
 		return ret;
 	}
 
@@ -196,6 +210,8 @@ public class SamlPreferences extends IdPPreferences
 		private boolean defaultAccept=true;
 		private Map<String, Attribute> hiddenAttribtues = new HashMap<>();
 		private String selectedIdentity;
+		private Instant timestamp;
+
 
 		public boolean isDoNotAsk()
 		{
@@ -231,6 +247,14 @@ public class SamlPreferences extends IdPPreferences
 		public void setSelectedIdentity(String selectedIdentity)
 		{
 			this.selectedIdentity = selectedIdentity;
+		}
+		public Instant getTimestamp()
+		{
+			return timestamp;
+		}
+		public void setTimestamp(Instant timestamp)
+		{
+			this.timestamp = timestamp;
 		}
 	}
 }

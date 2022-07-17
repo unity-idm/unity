@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -270,6 +271,7 @@ class OAuthConsentScreen extends CustomComponent
 		if (identityValue != null)
 			settings.setSelectedIdentity(identityValue);
 		settings.setAudience(ctx.getAdditionalAudience().stream().collect(Collectors.toSet()));
+		settings.setTimestamp(Instant.now());
 		preferences.setSPSettings(reqIssuer, settings);
 		
 	}

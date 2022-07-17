@@ -30,7 +30,6 @@ import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 public class HomeServiceEditorGeneralTab extends GeneralTab
 {
 	private Binder<HomeServiceConfiguration> homeBinder;
-	private String extraTab;
 	private List<String> allAttributes;
 	private List<Group> allGroups;
 	private List<String> upManServices;
@@ -40,11 +39,10 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 	private CheckBox allowRemovalSheduling;
 
 	public HomeServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths,
-			String extraTab, List<String> allAttributes, List<Group> allGroups, List<String> upManServices,
+			List<String> allAttributes, List<Group> allGroups, List<String> upManServices,
 			List<String> enquiryForms, List<String> registrationForms)
 	{
 		super(msg, type, usedEndpointsPaths, serverContextPaths);
-		this.extraTab = extraTab;
 		this.allAttributes = allAttributes;
 		this.allGroups = allGroups;
 		this.upManServices = upManServices;
@@ -72,9 +70,7 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 
 		enabledControls = new ChipsWithDropdown<>();
 		enabledControls.setCaption(msg.getMessage("HomeServiceEditorComponent.enabledUserDetailsControls"));
-		List<String> enabledUserDetailsControls = HomeServiceEditorComponent.getAvailableControls();
-		enabledUserDetailsControls.add(extraTab);
-		enabledControls.setItems(enabledUserDetailsControls);
+		enabledControls.setItems(HomeServiceEditorComponent.getAvailableControls());
 		homeBinder.forField(enabledControls).bind("enabledUserDetailsControls");
 		main.addComponent(enabledControls);
 

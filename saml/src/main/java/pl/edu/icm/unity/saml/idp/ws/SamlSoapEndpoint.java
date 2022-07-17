@@ -40,6 +40,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
@@ -80,6 +81,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
 	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
+	protected final LastAccessAttributeManagement lastAccessAttributeManagement;
 	
 	@Autowired
 	public SamlSoapEndpoint(MessageSource msg,
@@ -96,7 +98,8 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement entityMan, 
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH, entityMan);
 		this.idpEngine = idpEngine;
@@ -108,6 +111,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.metadataService = metadataService;
 		this.uriAccessService = uriAccessService;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
+		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 	}
 
 	@Override
@@ -164,7 +168,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
-				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()));
+				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()), lastAccessAttributeManagement);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 		
 		configureSLOService(virtualConf, endpointURL);

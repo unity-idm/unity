@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.processor;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -21,12 +22,15 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import xmlbeans.org.oasis.saml2.assertion.AuthnContextType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
@@ -38,8 +42,10 @@ import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
- * Extends {@link StatusResponseProcessor} to produce SAML Response documents, 
- * which are returned in the Authentication Request and Assertion Query protocols. 
+ * Extends {@link StatusResponseProcessor} to produce SAML Response documents,
+ * which are returned in the Authentication Request and Assertion Query
+ * protocols.
+ * 
  * @author K. Benedyczak
  */
 public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDocument, AuthnRequestType>
@@ -47,24 +53,28 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, AuthnResponseProcessor.class);
 	private String sessionId;
 	private SubjectType authenticatedSubject;
-	
-	public AuthnResponseProcessor(AttributeTypeSupport aTypeSupport, SAMLAuthnContext context)
+	private LastAccessAttributeManagement lastAccessAttributeManagement;
+
+	public AuthnResponseProcessor(AttributeTypeSupport aTypeSupport,
+			LastAccessAttributeManagement lastAccessAttributeManagement, SAMLAuthnContext context)
 	{
-		this(aTypeSupport, context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-	}
-	
-	public AuthnResponseProcessor(AttributeTypeSupport aTypeSupport, SAMLAuthnContext context, Calendar authnTime)
-	{
-		super(aTypeSupport, context, authnTime);
+		this(aTypeSupport, lastAccessAttributeManagement ,context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 	}
 
-	public List<IdentityParam> getCompatibleIdentities(Collection<? extends IdentityParam> identities) 
+	public AuthnResponseProcessor(AttributeTypeSupport aTypeSupport, LastAccessAttributeManagement lastAccessAttributeManagement,
+			SAMLAuthnContext context, Calendar authnTime)
+	{
+		super(aTypeSupport, context, authnTime);
+		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
+	}
+
+	public List<IdentityParam> getCompatibleIdentities(Collection<? extends IdentityParam> identities)
 			throws SAMLRequesterException
 	{
 		String samlFormat = getRequestedFormat();
 		String unityFormat = samlConfiguration.getIdTypeMapper().mapIdentity(samlFormat);
 		List<IdentityParam> ret = new ArrayList<>();
-		for (IdentityParam identity: identities)
+		for (IdentityParam identity : identities)
 		{
 			if (identity.getTypeId().equals(unityFormat))
 				ret.add(identity);
@@ -73,10 +83,10 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		if (ret.size() > 0)
 			return ret;
 		throw new SAMLRequesterException(SAMLConstants.SubStatus.STATUS2_UNKNOWN_PRINCIPAL,
-				"There is no identity of the requested '" + samlFormat + 
-				"' SAML identity format for the authenticated principial.");			
+				"There is no identity of the requested '" + samlFormat
+						+ "' SAML identity format for the authenticated principial.");
 	}
-	
+
 	public boolean isIdentityCreationAllowed()
 	{
 		NameIDPolicyType nameIdPolicy = context.getRequest().getNameIDPolicy();
@@ -84,19 +94,18 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 			return true;
 		return nameIdPolicy.getAllowCreate();
 	}
-	
-	public SamlRoutableSignableMessage<ResponseDocument> processAuthnRequestReturningResponse(IdentityParam authenticatedIdentity, 
-			Collection<Attribute> attributes, String responseRelayState, String responseDestination) 
-			throws SAMLRequesterException, SAMLProcessingException
+
+	public SamlRoutableSignableMessage<ResponseDocument> processAuthnRequestReturningResponse(
+			IdentityParam authenticatedIdentity, Collection<Attribute> attributes, String responseRelayState,
+			String responseDestination) throws SAMLRequesterException, SAMLProcessingException
 	{
-		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
-				SamlIdpProperties.RETURN_SINGLE_ASSERTION);
-		return processAuthnRequest(authenticatedIdentity, attributes, returnSingleAssertion,
-				responseRelayState, responseDestination);
+		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(SamlIdpProperties.RETURN_SINGLE_ASSERTION);
+		return processAuthnRequest(authenticatedIdentity, attributes, returnSingleAssertion, responseRelayState,
+				responseDestination);
 	}
-	
-	protected SamlRoutableSignableMessage<ResponseDocument> processAuthnRequest(IdentityParam authenticatedIdentity, 
-			Collection<Attribute> attributes, boolean returnSingleAssertion, String relayState, String destination) 
+
+	protected SamlRoutableSignableMessage<ResponseDocument> processAuthnRequest(IdentityParam authenticatedIdentity,
+			Collection<Attribute> attributes, boolean returnSingleAssertion, String relayState, String destination)
 			throws SAMLRequesterException, SAMLProcessingException
 	{
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
@@ -121,7 +130,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 					addAssertionEncrypting(resp, assertion);
 			}
 		}
-		
+
 		X509Credential responseSigningKey = null;
 		if (doSignResponse())
 		{
@@ -131,15 +140,24 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 			responseSigningKey = samlConfiguration.getSamlIssuerCredential();
 		}
 		
-		return new SamlRoutableSignableMessage<>(resp, responseSigningKey, SAMLMessageType.SAMLResponse, 
-				relayState, destination);
+		try
+		{
+			lastAccessAttributeManagement.setAttribute(new EntityParam(authenticatedIdentity),
+					context.getRequest().getIssuer().getStringValue(), Instant.now());
+		} catch (EngineException e)
+		{
+			log.error("Can not set last access attribute", e);
+		}
+		
+		return new SamlRoutableSignableMessage<>(resp, responseSigningKey, SAMLMessageType.SAMLResponse, relayState,
+				destination);
 	}
-	
+
 	protected SubjectType establishSubject(IdentityParam authenticatedIdentity)
 	{
 		String format = getRequestedFormat();
 		Subject authenticatedOne = convertIdentity(authenticatedIdentity, format);
-		
+
 		SubjectType ret = authenticatedOne.getXBean();
 		setBearerSubjectConfirmation(ret);
 		return ret;
@@ -152,41 +170,41 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		SubjectConfirmationDataType confData = subConf.addNewSubjectConfirmationData();
 		confData.setInResponseTo(context.getRequest().getID());
 		Calendar validity = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		validity.setTimeInMillis(getAuthnTime().getTimeInMillis()+samlConfiguration.getRequestValidity());
+		validity.setTimeInMillis(getAuthnTime().getTimeInMillis() + samlConfiguration.getRequestValidity());
 		confData.setNotOnOrAfter(validity);
-		String consumerServiceURL = samlConfiguration.getReturnAddressForRequester(
-					context.getRequest());
+		String consumerServiceURL = samlConfiguration.getReturnAddressForRequester(context.getRequest());
 		confData.setRecipient(consumerServiceURL);
-		requested.setSubjectConfirmationArray(new SubjectConfirmationType[] {subConf});
+		requested.setSubjectConfirmationArray(new SubjectConfirmationType[]
+		{ subConf });
 	}
 
-	protected Assertion createAuthenticationAssertion(SubjectType authenticatedOne, 
-			Collection<Attribute> attributes) throws SAMLProcessingException
+	protected Assertion createAuthenticationAssertion(SubjectType authenticatedOne, Collection<Attribute> attributes)
+			throws SAMLProcessingException
 	{
 		this.authenticatedSubject = authenticatedOne;
 		AuthnContextType authContext = setupAuthnContext();
 		Assertion assertion = new Assertion();
-		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), 
-				SAMLConstants.NFORMAT_ENTITY);
+		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
 		this.sessionId = assertion.getXMLBean().getID();
 		assertion.addAuthStatement(getAuthnTime(), authContext, sessionId, null, null);
-		assertion.setAudienceRestriction(new String[] {context.getRequest().getIssuer().getStringValue()});
+		assertion.setAudienceRestriction(new String[]
+		{ context.getRequest().getIssuer().getStringValue() });
 
 		if (attributes != null)
 			addAttributesToAssertion(assertion, attributes);
-		
-		AssertionSigningPolicy assertionSigningPolicy = 
-				samlConfiguration.getEnumValue(SamlIdpProperties.SIGN_ASSERTION, 
-						AssertionSigningPolicy.class);
+
+		AssertionSigningPolicy assertionSigningPolicy = samlConfiguration.getEnumValue(SamlIdpProperties.SIGN_ASSERTION,
+				AssertionSigningPolicy.class);
 		if (assertionSigningPolicy == AssertionSigningPolicy.always || !doSignResponse())
 			signAssertion(assertion);
 		return assertion;
 	}
-	
+
 	/**
-	 * Only unspecified - it's too much work to implement it fully
-	 * with minimal effect.
+	 * Only unspecified - it's too much work to implement it fully with minimal
+	 * effect.
+	 * 
 	 * @return
 	 */
 	protected AuthnContextType setupAuthnContext()
@@ -195,7 +213,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		ret.setAuthnContextClassRef(SAMLConstants.SAML_AC_UNSPEC);
 		return ret;
 	}
-		
+
 	protected Subject convertIdentity(IdentityParam unityIdentity, String requestedSamlFormat)
 	{
 		if (requestedSamlFormat.equals(SAMLConstants.NFORMAT_UNSPEC))
@@ -215,7 +233,8 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	}
 
 	/**
-	 * @return assigned session ID. Note that it will return null until the final authN assertion is produced.
+	 * @return assigned session ID. Note that it will return null until the final
+	 *         authN assertion is produced.
 	 */
 	public String getSessionId()
 	{
@@ -223,7 +242,8 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	}
 
 	/**
-	 * @return returned user's ID. Note that it will return null until the final authN assertion is produced.
+	 * @return returned user's ID. Note that it will return null until the final
+	 *         authN assertion is produced.
 	 */
 	public SubjectType getAuthenticatedSubject()
 	{

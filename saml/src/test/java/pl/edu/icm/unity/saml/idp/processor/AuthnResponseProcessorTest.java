@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -35,6 +36,9 @@ public class AuthnResponseProcessorTest extends DBIntegrationTestBase
 {
 	@Autowired
 	private AttributeTypeSupport aTypeSupport;
+	
+	@Autowired
+	private LastAccessAttributeManagement lastAccessAttributeManagement;
 	
 	@Test
 	public void shouldProcessAttributesFromProfileWithDynamicOne() throws Exception
@@ -86,6 +90,6 @@ public class AuthnResponseProcessorTest extends DBIntegrationTestBase
 		AuthnRequestType request = mock(AuthnRequestType.class);
 		when(request.getIssuer()).thenReturn(mock(NameIDType.class));
 		when(context.getRequest()).thenReturn(request);
-		return new AuthnResponseProcessor(aTypeSupport, context);
+		return new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, context);
 	}
 }
