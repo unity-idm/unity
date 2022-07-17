@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI;
@@ -69,18 +70,19 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			AttributeTypeManagement attrMan, EnquiresDialogLauncher enquiryDialogLauncher,
 			AttributeTypeSupport aTypeSupport, PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, imageAccessService, freemarkerHandler, handlersRegistry, preferencesMan, authnProcessor,
 				idpEngine, idTypeSupport, sessionMan, attrMan, enquiryDialogLauncher, aTypeSupport,
-				policyAgreementsMan, policyAgreementScreenObjectFactory, idpStatisticReporterFactory);
+				policyAgreementsMan, policyAgreementScreenObjectFactory, idpStatisticReporterFactory, lastAccessAttributeManagement);
 	}
 
 	@Override
 	protected void enter(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
-		samlWithEtdProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, samlCtx, 
+		samlWithEtdProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance());
 		super.enter(request);
 	}

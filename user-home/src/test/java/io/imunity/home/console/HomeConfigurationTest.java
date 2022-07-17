@@ -30,9 +30,9 @@ public class HomeConfigurationTest
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(PREFIX, META).get();
 		HomeServiceConfiguration processor = new HomeServiceConfiguration();
 
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, "extraTab",
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg,
 				Arrays.asList(new Group("/"), new Group("/A")));
-		String converted = processor.toProperties("extraTab");
+		String converted = processor.toProperties();
 		Properties result = ConfigurationComparator.fromString(converted, PREFIX).get();
 		createComparator(PREFIX, META).ignoringSuperflous("attributes.1.editable", "attributes.1.showGroup")
 				.withExpectedChange("attributes.1.group", "/foo").checkMatching(result, sourceCfg);
@@ -46,9 +46,9 @@ public class HomeConfigurationTest
 				.get();
 		HomeServiceConfiguration processor = new HomeServiceConfiguration();
 
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, "extraTab",
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, 
 				Arrays.asList(new Group("/"), new Group("/A")));
-		String converted = processor.toProperties("extraTab");
+		String converted = processor.toProperties();
 		Properties result = ConfigurationComparator.fromString(converted, PREFIX).get();
 		createComparator(PREFIX, META).ignoringSuperflous("attributes.1.editable", "attributes.1.showGroup")
 				.withExpectedChange("attributes.1.group", "/foo").checkMatching(result, sourceCfg);
@@ -58,12 +58,12 @@ public class HomeConfigurationTest
 	public void serializationIsIdempotentForCompleteNonDefaultConfig() throws Exception
 	{
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(PREFIX, META)
-				.update("disabledComponents.1", "extraTab")
+				.update("disabledComponents.1", "accountUpdateTab")
 				.update("enableProjectManagementLink", "true").get();
 		HomeServiceConfiguration processor = new HomeServiceConfiguration();
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, "extraTab",
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg,
 				Arrays.asList(new Group("/"), new Group("/A")));
-		String converted = processor.toProperties("extraTab");
+		String converted = processor.toProperties();
 		Properties result = ConfigurationComparator.fromString(converted, PREFIX).get();
 
 		createComparator(PREFIX, META).ignoringSuperflous("attributes.1.editable", "attributes.1.showGroup")

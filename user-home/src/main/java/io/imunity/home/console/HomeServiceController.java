@@ -32,7 +32,6 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceController;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
-import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 
 @Component
 class HomeServiceController extends DefaultServicesControllerBase implements ServiceController
@@ -40,7 +39,6 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 	private RealmsManagement realmsMan;
 	private AuthenticationFlowManagement flowsMan;
 	private AuthenticatorManagement authMan;
-	private HomeUITabProvider tabProvider;
 	private AttributeTypeManagement atMan;
 	private BulkGroupQueryService bulkService;
 	private ProjectManagementHelper projectManHelper;
@@ -55,7 +53,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 
 	HomeServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
-			HomeUITabProvider tabProvider, AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
+			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
 			ProjectManagementHelper projectManagementHelper, EnquiryManagement enquiryMan,
 			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
@@ -67,7 +65,6 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;
-		this.tabProvider = tabProvider;
 		this.atMan = atMan;
 		this.bulkService = bulkService;
 		this.projectManHelper = projectManagementHelper;
@@ -95,7 +92,6 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
-				tabProvider.getId(),
 				atMan.getAttributeTypes().stream().map(a -> a.getName()).collect(Collectors.toList()),
 				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values()
 						.stream().map(g -> g.getGroup()).collect(Collectors.toList()),

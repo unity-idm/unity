@@ -29,7 +29,6 @@ import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 class HomeServiceEditorComponent extends ServiceEditorBase
 {
 	private Binder<HomeServiceConfiguration> homeBinder;
-	private String extraTab;
 	private Binder<DefaultServiceDefinition> serviceBinder;
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 	private FileStorageService fileStorageService;
@@ -37,11 +36,10 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 	HomeServiceEditorComponent(MessageSource msg, HomeServiceEditorGeneralTab generalTab, WebServiceAuthenticationTab authTab,
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			DefaultServiceDefinition toEdit, String extraTab, List<Group> allGroups)
+			DefaultServiceDefinition toEdit, List<Group> allGroups)
 	{
 		super(msg);
 		this.fileStorageService = fileStorageService;
-		this.extraTab = extraTab;
 		boolean editMode = toEdit != null;
 		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
 		homeBinder = new Binder<>(HomeServiceConfiguration.class);
@@ -57,7 +55,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
 		if (editMode && toEdit.getConfiguration() != null)
 		{
-			config.fromProperties(toEdit.getConfiguration(), msg, extraTab, allGroups);
+			config.fromProperties(toEdit.getConfiguration(), msg, allGroups);
 			webConfig.fromProperties(toEdit.getConfiguration(), msg, imageAccessService, 
 					serverConfig.getValue(UnityServerConfiguration.THEME));
 		}
@@ -68,9 +66,9 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 	public static List<String> getAvailableTabs()
 	{
 		return new ArrayList<String>(Arrays.asList(HomeEndpointProperties.Components.credentialTab.toString(),
-				HomeEndpointProperties.Components.preferencesTab.toString(),
 				HomeEndpointProperties.Components.userDetailsTab.toString(),
-				HomeEndpointProperties.Components.accountUpdateTab.toString()));
+				HomeEndpointProperties.Components.accountUpdateTab.toString(),
+				HomeEndpointProperties.Components.trustedApplicationTab.toString()));
 	}
 
 	public static List<String> getAvailableControls()
@@ -98,7 +96,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 				webConfigBinder.getBean().toProperties(msg, fileStorageService, service.getName()));
 		
 		
-		service.setConfiguration(homeBinder.getBean().toProperties(extraTab) + "\n"
+		service.setConfiguration(homeBinder.getBean().toProperties() + "\n"
 				+ prop.getAsString());
 		return service;
 	}

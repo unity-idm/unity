@@ -43,6 +43,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -100,7 +101,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected List<IdentityParam> validIdentities;
 	protected Map<String, AttributeType> attributeTypes;
 	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
-
+	protected final LastAccessAttributeManagement lastAccessAttributeManagement;
+	
 	@Autowired
 	public SamlIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
 			FreemarkerAppHandler freemarkerHandler,
@@ -112,7 +114,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			AttributeTypeSupport aTypeSupport,
 			PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
@@ -129,6 +132,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
+		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 	}
 
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
@@ -189,7 +193,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	
 	private void activeValueSelectionAndConsentStage(SAMLAuthnContext samlCtx, SamlIdpProperties samlConfiguration)
 	{
-		samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
+		samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, idpStatisticReporterFactory, endpointDescription.getEndpoint());
 

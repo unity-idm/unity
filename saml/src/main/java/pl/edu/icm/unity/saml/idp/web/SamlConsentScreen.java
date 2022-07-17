@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -250,6 +251,7 @@ public class SamlConsentScreen extends CustomComponent
 		String identityValue = idSelector.getSelectedIdentityForPreferences();
 		if (identityValue != null)
 			settings.setSelectedIdentity(identityValue);
+		settings.setTimestamp(Instant.now());
 		preferences.setSPSettings(reqIssuer, settings);
 	}
 	

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.List;
 
+import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
@@ -77,4 +78,9 @@ public interface EndpointManagement
 	 * @throws AuthorizationException
 	 */
 	Endpoint getEndpoint(String name) throws AuthorizationException;
+
+	/**
+	 * @return list of deployed endpoints
+	 */
+	List<EndpointInstance> getDeployedEndpointInstances() throws AuthorizationException;
 }

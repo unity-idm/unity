@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
@@ -69,11 +70,12 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement entityMan,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, server, idpEngine, preferencesMan, pkiManagement, executorsService, sessionMan,
 				logoutProcessorFactory, authnProcessor, aTypeSupport, metadataService, uriAccessService,
-				advertisedAddrProvider, entityMan, idpStatisticReporterFactory);
+				advertisedAddrProvider, entityMan, idpStatisticReporterFactory, lastAccessAttributeManagement);
 		this.servletPath = SERVLET_PATH;
 	}
 
@@ -87,7 +89,7 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
-				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()));
+				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()), lastAccessAttributeManagement);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 	}
 	

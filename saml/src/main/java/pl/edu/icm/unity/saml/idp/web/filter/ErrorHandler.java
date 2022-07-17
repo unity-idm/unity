@@ -21,6 +21,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
+import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
@@ -39,11 +40,14 @@ public class ErrorHandler
 	private AttributeTypeSupport aTypeSupport;
 	private final SamlMessageHandler messageHandler;
 	private final FreemarkerAppHandler freemarker;
+	private final LastAccessAttributeManagement lastAccessAttributeManagement;
 
-	public ErrorHandler(AttributeTypeSupport aTypeSupport, FreemarkerAppHandler freemarker)
+	public ErrorHandler(AttributeTypeSupport aTypeSupport, LastAccessAttributeManagement lastAccessAttributeManagement,
+			FreemarkerAppHandler freemarker)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.freemarker = freemarker;
+		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 		messageHandler = new SamlMessageHandler(freemarker);
 	}
 	
@@ -63,7 +67,7 @@ public class ErrorHandler
 
 		log.warn("SAML error is going to be returned to the SAML requester by the IdP", error);
 		
-		AuthnResponseProcessor errorResponseProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx);
+		AuthnResponseProcessor errorResponseProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx);
 		String encodedSamlError = processError(errorResponseProcessor, error);
 		
 		sendBackErrorResponse(error, serviceUrl, encodedSamlError, samlCtx.getRelayState(), response);
