@@ -83,7 +83,16 @@ public class GroupTreeNode
 	public List<Group> getAllElements()
 	{
 		List<Group> groups = new LinkedList<>();
-		groups.add(new Group(group));
+		groups.add(new Group(group, level));
+		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllElements()));
+		return groups;
+	}
+
+	public List<Group> getAllChildrenElements()
+	{
+		List<Group> groups = new LinkedList<>();
+		if(parent.isPresent())
+			groups.add(new Group(group, level));
 		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllElements()));
 		return groups;
 	}

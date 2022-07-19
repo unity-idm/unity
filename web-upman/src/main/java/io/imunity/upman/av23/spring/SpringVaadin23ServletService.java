@@ -8,6 +8,7 @@ package io.imunity.upman.av23.spring;
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.*;
+import com.vaadin.flow.spring.SpringInstantiator;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Optional;
@@ -24,18 +25,7 @@ public class SpringVaadin23ServletService extends VaadinServletService
 	@Override
 	protected Optional<Instantiator> loadInstantiators() throws ServiceException
 	{
-		Instantiator instantiator;
-		try
-		{
-			instantiator = (Instantiator) Class.forName("com.vaadin.flow.spring.SpringInstantiator")
-					.getConstructor(VaadinService.class, ApplicationContext.class)
-					.newInstance(this, this.context);
-		}
-		catch (Exception e)
-		{
-			throw new ServiceException("Class com.vaadin.flow.spring.SpringInstantiator is not provided! See pom.xml maven-dependency-plugin");
-		}
-		return Optional.of(instantiator);
+		return Optional.of(new SpringInstantiator(this, context));
 	}
 
 	@Override

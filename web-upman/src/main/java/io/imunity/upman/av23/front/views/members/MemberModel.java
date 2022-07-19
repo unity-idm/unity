@@ -39,6 +39,15 @@ public class MemberModel
 		return entityId == that.entityId && Objects.equals(name, that.name) && Objects.equals(attributes, that.attributes) && Objects.equals(role, that.role) && Objects.equals(email, that.email);
 	}
 
+	public boolean anyFieldContains(String value) {
+		String lowerCaseValue = value.toLowerCase();
+		return value.isEmpty()
+				|| name.toLowerCase().contains(lowerCaseValue)
+				|| role.getKey().toLowerCase().contains(lowerCaseValue)
+				|| email.getKey().toLowerCase().contains(lowerCaseValue)
+				|| attributes.values().stream().anyMatch(attrValue -> attrValue.toLowerCase().contains(lowerCaseValue));
+	}
+
 	@Override
 	public int hashCode()
 	{

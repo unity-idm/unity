@@ -52,8 +52,26 @@
 			<artifactId>vaadin-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-spring</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-webmvc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-websocket</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>com.vaadin.componentfactory</groupId>
 			<artifactId>tooltip</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.vaadin.gatanaso</groupId>
+			<artifactId>multiselect-combo-box-flow</artifactId>
 		</dependency>
 	</dependencies>
 	
@@ -90,33 +108,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.8</version>
-				<executions>
-					<execution>
-						<id>repackage-vaadin-spring</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>unpack</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>com.vaadin</groupId>
-									<artifactId>vaadin-spring</artifactId>
-									<version>${vaadin.version.new}</version>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
-							<includes>com\/vaadin\/flow\/spring\/SpringInstantiator.class</includes>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
 	</build>
 </project>

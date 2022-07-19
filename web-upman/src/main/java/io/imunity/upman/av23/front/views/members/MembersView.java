@@ -13,10 +13,10 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import io.imunity.upman.av23.components.ProjectService;
+import io.imunity.upman.av23.front.components.SearchField;
 import io.imunity.upman.av23.front.components.UnityViewComponent;
 import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.GroupTreeNode;
@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
 
 @Route(value = "/members", layout = UpManMenu.class)
 @RouteAlias(value = "/", layout = UpManMenu.class)
@@ -78,21 +76,7 @@ public class MembersView extends UnityViewComponent
 
 	private TextField createSearchField()
 	{
-		TextField searchField = new TextField();
-		searchField.setPlaceholder(msg.getMessage("GroupMembersComponent.search"));
-		searchField.addValueChangeListener(event -> reload());
-		searchField.setPrefixComponent(SEARCH.create());
-		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		return searchField;
-	}
-
-	private boolean rowContains(MemberModel memberModel, String value) {
-		String lowerCaseValue = value.toLowerCase();
-		return value.isEmpty()
-				|| memberModel.name.toLowerCase().contains(lowerCaseValue)
-				|| memberModel.role.getKey().toLowerCase().contains(lowerCaseValue)
-				|| memberModel.email.getKey().toLowerCase().contains(lowerCaseValue)
-				|| memberModel.attributes.values().stream().anyMatch(attrValue -> attrValue.toLowerCase().contains(lowerCaseValue));
+		return new SearchField(msg.getMessage("GroupMembersComponent.search"), this::reload);
 	}
 
 	private HorizontalLayout createMenuAndSearchLayout(Component memberActionMenu, TextField textField)
@@ -161,7 +145,6 @@ public class MembersView extends UnityViewComponent
 		projectGroup = ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class);
 		currentUserRole = projectService.getCurrentUserProjectRole(projectGroup);
 
-		Group projectGroup = projectService.getProjectGroup(this.projectGroup);
 		GroupTreeNode groupTreeNode = projectService.getProjectGroups(projectGroup);
 
 		groups = groupTreeNode.getAllElements();
@@ -188,7 +171,7 @@ public class MembersView extends UnityViewComponent
 			getContent().add(grid);
 		}
 		List<MemberModel> members = groupMembersService.getGroupMembers(projectGroup, selectedGroup).stream()
-				.filter(member -> rowContains(member, searchField.getValue()))
+				.filter(member -> member.anyFieldContains(searchField.getValue()))
 				.collect(Collectors.toList());
 		grid.setItems(members);
 	}

@@ -28,7 +28,7 @@ public class Group
 		this.level = level;
 	}
 
-	public Group(Group group)
+	public Group(Group group, int level)
 	{
 		this.path = group.path;
 		this.displayedName = group.displayedName;
@@ -36,7 +36,7 @@ public class Group
 		this.delegationEnableSubprojects = group.delegationEnableSubprojects;
 		this.logoUrl = group.logoUrl;
 		this.isPublic = group.isPublic;
-		this.level = group.level;
+		this.level = level;
 	}
 
 	@Override

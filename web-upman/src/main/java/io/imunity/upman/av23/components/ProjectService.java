@@ -68,9 +68,9 @@ public class ProjectService
 				.collect(Collectors.toList());
 	}
 
-	public GroupTreeNode getProjectGroups(Group projectGroup)
+	public GroupTreeNode getProjectGroups(ProjectGroup projectGroup)
 	{
-		GroupTreeNode groupTreeNode = new GroupTreeNode(projectGroup, 0);
+		GroupTreeNode groupTreeNode = new GroupTreeNode(getProjectGroup(projectGroup), 0);
 		try
 		{
 			delGroupHelper.getProjectGroups(projectGroup.path)

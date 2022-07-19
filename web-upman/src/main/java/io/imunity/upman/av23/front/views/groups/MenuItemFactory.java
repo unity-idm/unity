@@ -18,10 +18,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import io.imunity.upman.av23.front.components.FormLayoutLabel;
-import io.imunity.upman.av23.front.components.LocaleTextField;
-import io.imunity.upman.av23.front.components.LocaleTextFieldDetails;
-import io.imunity.upman.av23.front.components.MenuButton;
+import io.imunity.upman.av23.front.components.*;
 import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import pl.edu.icm.unity.MessageSource;
@@ -116,7 +113,7 @@ class MenuItemFactory
 		Dialog dialog = createBaseDialog(msg.getMessage("AddGroupDialog.caption"));
 
 		FormLayout dialogLayout = new FormLayout();
-		dialogLayout.setWidth("45em");
+		dialogLayout.setWidth("30em");
 		LocaleTextFieldDetails localeTextFieldDetails = new LocaleTextFieldDetails(msg, msg.getMessage("AddGroupDialog.info", group.displayedName));
 
 		Checkbox isPublic = new Checkbox(msg.getMessage("AddGroupDialog.public"));
@@ -199,12 +196,7 @@ class MenuItemFactory
 
 	private Dialog createBaseDialog(String header)
 	{
-		Dialog dialog = new Dialog();
-		dialog.setHeaderTitle(header);
-		Button cancelButton = new Button(msg.getMessage("Cancel"), e -> dialog.close());
-		dialog.getFooter().add(cancelButton);
-		content.add(dialog);
-		return dialog;
+		return new BaseDialog(header, msg.getMessage("Cancel"), content);
 	}
 
 	private Button createRenameButton(ProjectGroup projectGroup, Group group, Dialog dialog, List<LocaleTextField> fields)

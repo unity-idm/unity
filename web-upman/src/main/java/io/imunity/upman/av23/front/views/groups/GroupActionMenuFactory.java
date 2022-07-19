@@ -6,7 +6,7 @@
 package io.imunity.upman.av23.front.views.groups;
 
 import com.vaadin.flow.component.Component;
-import io.imunity.upman.av23.front.components.GridActionMenu;
+import io.imunity.upman.av23.front.components.ActionMenu;
 import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -31,7 +31,7 @@ class GroupActionMenuFactory
 
 	public Component createMenu(GroupTreeNode groupNode)
 	{
-		GridActionMenu menu = new GridActionMenu();
+		ActionMenu menu = new ActionMenu();
 		boolean subGroupAvailable = checkIfAdminCanCreateSubproject();
 
 		createDeleteItem(groupNode, menu);
@@ -44,7 +44,7 @@ class GroupActionMenuFactory
 		return menu.getTarget();
 	}
 
-	private void crateDelegateItem(GroupTreeNode groupNode, GridActionMenu menu)
+	private void crateDelegateItem(GroupTreeNode groupNode, ActionMenu menu)
 	{
 		if(checkIfAdminCanChangeDelegationConfig(groupNode))
 		{
@@ -53,7 +53,7 @@ class GroupActionMenuFactory
 		}
 	}
 
-	private void createRenameItem(GroupTreeNode groupNode, GridActionMenu menu)
+	private void createRenameItem(GroupTreeNode groupNode, ActionMenu menu)
 	{
 		if(!groupNode.isRoot())
 		{
@@ -62,7 +62,7 @@ class GroupActionMenuFactory
 		}
 	}
 
-	private void createMakePublicItem(GroupTreeNode groupNode, GridActionMenu menu)
+	private void createMakePublicItem(GroupTreeNode groupNode, ActionMenu menu)
 	{
 		if(isParentsNodePublicAndNodeNotPublic(groupNode))
 		{
@@ -71,7 +71,7 @@ class GroupActionMenuFactory
 		}
 	}
 
-	private void createMakePrivateItem(GroupTreeNode groupNode, GridActionMenu menu)
+	private void createMakePrivateItem(GroupTreeNode groupNode, ActionMenu menu)
 	{
 		if(isNodePublicAndNodesChildrenNotPublic(groupNode))
 		{
@@ -80,13 +80,13 @@ class GroupActionMenuFactory
 		}
 	}
 
-	private void createAddItem(GroupTreeNode groupNode, GridActionMenu menu, boolean subGroupAvailable)
+	private void createAddItem(GroupTreeNode groupNode, ActionMenu menu, boolean subGroupAvailable)
 	{
 		MenuItemFactory.MenuItem addGroupItem = menuItemFactory.createAddGroupItem(projectGroup, groupNode.group, subGroupAvailable);
 		menu.addItem(addGroupItem.component, addGroupItem.clickListener);
 	}
 
-	private void createDeleteItem(GroupTreeNode groupNode, GridActionMenu menu)
+	private void createDeleteItem(GroupTreeNode groupNode, ActionMenu menu)
 	{
 		if(!groupNode.isRoot() && !groupNode.isDelegationEnabled())
 		{

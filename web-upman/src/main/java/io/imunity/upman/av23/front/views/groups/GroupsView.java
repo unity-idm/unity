@@ -15,10 +15,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.router.Route;
 import io.imunity.upman.av23.components.ProjectService;
-import io.imunity.upman.av23.front.components.GridActionMenu;
+import io.imunity.upman.av23.front.components.ActionMenu;
 import io.imunity.upman.av23.front.components.MenuButton;
 import io.imunity.upman.av23.front.components.UnityViewComponent;
-import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import io.imunity.upman.av23.front.views.UpManMenu;
@@ -81,7 +80,7 @@ public class GroupsView extends UnityViewComponent
 
 	private Component createMainContextMenu()
 	{
-		GridActionMenu contextMenu = new GridActionMenu();
+		ActionMenu contextMenu = new ActionMenu();
 
 		contextMenu.addItem(
 				new MenuButton(msg.getMessage("GroupsComponent.expandAllAction"), FILE_TREE_SUB),
@@ -107,7 +106,6 @@ public class GroupsView extends UnityViewComponent
 
 	private void loadGrid()
 	{
-		Group projectGroup = projectService.getProjectGroup(this.projectGroup);
 		root = projectService.getProjectGroups(projectGroup);
 
 		actionMenuFactory = new GroupActionMenuFactory(menuItemFactory, this.projectGroup, root, currentUserRole);

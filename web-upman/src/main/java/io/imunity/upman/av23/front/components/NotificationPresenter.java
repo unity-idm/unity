@@ -42,6 +42,12 @@ public class NotificationPresenter
 		new ErrorNotification(caption, description).open();
 	}
 
+	public static void showWarning(String caption, String description)
+	{
+		ErrorNotification errorNotification = new ErrorNotification(caption, description);
+		errorNotification.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
+		errorNotification.open();
+	}
 
 	private static class ErrorNotification extends Notification
 	{

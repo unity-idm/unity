@@ -18,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
+import io.imunity.upman.av23.front.components.BaseDialog;
 import io.imunity.upman.av23.front.components.MenuButton;
 import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.ProjectGroup;
@@ -189,12 +190,7 @@ class MenuItemFactory
 
 	private Dialog createBaseDialog(String header)
 	{
-		Dialog dialog = new Dialog();
-		dialog.setHeaderTitle(header);
-		Button cancelButton = new Button(msg.getMessage("Cancel"), e -> dialog.close());
-		dialog.getFooter().add(cancelButton);
-		content.add(dialog);
-		return dialog;
+		return new BaseDialog(header, msg.getMessage("Cancel"), content);
 	}
 
 	private Button createSetSubProjectRoleButton(ProjectGroup projectGroup, Group group, Dialog dialog, RadioButtonGroup<GroupAuthorizationRole> radioGroup, Set<MemberModel> items)

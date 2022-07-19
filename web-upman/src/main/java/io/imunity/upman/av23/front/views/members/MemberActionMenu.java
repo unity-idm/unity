@@ -6,7 +6,7 @@
 package io.imunity.upman.av23.front.views.members;
 
 import com.vaadin.flow.component.contextmenu.MenuItem;
-import io.imunity.upman.av23.front.components.GridActionMenu;
+import io.imunity.upman.av23.front.components.ActionMenu;
 import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-class MemberActionMenu extends GridActionMenu
+class MemberActionMenu extends ActionMenu
 {
 	private final MenuItem setProjectRoleItem;
 	private final MenuItem setSubProjectRoleItem;

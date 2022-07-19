@@ -5,12 +5,12 @@
 
 package io.imunity.upman.av23.front.views.groups;
 
-import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.upman.av23.front.components.FormLayoutLabel;
+import io.imunity.upman.av23.front.components.TooltipPiner;
 import io.imunity.upman.av23.front.model.Group;
 import pl.edu.icm.unity.MessageSource;
 
@@ -48,10 +48,7 @@ class SubProjectConfigurationLayout extends FormLayout
 			enableSubprojects.setEnabled(event.getValue());
 		});
 
-		Tooltip tooltip = new Tooltip();
-		tooltip.attachToComponent(enableDelegation);
-		tooltipAttachment.add(tooltip);
-		tooltip.add(msg.getMessage("SubprojectDialog.enableDelegationDescription"));
+		TooltipPiner.pinTooltip(msg.getMessage("SubprojectDialog.enableDelegationDescription"), enableDelegation, tooltipAttachment);
 
 		logoUrl.setEnabled(false);
 		enableSubprojects.setEnabled(false);
@@ -60,6 +57,6 @@ class SubProjectConfigurationLayout extends FormLayout
 		addFormItem(logoUrl, new FormLayoutLabel(msg.getMessage("SubprojectDialog.logoUrlCaption")));
 		addFormItem(enableSubprojects, "");
 
-		setWidth("45em");
+		setWidth("30em");
 	}
 }

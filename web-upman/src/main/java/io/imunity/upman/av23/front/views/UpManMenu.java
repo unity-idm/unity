@@ -19,6 +19,7 @@ import io.imunity.upman.av23.front.components.MenuComponent;
 import io.imunity.upman.av23.front.components.UnityViewComponent;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import io.imunity.upman.av23.front.views.groups.GroupsView;
+import io.imunity.upman.av23.front.views.invitations.InvitationsView;
 import io.imunity.upman.av23.front.views.members.MembersView;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
