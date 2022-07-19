@@ -81,7 +81,7 @@ public class UserSchemaEvaluatorTest
 
 		evaluator = new UserSchemaEvaluator(
 				new SCIMEndpointDescription(URI.create("https:localhost"), "/scim",
-						List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), null),
+						List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
 				mappingEvaluatorRegistry);
 
 		AttributeDefinitionWithMapping complexAttr = AttributeDefinitionWithMapping.builder()
@@ -140,7 +140,7 @@ public class UserSchemaEvaluatorTest
 
 		evaluator = new UserSchemaEvaluator(
 				new SCIMEndpointDescription(URI.create("https:localhost"), "/scim",
-						List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), null),
+						List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
 				mappingEvaluatorRegistry);
 
 		AttributeDefinitionWithMapping complexAttr = AttributeDefinitionWithMapping.builder()
