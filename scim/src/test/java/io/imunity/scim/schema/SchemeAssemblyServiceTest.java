@@ -67,7 +67,7 @@ public class SchemeAssemblyServiceTest
 														.build())
 												.withAttributeMapping(null).build()))
 
-								.build()), Collections.emptyList(), null);
+								.build()), Collections.emptyList(), Collections.emptyList());
 
 		schemaAssemblyService = new SchemaAssemblyService(configuration);
 	}

@@ -162,7 +162,7 @@ public class UserAuthzServiceTest
 		InvocationContext.setCurrent(context);
 
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"), null);
+				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"), Collections.emptyList());
 
 		UserAuthzService attributeFilterService = new UserAuthzService(authzMan, configuration);
 		Predicate<AttributeDefinitionWithMapping> filter = attributeFilterService.getFilter();
@@ -187,7 +187,7 @@ public class UserAuthzServiceTest
 		InvocationContext.setCurrent(context);
 
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"), null);
+				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"), Collections.emptyList());
 
 		UserAuthzService attributeFilterService = new UserAuthzService(authzMan, configuration);
 		Predicate<AttributeDefinitionWithMapping> filter = attributeFilterService.getFilter();
@@ -216,7 +216,7 @@ public class UserAuthzServiceTest
 		InvocationContext.setCurrent(context);
 
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"), null);
+				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"), Collections.emptyList());
 
 		UserAuthzService attributeFilterService = new UserAuthzService(authzMan, configuration);
 		Predicate<AttributeDefinitionWithMapping> filter = attributeFilterService.getFilter();
@@ -245,7 +245,7 @@ public class UserAuthzServiceTest
 		InvocationContext.setCurrent(context);
 
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"), null);
+				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"), Collections.emptyList());
 
 		UserAuthzService attributeFilterService = new UserAuthzService(authzMan, configuration);
 		Predicate<AttributeDefinitionWithMapping> filter = attributeFilterService.getFilter();
@@ -267,7 +267,7 @@ public class UserAuthzServiceTest
 	private UserAuthzService getAuthzService()
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), null);
+				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		return new UserAuthzService(authzMan, configuration);
 	}
 }
