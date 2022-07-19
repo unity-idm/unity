@@ -92,7 +92,7 @@ public class ReferenceMappingEvaluatorTest
 		EvaluationResult eval = evaluator.eval(refAttr,
 				EvaluatorContext.builder()
 						.withScimEndpointDescription(new SCIMEndpointDescription(URI.create("https://localhost"), null,
-								Collections.emptyList(), Collections.emptyList(), Collections.emptyList()))
+								Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null))
 						.build(),
 				mappingEvaluatorRegistry);
 
@@ -116,7 +116,7 @@ public class ReferenceMappingEvaluatorTest
 		EvaluationResult eval = evaluator.eval(refAttr,
 				EvaluatorContext.builder()
 						.withScimEndpointDescription(new SCIMEndpointDescription(URI.create("https://localhost"), null,
-								Collections.emptyList(), Collections.emptyList(), Collections.emptyList()))
+								Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null))
 						.build(),
 				mappingEvaluatorRegistry);
 

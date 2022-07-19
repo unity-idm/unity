@@ -76,7 +76,8 @@ public class SCIMEndpoint extends RESTEndpoint
 		{
 			SCIMEndpointDescription enDesc = new SCIMEndpointDescription(URI.create(getServletUrl("")),
 					scimEndpointConfiguration.rootGroup, scimEndpointConfiguration.membershipGroups,
-					scimEndpointConfiguration.schemas, scimEndpointConfiguration.membershipAttributes);
+					scimEndpointConfiguration.schemas, scimEndpointConfiguration.membershipAttributes,
+					getEndpointDescription().getEndpoint().getConfiguration().getAuthenticationOptions());
 			Set<Object> ret = factories.stream().map(f -> f.getController(enDesc)).collect(Collectors.toSet());
 			SCIMEndpointExceptionMapper.installExceptionHandlers(ret);
 			return ret;
