@@ -63,7 +63,7 @@ public class UserAssemblyServiceTest
 				List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
 						.withEnable(true).build(),
 						SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
-								.withEnable(true).build()), Collections.emptyList()
+								.withEnable(true).build()), Collections.emptyList(), null
 
 		);
 		when(authzService.getFilter()).thenReturn(s -> true);

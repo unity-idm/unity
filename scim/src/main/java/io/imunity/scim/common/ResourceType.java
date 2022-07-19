@@ -18,7 +18,11 @@ public enum ResourceType
 
 	GROUP("Group"),
 
-	SCHEMA("Schema");
+	SCHEMA("Schema"),
+	
+	SERVICE_PROVIDER_CONFIG("ServiceProviderConfig"),
+
+	RESOURCE_TYPE("ResourceType");
 
 	private String name;
 

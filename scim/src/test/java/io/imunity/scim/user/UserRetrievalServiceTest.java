@@ -74,7 +74,7 @@ public class UserRetrievalServiceTest
 	public void init()
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList());
+				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), null);
 		userRetrievalService = new UserRetrievalService(authzMan, entityManagement, bulkService, attributesManagement,
 				configuration);
 	}
