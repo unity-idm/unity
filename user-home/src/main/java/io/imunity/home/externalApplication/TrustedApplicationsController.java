@@ -14,11 +14,13 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.imunity.idp.AccessProtocol;
+import io.imunity.idp.ApplicationId;
+import io.imunity.idp.IdPClientData;
+import io.imunity.idp.TrustedIdPClientsManagement;
+import io.imunity.idp.IdPClientData.AccessStatus;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.home.TrustedApplicationManagement;
-import pl.edu.icm.unity.engine.api.home.TrustedApplicationData;
-import pl.edu.icm.unity.engine.api.home.TrustedApplicationData.AccessProtocol;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -27,26 +29,26 @@ public class TrustedApplicationsController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TrustedApplicationsController.class);
 
-	private final Map<AccessProtocol, TrustedApplicationManagement> providers;
+	private final Map<AccessProtocol, TrustedIdPClientsManagement> providers;
 	private final MessageSource msg;
 
 	@Autowired
-	public TrustedApplicationsController(List<TrustedApplicationManagement> providers, MessageSource msg)
+	public TrustedApplicationsController(List<TrustedIdPClientsManagement> providers, MessageSource msg)
 	{
 		this.providers = providers.stream().collect(Collectors.toMap(p -> p.getSupportedProtocol(), p -> p));
 		this.msg = msg;
 	}
 
-	List<TrustedApplicationData> getApplications() throws ControllerException
+	List<IdPClientData> getApplications() throws ControllerException
 	{
-		List<TrustedApplicationData> applications = new ArrayList<>();
-		for (TrustedApplicationManagement p : providers.values().stream()
+		List<IdPClientData> applications = new ArrayList<>();
+		for (TrustedIdPClientsManagement p : providers.values().stream()
 				.sorted((p1, p2) -> p1.getSupportedProtocol().compareTo(p2.getSupportedProtocol()))
 				.collect(Collectors.toList()))
 		{
 			try
 			{
-				applications.addAll(p.getExternalApplicationData());
+				applications.addAll(p.getIdpClientsData());
 			} catch (EngineException e)
 			{
 				log.error("Can not get trusted applications", e);
@@ -56,7 +58,19 @@ public class TrustedApplicationsController
 		return applications;
 	}
 
-	void ublockAccess(String appId, AccessProtocol accessProtocol) throws ControllerException
+	List<IdPClientData> filterAllowedApplications(List<IdPClientData> applications)
+	{
+		return applications.stream().filter(a -> a.accessStatus.equals(AccessStatus.allowWithoutAsking)
+				|| a.accessStatus.equals(AccessStatus.allow)).collect(Collectors.toList());
+	}
+
+	List<IdPClientData> filterDisallowedApplications(List<IdPClientData> applications)
+	{
+		return applications.stream().filter(a -> a.accessStatus.equals(AccessStatus.disallowWithoutAsking))
+				.collect(Collectors.toList());
+	}
+
+	void ublockAccess(ApplicationId appId, AccessProtocol accessProtocol) throws ControllerException
 	{
 		try
 		{
@@ -69,7 +83,7 @@ public class TrustedApplicationsController
 		}
 	}
 
-	void revokeAccess(String appId, AccessProtocol accessProtocol) throws ControllerException
+	void revokeAccess(ApplicationId appId, AccessProtocol accessProtocol) throws ControllerException
 	{
 		try
 		{

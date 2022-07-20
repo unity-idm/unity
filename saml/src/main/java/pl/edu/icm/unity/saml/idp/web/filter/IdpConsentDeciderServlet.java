@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.security.dsig.DSigException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -50,7 +51,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -93,7 +93,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	private final MessageSource msg;
 	private final FreemarkerAppHandler freemarker;
 	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
-	protected final LastAccessAttributeManagement lastAccessAttributeManagement;
+	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 	
 	@Autowired
 	public IdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
@@ -105,7 +105,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			PolicyAgreementManagement policyAgreementsMan,
 			MessageSource msg,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.preferencesMan = preferencesMan;

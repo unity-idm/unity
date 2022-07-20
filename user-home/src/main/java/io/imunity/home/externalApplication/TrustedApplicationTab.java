@@ -7,7 +7,6 @@ package io.imunity.home.externalApplication;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,9 +21,9 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.idp.IdPClientData;
+import io.imunity.idp.IdPClientData.AccessStatus;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.home.TrustedApplicationData;
-import pl.edu.icm.unity.engine.api.home.TrustedApplicationData.AccessStatus;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -60,7 +59,7 @@ public class TrustedApplicationTab extends CustomComponent
 	private void refresh()
 	{
 		main.removeAllComponents();
-		List<TrustedApplicationData> applications;
+		List<IdPClientData> applications;
 		try
 		{
 			applications = controller.getApplications();
@@ -69,21 +68,19 @@ public class TrustedApplicationTab extends CustomComponent
 			NotificationPopup.showError(e);
 			return;
 		}
-		List<TrustedApplicationData> allowedApp = applications.stream()
-				.filter(a -> a.accessStatus.equals(AccessStatus.allowWithoutAsking)
-						|| a.accessStatus.equals(AccessStatus.allow))
-				.collect(Collectors.toList());
+		List<IdPClientData> allowedApp = controller.filterAllowedApplications(applications);
+
+		Label appWithAccess = new Label();
+		appWithAccess.setValue(msg.getMessage("TrustedApplications.applicationsWithAccess"));
+		appWithAccess.setStyleName(Styles.textXLarge.toString());
+		appWithAccess.addStyleName(Styles.bold.toString());
+		main.addComponent(appWithAccess);
+
 		if (allowedApp.size() > 0)
 		{
-			Label appWithAccess = new Label();
-			appWithAccess.setValue(msg.getMessage("TrustedApplications.applicationsWithAccess"));
-			appWithAccess.setStyleName(Styles.textXLarge.toString());
-			appWithAccess.addStyleName(Styles.bold.toString());
-			main.addComponent(appWithAccess);
 			allowedApp.forEach(a -> main.addComponent(new TrustedApplicationComponent(a)));
 		}
-		List<TrustedApplicationData> disallowedApp = applications.stream()
-				.filter(a -> a.accessStatus.equals(AccessStatus.disallowWithoutAsking)).collect(Collectors.toList());
+		List<IdPClientData> disallowedApp = controller.filterDisallowedApplications(applications);
 		if (disallowedApp.size() > 0)
 		{
 			Label appWithDenied = new Label();
@@ -100,7 +97,7 @@ public class TrustedApplicationTab extends CustomComponent
 		private Button showHide;
 		private FormLayout content;
 
-		public TrustedApplicationComponent(TrustedApplicationData application)
+		public TrustedApplicationComponent(IdPClientData application)
 		{
 			VerticalLayout header = initHeader(application);
 			content = initContent(application);
@@ -113,7 +110,7 @@ public class TrustedApplicationTab extends CustomComponent
 			setCompositionRoot(main);
 		}
 
-		private FormLayout initContent(TrustedApplicationData application)
+		private FormLayout initContent(IdPClientData application)
 		{
 
 			FormLayoutWithFixedCaptionWidth content = new FormLayoutWithFixedCaptionWidth();
@@ -200,7 +197,7 @@ public class TrustedApplicationTab extends CustomComponent
 			return content;
 		}
 
-		private VerticalLayout initHeader(TrustedApplicationData application)
+		private VerticalLayout initHeader(IdPClientData application)
 		{
 			VerticalLayout headerWrapper = new VerticalLayout();
 			headerWrapper.setMargin(false);
@@ -260,7 +257,7 @@ public class TrustedApplicationTab extends CustomComponent
 			return headerWrapper;
 		}
 
-		private void unblockAccess(TrustedApplicationData application)
+		private void unblockAccess(IdPClientData application)
 		{
 			try
 			{
@@ -272,7 +269,7 @@ public class TrustedApplicationTab extends CustomComponent
 			}
 		}
 
-		private void revokeAccess(TrustedApplicationData application)
+		private void revokeAccess(IdPClientData application)
 		{
 			new ConfirmDialog(msg, msg.getMessage("TrustedApplications.confirmRevokeTitle"),
 					msg.getMessage("TrustedApplications.confirmRevoke", application.applicationName), () ->

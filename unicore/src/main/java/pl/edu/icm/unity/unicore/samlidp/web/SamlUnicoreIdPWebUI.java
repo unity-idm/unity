@@ -18,6 +18,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 
 import eu.unicore.security.etd.DelegationRestrictions;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -28,7 +29,6 @@ import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebUI;
@@ -71,7 +71,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			AttributeTypeSupport aTypeSupport, PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, imageAccessService, freemarkerHandler, handlersRegistry, preferencesMan, authnProcessor,
 				idpEngine, idTypeSupport, sessionMan, attrMan, enquiryDialogLauncher, aTypeSupport,

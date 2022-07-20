@@ -5,12 +5,16 @@
 
 package pl.edu.icm.unity.oauth.as.token;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationEventPublisher;
 
+import io.imunity.idp.AccessProtocol;
+import io.imunity.idp.ApplicationId;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -18,6 +22,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -39,11 +44,13 @@ class OAuthTokenStatisticPublisher
 	private final OAuthRequestValidator requestValidator;
 	private final ResolvedEndpoint endpoint;
 	private final EndpointManagement endpointMan;
+	private final LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement;
 
 	private Endpoint authzEndpoint;
 
 	OAuthTokenStatisticPublisher(ApplicationEventPublisher eventPublisher, MessageSource msg, EntityManagement idMan,
-			OAuthRequestValidator requestValidator, ResolvedEndpoint endpoint, EndpointManagement endpointMan)
+			OAuthRequestValidator requestValidator, ResolvedEndpoint endpoint, EndpointManagement endpointMan,
+			LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement)
 	{
 		this.eventPublisher = eventPublisher;
 		this.msg = msg;
@@ -51,6 +58,7 @@ class OAuthTokenStatisticPublisher
 		this.requestValidator = requestValidator;
 		this.endpoint = endpoint;
 		this.endpointMan = endpointMan;
+		this.lastIdPClinetAccessAttributeManagement = lastIdPClinetAccessAttributeManagement;
 	}
 
 	void reportFailAsLoggedClient()
@@ -97,9 +105,19 @@ class OAuthTokenStatisticPublisher
 		report(clientUsername, clientName, Status.FAILED);
 	}
 
-	void reportSuccess(String clientUsername, String clientName)
+	void reportSuccess(String clientUsername, String clientName, EntityParam owner)
 	{
 		report(clientUsername, clientName, Status.SUCCESSFUL);
+		
+		try
+		{
+			lastIdPClinetAccessAttributeManagement.setAttribute(owner,
+					AccessProtocol.OAuth, new ApplicationId(clientUsername), Instant.now());
+		} catch (EngineException e)
+		{
+			log.error("Can not set last access attribute", e);
+		}
+		
 	}
 
 	private void report(String clientUsername, String clientName, Status status)

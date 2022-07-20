@@ -17,11 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -38,7 +38,7 @@ public class AuthnResponseProcessorTest extends DBIntegrationTestBase
 	private AttributeTypeSupport aTypeSupport;
 	
 	@Autowired
-	private LastAccessAttributeManagement lastAccessAttributeManagement;
+	private LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 	
 	@Test
 	public void shouldProcessAttributesFromProfileWithDynamicOne() throws Exception

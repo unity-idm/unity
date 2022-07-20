@@ -328,4 +328,11 @@ unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS
 Of course the above covers only a migration preserving the previous version behavior. It is also possible to switch to 
 offline scope based refresh token issuance.
 
+==== From 3.9.1 to 3.10
+
+There are no manual actions required for this upgrade.
+
+Preferences tab and OAuthTokens tab on home endpoint are migrated to Trusted applications tab
+
+
  

@@ -3,26 +3,21 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.api.home;
+package io.imunity.idp;
 
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class TrustedApplicationData
+public class IdPClientData
 {
-	public enum AccessProtocol
-	{
-		SAML, OAuth
-	}
-
 	public enum AccessStatus
 	{
 		allow, allowWithoutAsking, disallowWithoutAsking
 	}
 
-	public final String applicationId;
+	public final ApplicationId applicationId;
 	public final String applicationName;
 	public final AccessStatus accessStatus;
 	public final AccessProtocol accessProtocol;
@@ -34,7 +29,7 @@ public class TrustedApplicationData
 
 	public final List<TechnicalInformationProperty> technicalInformations;
 
-	private TrustedApplicationData(Builder builder)
+	private IdPClientData(Builder builder)
 	{
 		this.applicationId = builder.applicationId;
 		this.applicationName = builder.applicationName;
@@ -55,7 +50,7 @@ public class TrustedApplicationData
 
 	public static final class Builder
 	{
-		private String applicationId;
+		private ApplicationId applicationId;
 		private String applicationName;
 		private AccessStatus accessStatus;
 		private AccessProtocol accessProtocol;
@@ -70,7 +65,7 @@ public class TrustedApplicationData
 		{
 		}
 
-		public Builder withApplicationId(String applicationId)
+		public Builder withApplicationId(ApplicationId applicationId)
 		{
 			this.applicationId = applicationId;
 			return this;
@@ -130,9 +125,9 @@ public class TrustedApplicationData
 			return this;
 		}
 
-		public TrustedApplicationData build()
+		public IdPClientData build()
 		{
-			return new TrustedApplicationData(this);
+			return new IdPClientData(this);
 		}
 	}
 

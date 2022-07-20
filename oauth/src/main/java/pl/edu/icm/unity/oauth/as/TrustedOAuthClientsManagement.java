@@ -22,6 +22,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import io.imunity.idp.TechnicalInformationProperty;
+import io.imunity.idp.AccessProtocol;
+import io.imunity.idp.ApplicationId;
+import io.imunity.idp.IdPClientData;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import io.imunity.idp.TrustedIdPClientsManagement;
+import io.imunity.idp.IdPClientData.AccessStatus;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.UnityImage;
@@ -32,11 +40,6 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
-import pl.edu.icm.unity.engine.api.home.TechnicalInformationProperty;
-import pl.edu.icm.unity.engine.api.home.TrustedApplicationData;
-import pl.edu.icm.unity.engine.api.home.TrustedApplicationData.AccessProtocol;
-import pl.edu.icm.unity.engine.api.home.TrustedApplicationData.AccessStatus;
-import pl.edu.icm.unity.engine.api.home.TrustedApplicationManagement;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -56,7 +59,7 @@ import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
 
 @Component
-public class TrustedOAuthApplicationManagement implements TrustedApplicationManagement
+public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagement
 {
 	private final SecuredTokensManagement tokenMan;
 	private final PreferencesManagement preferencesManagement;
@@ -68,12 +71,13 @@ public class TrustedOAuthApplicationManagement implements TrustedApplicationMana
 	private final IdpUsersHelper idpUsersHelper;
 	private final MessageSource msg;
 	private final OAuthScopesService scopesService;
+	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
-	public TrustedOAuthApplicationManagement(SecuredTokensManagement tokenMan,
-			PreferencesManagement preferencesManagement, OAuthTokenRepository oauthTokenDAO,
-			@Qualifier("insecure") EndpointManagement endpointManagement,
+	public TrustedOAuthClientsManagement(SecuredTokensManagement tokenMan, PreferencesManagement preferencesManagement,
+			OAuthTokenRepository oauthTokenDAO, @Qualifier("insecure") EndpointManagement endpointManagement,
 			@Qualifier("insecure") BulkGroupQueryService bulkService, IdpUsersHelper idpUsersHelper, MessageSource msg,
-			OAuthScopesService scopesService, AttributeTypeSupport aTypeSupport)
+			OAuthScopesService scopesService, AttributeTypeSupport aTypeSupport,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		this.tokenMan = tokenMan;
 		this.preferencesManagement = preferencesManagement;
@@ -84,14 +88,15 @@ public class TrustedOAuthApplicationManagement implements TrustedApplicationMana
 		this.msg = msg;
 		this.scopesService = scopesService;
 		this.aTypeSupport = aTypeSupport;
+		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 	}
 
 	@Override
-	public List<TrustedApplicationData> getExternalApplicationData() throws EngineException
+	public List<IdPClientData> getIdpClientsData() throws EngineException
 	{
 		Map<String, TokensAndPreferences> perClientData = getGroupedByClientPreferencesAndTokens();
 		List<OAuthServiceConfiguration> services = getServices();
-		List<TrustedApplicationData> ret = new ArrayList<>();
+		List<IdPClientData> ret = new ArrayList<>();
 		for (OAuthServiceConfiguration service : services)
 		{
 			for (String client : perClientData.keySet())
@@ -113,7 +118,7 @@ public class TrustedOAuthApplicationManagement implements TrustedApplicationMana
 
 					if (isDisallowed(perClientData.get(client).preferences))
 					{
-						ret.add(TrustedApplicationData.builder().withApplicationId(client)
+						ret.add(IdPClientData.builder().withApplicationId(new ApplicationId(client))
 								.withLogo(Optional.ofNullable(serviceClient.get().logo))
 								.withAccessProtocol(AccessProtocol.OAuth)
 								.withAccessStatus(AccessStatus.disallowWithoutAsking)
@@ -123,33 +128,16 @@ public class TrustedOAuthApplicationManagement implements TrustedApplicationMana
 								.build());
 					}
 
-					if (accessTokens.size() > 0 || refreshTokens.size() > 0)
+					if (accessTokens.size() > 0 || refreshTokens.size() > 0
+							|| isAllowedWithoutAsking(perClientData.get(client).preferences))
 					{
-						List<TechnicalInformationProperty> technicalInformations = new ArrayList<>();
-						Set<String> scopes = new HashSet<>();
+						Set<String> scopes = getScopes(accessTokens, service);
 
-						for (int i = 0; i < accessTokens.size(); i++)
-						{
-							technicalInformations.add(TechnicalInformationProperty.builder()
-									.withTitleKey(msg.getMessage("OAuthApplicationProvider.accessTokenLabel")
-											+ (accessTokens.size() > 1 ? " (" + (i + 1) + "):" : ":"))
-									.withValue(accessTokens.get(i).token.getAccessToken()).build());
-							scopes.addAll(getScopes(accessTokens.get(i), service));
-						}
-
-						for (int i = 0; i < refreshTokens.size(); i++)
-						{
-							technicalInformations.add(TechnicalInformationProperty.builder()
-									.withTitleKey(msg.getMessage("OAuthApplicationProvider.refreshTokenLabel")
-											+ (refreshTokens.size() > 1 ? " (" + (i + 1) + "):" : ":"))
-									.withValue(refreshTokens.get(i).token.getRefreshToken()).build());
-						}
-
-						ret.add(TrustedApplicationData.builder().withApplicationId(client)
+						ret.add(IdPClientData.builder().withApplicationId(new ApplicationId(client))
 								.withLogo(Optional.ofNullable(serviceClient.get().logo))
 								.withAccessProtocol(AccessProtocol.OAuth)
-								.withLastAccessTime(Optional
-										.ofNullable(accessTokens.isEmpty() ? null : accessTokens.get(0).createdTime))
+								.withLastAccessTime(Optional.ofNullable(getLastAccessByClient()
+										.get(new LastIdPClientAccessKey(AccessProtocol.OAuth, client))))
 								.withAccessStatus(isAllowedWithoutAsking(perClientData.get(client).preferences)
 										? AccessStatus.allowWithoutAsking
 										: AccessStatus.allow)
@@ -162,13 +150,54 @@ public class TrustedOAuthApplicationManagement implements TrustedApplicationMana
 										scopes.size() > 0 ? scopes.stream().collect(Collectors.toList()) : null))
 								.withApplicationDomain(Optional.of(URIPresentationHelper
 										.getHumanReadableDomain(serviceClient.get().redirectURIs.get(0))))
-								.withTechnicalInformations(technicalInformations).build());
+								.withTechnicalInformations(getTechnicalInformations(accessTokens, refreshTokens))
+								.build());
 					}
 				}
 			}
 		}
 
 		return ret;
+	}
+
+	private Set<String> getScopes(List<OAuthTokenWithTime> accessTokens, OAuthServiceConfiguration service)
+	{
+		Set<String> scopes = new HashSet<>();
+		for (int i = 0; i < accessTokens.size(); i++)
+		{
+			scopes.addAll(getScopes(accessTokens.get(i), service));
+		}
+
+		return scopes;
+	}
+
+	private List<TechnicalInformationProperty> getTechnicalInformations(List<OAuthTokenWithTime> accessTokens,
+			List<OAuthTokenWithTime> refreshTokens)
+	{
+		List<TechnicalInformationProperty> technicalInformations = new ArrayList<>();
+		for (int i = 0; i < accessTokens.size(); i++)
+		{
+			technicalInformations.add(TechnicalInformationProperty.builder()
+					.withTitleKey(msg.getMessage("OAuthApplicationProvider.accessTokenLabel")
+							+ (accessTokens.size() > 1 ? " (" + (i + 1) + "):" : ":"))
+					.withValue(accessTokens.get(i).token.getAccessToken()).build());
+		}
+
+		for (int i = 0; i < refreshTokens.size(); i++)
+		{
+			technicalInformations.add(TechnicalInformationProperty.builder()
+					.withTitleKey(msg.getMessage("OAuthApplicationProvider.refreshTokenLabel")
+							+ (refreshTokens.size() > 1 ? " (" + (i + 1) + "):" : ":"))
+					.withValue(refreshTokens.get(i).token.getRefreshToken()).build());
+		}
+
+		return technicalInformations;
+	}
+
+	private Map<LastIdPClientAccessKey, Instant> getLastAccessByClient() throws EngineException
+	{
+		return lastAccessAttributeManagement.getLastAccessByClient();
+
 	}
 
 	private Optional<Instant> getGrantTime(List<OAuthTokenWithTime> refreshTokens,
@@ -272,7 +301,7 @@ public class TrustedOAuthApplicationManagement implements TrustedApplicationMana
 		return preferences;
 	}
 
-	public List<OAuthServiceConfiguration> getServices() throws AuthorizationException
+	private List<OAuthServiceConfiguration> getServices() throws AuthorizationException
 	{
 		List<OAuthServiceConfiguration> ret = new ArrayList<>();
 		for (Endpoint endpoint : endpointManagement.getEndpoints().stream()
@@ -295,24 +324,24 @@ public class TrustedOAuthApplicationManagement implements TrustedApplicationMana
 	}
 
 	@Override
-	public void unblockAccess(String appId) throws EngineException
+	public synchronized void unblockAccess(ApplicationId appId) throws EngineException
 	{
-		clearPreferences(appId);
+		clearPreferences(appId.id);
 	}
 
 	@Override
-	public void revokeAccess(String appId) throws EngineException
+	public synchronized void revokeAccess(ApplicationId appId) throws EngineException
 	{
 		List<OAuthTokenWithTime> tokens = getTokens();
 		for (OAuthTokenWithTime token : tokens)
 		{
-			if (token.token.getClientUsername().equals(appId))
+			if (token.token.getClientUsername().equals(appId.id))
 			{
 				tokenMan.removeToken(token.type, token.value);
 			}
 		}
 
-		clearPreferences(appId);
+		clearPreferences(appId.id);
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -40,7 +41,6 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
@@ -81,7 +81,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
 	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
-	protected final LastAccessAttributeManagement lastAccessAttributeManagement;
+	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 	
 	@Autowired
 	public SamlSoapEndpoint(MessageSource msg,
@@ -99,7 +99,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement entityMan, 
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH, entityMan);
 		this.idpEngine = idpEngine;

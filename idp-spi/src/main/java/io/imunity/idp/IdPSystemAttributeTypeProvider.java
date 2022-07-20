@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.saml.idp;
+package io.imunity.idp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,18 +16,19 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 @Component
-public class SAMLSystemAttributeTypeProvider implements SystemAttributesProvider
+public class IdPSystemAttributeTypeProvider implements SystemAttributesProvider
 {
-	public static final String LAST_ACCESS = "sys:saml:lastAccess";
-	private List<AttributeType> samlAttributes = new ArrayList<AttributeType>();
+	public static final String LAST_ACCESS = "sys:idp:clientLastAccess";
+	public final List<AttributeType> idpAttributes;
 
 	private final MessageSource msg;
 
 	@Autowired
-	public SAMLSystemAttributeTypeProvider(MessageSource msg)
+	public IdPSystemAttributeTypeProvider(MessageSource msg)
 	{
 		this.msg = msg;
-		samlAttributes.add(getLastAccessAttributeType());
+		idpAttributes = new ArrayList<>();
+		idpAttributes.add(getLastAccessAttributeType());
 	}
 
 	private AttributeType getLastAccessAttributeType()
@@ -43,7 +44,7 @@ public class SAMLSystemAttributeTypeProvider implements SystemAttributesProvider
 	@Override
 	public List<AttributeType> getSystemAttributes()
 	{
-		return samlAttributes;
+		return idpAttributes;
 	}
 
 	@Override

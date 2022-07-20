@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.api.home;
+package io.imunity.idp;
 
 public class TechnicalInformationProperty
 {

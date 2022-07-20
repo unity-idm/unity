@@ -73,7 +73,7 @@ class HomeEndpointConfigurationMigrator
 			properties.store(writer, "");
 		} catch (IOException e)
 		{
-			throw new InternalException("Can not save properties to string");
+			throw new InternalException("Can not save properties to string", e);
 		}
 		return writer.getBuffer().toString();
 	}

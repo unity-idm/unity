@@ -29,6 +29,7 @@ import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -184,7 +185,7 @@ public class PKCETest
 			TransactionalRunner tx)
 	{
 		return new AccessTokenResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
-				mock(SecuredTokensManagement.class)), config, null, null, null, tx, mock(ApplicationEventPublisher.class), null, null, OAuthTestUtils.getEndpoint());
+				mock(SecuredTokensManagement.class)), config, null, null, null, tx, mock(ApplicationEventPublisher.class), null, null, mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
 	}
 	
 	private void setupInvocationContext()

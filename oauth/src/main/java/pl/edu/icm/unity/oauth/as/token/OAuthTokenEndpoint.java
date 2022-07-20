@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -82,6 +83,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private EntityManagement identitiesMan;
 	private OAuthTokenRepository oauthTokenRepository;
 	private final EndpointManagement endpointMan;
+	private final LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement;
 	
 	
 	@Autowired
@@ -100,7 +102,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			ApplicationEventPublisher eventPublisher,
 			@Qualifier("insecure") EndpointManagement endpointManagement,
-			OAuthScopesService scopeService)
+			OAuthScopesService scopeService,
+			LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.tokensManagement = tokensMan;
@@ -114,6 +117,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.eventPublisher = eventPublisher;
 		this.endpointMan = endpointManagement;
 		this.scopeService = scopeService;
+		this.lastIdPClinetAccessAttributeManagement  = lastIdPClinetAccessAttributeManagement;
 	}
 	
 	@Override
@@ -143,7 +147,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(new AccessTokenResource(tokensManagement, oauthTokenRepository, config, 
 					new OAuthRequestValidator(config, identitiesMan, attributesMan, scopeService), 
-					insecureIdPEngine, identitiesMan, tx, eventPublisher, msg, endpointMan, description));
+					insecureIdPEngine, identitiesMan, tx, eventPublisher, msg, endpointMan, lastIdPClinetAccessAttributeManagement, description));
 			ret.add(new DiscoveryResource(config, coordinator, scopeService));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(oauthTokenRepository));

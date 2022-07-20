@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Primary;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -45,7 +46,6 @@ import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -110,7 +110,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
 	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
-	protected final LastAccessAttributeManagement lastAccessAttributeManagement;
+	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 	
 	@Autowired
 	public SamlAuthVaadinEndpoint(NetworkServer server,
@@ -128,7 +128,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		this(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory, logoutProcessorFactory,
@@ -153,7 +153,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			URIAccessService uriAccessService,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH,
 				remoteAuthnResponseProcessingFilter);

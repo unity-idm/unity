@@ -66,6 +66,7 @@
 		<module>web-console-spi</module>
 		<module>web-console</module>
 		<module>web-upman</module>
+		<module>idp-spi</module>
 		<module>rest</module>
 		<module>rest-admin</module>
 		<module>ws</module>

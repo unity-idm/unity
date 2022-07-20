@@ -26,6 +26,7 @@ import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 
 import eu.unicore.samly2.SAMLConstants;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -43,7 +44,6 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -101,7 +101,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected List<IdentityParam> validIdentities;
 	protected Map<String, AttributeType> attributeTypes;
 	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
-	protected final LastAccessAttributeManagement lastAccessAttributeManagement;
+	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 	
 	@Autowired
 	public SamlIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
@@ -115,7 +115,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
