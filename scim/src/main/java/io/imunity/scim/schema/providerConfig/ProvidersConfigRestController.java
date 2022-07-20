@@ -58,10 +58,9 @@ public class ProvidersConfigRestController implements SCIMRestController
 	{
 		log.debug("Get providers config");
 		return Response.ok().entity(mapper.writeValueAsString(SCIMProviderConfigResource.builder()
-				.withPatch(Supported.builder().build())
-				.withBulk(Supported.builder().build()).withFilter(Supported.builder().build())
-				.withEtag(Supported.builder().build()).withChangePassword(Supported.builder().build())
-				.withAuthenticationSchemes(getAuthenticationSchemes())
+				.withPatch(Supported.builder().build()).withBulk(Supported.builder().build())
+				.withFilter(Supported.builder().build()).withEtag(Supported.builder().build())
+				.withChangePassword(Supported.builder().build()).withAuthenticationSchemes(getAuthenticationSchemes())
 				.withMeta(Meta.builder()
 						.withLocation(
 								UriBuilder.fromUri(configuration.baseLocation).path(PROVIDER_CONFIG_LOCATION).build())
@@ -73,8 +72,8 @@ public class ProvidersConfigRestController implements SCIMRestController
 
 	private List<AuthenticationSchema> getAuthenticationSchemes()
 	{
-		return provider.getAuthenticationSchemes(configuration.authenticationOptions).stream().collect(Collectors.toList());
-
+		return provider.getAuthenticationSchemes(configuration.authenticationOptions).stream()
+				.collect(Collectors.toList());
 	}
 
 	@Component
