@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -31,7 +32,6 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
@@ -71,7 +71,7 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement entityMan,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, server, idpEngine, preferencesMan, pkiManagement, executorsService, sessionMan,
 				logoutProcessorFactory, authnProcessor, aTypeSupport, metadataService, uriAccessService,

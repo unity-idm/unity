@@ -20,11 +20,13 @@ import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.elements.Subject;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
+import io.imunity.idp.AccessProtocol;
+import io.imunity.idp.ApplicationId;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -53,15 +55,15 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, AuthnResponseProcessor.class);
 	private String sessionId;
 	private SubjectType authenticatedSubject;
-	private LastAccessAttributeManagement lastAccessAttributeManagement;
+	private LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
 	public AuthnResponseProcessor(AttributeTypeSupport aTypeSupport,
-			LastAccessAttributeManagement lastAccessAttributeManagement, SAMLAuthnContext context)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement, SAMLAuthnContext context)
 	{
 		this(aTypeSupport, lastAccessAttributeManagement ,context, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 	}
 
-	public AuthnResponseProcessor(AttributeTypeSupport aTypeSupport, LastAccessAttributeManagement lastAccessAttributeManagement,
+	public AuthnResponseProcessor(AttributeTypeSupport aTypeSupport, LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
 			SAMLAuthnContext context, Calendar authnTime)
 	{
 		super(aTypeSupport, context, authnTime);
@@ -143,7 +145,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		try
 		{
 			lastAccessAttributeManagement.setAttribute(new EntityParam(authenticatedIdentity),
-					context.getRequest().getIssuer().getStringValue(), Instant.now());
+					AccessProtocol.SAML, new ApplicationId(context.getRequest().getIssuer().getStringValue()), Instant.now());
 		} catch (EngineException e)
 		{
 			log.error("Can not set last access attribute", e);

@@ -24,6 +24,7 @@ import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import pl.edu.icm.unity.base.utils.Log;
@@ -119,7 +120,7 @@ public class TokenIntrospectionResourceTest
 		TransactionalRunner tx = new TestTxRunner();
 		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement,
 				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)), config, null, null,
-				null, tx, mock(ApplicationEventPublisher.class), null, null, OAuthTestUtils.getEndpoint());
+				null, tx, mock(ApplicationEventPublisher.class), null, null, mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
 		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
 				null, null, null, null, null, null, null);

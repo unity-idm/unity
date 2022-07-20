@@ -17,11 +17,11 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
@@ -40,9 +40,9 @@ public class ErrorHandler
 	private AttributeTypeSupport aTypeSupport;
 	private final SamlMessageHandler messageHandler;
 	private final FreemarkerAppHandler freemarker;
-	private final LastAccessAttributeManagement lastAccessAttributeManagement;
+	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
-	public ErrorHandler(AttributeTypeSupport aTypeSupport, LastAccessAttributeManagement lastAccessAttributeManagement,
+	public ErrorHandler(AttributeTypeSupport aTypeSupport, LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
 			FreemarkerAppHandler freemarker)
 	{
 		this.aTypeSupport = aTypeSupport;

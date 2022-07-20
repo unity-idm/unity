@@ -7,10 +7,10 @@ package pl.edu.icm.unity.saml.idp.web;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
@@ -29,10 +29,10 @@ public class SamlAuthnCancelHandler implements CancelHandler
 	private final AttributeTypeSupport aTypeSupport;
 	private final Endpoint endpoint;
 	private final SamlIdpStatisticReporterFactory reporterFactory;
-	private final LastAccessAttributeManagement lastAccessAttributeManagement;
+	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
 	public SamlAuthnCancelHandler(FreemarkerAppHandler freemarkerHandler, AttributeTypeSupport aTypeSupport,
-			SamlIdpStatisticReporterFactory reporterFactory, LastAccessAttributeManagement lastAccessAttributeManagement, Endpoint endpoint)
+			SamlIdpStatisticReporterFactory reporterFactory, LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement, Endpoint endpoint)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.aTypeSupport = aTypeSupport;

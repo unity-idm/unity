@@ -16,6 +16,7 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -24,7 +25,6 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -54,13 +54,13 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	protected IdPEngine idpEngine;
 	protected PreferencesManagement preferencesMan;
 	protected AttributeTypeSupport aTypeSupport;
-	protected final LastAccessAttributeManagement lastAccessAttributeManagement;
+	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
 	private final SamlIdpStatisticReporter idpStatisticReporter;
 
 	public SAMLAuthnImpl(AttributeTypeSupport aTypeSupport, SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine, PreferencesManagement preferencesMan, SamlIdpStatisticReporter idpStatisticReporter,
-			LastAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.samlProperties = samlProperties;

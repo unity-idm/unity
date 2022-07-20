@@ -33,6 +33,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import pl.edu.icm.unity.base.token.Token;
@@ -283,7 +284,7 @@ public class AccessTokenResourceTest
 			TransactionalRunner tx)
 	{
 		return new AccessTokenResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
-				mock(SecuredTokensManagement.class)), config, null, null, null, tx, mock(ApplicationEventPublisher.class), null, null, OAuthTestUtils.getEndpoint());
+				mock(SecuredTokensManagement.class)), config, null, null, null, tx, mock(ApplicationEventPublisher.class), null, null, mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
 	}
 	
 	private void setupInvocationContext(long entityId)

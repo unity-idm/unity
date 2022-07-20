@@ -27,6 +27,7 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -86,7 +87,7 @@ public class RevocationResourceAuthnHintTest
 		TransactionalRunner tx = new TestTxRunner();
 		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement,
 				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)), config, null, null,
-				null, tx, mock(ApplicationEventPublisher.class), null, mock(EndpointManagement.class), 
+				null, tx, mock(ApplicationEventPublisher.class), null, mock(EndpointManagement.class), mock(LastIdPClinetAccessAttributeManagement.class),
 				OAuthTestUtils.getEndpoint());
 		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 

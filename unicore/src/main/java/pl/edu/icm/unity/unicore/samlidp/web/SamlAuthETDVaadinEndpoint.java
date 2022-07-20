@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -20,7 +21,6 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -58,7 +58,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastAccessAttributeManagement lastAccessAttributeManagement
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement
 			)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,

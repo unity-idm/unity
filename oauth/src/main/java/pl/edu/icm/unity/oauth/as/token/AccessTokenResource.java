@@ -45,6 +45,7 @@ import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
@@ -112,7 +113,7 @@ public class AccessTokenResource extends BaseOAuthResource
 	public AccessTokenResource(TokensManagement tokensManagement, OAuthTokenRepository oauthTokensDAO,
 			OAuthASProperties config, OAuthRequestValidator requestValidator, IdPEngine idpEngineInsecure,
 			EntityManagement idMan, TransactionalRunner tx, ApplicationEventPublisher eventPublisher, MessageSource msg,
-			EndpointManagement endpointMan, ResolvedEndpoint endpoint)
+			EndpointManagement endpointMan, LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement, ResolvedEndpoint endpoint)
 	{
 		this.tokensManagement = tokensManagement;
 		this.oauthTokensDAO = oauthTokensDAO;
@@ -122,7 +123,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		this.requestValidator = requestValidator;
 		this.idMan = idMan;
 		accessTokenFactory = new AccessTokenFactory(config);
-		this.statisticPublisher = new OAuthTokenStatisticPublisher(eventPublisher, msg, idMan, requestValidator, endpoint, endpointMan);
+		this.statisticPublisher = new OAuthTokenStatisticPublisher(eventPublisher, msg, idMan, requestValidator, endpoint, endpointMan, lastIdPClinetAccessAttributeManagement);
 		this.authzCodeHandler = new AuthzCodeHandler(tokensManagement, oauthTokensDAO, config, tx, accessTokenFactory, statisticPublisher);
 	}
 
@@ -303,7 +304,7 @@ public class AccessTokenResource extends BaseOAuthResource
 				additionalParams);
 		oauthTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(subToken.getOwner()), now,
 				accessExpiration);
-		statisticPublisher.reportSuccess(parsedSubjectToken.getClientUsername(), parsedSubjectToken.getClientName());
+		statisticPublisher.reportSuccess(parsedSubjectToken.getClientUsername(), parsedSubjectToken.getClientName(), new EntityParam(subToken.getOwner()));
 
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 	}
@@ -387,7 +388,7 @@ public class AccessTokenResource extends BaseOAuthResource
 				expiration);
 		AccessTokenResponse oauthResponse = new AccessTokenResponse(new Tokens(accessToken, null));
 
-		statisticPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName());
+		statisticPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName(), new EntityParam(internalToken.getClientId()));
 		oauthTokensDAO.storeAccessToken(accessToken, internalToken, new EntityParam(internalToken.getClientId()), now,
 				expiration);
 

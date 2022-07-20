@@ -21,10 +21,10 @@ import eu.unicore.security.etd.DelegationRestrictions;
 import eu.unicore.security.etd.ETDApi;
 import eu.unicore.security.etd.ETDImpl;
 import eu.unicore.security.etd.TrustDelegation;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.LastAccessAttributeManagement;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
@@ -45,13 +45,13 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 {
 	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, AuthnWithETDResponseProcessor.class);
 	
-	public AuthnWithETDResponseProcessor(AttributeTypeSupport aTypeSupport, LastAccessAttributeManagement lastAccessAttributeManagement,
+	public AuthnWithETDResponseProcessor(AttributeTypeSupport aTypeSupport, LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
 			SAMLAuthnContext context)
 	{
 		super(aTypeSupport, lastAccessAttributeManagement, context);
 	}
 	
-	public AuthnWithETDResponseProcessor(AttributeTypeSupport aTypeSupport, LastAccessAttributeManagement lastAccessAttributeManagement,
+	public AuthnWithETDResponseProcessor(AttributeTypeSupport aTypeSupport, LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
 			SAMLAuthnContext context, 
 			Calendar authnTime)
 	{
