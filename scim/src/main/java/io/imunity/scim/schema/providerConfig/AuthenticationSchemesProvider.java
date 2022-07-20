@@ -92,10 +92,12 @@ class AuthenticationSchemesProvider
 				mapAuthenticator(authenticatorInfo).ifPresent(ret::add);
 			} else if (flows.get(authnOption) != null)
 			{
-				mapAuthenticator(
-						authenticators.get(flows.get(authnOption).getFirstFactorAuthenticators().iterator().next()))
-								.ifPresent(ret::add);
+				AuthenticationFlowDefinition flow = flows.get(authnOption);
+				for (String authnenticator : flow.getFirstFactorAuthenticators())
+				{
 
+					mapAuthenticator(authenticators.get(authnenticator)).ifPresent(ret::add);
+				}
 			}
 
 		}

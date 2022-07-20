@@ -45,7 +45,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Path(SCIMEndpoint.PATH)
 public class ResourceTypesRestController implements SCIMRestController
 {
-	static final String RESOURCE_TYPE_LOCATION = "/ResourceTypes";
+	private static final String RESOURCE_TYPE_LOCATION = "/ResourceTypes";
+	private static final String USER_RESOURCE = "User";
+	private static final String GROUP_RESOURCE = "Group";
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, ResourceTypesRestController.class);
 	private final ObjectMapper mapper = SCIMConstants.MAPPER;
@@ -68,7 +70,7 @@ public class ResourceTypesRestController implements SCIMRestController
 
 	}
 
-	@Path(RESOURCE_TYPE_LOCATION + "/User")
+	@Path(RESOURCE_TYPE_LOCATION + "/" + USER_RESOURCE)
 	@GET
 	public Response getUserResourceType(@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
 	{
@@ -78,7 +80,7 @@ public class ResourceTypesRestController implements SCIMRestController
 
 	}
 
-	@Path(RESOURCE_TYPE_LOCATION + "/Group")
+	@Path(RESOURCE_TYPE_LOCATION + "/" + GROUP_RESOURCE)
 	@GET
 	public Response getGroupResourceType(@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
 	{
@@ -118,7 +120,7 @@ public class ResourceTypesRestController implements SCIMRestController
 		Optional<SchemaWithMapping> core = configuration.schemas.stream()
 				.filter(s -> s.type.equals(SchemaType.USER_CORE)).findFirst();
 		if (core.isEmpty())
-			throw new ResourceTypeNotFoundException("User");
+			throw new ResourceTypeNotFoundException(USER_RESOURCE);
 
 		return SCIMResourceTypeResource.builder().withDescription(ResourceType.USER.getName())
 				.withName(ResourceType.USER.getName()).withId(ResourceType.USER.getName())
@@ -127,7 +129,7 @@ public class ResourceTypesRestController implements SCIMRestController
 				.withSchema(core.get().id).withSchemaExtensions(ext)
 				.withMeta(Meta.builder()
 						.withLocation(UriBuilder.fromUri(configuration.baseLocation).path(RESOURCE_TYPE_LOCATION)
-								.path("User").build())
+								.path(USER_RESOURCE).build())
 						.withResourceType(ResourceType.RESOURCE_TYPE.getName()).build())
 				.build();
 	}
@@ -140,7 +142,7 @@ public class ResourceTypesRestController implements SCIMRestController
 		Optional<SchemaWithMapping> core = configuration.schemas.stream()
 				.filter(s -> s.type.equals(SchemaType.GROUP_CORE)).findFirst();
 		if (core.isEmpty())
-			throw new ResourceTypeNotFoundException("Group");
+			throw new ResourceTypeNotFoundException(GROUP_RESOURCE);
 
 		return SCIMResourceTypeResource.builder().withDescription(ResourceType.GROUP.getName())
 				.withName(ResourceType.GROUP.getName()).withId(ResourceType.GROUP.getName())
@@ -149,7 +151,7 @@ public class ResourceTypesRestController implements SCIMRestController
 				.withSchema(core.get().id).withSchemaExtensions(ext)
 				.withMeta(Meta.builder()
 						.withLocation(UriBuilder.fromUri(configuration.baseLocation).path(RESOURCE_TYPE_LOCATION)
-								.path("Group").build())
+								.path(GROUP_RESOURCE).build())
 						.withResourceType(ResourceType.RESOURCE_TYPE.getName()).build())
 				.build();
 	}
