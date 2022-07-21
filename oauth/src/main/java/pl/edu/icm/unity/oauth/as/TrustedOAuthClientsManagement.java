@@ -297,11 +297,13 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 	{
 		List<OAuthTokenWithTime> tokens = new ArrayList<>();
 		tokens.addAll(oauthTokenDAO.getOwnedAccessTokens().stream()
-				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(), t.getExpires().toInstant(),
+				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(),
+						t.getExpires() != null ? t.getExpires().toInstant() : null,
 						OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))
 				.collect(Collectors.toList()));
 		tokens.addAll(tokenMan.getOwnedTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN).stream()
-				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(), t.getExpires().toInstant(),
+				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(),
+						t.getExpires() != null ? t.getExpires().toInstant() : null,
 						OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))
 				.collect(Collectors.toList()));
 
