@@ -5,13 +5,18 @@
 
 package io.imunity.upman.av23.front.views;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import io.imunity.upman.av23.components.HomeServiceLinkService;
 import io.imunity.upman.av23.components.ProjectService;
 import io.imunity.upman.av23.components.Vaddin23WebLogoutHandler;
 import io.imunity.upman.av23.front.UnityAppLayout;
@@ -39,7 +44,9 @@ public class UpManMenu extends UnityAppLayout
 	private Optional<UnityViewComponent> currentView = Optional.empty();
 
 	@Autowired
-	public UpManMenu(Vaddin23WebLogoutHandler standardWebLogoutHandler, ProjectService projectController, MessageSource msg) {
+	public UpManMenu(Vaddin23WebLogoutHandler standardWebLogoutHandler, ProjectService projectController, MessageSource msg,
+	                 HomeServiceLinkService homeServiceLinkService)
+	{
 		super(Stream.of(
 						MenuComponent.builder(MembersView.class).tabName(msg.getMessage("UpManMenu.members"))
 								.icon(FAMILY).build(),
@@ -50,7 +57,7 @@ public class UpManMenu extends UnityAppLayout
 						MenuComponent.builder(UserUpdatesView.class).tabName(msg.getMessage("UpManMenu.userUpdates"))
 								.icon(USER_CHECK).build()
 						)
-						.collect(toList()), standardWebLogoutHandler
+						.collect(toList()), standardWebLogoutHandler, createHomeIcon(homeServiceLinkService)
 		);
 		HorizontalLayout imageLayout = new HorizontalLayout();
 		imageLayout.getStyle().set("margin-top", "1.5em");
@@ -65,6 +72,20 @@ public class UpManMenu extends UnityAppLayout
 
 		addToLeftContainerAsFirst(comboBoxLayout);
 		addToLeftContainerAsFirst(imageLayout);
+	}
+
+	private static List<Component> createHomeIcon(HomeServiceLinkService homeServiceLinkService)
+	{
+		return homeServiceLinkService.getHomeLinkIfAvailable()
+				.map(UpManMenu::createHomeIcon)
+				.stream().collect(toList());
+	}
+
+	private static Component createHomeIcon(String url)
+	{
+		Icon home = VaadinIcon.HOME.create();
+		home.getStyle().set("cursor", "pointer");
+		return new Anchor(url, home);
 	}
 
 	public HorizontalLayout createComboBoxLayout(ProjectService projectController, MessageSource msg, List<ProjectGroup> projectGroups, HorizontalLayout imageLayout)
@@ -103,7 +124,8 @@ public class UpManMenu extends UnityAppLayout
 	}
 
 	@Override
-	public void showRouterLayoutContent(HasElement content) {
+	public void showRouterLayoutContent(HasElement content)
+	{
 		super.showRouterLayoutContent(content);
 		currentView = Optional.of((UnityViewComponent) content);
 	}

@@ -10,27 +10,27 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import io.imunity.upman.av23.front.model.Group;
+import io.imunity.upman.av23.front.model.GroupTreeNode;
 
-class GroupComboBox extends ComboBox<Group>
+class GroupComboBox extends ComboBox<GroupTreeNode>
 {
-	GroupComboBox ()
+	GroupComboBox()
 	{
 		setRenderer(new ComponentRenderer<>(this::renderGroupWithIndent));
 		addValueChangeListener(this::blockNullValue);
-		setItemLabelGenerator(event -> event.displayedName);
+		setItemLabelGenerator(GroupTreeNode::getDisplayedName);
 	}
 
-	private void blockNullValue(AbstractField.ComponentValueChangeEvent<ComboBox<Group>, Group> event)
+	private void blockNullValue(AbstractField.ComponentValueChangeEvent<ComboBox<GroupTreeNode>, GroupTreeNode> event)
 	{
 		if(event.getValue() == null && event.isFromClient())
 			setValue(event.getOldValue());
 	}
 
-	private Div renderGroupWithIndent(Group group)
+	private Div renderGroupWithIndent(GroupTreeNode group)
 	{
-		Div div = new Div(new Text(group.displayedName));
-		div.getStyle().set("text-indent", group.level + "em");
+		Div div = new Div(new Text(group.getDisplayedName()));
+		div.getStyle().set("text-indent", group.getLevel() + "em");
 		return div;
 	}
 }

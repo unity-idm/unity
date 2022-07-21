@@ -28,16 +28,19 @@ class UpdateRequestsService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, UpdateRequestsService.class);
 
-	private ProjectRequestManagement requestMan;
-	private DelegatedGroupsHelper delGroupHelper;
-	private MessageSource msg;
+	private final ProjectRequestManagement requestMan;
+	private final DelegatedGroupsHelper delGroupHelper;
+	private final MessageSource msg;
+	private final NotificationPresenter notificationPresenter;
+
 
 	public UpdateRequestsService(MessageSource msg, ProjectRequestManagement requestMan,
-	                             DelegatedGroupsHelper delGroupHelper)
+	                             DelegatedGroupsHelper delGroupHelper, NotificationPresenter notificationPresenter)
 	{
 		this.requestMan = requestMan;
 		this.delGroupHelper = delGroupHelper;
 		this.msg = msg;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	public Optional<String> getProjectRegistrationFormLink(ProjectGroup projectGroup)
@@ -48,7 +51,7 @@ class UpdateRequestsService
 		} catch (EngineException e)
 		{
 			log.warn("Can not get project registration form link " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 		return Optional.empty();
 	}
@@ -61,7 +64,7 @@ class UpdateRequestsService
 		} catch (EngineException e)
 		{
 			log.warn("Can not get project signup enquiry form link " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 		return Optional.empty();
 	}
@@ -74,7 +77,7 @@ class UpdateRequestsService
 		} catch (EngineException e)
 		{
 			log.warn("Can not get project signup enquiry form link " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 		return Optional.empty();
 	}
@@ -99,7 +102,7 @@ class UpdateRequestsService
 		} catch (EngineException e)
 		{
 			log.warn("Can not get request of group " + projectGroup, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 		return List.of();
 	}
@@ -115,19 +118,19 @@ class UpdateRequestsService
 				accepted.add(request.email.getKey());
 
 			}
-			NotificationPresenter.showSuccess(msg.getMessage("UpdateRequestsComponent.accepted"));
+			notificationPresenter.showSuccess(msg.getMessage("UpdateRequestsComponent.accepted"));
 		} catch (Exception e)
 		{
 			log.warn("Can not accept request ", e);
 			if (accepted.isEmpty())
 			{
-				NotificationPresenter.showError(
+				notificationPresenter.showError(
 						msg.getMessage("UpdateRequestsController.acceptRequestError"),
 						msg.getMessage("UpdateRequestsController.notAccepted")
 				);
 			} else
 			{
-				NotificationPresenter.showError(
+				notificationPresenter.showError(
 						msg.getMessage("UpdateRequestsController.removeFromGroupError"),
 						msg.getMessage("UpdateRequestsController.partiallyAccepted", accepted)
 				);
@@ -146,19 +149,19 @@ class UpdateRequestsService
 				declined.add(request.email.getKey());
 
 			}
-			NotificationPresenter.showSuccess(msg.getMessage("UpdateRequestsComponent.declined"));
+			notificationPresenter.showSuccess(msg.getMessage("UpdateRequestsComponent.declined"));
 		} catch (Exception e)
 		{
 			log.warn("Can not reject request ", e);
 			if (declined.isEmpty())
 			{
-				NotificationPresenter.showError(
+				notificationPresenter.showError(
 						msg.getMessage("UpdateRequestsController.declineRequestError"),
 						msg.getMessage("UpdateRequestsController.notDeclined")
 				);
 			} else
 			{
-				NotificationPresenter.showError(
+				notificationPresenter.showError(
 						msg.getMessage("UpdateRequestsController.declineRequestError"),
 						msg.getMessage("UpdateRequestsController.partiallyDeclined", declined)
 				);

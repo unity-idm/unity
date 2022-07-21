@@ -21,6 +21,7 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import io.imunity.upman.av23.front.components.BaseDialog;
 import io.imunity.upman.av23.front.components.MenuButton;
 import io.imunity.upman.av23.front.model.Group;
+import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -31,6 +32,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static java.util.stream.Collectors.toList;
 
 class MenuItemFactory
 {
@@ -61,7 +63,7 @@ class MenuItemFactory
 		return new MenuItem(menuButton, event -> removeFromGroup(projectGetter.get(), groupGetter.get(), modelsGetter.get()));
 	}
 
-	MenuItem createAddToGroupItem(Supplier<ProjectGroup> projectGetter, Supplier<List<Group>> groupGetter, Supplier<Set<MemberModel>> modelsGetter)
+	MenuItem createAddToGroupItem(Supplier<ProjectGroup> projectGetter, Supplier<List<GroupTreeNode>> groupGetter, Supplier<Set<MemberModel>> modelsGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.addToGroupAction"), PLUS_CIRCLE_O);
 		return new MenuItem(menuButton, event -> createAddToGroupDialog(projectGetter.get(), modelsGetter.get(), groupGetter.get()).open());
@@ -87,14 +89,14 @@ class MenuItemFactory
 			createSelfRemoveDialog(
 				message, () ->
 					{
-						groupMembersController.removeFromGroup(projectGroup.path, group.path, models);
+						groupMembersController.removeFromGroup(projectGroup, group, models);
 						viewReloader.run();
 					}
 			).open();
 		}
 		else
 		{
-			groupMembersController.removeFromGroup(projectGroup.path, group.path, models);
+			groupMembersController.removeFromGroup(projectGroup, group, models);
 			viewReloader.run();
 		}
 	}
@@ -121,11 +123,11 @@ class MenuItemFactory
 		return dialog;
 	}
 
-	private Dialog createAddToGroupDialog(ProjectGroup projectGroup, Set<MemberModel> members, List<Group> groups)
+	private Dialog createAddToGroupDialog(ProjectGroup projectGroup, Set<MemberModel> members, List<GroupTreeNode> groups)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("AddToGroupDialog.caption"));
 
-		ComboBox<Group> groupComboBox = new GroupComboBox();
+		ComboBox<GroupTreeNode> groupComboBox = new GroupComboBox();
 		groupComboBox.setLabel(msg.getMessage("AddToGroupDialog.info"));
 		groupComboBox.setItems(groups);
 		if(groups.iterator().hasNext())
@@ -198,7 +200,7 @@ class MenuItemFactory
 		Button button = new Button(msg.getMessage("OK"));
 		button.addClickListener(event ->
 		{
-			groupMembersController.updateRole(projectGroup.path, group.path, radioGroup.getValue(), items);
+			groupMembersController.updateRole(projectGroup, group, radioGroup.getValue(), items);
 			viewReloader.run();
 			dialog.close();
 		});
@@ -218,26 +220,29 @@ class MenuItemFactory
 						msg.getMessage("GroupMembersComponent.confirmSelfRevokeManagerPrivileges", projectGroup.displayedName),
 						() ->
 						{
-							groupMembersController.updateRole(projectGroup.path, group.path, role, items);
+							groupMembersController.updateRole(projectGroup, group, role, items);
 							viewReloader.run();
 						}
 				);
 				return;
 			}
-			groupMembersController.updateRole(projectGroup.path, group.path, role, items);
+			groupMembersController.updateRole(projectGroup, group, role, items);
 			viewReloader.run();
 			dialog.close();
 		});
 		return button;
 	}
 
-	private Button createAddToGroupButton(ProjectGroup projectGroup, Dialog dialog, ComboBox<Group> comboBox, Set<MemberModel> members)
+	private Button createAddToGroupButton(ProjectGroup projectGroup, Dialog dialog, ComboBox<GroupTreeNode> comboBox, Set<MemberModel> members)
 	{
 		Button button = new Button(msg.getMessage("OK"));
 		button.addClickListener(event ->
 		{
-			Group value = comboBox.getValue();
-			groupMembersController.addToGroup(projectGroup.path, value.path, members);
+			GroupTreeNode value = comboBox.getValue();
+			List<GroupTreeNode> parents = value.getAllNodes();
+			parents.add(value);
+
+			groupMembersController.addToGroup(projectGroup, parents.stream().map(node -> node.group).collect(toList()), members);
 			dialog.close();
 		});
 		return button;

@@ -12,7 +12,7 @@ public class GroupTreeNode
 {
 	public final Group group;
 	public final Optional<GroupTreeNode> parent;
-	private final TreeSet<GroupTreeNode> children;
+	private final PriorityQueue<GroupTreeNode> children;
 	private final int level;
 
 	private GroupTreeNode(GroupTreeNode parent, Group group, int level)
@@ -20,7 +20,7 @@ public class GroupTreeNode
 		this.parent = Optional.of(parent);
 		this.group = group;
 		this.level = level;
-		this.children = new TreeSet<>(Comparator.comparing(GroupTreeNode::getDisplayedName));
+		this.children = new PriorityQueue<>(Comparator.comparing(GroupTreeNode::getDisplayedName));
 	}
 
 	public GroupTreeNode(Group group, int level)
@@ -28,7 +28,7 @@ public class GroupTreeNode
 		this.parent = Optional.empty();
 		this.group = group;
 		this.level = level;
-		this.children = new TreeSet<>(Comparator.comparing(GroupTreeNode::getDisplayedName));
+		this.children = new PriorityQueue<>(Comparator.comparing(GroupTreeNode::getDisplayedName));
 	}
 
 	public boolean addChild(Group group)
@@ -86,22 +86,34 @@ public class GroupTreeNode
 		return group.delegationEnableSubprojects;
 	}
 
-	public List<Group> getAllElements()
+	public List<GroupTreeNode> getAllNodes()
 	{
-		List<Group> groups = new LinkedList<>();
-		groups.add(new Group(group, level));
-		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllElements()));
+		List<GroupTreeNode> groups = new LinkedList<>();
+		groups.add(this);
+		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllNodes()));
 		return groups;
 	}
 
 	public List<GroupTreeNode> getAllChildrenElementsWithCutOff()
 	{
 		return cutOffParent().stream()
-				.flatMap(groupTreeNode -> groupTreeNode.getAllChildrenElements().stream())
+				.flatMap(groupTreeNode -> groupTreeNode.getAllNodes().stream())
 				.collect(Collectors.toList());
 	}
 
-	public List<GroupTreeNode> cutOffParent()
+	public List<GroupTreeNode> getAllParentsElements()
+	{
+		List<GroupTreeNode> parents = new LinkedList<>();
+		Optional<GroupTreeNode> node = parent;
+		while (node.isPresent())
+		{
+			parents.add(node.get());
+			node = node.get().parent;
+		}
+		return parents;
+	}
+
+	private List<GroupTreeNode> cutOffParent()
 	{
 		return children.stream()
 				.map(GroupTreeNode::copyTree)
@@ -125,34 +137,6 @@ public class GroupTreeNode
 	private void addChild(GroupTreeNode node)
 	{
 		children.add(node);
-	}
-
-	public List<GroupTreeNode> getAllChildrenElements()
-	{
-		List<GroupTreeNode> groups = new LinkedList<>();
-		groups.add(this);
-		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllChildrenElements()));
-		return groups;
-	}
-
-	public List<GroupTreeNode> getAllParentsElements()
-	{
-		List<GroupTreeNode> parents = new LinkedList<>();
-		Optional<GroupTreeNode> node = parent;
-		while (node.isPresent())
-		{
-			parents.add(node.get());
-			node = node.get().parent;
-		}
-		return parents;
-	}
-
-	public List<GroupTreeNode> getAllNodes()
-	{
-		List<GroupTreeNode> groups = new LinkedList<>();
-		groups.add(this);
-		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllNodes()));
-		return groups;
 	}
 
 	@Override

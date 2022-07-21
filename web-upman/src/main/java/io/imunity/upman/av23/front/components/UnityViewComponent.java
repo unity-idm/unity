@@ -12,9 +12,10 @@ import com.vaadin.flow.router.OptionalParameter;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 
 
-public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String> {
-
-	public UnityViewComponent() {
+public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>
+{
+	public UnityViewComponent()
+	{
 		if(ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class) == null)
 			return;
 		getContent().setClassName("unity-view");
@@ -25,7 +26,8 @@ public abstract class UnityViewComponent extends Composite<Div> implements HasUr
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {}
 
 
-	protected void addPreventionForMultiEnterClick() {
+	protected void addPreventionForMultiEnterClick()
+	{
 		Shortcuts.addShortcutListener(getContent(), event -> {}, Key.ENTER);
 	}
 

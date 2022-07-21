@@ -112,7 +112,8 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 
 		ServletContextHandler context;
 		ResourceProvider823 resourceProvider823;
-		try {
+		try
+		{
 			resourceProvider823 = new ResourceProvider823();
 			context = getWebAppContext(uiServletPath,
 				resourceProvider823.getChosenClassPathElement(),
@@ -253,9 +254,9 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		return context;
 	}
 
-	static WebAppContext getWebAppContext(String contextPath, Set<String> classPathElements, URI webResourceRootUri,
+	WebAppContext getWebAppContext(String contextPath, Set<String> classPathElements, URI webResourceRootUri,
 	                                      EventListener eventListener) throws Exception {
-		WebAppContext context = new WebAppContext();
+		WebAppContext context = new Vaadin23WebAppContext(properties);
 		context.setBaseResource(Resource.newResource(webResourceRootUri));
 		context.setContextPath(contextPath);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(classPathElements));

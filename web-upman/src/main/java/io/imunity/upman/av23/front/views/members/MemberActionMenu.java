@@ -8,6 +8,7 @@ package io.imunity.upman.av23.front.views.members;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import io.imunity.upman.av23.front.components.ActionMenu;
 import io.imunity.upman.av23.front.model.Group;
+import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
@@ -23,7 +24,7 @@ class MemberActionMenu extends ActionMenu
 	public MemberActionMenu(MenuItemFactory menuItemFactory,
 	                        Supplier<ProjectGroup> selectedProjectGetter,
 	                        Supplier<Group> selectedGroupGetter,
-	                        Supplier<List<Group>> allGroupsGetter,
+	                        Supplier<List<GroupTreeNode>> allGroupsGetter,
 	                        Supplier<Set<MemberModel>> selectedMembersGetter)
 	{
 		MenuItemFactory.MenuItem removeFromProjectItem = menuItemFactory.createRemoveFromProjectItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter);

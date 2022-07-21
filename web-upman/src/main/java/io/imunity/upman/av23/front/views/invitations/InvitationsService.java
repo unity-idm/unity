@@ -31,11 +31,13 @@ class InvitationsService
 	private final ProjectInvitationsManagement invitationMan;
 	private final DelegatedGroupsHelper delGroupHelper;
 	private final MessageSource msg;
+	private final NotificationPresenter notificationPresenter;
 
 	public InvitationsService(MessageSource msg, ProjectInvitationsManagement invitationMan,
-	                          DelegatedGroupsHelper delGroupHelper) {
+	                          DelegatedGroupsHelper delGroupHelper, NotificationPresenter notificationPresenter) {
 		this.invitationMan = invitationMan;
 		this.delGroupHelper = delGroupHelper;
+		this.notificationPresenter = notificationPresenter;
 		this.msg = msg;
 	}
 
@@ -47,17 +49,17 @@ class InvitationsService
 				invitationMan.sendInvitation(projectGroup.path, inv.code);
 				sent.add(inv.email);
 			}
-			NotificationPresenter.showSuccess(msg.getMessage("InvitationsComponent.sent"));
+			notificationPresenter.showSuccess(msg.getMessage("InvitationsComponent.sent"));
 		} catch (Exception e)
 		{
 			log.warn("Can not resend invitations", e);
 			if (sent.isEmpty()) {
-				NotificationPresenter.showError(
+				notificationPresenter.showError(
 						msg.getMessage("InvitationsController.resendInvitationError"),
 						msg.getMessage("InvitationsController.notSend")
 				);
 			} else {
-				NotificationPresenter.showError(
+				notificationPresenter.showError(
 						msg.getMessage("InvitationsController.resendInvitationError"),
 						msg.getMessage("InvitationsController.partiallySend", sent)
 				);
@@ -73,16 +75,16 @@ class InvitationsService
 				invitationMan.removeInvitation(projectGroup.path, inv.code);
 				removed.add(inv.email);
 			}
-			NotificationPresenter.showSuccess(msg.getMessage("InvitationsComponent.removed"));
+			notificationPresenter.showSuccess(msg.getMessage("InvitationsComponent.removed"));
 		} catch (Exception e) {
 			log.warn("Can not remove invitations", e);
 			if (removed.isEmpty()) {
-				NotificationPresenter.showError(
+				notificationPresenter.showError(
 						msg.getMessage("InvitationsController.removeInvitationError"),
 						msg.getMessage("InvitationsController.notRemoved")
 				);
 			} else {
-				NotificationPresenter.showError(
+				notificationPresenter.showError(
 						msg.getMessage("InvitationsController.removeInvitationError"),
 						msg.getMessage("InvitationsController.partiallyRemoved", removed)
 				);
@@ -98,7 +100,7 @@ class InvitationsService
 			invitations = invitationMan.getInvitations(projectGroup.path);
 		} catch (Exception e) {
 			log.warn("Can not get project invitations", e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 			return List.of();
 		}
 
@@ -129,12 +131,12 @@ class InvitationsService
 			} catch (Exception e) {
 				log.warn("Can not add invitations", e);
 				if (added.isEmpty()) {
-					NotificationPresenter.showError(
+					notificationPresenter.showError(
 							msg.getMessage("InvitationsController.addInvitationError"),
 							msg.getMessage("InvitationsController.notAdd")
 					);
 				} else {
-					NotificationPresenter.showError(
+					notificationPresenter.showError(
 							msg.getMessage("InvitationsController.addInvitationError"),
 							msg.getMessage("InvitationsController.partiallyAdded", String.join(",", added))
 					);
@@ -143,7 +145,7 @@ class InvitationsService
 		}
 		if (!alredyMember.isEmpty())
 		{
-			NotificationPresenter.showWarning(
+			notificationPresenter.showWarning(
 					msg.getMessage("InvitationsController.alreadyAMember", String.join(",", alredyMember)),
 					""
 			);

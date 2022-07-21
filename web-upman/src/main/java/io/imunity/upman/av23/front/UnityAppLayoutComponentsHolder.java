@@ -9,6 +9,7 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,7 +19,6 @@ import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.dom.Element;
 import io.imunity.upman.av23.components.Vaddin23WebLogoutHandler;
 import io.imunity.upman.av23.front.components.MenuComponent;
-import io.imunity.upman.av23.front.components.NavbarIconFactory;
 import io.imunity.upman.av23.front.components.TabComponent;
 
 import java.util.List;
@@ -36,26 +36,30 @@ class UnityAppLayoutComponentsHolder
 	private final VerticalLayout rightContainerWithNavbarAndViewContent;
 
 
-	UnityAppLayoutComponentsHolder(List<MenuComponent> menuContent, Vaddin23WebLogoutHandler authnProcessor) {
+	UnityAppLayoutComponentsHolder(List<MenuComponent> menuContent, Vaddin23WebLogoutHandler authnProcessor, List<Component> additionalIcons)
+	{
 		this.authnProcessor = authnProcessor;
 		this.leftNavbarSite = createLeftNavbarSite();
 		this.tabs = createLeftMenuTabs(menuContent);
 
 		this.leftContainerWithNavigation = createLeftContainerWithNavigation(tabs);
-		this.rightContainerWithNavbarAndViewContent = createRightContainerWithNavbar(createNavbar(leftNavbarSite, createRightNavbarSite()));
+		this.rightContainerWithNavbarAndViewContent = createRightContainerWithNavbar(createNavbar(leftNavbarSite, createRightNavbarSite(additionalIcons)));
 
 		viewContainer.setHeightFull();
 	}
 
-	VerticalLayout getLeftContainerWithNavigation() {
+	VerticalLayout getLeftContainerWithNavigation()
+	{
 		return leftContainerWithNavigation;
 	}
 
-	VerticalLayout getRightContainerWithNavbarAndViewContent() {
+	VerticalLayout getRightContainerWithNavbarAndViewContent()
+	{
 		return rightContainerWithNavbarAndViewContent;
 	}
 
-	void addViewToMainLayout(HasElement content) {
+	void addViewToMainLayout(HasElement content)
+	{
 		if (content != null) {
 			Element contentElement = content.getElement();
 			setTabsMenu(contentElement);
@@ -69,20 +73,23 @@ class UnityAppLayoutComponentsHolder
 		contentElement.getComponent().flatMap(this::findTabForComponent).ifPresent(tabs::setSelectedTab);
 	}
 
-	private Optional<TabComponent> findTabForComponent(Component component) {
+	private Optional<TabComponent> findTabForComponent(Component component)
+	{
 		return tabs.getChildren()
 				.map(TabComponent.class::cast)
 				.filter(tab -> tab.componentClass.contains(component.getClass()))
 				.findFirst();
 	}
 
-	private HorizontalLayout createNavbar(HorizontalLayout leftNavbarSite, HorizontalLayout rightNavbarSite) {
+	private HorizontalLayout createNavbar(HorizontalLayout leftNavbarSite, HorizontalLayout rightNavbarSite)
+	{
 		HorizontalLayout navbarComponent = new HorizontalLayout(leftNavbarSite, rightNavbarSite);
 		navbarComponent.setId("unity-navbar");
 		return navbarComponent;
 	}
 
-	private HorizontalLayout createLeftNavbarSite() {
+	private HorizontalLayout createLeftNavbarSite()
+	{
 		HorizontalLayout leftNavbar = new HorizontalLayout();
 		leftNavbar.setAlignItems(FlexComponent.Alignment.CENTER);
 		leftNavbar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
@@ -90,20 +97,32 @@ class UnityAppLayoutComponentsHolder
 		return leftNavbar;
 	}
 
-	private HorizontalLayout createRightNavbarSite() {
-		Icon home = NavbarIconFactory.homeCreate();
-		Icon logout = NavbarIconFactory.logoutCreate(authnProcessor::logout);
+	private HorizontalLayout createRightNavbarSite(List<Component> additionalIcons)
+	{
+		Icon logout = createLogoutIcon(authnProcessor::logout);
 
 		HorizontalLayout rightNavbarSite = new HorizontalLayout();
 		rightNavbarSite.setAlignItems(FlexComponent.Alignment.CENTER);
 		rightNavbarSite.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		rightNavbarSite.setSizeFull();
 
-		rightNavbarSite.add(home, logout);
+		additionalIcons.forEach(rightNavbarSite::add);
+		rightNavbarSite.add(logout);
 		return rightNavbarSite;
 	}
 
-	private VerticalLayout createLeftContainerWithNavigation(Tabs menuTabsComponent) {
+	private Icon createLogoutIcon(Runnable logout)
+	{
+		Icon logoutIcon = new Icon(VaadinIcon.SIGN_OUT);
+		logoutIcon.getStyle().set("cursor", "pointer");
+		logoutIcon.addClickListener(
+				event -> logout.run()
+		);
+		return logoutIcon;
+	}
+
+	private VerticalLayout createLeftContainerWithNavigation(Tabs menuTabsComponent)
+	{
 		VerticalLayout leftContainer = new VerticalLayout();
 		leftContainer.setPadding(false);
 		leftContainer.setSpacing(false);
@@ -112,14 +131,16 @@ class UnityAppLayoutComponentsHolder
 		return leftContainer;
 	}
 
-	private VerticalLayout createRightContainerWithNavbar(HorizontalLayout navbar) {
+	private VerticalLayout createRightContainerWithNavbar(HorizontalLayout navbar)
+	{
 		VerticalLayout rightContainer = new VerticalLayout();
 		rightContainer.add(navbar, viewContainer);
 		rightContainer.setAlignItems(FlexComponent.Alignment.STRETCH);
 		return rightContainer;
 	}
 
-	private Tabs createLeftMenuTabs(List<MenuComponent> menuContent) {
+	private Tabs createLeftMenuTabs(List<MenuComponent> menuContent)
+	{
 		Tabs tabs = new Tabs();
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
 		tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
@@ -127,7 +148,8 @@ class UnityAppLayoutComponentsHolder
 				.map(TabComponent::new)
 				.toArray(Tab[]::new);
 		tabs.add(items);
-		tabs.addSelectedChangeListener(event -> {
+		tabs.addSelectedChangeListener(event ->
+		{
 			TabComponent selectedTab;
 			if(event.getSelectedTab() == null)
 				selectedTab = (TabComponent) event.getPreviousTab();

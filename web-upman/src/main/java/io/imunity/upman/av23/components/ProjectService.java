@@ -34,14 +34,16 @@ public class ProjectService
 	private final DelegatedGroupManagement delGroupMan;
 	private final DelegatedGroupsHelper delGroupHelper;
 	private final Vaddin23WebLogoutHandler logoutHandler;
+	private final NotificationPresenter notificationPresenter;
 
 	public ProjectService(MessageSource msg, DelegatedGroupManagement delGroupMan, Vaddin23WebLogoutHandler logoutHandler,
-	                      DelegatedGroupsHelper delGroupHelper)
+	                      DelegatedGroupsHelper delGroupHelper, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.delGroupMan = delGroupMan;
 		this.delGroupHelper = delGroupHelper;
 		this.logoutHandler = logoutHandler;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	public List<ProjectGroup> getProjectForUser(long entityId)
@@ -75,14 +77,14 @@ public class ProjectService
 		{
 			delGroupHelper.getProjectGroups(projectGroup.path)
 					.stream()
-					.sorted(Comparator.comparing(x -> x.path))
+					.sorted(Comparator.comparing(group -> group.path))
 					.map(this::createGroup)
 					.forEach(groupTreeNode::addChild);
 			return groupTreeNode;
 		} catch (Exception e)
 		{
 			log.warn("Can not get group " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 		return groupTreeNode;
 	}
@@ -111,7 +113,7 @@ public class ProjectService
 
 		{
 			log.warn("Can not get project group " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 			throw new IllegalStateException(e);
 		}
 	}
@@ -132,7 +134,7 @@ public class ProjectService
 		} catch (Exception e)
 		{
 			log.warn("Can not get project authorization role " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 			throw new IllegalStateException(e);
 		}
 	}

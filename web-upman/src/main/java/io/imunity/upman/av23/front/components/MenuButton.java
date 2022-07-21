@@ -10,14 +10,17 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
 @CssImport("./styles/components/menu-button.css")
-public class MenuButton extends Div {
+public class MenuButton extends Div
+{
 
-	public MenuButton(String label, VaadinIcon icon) {
+	public MenuButton(String label, VaadinIcon icon)
+	{
 		super(icon.create(), new Span(label));
 		addClassName("menu-button");
 	}
 	
-	public MenuButton(VaadinIcon icon) {
+	public MenuButton(VaadinIcon icon)
+	{
 		this(null, icon);
 	}
 }

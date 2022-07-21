@@ -27,11 +27,13 @@ class GroupService
 
 	private final DelegatedGroupManagement delGroupMan;
 	private final MessageSource msg;
+	private final NotificationPresenter notificationPresenter;
 
-	public GroupService(MessageSource msg, DelegatedGroupManagement delGroupMan)
+	public GroupService(MessageSource msg, DelegatedGroupManagement delGroupMan, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.delGroupMan = delGroupMan;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	public void addGroup(ProjectGroup projectGroup, Group group, Map<Locale, String> names, boolean isPublic)
@@ -43,7 +45,7 @@ class GroupService
 		} catch (Exception e)
 		{
 			log.warn("Can not add group " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 	}
 
@@ -55,7 +57,7 @@ class GroupService
 		} catch (Exception e)
 		{
 			log.warn("Can not remove group " + group, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 	}
 	
@@ -67,7 +69,7 @@ class GroupService
 		} catch (Exception e)
 		{
 			log.warn("Can not remove sub-project group " + group.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 	}
 
@@ -83,10 +85,10 @@ class GroupService
 
 			if (!projectGroup.path.equals(group.path))
 			{
-				NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+				notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 			} else
 			{
-				NotificationPresenter.showError(msg.getMessage("GroupsController.projectGroupAccessModeChangeError"), msg.getMessage("GroupsController.projectGroupAccessModeChangeErrorDetails"));
+				notificationPresenter.showError(msg.getMessage("GroupsController.projectGroupAccessModeChangeError"), msg.getMessage("GroupsController.projectGroupAccessModeChangeErrorDetails"));
 			}
 		}
 	}
@@ -102,7 +104,7 @@ class GroupService
 		} catch (Exception e)
 		{
 			log.warn("Can not rename group " + group.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 	}
 
@@ -126,7 +128,7 @@ class GroupService
 		} catch (Exception e)
 		{
 			log.warn("Can not set group delegation configuration in " + group.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 
 	}

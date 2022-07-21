@@ -41,7 +41,7 @@ public class MembersView extends UnityViewComponent
 	private final GroupMembersService groupMembersService;
 	private final MessageSource msg;
 
-	private final ComboBox<Group> groupsComboBox;
+	private final ComboBox<GroupTreeNode> groupsComboBox;
 	private final MemberActionMenu mainContextMenu;
 	private final TextField searchField;
 	private final MenuItemFactory menuItemFactory;
@@ -51,7 +51,7 @@ public class MembersView extends UnityViewComponent
 	private ViewMode mode;
 	private GroupAuthorizationRole currentUserRole;
 	private ProjectGroup projectGroup;
-	private List<Group> groups;
+	private List<GroupTreeNode> groups;
 
 	public MembersView(MessageSource msg, ProjectService projectService, GroupMembersService groupMembersService)
 	{
@@ -104,8 +104,8 @@ public class MembersView extends UnityViewComponent
 		{
 			if(event.getValue() != null)
 			{
-				loadGridContent(event.getValue());
-				switchViewMode(event.getValue());
+				loadGridContent(event.getValue().group);
+				switchViewMode(event.getValue().group);
 			}
 		});
 		return groupComboBox;
@@ -128,7 +128,7 @@ public class MembersView extends UnityViewComponent
 		return new MemberActionMenu(
 				menuItemFactory,
 				() -> projectGroup,
-				groupsComboBox::getValue,
+				() -> groupsComboBox.getValue().group,
 				() -> groups,
 				selectedMembersGetter
 		);
@@ -136,7 +136,7 @@ public class MembersView extends UnityViewComponent
 
 	private void reload()
 	{
-		loadGridContent(groupsComboBox.getValue());
+		loadGridContent(groupsComboBox.getValue().group);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class MembersView extends UnityViewComponent
 
 		GroupTreeNode groupTreeNode = projectService.getProjectGroups(projectGroup);
 
-		groups = groupTreeNode.getAllElements();
+		groups = groupTreeNode.getAllNodes();
 		groupsComboBox.setItems(groups);
 		if (groups.iterator().hasNext())
 			groupsComboBox.setValue(groups.iterator().next());

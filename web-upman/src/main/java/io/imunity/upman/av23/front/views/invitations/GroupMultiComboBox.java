@@ -42,7 +42,7 @@ class GroupMultiComboBox extends MultiselectComboBox<GroupTreeNode>
 		HashSet<GroupTreeNode> nodes = new HashSet<>(oldSet);
 		nodes.removeAll(newSet);
 		nodes.stream()
-				.map(GroupTreeNode::getAllChildrenElements)
+				.map(GroupTreeNode::getAllNodes)
 				.forEach(newSet::removeAll);
 	}
 

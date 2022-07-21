@@ -11,7 +11,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
 import io.imunity.upman.av23.components.Vaddin23WebLogoutHandler;
@@ -22,27 +21,27 @@ import java.util.List;
 @CssImport("./styles/views/main-layout.css")
 @CssImport("./styles/custom-lumo-theme.css")
 @PreserveOnRefresh
-public class UnityAppLayout extends FlexLayout implements RouterLayout {
+public class UnityAppLayout extends FlexLayout implements RouterLayout
+{
 
 	private final UnityAppLayoutComponentsHolder appLayoutComponents;
 	private VerticalLayout rightContainerContent;
 
 	public UnityAppLayout(List<MenuComponent> menuComponents,
-	                      Vaddin23WebLogoutHandler authnProcessor) {
-		appLayoutComponents = new UnityAppLayoutComponentsHolder(menuComponents, authnProcessor);
+	                      Vaddin23WebLogoutHandler authnProcessor,
+	                      List<Component> additionalIcons)
+	{
+		appLayoutComponents = new UnityAppLayoutComponentsHolder(menuComponents, authnProcessor, additionalIcons);
 	}
 
 	@Override
-	public Element getElement() {
-		return super.getElement();
-	}
-
-	@Override
-	public void showRouterLayoutContent(HasElement content) {
+	public void showRouterLayoutContent(HasElement content)
+	{
 		appLayoutComponents.addViewToMainLayout(content);
 	}
 
-	protected void initView() {
+	protected void initView()
+	{
 		setId("unity-layout");
 
 		HorizontalLayout mainLayout = new HorizontalLayout();
@@ -60,7 +59,8 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout {
 		add(mainLayout);
 	}
 
-	public void addToLeftContainerAsFirst(Component component) {
+	public void addToLeftContainerAsFirst(Component component)
+	{
 		rightContainerContent.addComponentAsFirst(component);
 	}
 }

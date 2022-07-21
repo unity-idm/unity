@@ -16,11 +16,13 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 
 import static com.vaadin.flow.component.notification.Notification.Position.MIDDLE;
 import static com.vaadin.flow.component.notification.Notification.Position.TOP_END;
 
+@Component
 public class NotificationPresenter
 {
 	public static void showCriticalError(WebLogoutHandler webLogoutHandler, String header, String description)
@@ -30,19 +32,19 @@ public class NotificationPresenter
 		errorNotification.open();
 	}
 
-	public static void showSuccess(String txt)
+	public void showSuccess(String txt)
 	{
 		Notification notification = new Notification(txt, 5000, TOP_END);
 		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		notification.open();
 	}
 
-	public static void showError(String caption, String description)
+	public void showError(String caption, String description)
 	{
 		new ErrorNotification(caption, description).open();
 	}
 
-	public static void showWarning(String caption, String description)
+	public void showWarning(String caption, String description)
 	{
 		ErrorNotification errorNotification = new ErrorNotification(caption, description);
 		errorNotification.addThemeVariants(NotificationVariant.LUMO_CONTRAST);

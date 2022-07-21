@@ -12,11 +12,13 @@ import com.vaadin.flow.router.RouterLink;
 import java.util.Collections;
 import java.util.List;
 
-public class TabComponent extends Tab {
+public class TabComponent extends Tab
+{
 	public final String name;
 	public final List<Class<? extends Component>> componentClass;
 
-	public TabComponent(MenuComponent menu){
+	public TabComponent(MenuComponent menu)
+	{
 		super(menu.icon.create(), new RouterLink(menu.tabName, menu.component));
 		name = menu.tabName;
 		List<Class<? extends Component>> components = Lists.newArrayList(menu.component);

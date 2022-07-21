@@ -25,6 +25,15 @@ class InvitationRequest
 		this.projectGroup = projectGroup;
 	}
 
+	public InvitationRequest(ProjectGroup projectGroup, Set<String> emails, Set<GroupTreeNode> groups, boolean allowModifyGroups, Instant expiration)
+	{
+		this.projectGroup = projectGroup;
+		this.emails = emails;
+		this.groups = groups;
+		this.allowModifyGroups = allowModifyGroups;
+		this.expiration = expiration;
+	}
+
 	@Override
 	public boolean equals(Object o)
 	{

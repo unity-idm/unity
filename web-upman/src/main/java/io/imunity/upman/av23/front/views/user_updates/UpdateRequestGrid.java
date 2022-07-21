@@ -36,8 +36,9 @@ class UpdateRequestGrid extends Grid<UpdateRequestModel>
 				.setHeader(msg.getMessage("UpdateRequest.email"))
 				.setAutoWidth(true)
 				.setSortable(true);
-		addColumn(model -> createGroupsLabel(model, container))
+		addComponentColumn(model -> createGroupsLabel(model, container))
 				.setHeader(msg.getMessage("UpdateRequest.groups"))
+				.setAutoWidth(true)
 				.setSortable(true);
 		addColumn(model -> formatter.format(model.requestedTime))
 				.setHeader(msg.getMessage("UpdateRequest.requested"))

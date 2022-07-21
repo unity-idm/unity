@@ -31,13 +31,16 @@ class GroupMembersService
 	private final DelegatedGroupManagement delGroupMan;
 	private final CachedAttributeHandlers cachedAttrHandlerRegistry;
 	private final MessageSource msg;
+	private final NotificationPresenter notificationPresenter;
 
 	public GroupMembersService(MessageSource msg,
-	                           AttributeHandlerRegistry attrHandlerRegistry, DelegatedGroupManagement delGroupMan)
+	                           AttributeHandlerRegistry attrHandlerRegistry, DelegatedGroupManagement delGroupMan,
+	                           NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.delGroupMan = delGroupMan;
 		this.cachedAttrHandlerRegistry = new CachedAttributeHandlers(attrHandlerRegistry);
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	public List<MemberModel> getGroupMembers(ProjectGroup projectGroup, Group group)
@@ -52,7 +55,7 @@ class GroupMembersService
 		} catch (Exception e)
 		{
 			log.warn("Can not get memebers of group " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 
 		if (members == null || members.isEmpty())
@@ -103,12 +106,12 @@ class GroupMembersService
 		} catch (Exception e)
 		{
 			log.warn("Can not get attribute names for project " + projectGroup.path, e);
-			NotificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
 		return attrs;
 	}
 
-	public void addToGroup(String projectPath, String groupPath, Set<MemberModel> items)
+	public void addToGroup(ProjectGroup projectGroup, List<Group> groups, Set<MemberModel> items)
 	{
 		List<String> added = new ArrayList<>();
 
@@ -116,24 +119,27 @@ class GroupMembersService
 		{
 			for (MemberModel member : items)
 			{
-				delGroupMan.addMemberToGroup(projectPath, groupPath, member.entityId);
+				for (Group group : groups)
+				{
+					delGroupMan.addMemberToGroup(projectGroup.path, group.path, member.entityId);
+				}
 				added.add(member.name);
 			}
-			NotificationPresenter.showSuccess(msg.getMessage("GroupMembersComponent.addedToGroup"));
+			notificationPresenter.showSuccess(msg.getMessage("GroupMembersComponent.addedToGroup"));
 		} catch (Exception e)
 		{
-			log.warn("Can not add member to group " + groupPath, e);
+			log.warn("Can not add member to group " + groups, e);
 			if (added.isEmpty())
 			{
-				NotificationPresenter.showError(msg.getMessage("GroupMembersController.addToGroupError"), msg.getMessage("GroupMembersController.notAdded"));
+				notificationPresenter.showError(msg.getMessage("GroupMembersController.addToGroupError"), msg.getMessage("GroupMembersController.notAdded"));
 			} else
 			{
-				NotificationPresenter.showError(msg.getMessage("GroupMembersController.addToGroupError"), msg.getMessage("GroupMembersController.partiallyAdded", added));
+				notificationPresenter.showError(msg.getMessage("GroupMembersController.addToGroupError"), msg.getMessage("GroupMembersController.partiallyAdded", added));
 			}
 		}
 	}
 
-	public void removeFromGroup(String projectPath, String groupPath, Set<MemberModel> items)
+	public void removeFromGroup(ProjectGroup projectGroup, Group group, Set<MemberModel> items)
 	{
 		List<String> removed = new ArrayList<>();
 
@@ -141,45 +147,44 @@ class GroupMembersService
 		{
 			for (MemberModel member : items)
 			{
-				delGroupMan.removeMemberFromGroup(projectPath, groupPath, member.entityId);
+				delGroupMan.removeMemberFromGroup(projectGroup.path, group.path, member.entityId);
 				removed.add(member.name);
 			}
-			NotificationPresenter.showSuccess(msg.getMessage("GroupMembersComponent.removed"));
+			notificationPresenter.showSuccess(msg.getMessage("GroupMembersComponent.removed"));
 		} catch (Exception e)
 		{
-			log.warn("Can not remove member from group " + groupPath, e);
+			log.warn("Can not remove member from group " + group.path, e);
 			if (removed.isEmpty())
 			{
-				NotificationPresenter.showError(msg.getMessage("GroupMembersController.removeFromGroupError"), msg.getMessage("GroupMembersController.notRemoved"));
+				notificationPresenter.showError(msg.getMessage("GroupMembersController.removeFromGroupError"), msg.getMessage("GroupMembersController.notRemoved"));
 			} else
 			{
-				NotificationPresenter.showError(msg.getMessage("GroupMembersController.removeFromGroupError"), msg.getMessage("GroupMembersController.partiallyRemoved", removed));
+				notificationPresenter.showError(msg.getMessage("GroupMembersController.removeFromGroupError"), msg.getMessage("GroupMembersController.partiallyRemoved", removed));
 			}
 		}
 	}
 
-	public void updateRole(String projectPath, String groupPath, GroupAuthorizationRole role, Set<MemberModel> items)
+	public void updateRole(ProjectGroup projectGroup, Group group, GroupAuthorizationRole role, Set<MemberModel> items)
 	{
-
 		List<String> updated = new ArrayList<>();
 
 		try
 		{
 			for (MemberModel member : items)
 			{
-				delGroupMan.setGroupAuthorizationRole(projectPath, groupPath, member.entityId, role);
+				delGroupMan.setGroupAuthorizationRole(projectGroup.path, group.path, member.entityId, role);
 				updated.add(member.name);
 			}
-			NotificationPresenter.showSuccess(msg.getMessage("GroupMembersComponent.role.updated"));
+			notificationPresenter.showSuccess(msg.getMessage("GroupMembersComponent.role.updated"));
 		} catch (Exception e)
 		{
 			log.warn("Can not update group authorization role", e);
 			if (updated.isEmpty())
 			{
-				NotificationPresenter.showError(msg.getMessage("GroupMembersController.updatePrivilegesError"), msg.getMessage("GroupMembersController.notUpdated"));
+				notificationPresenter.showError(msg.getMessage("GroupMembersController.updatePrivilegesError"), msg.getMessage("GroupMembersController.notUpdated"));
 			} else
 			{
-				NotificationPresenter.showError(msg.getMessage("GroupMembersController.updatePrivilegesError"), msg.getMessage("GroupMembersController.partiallyUpdated", updated));
+				notificationPresenter.showError(msg.getMessage("GroupMembersController.updatePrivilegesError"), msg.getMessage("GroupMembersController.partiallyUpdated", updated));
 			}
 		}
 	}
