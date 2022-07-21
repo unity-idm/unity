@@ -115,7 +115,7 @@ public class TrustedOAuthClientsManagementTest
 		assertThat(clientData.lastAccessTime.get(), is(accessTime));
 		assertThat(clientData.applicationDomain.get(), is("localhost"));
 		assertThat(clientData.technicalInformations.size(), is(1));
-		assertThat(clientData.technicalInformations.get(0).value, is("ac"));
+		assertThat(clientData.technicalInformations.get(0).value.contains("ac"), is(true));
 
 	}
 
@@ -229,6 +229,7 @@ public class TrustedOAuthClientsManagementTest
 		token.setContents(oauthToken.getSerialized());
 		token.setType(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN);
 		token.setCreated(new Date());
+	//	token.setExpires(new Date());
 		when(oauthTokenDAO.getOwnedAccessTokens()).thenReturn(List.of(token));
 
 	}
