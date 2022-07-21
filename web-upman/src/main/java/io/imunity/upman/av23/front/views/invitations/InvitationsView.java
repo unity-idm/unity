@@ -88,7 +88,7 @@ public class InvitationsView extends UnityViewComponent
 	private Dialog createInvitationDialog()
 	{
 		Dialog dialog = new BaseDialog(msg.getMessage("NewInvitationDialog.caption"), msg.getMessage("Cancel"), getContent());
-		InvitationForm invitationForm = new InvitationForm(msg, projectGroup, projectService.getProjectGroups(projectGroup).getAllChildrenElements(), getContent());
+		InvitationForm invitationForm = new InvitationForm(msg, projectGroup, projectService.getProjectGroups(projectGroup).getAllChildrenElementsWithCutOff(), getContent());
 		dialog.add(invitationForm);
 
 		Button saveButton = new Button(msg.getMessage("OK"));

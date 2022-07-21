@@ -14,7 +14,7 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.upman.av23.front.components.FormLayoutLabel;
 import io.imunity.upman.av23.front.components.TooltipPiner;
-import io.imunity.upman.av23.front.model.Group;
+import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
@@ -40,7 +40,7 @@ class InvitationForm extends FormLayout
 	private final Checkbox allowModifyGroupsCheckbox;
 	private final DateTimePicker expirationDateTimePicker;
 
-	public InvitationForm(MessageSource msg, ProjectGroup projectGroup, List<Group> groups, HtmlContainer container)
+	public InvitationForm(MessageSource msg, ProjectGroup projectGroup, List<GroupTreeNode> groups, HtmlContainer container)
 	{
 		this.msg = msg;
 

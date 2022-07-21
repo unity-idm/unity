@@ -6,6 +6,7 @@
 package io.imunity.upman.av23.front.views.invitations;
 
 import io.imunity.upman.av23.front.components.NotificationPresenter;
+import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
 import org.apache.logging.log4j.Logger;
@@ -115,7 +116,7 @@ class InvitationsService
 		List<String> alredyMember = new ArrayList<>();
 
 		List<String> groups = invitationRequest.groups.stream()
-				.map(group -> group.path)
+				.map(GroupTreeNode::getPath)
 				.collect(Collectors.toList());
 		for (String email : invitationRequest.emails) {
 			try {

@@ -6,6 +6,7 @@
 package io.imunity.upman.av23.front.model;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GroupTreeNode
 {
@@ -55,6 +56,11 @@ public class GroupTreeNode
 		return parent.isEmpty();
 	}
 
+	public int getLevel()
+	{
+		return level;
+	}
+
 	public String getDisplayedName()
 	{
 		return group.displayedName;
@@ -88,13 +94,57 @@ public class GroupTreeNode
 		return groups;
 	}
 
-	public List<Group> getAllChildrenElements()
+	public List<GroupTreeNode> getAllChildrenElementsWithCutOff()
 	{
-		List<Group> groups = new LinkedList<>();
-		if(parent.isPresent())
-			groups.add(new Group(group, level));
-		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllElements()));
+		return cutOffParent().stream()
+				.flatMap(groupTreeNode -> groupTreeNode.getAllChildrenElements().stream())
+				.collect(Collectors.toList());
+	}
+
+	public List<GroupTreeNode> cutOffParent()
+	{
+		return children.stream()
+				.map(GroupTreeNode::copyTree)
+				.collect(Collectors.toList());
+	}
+
+	private GroupTreeNode copyTree()
+	{
+		GroupTreeNode node = new GroupTreeNode(group, 0);
+		children.forEach(child -> node.addChild(child.copyTree(node)));
+		return node;
+	}
+
+	private GroupTreeNode copyTree(GroupTreeNode parent)
+	{
+		GroupTreeNode node = new GroupTreeNode(parent, group, parent.level + 1);
+		children.forEach(child -> node.addChild(child.copyTree(node)));
+		return node;
+	}
+
+	private void addChild(GroupTreeNode node)
+	{
+		children.add(node);
+	}
+
+	public List<GroupTreeNode> getAllChildrenElements()
+	{
+		List<GroupTreeNode> groups = new LinkedList<>();
+		groups.add(this);
+		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllChildrenElements()));
 		return groups;
+	}
+
+	public List<GroupTreeNode> getAllParentsElements()
+	{
+		List<GroupTreeNode> parents = new LinkedList<>();
+		Optional<GroupTreeNode> node = parent;
+		while (node.isPresent())
+		{
+			parents.add(node.get());
+			node = node.get().parent;
+		}
+		return parents;
 	}
 
 	public List<GroupTreeNode> getAllNodes()

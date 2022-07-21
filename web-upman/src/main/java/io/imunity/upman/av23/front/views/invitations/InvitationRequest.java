@@ -5,7 +5,7 @@
 
 package io.imunity.upman.av23.front.views.invitations;
 
-import io.imunity.upman.av23.front.model.Group;
+import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 
 import java.time.Instant;
@@ -16,7 +16,7 @@ class InvitationRequest
 {
 	public final ProjectGroup projectGroup;
 	public Set<String> emails;
-	public Set<Group> groups;
+	public Set<GroupTreeNode> groups;
 	public boolean allowModifyGroups;
 	public Instant expiration;
 

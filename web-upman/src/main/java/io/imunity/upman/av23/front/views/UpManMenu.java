@@ -21,6 +21,7 @@ import io.imunity.upman.av23.front.model.ProjectGroup;
 import io.imunity.upman.av23.front.views.groups.GroupsView;
 import io.imunity.upman.av23.front.views.invitations.InvitationsView;
 import io.imunity.upman.av23.front.views.members.MembersView;
+import io.imunity.upman.av23.front.views.user_updates.UserUpdatesView;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
