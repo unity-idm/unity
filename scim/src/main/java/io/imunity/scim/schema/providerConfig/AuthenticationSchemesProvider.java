@@ -43,9 +43,11 @@ class AuthenticationSchemesProvider
 			.withDescription("Authentication scheme using the OAuth Bearer Token Standard").build();
 
 	private static final Map<String, AuthenticationSchema> AuthenticationSchemaTypeMap = Map.of(
-			BearerTokenVerificator.NAME, BEARER_TOKEN_SCHEMA, PasswordVerificator.NAME, HTTP_BASIC_SCHEMA,
-			"composite-password", HTTP_BASIC_SCHEMA, "ldap", HTTP_BASIC_SCHEMA, "pam", HTTP_BASIC_SCHEMA
-
+			BearerTokenVerificator.NAME, BEARER_TOKEN_SCHEMA,
+			PasswordVerificator.NAME, HTTP_BASIC_SCHEMA,
+			"composite-password", HTTP_BASIC_SCHEMA,
+			"ldap", HTTP_BASIC_SCHEMA,
+			"pam", HTTP_BASIC_SCHEMA
 	);
 
 	private final AuthenticatorManagement authenticatorManagement;
