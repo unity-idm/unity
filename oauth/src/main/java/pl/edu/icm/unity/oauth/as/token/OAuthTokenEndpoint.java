@@ -76,14 +76,13 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private IdPEngine insecureIdPEngine;
 	private final ApplicationEventPublisher eventPublisher;
 	private final OAuthScopesService scopeService;
-
+	private final LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement;
 	
 	//insecure
 	private AttributesManagement attributesMan;
 	private EntityManagement identitiesMan;
 	private OAuthTokenRepository oauthTokenRepository;
 	private final EndpointManagement endpointMan;
-	private final LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement;
 	
 	
 	@Autowired

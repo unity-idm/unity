@@ -41,6 +41,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
+import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -180,7 +181,9 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 			technicalInformations.add(TechnicalInformationProperty.builder()
 					.withTitleKey(msg.getMessage("OAuthApplicationProvider.accessTokenLabel")
 							+ (accessTokens.size() > 1 ? " (" + (i + 1) + "):" : ":"))
-					.withValue(accessTokens.get(i).token.getAccessToken()).build());
+					.withValue(getTokenRepresentation(accessTokens.get(i).createdTime, accessTokens.get(i).expiredTime,
+							accessTokens.get(i).token.getAccessToken()))
+					.build());
 		}
 
 		for (int i = 0; i < refreshTokens.size(); i++)
@@ -188,10 +191,26 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 			technicalInformations.add(TechnicalInformationProperty.builder()
 					.withTitleKey(msg.getMessage("OAuthApplicationProvider.refreshTokenLabel")
 							+ (refreshTokens.size() > 1 ? " (" + (i + 1) + "):" : ":"))
-					.withValue(refreshTokens.get(i).token.getRefreshToken()).build());
+					.withValue(getTokenRepresentation(refreshTokens.get(i).createdTime,
+							refreshTokens.get(i).expiredTime, refreshTokens.get(i).token.getRefreshToken()))
+					.build());
 		}
 
 		return technicalInformations;
+	}
+
+	private String getTokenRepresentation(Instant createTime, Instant expired, String value)
+	{
+		return value + "<br>"
+				+ ((createTime != null
+						? (msg.getMessage("OAuthApplicationProvider.issuedOn") + " "
+								+ TimeUtil.formatStandardInstant(createTime))
+						: "")
+						+ (expired != null
+								? "<br>" + msg.getMessage("OAuthApplicationProvider.expiresOn") + " "
+										+ TimeUtil.formatStandardInstant(expired)
+								: ""));
+
 	}
 
 	private Map<LastIdPClientAccessKey, Instant> getLastAccessByClient() throws EngineException
@@ -277,15 +296,14 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 	protected List<OAuthTokenWithTime> getTokens() throws EngineException
 	{
 		List<OAuthTokenWithTime> tokens = new ArrayList<>();
-		tokens.addAll(oauthTokenDAO
-				.getOwnedAccessTokens().stream().map(t -> new OAuthTokenWithTime(t.getType(),
-						t.getCreated().toInstant(), OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))
+		tokens.addAll(oauthTokenDAO.getOwnedAccessTokens().stream()
+				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(), t.getExpires().toInstant(),
+						OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))
 				.collect(Collectors.toList()));
-		tokens.addAll(
-				tokenMan.getOwnedTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN).stream()
-						.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(),
-								OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))
-						.collect(Collectors.toList()));
+		tokens.addAll(tokenMan.getOwnedTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN).stream()
+				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(), t.getExpires().toInstant(),
+						OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))
+				.collect(Collectors.toList()));
 
 		return tokens;
 	}
@@ -354,14 +372,16 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 	{
 		public final OAuthToken token;
 		public final Instant createdTime;
+		public final Instant expiredTime;
 		public final String type;
 		public final String value;
 
-		public OAuthTokenWithTime(String type, Instant createdTime, OAuthToken token, String value)
+		public OAuthTokenWithTime(String type, Instant createdTime, Instant expiredTime, OAuthToken token, String value)
 		{
 			this.type = type;
 			this.token = token;
 			this.createdTime = createdTime;
+			this.expiredTime = expiredTime;
 			this.value = value;
 		}
 	}

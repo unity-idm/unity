@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -56,7 +58,7 @@ public class TrustedApplicationTab extends CustomComponent
 		refresh();
 	}
 
-	private void refresh()
+	public void refresh()
 	{
 		main.removeAllComponents();
 		List<IdPClientData> applications;
@@ -75,11 +77,20 @@ public class TrustedApplicationTab extends CustomComponent
 		appWithAccess.setStyleName(Styles.textXLarge.toString());
 		appWithAccess.addStyleName(Styles.bold.toString());
 		main.addComponent(appWithAccess);
-
+		main.addComponent(new Label(""));
+		
+		
 		if (allowedApp.size() > 0)
 		{
 			allowedApp.forEach(a -> main.addComponent(new TrustedApplicationComponent(a)));
+		}else {
+			Label noApp = new Label();
+			noApp.setValue(msg.getMessage("TrustedApplications.noneTrustedApplications"));
+			noApp.setStyleName(Styles.emphasized.toString());
+			main.addComponent(noApp);		
 		}
+		
+		
 		List<IdPClientData> disallowedApp = controller.filterDisallowedApplications(applications);
 		if (disallowedApp.size() > 0)
 		{
@@ -88,6 +99,7 @@ public class TrustedApplicationTab extends CustomComponent
 			appWithDenied.setStyleName(Styles.textXLarge.toString());
 			appWithDenied.addStyleName(Styles.bold.toString());
 			main.addComponent(appWithDenied);
+			main.addComponent(new Label(""));
 			disallowedApp.forEach(a -> main.addComponent(new TrustedApplicationComponent(a)));
 		}
 	}
@@ -158,15 +170,15 @@ public class TrustedApplicationTab extends CustomComponent
 
 			VerticalLayout technicalInfoWrapper = new VerticalLayout();
 			FormLayoutWithFixedCaptionWidth technicalInfoContent = new FormLayoutWithFixedCaptionWidth();
-			technicalInfoWrapper.setMargin(false);
+			technicalInfoWrapper.setMargin(new MarginInfo(true, false));
 			technicalInfoContent.setMargin(false);
 			technicalInfoContent.setVisible(false);
 			content.addComponent(technicalInfoWrapper);
 
-			Button showTechnicalInfo = new Button();
-			showTechnicalInfo.setCaption(msg.getMessage("TrustedApplications.showTechnicalInformation"));
-			showTechnicalInfo.addStyleName(Styles.vButtonLink.toString());
-			technicalInfoWrapper.addComponent(showTechnicalInfo);
+			Button showTechnicalInfoButton = new Button();
+			showTechnicalInfoButton.setCaption(msg.getMessage("TrustedApplications.showTechnicalInformation"));
+			showTechnicalInfoButton.addStyleName(Styles.vButtonLink.toString());
+			technicalInfoWrapper.addComponent(showTechnicalInfoButton);
 			technicalInfoWrapper.addComponent(technicalInfoContent);
 
 			Label protocol = new Label();
@@ -181,15 +193,19 @@ public class TrustedApplicationTab extends CustomComponent
 				i.setCaption(es.titleKey);
 				i.setValue(es.value);
 				i.setStyleName(Styles.fontMonospace.toString());
+				i.addStyleName(Styles.wordWrap.toString());
+				i.setContentMode(ContentMode.HTML);
 				technicalInfoContent.addComponent(i);
 			});
 
-			showTechnicalInfo.addClickListener(e ->
+			showTechnicalInfoButton.addClickListener(e ->
 			{
-				showTechnicalInfo.setCaption(technicalInfoContent.isVisible()
-						? msg.getMessage("TrustedApplications.showTechnicalInformation")
+				
+				boolean vis = technicalInfoContent.isVisible();
+				showTechnicalInfoButton.setCaption(vis
+					? msg.getMessage("TrustedApplications.showTechnicalInformation")
 						: msg.getMessage("TrustedApplications.hideTechnicalInformation"));
-				technicalInfoContent.setVisible(!technicalInfoContent.isVisible());
+				technicalInfoContent.setVisible(!vis);
 			});
 			content.setMargin(false);
 			content.setSpacing(true);
