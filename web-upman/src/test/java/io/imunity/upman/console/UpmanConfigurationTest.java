@@ -5,16 +5,15 @@
 
 package io.imunity.upman.console;
 
-import static io.imunity.upman.UpmanEndpointProperties.META;
-import static io.imunity.upman.UpmanEndpointProperties.PREFIX;
-import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
+import org.junit.jupiter.api.Test;
+import pl.edu.icm.unity.configtester.ConfigurationComparator;
+import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 
 import java.util.Properties;
 
-import org.junit.Test;
-
-import pl.edu.icm.unity.configtester.ConfigurationComparator;
-import pl.edu.icm.unity.configtester.ConfigurationGenerator;
+import static io.imunity.upman.UpmanEndpointProperties.META;
+import static io.imunity.upman.UpmanEndpointProperties.PREFIX;
+import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
 
 public class UpmanConfigurationTest {
 

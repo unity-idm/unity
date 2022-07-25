@@ -6,7 +6,6 @@
 
 package io.imunity.upman;
 
-import io.imunity.upman.av23.UpManResourceProvider;
 import io.imunity.vaadin23.endpoint.common.Vaadin823Endpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
