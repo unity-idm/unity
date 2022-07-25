@@ -129,6 +129,7 @@ public class MembersView extends UnityViewComponent
 				menuItemFactory,
 				() -> projectGroup,
 				() -> groupsComboBox.getValue().group,
+				() -> currentUserRole,
 				() -> groups,
 				selectedMembersGetter
 		);
@@ -147,7 +148,7 @@ public class MembersView extends UnityViewComponent
 
 		GroupTreeNode groupTreeNode = projectService.getProjectGroups(projectGroup);
 
-		groups = groupTreeNode.getAllNodes();
+		groups = groupTreeNode.getNodeWithAllOffspring();
 		groupsComboBox.setItems(groups);
 		if (groups.iterator().hasNext())
 			groupsComboBox.setValue(groups.iterator().next());

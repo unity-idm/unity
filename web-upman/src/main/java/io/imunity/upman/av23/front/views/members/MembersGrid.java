@@ -40,7 +40,7 @@ class MembersGrid extends Grid<MemberModel>
 				.setSortable(true);
 		addComponentColumn(model -> new Div(model.email.getValue().create(), new Label(model.email.getKey())))
 				.setHeader(msg.getMessage("GroupMember.email"))
-				.setFlexGrow(3)
+				.setAutoWidth(true)
 				.setSortable(true);
 
 		attributes.forEach((key, translatedValue) ->

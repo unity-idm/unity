@@ -43,9 +43,10 @@ public class GroupsView extends UnityViewComponent
 	private GroupAuthorizationRole currentUserRole;
 	private GroupActionMenuFactory actionMenuFactory;
 	private GroupTreeNode root;
-	private Set<GroupTreeNode> gridExpandElements;
+	private Set<GroupTreeNode> gridExpandedElements;
 
-	public GroupsView(MessageSource msg, ProjectService projectService, GroupService groupService) {
+	public GroupsView(MessageSource msg, ProjectService projectService, GroupService groupService)
+	{
 		this.msg = msg;
 		this.projectService = projectService;
 		this.grid = createGroupsGrid();
@@ -72,8 +73,8 @@ public class GroupsView extends UnityViewComponent
 		grid.addComponentColumn(groupNode -> actionMenuFactory.createMenu(groupNode))
 				.setTextAlign(ColumnTextAlign.END);
 
-		grid.addCollapseListener(event -> gridExpandElements.removeAll(event.getItems()));
-		grid.addExpandListener(event -> gridExpandElements.addAll(event.getItems()));
+		grid.addCollapseListener(event -> gridExpandedElements.removeAll(event.getItems()));
+		grid.addExpandListener(event -> gridExpandedElements.addAll(event.getItems()));
 
 		return grid;
 	}
@@ -99,7 +100,7 @@ public class GroupsView extends UnityViewComponent
 	{
 		projectGroup = ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class);
 		currentUserRole = projectService.getCurrentUserProjectRole(projectGroup);
-		gridExpandElements = new HashSet<>();
+		gridExpandedElements = new HashSet<>();
 
 		loadGrid();
 	}
@@ -111,7 +112,7 @@ public class GroupsView extends UnityViewComponent
 		actionMenuFactory = new GroupActionMenuFactory(menuItemFactory, this.projectGroup, root, currentUserRole);
 
 		grid.setItems(List.of(root), GroupTreeNode::getChildren);
-		Set<String> paths = gridExpandElements.stream().map(GroupTreeNode::getPath).collect(toSet());
-		grid.expand(root.getAllNodes().stream().filter(node -> paths.contains(node.getPath())).collect(toSet()));
+		Set<String> paths = gridExpandedElements.stream().map(GroupTreeNode::getPath).collect(toSet());
+		grid.expand(root.getNodeWithAllOffspring().stream().filter(node -> paths.contains(node.getPath())).collect(toSet()));
 	}
 }

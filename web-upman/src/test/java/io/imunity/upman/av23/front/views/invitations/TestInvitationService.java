@@ -10,12 +10,12 @@ import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
@@ -25,14 +25,13 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestInvitationService
 {
 	@Mock
@@ -49,14 +48,14 @@ public class TestInvitationService
 
 	private InvitationsService service;
 
-	@Before
+	@BeforeEach
 	public void initController()
 	{
 		service = new InvitationsService(mockMsg, mockInvitationMan, mockDelGroupHelper, notificationPresenter);
 	}
 
 	@Test
-	public void shouldForwardAddToCoreManager() throws EngineException
+	public void shouldAdd() throws EngineException
 	{
 		Instant expiration = Instant.now();
 		ProjectGroup project = new ProjectGroup("/project", "project");
@@ -68,14 +67,14 @@ public class TestInvitationService
 		verify(mockInvitationMan, times(1)).addInvitation(argument.capture());
 
 		List<ProjectInvitationParam> arguments = argument.getAllValues();
-		assertThat(arguments.get(0).project, is("/project"));
-		assertThat(arguments.get(0).contactAddress, is("demo@demo.com"));
-		assertThat(arguments.get(0).groups.iterator().next(), is("/"));
-		assertThat(arguments.get(0).expiration, is(expiration));
+		assertThat(arguments.get(0).project).isEqualTo("/project");
+		assertThat(arguments.get(0).contactAddress).isEqualTo("demo@demo.com");
+		assertThat(arguments.get(0).groups.iterator().next()).isEqualTo("/");
+		assertThat(arguments.get(0).expiration).isEqualTo(expiration);
 	}
 
 	@Test
-	public void shouldForwardRemoveToCoreManager() throws EngineException
+	public void shouldRemove() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		InvitationModel code = new InvitationModel("code", null, null, null, null, null);
@@ -87,7 +86,7 @@ public class TestInvitationService
 	}
 
 	@Test
-	public void shouldForwardSendToCoreManager() throws EngineException
+	public void shouldSend() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		InvitationModel code = new InvitationModel("code", null, null, null, null, null);
@@ -98,7 +97,7 @@ public class TestInvitationService
 	}
 
 	@Test
-	public void shouldForwardGetInvToCoreManager() throws EngineException
+	public void shouldGetInvitations() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 

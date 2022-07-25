@@ -13,7 +13,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.upman.av23.front.components.FormLayoutLabel;
-import io.imunity.upman.av23.front.components.TooltipPiner;
+import io.imunity.upman.av23.front.components.TooltipAttacher;
 import io.imunity.upman.av23.front.model.GroupTreeNode;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import pl.edu.icm.unity.MessageSource;
@@ -49,7 +49,7 @@ class InvitationForm extends FormLayout
 
 		emailsTextArea = new TextArea();
 		emailsTextArea.setPlaceholder(msg.getMessage("NewInvitationDialog.emailsPrompt"));
-		TooltipPiner.pinTooltip(msg.getMessage("NewInvitationDialog.emailsDesc"), emailsTextArea, container);
+		TooltipAttacher.attachTooltip(msg.getMessage("NewInvitationDialog.emailsDesc"), emailsTextArea, container);
 
 		allowModifyGroupsCheckbox = new Checkbox(msg.getMessage("NewInvitationDialog.allowModifyGroups"));
 		allowModifyGroupsCheckbox.setEnabled(false);
@@ -64,7 +64,7 @@ class InvitationForm extends FormLayout
 			} else
 				allowModifyGroupsCheckbox.setEnabled(true);
 		});
-		TooltipPiner.pinTooltip(msg.getMessage("NewInvitationDialog.groupsDesc"), groupsComboBox, container);
+		TooltipAttacher.attachTooltip(msg.getMessage("NewInvitationDialog.groupsDesc"), groupsComboBox, container);
 
 		expirationDateTimePicker = new DateTimePicker();
 		expirationDateTimePicker.setLocale(EUROPEAN_FORMAT_LOCALE);

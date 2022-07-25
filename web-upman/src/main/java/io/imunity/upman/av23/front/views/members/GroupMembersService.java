@@ -139,7 +139,17 @@ class GroupMembersService
 		}
 	}
 
+	public void removeFromProject(ProjectGroup projectGroup, Set<MemberModel> items)
+	{
+		extracted(items, projectGroup, projectGroup.path);
+	}
+
 	public void removeFromGroup(ProjectGroup projectGroup, Group group, Set<MemberModel> items)
+	{
+		extracted(items, projectGroup, group.path);
+	}
+
+	private void extracted(Set<MemberModel> items, ProjectGroup projectGroup, String groupPath)
 	{
 		List<String> removed = new ArrayList<>();
 
@@ -147,13 +157,13 @@ class GroupMembersService
 		{
 			for (MemberModel member : items)
 			{
-				delGroupMan.removeMemberFromGroup(projectGroup.path, group.path, member.entityId);
+				delGroupMan.removeMemberFromGroup(projectGroup.path, groupPath, member.entityId);
 				removed.add(member.name);
 			}
 			notificationPresenter.showSuccess(msg.getMessage("GroupMembersComponent.removed"));
 		} catch (Exception e)
 		{
-			log.warn("Can not remove member from group " + group.path, e);
+			log.warn("Can not remove member from group " + groupPath, e);
 			if (removed.isEmpty())
 			{
 				notificationPresenter.showError(msg.getMessage("GroupMembersController.removeFromGroupError"), msg.getMessage("GroupMembersController.notRemoved"));

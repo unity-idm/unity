@@ -64,7 +64,8 @@ class UpdateRequestModel
 				&& Objects.equal(this.requestedTime, other.requestedTime);
 	}
 
-	public boolean anyFieldContains(String value) {
+	public boolean anyFieldContains(String value)
+	{
 		String lowerCaseValue = value.toLowerCase();
 		return value.isEmpty()
 				|| (operation != null && operation.name().toLowerCase().contains(value.replace(" ","")))

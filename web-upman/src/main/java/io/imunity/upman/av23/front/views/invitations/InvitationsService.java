@@ -34,7 +34,8 @@ class InvitationsService
 	private final NotificationPresenter notificationPresenter;
 
 	public InvitationsService(MessageSource msg, ProjectInvitationsManagement invitationMan,
-	                          DelegatedGroupsHelper delGroupHelper, NotificationPresenter notificationPresenter) {
+	                          DelegatedGroupsHelper delGroupHelper, NotificationPresenter notificationPresenter)
+	{
 		this.invitationMan = invitationMan;
 		this.delGroupHelper = delGroupHelper;
 		this.notificationPresenter = notificationPresenter;
@@ -45,7 +46,8 @@ class InvitationsService
 	{
 		List<String> sent = new ArrayList<>();
 		try {
-			for (InvitationModel inv : items) {
+			for (InvitationModel inv : items)
+			{
 				invitationMan.sendInvitation(projectGroup.path, inv.code);
 				sent.add(inv.email);
 			}
@@ -53,7 +55,8 @@ class InvitationsService
 		} catch (Exception e)
 		{
 			log.warn("Can not resend invitations", e);
-			if (sent.isEmpty()) {
+			if (sent.isEmpty())
+			{
 				notificationPresenter.showError(
 						msg.getMessage("InvitationsController.resendInvitationError"),
 						msg.getMessage("InvitationsController.notSend")
@@ -71,14 +74,17 @@ class InvitationsService
 	{
 		List<String> removed = new ArrayList<>();
 		try {
-			for (InvitationModel inv : items) {
+			for (InvitationModel inv : items)
+			{
 				invitationMan.removeInvitation(projectGroup.path, inv.code);
 				removed.add(inv.email);
 			}
 			notificationPresenter.showSuccess(msg.getMessage("InvitationsComponent.removed"));
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			log.warn("Can not remove invitations", e);
-			if (removed.isEmpty()) {
+			if (removed.isEmpty())
+			{
 				notificationPresenter.showError(
 						msg.getMessage("InvitationsController.removeInvitationError"),
 						msg.getMessage("InvitationsController.notRemoved")
@@ -98,7 +104,8 @@ class InvitationsService
 		List<ProjectInvitation> invitations;
 		try {
 			invitations = invitationMan.getInvitations(projectGroup.path);
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			log.warn("Can not get project invitations", e);
 			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 			return List.of();
@@ -120,17 +127,21 @@ class InvitationsService
 		List<String> groups = invitationRequest.groups.stream()
 				.map(GroupTreeNode::getPath)
 				.collect(Collectors.toList());
-		for (String email : invitationRequest.emails) {
+		for (String email : invitationRequest.emails)
+		{
 			try {
 				ProjectInvitationParam projectInvitationParam = new ProjectInvitationParam(invitationRequest.projectGroup.path, email, groups, invitationRequest.allowModifyGroups, invitationRequest.expiration);
 				invitationMan.addInvitation(projectInvitationParam);
 				added.add(projectInvitationParam.contactAddress);
 
-			} catch (AlreadyMemberException e) {
+			} catch (AlreadyMemberException e)
+			{
 				alredyMember.add(email);
-			} catch (Exception e) {
+			} catch (Exception e)
+			{
 				log.warn("Can not add invitations", e);
-				if (added.isEmpty()) {
+				if (added.isEmpty())
+				{
 					notificationPresenter.showError(
 							msg.getMessage("InvitationsController.addInvitationError"),
 							msg.getMessage("InvitationsController.notAdd")

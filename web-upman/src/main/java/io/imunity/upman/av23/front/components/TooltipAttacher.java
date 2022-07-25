@@ -9,9 +9,9 @@ import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlContainer;
 
-public class TooltipPiner
+public class TooltipAttacher
 {
-	public static void pinTooltip(String txt, Component target, HtmlContainer container)
+	public static void attachTooltip(String txt, Component target, HtmlContainer container)
 	{
 		Tooltip tooltip = new Tooltip();
 		tooltip.attachToComponent(target);

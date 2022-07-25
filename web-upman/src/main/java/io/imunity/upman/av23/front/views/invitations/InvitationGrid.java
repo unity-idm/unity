@@ -13,7 +13,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import io.imunity.upman.av23.front.components.BlankPageAnchor;
-import io.imunity.upman.av23.front.components.TooltipPiner;
+import io.imunity.upman.av23.front.components.TooltipAttacher;
 import pl.edu.icm.unity.MessageSource;
 
 import java.time.Instant;
@@ -63,7 +63,7 @@ class InvitationGrid extends Grid<InvitationModel>
 	{
 		String groups = String.join(", ", model.groupsDisplayedNames);
 		Label label = new Label(groups);
-		TooltipPiner.pinTooltip(groups, label, container);
+		TooltipAttacher.attachTooltip(groups, label, container);
 		return label;
 	}
 }

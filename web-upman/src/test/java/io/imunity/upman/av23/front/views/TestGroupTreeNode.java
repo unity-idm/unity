@@ -7,19 +7,19 @@ package io.imunity.upman.av23.front.views;
 
 import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.GroupTreeNode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestGroupTreeNode
 {
 	private GroupTreeNode root;
 
-	@Before
+	@BeforeEach
 	public void setUp()
 	{
 		Group group = new Group("/", "group", false, false, "", false, 0);
@@ -36,42 +36,30 @@ public class TestGroupTreeNode
 		Group groupBA = new Group("/B/A", "groupBA", false, false, "", false, 0);
 		Group groupBD = new Group("/B/D", "groupBD", false, false, "", false, 0);
 
-		root.addChild(groupA);
-		root.addChild(groupB);
-		root.addChild(groupAB);
-		root.addChild(groupAC);
-		root.addChild(groupBD);
-		root.addChild(groupBA);
+		root.addChildren(groupA, groupB, groupAC, groupAB, groupBD, groupBA);
 
-		List<Group> allNodes = root.getAllNodes().stream()
+		List<Group> allNodes = root.getNodeWithAllOffspring().stream()
 				.map(node -> node.group)
 				.collect(Collectors.toList());
 
-		assertEquals(List.of(root.group, groupA, groupAB, groupAC, groupB, groupBA, groupBD), allNodes);
+		assertThat(allNodes).isEqualTo(List.of(root.group, groupA, groupAB, groupAC, groupB, groupBA, groupBD));
 	}
 
 	@Test
-	public void shouldGetAllChildrenElementsWithParentCutOff()
+	public void shouldGetAllOffsprings()
 	{
 		Group groupA = new Group("/A", "groupA", false, false, "", false, 0);
 		Group groupB = new Group("/B", "groupB", false, false, "", false, 0);
 		Group groupAB = new Group("/A/B", "groupAB", false, false, "", false, 0);
-		Group groupAC = new Group("/A/C", "groupAC", false, false, "", false, 0);
 		Group groupBA = new Group("/B/A", "groupBA", false, false, "", false, 0);
-		Group groupBD = new Group("/B/D", "groupBD", false, false, "", false, 0);
 
-		root.addChild(groupA);
-		root.addChild(groupB);
-		root.addChild(groupAB);
-		root.addChild(groupAC);
-		root.addChild(groupBD);
-		root.addChild(groupBA);
+		root.addChildren(groupA, groupB, groupAB, groupBA);
 
-		List<Group> allNodes = root.getAllChildrenElementsWithCutOff().stream()
+		List<Group> allNodes = root.getAllOffspring().stream()
 				.map(node -> node.group)
 				.collect(Collectors.toList());
 
-		assertEquals(List.of(groupA, groupAB, groupAC, groupB, groupBA, groupBD), allNodes);
+		assertThat(allNodes).isEqualTo(List.of(groupA, groupAB, groupB, groupBA));
 	}
 
 	@Test
@@ -82,19 +70,16 @@ public class TestGroupTreeNode
 		Group groupAB = new Group("/A/B", "groupAB", false, false, "", false, 0);
 		Group groupAC = new Group("/A/C", "groupAC", false, false, "", false, 0);
 		Group groupBA = new Group("/B/A", "groupBA", false, false, "", false, 0);
-		Group groupBD = new Group("/B/D", "groupBD", false, false, "", false, 0);
 
-		root.addChild(groupA);
-		root.addChild(groupB);
-		root.addChild(groupAB);
-		root.addChild(groupAC);
-		root.addChild(groupBD);
-		root.addChild(groupBA);
+		root.addChildren(groupA, groupB, groupAB, groupAC, groupBA);
 
-		List<Group> allNodes = root.getChildren().iterator().next().getChildren().iterator().next().getAllParentsElements().stream()
+		GroupTreeNode firstGeneration = root.getChildren().iterator().next();
+		GroupTreeNode secondGeneration = firstGeneration.getChildren().iterator().next();
+
+		List<Group> ancestors = secondGeneration.getAllAncestors().stream()
 				.map(node -> node.group)
 				.collect(Collectors.toList());
 
-		assertEquals(List.of(groupA, root.group), allNodes);
+		assertThat(ancestors).isEqualTo(List.of(groupA, root.group));
 	}
 }

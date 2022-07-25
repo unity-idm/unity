@@ -62,7 +62,8 @@ class InvitationModel
 				&& Objects.equal(this.link, other.link);
 	}
 
-	public boolean anyFieldContains(String value) {
+	public boolean anyFieldContains(String value)
+	{
 		String lowerCaseValue = value.toLowerCase();
 		return value.isEmpty()
 				|| email.toLowerCase().contains(lowerCaseValue)

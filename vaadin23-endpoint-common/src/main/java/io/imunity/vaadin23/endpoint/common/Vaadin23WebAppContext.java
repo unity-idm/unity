@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.av23;
+package io.imunity.vaadin23.endpoint.common;
 
 import org.eclipse.jetty.webapp.WebAppContext;
 

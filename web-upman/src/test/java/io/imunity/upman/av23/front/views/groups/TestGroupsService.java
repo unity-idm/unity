@@ -8,11 +8,11 @@ package io.imunity.upman.av23.front.views.groups;
 import io.imunity.upman.av23.front.components.NotificationPresenter;
 import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.ProjectGroup;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -24,7 +24,7 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestGroupsService
 {
 	@Mock
@@ -36,14 +36,14 @@ public class TestGroupsService
 
 	private GroupService groupService;
 
-	@Before
+	@BeforeEach
 	public void initController()
 	{
 		groupService = new GroupService(mockMsg, mockDelGroupMan, notificationPresenter);
 	}
 
 	@Test
-	public void shouldForwardAddGroupToCoreManager() throws EngineException
+	public void shouldAddGroup() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		Group group = new Group("/", "group", false, false, "", false, 0);
@@ -56,7 +56,7 @@ public class TestGroupsService
 	}
 
 	@Test
-	public void shouldForwardRemoveGroupToCoreManager() throws EngineException
+	public void shouldRemoveGroup() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		Group group = new Group("/project/A", "group", false, false, "", false, 0);
@@ -67,7 +67,7 @@ public class TestGroupsService
 	}
 
 	@Test
-	public void shouldForwardRemoveProjectToCoreManager() throws EngineException
+	public void shouldRemoveProject() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		Group group = new Group("/project/A", "group", false, false, "", false, 0);
@@ -78,7 +78,7 @@ public class TestGroupsService
 	}
 
 	@Test
-	public void shouldForwardSetModeToCoreManager() throws EngineException
+	public void shouldSetMode() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		Group group = new Group("/project/A", "group", false, false, "", false, 0);
@@ -89,7 +89,7 @@ public class TestGroupsService
 	}
 
 	@Test
-	public void shouldForwardSetGroupNameToCoreManager() throws EngineException
+	public void shouldSetGroupName() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		Group group = new Group("/project/A", "group", false, false, "", false, 0);

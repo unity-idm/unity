@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.av23.spring;
+package io.imunity.vaadin23.endpoint.common;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

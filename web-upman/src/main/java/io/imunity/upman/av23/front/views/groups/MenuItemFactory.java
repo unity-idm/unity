@@ -98,7 +98,13 @@ class MenuItemFactory
 		Button saveButton = new Button(msg.getMessage("OK"));
 		saveButton.addClickListener(event ->
 		{
-			groupService.setGroupDelegationConfiguration(projectGroup, group, subProjectConfigurationLayout.enableDelegation.getValue(), subProjectConfigurationLayout.enableSubprojects.getValue(), subProjectConfigurationLayout.logoUrl.getValue());
+			groupService.setGroupDelegationConfiguration(
+					projectGroup,
+					group,
+					subProjectConfigurationLayout.enableDelegation.getValue(),
+					subProjectConfigurationLayout.enableSubprojects.getValue(),
+					subProjectConfigurationLayout.logoUrl.getValue()
+			);
 			viewReloader.run();
 			dialog.close();
 		});

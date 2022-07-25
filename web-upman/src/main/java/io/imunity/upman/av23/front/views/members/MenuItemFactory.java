@@ -8,6 +8,7 @@ package io.imunity.upman.av23.front.views.members;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -18,6 +19,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.NavigationTrigger;
+import com.vaadin.flow.router.Route;
 import io.imunity.upman.av23.front.components.BaseDialog;
 import io.imunity.upman.av23.front.components.MenuButton;
 import io.imunity.upman.av23.front.model.Group;
@@ -49,18 +53,18 @@ class MenuItemFactory
 		this.viewReloader = reloader;
 	}
 
-	MenuItem createRemoveFromProjectItem(Supplier<ProjectGroup> projectGetter, Supplier<Group> groupGetter,
-	                                     Supplier<Set<MemberModel>> modelsGetter)
+	MenuItem createRemoveFromProjectItem(Supplier<ProjectGroup> projectGetter,
+	                                     Supplier<Set<MemberModel>> modelsGetter, Supplier<GroupAuthorizationRole> roleGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.removeFromProjectAction"), BAN);
-		return new MenuItem(menuButton, event -> removeFromGroup(projectGetter.get(), groupGetter.get(), modelsGetter.get()));
+		return new MenuItem(menuButton, event -> removeFromProject(projectGetter.get(), roleGetter.get(), modelsGetter.get()));
 	}
 
 	MenuItem createRemoveFromGroupItem(Supplier<ProjectGroup> projectGetter, Supplier<Group> groupGetter,
-	                                   Supplier<Set<MemberModel>> modelsGetter)
+	                                   Supplier<Set<MemberModel>> modelsGetter, Supplier<GroupAuthorizationRole> roleGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.removeFromGroupAction"), FILE_REMOVE);
-		return new MenuItem(menuButton, event -> removeFromGroup(projectGetter.get(), groupGetter.get(), modelsGetter.get()));
+		return new MenuItem(menuButton, event -> removeFromGroup(projectGetter.get(), groupGetter.get(), roleGetter.get(), modelsGetter.get()));
 	}
 
 	MenuItem createAddToGroupItem(Supplier<ProjectGroup> projectGetter, Supplier<List<GroupTreeNode>> groupGetter, Supplier<Set<MemberModel>> modelsGetter)
@@ -81,8 +85,13 @@ class MenuItemFactory
 		return new MenuItem(menuButton, event -> createSetSubProjectRoleDialog(projectGetter.get(), groupGetter.get(), modelsGetter.get()).open());
 	}
 
-	private void removeFromGroup(ProjectGroup projectGroup, Group group, Set<MemberModel> models)
+	private void removeFromGroup(ProjectGroup projectGroup, Group group, GroupAuthorizationRole role, Set<MemberModel> models)
 	{
+		if(projectGroup.path.equals(group.path))
+		{
+			removeFromProject(projectGroup, role, models);
+			return;
+		}
 		if(isCurrentUserSelected(models))
 		{
 			String message = msg.getMessage("GroupMembersComponent.confirmSelfRemoveFromProject", projectGroup.displayedName);
@@ -101,12 +110,41 @@ class MenuItemFactory
 		}
 	}
 
+	private void removeFromProject(ProjectGroup projectGroup, GroupAuthorizationRole role, Set<MemberModel> models)
+	{
+		if(isCurrentUserSelected(models))
+		{
+			String message = msg.getMessage("GroupMembersComponent.confirmSelfRemoveFromProject", projectGroup.displayedName);
+			createSelfRemoveDialog(
+					message, () ->
+					{
+						groupMembersController.removeFromProject(projectGroup, models);
+						if(role.equals(GroupAuthorizationRole.projectsAdmin))
+							reloadMainLayout();
+						else
+							viewReloader.run();
+					}
+			).open();
+		}
+		else
+		{
+			groupMembersController.removeFromProject(projectGroup, models);
+			viewReloader.run();
+		}
+	}
+
 	private boolean isCurrentUserSelected(Set<MemberModel> models)
 	{
 		long entityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
 		return models.stream().map(member -> member.entityId).anyMatch(memberId -> memberId.equals(entityId));
 	}
 
+	private void reloadMainLayout()
+	{
+		UI ui = UI.getCurrent();
+		String location = MembersView.class.getAnnotation(Route.class).value();
+		ui.getInternals().getRouter().navigate(ui, new Location(location), NavigationTrigger.PROGRAMMATIC);
+	}
 
 	private Dialog createSelfRemoveDialog(String txt, Runnable job)
 	{
@@ -239,7 +277,7 @@ class MenuItemFactory
 		button.addClickListener(event ->
 		{
 			GroupTreeNode value = comboBox.getValue();
-			List<GroupTreeNode> parents = value.getAllNodes();
+			List<GroupTreeNode> parents = value.getNodeWithAllOffspring();
 			parents.add(value);
 
 			groupMembersController.addToGroup(projectGroup, parents.stream().map(node -> node.group).collect(toList()), members);

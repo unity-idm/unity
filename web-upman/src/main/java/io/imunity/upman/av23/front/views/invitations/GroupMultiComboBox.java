@@ -27,31 +27,31 @@ class GroupMultiComboBox extends MultiselectComboBox<GroupTreeNode>
 			if(!event.isFromClient())
 				return;
 
-			Set<GroupTreeNode> newSet = new HashSet<>(event.getValue());
-			Set<GroupTreeNode> oldSet = new HashSet<>(event.getOldValue());
+			Set<GroupTreeNode> selectedGroups = new HashSet<>(event.getValue());
+			Set<GroupTreeNode> lastSelectedGroup = new HashSet<>(event.getOldValue());
 
-			addAllParents(newSet, oldSet);
-			removeAllChildren(newSet, oldSet);
+			addAllGroupsAncestorIfNewGroupAdded(selectedGroups, lastSelectedGroup);
+			removeAllOffspringsIfParentWasRemoved(selectedGroups, lastSelectedGroup);
 
-			setValue(newSet);
+			setValue(selectedGroups);
 		});
 	}
 
-	private void removeAllChildren(Set<GroupTreeNode> newSet, Set<GroupTreeNode> oldSet)
+	private void removeAllOffspringsIfParentWasRemoved(Set<GroupTreeNode> newSet, Set<GroupTreeNode> oldSet)
 	{
 		HashSet<GroupTreeNode> nodes = new HashSet<>(oldSet);
 		nodes.removeAll(newSet);
 		nodes.stream()
-				.map(GroupTreeNode::getAllNodes)
+				.map(GroupTreeNode::getNodeWithAllOffspring)
 				.forEach(newSet::removeAll);
 	}
 
-	private void addAllParents(Set<GroupTreeNode> newSet, Set<GroupTreeNode> oldSet)
+	private void addAllGroupsAncestorIfNewGroupAdded(Set<GroupTreeNode> newSet, Set<GroupTreeNode> oldSet)
 	{
 		HashSet<GroupTreeNode> nodes = new HashSet<>(newSet);
 		nodes.removeAll(oldSet);
 		nodes.stream()
-				.map(GroupTreeNode::getAllParentsElements)
+				.map(GroupTreeNode::getAllAncestors)
 				.forEach(newSet::addAll);
 	}
 

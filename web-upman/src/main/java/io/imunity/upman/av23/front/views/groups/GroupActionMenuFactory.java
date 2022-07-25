@@ -120,7 +120,7 @@ class GroupActionMenuFactory
 
 	private boolean checkIfAdminCanCreateSubproject()
 	{
-		if (!root.group.delegationEnabled || !root.group.delegationEnableSubprojects)
+		if (!root.group.delegationEnabled || !root.group.subprojectsDelegationEnabled)
 			return false;
 		return role.equals(GroupAuthorizationRole.projectsAdmin);
 	}

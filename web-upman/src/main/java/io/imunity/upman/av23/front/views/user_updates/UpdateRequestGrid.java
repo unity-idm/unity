@@ -11,7 +11,7 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
-import io.imunity.upman.av23.front.components.TooltipPiner;
+import io.imunity.upman.av23.front.components.TooltipAttacher;
 import pl.edu.icm.unity.MessageSource;
 
 import java.time.ZoneId;
@@ -56,7 +56,7 @@ class UpdateRequestGrid extends Grid<UpdateRequestModel>
 	{
 		String groups = String.join(", ", model.groupsDisplayedNames);
 		Label label = new Label(groups);
-		TooltipPiner.pinTooltip(groups, label, container);
+		TooltipAttacher.attachTooltip(groups, label, container);
 		return label;
 	}
 }

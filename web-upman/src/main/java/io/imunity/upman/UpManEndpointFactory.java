@@ -6,7 +6,8 @@
 
 package io.imunity.upman;
 
-import io.imunity.upman.av23.Vaadin823Endpoint;
+import io.imunity.upman.av23.UpManResourceProvider;
+import io.imunity.vaadin23.endpoint.common.Vaadin823Endpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -36,11 +37,11 @@ public class UpManEndpointFactory implements EndpointFactory
 			"Web group management user interface", VaadinAuthentication.NAME,
 			Collections.singletonMap(SERVLET_PATH, "Group management endpoint"));
 	
-	private ApplicationContext applicationContext;
-	private NetworkServer server;
-	private MessageSource msg;
-	private AdvertisedAddressProvider advertisedAddrProvider;
-	private RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
+	private final ApplicationContext applicationContext;
+	private final NetworkServer server;
+	private final MessageSource msg;
+	private final AdvertisedAddressProvider advertisedAddrProvider;
+	private final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 
 	@Autowired
 	public UpManEndpointFactory(ApplicationContext applicationContext,
@@ -62,17 +63,10 @@ public class UpManEndpointFactory implements EndpointFactory
 		return TYPE;
 	}
 
-//	@Override
-//	public EndpointInstance newInstance()
-//	{
-//		return new VaadinEndpoint(server, advertisedAddrProvider, msg, applicationContext,
-//			UpManUI.class.getSimpleName(), SERVLET_PATH, remoteAuthnResponseProcessingFilter);
-//	}
-
 	@Override
 	public EndpointInstance newInstance()
 	{
 		return new Vaadin823Endpoint(server, advertisedAddrProvider, msg, applicationContext,
-				UpManUI.class.getSimpleName(), SERVLET_PATH, remoteAuthnResponseProcessingFilter);
+				new UpManResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter);
 	}
 }

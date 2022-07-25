@@ -10,7 +10,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.upman.av23.front.components.FormLayoutLabel;
-import io.imunity.upman.av23.front.components.TooltipPiner;
+import io.imunity.upman.av23.front.components.TooltipAttacher;
 import io.imunity.upman.av23.front.model.Group;
 import pl.edu.icm.unity.MessageSource;
 
@@ -29,7 +29,7 @@ class SubProjectConfigurationLayout extends FormLayout
 		logoUrl.setEnabled(group.delegationEnabled);
 		enableSubprojects.setEnabled(group.delegationEnabled);
 
-		enableSubprojects.setValue(group.delegationEnableSubprojects);
+		enableSubprojects.setValue(group.subprojectsDelegationEnabled);
 		if(group.logoUrl != null)
 			logoUrl.setValue(group.logoUrl);
 	}
@@ -48,7 +48,7 @@ class SubProjectConfigurationLayout extends FormLayout
 			enableSubprojects.setEnabled(event.getValue());
 		});
 
-		TooltipPiner.pinTooltip(msg.getMessage("SubprojectDialog.enableDelegationDescription"), enableDelegation, tooltipAttachment);
+		TooltipAttacher.attachTooltip(msg.getMessage("SubprojectDialog.enableDelegationDescription"), enableDelegation, tooltipAttachment);
 
 		logoUrl.setEnabled(false);
 		enableSubprojects.setEnabled(false);

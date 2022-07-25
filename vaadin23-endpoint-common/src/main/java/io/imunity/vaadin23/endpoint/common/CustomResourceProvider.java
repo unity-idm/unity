@@ -1,4 +1,4 @@
-package io.imunity.upman.av23;
+package io.imunity.vaadin23.endpoint.common;
 
 import com.vaadin.flow.di.ResourceProvider;
 import org.apache.commons.io.IOUtils;
@@ -13,17 +13,14 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.stream;
 
-public abstract class CustomResourceProvider implements ResourceProvider {
+public abstract class CustomResourceProvider implements ResourceProvider
+{
 	private final Map<String, CachedStreamData> cache = new ConcurrentHashMap<>();
 	private final Set<String> chosenClassPathElement;
 
-	public CustomResourceProvider(String... chosenModules) throws URISyntaxException {
-		String currentClassPathElement = getClass()
-			.getProtectionDomain()
-			.getCodeSource()
-			.getLocation()
-			.toURI()
-			.toString();
+	public CustomResourceProvider(String... chosenModules)
+	{
+		String currentClassPathElement = getCurrentClassPathElement();
 
 		Set<String> classPathElements = stream(System.getProperty("java.class.path").split(File.pathSeparator))
 			.filter(classPathElement -> stream(chosenModules).anyMatch(classPathElement::contains))
@@ -34,68 +31,102 @@ public abstract class CustomResourceProvider implements ResourceProvider {
 		this.chosenClassPathElement = classPathElements;
 	}
 
-	public Set<String> getChosenClassPathElement() {
+	private String getCurrentClassPathElement()
+	{
+		try
+		{
+			return getClass()
+					.getProtectionDomain()
+					.getCodeSource()
+					.getLocation()
+					.toURI()
+					.toString();
+		} catch (URISyntaxException e)
+		{
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	public Set<String> getChosenClassPathElement()
+	{
 		return chosenClassPathElement;
 	}
 
 	@Override
-	public URL getApplicationResource(String path) {
+	public URL getApplicationResource(String path)
+	{
 		return getApplicationResources(path).stream().findAny().orElse(null);
 	}
 
 	@Override
-	public List<URL> getApplicationResources(String path) {
+	public List<URL> getApplicationResources(String path)
+	{
 		Iterable<URL> iterable = getUrls(path);
 		return StreamSupport.stream(iterable.spliterator(), false)
 			.filter(url -> chosenClassPathElement.stream().anyMatch(classPathElement -> url.toString().startsWith(classPathElement)))
 			.collect(Collectors.toList());
 	}
 
-	private Iterable<URL> getUrls(String path) {
+	private Iterable<URL> getUrls(String path)
+	{
 		Iterator<URL> urlIterator = getUrlIterator(path);
 		return () -> urlIterator;
 	}
 
-	private Iterator<URL> getUrlIterator(String path) {
+	private Iterator<URL> getUrlIterator(String path)
+	{
 		Iterator<URL> urlIterator;
-		try {
+		try
+		{
 			urlIterator = getClass().getClassLoader().getResources(path).asIterator();
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			urlIterator = Collections.emptyIterator();
 		}
 		return urlIterator;
 	}
 
 	@Override
-	public URL getClientResource(String path) {
+	public URL getClientResource(String path)
+	{
 		return this.getApplicationResource(path);
 	}
 
 	@Override
-	public InputStream getClientResourceAsStream(String path) throws IOException {
+	public InputStream getClientResourceAsStream(String path) throws IOException
+	{
 		CachedStreamData cached = this.cache.computeIfAbsent(path, this::loadResourceStreamAsCachedData);
 
 		IOException exception = cached.exception;
-		if (exception == null) {
+		if (exception == null)
+		{
 			return new ByteArrayInputStream(cached.data);
-		} else {
+		} else
+		{
 			throw exception;
 		}
 	}
 
-	private CachedStreamData loadResourceStreamAsCachedData(String key) {
+	private CachedStreamData loadResourceStreamAsCachedData(String key)
+	{
 		URL url = this.getClientResource(key);
-		try(InputStream stream = url.openStream()) {
+		try(InputStream stream = url.openStream())
+		{
 			CachedStreamData cachedStreamData;
-			try {
+			try
+			{
 				ByteArrayOutputStream tempBuffer = new ByteArrayOutputStream();
 				IOUtils.copy(stream, tempBuffer);
 				cachedStreamData = new CachedStreamData(tempBuffer.toByteArray(), null);
-			} catch (Throwable throwable) {
-				if (stream != null) {
-					try {
+			} catch (Throwable throwable)
+			{
+				if (stream != null)
+				{
+					try
+					{
 						stream.close();
-					} catch (Throwable suppressedThrowable) {
+					} catch (Throwable suppressedThrowable)
+					{
 						throwable.addSuppressed(suppressedThrowable);
 					}
 				}
@@ -106,16 +137,19 @@ public abstract class CustomResourceProvider implements ResourceProvider {
 			stream.close();
 
 			return cachedStreamData;
-		} catch (IOException ioException) {
+		} catch (IOException ioException)
+		{
 			return new CachedStreamData(null, ioException);
 		}
 	}
 
-	private static class CachedStreamData {
+	private static class CachedStreamData
+	{
 		private final byte[] data;
 		private final IOException exception;
 
-		private CachedStreamData(byte[] data, IOException exception) {
+		private CachedStreamData(byte[] data, IOException exception)
+		{
 			this.data = data;
 			this.exception = exception;
 		}

@@ -10,9 +10,21 @@ import java.util.stream.Collectors;
 
 public class GroupTreeNode
 {
+	private static final Comparator<GroupTreeNode> groupComparator = (GroupTreeNode node1, GroupTreeNode node2) -> {
+		int result = node1.getDisplayedName().compareTo(node2.getDisplayedName());
+		if(areDisplayedNamesEquals(result))
+			return node1.getPath().compareTo(node2.getPath());
+		return result;
+	};
+
+	private static boolean areDisplayedNamesEquals(int result)
+	{
+		return result == 0;
+	}
+
 	public final Group group;
 	public final Optional<GroupTreeNode> parent;
-	private final PriorityQueue<GroupTreeNode> children;
+	private final TreeSet<GroupTreeNode> children;
 	private final int level;
 
 	private GroupTreeNode(GroupTreeNode parent, Group group, int level)
@@ -20,7 +32,7 @@ public class GroupTreeNode
 		this.parent = Optional.of(parent);
 		this.group = group;
 		this.level = level;
-		this.children = new PriorityQueue<>(Comparator.comparing(GroupTreeNode::getDisplayedName));
+		this.children = new TreeSet<>(groupComparator);
 	}
 
 	public GroupTreeNode(Group group, int level)
@@ -28,7 +40,13 @@ public class GroupTreeNode
 		this.parent = Optional.empty();
 		this.group = group;
 		this.level = level;
-		this.children = new PriorityQueue<>(Comparator.comparing(GroupTreeNode::getDisplayedName));
+		this.children = new TreeSet<>(groupComparator);
+	}
+
+	public void addChildren(Group... groups)
+	{
+		for (Group group : groups)
+			addChild(group);
 	}
 
 	public boolean addChild(Group group)
@@ -81,27 +99,27 @@ public class GroupTreeNode
 		return group.delegationEnabled;
 	}
 
-	public boolean isDelegationEnableSubprojects()
+	public boolean isSubprojectsDelegationEnabled()
 	{
-		return group.delegationEnableSubprojects;
+		return group.subprojectsDelegationEnabled;
 	}
 
-	public List<GroupTreeNode> getAllNodes()
+	public List<GroupTreeNode> getNodeWithAllOffspring()
 	{
 		List<GroupTreeNode> groups = new LinkedList<>();
 		groups.add(this);
-		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getAllNodes()));
+		children.forEach(groupTreeNode -> groups.addAll(groupTreeNode.getNodeWithAllOffspring()));
 		return groups;
 	}
 
-	public List<GroupTreeNode> getAllChildrenElementsWithCutOff()
+	public List<GroupTreeNode> getAllOffspring()
 	{
 		return cutOffParent().stream()
-				.flatMap(groupTreeNode -> groupTreeNode.getAllNodes().stream())
+				.flatMap(groupTreeNode -> groupTreeNode.getNodeWithAllOffspring().stream())
 				.collect(Collectors.toList());
 	}
 
-	public List<GroupTreeNode> getAllParentsElements()
+	public List<GroupTreeNode> getAllAncestors()
 	{
 		List<GroupTreeNode> parents = new LinkedList<>();
 		Optional<GroupTreeNode> node = parent;

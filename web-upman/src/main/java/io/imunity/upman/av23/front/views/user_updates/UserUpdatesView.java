@@ -38,7 +38,8 @@ public class UserUpdatesView extends UnityViewComponent
 
 	private ProjectGroup projectGroup;
 
-	public UserUpdatesView(MessageSource msg, UpdateRequestsService updateRequestsService) {
+	public UserUpdatesView(MessageSource msg, UpdateRequestsService updateRequestsService)
+	{
 		this.msg = msg;
 		this.updateRequestsService = updateRequestsService;
 

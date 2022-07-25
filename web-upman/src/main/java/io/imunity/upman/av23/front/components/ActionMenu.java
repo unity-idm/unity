@@ -10,9 +10,10 @@ import com.vaadin.flow.component.dependency.CssImport;
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
 
 @CssImport("./styles/components/grid-action-menu.css")
-public class ActionMenu extends ContextMenu {
-
-	public ActionMenu() {
+public class ActionMenu extends ContextMenu
+{
+	public ActionMenu()
+	{
 		super(new MenuButton(MENU));
 		setOpenOnClick(true);
 		addClassName("grid-action-menu");

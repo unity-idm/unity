@@ -60,7 +60,8 @@ class UnityAppLayoutComponentsHolder
 
 	void addViewToMainLayout(HasElement content)
 	{
-		if (content != null) {
+		if (content != null)
+		{
 			Element contentElement = content.getElement();
 			setTabsMenu(contentElement);
 			viewContainer.getElement().appendChild(contentElement);

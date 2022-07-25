@@ -9,11 +9,12 @@ import com.google.common.collect.Sets;
 import io.imunity.upman.av23.front.components.NotificationPresenter;
 import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.ProjectGroup;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
@@ -29,12 +30,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestGroupMembersService
 {
 	@Mock
@@ -48,14 +48,14 @@ public class TestGroupMembersService
 
 	private GroupMembersService service;
 
-	@Before
+	@BeforeEach
 	public void initController()
 	{
 		service = new GroupMembersService(mockMsg, mockAttrHandlerRegistry, mockDelGroupMan, notificationPresenter);
 	}
 
 	@Test
-	public void shouldForwardGerMembersToCoreManager() throws EngineException
+	public void shouldGerMembers() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		Group group = new Group("/project/group", "group", false, false, "", false, 0);
@@ -66,7 +66,7 @@ public class TestGroupMembersService
 	}
 
 	@Test
-	public void shouldForwardAddMemberToCoreManager() throws EngineException
+	public void shouldAddMember() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		Group group = new Group("/project/group", "group", false, false, "", false, 0);
@@ -76,7 +76,7 @@ public class TestGroupMembersService
 	}
 
 	@Test
-	public void shouldForwardRemoveMemberToCoreManager() throws EngineException
+	public void shouldRemoveMember() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		Group group = new Group("/project/group", "group", false, false, "", false, 0);
@@ -87,7 +87,7 @@ public class TestGroupMembersService
 	}
 
 	@Test
-	public void shouldForwardSetRoleToCoreManager() throws EngineException
+	public void shouldSetRole() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 		Group group = new Group("/project/group", "group", false, false, "", false, 0);
@@ -99,7 +99,7 @@ public class TestGroupMembersService
 	}
 
 	@Test
-	public void shouldForwardGetAdditinalAttributesToCoreManager() throws EngineException
+	public void shouldGetAdditinalAttributes() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 
@@ -113,8 +113,8 @@ public class TestGroupMembersService
 
 		Map<String, String> additionalAttributeNamesForProject = service
 				.getAdditionalAttributeNamesForProject(project);
-		assertThat(additionalAttributeNamesForProject.isEmpty(), is(false));
-		assertThat(additionalAttributeNamesForProject.get("extraAttr"), is("extra"));
+		MatcherAssert.assertThat(additionalAttributeNamesForProject.isEmpty(), is(false));
+		MatcherAssert.assertThat(additionalAttributeNamesForProject.get("extraAttr"), is("extra"));
 
 	}
 

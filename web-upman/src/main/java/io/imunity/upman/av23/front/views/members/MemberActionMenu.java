@@ -24,13 +24,14 @@ class MemberActionMenu extends ActionMenu
 	public MemberActionMenu(MenuItemFactory menuItemFactory,
 	                        Supplier<ProjectGroup> selectedProjectGetter,
 	                        Supplier<Group> selectedGroupGetter,
+	                        Supplier<GroupAuthorizationRole> roleGetter,
 	                        Supplier<List<GroupTreeNode>> allGroupsGetter,
 	                        Supplier<Set<MemberModel>> selectedMembersGetter)
 	{
-		MenuItemFactory.MenuItem removeFromProjectItem = menuItemFactory.createRemoveFromProjectItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter);
+		MenuItemFactory.MenuItem removeFromProjectItem = menuItemFactory.createRemoveFromProjectItem(selectedProjectGetter, selectedMembersGetter, roleGetter);
 		addItem(removeFromProjectItem.component, removeFromProjectItem.clickListener);
 
-		MenuItemFactory.MenuItem removeFromGroupItem = menuItemFactory.createRemoveFromGroupItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter);
+		MenuItemFactory.MenuItem removeFromGroupItem = menuItemFactory.createRemoveFromGroupItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter, roleGetter);
 		addItem(removeFromGroupItem.component, removeFromGroupItem.clickListener);
 
 		MenuItemFactory.MenuItem addToGroupItem = menuItemFactory.createAddToGroupItem(selectedProjectGetter, allGroupsGetter, selectedMembersGetter);

@@ -4,7 +4,6 @@
  */
 package io.imunity.upman.av23.front.components;
 
-import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
@@ -24,7 +23,7 @@ public class MenuComponent
 		this.component = menuComponent;
 		this.tabName = tabName;
 		this.icon = icon;
-		this.subViews = ImmutableList.copyOf(subViews);
+		this.subViews = List.copyOf(subViews);
 	}
 
 	public static Builder builder(Class<? extends UnityViewComponent> component)

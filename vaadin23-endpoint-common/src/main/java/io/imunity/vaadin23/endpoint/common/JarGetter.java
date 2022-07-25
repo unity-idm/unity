@@ -1,4 +1,4 @@
-package io.imunity.upman.av23;
+package io.imunity.vaadin23.endpoint.common;
 
 import java.util.List;
 import java.util.Set;
@@ -53,7 +53,8 @@ class JarGetter {
 		"vaadin-virtual-list-flow"
 	);
 
-	static String getJarsRegex(Set<String> classPathElements){
+	static String getJarsRegex(Set<String> classPathElements)
+	{
 		return vaadinJars.stream().collect(Collectors.joining(".*|.*", "(.*", ".*|")) +
 			classPathElements.stream().collect(Collectors.joining("|", "", ")"));
 	}

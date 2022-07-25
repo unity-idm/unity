@@ -39,7 +39,8 @@ public class MemberModel
 		return entityId == that.entityId && Objects.equals(name, that.name) && Objects.equals(attributes, that.attributes) && Objects.equals(role, that.role) && Objects.equals(email, that.email);
 	}
 
-	public boolean anyFieldContains(String value) {
+	public boolean anyFieldContains(String value)
+	{
 		String lowerCaseValue = value.toLowerCase();
 		return value.isEmpty()
 				|| name.toLowerCase().contains(lowerCaseValue)

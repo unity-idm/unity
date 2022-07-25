@@ -51,7 +51,7 @@ public class TestRequestsService
 	}
 
 	@Test
-	public void shouldForwardGetRequestsToCoreManager() throws EngineException
+	public void shouldGetRequests() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 
@@ -60,7 +60,7 @@ public class TestRequestsService
 	}
 
 	@Test
-	public void shouldForwardAcceptToCoreManager() throws EngineException
+	public void shouldAccept() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 
@@ -75,7 +75,7 @@ public class TestRequestsService
 	}
 
 	@Test
-	public void shouldForwardDeclineRequestsToCoreManager() throws EngineException
+	public void shouldDeclineRequests() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 
@@ -101,7 +101,7 @@ public class TestRequestsService
 	}
 
 	@Test
-	public void shouldForwardGetRegLinkToCoreManager() throws EngineException
+	public void shouldGetRegLink() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 
@@ -112,7 +112,7 @@ public class TestRequestsService
 	}
 
 	@Test
-	public void shouldForwardGetEnqLinkToCoreManager() throws EngineException
+	public void shouldGetEnqLink() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
 

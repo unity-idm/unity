@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.upman.av23;
+package io.imunity.vaadin23.endpoint.common;
 
 import com.vaadin.flow.server.startup.ServletContextListeners;
 import com.vaadin.server.Constants;
@@ -55,11 +55,10 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, Vaadin823Endpoint.class);
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	protected ApplicationContext applicationContext;
-	protected String uiBeanName;
+	protected CustomResourceProvider resourceProvider;
 	protected String uiServletPath;
 
 	protected ServletContextHandler context = null;
-	protected UnityVaadinServlet theServlet;
 	protected UnityVaadinServlet authenticationServlet;
 	protected AuthenticationFilter authnFilter;
 	protected ProxyAuthenticationFilter proxyAuthnFilter;
@@ -69,21 +68,20 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 	protected InvocationContextSetupFilter contextSetupFilter;
 	protected VaadinEndpointProperties genericEndpointProperties;
 
-
 	protected final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 	
 	public Vaadin823Endpoint(NetworkServer server,
 	                         AdvertisedAddressProvider advertisedAddrProvider,
 	                         MessageSource msg,
 	                         ApplicationContext applicationContext,
-	                         String uiBeanName,
+	                         CustomResourceProvider resourceProvider,
 	                         String servletPath,
 	                         RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		super(server, advertisedAddrProvider);
 		this.msg = msg;
 		this.applicationContext = applicationContext;
-		this.uiBeanName = uiBeanName;
+		this.resourceProvider = resourceProvider;
 		this.uiServletPath = servletPath;
 		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
 		serverConfig = applicationContext.getBean(UnityServerConfiguration.class);
@@ -111,16 +109,15 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 			return context;
 
 		ServletContextHandler context;
-		ResourceProvider823 resourceProvider823;
 		try
 		{
-			resourceProvider823 = new ResourceProvider823();
 			context = getWebAppContext(uiServletPath,
-				resourceProvider823.getChosenClassPathElement(),
-				resourceProvider823.getClientResource("META-INF/resources/").toURI(),
-				new ServletContextListeners()
+					resourceProvider.getChosenClassPathElement(),
+					resourceProvider.getClientResource("META-INF/resources/").toURI(),
+					new ServletContextListeners()
 			);
-		} catch (Exception e) {
+		} catch (Exception e)
+		{
 			return this.context;
 		}
 
@@ -159,13 +156,13 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		authenticationServlet = new AuthenticationVaadinServlet(applicationContext,
 			description, authenticationFlows,
 			registrationConfiguration, properties, handler4Authn);
-		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
+		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet);
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH + "/*");
 		context.addServlet(authnServletHolder, "/VAADIN/vaadinBootstrap.js*");
 		context.addServlet(authnServletHolder, "/VAADIN/widgetsets/*");
 		context.addServlet(authnServletHolder, "/VAADIN/themes/*");
 
-		context.addServlet(new ServletHolder(new ForwadSerlvet()), "/*");
+		context.addServlet(new ServletHolder(new ForwardServlet()), "/*");
 
 		return context;
 	}
@@ -185,11 +182,11 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		return ret < 2 ? 2 : ret;
 	}
 
-	protected ServletHolder createVaadinServletHolder(VaadinServlet servlet, boolean unrestrictedSessionTime)
+	protected ServletHolder createVaadinServletHolder(VaadinServlet servlet)
 	{
-		ServletHolder holder = createServletHolder(servlet, unrestrictedSessionTime);
+		ServletHolder holder = createServletHolder(servlet, true);
 
-		int heartBeat = unrestrictedSessionTime ? LONG_HEARTBEAT : getHeartbeatInterval(description.getRealm().getMaxInactivity());
+		int heartBeat = LONG_HEARTBEAT;
 		log.debug("Servlet " + servlet.toString() + " - heartBeat=" +heartBeat);
 
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
@@ -255,7 +252,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 	}
 
 	WebAppContext getWebAppContext(String contextPath, Set<String> classPathElements, URI webResourceRootUri,
-	                                      EventListener eventListener) throws Exception {
+	                               EventListener eventListener) throws Exception {
 		WebAppContext context = new Vaadin23WebAppContext(properties);
 		context.setBaseResource(Resource.newResource(webResourceRootUri));
 		context.setContextPath(contextPath);
@@ -286,12 +283,11 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		if (authenticationServlet != null)
 		{
 			authenticationServlet.updateAuthenticationFlows(authenticators);
-			theServlet.updateAuthenticationFlows(authenticators);
 			proxyAuthnFilter.updateAuthenticators(authenticators);
 		}
 	}
 
-	class ForwadSerlvet extends HttpServlet
+	class ForwardServlet extends HttpServlet
 	{
 		@Override
 		protected void service(HttpServletRequest req, HttpServletResponse res)

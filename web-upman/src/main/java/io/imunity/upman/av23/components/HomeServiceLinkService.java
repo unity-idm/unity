@@ -6,7 +6,7 @@
 package io.imunity.upman.av23.components;
 
 import io.imunity.upman.UpmanEndpointProperties;
-import io.imunity.upman.av23.Vaadin23WebAppContext;
+import io.imunity.vaadin23.endpoint.common.Vaadin23WebAppContext;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -50,10 +50,9 @@ public class HomeServiceLinkService
 		{
 			log.debug("Home endpoint link is enabled, but home endpoins are not available");
 			return Optional.empty();
-
 		}
 
-		String homeEndpointName = upmanEndpointProperties.getHomeEndpoint();
+		String homeEndpointName = getHomeEndpoint(upmanEndpointProperties);
 
 		if (homeEndpointName == null)
 		{
@@ -61,20 +60,21 @@ public class HomeServiceLinkService
 			return getLinkToHomeEndpoint(allEndpoints.iterator().next());
 		} else
 		{
-
-			ResolvedEndpoint endpoint = allEndpoints.stream()
-					.filter(e -> e.getName().equals(upmanEndpointProperties.getHomeEndpoint())).findAny()
-					.orElse(null);
-
-			if (endpoint == null)
-			{
-				log.warn("Home endpoint link is enabled, but endpoint with name " + homeEndpointName
-						+ " is not available");
-				return Optional.empty();
-			}
-
-			return getLinkToHomeEndpoint(endpoint);
+			return allEndpoints.stream()
+					.filter(e -> homeEndpointName.equals(e.getName()))
+					.findAny()
+					.map(this::getLinkToHomeEndpoint)
+					.orElseGet(() -> {
+						log.warn("Home endpoint link is enabled, but endpoint with name " + homeEndpointName
+								+ " is not available");
+						return Optional.empty();
+					});
 		}
+	}
+
+	private String getHomeEndpoint(UpmanEndpointProperties upmanEndpointProperties)
+	{
+		return upmanEndpointProperties.getHomeEndpoint();
 	}
 
 	private Optional<String> getLinkToHomeEndpoint(ResolvedEndpoint endpoint)

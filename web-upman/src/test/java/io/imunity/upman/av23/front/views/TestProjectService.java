@@ -11,11 +11,11 @@ import io.imunity.upman.av23.front.components.NotificationPresenter;
 import io.imunity.upman.av23.front.model.Group;
 import io.imunity.upman.av23.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
@@ -26,10 +26,10 @@ import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestProjectService
 {
 	@Mock
@@ -45,7 +45,7 @@ public class TestProjectService
 
 	private ProjectService projectService;
 
-	@Before
+	@BeforeEach
 	public void initController()
 	{
 		projectService = new ProjectService(msg, delGroupMan, logoutHandler, delGroupHelper, notificationPresenter);
@@ -60,7 +60,7 @@ public class TestProjectService
 
 		List<ProjectGroup> projectForUser = projectService.getProjectForUser(entityId);
 
-		assertEquals(List.of(new ProjectGroup("path", "name")), projectForUser);
+		assertThat(List.of(new ProjectGroup("path", "name"))).isEqualTo(projectForUser);
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class TestProjectService
 
 		String url = projectService.getProjectLogo(project);
 
-		assertEquals("url", url);
+		assertThat("url").isEqualTo(url);
 	}
 
 	@Test
@@ -86,6 +86,6 @@ public class TestProjectService
 
 		Group group = projectService.getProjectGroup(project);
 
-		assertEquals(new Group("path", "name", true, true, "url", true, 0), group);
+		assertThat(new Group("path", "name", true, true, "url", true, 0)).isEqualTo(group);
 	}
 }
