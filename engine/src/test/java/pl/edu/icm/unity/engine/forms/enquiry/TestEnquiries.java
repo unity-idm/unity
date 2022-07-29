@@ -4,11 +4,10 @@
  */
 package pl.edu.icm.unity.engine.forms.enquiry;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -110,9 +109,9 @@ public class TestEnquiries extends DBIntegrationTestBase
 	@Test 
 	public void missingFormCantBeRemoved() throws Exception
 	{
-		catchException(enquiryManagement).removeEnquiry("missing", true);
+		Throwable error = catchThrowable(() -> enquiryManagement.removeEnquiry("missing", true));
 		
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test 
@@ -120,9 +119,9 @@ public class TestEnquiries extends DBIntegrationTestBase
 	{
 		EnquiryForm form = initAndCreateEnquiry(null);
 		
-		catchException(enquiryManagement).addEnquiry(form);
+		Throwable error = catchThrowable(() -> enquiryManagement.addEnquiry(form));
 		
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test 
@@ -167,14 +166,14 @@ public class TestEnquiries extends DBIntegrationTestBase
 	{
 		initAndCreateEnquiry(null);
 		
-		catchException(aTypeMan).removeAttributeType(InitializerCommon.EMAIL_ATTR, true);
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error1 = catchThrowable(() -> aTypeMan.removeAttributeType(InitializerCommon.EMAIL_ATTR, true));
+		assertThat(error1).isInstanceOf(IllegalArgumentException.class);
 
-		catchException(groupsMan).removeGroup("/B", true);
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error2 = catchThrowable(() -> groupsMan.removeGroup("/B", true));
+		assertThat(error2).isInstanceOf(IllegalArgumentException.class);
 
-		catchException(credMan).removeCredentialDefinition(EngineInitialization.DEFAULT_CREDENTIAL);
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error3 = catchThrowable(() -> credMan.removeCredentialDefinition(EngineInitialization.DEFAULT_CREDENTIAL));
+		assertThat(error3).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	
@@ -371,9 +370,9 @@ public class TestEnquiries extends DBIntegrationTestBase
 			.build();
 		enquiryManagement.addEnquiry(form);
 		
-		catchException(enquiryManagement).ignoreEnquiry("e1", entityParam);
+		Throwable error = catchThrowable(() -> enquiryManagement.ignoreEnquiry("e1", entityParam));
 		
-		assertThat(caughtException(), isA(WrongArgumentException.class));
+		assertThat(error).isInstanceOf(WrongArgumentException.class);
 	}
 
 	@Test 

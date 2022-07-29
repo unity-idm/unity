@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
@@ -68,27 +67,27 @@ public class EntityResolverImplTest
 	public void shouldFailOnResolvingMissingEPWithId() throws Exception
 	{
 		tx.runInTransactionThrowing(() -> {
-			catchException(entityResolver).getEntityId(new EntityParam(12345l));
+			Throwable error = catchThrowable(() -> entityResolver.getEntityId(new EntityParam(12345l)));
 			
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	@Test
 	public void shouldFailOnResolvingMissingEPWithTaV() throws Exception
 	{
 		tx.runInTransactionThrowing(() -> {
-			catchException(entityResolver).getEntityId(new EntityParam(new IdentityTaV("userName", "missing")));
+			Throwable error = catchThrowable(() -> entityResolver.getEntityId(new EntityParam(new IdentityTaV("userName", "missing"))));
 			
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	@Test
 	public void shouldFailOnResolvingMissingTaV() throws Exception
 	{
 		tx.runInTransactionThrowing(() -> {
-			catchException(entityResolver).getEntityId(new IdentityTaV("userName", "missing"));
+			Throwable error = catchThrowable(() -> entityResolver.getEntityId(new IdentityTaV("userName", "missing")));
 			
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	@Test

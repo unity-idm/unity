@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.objstore;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -74,9 +73,9 @@ public abstract class AbstractNamedWithTSTest<T extends NamedObject> extends Abs
 		tx.runInTransaction(() -> {
 			NamedCRUDDAOWithTS<T> dao = getDAO();
 
-			catchException(dao).updateTS("missing");
+			Throwable error = catchThrowable(() -> dao.updateTS("missing"));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	

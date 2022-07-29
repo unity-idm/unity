@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -87,9 +86,9 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 		tx.runInTransaction(() -> {
 			NamedCRUDDAO<T> dao = getDAO();
 
-			catchException(dao).assertExist(Lists.newArrayList("name1"));
+			Throwable error = catchThrowable(() -> dao.assertExist(Lists.newArrayList("name1")));
 			
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -150,9 +149,9 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 
 			dao.delete(obj.getName());
 
-			catchException(dao).get(obj.getName());
+			Throwable error = catchThrowable(() -> dao.get(obj.getName()));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	
@@ -163,9 +162,9 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
-			catchException(dao).delete(obj.getName());
+			Throwable error = catchThrowable(() -> dao.delete(obj.getName()));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -176,8 +175,8 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			BasicCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 			dao.create(obj);
-			catchException(dao).create(obj);
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> dao.create(obj));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -188,9 +187,9 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
-			catchException(dao).update(obj);
+			Throwable error = catchThrowable(() -> dao.update(obj));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -201,9 +200,9 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			NamedCRUDDAO<T> dao = getDAO();
 			T obj = getObject(genTooLongName());
 
-			catchException(dao).create(obj);
+			Throwable error = catchThrowable(() -> dao.create(obj));
 			
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -215,10 +214,10 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			T obj = getObject("name1");
 			long key = dao.create(obj);
 			
-			obj = getObject(genTooLongName());
-			catchException(dao).updateByKey(key, obj);
+			T obj2 = getObject(genTooLongName());
+			Throwable error = catchThrowable(() -> dao.updateByKey(key, obj2));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	

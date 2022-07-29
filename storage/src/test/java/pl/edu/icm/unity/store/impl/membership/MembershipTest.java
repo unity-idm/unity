@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.membership;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -162,9 +161,9 @@ public class MembershipTest
 	public void shouldFailOnRemovingMissingMembership()
 	{
 		tx.runInTransaction(() -> {
-			catchException(dao).deleteByKey(entity, "/A");
+			Throwable error = catchThrowable(() -> dao.deleteByKey(entity, "/A"));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}	
 	

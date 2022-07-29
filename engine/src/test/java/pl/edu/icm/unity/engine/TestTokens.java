@@ -4,11 +4,9 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -126,8 +124,8 @@ public class TestTokens extends DBIntegrationTestBase
 		
 		tokensMan.removeToken("t", "1234");
 		
-		catchException(tokensMan).getTokenById("t", "1234");	
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error = catchThrowable(() -> tokensMan.getTokenById("t", "1234"));	
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test

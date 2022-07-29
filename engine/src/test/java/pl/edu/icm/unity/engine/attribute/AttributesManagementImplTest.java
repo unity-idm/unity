@@ -4,8 +4,22 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.util.Collection;
+import java.util.Date;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
@@ -20,17 +34,16 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.*;
-
-import java.util.Collection;
-import java.util.Date;
-
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.*;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupPattern;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class AttributesManagementImplTest extends DBIntegrationTestBase
 {
@@ -159,9 +172,9 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 				"/", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
 		
 		
-		catchException(attrsMan).setAttribute(adminEntity, systemManagerRoleAt);
+		Throwable error = catchThrowable(() -> attrsMan.setAttribute(adminEntity, systemManagerRoleAt));
 		
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 
 	@Test
