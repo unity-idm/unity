@@ -4,10 +4,8 @@
  */
 package pl.edu.icm.unity.store.objstore.reg;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.Date;
 
@@ -51,8 +49,8 @@ public class RegistrationRequestTest extends AbstractNamedWithTSTest<Registratio
 			RegistrationRequestState obj = getObject("name1");
 			getDAO().create(obj);
 
-			catchException(credentialDB).update(cred);
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> credentialDB.update(cred));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	

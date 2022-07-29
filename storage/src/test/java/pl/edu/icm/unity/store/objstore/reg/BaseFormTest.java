@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.objstore.reg;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -57,8 +56,8 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 			T obj = getObject("name1");
 			getDAO().create(obj);
 
-			catchException(credentialDB).delete("cred");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> credentialDB.delete("cred"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -98,8 +97,8 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 			T obj = getObject("name1");
 			getDAO().create(obj);
 
-			catchException(groupDB).delete("/C");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> groupDB.delete("/C"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -125,8 +124,8 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 			T obj = getObject("name1");
 			getDAO().create(obj);
 
-			catchException(groupDB).delete("/notifyGrp");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> groupDB.delete("/notifyGrp"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -152,8 +151,8 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 			T obj = getObject("name1");
 			getDAO().create(obj);
 
-			catchException(groupDB).delete("/B");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> groupDB.delete("/B"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	
@@ -197,8 +196,8 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 			T obj = getObject("name1");
 			getDAO().create(obj);
 
-			catchException(atDB).delete("email");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> atDB.delete("email"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -225,8 +224,8 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 			T obj = getObject("name1");
 			getDAO().create(obj);
 
-			catchException(msgTplDB).delete("template");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> msgTplDB.delete("template"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});		
 	}
 
@@ -254,9 +253,9 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 			T obj = getObject("name1");
 			getDAO().create(obj);
 
-			catchException(msgTplDB).update(new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
-					new I18nString("")), "CHANGED-CONSUMER", MessageType.PLAIN, "channel"));
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> msgTplDB.update(new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
+					new I18nString("")), "CHANGED-CONSUMER", MessageType.PLAIN, "channel")));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 }

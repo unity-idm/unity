@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.engine.credential;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
@@ -49,15 +48,15 @@ public class TestSystemCredential extends DBIntegrationTestBase
 	public void shouldBlockAddCredentialWithSystemCredentialName() throws EngineException
 	{
 		CredentialDefinition toAdd = new CredentialDefinition("password", EngineInitialization.DEFAULT_CREDENTIAL);
-		catchException(credMan).addCredentialDefinition(toAdd);
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error = catchThrowable(() -> credMan.addCredentialDefinition(toAdd));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test
 	public void shouldNotRemoveSystemCredential() throws EngineException
 	{
-		catchException(credMan).removeCredentialDefinition(EngineInitialization.DEFAULT_CREDENTIAL);
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error = catchThrowable(() -> credMan.removeCredentialDefinition(EngineInitialization.DEFAULT_CREDENTIAL));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 		
 	@Test

@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -39,8 +38,8 @@ public class TestEmailIdentity
 	private void checkIfInvalid(String toCheck) throws IllegalIdentityValueException
 	{
 		EmailIdentity emailId = new EmailIdentity();
-		catchException(emailId).validate(toCheck);
-		assertThat(caughtException(), instanceOf(IllegalIdentityValueException.class));
+		Throwable error = catchThrowable(() -> emailId.validate(toCheck));
+		assertThat(error).isInstanceOf(IllegalIdentityValueException.class);
 	}
 
 	private void checkIfValid(String toCheck) throws IllegalIdentityValueException

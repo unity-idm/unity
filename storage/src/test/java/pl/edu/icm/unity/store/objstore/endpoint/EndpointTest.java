@@ -4,10 +4,8 @@
  */
 package pl.edu.icm.unity.store.objstore.endpoint;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +59,8 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 			Endpoint obj = getObject("name1");
 			dao.create(obj);
 
-			catchException(realmDB).delete("realm");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> realmDB.delete("realm"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -78,8 +76,8 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 			Endpoint obj = getObject("name1");
 			dao.create(obj);
 
-			catchException(authnFlowDB).delete("flow1");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> authnFlowDB.delete("flow1"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	
@@ -93,8 +91,8 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 			Endpoint obj = getObject("name1");
 			dao.create(obj);
 
-			catchException(authnDB).delete("pa2");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> authnDB.delete("pa2"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 

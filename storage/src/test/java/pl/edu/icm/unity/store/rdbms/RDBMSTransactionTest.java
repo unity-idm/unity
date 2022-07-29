@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.rdbms;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -86,14 +85,14 @@ public class RDBMSTransactionTest
 	@Test
 	public void rdbmsTransactionIsDroppedWithoutCommit()
 	{
-		catchException(tx).runInTransaction(() -> {
+		Throwable error = catchThrowable(() -> tx.runInTransaction(() -> {
 			getMapper().create(getObject("n1"));
 			throw new RuntimeException("break");
-		});
+		}));
 		
 		
 		AttributeTypeBean ret = getFromDB("n1");
-		assertThat(caughtException(), isA(RuntimeException.class));
+		assertThat(error).isInstanceOf(RuntimeException.class);
 		assertThat(ret, is(nullValue()));
 	}
 	
@@ -164,18 +163,18 @@ public class RDBMSTransactionTest
 	@Test
 	public void rdbmsNestedTransactionExceptionBreaksAllTransactions()
 	{
-		catchException(tx).runInTransaction(() -> {
+		Throwable error = catchThrowable(() -> tx.runInTransaction(() -> {
 			getMapper().create(getObject("n1"));
 			tx.runInTransactionNoAutoCommit(() -> {
 				throw new RuntimeException("test");
 			});
-		});
+		}));
 		
 		
 		AttributeTypeBean ret1 = getFromDB("n1");
 		
 		assertThat(ret1, is(nullValue()));
-		assertThat(caughtException(), isA(RuntimeException.class));
+		assertThat(error).isInstanceOf(RuntimeException.class);
 	}
 
 	@Test

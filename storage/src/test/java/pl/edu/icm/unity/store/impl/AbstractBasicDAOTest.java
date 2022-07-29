@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -176,9 +175,9 @@ public abstract class AbstractBasicDAOTest<T>
 
 			dao.deleteByKey(key);
 
-			catchException(dao).getByKey(key);
+			Throwable error = catchThrowable(() -> dao.getByKey(key));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	
@@ -192,8 +191,8 @@ public abstract class AbstractBasicDAOTest<T>
 
 			dao.deleteAll();
 
-			catchException(dao).getByKey(key);
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> dao.getByKey(key));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	
@@ -203,9 +202,9 @@ public abstract class AbstractBasicDAOTest<T>
 		tx.runInTransaction(() -> {
 			BasicCRUDDAO<T> dao = getDAO();
 
-			catchException(dao).deleteByKey(Integer.MAX_VALUE);
+			Throwable error = catchThrowable(() -> dao.deleteByKey(Integer.MAX_VALUE));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -216,9 +215,9 @@ public abstract class AbstractBasicDAOTest<T>
 			BasicCRUDDAO<T> dao = getDAO();
 			T obj = getObject("name1");
 
-			catchException(dao).updateByKey(Integer.MAX_VALUE, obj);
+			Throwable error = catchThrowable(() -> dao.updateByKey(Integer.MAX_VALUE, obj));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	
