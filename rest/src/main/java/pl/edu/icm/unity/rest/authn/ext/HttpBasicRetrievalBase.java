@@ -100,7 +100,7 @@ public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval
 		return HttpBasicParser.getHTTPCredentials(authorizationHeader, log, urlEncoded);
 	}
 	
-	private boolean isUrlEncoded(Properties endpointFeatures)
+	public static boolean isUrlEncoded(Properties endpointFeatures)
 	{
 		return endpointFeatures.containsKey(FEATURE_HTTP_BASIC_URLENCODED);
 	}
