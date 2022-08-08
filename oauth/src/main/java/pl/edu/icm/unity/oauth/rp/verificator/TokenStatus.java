@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.rp.verificator;
 
 import java.util.Date;
+import java.util.Optional;
 
 import com.nimbusds.oauth2.sdk.Scope;
 
@@ -18,6 +19,9 @@ public class TokenStatus
 	private Date expirationTime;
 	private Scope scope;
 	private String subject;
+	private Optional<Long> clientId;
+	private Optional<Long> ownerId;
+
 
 	/**
 	 * Invalid status
@@ -29,10 +33,17 @@ public class TokenStatus
 
 	public TokenStatus(boolean valid, Date expirationTime, Scope scope, String subject)
 	{
+		this(valid, expirationTime, scope, subject, null, null);
+	}
+	
+	public TokenStatus(boolean valid, Date expirationTime, Scope scope, String subject, Long ownerId, Long clientId)
+	{
 		this.valid = valid;
 		this.expirationTime = expirationTime;
 		this.scope = scope;
 		this.subject = subject;
+		this.setClientId(Optional.ofNullable(clientId));
+		this.setOwnerId(Optional.ofNullable(ownerId));
 	}
 
 	public boolean isValid()
@@ -69,4 +80,26 @@ public class TokenStatus
 	{
 		this.subject = subject;
 	}
+
+	public Optional<Long> getClientId()
+	{
+		return clientId;
+	}
+
+	public void setClientId(Optional<Long> clientId)
+	{
+		this.clientId = clientId;
+	}
+
+	public Optional<Long> getOwnerId()
+	{
+		return ownerId;
+	}
+
+	public void setOwnerId(Optional<Long> ownerId)
+	{
+		this.ownerId = ownerId;
+	}
+
+	
 }

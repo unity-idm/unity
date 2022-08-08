@@ -23,7 +23,7 @@ public class HttpBasicParser
 {
 	static final String UTF8_CHARSET = Charset.forName("UTF-8").name();
 	
-	static HTTPAuthNTokens getHTTPCredentials(String authorizationHeader, Logger log, boolean urlEncoded)
+	public static HTTPAuthNTokens getHTTPCredentials(String authorizationHeader, Logger log, boolean urlEncoded)
 	{
 		if (authorizationHeader == null)
 			return null;

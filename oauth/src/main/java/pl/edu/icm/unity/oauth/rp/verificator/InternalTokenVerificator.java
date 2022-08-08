@@ -50,7 +50,7 @@ public class InternalTokenVerificator implements TokenVerificatorProtocol
 		}
 		
 		Scope scope = new Scope(internalToken.getEffectiveScope());
-		return new TokenStatus(true, internalAccessToken.getExpires(), scope, internalToken.getSubject());
+		return new TokenStatus(true, internalAccessToken.getExpires(), scope, internalToken.getSubject(), internalAccessToken.getOwner(), internalToken.getClientId());
 	}
 
 }
