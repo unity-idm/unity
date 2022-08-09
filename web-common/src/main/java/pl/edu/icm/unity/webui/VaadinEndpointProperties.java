@@ -4,20 +4,20 @@
  */
 package pl.edu.icm.unity.webui;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.Strings;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Generic settings for all Vaadin web-endpoints.
@@ -55,7 +55,19 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	public static final String SHOW_REGISTRATION_FORMS_IN_HEADER = "showRegistrationFormsInHeader";
 
 	public static final String AUTHN_SCREEN_MODE = "screenType";	
-	
+
+	public static final String EXTRA_LEFT_PANEL = "extraLeftPanel";
+
+	public static final String EXTRA_RIGHT_PANEL = "extraRightPanel";
+
+	public static final String EXTRA_TOP_PANEL = "extraTopPanel";
+
+	public static final String EXTRA_BOTTOM_PANEL = "extraBottomPanel";
+
+	public static final String CUSTOM_CSS = "customCss";
+
+	public static final String OLD_VAADIN_8_CSS = "oldVaadin8Css";
+
 	public static final String AUTHN_LOGO = "authnScreenLogo";
 	public static final String AUTHN_TITLE = "authnScreenTitle";
 	public static final String AUTHN_SHOW_SEARCH = "authnScreenShowSearch";
@@ -192,6 +204,19 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 		META.put(CRED_RESET_COMPACT, new PropertyMD("true").
 				setDescription("Controls if credential reset UI and outdated credential UI should use separate captions (false), "
 						+ "or captions put as placeholders resembling authN UI (true)."));
+
+		META.put(EXTRA_LEFT_PANEL, new PropertyMD("").
+				setDescription("Path to extra html left panel"));
+		META.put(EXTRA_RIGHT_PANEL, new PropertyMD("").
+				setDescription("Path to extra html right panel"));
+		META.put(EXTRA_TOP_PANEL, new PropertyMD("").
+				setDescription("Path to extra html top panel"));
+		META.put(EXTRA_BOTTOM_PANEL, new PropertyMD("").
+				setDescription("Path to extra html bottom panel"));
+		META.put(CUSTOM_CSS, new PropertyMD("").
+				setDescription("Path to custom css file"));
+		META.put(OLD_VAADIN_8_CSS, new PropertyMD("").
+				setDescription("Path to old vaadin 8 css file"));
 		
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
@@ -229,6 +254,42 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 		else if (isSet(VaadinEndpointProperties.DEF_THEME))
 			return getValue(VaadinEndpointProperties.DEF_THEME);
 		return null;
+	}
+
+	public File getExtraLeftPanel()
+	{
+		String value = getValue(VaadinEndpointProperties.EXTRA_LEFT_PANEL);
+		return new File(value);
+	}
+
+	public File getExtraRightPanel()
+	{
+		String value = getValue(VaadinEndpointProperties.EXTRA_RIGHT_PANEL);
+		return new File(value);
+	}
+
+	public File getExtraTopPanel()
+	{
+		String value = getValue(VaadinEndpointProperties.EXTRA_TOP_PANEL);
+		return new File(value);
+	}
+
+	public File getExtraBottomPanel()
+	{
+		String value = getValue(VaadinEndpointProperties.EXTRA_BOTTOM_PANEL);
+		return new File(value);
+	}
+
+	public File getOldVaadin8CssFile()
+	{
+		String value = getValue(VaadinEndpointProperties.OLD_VAADIN_8_CSS);
+		return new File(value);
+	}
+
+	public File getCustomCssFile()
+	{
+		String value = getValue(VaadinEndpointProperties.CUSTOM_CSS);
+		return new File(value);
 	}
 
 	public Properties getProperties()
