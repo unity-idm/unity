@@ -9,11 +9,11 @@ import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.communication.IndexHtmlRequestListener;
 import com.vaadin.flow.server.communication.IndexHtmlResponse;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
@@ -27,7 +27,7 @@ import java.util.Optional;
 import static io.imunity.vaadin23.endpoint.common.Vaadin23WebAppContext.getCurrentWebAppVaadinProperties;
 import static java.lang.String.format;
 
-@SpringComponent
+@Component
 class CustomStylesInitializer implements VaadinServiceInitListener
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

@@ -57,6 +57,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout
 
 		HorizontalLayout mainLayout = new HorizontalLayout();
 		mainLayout.setId("unity-main-container");
+		mainLayout.setHeightFull();
 
 		leftContainerContent = appLayoutComponents.getLeftContainerWithNavigation();
 		leftContainerContent.setId("unity-left-content-container");
@@ -67,7 +68,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(this.leftContainerContent, rightContainerContent);
 		horizontalLayout.getStyle().set("gap", "0");
-		horizontalLayout.setSizeFull();
+		horizontalLayout.setWidthFull();
 
 		mainLayout.add(left, horizontalLayout, right);
 
