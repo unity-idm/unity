@@ -17,11 +17,6 @@ import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
-/**
- * Configuration of OAuth RP-alike authenticator.
- * 
- * @author K. Benedyczak
- */
 public class LocalOAuthRPProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, LocalOAuthRPProperties.class);

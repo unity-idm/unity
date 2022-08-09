@@ -22,7 +22,6 @@ class AuthenticationResultWithTokenStatus
 
 	AuthenticationResultWithTokenStatus(AuthenticationResult result, TokenStatus token)
 	{
-
 		this.result = result;
 		this.token = Optional.ofNullable(token);
 	}
