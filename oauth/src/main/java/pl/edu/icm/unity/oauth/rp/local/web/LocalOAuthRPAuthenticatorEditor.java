@@ -29,12 +29,6 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
-/**
- * OAuthRP authenticator editor
- * 
- * @author P.Piernik
- *
- */
 class LocalOAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 

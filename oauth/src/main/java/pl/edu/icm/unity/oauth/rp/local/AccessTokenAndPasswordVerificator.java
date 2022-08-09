@@ -11,6 +11,7 @@ import java.io.StringWriter;
 import java.util.Optional;
 import java.util.Properties;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,11 +19,14 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -36,6 +40,8 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 @PrototypeComponent
 public class AccessTokenAndPasswordVerificator extends AbstractVerificator implements AccessTokenAndPasswordExchange
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, AccessTokenAndPasswordVerificator.class);
+
 	public static final String NAME = "local-oauth-rp";
 	public static final String DESC = "Verifies local tokens";
 
@@ -46,7 +52,6 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 	private LocalCredentialVerificator passwordVerificator;
 	private LocalBearerTokenVerificator bearerTokenVerificator;
 	private LocalOAuthRPProperties verificatorProperties;
-
 
 	@Autowired
 	public AccessTokenAndPasswordVerificator(OAuthTokenRepository tokensDAO,
@@ -131,14 +136,48 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 	}
 
 	@Override
-	public AuthenticationResultWithTokenStatus checkToken(BearerAccessToken token) throws AuthenticationException
+	public AuthenticationResult checkTokenAndPassword(BearerAccessToken token, String username, String password)
+			throws AuthenticationException
 	{
-		return bearerTokenVerificator.checkToken(token);
+		AuthenticationResultWithTokenStatus tokenVerificationResult;
+		try
+		{
+			tokenVerificationResult = bearerTokenVerificator.checkToken(token);
+		} catch (Exception e)
+		{
+			log.debug("HTTP Bearer access token is invalid or its processing failed", e);
+			return LocalAuthenticationResult.failed(e);
+		}
+
+		if (!tokenVerificationResult.result.getStatus().equals(Status.success))
+			return tokenVerificationResult.result;
+
+		AuthenticationResult localPasswordVerificationResult;
+
+		try
+		{
+			localPasswordVerificationResult = checkPassword(username, password);
+		} catch (Exception e)
+		{
+			log.trace("HTTP BASIC credential is invalid");
+			return LocalAuthenticationResult.failed(e);
+		}
+
+		if (!localPasswordVerificationResult.getStatus().equals(Status.success))
+			return localPasswordVerificationResult;
+
+		if (!tokenVerificationResult.token.get().getClientId().get()
+				.equals(localPasswordVerificationResult.getSuccessResult().authenticatedEntity.getEntityId()))
+		{
+			log.trace("Client not matches to bearer token");
+			return LocalAuthenticationResult.failed();
+		}
+
+		return tokenVerificationResult.result;
 
 	}
 
-	@Override
-	public AuthenticationResult checkPassword(String username, String password) throws AuthenticationException
+	private AuthenticationResult checkPassword(String username, String password) throws AuthenticationException
 	{
 		PasswordExchange passExchange = (PasswordExchange) passwordVerificator;
 		return passExchange.checkPassword(username, password, null, false, null);

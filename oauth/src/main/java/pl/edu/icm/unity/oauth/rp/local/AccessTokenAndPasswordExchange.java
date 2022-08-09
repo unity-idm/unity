@@ -14,9 +14,8 @@ import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 public interface AccessTokenAndPasswordExchange extends CredentialExchange
 {
 	public static final String ID = "access token with password exchange";
-	
-	public AuthenticationResultWithTokenStatus checkToken(BearerAccessToken token) throws AuthenticationException;
 
-	public AuthenticationResult checkPassword(String username, String password) throws AuthenticationException;
+	public AuthenticationResult checkTokenAndPassword(BearerAccessToken token, String username, String password)
+			throws AuthenticationException;
 
 }

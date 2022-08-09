@@ -28,10 +28,10 @@ import eu.unicore.security.HTTPAuthNTokens;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
@@ -85,20 +85,6 @@ public class RESTBearerTokenAndPasswordRetrieval extends AbstractCredentialRetri
 		}
 		log.trace("HTTP Bearer access token header found");
 
-		AuthenticationResultWithTokenStatus tokenVerificationResult;
-		try
-		{
-			tokenVerificationResult = credentialExchange.checkToken(authnToken);
-		} catch (Exception e)
-		{
-			log.debug("HTTP Bearer access token is invalid or its processing failed", e);
-			return LocalAuthenticationResult.failed(e);
-		}
-
-		if (!tokenVerificationResult.result.getStatus().equals(Status.success))
-			return tokenVerificationResult.result;
-
-		AuthenticationResult localPasswordVerificationResult;
 		HTTPAuthNTokens httpCredentials = HttpBasicParser.getHTTPCredentials(httpCredentialsHeader.get("Basic"), log,
 				HttpBasicRetrievalBase.isUrlEncoded(endpointFeatures));
 		if (httpCredentials == null)
@@ -108,27 +94,15 @@ public class RESTBearerTokenAndPasswordRetrieval extends AbstractCredentialRetri
 					DenyReason.undefinedCredential);
 		}
 		log.trace("HTTP BASIC auth header found");
+
 		try
 		{
-			localPasswordVerificationResult = credentialExchange.checkPassword(httpCredentials.getUserName(),
+			return credentialExchange.checkTokenAndPassword(authnToken, httpCredentials.getUserName(),
 					httpCredentials.getPasswd());
-		} catch (Exception e)
+		} catch (AuthenticationException e)
 		{
-			log.trace("HTTP BASIC credential is invalid");
 			return LocalAuthenticationResult.failed(e);
 		}
-
-		if (!localPasswordVerificationResult.getStatus().equals(Status.success))
-			return localPasswordVerificationResult;
-
-		if (!tokenVerificationResult.token.get().getClientId().get()
-				.equals(localPasswordVerificationResult.getSuccessResult().authenticatedEntity.getEntityId()))
-		{
-			log.trace("Client not matches to bearer token");
-			return LocalAuthenticationResult.failed();
-		}
-
-		return tokenVerificationResult.result;
 
 	}
 
