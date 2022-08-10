@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,26 +104,27 @@ class GroupRetrievalService
 		Map<Long, EntityInGroupData> attributesInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData(configuration.rootGroup));
 
-		for (String configuredMemebershipGroup : configuration.membershipGroups)
+		Map<String, GroupContents> groupAndSubgroups = bulkService
+				.getGroupAndSubgroups(bulkService.getBulkStructuralData("/"));
+
+		for (String configuredMemebershipGroup : configuration.membershipGroups.stream().sorted()
+				.collect(Collectors.toList()))
 		{
-			Map<String, GroupContents> groupAndSubgroups = bulkService
-					.getGroupAndSubgroups(bulkService.getBulkStructuralData(configuredMemebershipGroup));
 			GroupContents main = groupAndSubgroups.get(configuredMemebershipGroup);
 			if (main == null)
 			{
 				log.warn("Can not get configured membership group " + configuredMemebershipGroup);
 				continue;
 			}
-			fillMembersAndAddGroupResource(main, nameAttribute, membershipInfo, attributesInfo, groupAndSubgroups,
-					groups);
+			fillMembersAndAddGroupResource(main, groupAndSubgroups, nameAttribute, membershipInfo, attributesInfo, groups);
 		}
 
 		return groups;
 	}
 
-	private void fillMembersAndAddGroupResource(GroupContents group, Optional<String> nameAttribute,
+	private void fillMembersAndAddGroupResource(GroupContents group, Map<String, GroupContents> groupAndSubgroups, Optional<String> nameAttribute,
 			Map<Long, EntityInGroupData> membershipInfo, Map<Long, EntityInGroupData> membershipInfoForAttr,
-			Map<String, GroupContents> groupAndSubgroups, List<GroupData> groups)
+			List<GroupData> groups)
 	{
 		List<GroupMember> members = new ArrayList<>();
 		membershipInfo.values().stream().filter(e -> e.groups.contains(group.getGroup().getPathEncoded()))
@@ -133,10 +135,12 @@ class GroupRetrievalService
 				.forEach(g ->
 				{
 					members.add(mapToGroupMemeber(g));
-					fillMembersAndAddGroupResource(g, nameAttribute, membershipInfo, membershipInfoForAttr,
-							groupAndSubgroups, groups);
+//					fillMembersAndAddGroupResource(g, groupAndSubgroups, nameAttribute, membershipInfo, membershipInfoForAttr,
+//							groupAndSubgroups, groups);
 				});
-
+		
+		
+		
 		groups.add(GroupData.builder().withDisplayName(group.getGroup().getDisplayedNameShort(msg).getValue(msg))
 				.withId(group.getGroup().getPathEncoded()).withMembers(members).build());
 	}
@@ -171,9 +175,9 @@ class GroupRetrievalService
 	{
 		if (groupsMan.isPresent(group))
 		{
-			for (String configuredMemebershipGroups : configuration.membershipGroups)
+			for (String configuredMemebershipGroup : configuration.membershipGroups)
 			{
-				if (Group.isChildOrSame(group, configuredMemebershipGroups))
+				if (group.equals(configuredMemebershipGroup))
 				{
 					return;
 				}

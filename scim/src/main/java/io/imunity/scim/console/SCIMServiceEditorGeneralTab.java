@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
-import pl.edu.icm.unity.webui.common.groups.OptionalGroupExcludingChildrenSelection;
+import pl.edu.icm.unity.webui.common.groups.OptionalGroupWithWildcardSelection;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 
@@ -56,7 +56,7 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 		main.addComponent(rootGroup);
 		restBinder.forField(rootGroup).asRequired().bind("rootGroup");
 
-		OptionalGroupExcludingChildrenSelection memeberShipGroups = new OptionalGroupExcludingChildrenSelection(msg);
+		OptionalGroupWithWildcardSelection memeberShipGroups = new OptionalGroupWithWildcardSelection(msg);
 		memeberShipGroups.setSkipRemoveInvalidSelections(true);
 		memeberShipGroups.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroups"));
 		//simplification
@@ -68,6 +68,14 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			return ValidationResult.ok();
 		}).bind("membershipGroups");
+		
+		OptionalGroupWithWildcardSelection excludedMembershipGroups = new OptionalGroupWithWildcardSelection(msg);
+		excludedMembershipGroups.setSkipRemoveInvalidSelections(true);
+		excludedMembershipGroups.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroups"));
+		//simplification
+		excludedMembershipGroups.setItems(allGroups);
+		main.addComponent(excludedMembershipGroups);
+		restBinder.forField(excludedMembershipGroups).bind("excludedMembershipGroups");
 
 		CollapsibleLayout corsSection = new CollapsibleLayout(msg.getMessage("SCIMServiceEditorGeneralTab.scimGroups"),
 				main);
