@@ -74,7 +74,10 @@ public class UserRetrievalServiceTest
 	public void init()
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+				"/scim",
+				List.of("/scim", "/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members1/Subgroup2",
+						"/scim/Members2", "/scim/Members2/Subgroup1", "/scim/Members2/Subgroup2"),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		userRetrievalService = new UserRetrievalService(authzMan, entityManagement, bulkService, attributesManagement,
 				configuration);
 	}
@@ -145,7 +148,7 @@ public class UserRetrievalServiceTest
 
 		addTwoMembersGroupsWithSubgroups();
 		EntityInGroupData entity1 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("0", 0), null,
-				Set.of("/scim", "/scim/Members1/Subgroup1"), new HashMap<>(), null, null);
+				Set.of("/scim", "/scim/Members1", "/scim/Members1/Subgroup1"), new HashMap<>(), null, null);
 		EntityInGroupData entity2 = new EntityInGroupData(SCIMTestHelper.createPersitentEntity("1", 1), null,
 				Set.of("/scim", "/scim/Members2"), new HashMap<>(), null, null);
 
@@ -161,14 +164,17 @@ public class UserRetrievalServiceTest
 
 		assertThat(users.size(), is(2));
 		assertThat(users,
-				hasItems(User.builder().withEntityId(1L)
-						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
-						.withIdentities(entity2.entity.getIdentities()).withAttributes(List.of(attribute1))
+				hasItems(
+						User.builder().withEntityId(1L)
+								.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim").getGroup(),
+										SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
+								.withIdentities(entity2.entity.getIdentities()).withAttributes(List.of(attribute1))
 
-						.build(),
+								.build(),
 						User.builder().withEntityId(0L)
-								.withGroups(
-										Set.of(SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
+								.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim").getGroup(),
+										SCIMTestHelper.getGroupContent("/scim/Members1").getGroup(),
+										SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
 								.withIdentities(entity1.entity.getIdentities()).withAttributes(List.of(attribute1))
 
 								.build()));
@@ -192,12 +198,14 @@ public class UserRetrievalServiceTest
 
 		assertThat(users.size(), is(2));
 		assertThat(users,
-				hasItems(User.builder().withEntityId(1L)
-						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
-						.withIdentities(entity2.entity.getIdentities()).build(),
+				hasItems(
+						User.builder().withEntityId(1L)
+								.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim").getGroup(),
+										SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
+								.withIdentities(entity2.entity.getIdentities()).build(),
 						User.builder().withEntityId(0L)
-								.withGroups(
-										Set.of(SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
+								.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim").getGroup(),
+										SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
 								.withIdentities(entity1.entity.getIdentities()).build()));
 
 	}
@@ -220,7 +228,8 @@ public class UserRetrievalServiceTest
 		assertThat(users.size(), is(1));
 		assertThat(users,
 				hasItems(User.builder().withEntityId(1L)
-						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
+						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim").getGroup(),
+								SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
 						.withIdentities(entity2.entity.getIdentities()).build()));
 
 	}

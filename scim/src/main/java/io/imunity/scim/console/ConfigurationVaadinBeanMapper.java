@@ -51,6 +51,10 @@ class ConfigurationVaadinBeanMapper
 		bean.getMembershipGroups().addAll(orgConfig.membershipGroups.stream()
 				.map(g -> allGroups.getOrDefault(g, new Group(g)))
 				.collect(Collectors.toList()));
+		bean.getExcludedMembershipGroups().addAll(orgConfig.excludedMembershipGroups.stream()
+				.map(g -> allGroups.getOrDefault(g, new Group(g)))
+				.collect(Collectors.toList()));
+		
 		bean.setRootGroup(new GroupWithIndentIndicator(new Group(orgConfig.rootGroup), false));
 		bean.setSchemas(
 				orgConfig.schemas.stream().map(s -> mapFromConfigurationSchema(s)).collect(Collectors.toList()));
@@ -96,7 +100,8 @@ class ConfigurationVaadinBeanMapper
 				.withRootGroup(bean.getRootGroup().group.getPathEncoded())
 				.withMembershipGroups(
 						bean.getMembershipGroups().stream().map(g -> g.getPathEncoded()).collect(Collectors.toList()))
-
+				.withExcludedMembershipGroups(
+						bean.getExcludedMembershipGroups().stream().map(g -> g.getPathEncoded()).collect(Collectors.toList()))
 				.withSchemas(
 						bean.getSchemas().stream().map(s -> mapToConfigurationSchema(s)).collect(Collectors.toList()))
 				.withMembershipAttributes(bean.getMembershipAttributes()).build();

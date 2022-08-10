@@ -139,7 +139,7 @@ class UserRetrievalService
 		{
 			for (String ag : groupAndSubgroups.keySet())
 			{
-				if (Group.isChildOrSame(ag, g))
+				if (ag.equals(g))
 					ret.put(ag, groupAndSubgroups.get(ag));
 			}
 		}

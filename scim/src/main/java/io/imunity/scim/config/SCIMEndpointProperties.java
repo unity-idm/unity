@@ -27,6 +27,7 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 
 	public static final String ROOT_GROUP = "rootGroup";
 	public static final String MEMBERSHIP_GROUPS = "membershipGroups.";
+	public static final String EXCLUDED_MEMBERSHIP_GROUPS = "exludedMembershipGroups.";
 	public static final String MEMBERSHIP_ATTRIBUTES = "membershipAttributes.";
 
 	public static final String SCHEMAS = "schemas.";
@@ -40,6 +41,8 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 				new PropertyMD().setMandatory().setDescription("SCIM root group for attributes resolution"));
 		META.put(MEMBERSHIP_GROUPS, new PropertyMD().setList(false).setDescription(
 				"SCIM membership groups. Only memberships in those groups (and their children) are exposed via SCIM"));
+		META.put(EXCLUDED_MEMBERSHIP_GROUPS, new PropertyMD().setList(false).setDescription(
+				"List of groups that shouldn't be excluded from SCIM membership groups"));
 		META.put(MEMBERSHIP_ATTRIBUTES, new PropertyMD().setList(false).setDescription(
 				"SCIM group membership attributes"));
 		META.put(SCHEMAS, new PropertyMD().setList(false).setDescription("SCIM schemas definitions"));
