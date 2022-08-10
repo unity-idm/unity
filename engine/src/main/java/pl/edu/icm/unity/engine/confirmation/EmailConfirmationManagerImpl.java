@@ -21,14 +21,14 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.config.Searchable;
-import net.sf.ehcache.search.Query;
-import net.sf.ehcache.search.Results;
+import org.ehcache.Cache;
+import org.ehcache.Ehcache;
+import org.ehcache.Element;
+import org.ehcache.config.CacheConfiguration;
+import org.ehcache.config.PersistenceConfiguration;
+import org.ehcache.config.Searchable;
+import org.ehcache.search.Query;
+import org.ehcache.search.Results;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.base.token.Token;
@@ -475,7 +475,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 	}
 
 	@Override
-	public <T> void sendVerification(EntityParam entity, Attribute attribute) throws EngineException
+	public void sendVerification(EntityParam entity, Attribute attribute) throws EngineException
 	{
 		tx.runInTransactionThrowing(() -> {
 			sendVerification(entity, attribute, true);

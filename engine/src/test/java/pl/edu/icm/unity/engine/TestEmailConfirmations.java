@@ -73,11 +73,6 @@ import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
-/**
- * 
- * @author P. Piernik
- * 
- */
 public class TestEmailConfirmations extends DBIntegrationTestBase
 {
 	@Autowired

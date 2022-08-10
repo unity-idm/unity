@@ -26,7 +26,7 @@ public interface AttributeValueConverter
 
 	List<String> internalValuesToExternal(String attributeName, List<String> internalValues);
 
-	<T> List<?> internalValuesToObjectValues(String attributeName, List<String> internalValues)
+	List<?> internalValuesToObjectValues(String attributeName, List<String> internalValues)
 			throws IllegalAttributeValueException;
 
 	<T> List<T> internalValuesToObjectValues(AttributeValueSyntax<T> syntax, List<String> internalValues)

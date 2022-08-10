@@ -4,16 +4,10 @@
  */
 package pl.edu.icm.unity.engine.api.utils;
 
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
 import org.springframework.stereotype.Component;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-
-/**
- * Component providing access to Ehcache CacheManager. 
- * @author K. Benedyczak
- */
 @Component
 public class CacheProvider
 {
@@ -22,13 +16,7 @@ public class CacheProvider
 	
 	public CacheProvider()
 	{
-		Configuration config = new Configuration();
-		config.setName("UNITY cache manager");
-		config.setMaxBytesLocalHeap(10240000L);
-		
-		CacheConfiguration defC = new CacheConfiguration();
-		config.addDefaultCache(defC);
-		cacheManager = CacheManager.create(config);
+		cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build(true); 
 	}
 
 	public CacheManager getManager()
