@@ -25,14 +25,17 @@ import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.rp.verificator.TokenStatus;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -151,7 +154,7 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 
 		if (!tokenVerificationResult.result.getStatus().equals(Status.success))
 			return tokenVerificationResult.result;
-
+		
 		AuthenticationResult localPasswordVerificationResult;
 
 		try
@@ -172,9 +175,18 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 			log.trace("Client not matches to bearer token");
 			return LocalAuthenticationResult.failed();
 		}
-
+		updateInvocationContext(tokenVerificationResult.token.get());
+		
+		
 		return tokenVerificationResult.result;
 
+	}
+	
+	private void updateInvocationContext(TokenStatus status)
+	{
+		InvocationContext current = InvocationContext.getCurrent();
+		current.setInvocationMaterial(InvocationMaterial.OAUTH_DELEGATION);
+		current.setScopes(status.getScope().toStringList());
 	}
 
 	private AuthenticationResult checkPassword(String username, String password) throws AuthenticationException
