@@ -162,7 +162,7 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 			localPasswordVerificationResult = checkPassword(username, password);
 		} catch (Exception e)
 		{
-			log.trace("HTTP BASIC credential is invalid");
+			log.debug("HTTP BASIC credential is invalid");
 			return LocalAuthenticationResult.failed(e);
 		}
 
@@ -172,7 +172,7 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 		if (!tokenVerificationResult.token.get().getClientId().get()
 				.equals(localPasswordVerificationResult.getSuccessResult().authenticatedEntity.getEntityId()))
 		{
-			log.trace("Client not matches to bearer token");
+			log.debug("Client not matches to bearer token");
 			return LocalAuthenticationResult.failed();
 		}
 		updateInvocationContext(tokenVerificationResult.token.get());
