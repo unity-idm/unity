@@ -146,7 +146,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			{
 				log.info("Authentication failed for client");
 				UnsuccessfulAuthenticationCounterImpl.unsuccessfulAttempt(ip);
-				throw new Fault(authenticationError == null ? new AuthenticationException("Authentication failed") : authenticationError);
+				throw new Fault(authenticationError == null ? new Exception("Authentication failed") : authenticationError);
 			}
 		} else
 		{
