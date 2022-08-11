@@ -79,18 +79,27 @@ public class RESTBearerTokenAndPasswordRetrieval extends AbstractCredentialRetri
 		BearerAccessToken authnToken = getTokenCredential(httpCredentialsHeader.get("Bearer"));
 		if (authnToken == null)
 		{
-			log.trace("No HTTP Bearer access token header was found");
+			log.debug("No HTTP Bearer access token header was found");
 			return LocalAuthenticationResult.failed(new ResolvableError("BearerRetrievalBase.tokenNotFound"),
 					DenyReason.undefinedCredential);
 		}
 		log.trace("HTTP Bearer access token header found");
 
-		HTTPAuthNTokens httpCredentials = HttpBasicParser.getHTTPCredentials(httpCredentialsHeader.get("Basic"), log,
-				HttpBasicRetrievalBase.isUrlEncoded(endpointFeatures));
+		HTTPAuthNTokens httpCredentials;
+		try
+		{
+			httpCredentials = HttpBasicParser.getHTTPCredentials(httpCredentialsHeader.get("Basic"), log,
+					HttpBasicRetrievalBase.isUrlEncoded(endpointFeatures));
+		} catch (Exception e)
+		{
+			log.debug("Invalid HTTP BASIC auth header was found");
+			return LocalAuthenticationResult.failed(new ResolvableError("RESTBearerTokenAndPasswordRetrieval.invalidBasicAuth"));
+		}
+
 		if (httpCredentials == null)
 		{
-			log.trace("No HTTP BASIC auth header was found");
-			return LocalAuthenticationResult.failed(new ResolvableError("HttpBasicRetrievalBase.basicAuthNotFound"),
+			log.debug("No HTTP BASIC auth header was found");
+			return LocalAuthenticationResult.failed(new ResolvableError("RESTBearerTokenAndPasswordRetrieval.basicAuthNotFound"),
 					DenyReason.undefinedCredential);
 		}
 		log.trace("HTTP BASIC auth header found");
@@ -105,7 +114,7 @@ public class RESTBearerTokenAndPasswordRetrieval extends AbstractCredentialRetri
 		}
 
 	}
-
+	
 	Map<String, String> getHttpCredentials()
 	{
 		Message message = PhaseInterceptorChain.getCurrentMessage();

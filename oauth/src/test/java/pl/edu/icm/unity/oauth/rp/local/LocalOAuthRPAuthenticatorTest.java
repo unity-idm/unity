@@ -118,7 +118,6 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	@Test
 	public void shouldAuthenticateViaLocalOAuthRP() throws Exception
 	{
-
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
@@ -130,7 +129,51 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		Assert.assertEquals(200, response.getStatusCode());
-
 	}
 
+	@Test
+	public void shouldFailWhenOnlyToken() throws Exception
+	{
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
+				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
+		AccessToken ac = resp1.getAccessToken();
+
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
+		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
+
+		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
+				ServerHostnameCheckingMode.NONE);
+		HTTPResponse response = httpReq.send();
+		Assert.assertEquals(500, response.getStatusCode());
+	}
+
+	@Test
+	public void shouldFailWhenOnlyClientCredential() throws Exception
+	{
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
+		httpReqRaw.setAuthorization("Basic Y2xpZW50QTpwYXNzd29yZA==");
+
+		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
+				ServerHostnameCheckingMode.NONE);
+		HTTPResponse response = httpReq.send();
+		Assert.assertEquals(500, response.getStatusCode());
+	}
+
+	@Test
+	public void shouldFailWhenClientNotMatchToToken() throws Exception
+	{
+		createUsernameUser("client2", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE, "client2", CRED_REQ_PASS);
+
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
+				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
+		AccessToken ac = resp1.getAccessToken();
+
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
+		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50MjpjbGllbnQy");
+
+		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
+				ServerHostnameCheckingMode.NONE);
+		HTTPResponse response = httpReq.send();
+		Assert.assertEquals(500, response.getStatusCode());
+	}
 }
