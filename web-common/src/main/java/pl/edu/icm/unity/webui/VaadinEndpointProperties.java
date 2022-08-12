@@ -66,8 +66,6 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 
 	public static final String CUSTOM_CSS = "customCss";
 
-	public static final String OLD_VAADIN_8_CSS = "oldVaadin8Css";
-
 	public static final String AUTHN_LOGO = "authnScreenLogo";
 	public static final String AUTHN_TITLE = "authnScreenTitle";
 	public static final String AUTHN_SHOW_SEARCH = "authnScreenShowSearch";
@@ -215,8 +213,6 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 				setDescription("Path to extra html bottom panel"));
 		META.put(CUSTOM_CSS, new PropertyMD("").
 				setDescription("Path to custom css file"));
-		META.put(OLD_VAADIN_8_CSS, new PropertyMD("").
-				setDescription("Path to old vaadin 8 css file"));
 		
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
@@ -277,12 +273,6 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	public File getExtraBottomPanel()
 	{
 		String value = getValue(VaadinEndpointProperties.EXTRA_BOTTOM_PANEL);
-		return new File(value);
-	}
-
-	public File getOldVaadin8CssFile()
-	{
-		String value = getValue(VaadinEndpointProperties.OLD_VAADIN_8_CSS);
 		return new File(value);
 	}
 

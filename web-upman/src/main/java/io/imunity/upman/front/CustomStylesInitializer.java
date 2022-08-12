@@ -37,42 +37,29 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 	{
 		VaadinEndpointProperties currentWebAppVaadinProperties = getCurrentWebAppVaadinProperties();
 		File externalCSSResource = currentWebAppVaadinProperties.getCustomCssFile();
-		File oldVaadin8CSSResource = currentWebAppVaadinProperties.getOldVaadin8CssFile();
 
-		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(externalCSSResource, oldVaadin8CSSResource));
+		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(externalCSSResource));
 	}
 
-	private static class CustomStylesInjector implements IndexHtmlRequestListener
-	{
+	private static class CustomStylesInjector implements IndexHtmlRequestListener {
 
 		private final CustomStylesContentProvider contentProvider;
 
-		CustomStylesInjector(File externalCSSResource, File oldVaadin8CSSResource)
-		{
-			this.contentProvider = new CustomStylesContentProvider(oldVaadin8CSSResource, externalCSSResource);
+		CustomStylesInjector(File externalCSSFile) {
+			this.contentProvider = new CustomStylesContentProvider(externalCSSFile);
 		}
 
 		@Override
-		public void modifyIndexHtmlResponse(IndexHtmlResponse indexHtmlResponse)
-		{
-//			contentProvider.getCustomStyles().ifPresent(customStyles -> {
-//				applyStyle(indexHtmlResponse, customStyles, "custom-style");
-//			});
-//			contentProvider.getOldVaadin8Styles().ifPresent(customStyles -> {
-//				applyStyle(indexHtmlResponse, customStyles, "old-style");
-//			});
+		public void modifyIndexHtmlResponse(IndexHtmlResponse indexHtmlResponse) {
+			contentProvider.getCustomStyles().ifPresent(customStyles -> {
+				Document document = indexHtmlResponse.getDocument();
+				org.jsoup.nodes.Element head = document.head();
+				head.appendChild(createCustomStyle(document, customStyles));
+			});
 		}
 
-		private void applyStyle(IndexHtmlResponse indexHtmlResponse, String customStyles, String styleName)
-		{
-			Document document = indexHtmlResponse.getDocument();
-			Element head = document.head();
-			head.appendChild(createStyle(document, customStyles, styleName));
-		}
-
-		private Element createStyle(Document document, String customStyles, String styleName)
-		{
-			Element customStyle = document.createElement(styleName);
+		private Element createCustomStyle(Document document, String customStyles) {
+			Element customStyle = document.createElement("custom-style");
 			Element style = document.createElement("style");
 			customStyle.appendChild(style);
 			style.appendText(customStyles);
@@ -82,30 +69,20 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 
 	private static class CustomStylesContentProvider {
 
-		private final File externalCSSResource;
-		private final File oldVaadin8CSSResource;
+		private final File externalCSSFile;
 
-		CustomStylesContentProvider(File externalCSSResource, File oldVaadin8CSSResource) {
-			this.externalCSSResource = externalCSSResource;
-			this.oldVaadin8CSSResource = oldVaadin8CSSResource;
+		CustomStylesContentProvider(File externalCSSFile) {
+			this.externalCSSFile = externalCSSFile;
 		}
 
 		private Optional<String> getCustomStyles() {
-			return getStyle(externalCSSResource);
-		}
 
-		private Optional<String> getOldVaadin8Styles() {
-			return getStyle(oldVaadin8CSSResource);
-		}
-
-		private Optional<String> getStyle(File style)
-		{
 			if (isCustomCssFileAvailable()) {
 				String msg = null;
 				try {
-					msg = StreamUtils.copyToString(new FileInputStream(style), Charset.defaultCharset());
+					msg = StreamUtils.copyToString(new FileInputStream(externalCSSFile), Charset.defaultCharset());
 				} catch (IOException exception) {
-					LOG.error(format("Could not read custom CSS file: %s", style.getName()),
+					LOG.error(format("Could not read custom CSS file: %s", externalCSSFile.getName()),
 							exception);
 				}
 				return Optional.ofNullable(msg);
@@ -113,29 +90,20 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 			return Optional.empty();
 		}
 
-		private boolean isOldVaadin8CssFileAvailable()
-		{
-			return isStyleAvailable(oldVaadin8CSSResource);
-		}
-		private boolean isCustomCssFileAvailable()
-		{
-			return isStyleAvailable(externalCSSResource);
-		}
+		private boolean isCustomCssFileAvailable() {
 
-		private boolean isStyleAvailable(File style)
-		{
-			if (style == null) {
-				LOG.debug("Custom style is not configured.", style);
+			if (externalCSSFile == null) {
+				LOG.debug("Custom style is not configured.");
 				return false;
 			}
 
-			if (!style.exists()) {
-				LOG.error("Could not load custom styles: file does not exists, {}.", style);
+			if (!externalCSSFile.exists()) {
+				LOG.error("Could not load custom styles: file does not exists, {}.", externalCSSFile);
 				return false;
 			}
 
-			if (!style.isFile()) {
-				LOG.error("Could not load custom styles: unable to read file content, {}.", style);
+			if (!externalCSSFile.isFile()) {
+				LOG.error("Could not load custom styles: unable to read file content, {}.", externalCSSFile);
 				return false;
 			}
 
