@@ -91,7 +91,7 @@ public class InvitationsView extends UnityViewComponent
 		InvitationForm invitationForm = new InvitationForm(msg, projectGroup, projectService.getProjectGroups(projectGroup).getAllOffspring(), getContent());
 		dialog.add(invitationForm);
 
-		Button saveButton = new Button(msg.getMessage("OK"));
+		Button saveButton = new SubmitButton(msg);
 		saveButton.addClickListener(event ->
 		{
 			if(invitationForm.isValid())

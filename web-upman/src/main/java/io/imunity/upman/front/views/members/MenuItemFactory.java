@@ -24,6 +24,7 @@ import com.vaadin.flow.router.NavigationTrigger;
 import com.vaadin.flow.router.Route;
 import io.imunity.upman.front.components.BaseDialog;
 import io.imunity.upman.front.components.MenuButton;
+import io.imunity.upman.front.components.SubmitButton;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
@@ -149,6 +150,7 @@ class MenuItemFactory
 	private Dialog createSelfRemoveDialog(String txt, Runnable job)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
+		dialog.addClassName("u-dialog-confirm");
 		dialog.add(new VerticalLayout(new Label(txt)));
 
 		Button saveButton = new Button(msg.getMessage("OK"), e ->
@@ -235,7 +237,7 @@ class MenuItemFactory
 
 	private Button createSetSubProjectRoleButton(ProjectGroup projectGroup, Group group, Dialog dialog, RadioButtonGroup<GroupAuthorizationRole> radioGroup, Set<MemberModel> items)
 	{
-		Button button = new Button(msg.getMessage("OK"));
+		Button button = new SubmitButton(msg);
 		button.addClickListener(event ->
 		{
 			groupMembersController.updateRole(projectGroup, group, radioGroup.getValue(), items);
@@ -247,7 +249,7 @@ class MenuItemFactory
 
 	private Button createSetProjectRoleButton(ProjectGroup projectGroup, Group group, Dialog dialog, RadioButtonGroup<GroupAuthorizationRole> radioGroup, Set<MemberModel> items)
 	{
-		Button button = new Button(msg.getMessage("OK"));
+		Button button = new SubmitButton(msg);
 		button.addClickListener(event ->
 		{
 			GroupAuthorizationRole role = radioGroup.getValue();
@@ -273,7 +275,7 @@ class MenuItemFactory
 
 	private Button createAddToGroupButton(ProjectGroup projectGroup, Dialog dialog, ComboBox<GroupTreeNode> comboBox, Set<MemberModel> members)
 	{
-		Button button = new Button(msg.getMessage("OK"));
+		Button button = new SubmitButton(msg);
 		button.addClickListener(event ->
 		{
 			GroupTreeNode value = comboBox.getValue();

@@ -95,7 +95,7 @@ class MenuItemFactory
 		SubProjectConfigurationLayout subProjectConfigurationLayout = new SubProjectConfigurationLayout(msg, content, group);
 		dialog.add(subProjectConfigurationLayout);
 
-		Button saveButton = new Button(msg.getMessage("OK"));
+		Button saveButton = new SubmitButton(msg);
 		saveButton.addClickListener(event ->
 		{
 			groupService.setGroupDelegationConfiguration(
@@ -139,7 +139,7 @@ class MenuItemFactory
 		verticalLayout.getStyle().set("gap", "unset");
 		dialog.add(verticalLayout);
 
-		Button saveButton = new Button(msg.getMessage("OK"));
+		Button saveButton = new SubmitButton(msg);
 		saveButton.addClickListener(event ->
 		{
 			Map<Locale, String> localeToTxt = localeTextFieldDetails.fields.stream()
@@ -163,6 +163,7 @@ class MenuItemFactory
 	private Dialog createConfirmDialog(String txt, Runnable runnable)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
+		dialog.addClassName("u-dialog-confirm");
 
 		Label label = new Label(txt);
 
@@ -171,7 +172,7 @@ class MenuItemFactory
 		dialogLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 		dialog.add(dialogLayout);
 
-		Button saveButton = new Button(msg.getMessage("OK"));
+		Button saveButton = new SubmitButton(msg);
 		saveButton.addClickListener(event ->
 		{
 			runnable.run();
@@ -207,7 +208,8 @@ class MenuItemFactory
 
 	private Button createRenameButton(ProjectGroup projectGroup, Group group, Dialog dialog, List<LocaleTextField> fields)
 	{
-		Button button = new Button(msg.getMessage("OK"));
+		Button button = new SubmitButton(msg);
+		button.addClassName("submit-button");
 		button.addClickListener(event ->
 		{
 			Map<Locale, String> collect = fields.stream().collect(Collectors.toMap(x -> x.locale, TextField::getValue));
