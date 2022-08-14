@@ -70,8 +70,8 @@ public class GroupRetrievalServiceTest
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
 				"/scim",
-				List.of("/scim", "/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members1/Subgroup2", "/scim/Members2",
-						"/scim/Members2/Subgroup1", "/scim/Members2/Subgroup2"),
+				List.of("/scim", "/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members1/Subgroup2",
+						"/scim/Members2", "/scim/Members2/Subgroup1", "/scim/Members2/Subgroup2"),
 				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		groupRetrievalService = new GroupRetrievalService(msg, authzMan, groupsMan, bulkService, attrSupport,
 				configuration);
@@ -92,6 +92,7 @@ public class GroupRetrievalServiceTest
 	{
 		// given
 		when(groupsMan.isPresent(eq("/scim/Members1/Subgroup1"))).thenReturn(true);
+		when(authzMan.getFilter()).thenReturn(s -> true);
 
 		addEntityNameAttrType();
 		addTwoUserMembersToMembersSubgroup();
@@ -118,6 +119,21 @@ public class GroupRetrievalServiceTest
 								.withValue("/scim/Members1/Subgroup1/Subgroup2").build(),
 						GroupMember.builder().withDisplayName("Subgroup3").withType(MemberType.Group)
 								.withValue("/scim/Members1/Subgroup1/Subgroup3").build()));
+	}
+
+	@Test
+	public void shouldReturnOnlyUserGroup() throws EngineException
+	{
+		// given
+		when(authzMan.getFilter()).thenReturn(s -> s.equals("/scim/Members1/Subgroup1") ? true : false);
+		addTwoMembersGroupWithSubgroups();
+
+		// when
+		List<GroupData> groupData = groupRetrievalService.getGroups();
+
+		// then
+		assertThat(groupData.size(), is(1));
+		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet()), hasItems("/scim/Members1/Subgroup1"));
 	}
 
 	private void addTwoUserMembersToMembersSubgroup() throws EngineException
@@ -151,6 +167,7 @@ public class GroupRetrievalServiceTest
 	public void shouldReturnFullGroupsWithMemebers() throws EngineException
 	{
 		// given
+		when(authzMan.getFilter()).thenReturn(s -> true);
 		addEntityNameAttrType();
 		addTwoUserMembersToMembersSubgroups();
 		addTwoMembersWithAttributeToAttrGroup();
@@ -215,11 +232,10 @@ public class GroupRetrievalServiceTest
 		GroupStructuralData gdata1 = new MockGroupStructuralData();
 		when(bulkService.getBulkStructuralData(eq("/"))).thenReturn(gdata1);
 		Map<String, GroupContents> groupsWithSubgroups1 = new HashMap<>();
-		
-		groupsWithSubgroups1.put("/scim", SCIMTestHelper.getGroupContent("/scim",
-				List.of("/scim/Members1", "/scim/Members2")));
-		
-		
+
+		groupsWithSubgroups1.put("/scim",
+				SCIMTestHelper.getGroupContent("/scim", List.of("/scim/Members1", "/scim/Members2")));
+
 		groupsWithSubgroups1.put("/scim/Members1", SCIMTestHelper.getGroupContent("/scim/Members1",
 				List.of("/scim/Members1/Subgroup1", "/scim/Members1/Subgroup2")));
 		groupsWithSubgroups1.put("/scim/Members1/Subgroup1",
@@ -227,15 +243,13 @@ public class GroupRetrievalServiceTest
 		groupsWithSubgroups1.put("/scim/Members1/Subgroup2",
 				SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup2"));
 
-		
 		groupsWithSubgroups1.put("/scim/Members2", SCIMTestHelper.getGroupContent("/scim/Members2",
 				List.of("/scim/Members2/Subgroup1", "/scim/Members2/Subgroup2")));
 		groupsWithSubgroups1.put("/scim/Members2/Subgroup1",
 				SCIMTestHelper.getGroupContent("/scim/Members2/Subgroup1"));
 		groupsWithSubgroups1.put("/scim/Members2/Subgroup2",
 				SCIMTestHelper.getGroupContent("/scim/Members2/Subgroup2"));
-		
-		
+
 		when(bulkService.getGroupAndSubgroups(eq(gdata1))).thenReturn(groupsWithSubgroups1);
 	}
 
