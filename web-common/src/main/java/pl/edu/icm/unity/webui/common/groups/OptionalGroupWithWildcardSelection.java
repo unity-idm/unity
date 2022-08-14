@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameCompar
 
 /**
  * {@link ChipsWithDropdown} specialization for selecting multiple groups with
- * wildcars supporting. Children of selected groups are not available to
+ * wildcards supported. Children of selected groups are not available for
  * selection
  * 
  * @author P.Piernik

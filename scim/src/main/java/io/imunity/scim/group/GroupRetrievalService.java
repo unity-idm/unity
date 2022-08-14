@@ -111,20 +111,20 @@ class GroupRetrievalService
 		Map<Long, EntityInGroupData> attributesInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData(configuration.rootGroup));
 
-		Map<String, GroupContents> groupAndSubgroups = bulkService
+		Map<String, GroupContents> allGroupsWithSubgroups = bulkService
 				.getGroupAndSubgroups(bulkService.getBulkStructuralData("/"));
 		Predicate<String> filter = authzMan.getFilter();
 		for (String configuredMemebershipGroup : configuration.membershipGroups.stream().filter(filter).sorted()
 				.collect(Collectors.toList()))
 		{
 			
-			GroupContents main = groupAndSubgroups.get(configuredMemebershipGroup);
+			GroupContents main = allGroupsWithSubgroups.get(configuredMemebershipGroup);
 			if (main == null)
 			{
 				log.warn("Can not get configured membership group " + configuredMemebershipGroup);
 				continue;
 			}
-			fillMembersAndAddGroupResource(main, groupAndSubgroups, nameAttribute, membershipInfo, attributesInfo, groups);
+			fillMembersAndAddGroupResource(main, allGroupsWithSubgroups, nameAttribute, membershipInfo, attributesInfo, groups);
 		}
 
 		return groups;
@@ -143,12 +143,8 @@ class GroupRetrievalService
 				.forEach(g ->
 				{
 					members.add(mapToGroupMemeber(g));
-//					fillMembersAndAddGroupResource(g, groupAndSubgroups, nameAttribute, membershipInfo, membershipInfoForAttr,
-//							groupAndSubgroups, groups);
 				});
-		
-		
-		
+
 		groups.add(GroupData.builder().withDisplayName(group.getGroup().getDisplayedNameShort(msg).getValue(msg))
 				.withId(group.getGroup().getPathEncoded()).withMembers(members).build());
 	}
@@ -183,12 +179,9 @@ class GroupRetrievalService
 	{
 		if (groupsMan.isPresent(group))
 		{
-			for (String configuredMemebershipGroup : configuration.membershipGroups)
+			if (configuration.membershipGroups.stream().anyMatch(g -> g.equals(group)))
 			{
-				if (group.equals(configuredMemebershipGroup))
-				{
-					return;
-				}
+				return;
 			}
 		}
 		log.error("Group " + group + " is out of range for configured membership groups");

@@ -33,18 +33,79 @@ public class MembershipGroupProviderTest
 	private GroupsManagement groupsManagement;
 
 	@Test
-	public void shouldFilterGroupsByWildcards() throws EngineException
+	public void shouldInlcudeWildcardGroups() throws EngineException
 	{
 
 		provider = new MembershipGroupsProvider(groupsManagement);
 		when(groupsManagement.getAllGroups()).thenReturn(
 				Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B"), "/B/C", new Group("/B/C")));
 
-		List<String> effectiveMembershipGroups = provider
-				.getEffectiveMembershipGroups(SCIMEndpointConfiguration.builder().withSchemas(Collections.emptyList())
-						.withMembershipGroups(List.of("/**")).withExcludedMembershipGroups(List.of("/B/**")).build());
+		List<String> effectiveMembershipGroups = provider.getEffectiveMembershipGroups(SCIMEndpointConfiguration
+				.builder().withSchemas(Collections.emptyList()).withMembershipGroups(List.of("/B*")).build());
 
 		assertThat(effectiveMembershipGroups.size(), is(2));
-		assertThat(effectiveMembershipGroups, hasItems("/", "/A"));
+		assertThat(effectiveMembershipGroups, hasItems("/B", "/B/C"));
+	}
+
+	@Test
+	public void shouldExcludeWildcardGroups() throws EngineException
+	{
+
+		provider = new MembershipGroupsProvider(groupsManagement);
+		when(groupsManagement.getAllGroups())
+				.thenReturn(Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B"), "/B/C",
+						new Group("/B/C"), "/A/Bar", new Group("/A/Bar"), "/A/B/C", new Group("/A/B/C")));
+
+		List<String> effectiveMembershipGroups = provider
+				.getEffectiveMembershipGroups(SCIMEndpointConfiguration.builder().withSchemas(Collections.emptyList())
+						.withMembershipGroups(List.of("/A/**")).withExcludedMembershipGroups(List.of("/A/B*")).build());
+
+		assertThat(effectiveMembershipGroups.size(), is(2));
+		assertThat(effectiveMembershipGroups, hasItems("/A", "/A/B/C"));
+	}
+
+	@Test
+	public void shouldIncludeRegularGroup() throws EngineException
+	{
+
+		provider = new MembershipGroupsProvider(groupsManagement);
+		when(groupsManagement.getAllGroups())
+				.thenReturn(Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B")));
+
+		List<String> effectiveMembershipGroups = provider.getEffectiveMembershipGroups(SCIMEndpointConfiguration
+				.builder().withSchemas(Collections.emptyList()).withMembershipGroups(List.of("/A")).build());
+
+		assertThat(effectiveMembershipGroups.size(), is(1));
+		assertThat(effectiveMembershipGroups, hasItems("/A"));
+	}
+
+	@Test
+	public void shouldExcludeRegularGroup() throws EngineException
+	{
+
+		provider = new MembershipGroupsProvider(groupsManagement);
+		when(groupsManagement.getAllGroups())
+				.thenReturn(Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B")));
+
+		List<String> effectiveMembershipGroups = provider
+				.getEffectiveMembershipGroups(SCIMEndpointConfiguration.builder().withSchemas(Collections.emptyList())
+						.withMembershipGroups(List.of("/**")).withExcludedMembershipGroups(List.of("/A")).build());
+
+		assertThat(effectiveMembershipGroups.size(), is(2));
+		assertThat(effectiveMembershipGroups, hasItems("/", "/B"));
+	}
+
+	@Test
+	public void shouldIncludeChildrenGroup() throws EngineException
+	{
+		provider = new MembershipGroupsProvider(groupsManagement);
+		when(groupsManagement.getAllGroups()).thenReturn(
+				Map.of("/", new Group("/"), "/A", new Group("/A"), "/A/C", new Group("/A/C"), "/B", new Group("/B")));
+
+		List<String> effectiveMembershipGroups = provider.getEffectiveMembershipGroups(SCIMEndpointConfiguration
+				.builder().withSchemas(Collections.emptyList()).withMembershipGroups(List.of("/A")).build());
+
+		assertThat(effectiveMembershipGroups.size(), is(2));
+		assertThat(effectiveMembershipGroups, hasItems("/A", "/A/C"));
 	}
 }
