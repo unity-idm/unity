@@ -41,12 +41,25 @@ class MembershipGroupsProvider
 			throw new RuntimeEngineException("Can not get groups", e);
 		}
 
-		Set<Group> whiteListGroups = scimEndpointConfiguration.membershipGroups.stream().map(
-				g -> GroupPatternMatcher.filterMatching(allGroups.values().stream().collect(Collectors.toList()), g))
-				.flatMap(a -> a.stream()).collect(Collectors.toSet());
+		List<Group> allGroupsList = allGroups.values().stream().collect(Collectors.toList());
+
+		Set<Group> whiteListGroups = scimEndpointConfiguration.membershipGroups.stream()
+				.map(g -> GroupPatternMatcher.filterMatching(allGroupsList, g)).flatMap(a -> a.stream())
+				.collect(Collectors.toSet());
+		addChildrenGroups(whiteListGroups, allGroupsList);
+		Set<Group> blackListGroups = scimEndpointConfiguration.excludedMembershipGroups.stream()
+				.map(g -> GroupPatternMatcher.filterMatching(allGroupsList, g)).flatMap(a -> a.stream())
+				.collect(Collectors.toSet());
+
+		whiteListGroups.removeAll(blackListGroups);
+		return whiteListGroups.stream().map(g -> g.getPathEncoded()).sorted().collect(Collectors.toList());
+	}
+
+	private void addChildrenGroups(Set<Group> whiteListGroups, List<Group> allGroupsList)
+	{
 		for (Group g : whiteListGroups)
 		{
-			allGroups.values().forEach(ag ->
+			allGroupsList.forEach(ag ->
 			{
 				if (Group.isChild(ag.getPathEncoded(), g.getPathEncoded()))
 				{
@@ -54,11 +67,6 @@ class MembershipGroupsProvider
 				}
 			});
 		}
-		Set<Group> blackListGroups = scimEndpointConfiguration.excludedMembershipGroups.stream().map(
-				g -> GroupPatternMatcher.filterMatching(allGroups.values().stream().collect(Collectors.toList()), g))
-				.flatMap(a -> a.stream()).collect(Collectors.toSet());
-
-		whiteListGroups.removeAll(blackListGroups);
-		return whiteListGroups.stream().map(g -> g.getPathEncoded()).sorted().collect(Collectors.toList());
 	}
+
 }

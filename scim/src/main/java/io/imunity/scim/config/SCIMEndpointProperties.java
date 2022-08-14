@@ -40,9 +40,9 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 		META.put(ROOT_GROUP,
 				new PropertyMD().setMandatory().setDescription("SCIM root group for attributes resolution"));
 		META.put(MEMBERSHIP_GROUPS, new PropertyMD().setList(false).setDescription(
-				"SCIM membership groups. Only memberships in those groups (and their children) are exposed via SCIM"));
+				"List of SCIM membership groups with wildcards supported. Only memberships in those groups (and their children) are exposed via SCIM."));
 		META.put(EXCLUDED_MEMBERSHIP_GROUPS, new PropertyMD().setList(false).setDescription(
-				"List of groups that shouldn't be excluded from SCIM membership groups"));
+				"List of groups with wildcard supported that shouldn't be excluded from SCIM membership groups"));
 		META.put(MEMBERSHIP_ATTRIBUTES, new PropertyMD().setList(false).setDescription(
 				"SCIM group membership attributes"));
 		META.put(SCHEMAS, new PropertyMD().setList(false).setDescription("SCIM schemas definitions"));
