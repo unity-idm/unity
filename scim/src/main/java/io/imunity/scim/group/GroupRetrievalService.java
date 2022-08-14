@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -63,6 +64,12 @@ class GroupRetrievalService
 		authzMan.checkReadGroups();
 		assertIsMembershipGroup(groupId.id);
 
+		if (!authzMan.getFilter().test(groupId.id))
+		{
+			throw new GroupNotFoundException("Invalid group " + groupId.id);
+		}
+
+		
 		Map<Long, EntityInGroupData> membershipInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData(groupId.id));
 		Map<Long, EntityInGroupData> attributesInfo = bulkService
@@ -106,10 +113,11 @@ class GroupRetrievalService
 
 		Map<String, GroupContents> groupAndSubgroups = bulkService
 				.getGroupAndSubgroups(bulkService.getBulkStructuralData("/"));
-
-		for (String configuredMemebershipGroup : configuration.membershipGroups.stream().sorted()
+		Predicate<String> filter = authzMan.getFilter();
+		for (String configuredMemebershipGroup : configuration.membershipGroups.stream().filter(filter).sorted()
 				.collect(Collectors.toList()))
 		{
+			
 			GroupContents main = groupAndSubgroups.get(configuredMemebershipGroup);
 			if (main == null)
 			{
