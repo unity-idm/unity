@@ -21,6 +21,7 @@ public class SCIMSystemScopeProvider implements SystemScopeProvider
 
 	public static final String READ_PROFILE_SCOPE = "sys:scim:read_profile";
 	public static final String READ_MEMBERSHIPS_SCOPE = "sys:scim:read_memberships";
+	public static final String READ_SELF_GROUP_SCOPE = "sys:scim:read_self_group";
 
 	private final MessageSource msg;
 
@@ -36,7 +37,9 @@ public class SCIMSystemScopeProvider implements SystemScopeProvider
 				Scope.builder().withName(READ_PROFILE_SCOPE)
 						.withDescription(msg.getMessage("SCIMScopeProvider.readProfile")).build(),
 				Scope.builder().withName(READ_MEMBERSHIPS_SCOPE)
-						.withDescription(msg.getMessage("SCIMScopeProvider.readMembership")).build());
+						.withDescription(msg.getMessage("SCIMScopeProvider.readMembership")).build(),
+				Scope.builder().withName(READ_SELF_GROUP_SCOPE)
+						.withDescription(msg.getMessage("SCIMScopeProvider.readSelfGroup")).build());
 	}
 
 	@Override

@@ -237,15 +237,6 @@ public class GroupRetrievalServiceTest
 		
 		
 		when(bulkService.getGroupAndSubgroups(eq(gdata1))).thenReturn(groupsWithSubgroups1);
-
-//		GroupStructuralData gdata2 = new MockGroupStructuralData();
-//		when(bulkService.getBulkStructuralData(eq("/scim/Members2"))).thenReturn(gdata2);
-//		Map<String, GroupContents> groupsWithSubgroups2 = new HashMap<>();
-//		groupsWithSubgroups2.put("/scim/Members2", SCIMTestHelper.getGroupContent("/scim/Members2",
-//				List.of("/scim/Members2/Subgroup1", "/scim/Members2/Subgroup2")));
-//		groupsWithSubgroups2.put("/scim/Members2/Subgroup1",
-//				SCIMTestHelper.getGroupContent("/scim/Members2/Subgroup1"));
-//		when(bulkService.getGroupAndSubgroups(eq(gdata2))).thenReturn(groupsWithSubgroups2);
 	}
 
 	private void addTwoMembersWithAttributeToAttrGroup() throws IllegalIdentityValueException, EngineException

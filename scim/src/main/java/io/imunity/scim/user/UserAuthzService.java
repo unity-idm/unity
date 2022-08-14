@@ -7,6 +7,7 @@ package io.imunity.scim.user;
 
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +88,10 @@ class UserAuthzService
 			throw new AuthorizationException("Access is denied");
 		}
 
-		if (!invocationContext.getScopes().stream().anyMatch(SCIMSystemScopeProvider.getScopeNames()::contains))
+		if (!invocationContext.getScopes().stream()
+				.anyMatch(SCIMSystemScopeProvider.getScopeNames().stream()
+						.filter(s -> !s.equals(SCIMSystemScopeProvider.READ_SELF_GROUP_SCOPE))
+						.collect(Collectors.toSet())::contains))
 		{
 			log.debug("Access is denied. Client does not have the required scopes");
 			throw new AuthorizationException("Access is denied");
