@@ -116,8 +116,7 @@ class GroupRetrievalService
 		Predicate<String> filter = authzMan.getFilter();
 		for (String configuredMemebershipGroup : configuration.membershipGroups.stream().filter(filter).sorted()
 				.collect(Collectors.toList()))
-		{
-			
+		{		
 			GroupContents main = allGroupsWithSubgroups.get(configuredMemebershipGroup);
 			if (main == null)
 			{
