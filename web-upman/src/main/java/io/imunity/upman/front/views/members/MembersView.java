@@ -15,13 +15,13 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import io.imunity.upman.utils.ProjectService;
-import io.imunity.upman.front.components.SearchField;
-import io.imunity.upman.front.components.UnityViewComponent;
+import io.imunity.upman.front.UnityViewComponent;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
+import io.imunity.upman.utils.ProjectService;
+import io.imunity.vaadin23.elements.SearchField;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 

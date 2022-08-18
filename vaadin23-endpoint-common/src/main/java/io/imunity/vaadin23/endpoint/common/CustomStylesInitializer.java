@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.front;
+package io.imunity.vaadin23.endpoint.common;
 
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +34,7 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 	@Override
 	public void serviceInit(ServiceInitEvent serviceInitEvent)
 	{
-		VaadinEndpointProperties currentWebAppVaadinProperties = getCurrentWebAppVaadinProperties();
+		Vaadin823EndpointProperties currentWebAppVaadinProperties = getCurrentWebAppVaadinProperties();
 		File externalCSSResource = currentWebAppVaadinProperties.getCustomCssFile();
 
 		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(externalCSSResource));

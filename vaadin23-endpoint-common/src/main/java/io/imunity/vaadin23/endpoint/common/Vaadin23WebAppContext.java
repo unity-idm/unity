@@ -6,7 +6,6 @@
 package io.imunity.vaadin23.endpoint.common;
 
 import org.eclipse.jetty.webapp.WebAppContext;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 import java.util.Optional;
 import java.util.Properties;
@@ -14,12 +13,12 @@ import java.util.Properties;
 public class Vaadin23WebAppContext extends WebAppContext
 {
 	public final Properties properties;
-	public final VaadinEndpointProperties vaadinEndpointProperties;
+	public final Vaadin823EndpointProperties vaadin23Properties;
 
-	public Vaadin23WebAppContext(Properties properties, VaadinEndpointProperties vaadinEndpointProperties)
+	public Vaadin23WebAppContext(Properties properties, Vaadin823EndpointProperties vaadinEndpointProperties)
 	{
 		this.properties = properties;
-		this.vaadinEndpointProperties = vaadinEndpointProperties;
+		this.vaadin23Properties = vaadinEndpointProperties;
 	}
 
 	public static Properties getCurrentWebAppContextProperties()
@@ -30,11 +29,11 @@ public class Vaadin23WebAppContext extends WebAppContext
 				.orElse(null);
 	}
 
-	public static VaadinEndpointProperties getCurrentWebAppVaadinProperties()
+	public static Vaadin823EndpointProperties getCurrentWebAppVaadinProperties()
 	{
 		return Optional.ofNullable(getCurrentWebAppContext())
 				.map(context -> (Vaadin23WebAppContext) context)
-				.map(context -> context.vaadinEndpointProperties)
+				.map(context -> context.vaadin23Properties)
 				.orElse(null);
 	}
 }

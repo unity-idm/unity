@@ -18,11 +18,12 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import io.imunity.upman.front.components.*;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.ProjectGroup;
+import io.imunity.vaadin23.elements.*;
 import pl.edu.icm.unity.MessageSource;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -95,7 +96,7 @@ class MenuItemFactory
 		SubProjectConfigurationLayout subProjectConfigurationLayout = new SubProjectConfigurationLayout(msg, content, group);
 		dialog.add(subProjectConfigurationLayout);
 
-		Button saveButton = new SubmitButton(msg);
+		Button saveButton = new SubmitButton(msg::getMessage);
 		saveButton.addClickListener(event ->
 		{
 			groupService.setGroupDelegationConfiguration(
@@ -120,7 +121,10 @@ class MenuItemFactory
 
 		FormLayout dialogLayout = new FormLayout();
 		dialogLayout.setWidth("30em");
-		LocaleTextFieldDetails localeTextFieldDetails = new LocaleTextFieldDetails(msg, msg.getMessage("AddGroupDialog.info", group.displayedName));
+		LocaleTextFieldDetails localeTextFieldDetails = new LocaleTextFieldDetails(
+				new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(),
+				msg.getMessage("AddGroupDialog.info", group.displayedName)
+		);
 
 		Checkbox isPublic = new Checkbox(msg.getMessage("AddGroupDialog.public"));
 		isPublic.setValue(group.isPublic);
@@ -139,7 +143,7 @@ class MenuItemFactory
 		verticalLayout.getStyle().set("gap", "unset");
 		dialog.add(verticalLayout);
 
-		Button saveButton = new SubmitButton(msg);
+		Button saveButton = new SubmitButton(msg::getMessage);
 		saveButton.addClickListener(event ->
 		{
 			Map<Locale, String> localeToTxt = localeTextFieldDetails.fields.stream()
@@ -163,7 +167,7 @@ class MenuItemFactory
 	private Dialog createConfirmDialog(String txt, Runnable runnable)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
-		dialog.addClassName("u-dialog-confirm");
+		dialog.addClassName(Vaadin23ClassNames.DIALOG_CONFIRM.getName());
 
 		Label label = new Label(txt);
 
@@ -172,7 +176,7 @@ class MenuItemFactory
 		dialogLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 		dialog.add(dialogLayout);
 
-		Button saveButton = new SubmitButton(msg);
+		Button saveButton = new SubmitButton(msg::getMessage);
 		saveButton.addClickListener(event ->
 		{
 			runnable.run();
@@ -188,7 +192,7 @@ class MenuItemFactory
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("GroupsComponent.renameGroupAction"));
 
-		LocaleTextFieldDetails details = new LocaleTextFieldDetails(msg, "");
+		LocaleTextFieldDetails details = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "");
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
 		dialogLayout.add(details);
@@ -208,7 +212,7 @@ class MenuItemFactory
 
 	private Button createRenameButton(ProjectGroup projectGroup, Group group, Dialog dialog, List<LocaleTextField> fields)
 	{
-		Button button = new SubmitButton(msg);
+		Button button = new SubmitButton(msg::getMessage);
 		button.addClassName("submit-button");
 		button.addClickListener(event ->
 		{

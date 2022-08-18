@@ -66,8 +66,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 	protected MessageSource msg;
 
 	protected InvocationContextSetupFilter contextSetupFilter;
-	protected VaadinEndpointProperties genericEndpointProperties;
-
+	protected Vaadin823EndpointProperties genericEndpointProperties;
 	protected final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 	
 	public Vaadin823Endpoint(NetworkServer server,
@@ -94,7 +93,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		try
 		{
 			properties.load(new StringReader(cfg));
-			genericEndpointProperties = new VaadinEndpointProperties(properties);
+			genericEndpointProperties = new Vaadin823EndpointProperties(properties);
 
 		} catch (Exception e)
 		{
@@ -165,13 +164,6 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		context.addServlet(new ServletHolder(new ForwardServlet()), "/*");
 
 		return context;
-	}
-
-	protected UnityBootstrapHandler getBootstrapHandler(String uiPath)
-	{
-		int sessionTimeout = description.getRealm().getMaxInactivity();
-		return getBootstrapHandlerGeneric(uiPath, getHeartbeatInterval(sessionTimeout),
-			genericEndpointProperties.getEffectiveMainTheme());
 	}
 
 	protected int getHeartbeatInterval(int sessionTimeout)

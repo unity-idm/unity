@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.front.components;
+package io.imunity.vaadin23.elements;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -16,19 +16,16 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 
 import static com.vaadin.flow.component.notification.Notification.Position.MIDDLE;
 import static com.vaadin.flow.component.notification.Notification.Position.TOP_END;
 
-@Component
 public class NotificationPresenter
 {
-	public static void showCriticalError(WebLogoutHandler webLogoutHandler, String header, String description)
+	public static void showCriticalError(Runnable logout, String header, String description)
 	{
 		ErrorNotification errorNotification = new ErrorNotification(header, description);
-		errorNotification.closeButton.addClickListener(event -> webLogoutHandler.logout());
+		errorNotification.closeButton.addClickListener(event -> logout.run());
 		errorNotification.open();
 	}
 

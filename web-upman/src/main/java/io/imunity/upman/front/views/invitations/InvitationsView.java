@@ -15,10 +15,11 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
-import io.imunity.upman.front.components.*;
+import io.imunity.upman.front.UnityViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
+import io.imunity.vaadin23.elements.*;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.List;
@@ -91,7 +92,7 @@ public class InvitationsView extends UnityViewComponent
 		InvitationForm invitationForm = new InvitationForm(msg, projectGroup, projectService.getProjectGroups(projectGroup).getAllOffspring(), getContent());
 		dialog.add(invitationForm);
 
-		Button saveButton = new SubmitButton(msg);
+		Button saveButton = new SubmitButton(msg::getMessage);
 		saveButton.addClickListener(event ->
 		{
 			if(invitationForm.isValid())

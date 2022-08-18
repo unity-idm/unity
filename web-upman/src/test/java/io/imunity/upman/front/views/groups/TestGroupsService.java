@@ -5,10 +5,9 @@
 
 package io.imunity.upman.front.views.groups;
 
-import io.imunity.upman.front.components.NotificationPresenter;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.ProjectGroup;
-import io.imunity.upman.front.views.groups.GroupService;
+import io.imunity.vaadin23.elements.NotificationPresenter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -5,10 +5,10 @@
 
 package io.imunity.upman.utils;
 
-import io.imunity.upman.front.components.NotificationPresenter;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
+import io.imunity.vaadin23.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;
@@ -54,13 +54,13 @@ public class ProjectService
 		} catch (Exception e)
 		{
 			log.warn("Can not get projects for entity " + entityId, e);
-			NotificationPresenter.showCriticalError(logoutHandler, msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+			NotificationPresenter.showCriticalError(logoutHandler::logout, msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 			return List.of();
 		}
 
 		if (projects.isEmpty())
 		{
-			NotificationPresenter.showCriticalError(logoutHandler, msg.getMessage("ProjectController.noProjectAvailable"), null);
+			NotificationPresenter.showCriticalError(logoutHandler::logout, msg.getMessage("ProjectController.noProjectAvailable"), null);
 			return List.of();
 		}
 

@@ -86,6 +86,7 @@
 		<module>scim</module>
         <module>unity-rest-api</module>
         <module>vaadin23-endpoint-common</module>
+        <module>vaadin23-elements</module>
     </modules>
 
 	<developers>

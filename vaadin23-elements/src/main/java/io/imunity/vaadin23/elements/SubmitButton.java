@@ -3,17 +3,18 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.front.components;
+package io.imunity.vaadin23.elements;
 
 
 import com.vaadin.flow.component.button.Button;
-import pl.edu.icm.unity.MessageSource;
+
+import java.util.function.Function;
 
 public class SubmitButton extends Button
 {
-	public SubmitButton(MessageSource msg)
+	public SubmitButton(Function<String, String> messageGetter)
 	{
-		super(msg.getMessage("OK"));
-		addClassName("submit-button");
+		super(messageGetter.apply("OK"));
+		addClassName(Vaadin23ClassNames.SUBMIT_BUTTON.getName());
 	}
 }

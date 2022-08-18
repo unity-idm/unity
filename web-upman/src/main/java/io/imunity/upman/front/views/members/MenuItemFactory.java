@@ -22,12 +22,13 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.NavigationTrigger;
 import com.vaadin.flow.router.Route;
-import io.imunity.upman.front.components.BaseDialog;
-import io.imunity.upman.front.components.MenuButton;
-import io.imunity.upman.front.components.SubmitButton;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
+import io.imunity.vaadin23.elements.BaseDialog;
+import io.imunity.vaadin23.elements.MenuButton;
+import io.imunity.vaadin23.elements.SubmitButton;
+import io.imunity.vaadin23.elements.Vaadin23ClassNames;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -150,7 +151,7 @@ class MenuItemFactory
 	private Dialog createSelfRemoveDialog(String txt, Runnable job)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
-		dialog.addClassName("u-dialog-confirm");
+		dialog.addClassName(Vaadin23ClassNames.DIALOG_CONFIRM.getName());
 		dialog.add(new VerticalLayout(new Label(txt)));
 
 		Button saveButton = new Button(msg.getMessage("OK"), e ->
@@ -237,7 +238,7 @@ class MenuItemFactory
 
 	private Button createSetSubProjectRoleButton(ProjectGroup projectGroup, Group group, Dialog dialog, RadioButtonGroup<GroupAuthorizationRole> radioGroup, Set<MemberModel> items)
 	{
-		Button button = new SubmitButton(msg);
+		Button button = new SubmitButton(msg::getMessage);
 		button.addClickListener(event ->
 		{
 			groupMembersController.updateRole(projectGroup, group, radioGroup.getValue(), items);
@@ -249,7 +250,7 @@ class MenuItemFactory
 
 	private Button createSetProjectRoleButton(ProjectGroup projectGroup, Group group, Dialog dialog, RadioButtonGroup<GroupAuthorizationRole> radioGroup, Set<MemberModel> items)
 	{
-		Button button = new SubmitButton(msg);
+		Button button = new SubmitButton(msg::getMessage);
 		button.addClickListener(event ->
 		{
 			GroupAuthorizationRole role = radioGroup.getValue();
@@ -275,7 +276,7 @@ class MenuItemFactory
 
 	private Button createAddToGroupButton(ProjectGroup projectGroup, Dialog dialog, ComboBox<GroupTreeNode> comboBox, Set<MemberModel> members)
 	{
-		Button button = new SubmitButton(msg);
+		Button button = new SubmitButton(msg::getMessage);
 		button.addClickListener(event ->
 		{
 			GroupTreeNode value = comboBox.getValue();

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.front;
+package io.imunity.vaadin23.elements;
 
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.html.Div;
@@ -15,11 +15,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
-import static org.apache.logging.log4j.util.Strings.isEmpty;
-
 public class ExtraLayoutPanel extends Div
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	private boolean empty;
 
 	public ExtraLayoutPanel(String id, File panelFile) {
 		setId(id);
@@ -31,21 +30,30 @@ public class ExtraLayoutPanel extends Div
 				{
 					final Html html = new Html(new FileInputStream(panelFile));
 					getElement().appendChild(html.getElement());
+					empty = false;
 				} else
 				{
 					LOG.error("Configured Panel File: {}, couldn't be read, file is unreachable",
 							panelFile.getParent());
+					empty = true;
 				}
 			} catch (IOException | IllegalArgumentException exception)
 			{
 				LOG.error("Could not load panel: " + id, exception);
+				empty = true;
 			}
 		}
 	}
 
+
+	public boolean isEmpty()
+	{
+		return empty;
+	}
+
 	private boolean isPanelFileReadable(File panelFile)
 	{
-		return !isEmpty(panelFile.getPath())
+		return !panelFile.getPath().isBlank()
 				&& panelFile.exists()
 				&& panelFile.isFile();
 	}

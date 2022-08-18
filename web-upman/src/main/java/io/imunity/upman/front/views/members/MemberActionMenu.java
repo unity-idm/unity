@@ -6,10 +6,10 @@
 package io.imunity.upman.front.views.members;
 
 import com.vaadin.flow.component.contextmenu.MenuItem;
-import io.imunity.upman.front.components.ActionMenu;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
+import io.imunity.vaadin23.elements.ActionMenu;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
 import java.util.List;

@@ -5,9 +5,9 @@
 
 package io.imunity.upman.front.views.user_updates;
 
-import io.imunity.upman.front.components.NotificationPresenter;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
+import io.imunity.vaadin23.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;

@@ -5,7 +5,10 @@
 
 package io.imunity.upman.front.views;
 
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Anchor;
@@ -17,17 +20,17 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NavigationTrigger;
-import io.imunity.upman.utils.HomeServiceLinkService;
-import io.imunity.upman.utils.ProjectService;
-import io.imunity.upman.utils.Vaddin23WebLogoutHandler;
 import io.imunity.upman.front.UnityAppLayout;
-import io.imunity.upman.front.components.MenuComponent;
-import io.imunity.upman.front.components.UnityViewComponent;
+import io.imunity.upman.front.UnityViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.groups.GroupsView;
 import io.imunity.upman.front.views.invitations.InvitationsView;
 import io.imunity.upman.front.views.members.MembersView;
 import io.imunity.upman.front.views.user_updates.UserUpdatesView;
+import io.imunity.upman.utils.HomeServiceLinkService;
+import io.imunity.upman.utils.ProjectService;
+import io.imunity.upman.utils.Vaddin23WebLogoutHandler;
+import io.imunity.vaadin23.elements.MenuComponent;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;

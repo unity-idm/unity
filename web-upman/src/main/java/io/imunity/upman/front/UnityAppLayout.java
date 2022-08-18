@@ -8,15 +8,15 @@ package io.imunity.upman.front;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
-import io.imunity.upman.front.components.MenuComponent;
 import io.imunity.upman.utils.Vaddin23WebLogoutHandler;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import io.imunity.vaadin23.elements.ExtraLayoutPanel;
+import io.imunity.vaadin23.elements.MenuComponent;
+import io.imunity.vaadin23.endpoint.common.Vaadin823EndpointProperties;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout
 {
 
 	private final UnityAppLayoutComponentsHolder appLayoutComponents;
-	private final VaadinEndpointProperties vaadinEndpointProperties;
+	private final Vaadin823EndpointProperties vaadinEndpointProperties;
 	private VerticalLayout leftContainerContent;
 
 	public UnityAppLayout(List<MenuComponent> menuComponents,
@@ -50,10 +50,13 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout
 	{
 		setId("unity-layout");
 
-		Div top = new ExtraLayoutPanel("unity-layout-top", vaadinEndpointProperties.getExtraTopPanel());
-		Div left = new ExtraLayoutPanel("unity-layout-left", vaadinEndpointProperties.getExtraLeftPanel());
-		Div right = new ExtraLayoutPanel("unity-layout-right", vaadinEndpointProperties.getExtraRightPanel());
-		Div bottom = new ExtraLayoutPanel("unity-layout-bottom", vaadinEndpointProperties.getExtraBottomPanel());
+		ExtraLayoutPanel top = new ExtraLayoutPanel("unity-layout-top", vaadinEndpointProperties.getExtraTopPanel());
+		ExtraLayoutPanel left = new ExtraLayoutPanel("unity-layout-left", vaadinEndpointProperties.getExtraLeftPanel());
+		ExtraLayoutPanel right = new ExtraLayoutPanel("unity-layout-right", vaadinEndpointProperties.getExtraRightPanel());
+		ExtraLayoutPanel bottom = new ExtraLayoutPanel("unity-layout-bottom", vaadinEndpointProperties.getExtraBottomPanel());
+
+		if(bottom.isEmpty() && top.isEmpty())
+			setHeight("100%");
 
 		HorizontalLayout mainLayout = new HorizontalLayout();
 		mainLayout.setId("unity-main-container");

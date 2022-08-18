@@ -5,12 +5,12 @@
 
 package io.imunity.upman.front.views;
 
-import io.imunity.upman.utils.ProjectService;
-import io.imunity.upman.utils.Vaddin23WebLogoutHandler;
-import io.imunity.upman.front.components.NotificationPresenter;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
+import io.imunity.upman.utils.ProjectService;
+import io.imunity.upman.utils.Vaddin23WebLogoutHandler;
+import io.imunity.vaadin23.elements.NotificationPresenter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

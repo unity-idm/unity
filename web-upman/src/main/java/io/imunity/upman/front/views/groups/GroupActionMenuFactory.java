@@ -6,9 +6,9 @@
 package io.imunity.upman.front.views.groups;
 
 import com.vaadin.flow.component.Component;
-import io.imunity.upman.front.components.ActionMenu;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
+import io.imunity.vaadin23.elements.ActionMenu;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
 class GroupActionMenuFactory

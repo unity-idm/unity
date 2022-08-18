@@ -12,8 +12,8 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import io.imunity.upman.front.components.BlankPageAnchor;
-import io.imunity.upman.front.components.TooltipAttacher;
+import io.imunity.vaadin23.elements.BlankPageAnchor;
+import io.imunity.vaadin23.elements.TooltipAttacher;
 import pl.edu.icm.unity.MessageSource;
 
 import java.time.Instant;

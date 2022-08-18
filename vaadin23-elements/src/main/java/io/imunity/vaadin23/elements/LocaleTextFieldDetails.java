@@ -3,22 +3,23 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.front.components;
+package io.imunity.vaadin23.elements;
 
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import pl.edu.icm.unity.MessageSource;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class LocaleTextFieldDetails extends VerticalLayout
 {
 	public List<LocaleTextField> fields = new LinkedList<>();
 
-	public LocaleTextFieldDetails(MessageSource msg, String label)
+	public LocaleTextFieldDetails(Set<Locale> enabledLocales, Locale currentLocale, String label)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
@@ -40,7 +41,7 @@ public class LocaleTextFieldDetails extends VerticalLayout
 			content.setVisible(false);
 		});
 
-		LocaleTextField defaultField = new LocaleTextField(msg.getLocale());
+		LocaleTextField defaultField = new LocaleTextField(currentLocale);
 		defaultField.setLabel(label);
 		fields.add(defaultField);
 
@@ -48,8 +49,8 @@ public class LocaleTextFieldDetails extends VerticalLayout
 		summary.setAlignItems(Alignment.CENTER);
 		summary.getStyle().set("gap", "0.3em");
 
-		msg.getEnabledLocales().values().stream()
-				.filter(locale -> !msg.getLocale().equals(locale))
+		enabledLocales.stream()
+				.filter(locale -> !currentLocale.equals(locale))
 				.forEach(locale ->
 				{
 					LocaleTextField localeTextField = new LocaleTextField(locale);

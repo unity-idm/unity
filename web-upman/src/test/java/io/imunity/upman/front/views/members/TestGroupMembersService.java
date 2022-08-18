@@ -6,11 +6,9 @@
 package io.imunity.upman.front.views.members;
 
 import com.google.common.collect.Sets;
-import io.imunity.upman.front.components.NotificationPresenter;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.ProjectGroup;
-import io.imunity.upman.front.views.members.GroupMembersService;
-import io.imunity.upman.front.views.members.MemberModel;
+import io.imunity.vaadin23.elements.NotificationPresenter;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

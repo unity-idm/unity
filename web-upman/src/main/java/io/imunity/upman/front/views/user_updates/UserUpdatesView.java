@@ -14,9 +14,13 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
-import io.imunity.upman.front.components.*;
+import io.imunity.upman.front.UnityViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
+import io.imunity.vaadin23.elements.ActionMenu;
+import io.imunity.vaadin23.elements.BlankPageAnchor;
+import io.imunity.vaadin23.elements.MenuButton;
+import io.imunity.vaadin23.elements.SearchField;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.Set;

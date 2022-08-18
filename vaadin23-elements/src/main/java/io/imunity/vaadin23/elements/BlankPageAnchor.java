@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.front.components;
+package io.imunity.vaadin23.elements;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Anchor;

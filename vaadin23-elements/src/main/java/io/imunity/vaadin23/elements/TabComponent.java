@@ -2,13 +2,13 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.upman.front.components;
+package io.imunity.vaadin23.elements;
 
-import com.google.common.collect.Lists;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.router.RouterLink;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class TabComponent extends Tab
 	{
 		super(menu.icon.create(), new RouterLink(menu.tabName, menu.component));
 		name = menu.tabName;
-		List<Class<? extends Component>> components = Lists.newArrayList(menu.component);
+		List<Class<? extends Component>> components = new ArrayList<>(List.of(menu.component));
 		components.addAll(menu.subViews);
 		this.componentClass = Collections.unmodifiableList(components);
 	}
