@@ -85,7 +85,7 @@ public class TestJsonDumpUpdateFromV16
 		boolean trustedTabDisabled = false;
 		for (Object key : configProp.keySet().stream().filter(k -> k.toString().startsWith("unity.userhome.disabledComponents.")).collect(Collectors.toSet()))
 		{
-			if (configProp.get(key).equals("trustedApplicationTab"))
+			if (configProp.get(key).equals("trustedApplications"))
 			{
 				trustedTabDisabled = true;
 			}
@@ -93,7 +93,7 @@ public class TestJsonDumpUpdateFromV16
 		
 		if (!trustedTabDisabled)
 		{
-			fail("trustedApplicationTab should be disabled");
+			fail("trustedApplications should be disabled");
 		}
 		
 		
