@@ -58,8 +58,8 @@ class HomeEndpointConfigurationMigrator
 
 		if (toRemove.values().containsAll(Set.of(PREFERENCES_COMPONENT_ID, OAUTH_TOKENS_COMPONENT_ID)))
 		{
-			raw.put(DISABLED_COMPONENTS_PREFIX + ".trustedApplicationTab" + raw.keySet().size(),
-					"trustedApplicationTab");
+			raw.put(DISABLED_COMPONENTS_PREFIX + ".trustedApplications" + raw.keySet().size(),
+					"trustedApplications");
 		}
 
 		return getAsString(raw);
