@@ -68,7 +68,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 		return new ArrayList<String>(Arrays.asList(HomeEndpointProperties.Components.credentialTab.toString(),
 				HomeEndpointProperties.Components.userDetailsTab.toString(),
 				HomeEndpointProperties.Components.accountUpdateTab.toString(),
-				HomeEndpointProperties.Components.trustedApplicationTab.toString()));
+				HomeEndpointProperties.Components.trustedApplications.toString()));
 	}
 
 	public static List<String> getAvailableControls()

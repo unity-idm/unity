@@ -150,7 +150,7 @@ public class UserAccountComponent extends VerticalLayout
 		if (!disabled.contains(HomeEndpointProperties.Components.credentialTab.toString()))
 			addCredentials(tabPanel, theUser, config.getBooleanValue(HomeEndpointProperties.DISABLE_2ND_FACTOR_OPT_IN));
 
-		if (!disabled.contains(HomeEndpointProperties.Components.trustedApplicationTab.toString()))
+		if (!disabled.contains(HomeEndpointProperties.Components.trustedApplications.toString()))
 			addTrustedApplicationATab(tabPanel);
 
 		if (!disabled.contains(HomeEndpointProperties.Components.accountUpdateTab.toString()))

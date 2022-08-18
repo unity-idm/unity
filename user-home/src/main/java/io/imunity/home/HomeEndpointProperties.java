@@ -31,7 +31,7 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, HomeEndpointProperties.class);
 
-	public enum Components {credentialTab, trustedApplicationTab, userDetailsTab, accountUpdateTab, 
+	public enum Components {credentialTab, trustedApplications, userDetailsTab, accountUpdateTab, 
 		accountRemoval, attributesManagement, userInfo, identitiesManagement,
 		accountLinking};
 
