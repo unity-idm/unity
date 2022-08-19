@@ -48,6 +48,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthToken.PKCSInfo;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenFactory;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -63,14 +64,13 @@ public class OAuthProcessor
 {
 	public static final String INTERNAL_CODE_TOKEN = "oauth2Code";
 
-	public static final String INTERNAL_REFRESH_TOKEN = "oauth2Refresh";
 	
 	
 	private final TokensManagement tokensMan;
-	private final OAuthTokenRepository tokenDAO;
+	private final OAuthAccessTokenRepository tokenDAO;
 
 	@Autowired
-	public OAuthProcessor(TokensManagement tokensMan, OAuthTokenRepository tokenDAO,
+	public OAuthProcessor(TokensManagement tokensMan, OAuthAccessTokenRepository tokenDAO,
 			ApplicationEventPublisher eventPublisher, MessageSource msg)
 	{
 		this.tokensMan = tokensMan;

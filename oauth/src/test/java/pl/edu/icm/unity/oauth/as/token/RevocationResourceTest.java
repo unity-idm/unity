@@ -33,7 +33,6 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -198,7 +197,7 @@ public class RevocationResourceTest
 			SessionManagement sessionManagement, 
 			AuthenticationRealm realm)
 	{
-		return new RevocationResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
+		return new RevocationResource(tokensManagement, new OAuthAccessTokenRepository(tokensManagement, 
 				mock(SecuredTokensManagement.class)), sessionManagement, realm, false);
 	}
 	

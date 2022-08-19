@@ -65,11 +65,10 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
+import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -98,7 +97,7 @@ public class AccessTokenResource extends BaseOAuthResource
 	public static final String ID_TOKEN_TYPE_ID = "urn:ietf:params:oauth:token-type:id_token";
 	public static final String EXCHANGE_SCOPE = "token-exchange";
 
-	private TokensManagement tokensManagement;
+	//private TokensManagement tokensManagement;
 	private OAuthASProperties config;
 	private ClientCredentialsProcessor clientGrantProcessor;
 	private OAuthIdPEngine notAuthorizedOauthIdpEngine;
@@ -107,16 +106,20 @@ public class AccessTokenResource extends BaseOAuthResource
 	private AuthzCodeHandler authzCodeHandler;
 
 	private final AccessTokenFactory accessTokenFactory;
-	private final OAuthTokenRepository oauthTokensDAO;
+	private final OAuthAccessTokenRepository accessTokensDAO;
+	private final TokenCleaner tokenCleaner;
+	private final OAuthRefreshTokenRepository refreshTokensDAO;
 	private final OAuthTokenStatisticPublisher statisticPublisher;
 
-	public AccessTokenResource(TokensManagement tokensManagement, OAuthTokenRepository oauthTokensDAO,
+	public AccessTokenResource(TokensManagement tokensManagement, OAuthAccessTokenRepository accessTokensDAO,
+			OAuthRefreshTokenRepository refreshTokensDAO, TokenCleaner tokenCleaner, 
 			OAuthASProperties config, OAuthRequestValidator requestValidator, IdPEngine idpEngineInsecure,
 			EntityManagement idMan, TransactionalRunner tx, ApplicationEventPublisher eventPublisher, MessageSource msg,
 			EndpointManagement endpointMan, LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement, ResolvedEndpoint endpoint)
 	{
-		this.tokensManagement = tokensManagement;
-		this.oauthTokensDAO = oauthTokensDAO;
+		this.accessTokensDAO = accessTokensDAO;
+		this.refreshTokensDAO = refreshTokensDAO;
+		this.tokenCleaner = tokenCleaner;
 		this.config = config;
 		this.clientGrantProcessor = new ClientCredentialsProcessor(requestValidator, idpEngineInsecure, config);
 		this.notAuthorizedOauthIdpEngine = new OAuthIdPEngine(idpEngineInsecure);
@@ -124,7 +127,8 @@ public class AccessTokenResource extends BaseOAuthResource
 		this.idMan = idMan;
 		accessTokenFactory = new AccessTokenFactory(config);
 		this.statisticPublisher = new OAuthTokenStatisticPublisher(eventPublisher, msg, idMan, requestValidator, endpoint, endpointMan, lastIdPClinetAccessAttributeManagement);
-		this.authzCodeHandler = new AuthzCodeHandler(tokensManagement, oauthTokensDAO, config, tx, accessTokenFactory, statisticPublisher);
+		this.authzCodeHandler = new AuthzCodeHandler(tokensManagement, accessTokensDAO, refreshTokensDAO, config, tx,
+				accessTokenFactory, statisticPublisher);
 	}
 
 	@Path("/")
@@ -247,7 +251,7 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		try
 		{
-			subToken = oauthTokensDAO.readAccessToken(subjectToken);
+			subToken = accessTokensDAO.readAccessToken(subjectToken);
 			parsedSubjectToken = parseInternalToken(subToken);
 		} catch (Exception e)
 		{
@@ -293,8 +297,8 @@ public class AccessTokenResource extends BaseOAuthResource
 		AccessToken accessToken = accessTokenFactory.create(newToken, now, acceptHeader);
 		newToken.setAccessToken(accessToken.getValue());
 
-		RefreshToken refreshToken = TokenUtils.addRefreshToken(config, tokensManagement, now, newToken,
-				subToken.getOwner());
+		RefreshToken refreshToken = refreshTokensDAO.addRefreshTokenIfNeeded(config, now, newToken,
+				subToken.getOwner(), Optional.empty());
 		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
 		Map<String, Object> additionalParams = new HashMap<>();
@@ -302,7 +306,7 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(newToken, accessToken, refreshToken,
 				additionalParams);
-		oauthTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(subToken.getOwner()), now,
+		accessTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(subToken.getOwner()), now,
 				accessExpiration);
 		statisticPublisher.reportSuccess(parsedSubjectToken.getClientUsername(), parsedSubjectToken.getClientName(), new EntityParam(subToken.getOwner()));
 
@@ -312,17 +316,23 @@ public class AccessTokenResource extends BaseOAuthResource
 	private Response handleRefreshToken(String refToken, String scope, String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
+	
+		if (checkIsUsedRefreshToken(refToken))
+		{
+			return makeError(OAuth2Error.INVALID_REQUEST, "used refresh token");
+		}
+		
 		Token refreshToken = null;
 		OAuthToken parsedRefreshToken = null;
 		try
 		{
-			refreshToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, refToken);
+			refreshToken = refreshTokensDAO.readRefreshToken(refToken);
 			parsedRefreshToken = parseInternalToken(refreshToken);
 		} catch (Exception e)
 		{
 			return makeError(OAuth2Error.INVALID_REQUEST, "wrong refresh token");
 		}
-
+		
 		long callerEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
 		if (parsedRefreshToken.getClientId() != callerEntityId)
 		{
@@ -347,21 +357,41 @@ public class AccessTokenResource extends BaseOAuthResource
 		{
 			return e.response;
 		}
-
+		
 		Date now = new Date();
 		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
 		AccessToken accessToken = accessTokenFactory.create(newToken, now, acceptHeader);
 		newToken.setAccessToken(accessToken.getValue());
 
-		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(newToken, accessToken, null, null);
+		RefreshToken rolledRefreshToken = refreshTokensDAO.rollRefreshTokenIfNeeded(config, now, newToken,
+				parsedRefreshToken, refreshToken.getOwner());
+						
+		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(newToken, accessToken, rolledRefreshToken, null);
 		log.info("Refreshed access token {} of entity {}, valid until {}", tokenToLog(accessToken.getValue()),
 				refreshToken.getOwner(), accessExpiration);
-		oauthTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(refreshToken.getOwner()), now,
+		accessTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(refreshToken.getOwner()), now,
 				accessExpiration);
 
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 
+	}
+
+	private boolean checkIsUsedRefreshToken(String refToken)
+	{
+		if (config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROLLING_FOR_PUBLIC_CLIENTS))
+		{
+			Optional<Token> usedRefreshToken = refreshTokensDAO.isUsedRefreshToken(refToken);
+			if (!usedRefreshToken.isEmpty())
+			{
+				OAuthToken oldRefreshToken = OAuthToken.getInstanceFromJson(usedRefreshToken.get().getContents());
+				tokenCleaner.removeTokensForClient(oldRefreshToken.getClientId(), usedRefreshToken.get().getOwner(),
+						oldRefreshToken.getFirstRefreshRollingToken());
+				log.warn("Trying to reuse already used refresh token, revoke the currently active oauth tokens");
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private Response handleClientCredentialFlow(String scope, String acceptHeader)
@@ -389,7 +419,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		AccessTokenResponse oauthResponse = new AccessTokenResponse(new Tokens(accessToken, null));
 
 		statisticPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName(), new EntityParam(internalToken.getClientId()));
-		oauthTokensDAO.storeAccessToken(accessToken, internalToken, new EntityParam(internalToken.getClientId()), now,
+		accessTokensDAO.storeAccessToken(accessToken, internalToken, new EntityParam(internalToken.getClientId()), now,
 				expiration);
 
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));

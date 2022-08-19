@@ -24,7 +24,7 @@ import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties.VerificationProtocol;
@@ -49,14 +49,14 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 {
 	private static final int LINK_FIELD_WIDTH = 50;
 
-	private OAuthTokenRepository tokenMan;
+	private OAuthAccessTokenRepository tokenMan;
 	private PKIManagement pkiMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	private Set<String> validators;
 	private Binder<OAuthRPConfiguration> configBinder;
 
-	OAuthRPAuthenticatorEditor(MessageSource msg, OAuthTokenRepository tokenMan, PKIManagement pkiMan,
+	OAuthRPAuthenticatorEditor(MessageSource msg, OAuthAccessTokenRepository tokenMan, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory) throws EngineException
 	{
 		super(msg);

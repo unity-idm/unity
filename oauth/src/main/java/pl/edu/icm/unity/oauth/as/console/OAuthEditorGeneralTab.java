@@ -335,7 +335,13 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 				.bind("refreshTokenExpiration");
 		refreshTokenExp.setEnabled(false);
 		mainGeneralLayout.addComponent(refreshTokenExp);
-
+		
+		
+		CheckBox refreshTokenRollingForPublicClients = new CheckBox(
+				msg.getMessage("OAuthEditorGeneralTab.refreshTokenRollingForPublicClients"));
+		configBinder.forField(refreshTokenRollingForPublicClients).bind("refreshTokenRollingForPublicClients");
+		mainGeneralLayout.addComponent(refreshTokenRollingForPublicClients);		
+				
 		IntStepper extendAccessTokenValidity = new IntStepper();
 
 		CheckBox supportExtendAccessTokenValidity = new CheckBox(

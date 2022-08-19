@@ -39,7 +39,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.TestTxRunner;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -119,7 +118,7 @@ public class TokenIntrospectionResourceTest
 				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		TransactionalRunner tx = new TestTxRunner();
 		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement,
-				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)), config, null, null,
+				new OAuthAccessTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)), config, null, null,
 				null, tx, mock(ApplicationEventPublisher.class), null, null, mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
 		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
@@ -178,7 +177,7 @@ public class TokenIntrospectionResourceTest
 	
 	private TokenIntrospectionResource createIntrospectionResource(TokensManagement tokensManagement)
 	{
-		return new TokenIntrospectionResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
+		return new TokenIntrospectionResource(tokensManagement, new OAuthAccessTokenRepository(tokensManagement, 
 				mock(SecuredTokensManagement.class)));
 	}
 }

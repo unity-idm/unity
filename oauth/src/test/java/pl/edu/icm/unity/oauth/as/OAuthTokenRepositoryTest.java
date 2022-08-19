@@ -18,6 +18,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenFactory;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenFactoryTest;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class OAuthTokenRepositoryTest
@@ -26,7 +27,7 @@ public class OAuthTokenRepositoryTest
 	public void shouldReadStoredJWTToken() throws Exception
 	{
 		TokensManagement tokensMan = new MockTokensMan();
-		OAuthTokenRepository repository = new OAuthTokenRepository(tokensMan, null);
+		OAuthAccessTokenRepository repository = new OAuthAccessTokenRepository(tokensMan, null);
 		
 		AccessTokenFactory factory = AccessTokenFactoryTest.getFactory(AccessTokenFormat.JWT);
 		OAuthToken oauthToken = AccessTokenFactoryTest.getFakeToken();

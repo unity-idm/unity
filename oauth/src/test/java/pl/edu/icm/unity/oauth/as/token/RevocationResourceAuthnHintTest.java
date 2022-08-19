@@ -40,7 +40,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.TestTxRunner;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -86,7 +85,7 @@ public class RevocationResourceAuthnHintTest
 				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		TransactionalRunner tx = new TestTxRunner();
 		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement,
-				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)), config, null, null,
+				new OAuthAccessTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)), config, null, null,
 				null, tx, mock(ApplicationEventPublisher.class), null, mock(EndpointManagement.class), mock(LastIdPClinetAccessAttributeManagement.class),
 				OAuthTestUtils.getEndpoint());
 		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
@@ -157,7 +156,7 @@ public class RevocationResourceAuthnHintTest
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		RevocationResource tested = new RevocationResource(tokensManagement, 
-				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)),
+				new OAuthAccessTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)),
 				mock(SessionManagement.class),
 				new AuthenticationRealm(),
 				true);
@@ -208,7 +207,7 @@ public class RevocationResourceAuthnHintTest
 	private RevocationResource createRevocationResource(TokensManagement tokensManagement)
 	{
 		return new RevocationResource(tokensManagement, 
-				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)),
+				new OAuthAccessTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)),
 				mock(SessionManagement.class),
 				new AuthenticationRealm(),
 				false);

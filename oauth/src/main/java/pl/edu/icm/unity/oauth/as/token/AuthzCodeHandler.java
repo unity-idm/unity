@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.Date;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthToken.PKCSInfo;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -46,16 +46,19 @@ class AuthzCodeHandler
 	private OAuthASProperties config;
 	private TransactionalRunner tx;
 	private AccessTokenFactory accessTokenFactory;
-	private OAuthTokenRepository oauthTokenDAO;
+	private final OAuthAccessTokenRepository accessTokenDAO;
+	private final OAuthRefreshTokenRepository refreshTokenDAO;
 	private OAuthTokenStatisticPublisher statisticsPublisher;
 	
-	AuthzCodeHandler(TokensManagement tokensManagement, OAuthTokenRepository oauthTokenDAO,
+	AuthzCodeHandler(TokensManagement tokensManagement, OAuthAccessTokenRepository accessTokenDAO,
+			OAuthRefreshTokenRepository refreshTokenDAO,
 			OAuthASProperties config, TransactionalRunner tx, 
 			AccessTokenFactory accesstokenFactory,
 			OAuthTokenStatisticPublisher statisticsPublisher)
 	{
 		this.tokensManagement = tokensManagement;
-		this.oauthTokenDAO = oauthTokenDAO;
+		this.accessTokenDAO = accessTokenDAO;
+		this.refreshTokenDAO = refreshTokenDAO;
 		this.config = config;
 		this.tx = tx;
 		this.accessTokenFactory = accesstokenFactory;
@@ -109,8 +112,9 @@ class AuthzCodeHandler
 		AccessToken accessToken = accessTokenFactory.create(internalToken, now, acceptHeader);
 		internalToken.setAccessToken(accessToken.getValue());
 
-		RefreshToken refreshToken = TokenUtils.addRefreshToken(config, tokensManagement, 
-				now, internalToken, codeToken.getOwner());
+		RefreshToken refreshToken = refreshTokenDAO.addRefreshTokenIfNeeded(config, 
+				now, internalToken, codeToken.getOwner(), Optional.empty());
+		
 		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
 		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(internalToken,
@@ -118,7 +122,7 @@ class AuthzCodeHandler
 		log.info("Authz code grant: issuing new access token {}, valid until {}", 
 				BaseOAuthResource.tokenToLog(accessToken.getValue()), 
 				accessExpiration);
-		oauthTokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(codeToken.getOwner()), 
+		accessTokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(codeToken.getOwner()), 
 				now, accessExpiration);
 
 		statisticsPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName(), new EntityParam(codeToken.getOwner()));		

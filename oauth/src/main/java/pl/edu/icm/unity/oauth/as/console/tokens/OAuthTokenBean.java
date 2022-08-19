@@ -14,9 +14,9 @@ import com.nimbusds.jwt.SignedJWT;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.BearerJWTAccessToken;
+import pl.edu.icm.unity.oauth.as.token.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 class OAuthTokenBean implements FilterableEntry
@@ -158,6 +158,6 @@ class OAuthTokenBean implements FilterableEntry
 
 	public boolean isRefreshToken()
 	{
-		return token.getType().equals(OAuthProcessor.INTERNAL_REFRESH_TOKEN);
+		return OAuthRefreshTokenRepository.isRefreshToken(token);
 	}
 }

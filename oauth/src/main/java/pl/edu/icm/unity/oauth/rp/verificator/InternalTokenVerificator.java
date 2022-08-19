@@ -10,7 +10,7 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 
 /**
  * Verifies the token against internal Unity's token storage, i.e. the token is checked if was 
@@ -20,9 +20,9 @@ import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
  */
 public class InternalTokenVerificator implements TokenVerificatorProtocol
 {
-	private OAuthTokenRepository tokensDAO;
+	private OAuthAccessTokenRepository tokensDAO;
 	
-	public InternalTokenVerificator(OAuthTokenRepository tokensDAO)
+	public InternalTokenVerificator(OAuthAccessTokenRepository tokensDAO)
 	{
 		this.tokensDAO = tokensDAO;
 	}

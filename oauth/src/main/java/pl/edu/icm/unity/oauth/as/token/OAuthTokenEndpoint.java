@@ -37,7 +37,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.exception.OAuthExceptionMapper;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
@@ -68,7 +67,6 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	public static final String TOKEN_INTROSPECTION_PATH = "/introspect";
 	public static final String TOKEN_REVOCATION_PATH = "/revoke";
 	
-	private TokensManagement tokensManagement;
 	private PKIManagement pkiManagement;
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
@@ -77,11 +75,13 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private final ApplicationEventPublisher eventPublisher;
 	private final OAuthScopesService scopeService;
 	private final LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement;
-	
+	private final TokensManagement tokensManagement;
 	//insecure
 	private AttributesManagement attributesMan;
 	private EntityManagement identitiesMan;
-	private OAuthTokenRepository oauthTokenRepository;
+	private final OAuthAccessTokenRepository accessTokenRepository;
+	private final OAuthRefreshTokenRepository refreshTokenRepository;
+	private final TokenCleaner tokenCleaner;
 	private final EndpointManagement endpointMan;
 	
 	
@@ -89,7 +89,6 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	public OAuthTokenEndpoint(MessageSource msg,
 			SessionManagement sessionMan,
 			NetworkServer server,
-			TokensManagement tokensMan,
 			PKIManagement pkiManagement,
 			OAuthEndpointsCoordinator coordinator,
 			AuthenticationProcessor authnProcessor,
@@ -97,7 +96,10 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			@Qualifier("insecure") AttributesManagement attributesMan,
 			TransactionalRunner tx,
 			@Qualifier("insecure") IdPEngine idPEngine,
-			OAuthTokenRepository oauthTokenRepository,
+			TokensManagement tokensManagement,
+			OAuthAccessTokenRepository accessTokenRepository,
+			OAuthRefreshTokenRepository refreshTokenRepository,
+			TokenCleaner tokenCleaner,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			ApplicationEventPublisher eventPublisher,
 			@Qualifier("insecure") EndpointManagement endpointManagement,
@@ -105,14 +107,16 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
-		this.tokensManagement = tokensMan;
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
 		this.tx = tx;
 		this.insecureIdPEngine = idPEngine;
-		this.oauthTokenRepository = oauthTokenRepository;
+		this.accessTokenRepository = accessTokenRepository;
+		this.refreshTokenRepository = refreshTokenRepository;
+		this.tokenCleaner = tokenCleaner;
+		this.tokensManagement = tokensManagement;
 		this.eventPublisher = eventPublisher;
 		this.endpointMan = endpointManagement;
 		this.scopeService = scopeService;
@@ -140,19 +144,20 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	@ApplicationPath("/")
 	public class OAuthTokenJAXRSApp extends Application
 	{
+
 		@Override 
 		public Set<Object> getSingletons() 
 		{
 			HashSet<Object> ret = new HashSet<>();
-			ret.add(new AccessTokenResource(tokensManagement, oauthTokenRepository, config, 
+			ret.add(new AccessTokenResource(tokensManagement, accessTokenRepository, refreshTokenRepository, tokenCleaner, config, 
 					new OAuthRequestValidator(config, identitiesMan, attributesMan, scopeService), 
 					insecureIdPEngine, identitiesMan, tx, eventPublisher, msg, endpointMan, lastIdPClinetAccessAttributeManagement, description));
 			ret.add(new DiscoveryResource(config, coordinator, scopeService));
 			ret.add(new KeysResource(config));
-			ret.add(new TokenInfoResource(oauthTokenRepository));
-			ret.add(new TokenIntrospectionResource(tokensManagement, oauthTokenRepository));
-			ret.add(new UserInfoResource(oauthTokenRepository));
-			ret.add(new RevocationResource(tokensManagement, oauthTokenRepository,
+			ret.add(new TokenInfoResource(accessTokenRepository));
+			ret.add(new TokenIntrospectionResource(accessTokenRepository, refreshTokenRepository));
+			ret.add(new UserInfoResource(accessTokenRepository));
+			ret.add(new RevocationResource(accessTokenRepository, refreshTokenRepository,
 					sessionMan, getEndpointDescription().getRealm(),
 					config.getBooleanValue(OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION)));
 			OAuthExceptionMapper.installExceptionHandlers(ret);

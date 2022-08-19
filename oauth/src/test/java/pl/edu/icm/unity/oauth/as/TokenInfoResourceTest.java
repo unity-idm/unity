@@ -24,6 +24,7 @@ import net.minidev.json.JSONValue;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.TokenInfoResource;
 
 public class TokenInfoResourceTest
@@ -66,7 +67,7 @@ public class TokenInfoResourceTest
 	
 	private TokenInfoResource createTokenInfoResource(TokensManagement tokensManagement)
 	{
-		return new TokenInfoResource(new OAuthTokenRepository(tokensManagement, 
+		return new TokenInfoResource(new OAuthAccessTokenRepository(tokensManagement, 
 				mock(SecuredTokensManagement.class)));
 	}
 }

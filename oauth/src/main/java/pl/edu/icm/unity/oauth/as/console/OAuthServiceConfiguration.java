@@ -48,6 +48,7 @@ public class OAuthServiceConfiguration
 	private int idTokenExpiration;
 	private int refreshTokenExpiration;
 	private RefreshTokenIssuePolicy refreshTokenIssuePolicy;
+	private boolean refreshTokenRollingForPublicClients;
 	private int codeTokenExpiration;
 	private int accessTokenExpiration;
 	private boolean openIDConnect;
@@ -102,6 +103,7 @@ public class OAuthServiceConfiguration
 		accessTokenFormat = AccessTokenFormat.PLAIN;
 		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
 		refreshTokenIssuePolicy = RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED;
+		refreshTokenRollingForPublicClients = false;
 	}
 
 	public String toProperties(MessageSource msg)
@@ -131,6 +133,8 @@ public class OAuthServiceConfiguration
 		{
 			raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_VALIDITY, String.valueOf(refreshTokenExpiration));
 		}
+		raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_ROLLING_FOR_PUBLIC_CLIENTS, String.valueOf(refreshTokenRollingForPublicClients));
+		
 		
 		if (credential != null)
 		{
@@ -257,6 +261,7 @@ public class OAuthServiceConfiguration
 		idTokenExpiration = oauthProperties.getIdTokenValidity();
 		refreshTokenExpiration = oauthProperties.getRefreshTokenValidity();
 		refreshTokenIssuePolicy = oauthProperties.getRefreshTokenIssuePolicy();
+		refreshTokenRollingForPublicClients = oauthProperties.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROLLING_FOR_PUBLIC_CLIENTS);
 		codeTokenExpiration = oauthProperties.getCodeTokenValidity();
 		accessTokenExpiration = oauthProperties.getAccessTokenValidity();
 		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	
@@ -616,5 +621,15 @@ public class OAuthServiceConfiguration
 	public void setRefreshTokenIssuePolicy(RefreshTokenIssuePolicy refreshTokenIssuePolicy)
 	{
 		this.refreshTokenIssuePolicy = refreshTokenIssuePolicy;
+	}
+
+	public boolean isRefreshTokenRollingForPublicClients()
+	{
+		return refreshTokenRollingForPublicClients;
+	}
+
+	public void setRefreshTokenRollingForPublicClients(boolean refreshTokenRollingForPublicClients)
+	{
+		this.refreshTokenRollingForPublicClients = refreshTokenRollingForPublicClients;
 	}
 }

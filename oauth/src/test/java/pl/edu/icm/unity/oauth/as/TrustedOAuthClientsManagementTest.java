@@ -57,6 +57,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.console.OAuthServiceConfiguration;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -77,7 +78,7 @@ public class TrustedOAuthClientsManagementTest
 	@Mock
 	private PreferencesManagement preferencesManagement;
 	@Mock
-	private OAuthTokenRepository oauthTokenDAO;
+	private OAuthAccessTokenRepository oauthTokenDAO;
 	@Mock
 	private EndpointManagement endpointManagement;
 	private AttributeTypeSupport aTypeSupport;
@@ -157,7 +158,7 @@ public class TrustedOAuthClientsManagementTest
 		OAuthPreferences pref = new OAuthPreferences();
 		pref.setSerializedConfiguration(JsonUtil.parse(argument.getValue()));
 		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk(), is(false));
-		verify(tokenMan).removeToken(eq(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN), eq("ac"));
+		verify(tokenMan).removeToken(eq(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN), eq("ac"));
 	}
 
 	@Test
@@ -227,7 +228,7 @@ public class TrustedOAuthClientsManagementTest
 		oauthToken.setEffectiveScope(scopes);
 		Token token = new Token("", "ac", 1L);
 		token.setContents(oauthToken.getSerialized());
-		token.setType(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN);
+		token.setType(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN);
 		token.setCreated(new Date());
 	//	token.setExpires(new Date());
 		when(oauthTokenDAO.getOwnedAccessTokens()).thenReturn(List.of(token));

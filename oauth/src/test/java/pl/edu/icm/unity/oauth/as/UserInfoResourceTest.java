@@ -8,7 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static pl.edu.icm.unity.oauth.as.OAuthTokenRepository.INTERNAL_ACCESS_TOKEN;
+import static pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN;
 
 import java.util.Date;
 
@@ -27,6 +27,7 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.UserInfoResource;
 
 public class UserInfoResourceTest
@@ -131,7 +132,7 @@ public class UserInfoResourceTest
 	
 	private UserInfoResource createUserInfoResource(TokensManagement tokensManagement)
 	{
-		return new UserInfoResource(new OAuthTokenRepository(tokensManagement, 
+		return new UserInfoResource(new OAuthAccessTokenRepository(tokensManagement, 
 				mock(SecuredTokensManagement.class)));
 	}
 }

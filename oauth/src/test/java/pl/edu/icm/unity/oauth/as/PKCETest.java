@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
@@ -184,7 +185,7 @@ public class PKCETest
 	private AccessTokenResource createAccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
 			TransactionalRunner tx)
 	{
-		return new AccessTokenResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
+		return new AccessTokenResource(tokensManagement, new OAuthAccessTokenRepository(tokensManagement, 
 				mock(SecuredTokensManagement.class)), config, null, null, null, tx, mock(ApplicationEventPublisher.class), null, null, mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
 	}
 	
