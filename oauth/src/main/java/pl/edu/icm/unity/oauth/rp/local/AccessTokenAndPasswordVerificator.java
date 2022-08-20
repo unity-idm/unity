@@ -153,8 +153,10 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 		}
 
 		if (!tokenVerificationResult.result.getStatus().equals(Status.success))
+		{
+			log.debug("HTTP Bearer access token verification result: " + tokenVerificationResult.result.getStatus());
 			return tokenVerificationResult.result;
-		
+		}
 		AuthenticationResult localPasswordVerificationResult;
 
 		try
@@ -167,7 +169,10 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 		}
 
 		if (!localPasswordVerificationResult.getStatus().equals(Status.success))
+		{
+			log.debug("HTTP BASIC credential verification result: " + localPasswordVerificationResult.getStatus());
 			return localPasswordVerificationResult;
+		}
 
 		if (!tokenVerificationResult.token.get().getClientId().get()
 				.equals(localPasswordVerificationResult.getSuccessResult().authenticatedEntity.getEntityId()))

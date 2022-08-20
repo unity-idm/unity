@@ -30,7 +30,6 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -80,8 +79,7 @@ public class RESTBearerTokenAndPasswordRetrieval extends AbstractCredentialRetri
 		if (authnToken == null)
 		{
 			log.debug("No HTTP Bearer access token header was found");
-			return LocalAuthenticationResult.failed(new ResolvableError("BearerRetrievalBase.tokenNotFound"),
-					DenyReason.undefinedCredential);
+			return LocalAuthenticationResult.failed(new ResolvableError("BearerRetrievalBase.tokenNotFound"));
 		}
 		log.trace("HTTP Bearer access token header found");
 
@@ -99,8 +97,7 @@ public class RESTBearerTokenAndPasswordRetrieval extends AbstractCredentialRetri
 		if (httpCredentials == null)
 		{
 			log.debug("No HTTP BASIC auth header was found");
-			return LocalAuthenticationResult.failed(new ResolvableError("RESTBearerTokenAndPasswordRetrieval.basicAuthNotFound"),
-					DenyReason.undefinedCredential);
+			return LocalAuthenticationResult.failed(new ResolvableError("RESTBearerTokenAndPasswordRetrieval.basicAuthNotFound"));
 		}
 		log.trace("HTTP BASIC auth header found");
 

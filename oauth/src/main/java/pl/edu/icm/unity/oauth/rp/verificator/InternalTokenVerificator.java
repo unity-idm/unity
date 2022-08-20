@@ -4,10 +4,13 @@
  */
 package pl.edu.icm.unity.oauth.rp.verificator;
 
+import org.apache.logging.log4j.Logger;
+
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
@@ -20,6 +23,8 @@ import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
  */
 public class InternalTokenVerificator implements TokenVerificatorProtocol
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, InternalTokenVerificator.class);
+	
 	private OAuthTokenRepository tokensDAO;
 	
 	public InternalTokenVerificator(OAuthTokenRepository tokensDAO)
@@ -37,6 +42,7 @@ public class InternalTokenVerificator implements TokenVerificatorProtocol
 			internalAccessToken = tokensDAO.readAccessToken(token.getValue());
 		} catch (IllegalArgumentException e)
 		{
+			log.debug("Invalid bearer access token " + token.getValue());
 			return new TokenStatus();
 		}
 		
