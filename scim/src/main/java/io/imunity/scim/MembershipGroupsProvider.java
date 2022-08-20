@@ -5,6 +5,7 @@
 
 package io.imunity.scim;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,27 +47,30 @@ class MembershipGroupsProvider
 		Set<Group> whiteListGroups = scimEndpointConfiguration.membershipGroups.stream()
 				.map(g -> GroupPatternMatcher.filterMatching(allGroupsList, g)).flatMap(a -> a.stream())
 				.collect(Collectors.toSet());
-		addChildrenGroups(whiteListGroups, allGroupsList);
+		whiteListGroups = addChildrenGroups(whiteListGroups, allGroupsList);
 		Set<Group> blackListGroups = scimEndpointConfiguration.excludedMembershipGroups.stream()
 				.map(g -> GroupPatternMatcher.filterMatching(allGroupsList, g)).flatMap(a -> a.stream())
 				.collect(Collectors.toSet());
-
+		blackListGroups = addChildrenGroups(blackListGroups, allGroupsList);
+		
 		whiteListGroups.removeAll(blackListGroups);
 		return whiteListGroups.stream().map(g -> g.getPathEncoded()).sorted().collect(Collectors.toList());
 	}
 
-	private void addChildrenGroups(Set<Group> whiteListGroups, List<Group> allGroupsList)
+	private Set<Group> addChildrenGroups(Set<Group> groupsToResolve, List<Group> allGroupsList)
 	{
-		for (Group g : whiteListGroups)
+		Set<Group> ret = new HashSet<>(groupsToResolve);
+		
+		for (Group g : groupsToResolve)
 		{
 			allGroupsList.forEach(ag ->
 			{
 				if (Group.isChild(ag.getPathEncoded(), g.getPathEncoded()))
 				{
-					whiteListGroups.add(ag);
+					ret.add(ag);
 				}
 			});
 		}
+		return ret;
 	}
-
 }

@@ -138,7 +138,7 @@ class GroupRetrievalService
 				.forEach(e -> members.add(mapToUserMember(e,
 						Optional.ofNullable(membershipInfoForAttr.get(e.entity.getId())), nameAttribute)));
 		groupAndSubgroups.values().stream()
-				.filter(g -> Group.isDirectChild(g.getGroup().getPathEncoded(), group.getGroup().getPathEncoded()))
+				.filter(g -> Group.isDirectChild(g.getGroup().getPathEncoded(), group.getGroup().getPathEncoded()) && configuration.membershipGroups.contains(g.getGroup().getPathEncoded()))
 				.forEach(g ->
 				{
 					members.add(mapToGroupMemeber(g));
