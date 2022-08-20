@@ -136,10 +136,12 @@ public class TrustedApplicationTab extends CustomComponent
 
 			if (application.accessScopes.isPresent() && !application.accessScopes.get().isEmpty())
 			{
-				Label appDomain = new Label();
-				appDomain.setCaption(msg.getMessage("TrustedApplications.accessGrantedTo"));
-				appDomain.setValue(String.join(", ", application.accessScopes.get()));
-				content.addComponent(appDomain);
+				Label accessGrantedTo = new Label();
+				accessGrantedTo.setCaption(msg.getMessage("TrustedApplications.accessGrantedTo"));
+				accessGrantedTo.setValue(String.join(", <br>", application.accessScopes.get()));
+				accessGrantedTo.setContentMode(ContentMode.HTML);
+				accessGrantedTo.addStyleName(Styles.wordWrap.toString());
+				content.addComponent(accessGrantedTo);
 			}
 
 			if (application.accessGrantTime.isPresent())
