@@ -53,15 +53,32 @@ public class MembershipGroupProviderTest
 
 		provider = new MembershipGroupsProvider(groupsManagement);
 		when(groupsManagement.getAllGroups())
-				.thenReturn(Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B"), "/B/C",
+				.thenReturn(Map.of("/", new Group("/"), "/A", new Group("/A"),"/A/B", new Group("/A/B"),  "/B", new Group("/B"), "/B/C",
 						new Group("/B/C"), "/A/Bar", new Group("/A/Bar"), "/A/B/C", new Group("/A/B/C")));
 
 		List<String> effectiveMembershipGroups = provider
 				.getEffectiveMembershipGroups(SCIMEndpointConfiguration.builder().withSchemas(Collections.emptyList())
 						.withMembershipGroups(List.of("/A/**")).withExcludedMembershipGroups(List.of("/A/B*")).build());
 
+		assertThat(effectiveMembershipGroups.size(), is(1));
+		assertThat(effectiveMembershipGroups, hasItems("/A"));
+	}
+	
+	@Test
+	public void shouldExcludeGroupsWithChildren() throws EngineException
+	{
+
+		provider = new MembershipGroupsProvider(groupsManagement);
+		when(groupsManagement.getAllGroups())
+				.thenReturn(Map.of("/", new Group("/"), "/A", new Group("/A"),"/A/B", new Group("/A/B"),  "/B", new Group("/B"), "/B/C",
+						new Group("/B/C"), "/A/Bar", new Group("/A/Bar"), "/A/B/C", new Group("/A/B/C")));
+
+		List<String> effectiveMembershipGroups = provider
+				.getEffectiveMembershipGroups(SCIMEndpointConfiguration.builder().withSchemas(Collections.emptyList())
+						.withMembershipGroups(List.of("/A/**")).withExcludedMembershipGroups(List.of("/A/B")).build());
+
 		assertThat(effectiveMembershipGroups.size(), is(2));
-		assertThat(effectiveMembershipGroups, hasItems("/A", "/A/B/C"));
+		assertThat(effectiveMembershipGroups, hasItems("/A", "/A/Bar"));
 	}
 
 	@Test

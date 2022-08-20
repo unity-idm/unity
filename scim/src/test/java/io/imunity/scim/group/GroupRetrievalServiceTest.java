@@ -104,7 +104,6 @@ public class GroupRetrievalServiceTest
 	@Test
 	public void shouldReturnGroupWithGroupAndUserMembers() throws EngineException
 	{
-
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
 				"/scim",
 				List.of("/scim", "/scim/Members1"),
@@ -217,6 +216,43 @@ public class GroupRetrievalServiceTest
 				hasItems(GroupMember.builder().withDisplayName("User1").withType(MemberType.User).withValue("1")
 						.build()));
 
+	}
+	
+	@Test
+	public void shouldReturnGroupsWhichAreMembershipGroups() throws EngineException
+	{
+		// given
+		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
+				"/scim",
+				List.of("/scim", "/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members1/Subgroup2"),
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+		groupRetrievalService = new GroupRetrievalService(msg, authzMan, groupsMan, bulkService, attrSupport,
+				configuration);
+
+		when(authzMan.getFilter()).thenReturn(s -> true);
+		addEntityNameAttrType();
+		addTwoMembersGroupWithSubgroups();
+
+		// when
+		List<GroupData> groupData = groupRetrievalService.getGroups();
+
+		// then
+		assertThat(groupData.size(), is(4));
+		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet()),
+				hasItems("/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members1/Subgroup2", "/scim"));
+
+		GroupData memberGroup1 = groupData.stream().filter(g -> g.id.equals("/scim/Members1")).findFirst().get();
+		assertThat(memberGroup1.displayName, is("Members1"));
+		assertThat(memberGroup1.members.size(), is(2));
+		
+		assertThat(
+				memberGroup1.members.stream().filter(m -> m.type.equals(MemberType.Group)).collect(Collectors.toSet()),
+				hasItems(GroupMember.builder().withDisplayName("Subgroup1").withType(MemberType.Group)
+						.withValue("/scim/Members1/Subgroup1").build()));
+
+		GroupData member1SubGroup = groupData.stream().filter(g -> g.id.equals("/scim/Members1/Subgroup1")).findFirst()
+				.get();
+		assertThat(member1SubGroup.displayName, is("Subgroup1"));
 	}
 
 	private void addTwoMembersGroupWithSubgroups() throws EngineException

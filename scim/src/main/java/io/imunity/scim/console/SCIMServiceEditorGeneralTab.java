@@ -12,10 +12,12 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.Component;
 
+import io.imunity.tooltip.TooltipExtension;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
@@ -52,13 +54,16 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 
 		MandatoryGroupSelection rootGroup = new MandatoryGroupSelection(msg);
 		rootGroup.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.rootGroup"));
+		rootGroup.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
 		rootGroup.setItems(allGroups);
 		main.addComponent(rootGroup);
 		restBinder.forField(rootGroup).asRequired().bind("rootGroup");
-
+		
 		OptionalGroupWithWildcardSelection memeberShipGroups = new OptionalGroupWithWildcardSelection(msg);
 		memeberShipGroups.setSkipRemoveInvalidSelections(true);
 		memeberShipGroups.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroups"));
+		memeberShipGroups.setDescription(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroupsDesc"));
+		memeberShipGroups.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
 		//simplification
 		memeberShipGroups.setItems(allGroups);
 		main.addComponent(memeberShipGroups);
@@ -68,15 +73,20 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			return ValidationResult.ok();
 		}).bind("membershipGroups");
-		
+		TooltipExtension.tooltip(memeberShipGroups);
+
 		OptionalGroupWithWildcardSelection excludedMembershipGroups = new OptionalGroupWithWildcardSelection(msg);
 		excludedMembershipGroups.setSkipRemoveInvalidSelections(true);
 		excludedMembershipGroups.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroups"));
+		excludedMembershipGroups.setDescription(msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroupsDesc"));
+		excludedMembershipGroups.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
+		
 		//simplification
 		excludedMembershipGroups.setItems(allGroups);
 		main.addComponent(excludedMembershipGroups);
 		restBinder.forField(excludedMembershipGroups).bind("excludedMembershipGroups");
-
+		TooltipExtension.tooltip(excludedMembershipGroups);
+			
 		CollapsibleLayout corsSection = new CollapsibleLayout(msg.getMessage("SCIMServiceEditorGeneralTab.scimGroups"),
 				main);
 		corsSection.expand();
