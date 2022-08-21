@@ -42,19 +42,20 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 class AuthzCodeHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, AuthzCodeHandler.class);
-	private TokensManagement tokensManagement;
-	private OAuthASProperties config;
-	private TransactionalRunner tx;
-	private AccessTokenFactory accessTokenFactory;
+	private final TokensManagement tokensManagement;
+	private final OAuthASProperties config;
+	private final TransactionalRunner tx;
+	private final AccessTokenFactory accessTokenFactory;
 	private final OAuthAccessTokenRepository accessTokenDAO;
 	private final OAuthRefreshTokenRepository refreshTokenDAO;
-	private OAuthTokenStatisticPublisher statisticsPublisher;
+	private final OAuthTokenStatisticPublisher statisticsPublisher;
+	private final TokenUtils tokenUtils;
 	
 	AuthzCodeHandler(TokensManagement tokensManagement, OAuthAccessTokenRepository accessTokenDAO,
 			OAuthRefreshTokenRepository refreshTokenDAO,
 			OAuthASProperties config, TransactionalRunner tx, 
 			AccessTokenFactory accesstokenFactory,
-			OAuthTokenStatisticPublisher statisticsPublisher)
+			OAuthTokenStatisticPublisher statisticsPublisher, TokenUtils tokenUtils)
 	{
 		this.tokensManagement = tokensManagement;
 		this.accessTokenDAO = accessTokenDAO;
@@ -63,6 +64,7 @@ class AuthzCodeHandler
 		this.tx = tx;
 		this.accessTokenFactory = accesstokenFactory;
 		this.statisticsPublisher = statisticsPublisher;
+		this.tokenUtils = tokenUtils;
 	}
 
 
@@ -112,12 +114,12 @@ class AuthzCodeHandler
 		AccessToken accessToken = accessTokenFactory.create(internalToken, now, acceptHeader);
 		internalToken.setAccessToken(accessToken.getValue());
 
-		RefreshToken refreshToken = refreshTokenDAO.addRefreshTokenIfNeeded(config, 
-				now, internalToken, codeToken.getOwner(), Optional.empty());
+		RefreshToken refreshToken = refreshTokenDAO.getRefreshToken(config, 
+				now, internalToken, codeToken.getOwner(), Optional.empty()).orElse(null);
 		
-		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
+		Date accessExpiration = tokenUtils.getAccessTokenExpiration(config, now);
 
-		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(internalToken,
+		AccessTokenResponse oauthResponse = tokenUtils.getAccessTokenResponse(internalToken,
 				accessToken, refreshToken, null);
 		log.info("Authz code grant: issuing new access token {}, valid until {}", 
 				BaseOAuthResource.tokenToLog(accessToken.getValue()), 

@@ -40,7 +40,7 @@ public class OAuthRefreshTokenRepository
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthRefreshTokenRepository.class);
 
 	public static final String INTERNAL_REFRESH_TOKEN = "oauth2Refresh";
-	static final String INTERNAL_USED_REFRESH_TOKEN = "usedAauth2Refresh";
+	static final String INTERNAL_USED_REFRESH_TOKEN = "usedOauth2Refresh";
 
 	private final TokensManagement tokensMan;
 	private final SecuredTokensManagement securedTokensManagement;
@@ -67,14 +67,14 @@ public class OAuthRefreshTokenRepository
 		return tokensMan.getTokenById(INTERNAL_REFRESH_TOKEN, tokenValue);
 	}
 
-	public RefreshToken addRefreshTokenIfNeeded(OAuthASProperties config, Date now, OAuthToken newToken, Long owner,
+	public Optional<RefreshToken> getRefreshToken(OAuthASProperties config, Date now, OAuthToken newToken, Long owner,
 			Optional<String> oldRefreshToken) throws EngineException, JsonProcessingException
 	{
 		if (newToken.getClientType().equals(ClientType.PUBLIC)
 				&& !config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROLLING_FOR_PUBLIC_CLIENTS))
-			return null;
+			return Optional.empty();
 		
-		RefreshToken refreshToken = getRefreshToken(config,
+		RefreshToken refreshToken = checkPolicyAndGetRefreshToken(config,
 				Arrays.asList(newToken.getEffectiveScope()).contains(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE));
 		if (refreshToken != null)
 		{
@@ -88,10 +88,10 @@ public class OAuthRefreshTokenRepository
 			tokensMan.addToken(INTERNAL_REFRESH_TOKEN, refreshToken.getValue(), new EntityParam(owner),
 					newToken.getSerialized(), now, refreshExpiration);
 		}
-		return refreshToken;
+		return Optional.ofNullable(refreshToken);
 	}
 
-	public RefreshToken rollRefreshTokenIfNeeded(OAuthASProperties config, Date now, OAuthToken newToken,
+	public Optional<RefreshToken> rollRefreshTokenIfNeeded(OAuthASProperties config, Date now, OAuthToken newToken,
 			OAuthToken oldRefreshToken, Long owner) throws EngineException, JsonProcessingException
 	{
 		if (config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROLLING_FOR_PUBLIC_CLIENTS)
@@ -101,11 +101,11 @@ public class OAuthRefreshTokenRepository
 			tokensMan.removeToken(INTERNAL_REFRESH_TOKEN, oldRefreshToken.getRefreshToken());
 			tokensMan.addToken(INTERNAL_USED_REFRESH_TOKEN, oldRefreshToken.getRefreshToken(), new EntityParam(owner),
 					oldRefreshToken.getSerialized(), now, null);
-			return addRefreshTokenIfNeeded(config, now, newToken, owner,
+			return getRefreshToken(config, now, newToken, owner,
 					Optional.of(oldRefreshToken.getFirstRefreshRollingToken()));
 		}
 
-		return null;
+		return Optional.empty();
 	}
 
 	private Date getRefreshTokenExpiration(OAuthASProperties config, Date now)
@@ -123,7 +123,7 @@ public class OAuthRefreshTokenRepository
 		return cl.getTime();
 	}
 
-	private RefreshToken getRefreshToken(OAuthASProperties config, boolean offlineAccessRequested)
+	private RefreshToken checkPolicyAndGetRefreshToken(OAuthASProperties config, boolean offlineAccessRequested)
 	{
 		RefreshToken refreshToken = null;
 		if (config.getRefreshTokenIssuePolicy().equals(RefreshTokenIssuePolicy.ALWAYS)
@@ -144,7 +144,6 @@ public class OAuthRefreshTokenRepository
 
 	public void removeRefreshToken(String token, OAuthToken parsedToken, long userId)
 	{
-		
 		tokensMan.removeToken(INTERNAL_REFRESH_TOKEN, token);
 		try
 		{

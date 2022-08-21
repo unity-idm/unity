@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -58,6 +59,7 @@ import pl.edu.icm.unity.oauth.as.console.OAuthServiceConfiguration;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -80,6 +82,8 @@ public class TrustedOAuthClientsManagementTest
 	@Mock
 	private OAuthAccessTokenRepository oauthTokenDAO;
 	@Mock
+	private OAuthRefreshTokenRepository refreshTokenDAO;
+	@Mock
 	private EndpointManagement endpointManagement;
 	private AttributeTypeSupport aTypeSupport;
 	@Mock
@@ -94,12 +98,19 @@ public class TrustedOAuthClientsManagementTest
 	@Mock
 	private LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
+	private TrustedOAuthClientsManagement appMan;
+	
+	@Before
+	public void init()
+	{
+		 appMan = new TrustedOAuthClientsManagement(tokenMan, preferencesManagement,
+				oauthTokenDAO, refreshTokenDAO, endpointManagement, bulkService, idpUsersHelper, msg, scopesService, aTypeSupport,
+				lastAccessAttributeManagement);
+	}
+	
 	@Test
 	public void shouldGetTrustedApplication() throws EngineException, JsonProcessingException
 	{
-		TrustedOAuthClientsManagement appMan = new TrustedOAuthClientsManagement(tokenMan, preferencesManagement,
-				oauthTokenDAO, endpointManagement, bulkService, idpUsersHelper, msg, scopesService, aTypeSupport,
-				lastAccessAttributeManagement);
 		setupInvocationContext();
 
 		Instant grantTime = setupPreferences();
@@ -123,9 +134,6 @@ public class TrustedOAuthClientsManagementTest
 	@Test
 	public void shouldGetTrustedApplicationWithoutTokens() throws EngineException, JsonProcessingException
 	{
-		TrustedOAuthClientsManagement appMan = new TrustedOAuthClientsManagement(tokenMan, preferencesManagement,
-				oauthTokenDAO, endpointManagement, bulkService, idpUsersHelper, msg, scopesService, aTypeSupport,
-				lastAccessAttributeManagement);
 		setupInvocationContext();
 
 		Instant grantTime = setupPreferences();
@@ -146,9 +154,6 @@ public class TrustedOAuthClientsManagementTest
 	@Test
 	public void shouldRevokeAccess() throws JsonProcessingException, EngineException
 	{
-		TrustedOAuthClientsManagement appMan = new TrustedOAuthClientsManagement(tokenMan, preferencesManagement,
-				oauthTokenDAO, endpointManagement, bulkService, idpUsersHelper, msg, scopesService, aTypeSupport,
-				lastAccessAttributeManagement);
 		setupInvocationContext();
 		setupTokens();
 		setupPreferences();
@@ -164,9 +169,6 @@ public class TrustedOAuthClientsManagementTest
 	@Test
 	public void shouldClearPreferencesWhenUnblockAccess() throws JsonProcessingException, EngineException
 	{
-		TrustedOAuthClientsManagement appMan = new TrustedOAuthClientsManagement(tokenMan, preferencesManagement,
-				oauthTokenDAO, endpointManagement, bulkService, idpUsersHelper, msg, scopesService, aTypeSupport,
-				lastAccessAttributeManagement);
 		setupInvocationContext();
 		setupPreferences();
 		appMan.unblockAccess(new ApplicationId("clientEntityId"));

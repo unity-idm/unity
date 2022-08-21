@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -62,7 +63,8 @@ public class MockTokensMan implements TokensManagement
 	public List<Token> getOwnedTokens(String type, EntityParam entity)
 			throws IllegalIdentityValueException, IllegalTypeException
 	{
-		throw new RuntimeException("unimplemented");
+		return tokens.values().stream().filter(t -> t.getOwner() == entity.getEntityId() && t.getType().equals(type))
+				.collect(Collectors.toList());
 	}
 
 	@Override

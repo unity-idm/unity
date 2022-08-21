@@ -81,7 +81,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private EntityManagement identitiesMan;
 	private final OAuthAccessTokenRepository accessTokenRepository;
 	private final OAuthRefreshTokenRepository refreshTokenRepository;
-	private final TokenCleaner tokenCleaner;
+	private final ClientTokensCleaner tokenCleaner;
 	private final EndpointManagement endpointMan;
 	
 	
@@ -99,7 +99,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			TokensManagement tokensManagement,
 			OAuthAccessTokenRepository accessTokenRepository,
 			OAuthRefreshTokenRepository refreshTokenRepository,
-			TokenCleaner tokenCleaner,
+			ClientTokensCleaner tokenCleaner,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			ApplicationEventPublisher eventPublisher,
 			@Qualifier("insecure") EndpointManagement endpointManagement,

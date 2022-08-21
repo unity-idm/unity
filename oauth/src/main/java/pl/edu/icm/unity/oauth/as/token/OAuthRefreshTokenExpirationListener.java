@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.oauth.as.token;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.token.Token;
@@ -14,10 +15,9 @@ import pl.edu.icm.unity.oauth.as.OAuthToken;
 
 class OAuthRefreshTokenExpirationListener implements TokenExpirationListener
 {
+	private final ClientTokensCleaner tokenCleaner;
 
-	private final TokenCleaner tokenCleaner;
-
-	public OAuthRefreshTokenExpirationListener(TokenCleaner tokenCleaner)
+	OAuthRefreshTokenExpirationListener(ClientTokensCleaner tokenCleaner)
 	{
 		this.tokenCleaner = tokenCleaner;
 	}
@@ -26,19 +26,18 @@ class OAuthRefreshTokenExpirationListener implements TokenExpirationListener
 	public void tokenExpired(Token token)
 	{
 		OAuthToken refreshToken = OAuthToken.getInstanceFromJson(token.getContents());
-
 		tokenCleaner.removeTokensForClient(refreshToken.getClientId(), token.getOwner(), refreshToken.getFirstRefreshRollingToken());
 	}
 
 	@Component
 	class OAuthRefreshTokenExpirationListenerInstalator
 	{
+		@Autowired
 		public OAuthRefreshTokenExpirationListenerInstalator(TokensManagement tokensManagement,
-				TokenCleaner tokenCleaner)
+				ClientTokensCleaner tokenCleaner)
 		{
 			tokensManagement.addTokenExpirationListener(new OAuthRefreshTokenExpirationListener(tokenCleaner),
 					OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN);
 		}
-
 	}
 }

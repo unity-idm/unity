@@ -36,6 +36,8 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.OAuthRefreshTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.ClientTokensCleaner;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
@@ -185,8 +187,15 @@ public class PKCETest
 	private AccessTokenResource createAccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
 			TransactionalRunner tx)
 	{
-		return new AccessTokenResource(tokensManagement, new OAuthAccessTokenRepository(tokensManagement, 
-				mock(SecuredTokensManagement.class)), config, null, null, null, tx, mock(ApplicationEventPublisher.class), null, null, mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
+		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		
+		return new AccessTokenResource(tokensManagement, accessTokenRepository, refreshTokenRepository,
+				new ClientTokensCleaner(accessTokenRepository, refreshTokenRepository), config, null, null, null, tx,
+				mock(ApplicationEventPublisher.class), null, null, mock(LastIdPClinetAccessAttributeManagement.class),
+				OAuthTestUtils.getEndpoint());
 	}
 	
 	private void setupInvocationContext()

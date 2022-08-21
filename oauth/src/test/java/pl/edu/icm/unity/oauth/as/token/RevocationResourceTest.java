@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
@@ -115,7 +114,7 @@ public class RevocationResourceTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
-		createToken(tokensManagement, OAuthProcessor.INTERNAL_REFRESH_TOKEN, "x");
+		createToken(tokensManagement, OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN, "x");
 		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
 		setupInvocationContext(CLIENT_ENTITY_ID);
@@ -126,7 +125,7 @@ public class RevocationResourceTest
 		assertThat(response.getStatus(), is(HTTPResponse.SC_OK));
 		assertThat(response.hasEntity(), is(false));
 
-		assertThat(tokensManagement.getAllTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN).size(), is(0));
+		assertThat(tokensManagement.getAllTokens(OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN).size(), is(0));
 	}
 
 	
@@ -197,8 +196,12 @@ public class RevocationResourceTest
 			SessionManagement sessionManagement, 
 			AuthenticationRealm realm)
 	{
-		return new RevocationResource(tokensManagement, new OAuthAccessTokenRepository(tokensManagement, 
-				mock(SecuredTokensManagement.class)), sessionManagement, realm, false);
+		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		
+		return new RevocationResource(accessTokenRepository, refreshTokenRepository, sessionManagement, realm, false);
 	}
 	
 	private void setupInvocationContext(long entityId)

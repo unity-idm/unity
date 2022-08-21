@@ -117,9 +117,15 @@ public class TokenIntrospectionResourceTest
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
 				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		TransactionalRunner tx = new TestTxRunner();
-		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement,
-				new OAuthAccessTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)), config, null, null,
-				null, tx, mock(ApplicationEventPublisher.class), null, null, mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
+		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		
+		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement, accessTokenRepository,
+				refreshTokenRepository, new ClientTokensCleaner(accessTokenRepository, refreshTokenRepository), config, null,
+				null, null, tx, mock(ApplicationEventPublisher.class), null, null,
+				mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
 		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
 				null, null, null, null, null, null, null);
@@ -177,7 +183,11 @@ public class TokenIntrospectionResourceTest
 	
 	private TokenIntrospectionResource createIntrospectionResource(TokensManagement tokensManagement)
 	{
-		return new TokenIntrospectionResource(tokensManagement, new OAuthAccessTokenRepository(tokensManagement, 
-				mock(SecuredTokensManagement.class)));
+		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		
+		return new TokenIntrospectionResource(accessTokenRepository, refreshTokenRepository);
 	}
 }
