@@ -56,6 +56,7 @@ class LocalBearerTokenVerificator
 		{
 			if (!areMandatoryScopesPresent(status))
 			{
+				log.debug("Bearer access token " + token.getValue() + " has no mandatory scopes");
 				return new AuthenticationResultWithTokenStatus(LocalAuthenticationResult.failed(), status);
 			}
 
@@ -79,7 +80,7 @@ class LocalBearerTokenVerificator
 		Set<String> requestedScopes = status.getScope().toStringList().stream().collect(Collectors.toSet());	
 		if (!requestedScopes.containsAll(requiredScopes))
 		{
-			log.debug("The following required scopes are not present: " + Sets.difference(requiredScopes, requestedScopes).toString());
+			log.debug("The following required scopes are not present in token: " + Sets.difference(requiredScopes, requestedScopes).toString());
 			return false;
 		}
 		return true;
