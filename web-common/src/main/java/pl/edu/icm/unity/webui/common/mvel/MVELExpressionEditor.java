@@ -55,7 +55,7 @@ class MVELExpressionEditor
 
 	}
 
-	<T> void configureBinding(Binder<String> binder,
+	void configureBinding(Binder<String> binder,
 			ValueProvider<String, String> getter, Setter<String, String> setter,
 			boolean mandatory)
 	{
