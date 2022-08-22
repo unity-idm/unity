@@ -16,6 +16,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWT;
@@ -40,6 +43,7 @@ import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -51,12 +55,13 @@ import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
-class TokenUtils
+public class TokenUtils
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TokenUtils.class);
 
@@ -64,7 +69,7 @@ class TokenUtils
 	private final OAuthASProperties config;
 	private final OAuthIdPEngine notAuthorizedOauthIdpEngine;
 
-	TokenUtils(OAuthRequestValidator requestValidator, OAuthASProperties config,
+	public TokenUtils(OAuthRequestValidator requestValidator, OAuthASProperties config,
 			OAuthIdPEngine notAuthorizedOauthIdpEngine)
 	{
 		this.requestValidator = requestValidator;
@@ -250,4 +255,27 @@ class TokenUtils
 			throw new InternalException("Can not parse the internal id token", e);
 		}
 	}
+	
+	
+	@Component
+	public static class TokenUtilsFactory
+	{
+		private final OAuthRequestValidatorFactory requestValidatorFactory;
+		private final IdPEngine idPEngine;
+		
+		@Autowired
+		public TokenUtilsFactory(OAuthRequestValidatorFactory requestValidatorFactory, @Qualifier("insecure")  IdPEngine idPEngine)
+		{
+			this.requestValidatorFactory = requestValidatorFactory;
+			this.idPEngine = idPEngine;
+		}
+		
+		public TokenUtils getTokenUtils(OAuthASProperties config)
+		{
+			return new TokenUtils(requestValidatorFactory.getOAuthRequestValidator(config), config, new OAuthIdPEngine(idPEngine));
+				
+		}
+		
+	}
+	
 }

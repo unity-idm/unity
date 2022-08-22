@@ -10,6 +10,8 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -31,12 +33,16 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthToken.PKCSInfo;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenStatisticPublisher.OAuthTokenStatisticPublisherFactory;
+import pl.edu.icm.unity.oauth.as.token.TokenUtils.TokenUtilsFactory;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
- * Handles the fundamental OAuth authz code flow, from the perspective of the token endpoint.
- *  
+ * Handles the fundamental OAuth authz code flow, from the perspective of the
+ * token endpoint.
+ * 
  * @author K. Benedyczak
  */
 class AuthzCodeHandler
@@ -50,12 +56,10 @@ class AuthzCodeHandler
 	private final OAuthRefreshTokenRepository refreshTokenDAO;
 	private final OAuthTokenStatisticPublisher statisticsPublisher;
 	private final TokenUtils tokenUtils;
-	
+
 	AuthzCodeHandler(TokensManagement tokensManagement, OAuthAccessTokenRepository accessTokenDAO,
-			OAuthRefreshTokenRepository refreshTokenDAO,
-			OAuthASProperties config, TransactionalRunner tx, 
-			AccessTokenFactory accesstokenFactory,
-			OAuthTokenStatisticPublisher statisticsPublisher, TokenUtils tokenUtils)
+			OAuthRefreshTokenRepository refreshTokenDAO, TransactionalRunner tx, AccessTokenFactory accesstokenFactory,
+			OAuthTokenStatisticPublisher statisticsPublisher, TokenUtils tokenUtils, OAuthASProperties config)
 	{
 		this.tokensManagement = tokensManagement;
 		this.accessTokenDAO = accessTokenDAO;
@@ -66,7 +70,6 @@ class AuthzCodeHandler
 		this.statisticsPublisher = statisticsPublisher;
 		this.tokenUtils = tokenUtils;
 	}
-
 
 	Response handleAuthzCodeFlow(String code, String redirectUri, String codeVerifier, String acceptHeader)
 			throws EngineException, JsonProcessingException
@@ -89,23 +92,24 @@ class AuthzCodeHandler
 			verifyPKCE(parsedAuthzCodeToken.getPkcsInfo(), parsedAuthzCodeToken.getClientType(), codeVerifier);
 		} catch (OAuthErrorException e)
 		{
-			statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(), parsedAuthzCodeToken.getClientName());
+			statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(),
+					parsedAuthzCodeToken.getClientName());
 			return e.response;
-		} 
-		
+		}
+
 		if (parsedAuthzCodeToken.getRedirectUri() != null)
 		{
 			if (redirectUri == null)
-			{	
-				statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(), parsedAuthzCodeToken.getClientName());
-				return BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT,
-						"redirect_uri is required");
+			{
+				statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(),
+						parsedAuthzCodeToken.getClientName());
+				return BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "redirect_uri is required");
 			}
 			if (!redirectUri.equals(parsedAuthzCodeToken.getRedirectUri()))
 			{
-				statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(), parsedAuthzCodeToken.getClientName());
-				return BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT,
-						"redirect_uri is wrong");
+				statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(),
+						parsedAuthzCodeToken.getClientName());
+				return BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "redirect_uri is wrong");
 			}
 		}
 
@@ -114,36 +118,34 @@ class AuthzCodeHandler
 		AccessToken accessToken = accessTokenFactory.create(internalToken, now, acceptHeader);
 		internalToken.setAccessToken(accessToken.getValue());
 
-		RefreshToken refreshToken = refreshTokenDAO.getRefreshToken(config, 
-				now, internalToken, codeToken.getOwner(), Optional.empty()).orElse(null);
-		
+		RefreshToken refreshToken = refreshTokenDAO
+				.getRefreshToken(config, now, internalToken, codeToken.getOwner(), Optional.empty()).orElse(null);
+
 		Date accessExpiration = tokenUtils.getAccessTokenExpiration(config, now);
 
-		AccessTokenResponse oauthResponse = tokenUtils.getAccessTokenResponse(internalToken,
-				accessToken, refreshToken, null);
-		log.info("Authz code grant: issuing new access token {}, valid until {}", 
-				BaseOAuthResource.tokenToLog(accessToken.getValue()), 
+		AccessTokenResponse oauthResponse = tokenUtils.getAccessTokenResponse(internalToken, accessToken, refreshToken,
+				null);
+		log.info("Authz code grant: issuing new access token {}, valid until {}",
+				BaseOAuthResource.tokenToLog(accessToken.getValue()), accessExpiration);
+		accessTokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(codeToken.getOwner()), now,
 				accessExpiration);
-		accessTokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(codeToken.getOwner()), 
-				now, accessExpiration);
 
-		statisticsPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName(), new EntityParam(codeToken.getOwner()));		
-		
+		statisticsPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName(),
+				new EntityParam(codeToken.getOwner()));
+
 		return BaseOAuthResource.toResponse(Response.ok(BaseOAuthResource.getResponseContent(oauthResponse)));
 	}
 
-	
-	private void verifyPKCE(PKCSInfo parsedAuthzCodeToken, ClientType clientType, String codeVerifier) throws OAuthErrorException
+	private void verifyPKCE(PKCSInfo parsedAuthzCodeToken, ClientType clientType, String codeVerifier)
+			throws OAuthErrorException
 	{
-		if (parsedAuthzCodeToken.getCodeChallenge() == null &&	clientType == ClientType.PUBLIC)
+		if (parsedAuthzCodeToken.getCodeChallenge() == null && clientType == ClientType.PUBLIC)
 			throw new OAuthErrorException(
 					BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "missing mandatory PKCE"));
 		if (parsedAuthzCodeToken.getCodeChallenge() != null && codeVerifier == null)
-			throw new OAuthErrorException(
-					BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "missing PKCE"));
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "missing PKCE"));
 		if (parsedAuthzCodeToken.getCodeChallenge() == null && codeVerifier != null)
-			throw new OAuthErrorException(
-					BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "unexpected PKCE"));
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "unexpected PKCE"));
 
 		if (parsedAuthzCodeToken.getCodeChallenge() == null)
 			return;
@@ -151,19 +153,19 @@ class AuthzCodeHandler
 		String method = parsedAuthzCodeToken.getCodeChallengeMethod();
 		if (method == null)
 			method = CodeChallengeMethod.PLAIN.getValue();
-		
+
 		verifyPKCEChallenge(parsedAuthzCodeToken.getCodeChallenge(), codeVerifier, method);
 	}
 
-
-	private void verifyPKCEChallenge(String codeChallenge, String codeVerifier, String method) throws OAuthErrorException
+	private void verifyPKCEChallenge(String codeChallenge, String codeVerifier, String method)
+			throws OAuthErrorException
 	{
 		CodeChallenge computedCodeChallenge;
 		try
 		{
-			computedCodeChallenge = CodeChallenge.compute(CodeChallengeMethod.parse(method), 
-				new CodeVerifier(codeVerifier));
-		} catch(Exception e)
+			computedCodeChallenge = CodeChallenge.compute(CodeChallengeMethod.parse(method),
+					new CodeVerifier(codeVerifier));
+		} catch (Exception e)
 		{
 			log.warn("Failure to parse code challenge or verifier", e);
 			throw new OAuthErrorException(
@@ -174,14 +176,13 @@ class AuthzCodeHandler
 					BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "PKCE verification error"));
 	}
 
-	private TokensPair loadAndRemoveAuthzCodeToken(String code)
-			throws OAuthErrorException, EngineException
+	private TokensPair loadAndRemoveAuthzCodeToken(String code) throws OAuthErrorException, EngineException
 	{
-		return tx.runInTransactionRetThrowing(() -> {
+		return tx.runInTransactionRetThrowing(() ->
+		{
 			try
 			{
-				Token codeToken = tokensManagement.getTokenById(
-						OAuthProcessor.INTERNAL_CODE_TOKEN, code);
+				Token codeToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_CODE_TOKEN, code);
 				OAuthToken parsedAuthzCodeToken = BaseOAuthResource.parseInternalToken(codeToken);
 
 				LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
@@ -190,19 +191,17 @@ class AuthzCodeHandler
 					log.warn("Client with id {} presented authorization code issued for client {}",
 							loginSession.getEntityId(), parsedAuthzCodeToken.getClientId());
 					// intended - we mask the reason
-					throw new OAuthErrorException(BaseOAuthResource.makeError(
-							OAuth2Error.INVALID_GRANT, "wrong code"));
+					throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "wrong code"));
 				}
 				tokensManagement.removeToken(OAuthProcessor.INTERNAL_CODE_TOKEN, code);
 				return new TokensPair(codeToken, parsedAuthzCodeToken);
 			} catch (IllegalArgumentException e)
 			{
-				throw new OAuthErrorException(
-						BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "wrong code"));
+				throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "wrong code"));
 			}
 		});
 	}
-	
+
 	private static class TokensPair
 	{
 		Token codeToken;
@@ -214,4 +213,39 @@ class AuthzCodeHandler
 			this.parsedAuthzCodeToken = parsedAuthzCodeToken;
 		}
 	}
+
+	@Component
+	static class AuthzCodeHandlerFactory
+	{
+		private final TokensManagement tokensManagement;
+		private final TransactionalRunner tx;
+		private final OAuthAccessTokenRepository accessTokenDAO;
+		private final OAuthRefreshTokenRepository refreshTokenDAO;
+		private final TokenUtilsFactory tokenUtilsFactory;
+		private final OAuthTokenStatisticPublisherFactory statisticPublisherFactory;
+
+		@Autowired
+		AuthzCodeHandlerFactory(TokensManagement tokensManagement, TransactionalRunner tx,
+				OAuthAccessTokenRepository accessTokenDAO, OAuthRefreshTokenRepository refreshTokenDAO,
+				TokenUtilsFactory tokenUtilsFactory, OAuthTokenStatisticPublisherFactory statisticPublisherFactory)
+		{
+
+			this.tokensManagement = tokensManagement;
+			this.tx = tx;
+			this.accessTokenDAO = accessTokenDAO;
+			this.refreshTokenDAO = refreshTokenDAO;
+			this.tokenUtilsFactory = tokenUtilsFactory;
+			this.statisticPublisherFactory = statisticPublisherFactory;
+		}
+
+		AuthzCodeHandler getHandler(OAuthASProperties config, ResolvedEndpoint endpoint)
+		{
+			return new AuthzCodeHandler(tokensManagement, accessTokenDAO, refreshTokenDAO, tx,
+					new AccessTokenFactory(config),
+					statisticPublisherFactory.getOAuthTokenStatisticPublisher(config, endpoint),
+					tokenUtilsFactory.getTokenUtils(config), config);
+		}
+
+	}
+
 }

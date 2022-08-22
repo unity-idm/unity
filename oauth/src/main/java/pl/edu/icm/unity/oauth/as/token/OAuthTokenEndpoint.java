@@ -15,13 +15,10 @@ import javax.ws.rs.core.Application;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
@@ -35,13 +32,16 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.token.AuthzCodeHandler.AuthzCodeHandlerFactory;
+import pl.edu.icm.unity.oauth.as.token.CredentialFlowHandler.CredentialFlowHandlerFactory;
+import pl.edu.icm.unity.oauth.as.token.ExchangeTokenHandler.ExchangeTokenHandlerFactory;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenStatisticPublisher.OAuthTokenStatisticPublisherFactory;
+import pl.edu.icm.unity.oauth.as.token.RefreshTokenHandler.RefreshTokenHandlerFactory;
 import pl.edu.icm.unity.oauth.as.token.exception.OAuthExceptionMapper;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.rest.authn.ext.HttpBasicRetrievalBase;
-import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 
@@ -70,57 +70,40 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private PKIManagement pkiManagement;
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
-	private TransactionalRunner tx;
-	private IdPEngine insecureIdPEngine;
-	private final ApplicationEventPublisher eventPublisher;
 	private final OAuthScopesService scopeService;
-	private final LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement;
-	private final TokensManagement tokensManagement;
+	private final AuthzCodeHandlerFactory authzCodeHandlerFactory;
+	private final RefreshTokenHandlerFactory refreshTokenHandlerFactory;
+	private final ExchangeTokenHandlerFactory exchangeTokenHandlerFactory;
+	private final CredentialFlowHandlerFactory credentialFlowHandlerFactory;
+	private final OAuthTokenStatisticPublisherFactory statisticPublisherFactory;
 	//insecure
-	private AttributesManagement attributesMan;
-	private EntityManagement identitiesMan;
 	private final OAuthAccessTokenRepository accessTokenRepository;
 	private final OAuthRefreshTokenRepository refreshTokenRepository;
-	private final ClientTokensCleaner tokenCleaner;
-	private final EndpointManagement endpointMan;
 	
 	
 	@Autowired
-	public OAuthTokenEndpoint(MessageSource msg,
-			SessionManagement sessionMan,
-			NetworkServer server,
-			PKIManagement pkiManagement,
-			OAuthEndpointsCoordinator coordinator,
-			AuthenticationProcessor authnProcessor,
-			EntityManagement identitiesMan,
-			@Qualifier("insecure") AttributesManagement attributesMan,
-			TransactionalRunner tx,
-			@Qualifier("insecure") IdPEngine idPEngine,
-			TokensManagement tokensManagement,
-			OAuthAccessTokenRepository accessTokenRepository,
-			OAuthRefreshTokenRepository refreshTokenRepository,
-			ClientTokensCleaner tokenCleaner,
-			AdvertisedAddressProvider advertisedAddrProvider,
-			ApplicationEventPublisher eventPublisher,
-			@Qualifier("insecure") EndpointManagement endpointManagement,
-			OAuthScopesService scopeService,
-			LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement)
+	public OAuthTokenEndpoint(MessageSource msg, SessionManagement sessionMan, NetworkServer server,
+			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, AuthenticationProcessor authnProcessor,
+			EntityManagement identitiesMan, @Qualifier("insecure") AttributesManagement attributesMan,
+			@Qualifier("insecure") IdPEngine idPEngine, TokensManagement tokensManagement,
+			OAuthAccessTokenRepository accessTokenRepository, OAuthRefreshTokenRepository refreshTokenRepository,
+			AdvertisedAddressProvider advertisedAddrProvider, OAuthScopesService scopeService,
+			AuthzCodeHandlerFactory authzCodeHandlerFactory, RefreshTokenHandlerFactory refreshTokenHandlerFactory,
+			ExchangeTokenHandlerFactory exchangeTokenHandlerFactory,
+			CredentialFlowHandlerFactory credentialFlowHandlerFactory,
+			OAuthTokenStatisticPublisherFactory statisticPublisherFactory)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
-		this.identitiesMan = identitiesMan;
-		this.attributesMan = attributesMan;
-		this.tx = tx;
-		this.insecureIdPEngine = idPEngine;
+		this.statisticPublisherFactory = statisticPublisherFactory;
 		this.accessTokenRepository = accessTokenRepository;
 		this.refreshTokenRepository = refreshTokenRepository;
-		this.tokenCleaner = tokenCleaner;
-		this.tokensManagement = tokensManagement;
-		this.eventPublisher = eventPublisher;
-		this.endpointMan = endpointManagement;
 		this.scopeService = scopeService;
-		this.lastIdPClinetAccessAttributeManagement  = lastIdPClinetAccessAttributeManagement;
+		this.authzCodeHandlerFactory = authzCodeHandlerFactory;
+		this.refreshTokenHandlerFactory = refreshTokenHandlerFactory;
+		this.exchangeTokenHandlerFactory = exchangeTokenHandlerFactory;
+		this.credentialFlowHandlerFactory = credentialFlowHandlerFactory;
 	}
 	
 	@Override
@@ -149,9 +132,11 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons() 
 		{
 			HashSet<Object> ret = new HashSet<>();
-			ret.add(new AccessTokenResource(tokensManagement, accessTokenRepository, refreshTokenRepository, tokenCleaner, config, 
-					new OAuthRequestValidator(config, identitiesMan, attributesMan, scopeService), 
-					insecureIdPEngine, identitiesMan, tx, eventPublisher, msg, endpointMan, lastIdPClinetAccessAttributeManagement, description));
+			ret.add(new AccessTokenResource(authzCodeHandlerFactory.getHandler(config, description),
+					refreshTokenHandlerFactory.getHandler(config),
+					exchangeTokenHandlerFactory.getHandler(config, description),
+					credentialFlowHandlerFactory.getHandler(config, description),
+					statisticPublisherFactory.getOAuthTokenStatisticPublisher(config, description)));
 			ret.add(new DiscoveryResource(config, coordinator, scopeService));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(accessTokenRepository));

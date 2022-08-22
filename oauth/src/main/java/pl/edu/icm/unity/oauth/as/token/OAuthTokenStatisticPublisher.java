@@ -6,24 +6,30 @@
 package pl.edu.icm.unity.oauth.as.token;
 
 import java.time.Instant;
-import java.util.Map;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 import io.imunity.idp.AccessProtocol;
 import io.imunity.idp.ApplicationId;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
+import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -41,24 +47,28 @@ class OAuthTokenStatisticPublisher
 	private final ApplicationEventPublisher eventPublisher;
 	private final MessageSource msg;
 	private final EntityManagement idMan;
-	private final OAuthRequestValidator requestValidator;
 	private final ResolvedEndpoint endpoint;
 	private final EndpointManagement endpointMan;
 	private final LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement;
+	private final AttributesManagement unsecureAttributesMan;
+	private final OAuthASProperties oauthConfig;
 
 	private Endpoint authzEndpoint;
 
 	OAuthTokenStatisticPublisher(ApplicationEventPublisher eventPublisher, MessageSource msg, EntityManagement idMan,
-			OAuthRequestValidator requestValidator, ResolvedEndpoint endpoint, EndpointManagement endpointMan,
-			LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement)
+			OAuthRequestValidator requestValidator, EndpointManagement endpointMan,
+			LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement,
+			AttributesManagement unsecureAttributesMan, OAuthASProperties oauthConfig, ResolvedEndpoint endpoint)
 	{
 		this.eventPublisher = eventPublisher;
 		this.msg = msg;
 		this.idMan = idMan;
-		this.requestValidator = requestValidator;
 		this.endpoint = endpoint;
 		this.endpointMan = endpointMan;
 		this.lastIdPClinetAccessAttributeManagement = lastIdPClinetAccessAttributeManagement;
+		this.unsecureAttributesMan = unsecureAttributesMan;
+		this.oauthConfig = oauthConfig;
+
 	}
 
 	void reportFailAsLoggedClient()
@@ -69,7 +79,7 @@ class OAuthTokenStatisticPublisher
 			log.error("Can not retrieve identity of the OAuth client, skippig error reporting");
 			return;
 		}
-		
+
 		EntityParam clientEntity = new EntityParam(loginSession.getEntityId());
 		Entity clientResolvedEntity;
 		try
@@ -84,20 +94,39 @@ class OAuthTokenStatisticPublisher
 
 		Identity username = clientResolvedEntity.getIdentities().stream()
 				.filter(i -> i.getTypeId().equals(UsernameIdentity.ID)).findFirst().orElse(null);
-		Map<String, AttributeExt> attributes;
+		String clientName;
 		try
 		{
-			attributes = requestValidator.getAttributesNoAuthZ(clientEntity);
+			clientName = getClientName(clientEntity);
 		} catch (Exception e)
 		{
-			log.error("Can not retrieving attributes of the OAuth client", e);
+			log.error("Can not retrieving client name attribute of the OAuth client", e);
 			return;
 		}
 
-		reportFail(username != null ? username.getComparableValue() : null,
-				attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME) != null
-						? attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME).getValues().get(0)
-						: null);
+		reportFail(username != null ? username.getComparableValue() : null, clientName);
+	}
+
+	private String getClientName(EntityParam clientEntity)
+	{
+		String oauthGroup = oauthConfig.getValue(OAuthASProperties.CLIENTS_GROUP);
+		Collection<AttributeExt> attrs;
+		try
+		{
+			attrs = unsecureAttributesMan.getAllAttributes(clientEntity, true, oauthGroup, null, false);
+		} catch (EngineException e)
+		{
+			log.error("Problem retrieving attributes of the OAuth client", e);
+			throw new InternalError("Internal error, can not retrieve OAuth client's data");
+		}
+
+		Optional<AttributeExt> clientNameAttr = attrs.stream()
+				.filter(a -> a.getName().equals(OAuthSystemAttributesProvider.CLIENT_NAME)).findFirst();
+		if (clientNameAttr.isEmpty())
+		{
+			return null;
+		}
+		return clientNameAttr.get().getValues().get(0);
 	}
 
 	void reportFail(String clientUsername, String clientName)
@@ -108,16 +137,16 @@ class OAuthTokenStatisticPublisher
 	void reportSuccess(String clientUsername, String clientName, EntityParam owner)
 	{
 		report(clientUsername, clientName, Status.SUCCESSFUL);
-		
+
 		try
 		{
-			lastIdPClinetAccessAttributeManagement.setAttribute(owner,
-					AccessProtocol.OAuth, new ApplicationId(clientUsername), Instant.now());
+			lastIdPClinetAccessAttributeManagement.setAttribute(owner, AccessProtocol.OAuth,
+					new ApplicationId(clientUsername), Instant.now());
 		} catch (EngineException e)
 		{
 			log.error("Can not set last access attribute", e);
 		}
-		
+
 	}
 
 	private void report(String clientUsername, String clientName, Status status)
@@ -153,5 +182,43 @@ class OAuthTokenStatisticPublisher
 			log.error("Can not get relateed OAauth authz endpoint for token endpoint " + endpoint.getName(), e);
 			return endpoint.getEndpoint();
 		}
+	}
+
+	@Component
+	static class OAuthTokenStatisticPublisherFactory
+	{
+
+		private final ApplicationEventPublisher eventPublisher;
+		private final MessageSource msg;
+		private final EntityManagement idMan;
+		private final OAuthRequestValidatorFactory requestValidatorFactory;
+		private final EndpointManagement endpointMan;
+		private final LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement;
+		private final AttributesManagement unsecureAttributesMan;
+
+		@Autowired
+		OAuthTokenStatisticPublisherFactory(ApplicationEventPublisher eventPublisher, MessageSource msg,
+				@Qualifier("insecure") EntityManagement idMan, OAuthRequestValidatorFactory requestValidator,
+				@Qualifier("insecure") EndpointManagement endpointMan,
+				LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement,
+				@Qualifier("insecure") AttributesManagement unsecureAttributesMan)
+		{
+			this.eventPublisher = eventPublisher;
+			this.msg = msg;
+			this.idMan = idMan;
+			this.requestValidatorFactory = requestValidator;
+			this.endpointMan = endpointMan;
+			this.lastIdPClinetAccessAttributeManagement = lastIdPClinetAccessAttributeManagement;
+			this.unsecureAttributesMan = unsecureAttributesMan;
+		}
+
+		OAuthTokenStatisticPublisher getOAuthTokenStatisticPublisher(OAuthASProperties oauthConfig,
+				ResolvedEndpoint endpoint)
+		{
+			return new OAuthTokenStatisticPublisher(eventPublisher, msg, idMan,
+					requestValidatorFactory.getOAuthRequestValidator(oauthConfig), endpointMan,
+					lastIdPClinetAccessAttributeManagement, unsecureAttributesMan, oauthConfig, endpoint);
+		}
+
 	}
 }

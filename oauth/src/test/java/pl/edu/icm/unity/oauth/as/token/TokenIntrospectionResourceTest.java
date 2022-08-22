@@ -122,10 +122,23 @@ public class TokenIntrospectionResourceTest
 		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement, 
 				mock(SecuredTokensManagement.class));
 		
-		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement, accessTokenRepository,
-				refreshTokenRepository, new ClientTokensCleaner(accessTokenRepository, refreshTokenRepository), config, null,
-				null, null, tx, mock(ApplicationEventPublisher.class), null, null,
-				mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
+		TokenUtils tokenUtils = new TokenUtils(null, config, null);
+		OAuthTokenStatisticPublisher publisher = new OAuthTokenStatisticPublisher(mock(ApplicationEventPublisher.class),
+				null, null, null, null, mock(LastIdPClinetAccessAttributeManagement.class), null, config,
+				OAuthTestUtils.getEndpoint());
+
+		AuthzCodeHandler authzCodeHandler = new AuthzCodeHandler(tokensManagement, accessTokenRepository,
+				refreshTokenRepository, tx, new AccessTokenFactory(config), publisher, tokenUtils, config);
+		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokenRepository, null,
+				accessTokenRepository, null, null);
+		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, refreshTokenRepository, null,
+				accessTokenRepository, null, null, null, null);
+		CredentialFlowHandler credentialFlowHandler = new CredentialFlowHandler(config, null, null, null,
+				accessTokenRepository, null);
+		
+		AccessTokenResource tokenEndpoint = new AccessTokenResource(authzCodeHandler, refreshTokenHandler, exchangeTokenHandler,
+				credentialFlowHandler, null);
+		
 		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
 				null, null, null, null, null, null, null);

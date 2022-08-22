@@ -13,6 +13,8 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -27,6 +29,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.token.TokenUtils.TokenUtilsFactory;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 class RefreshTokenHandler
@@ -91,8 +94,9 @@ class RefreshTokenHandler
 
 		try
 		{
-			newToken = tokenUtils.prepareNewToken(parsedRefreshToken, scope, oldRequestedScopesList, refreshToken.getOwner(),
-					callerEntityId, parsedRefreshToken.getClientUsername(), true, GrantType.REFRESH_TOKEN.getValue());
+			newToken = tokenUtils.prepareNewToken(parsedRefreshToken, scope, oldRequestedScopesList,
+					refreshToken.getOwner(), callerEntityId, parsedRefreshToken.getClientUsername(), true,
+					GrantType.REFRESH_TOKEN.getValue());
 		} catch (OAuthErrorException e)
 		{
 			return e.response;
@@ -123,18 +127,53 @@ class RefreshTokenHandler
 	{
 		if (config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROLLING_FOR_PUBLIC_CLIENTS))
 		{
-			Optional<Token> usedRefreshToken = refreshTokensDAO.isUsedRefreshToken(refToken);
+			Optional<Token> usedRefreshToken = refreshTokensDAO.getUsedRefreshToken(refToken);
 			if (!usedRefreshToken.isEmpty())
 			{
-				OAuthToken oldRefreshToken = OAuthToken.getInstanceFromJson(usedRefreshToken.get().getContents());
-				tokenCleaner.removeTokensForClient(oldRefreshToken.getClientId(), usedRefreshToken.get().getOwner(),
-						oldRefreshToken.getFirstRefreshRollingToken());
-				log.warn(
-						"Trying to reuse already used refresh token, revoke the currently active oauth tokens for client {} {}",
-						oldRefreshToken.getClientId(), oldRefreshToken.getClientName());
+				clearTokensForClient(usedRefreshToken.get());
 				return true;
 			}
 		}
 		return false;
 	}
+	
+	
+	private void clearTokensForClient(Token usedRefreshToken)
+	{
+		OAuthToken oldRefreshToken = OAuthToken.getInstanceFromJson(usedRefreshToken.getContents());
+		tokenCleaner.removeTokensForClient(oldRefreshToken.getClientId(), usedRefreshToken.getOwner(),
+				oldRefreshToken.getFirstRefreshRollingToken());
+		log.warn(
+				"Trying to reuse already used refresh token, revoke the currently active oauth tokens for client {} {}",
+				oldRefreshToken.getClientId(), oldRefreshToken.getClientName());
+		
+		
+	}
+	@Component
+	static class RefreshTokenHandlerFactory
+	{
+		private final OAuthRefreshTokenRepository refreshTokensDAO;
+		private final OAuthAccessTokenRepository accessTokensDAO;
+		private final ClientTokensCleaner tokenCleaner;
+		private final TokenUtilsFactory tokenUtilsFactory;
+
+		@Autowired
+		RefreshTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO,
+				OAuthAccessTokenRepository accessTokensDAO, ClientTokensCleaner tokenCleaner,
+				TokenUtilsFactory tokenUtilsFactory)
+		{
+			this.refreshTokensDAO = refreshTokensDAO;
+			this.accessTokensDAO = accessTokensDAO;
+			this.tokenCleaner = tokenCleaner;
+			this.tokenUtilsFactory = tokenUtilsFactory;
+		}
+
+		RefreshTokenHandler getHandler(OAuthASProperties config)
+		{
+			return new RefreshTokenHandler(config, refreshTokensDAO, new AccessTokenFactory(config), accessTokensDAO,
+					tokenCleaner, tokenUtilsFactory.getTokenUtils(config));
+		}
+
+	}
+
 }

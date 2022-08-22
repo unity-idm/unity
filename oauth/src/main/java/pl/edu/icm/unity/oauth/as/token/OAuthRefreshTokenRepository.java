@@ -177,7 +177,7 @@ public class OAuthRefreshTokenRepository
 		}
 	}
 
-	public Optional<Token> isUsedRefreshToken(String refToken)
+	public Optional<Token> getUsedRefreshToken(String refToken)
 	{
 		try
 		{

@@ -14,6 +14,9 @@ import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
@@ -30,12 +33,16 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenStatisticPublisher.OAuthTokenStatisticPublisherFactory;
+import pl.edu.icm.unity.oauth.as.token.TokenUtils.TokenUtilsFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
-public class ExchangeTokenHandler
+class ExchangeTokenHandler
 {
 
 	private final OAuthASProperties config;
@@ -183,4 +190,38 @@ public class ExchangeTokenHandler
 		}
 	}
 
+	@Component
+	static class ExchangeTokenHandlerFactory
+	{
+		private final OAuthRefreshTokenRepository refreshTokensDAO;
+		private final OAuthAccessTokenRepository accessTokensDAO;
+		private final TokenUtilsFactory tokenUtilsFactory;
+		private final OAuthTokenStatisticPublisherFactory statisticPublisherFactory;
+		private final OAuthRequestValidatorFactory requestValidatorFactory;
+		private final EntityManagement idMan;
+
+		@Autowired
+		ExchangeTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO,
+				OAuthAccessTokenRepository accessTokensDAO, TokenUtilsFactory tokenUtilsFactory,
+				OAuthTokenStatisticPublisherFactory statisticPublisherFactory,
+				OAuthRequestValidatorFactory requestValidatorFactory, EntityManagement idMan)
+		{
+
+			this.refreshTokensDAO = refreshTokensDAO;
+			this.accessTokensDAO = accessTokensDAO;
+			this.tokenUtilsFactory = tokenUtilsFactory;
+			this.statisticPublisherFactory = statisticPublisherFactory;
+			this.requestValidatorFactory = requestValidatorFactory;
+			this.idMan = idMan;
+		}
+
+		ExchangeTokenHandler getHandler(OAuthASProperties config, ResolvedEndpoint endpoint)
+		{
+			return new ExchangeTokenHandler(config, refreshTokensDAO, new AccessTokenFactory(config), accessTokensDAO,
+					tokenUtilsFactory.getTokenUtils(config),
+					statisticPublisherFactory.getOAuthTokenStatisticPublisher(config, endpoint),
+					requestValidatorFactory.getOAuthRequestValidator(config), idMan);
+		}
+
+	}
 }

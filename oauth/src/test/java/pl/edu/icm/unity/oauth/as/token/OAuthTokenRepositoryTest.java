@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as;
+package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.Date;
 
@@ -14,11 +14,9 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
-import pl.edu.icm.unity.oauth.as.token.AccessTokenFactory;
-import pl.edu.icm.unity.oauth.as.token.AccessTokenFactoryTest;
-import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
-import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class OAuthTokenRepositoryTest

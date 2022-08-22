@@ -12,26 +12,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.ApplicationEventPublisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.idp.IdPEngine;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
-import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * RESTful implementation of the access token resource.
@@ -57,27 +45,15 @@ public class AccessTokenResource extends BaseOAuthResource
 	private final CredentialFlowHandler credentialFlowHandler;
 	private final OAuthTokenStatisticPublisher statisticPublisher;
 
-	public AccessTokenResource(TokensManagement tokensManagement, OAuthAccessTokenRepository accessTokensDAO,
-			OAuthRefreshTokenRepository refreshTokensDAO, ClientTokensCleaner tokenCleaner, OAuthASProperties config,
-			OAuthRequestValidator requestValidator, IdPEngine idpEngineInsecure, EntityManagement idMan,
-			TransactionalRunner tx, ApplicationEventPublisher eventPublisher, MessageSource msg,
-			EndpointManagement endpointMan,
-			LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement, ResolvedEndpoint endpoint)
+	public AccessTokenResource(AuthzCodeHandler authzCodeHandler, RefreshTokenHandler refreshTokenHandler,
+			ExchangeTokenHandler exchangeTokenHandler, CredentialFlowHandler credentialFlowHandler,
+			OAuthTokenStatisticPublisher statisticPublisher)
 	{
-		OAuthIdPEngine notAuthorizedOauthIdpEngine = new OAuthIdPEngine(idpEngineInsecure);
-		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
-		this.statisticPublisher = new OAuthTokenStatisticPublisher(eventPublisher, msg, idMan, requestValidator,
-				endpoint, endpointMan, lastIdPClinetAccessAttributeManagement);
-		TokenUtils tokenUtils = new TokenUtils(requestValidator, config, notAuthorizedOauthIdpEngine);
-		this.authzCodeHandler = new AuthzCodeHandler(tokensManagement, accessTokensDAO, refreshTokensDAO, config, tx,
-				accessTokenFactory, statisticPublisher, tokenUtils);
-		this.refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensDAO, accessTokenFactory,
-				accessTokensDAO, tokenCleaner, tokenUtils);
-		this.exchangeTokenHandler = new ExchangeTokenHandler(config, refreshTokensDAO, accessTokenFactory,
-				accessTokensDAO, tokenUtils, statisticPublisher, requestValidator, idMan);
-		this.credentialFlowHandler = new CredentialFlowHandler(config,
-				new ClientCredentialsProcessor(requestValidator, idpEngineInsecure, config), statisticPublisher,
-				accessTokenFactory, accessTokensDAO, tokenUtils);
+		this.authzCodeHandler = authzCodeHandler;
+		this.refreshTokenHandler = refreshTokenHandler;
+		this.exchangeTokenHandler = exchangeTokenHandler;
+		this.credentialFlowHandler = credentialFlowHandler;
+		this.statisticPublisher = statisticPublisher;
 	}
 
 	@Path("/")
