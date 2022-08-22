@@ -252,7 +252,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		@Override
 		public void focus()
 		{
-			if (presetAuthenticatedIdentity == null)
+			if (presetAuthenticatedIdentity == null && usernameField.isEmpty())
 				usernameField.focus();
 			else
 				passwordField.focus();
