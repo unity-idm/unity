@@ -16,16 +16,16 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>9.4.46.v20220331</jetty.version>
+		<jetty.version>9.4.48.v20220622</jetty.version>
 		<slf4j.version>1.7.32</slf4j.version>
-		<log4j.version>2.17.2</log4j.version>
-		<spring.version>5.3.20</spring.version>
+		<log4j.version>2.18.0</log4j.version>
+		<spring.version>5.3.22</spring.version>
 		<vaadin.version>8.14.3</vaadin.version>
 		<cxf.version>3.4.5</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
 		<bc.version>1.69</bc.version>
-		<selenium.version>4.2.1</selenium.version>
-		<jackson.version>2.13.2</jackson.version>
+		<selenium.version>4.4.0</selenium.version>
+		<jackson.version>2.13.3</jackson.version>
 		<junit5.version>5.8.2</junit5.version>
 
 		<!-- Sonar -->
@@ -353,7 +353,7 @@
 			<dependency>
 				<groupId>org.awaitility</groupId>
 				<artifactId>awaitility</artifactId>
-				<version>4.1.1</version>
+				<version>4.2.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -454,7 +454,7 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.13.2.2</version>
+				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.datatype</groupId>
@@ -474,7 +474,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>5.3.1</version>
+				<version>5.3.6</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
@@ -534,12 +534,12 @@
 			<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
-				<version>42.4.1</version>
+				<version>42.4.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mariadb.jdbc</groupId>
 				<artifactId>mariadb-java-client</artifactId>
-				<version>2.7.4</version>
+				<version>3.0.7</version>
 			</dependency>
 			<dependency>
 				<groupId>com.h2database</groupId>
@@ -549,12 +549,12 @@
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis</artifactId>
-				<version>3.5.7</version>
+				<version>3.5.10</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis-spring</artifactId>
-				<version>2.0.6</version>
+				<version>2.0.7</version>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
@@ -665,12 +665,12 @@
 			<dependency>
 				<groupId>com.unboundid</groupId>
 				<artifactId>unboundid-ldapsdk</artifactId>
-				<version>6.0.4</version>
+				<version>6.0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
-				<version>2.4.13.Final</version>
+				<version>2.4.14.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
@@ -680,12 +680,12 @@
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
-				<version>9.32</version>
+				<version>9.41</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>9.21</version>
+				<version>9.23</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
@@ -746,7 +746,7 @@
 			<dependency>
 				<groupId>com.nulab-inc</groupId>
 				<artifactId>zxcvbn</artifactId>
-				<version>1.6.0</version>
+				<version>1.7.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sun.xml.ws</groupId>
@@ -762,7 +762,7 @@
 			<dependency>
 				<groupId>com.github.ua-parser</groupId>
 				<artifactId>uap-java</artifactId>
-				<version>1.5.2</version>
+				<version>1.5.3</version>
 			</dependency>
 
 
@@ -799,7 +799,7 @@
 			<dependency>
 				<groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
 				<artifactId>owasp-java-html-sanitizer</artifactId>
-				<version>20211018.2</version>
+				<version>20220608.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
