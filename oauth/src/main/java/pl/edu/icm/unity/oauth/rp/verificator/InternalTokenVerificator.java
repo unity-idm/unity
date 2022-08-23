@@ -43,7 +43,7 @@ public class InternalTokenVerificator implements TokenVerificatorProtocol
 			internalAccessToken = tokensDAO.readAccessToken(token.getValue());
 		} catch (IllegalArgumentException e)
 		{
-			log.debug("Invalid bearer access token " + token.getValue());
+			log.debug("Invalid bearer access token");
 			return new TokenStatus();
 		}
 		

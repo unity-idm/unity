@@ -177,7 +177,9 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 		if (!tokenVerificationResult.token.get().getClientId().get()
 				.equals(localPasswordVerificationResult.getSuccessResult().authenticatedEntity.getEntityId()))
 		{
-			log.debug("Client not matches to bearer token");
+			log.debug("Authenticated client {} is not matching the token's client entity {}",
+					localPasswordVerificationResult.getSuccessResult().authenticatedEntity.getEntityId(),
+					tokenVerificationResult.token.get().getClientId().get());
 			return LocalAuthenticationResult.failed();
 		}
 		updateInvocationContext(tokenVerificationResult.token.get());

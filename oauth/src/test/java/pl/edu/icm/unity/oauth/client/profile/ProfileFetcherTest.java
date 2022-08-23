@@ -14,7 +14,6 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.junit.Test;
 
@@ -40,30 +39,27 @@ public class ProfileFetcherTest
 	@Test
 	public void shouldResolveToJsonObjects() throws ParseException, IOException
 	{
-
 		JSONObject ob = new JSONObject(JSONObjectUtils.parse(new String(Files
 				.readAllBytes(Paths.get("src/test/resources/orcidOutput.json")))));
 		JSONObject converted = ProfileFetcherUtils.convertToRawAttributes(ob);
 		assertThat(converted.entrySet().size(), is(ob.entrySet().size()));
 
-		JSONArray res = (JSONArray) getFromObject((JSONObject) getFromObject(
-				(JSONObject) getFromObject((JSONObject) getFromObject(converted,
-						"orcid-profile"), "orcid-bio"),
-				"contact-details"), "email");
+		JSONArray res = (JSONArray) getFromObject(
+					(JSONObject) getFromObject(
+						(JSONObject) getFromObject(
+							(JSONObject) getFromObject(converted, "orcid-profile"), 
+							"orcid-bio"),
+						"contact-details"), 
+					"email");
 
 		assertThat(res.size(), is(2));
 	}
 
 	private Object getFromObject(JSONObject source, String key)
 	{
-		for (Entry<String, Object> entry : source.entrySet())
-		{
-			if (entry.getKey().equals(key))
-			{
-				return entry.getValue();
-			}
-		}
-		return null;
+		if (source == null)
+			throw new IllegalArgumentException(key + " source is null");
+		return source.get(key);
 	}
 
 }

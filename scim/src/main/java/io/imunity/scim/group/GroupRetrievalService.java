@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import io.imunity.scim.MembershipGroupsUtils;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.group.GroupAuthzService.SCIMGroupAuthzServiceFactory;
 import io.imunity.scim.group.GroupMember.Builder;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
+import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -62,21 +64,25 @@ class GroupRetrievalService
 	GroupData getGroup(GroupId groupId) throws EngineException
 	{
 		authzMan.checkReadGroups();
-		assertIsMembershipGroup(groupId.id);
+		GroupStructuralData bulkStructuralData = bulkService.getBulkStructuralData("/");
+		Map<String, GroupContents> allGroupsWithSubgroups = bulkService.getGroupAndSubgroups(bulkStructuralData);
+		List<String> effectiveMembershipGroups = MembershipGroupsUtils.getEffectiveMembershipGroups(
+				configuration.membershipGroups, configuration.excludedMembershipGroups, allGroupsWithSubgroups.values()
+						.stream().collect(Collectors.toMap(g -> g.getGroup().getPathEncoded(), g -> g.getGroup())));
+
+		assertIsMembershipGroup(groupId.id, effectiveMembershipGroups);
 
 		if (!authzMan.getFilter().test(groupId.id))
 		{
 			throw new GroupNotFoundException("Invalid group " + groupId.id);
 		}
 
-		
 		Map<Long, EntityInGroupData> membershipInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData(groupId.id));
 		Map<Long, EntityInGroupData> attributesInfo = bulkService
 				.getMembershipInfo(bulkService.getBulkMembershipData(configuration.rootGroup));
 
-		Map<String, GroupContents> groupAndSubgroups = bulkService
-				.getGroupAndSubgroups(bulkService.getBulkStructuralData(groupId.id));
+		Map<String, GroupContents> groupAndSubgroups = bulkService.getGroupAndSubgroups(bulkStructuralData, groupId.id);
 
 		GroupContents main = groupAndSubgroups.get(groupId.id);
 		Optional<String> nameAttribute = getNameAttribute();
@@ -84,7 +90,8 @@ class GroupRetrievalService
 		List<GroupMember> members = new ArrayList<>();
 		membershipInfo.values().forEach(m -> members
 				.add(mapToUserMember(m, Optional.ofNullable(attributesInfo.get(m.entity.getId())), nameAttribute)));
-		groupAndSubgroups.values().stream().filter(g -> !g.equals(main))
+		groupAndSubgroups.values().stream()
+				.filter(g -> !g.equals(main) && effectiveMembershipGroups.contains(g.getGroup().getPathEncoded()))
 				.forEach(g -> members.add(mapToGroupMemeber(g)));
 
 		return GroupData.builder().withDisplayName(main.getGroup().getDisplayedNameShort(msg).getValue(msg))
@@ -114,23 +121,30 @@ class GroupRetrievalService
 		Map<String, GroupContents> allGroupsWithSubgroups = bulkService
 				.getGroupAndSubgroups(bulkService.getBulkStructuralData("/"));
 		Predicate<String> filter = authzMan.getFilter();
-		for (String configuredMemebershipGroup : configuration.membershipGroups.stream().filter(filter).sorted()
+
+		List<String> effectiveMembershipGroups = MembershipGroupsUtils.getEffectiveMembershipGroups(
+				configuration.membershipGroups, configuration.excludedMembershipGroups, allGroupsWithSubgroups.values()
+						.stream().collect(Collectors.toMap(g -> g.getGroup().getPathEncoded(), g -> g.getGroup())));
+
+		for (String configuredMemebershipGroup : effectiveMembershipGroups.stream().filter(filter).sorted()
 				.collect(Collectors.toList()))
-		{		
+		{
 			GroupContents main = allGroupsWithSubgroups.get(configuredMemebershipGroup);
 			if (main == null)
 			{
 				log.warn("Can not get configured membership group " + configuredMemebershipGroup);
 				continue;
 			}
-			fillMembersAndAddGroupResource(main, allGroupsWithSubgroups, nameAttribute, membershipInfo, attributesInfo, groups);
+			fillMembersAndAddGroupResource(main, allGroupsWithSubgroups, nameAttribute, membershipInfo, attributesInfo,
+					effectiveMembershipGroups, groups);
 		}
 
 		return groups;
 	}
 
-	private void fillMembersAndAddGroupResource(GroupContents group, Map<String, GroupContents> groupAndSubgroups, Optional<String> nameAttribute,
-			Map<Long, EntityInGroupData> membershipInfo, Map<Long, EntityInGroupData> membershipInfoForAttr,
+	private void fillMembersAndAddGroupResource(GroupContents group, Map<String, GroupContents> groupAndSubgroups,
+			Optional<String> nameAttribute, Map<Long, EntityInGroupData> membershipInfo,
+			Map<Long, EntityInGroupData> membershipInfoForAttr, List<String> effectiveMembershipGroups,
 			List<GroupData> groups)
 	{
 		List<GroupMember> members = new ArrayList<>();
@@ -138,7 +152,8 @@ class GroupRetrievalService
 				.forEach(e -> members.add(mapToUserMember(e,
 						Optional.ofNullable(membershipInfoForAttr.get(e.entity.getId())), nameAttribute)));
 		groupAndSubgroups.values().stream()
-				.filter(g -> Group.isDirectChild(g.getGroup().getPathEncoded(), group.getGroup().getPathEncoded()) && configuration.membershipGroups.contains(g.getGroup().getPathEncoded()))
+				.filter(g -> Group.isDirectChild(g.getGroup().getPathEncoded(), group.getGroup().getPathEncoded())
+						&& effectiveMembershipGroups.contains(g.getGroup().getPathEncoded()))
 				.forEach(g ->
 				{
 					members.add(mapToGroupMemeber(g));
@@ -174,11 +189,11 @@ class GroupRetrievalService
 		return userMember.build();
 	}
 
-	private void assertIsMembershipGroup(String group) throws EngineException
+	private void assertIsMembershipGroup(String group, List<String> effectiveMembershipGroups) throws EngineException
 	{
 		if (groupsMan.isPresent(group))
 		{
-			if (configuration.membershipGroups.stream().anyMatch(g -> g.equals(group)))
+			if (effectiveMembershipGroups.stream().anyMatch(g -> g.equals(group)))
 			{
 				return;
 			}

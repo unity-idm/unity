@@ -79,10 +79,9 @@ public class UserSchemaEvaluatorTest
 		context.setLoginSession(new LoginSession(null, null, 0, 2, null, null, null, null));
 		InvocationContext.setCurrent(context);
 
-		evaluator = new UserSchemaEvaluator(
-				new SCIMEndpointDescription(URI.create("https:localhost"), "/scim",
-						List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
-				mappingEvaluatorRegistry);
+		evaluator = new UserSchemaEvaluator(new SCIMEndpointDescription(URI.create("https:localhost"), "/scim",
+				List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList()), mappingEvaluatorRegistry);
 
 		AttributeDefinitionWithMapping complexAttr = AttributeDefinitionWithMapping.builder()
 				.withAttributeDefinition(AttributeDefinition.builder().withName("name").withMultiValued(false)
@@ -138,10 +137,9 @@ public class UserSchemaEvaluatorTest
 		context.setLoginSession(new LoginSession(null, null, 0, 2, null, null, null, null));
 		InvocationContext.setCurrent(context);
 
-		evaluator = new UserSchemaEvaluator(
-				new SCIMEndpointDescription(URI.create("https:localhost"), "/scim",
-						List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
-				mappingEvaluatorRegistry);
+		evaluator = new UserSchemaEvaluator(new SCIMEndpointDescription(URI.create("https:localhost"), "/scim",
+				List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList()), mappingEvaluatorRegistry);
 
 		AttributeDefinitionWithMapping complexAttr = AttributeDefinitionWithMapping.builder()
 				.withAttributeDefinition(AttributeDefinition.builder().withName("name").withMultiValued(false)
@@ -169,8 +167,7 @@ public class UserSchemaEvaluatorTest
 		when(complexMappingEvaluator.eval(any(), any(), eq(mappingEvaluatorRegistry)))
 				.thenReturn(EvaluationResult.builder().build());
 
-		evaluator.evalUserSchema(user, List.of(basicUserSchema),
-				new CachingMVELGroupProvider(new HashMap<>()));
+		evaluator.evalUserSchema(user, List.of(basicUserSchema), new CachingMVELGroupProvider(new HashMap<>()));
 
 		ArgumentCaptor<AttributeDefinitionWithMapping> attrWithMappingCaptor = ArgumentCaptor
 				.forClass(AttributeDefinitionWithMapping.class);

@@ -77,7 +77,7 @@ public class UserRetrievalServiceTest
 				"/scim",
 				List.of("/scim", "/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members1/Subgroup2",
 						"/scim/Members2", "/scim/Members2/Subgroup1", "/scim/Members2/Subgroup2"),
-				Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		userRetrievalService = new UserRetrievalService(authzMan, entityManagement, bulkService, attributesManagement,
 				configuration);
 	}
@@ -195,8 +195,8 @@ public class UserRetrievalServiceTest
 		List<User> users = userRetrievalService.getUsers();
 
 		assertThat(users.size(), is(1));
-		assertThat(users, hasItems(
-				User.builder().withEntityId(0L)
+		assertThat(users,
+				hasItems(User.builder().withEntityId(0L)
 						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim").getGroup(),
 								SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
 						.withIdentities(entity1.entity.getIdentities()).build()));

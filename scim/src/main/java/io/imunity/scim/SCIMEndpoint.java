@@ -45,17 +45,14 @@ public class SCIMEndpoint extends RESTEndpoint
 
 	private final List<SCIMRestControllerFactory> factories;
 	protected SCIMEndpointConfiguration scimEndpointConfiguration;
-	private final MembershipGroupsProvider membershipGroupProvider;
 
 	@Autowired
 	public SCIMEndpoint(MessageSource msg, SessionManagement sessionMan, NetworkServer server,
 			AuthenticationProcessor authnProcessor, List<SCIMRestControllerFactory> factories,
-			AdvertisedAddressProvider advertisedAddrProvider, EntityManagement entityMan,
-			MembershipGroupsProvider membershipGroupProvider)
+			AdvertisedAddressProvider advertisedAddrProvider, EntityManagement entityMan)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, "", entityMan);
 		this.factories = factories;
-		this.membershipGroupProvider = membershipGroupProvider;
 	}
 
 	@Override
@@ -78,8 +75,9 @@ public class SCIMEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons()
 		{
 			SCIMEndpointDescription enDesc = new SCIMEndpointDescription(URI.create(getServletUrl("")),
-					scimEndpointConfiguration.rootGroup, membershipGroupProvider.getEffectiveMembershipGroups(scimEndpointConfiguration),
-					scimEndpointConfiguration.schemas, scimEndpointConfiguration.membershipAttributes,
+					scimEndpointConfiguration.rootGroup, scimEndpointConfiguration.membershipGroups,
+					scimEndpointConfiguration.excludedMembershipGroups, scimEndpointConfiguration.schemas,
+					scimEndpointConfiguration.membershipAttributes,
 					getEndpointDescription().getEndpoint().getConfiguration().getAuthenticationOptions());
 			Set<Object> ret = factories.stream().map(f -> f.getController(enDesc)).collect(Collectors.toSet());
 			SCIMEndpointExceptionMapper.installExceptionHandlers(ret);
