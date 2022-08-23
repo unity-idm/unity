@@ -34,7 +34,7 @@ public class GroupAssemblyServiceTest
 	public void init()
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"), List.of(SchemaWithMapping.builder()
+				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(),  List.of(SchemaWithMapping.builder()
 						.withType(SchemaType.GROUP_CORE).withName("GroupCore").withId("UG").withEnable(true).build()),
 				Collections.emptyList(), Collections.emptyList());
 		groupAssemblyService = new GroupAssemblyService(configuration);

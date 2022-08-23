@@ -37,7 +37,7 @@ public class SchemeAssemblyServiceTest
 	public void init()
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", List.of("/scim"),
+				"/scim", List.of("/scim"), Collections.emptyList(),
 				List.of(DefaultSchemaProvider.getBasicGroupSchema(), DefaultSchemaProvider.getBasicUserSchema(),
 						SchemaWithMapping.builder().withId("urn:ietf:params:scim:schemas:NotEnabled")
 								.withType(SchemaType.USER).withName("NotEnabled").withDescription("NotEnabled")

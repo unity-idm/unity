@@ -11,56 +11,35 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
-import io.imunity.scim.config.SCIMEndpointConfiguration;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.types.basic.Group;
 
-@Component
-class MembershipGroupsProvider
+public class MembershipGroupsUtils
 {
-	private final GroupsManagement groupMan;
 
-	MembershipGroupsProvider(@Qualifier("insecure") GroupsManagement groupMan)
+	public static List<String> getEffectiveMembershipGroups(List<String> membershipGroups,
+			List<String> excludedMembershipGroups, Map<String, Group> allGroups)
 	{
-		this.groupMan = groupMan;
-	}
-
-	List<String> getEffectiveMembershipGroups(SCIMEndpointConfiguration scimEndpointConfiguration)
-	{
-		Map<String, Group> allGroups;
-		try
-		{
-			allGroups = groupMan.getAllGroups();
-		} catch (EngineException e)
-		{
-			throw new RuntimeEngineException("Can not get groups", e);
-		}
 
 		List<Group> allGroupsList = allGroups.values().stream().collect(Collectors.toList());
 
-		Set<Group> whiteListGroups = scimEndpointConfiguration.membershipGroups.stream()
+		Set<Group> whiteListGroups = membershipGroups.stream()
 				.map(g -> GroupPatternMatcher.filterMatching(allGroupsList, g)).flatMap(a -> a.stream())
 				.collect(Collectors.toSet());
 		whiteListGroups = addChildrenGroups(whiteListGroups, allGroupsList);
-		Set<Group> blackListGroups = scimEndpointConfiguration.excludedMembershipGroups.stream()
+		Set<Group> blackListGroups = excludedMembershipGroups.stream()
 				.map(g -> GroupPatternMatcher.filterMatching(allGroupsList, g)).flatMap(a -> a.stream())
 				.collect(Collectors.toSet());
 		blackListGroups = addChildrenGroups(blackListGroups, allGroupsList);
-		
+
 		whiteListGroups.removeAll(blackListGroups);
 		return whiteListGroups.stream().map(g -> g.getPathEncoded()).sorted().collect(Collectors.toList());
 	}
 
-	private Set<Group> addChildrenGroups(Set<Group> groupsToResolve, List<Group> allGroupsList)
+	private static Set<Group> addChildrenGroups(Set<Group> groupsToResolve, List<Group> allGroupsList)
 	{
 		Set<Group> ret = new HashSet<>(groupsToResolve);
-		
+
 		for (Group g : groupsToResolve)
 		{
 			allGroupsList.forEach(ag ->
