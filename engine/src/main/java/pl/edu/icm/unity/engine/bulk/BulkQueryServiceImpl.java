@@ -288,15 +288,21 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 	}
 	
 	@Override
-	public Map<String, GroupContents> getGroupAndSubgroups(GroupStructuralData dataO, String rootGroup)
+	public Map<String, GroupContents> getGroupAndSubgroups(GroupStructuralData dataO, String subGroup)
 	{
+		GroupStructuralDataImpl data = (GroupStructuralDataImpl) dataO;
+		if (!Group.isChildOrSame(subGroup, data.getGroup()))
+		{
+			throw new IllegalArgumentException(
+					"Group " + subGroup + " is not child of group structural data root group " + data.getGroup());
+		}
 		Stopwatch watch = Stopwatch.createStarted();
 		Map<String, GroupContents> ret = new HashMap<>();
-		GroupStructuralDataImpl data = (GroupStructuralDataImpl) dataO;
+
 		Set<String> allGroups = data.getGroups().keySet();
-		for (Group group: data.getGroups().values())
+		for (Group group : data.getGroups().values())
 		{
-			if (!Group.isChildOrSame(group.toString(), rootGroup))
+			if (!Group.isChildOrSame(group.toString(), subGroup))
 				continue;
 			GroupContents entry = new GroupContents();
 			entry.setGroup(group);
