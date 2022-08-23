@@ -287,6 +287,26 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		return ret;
 	}
 	
+	@Override
+	public Map<String, GroupContents> getGroupAndSubgroups(GroupStructuralData dataO, String rootGroup)
+	{
+		Stopwatch watch = Stopwatch.createStarted();
+		Map<String, GroupContents> ret = new HashMap<>();
+		GroupStructuralDataImpl data = (GroupStructuralDataImpl) dataO;
+		Set<String> allGroups = data.getGroups().keySet();
+		for (Group group: data.getGroups().values())
+		{
+			if (!Group.isChildOrSame(group.toString(), rootGroup))
+				continue;
+			GroupContents entry = new GroupContents();
+			entry.setGroup(group);
+			entry.setSubGroups(getDirectSubGroups(group.toString(), allGroups));
+			ret.put(group.toString(), entry);
+		}
+		log.debug("Bulk group and subgroups resolve: {}", watch.toString());
+		return ret;
+	}
+	
 	private List<String> getDirectSubGroups(String root, Set<String> allGroups)
 	{
 		int prefix = root.length() + 1;

@@ -59,7 +59,7 @@ public class UserAssemblyServiceTest
 	public void init()
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"),
+				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(),
 				List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
 						.withEnable(true).build(),
 						SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")

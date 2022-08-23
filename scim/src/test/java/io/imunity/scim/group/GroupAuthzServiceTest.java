@@ -54,7 +54,7 @@ public class GroupAuthzServiceTest
 	{
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
 				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(),
-				Collections.emptyList());
+				Collections.emptyList(), Collections.emptyList());
 		groupAuthzService = new GroupAuthzService(authzMan, entityManagement, configuration);
 	}
 
