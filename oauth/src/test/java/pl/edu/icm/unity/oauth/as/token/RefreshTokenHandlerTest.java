@@ -50,7 +50,7 @@ public class RefreshTokenHandlerTest
 	@Mock
 	private OAuthAccessTokenRepository accessTokensDAO;
 	@Mock
-	private ClientTokensCleaner tokenCleaner;
+	private OAuthClientTokensCleaner tokenCleaner;
 	@Mock
 	private TokenUtils tokenUtils;
 

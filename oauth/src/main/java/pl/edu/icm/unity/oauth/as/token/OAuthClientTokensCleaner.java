@@ -12,14 +12,14 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 @Component
-public class ClientTokensCleaner
+public class OAuthClientTokensCleaner
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthRefreshTokenExpirationListener.class);
 
 	private final OAuthAccessTokenRepository accessTokenRepository;
 	private final OAuthRefreshTokenRepository refreshTokenRepository;
 
-	public ClientTokensCleaner(OAuthAccessTokenRepository accessTokenRepository,
+	public OAuthClientTokensCleaner(OAuthAccessTokenRepository accessTokenRepository,
 			OAuthRefreshTokenRepository refreshTokenRepository)
 	{
 		this.accessTokenRepository = accessTokenRepository;

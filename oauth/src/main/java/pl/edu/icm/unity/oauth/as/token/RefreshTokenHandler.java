@@ -40,12 +40,12 @@ class RefreshTokenHandler
 	private final OAuthRefreshTokenRepository refreshTokensDAO;
 	private final AccessTokenFactory accessTokenFactory;
 	private final OAuthAccessTokenRepository accessTokensDAO;
-	private final ClientTokensCleaner tokenCleaner;
+	private final OAuthClientTokensCleaner tokenCleaner;
 	private final TokenUtils tokenUtils;
 
 	RefreshTokenHandler(OAuthASProperties config, OAuthRefreshTokenRepository refreshTokensDAO,
 			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO,
-			ClientTokensCleaner tokenCleaner, TokenUtils tokenUtils)
+			OAuthClientTokensCleaner tokenCleaner, TokenUtils tokenUtils)
 	{
 
 		this.config = config;
@@ -154,12 +154,12 @@ class RefreshTokenHandler
 	{
 		private final OAuthRefreshTokenRepository refreshTokensDAO;
 		private final OAuthAccessTokenRepository accessTokensDAO;
-		private final ClientTokensCleaner tokenCleaner;
+		private final OAuthClientTokensCleaner tokenCleaner;
 		private final TokenUtilsFactory tokenUtilsFactory;
 
 		@Autowired
 		RefreshTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO,
-				OAuthAccessTokenRepository accessTokensDAO, ClientTokensCleaner tokenCleaner,
+				OAuthAccessTokenRepository accessTokensDAO, OAuthClientTokensCleaner tokenCleaner,
 				TokenUtilsFactory tokenUtilsFactory)
 		{
 			this.refreshTokensDAO = refreshTokensDAO;

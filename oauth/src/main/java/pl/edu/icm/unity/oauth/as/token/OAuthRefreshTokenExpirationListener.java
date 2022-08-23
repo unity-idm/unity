@@ -15,9 +15,9 @@ import pl.edu.icm.unity.oauth.as.OAuthToken;
 
 class OAuthRefreshTokenExpirationListener implements TokenExpirationListener
 {
-	private final ClientTokensCleaner tokenCleaner;
+	private final OAuthClientTokensCleaner tokenCleaner;
 
-	OAuthRefreshTokenExpirationListener(ClientTokensCleaner tokenCleaner)
+	OAuthRefreshTokenExpirationListener(OAuthClientTokensCleaner tokenCleaner)
 	{
 		this.tokenCleaner = tokenCleaner;
 	}
@@ -34,7 +34,7 @@ class OAuthRefreshTokenExpirationListener implements TokenExpirationListener
 	{
 		@Autowired
 		public OAuthRefreshTokenExpirationListenerInstalator(TokensManagement tokensManagement,
-				ClientTokensCleaner tokenCleaner)
+				OAuthClientTokensCleaner tokenCleaner)
 		{
 			tokensManagement.addTokenExpirationListener(new OAuthRefreshTokenExpirationListener(tokenCleaner),
 					OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN);
