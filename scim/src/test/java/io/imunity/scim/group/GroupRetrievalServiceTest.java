@@ -152,7 +152,7 @@ public class GroupRetrievalServiceTest
 	}
 	
 	@Test
-	public void shouldRespectEffectiveMembershipGroups() throws EngineException
+	public void shouldRespectEffectiveMembershipGroupsWithWildcardExclusion() throws EngineException
 	{
 		// given
 		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
@@ -193,6 +193,55 @@ public class GroupRetrievalServiceTest
 		assertThat(memberGroup1.members.size(), is(2));
 		assertThat(memberGroup1.members.stream().map(g -> g.value).collect(Collectors.toSet()),
 				hasItems("/A", "/D"));	
+	}
+	
+	@Test
+	public void shouldRespectEffectiveMembershipGroupsWithNormalGroupExclusion() throws EngineException
+	{
+		// given
+		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
+				"/scim", List.of("/"), List.of("/A/B"),
+				 Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+		groupRetrievalService = new GroupRetrievalService(msg, authzMan, groupsMan, bulkService, attrSupport,
+				configuration);
+
+		when(authzMan.getFilter()).thenReturn(s -> true);
+		addEntityNameAttrType();
+		GroupStructuralData gdata1 = new MockGroupStructuralData();
+		when(bulkService.getBulkStructuralData(eq("/"))).thenReturn(gdata1);
+		Map<String, GroupContents> groupsWithSubgroups1 = new HashMap<>();
+		groupsWithSubgroups1.put("/",
+				SCIMTestHelper.getGroupContent("/", List.of("/A", "/D")));
+		groupsWithSubgroups1.put("/A", SCIMTestHelper.getGroupContent("/A",
+				List.of("/B", "/Bar")));
+		groupsWithSubgroups1.put("/D", SCIMTestHelper.getGroupContent("/D",
+				Collections.emptyList()));
+		groupsWithSubgroups1.put("/A/B", SCIMTestHelper.getGroupContent("/A/B",
+				List.of("/C")));
+		groupsWithSubgroups1.put("/A/Bar", SCIMTestHelper.getGroupContent("/A/Bar",
+				Collections.emptyList()));
+		groupsWithSubgroups1.put("/A/B/C", SCIMTestHelper.getGroupContent("/A/B/C",
+				Collections.emptyList()));
+		when(bulkService.getGroupAndSubgroups(eq(gdata1))).thenReturn(groupsWithSubgroups1);
+
+		// when
+		List<GroupData> groupData = groupRetrievalService.getGroups();
+
+		// then
+		assertThat(groupData.size(), is(4));
+		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet()),
+				hasItems("/","/A","/A/Bar", "/D"));
+		
+
+		GroupData memberGroup1 = groupData.stream().filter(g -> g.id.equals("/")).findFirst().get();
+		assertThat(memberGroup1.members.size(), is(2));
+		assertThat(memberGroup1.members.stream().map(g -> g.value).collect(Collectors.toSet()),
+				hasItems("/A", "/D"));	
+		
+		GroupData memberGroup2 = groupData.stream().filter(g -> g.id.equals("/A")).findFirst().get();
+		assertThat(memberGroup2.members.size(), is(1));
+		assertThat(memberGroup2.members.stream().map(g -> g.value).collect(Collectors.toSet()),
+				hasItems("/A/Bar"));	
 	}
 
 	private void addTwoMembersGroupWithSubgroups() throws EngineException
