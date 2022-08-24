@@ -13,7 +13,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +51,10 @@ public class GroupAuthzServiceTest
 	@Before
 	public void init()
 	{
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(),
-				Collections.emptyList(), Collections.emptyList());
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipGroups(List.of("/scim/Members1", "/scim/Members2"))
+				.build();
 		groupAuthzService = new GroupAuthzService(authzMan, entityManagement, configuration);
 	}
 
@@ -76,7 +76,7 @@ public class GroupAuthzServiceTest
 	}
 
 	@Test
-	public void shouldAcceptReadGroupsWhenOAuthInvocationMaterialAndNoReadMemberScope() throws AuthorizationException
+	public void shouldAcceptReadGroupsWhenOAuthInvocationMaterialAndReadMemberScope() throws AuthorizationException
 	{
 		setupInvocationContext(InvocationMaterial.OAUTH_DELEGATION);
 		InvocationContext context = InvocationContext.getCurrent();

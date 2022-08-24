@@ -6,18 +6,16 @@
 package io.imunity.scim.user;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.when;
-
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -58,14 +56,14 @@ public class UserAssemblyServiceTest
 	@Before
 	public void init()
 	{
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(),
-				List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipGroups(List.of("/scim/Members1", "/scim/Members2"))
+				.withSchemas(List.of(SchemaWithMapping.builder().withType(SchemaType.USER_CORE).withName("UserCore").withId("UC")
 						.withEnable(true).build(),
 						SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
-								.withEnable(true).build()), Collections.emptyList(), Collections.emptyList()
-
-		);
+								.withEnable(true).build()))
+				.build();
 		when(authzService.getFilter()).thenReturn(s -> true);
 		assemblyService = new UserAssemblyService(configuration, userSchemaEvaluator, groupsManagement, authzService);
 	}
