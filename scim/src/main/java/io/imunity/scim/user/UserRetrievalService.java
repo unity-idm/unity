@@ -107,7 +107,7 @@ class UserRetrievalService
 		List<User> users = new ArrayList<>();
 		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
 		Map<Long, EntityInGroupData> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
-		Map<String, GroupContents> groupAndSubgroups = getAllMembershipGroups();
+		Map<String, GroupContents> effectiveMembershipGroups = getAllMembershipGroups();
 
 		Map<Long, Map<String, AttributeExt>> groupUsersAttributes = bulkService
 				.getGroupUsersAttributes(configuration.rootGroup, bulkMembershipData);
@@ -118,10 +118,10 @@ class UserRetrievalService
 				continue;
 
 			Set<String> groups = new HashSet<>(entityInGroup.groups);
-			groups.retainAll(groupAndSubgroups.keySet());
+			groups.retainAll(effectiveMembershipGroups.keySet());
 
 			users.add(mapToUser(entityInGroup.entity,
-					groupAndSubgroups.entrySet().stream().filter(e -> groups.contains(e.getKey()))
+					effectiveMembershipGroups.entrySet().stream().filter(e -> groups.contains(e.getKey()))
 							.map(e -> e.getValue().getGroup()).collect(Collectors.toSet()),
 					groupUsersAttributes.getOrDefault(entityInGroup.entity.getId(), Collections.emptyMap())));
 		}

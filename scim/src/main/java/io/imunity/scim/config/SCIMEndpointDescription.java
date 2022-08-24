@@ -8,6 +8,7 @@ package io.imunity.scim.config;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.Collections;
 
 public class SCIMEndpointDescription
 {
@@ -19,17 +20,15 @@ public class SCIMEndpointDescription
 	public final List<String> membershipAttributes;
 	public final List<String> authenticationOptions;
 
-	public SCIMEndpointDescription(URI baseLocation, String rootGroup, List<String> membershipGroups, List<String> excludedMembershipGroups,
-			List<SchemaWithMapping> schemas, List<String> membershipAttributes, 
-			List<String> authenticationOptions)
+	private SCIMEndpointDescription(Builder builder)
 	{
-		this.baseLocation = baseLocation;
-		this.rootGroup = rootGroup;
-		this.membershipGroups = List.copyOf(membershipGroups);
-		this.excludedMembershipGroups = List.copyOf(excludedMembershipGroups);
-		this.schemas = List.copyOf(schemas);
-		this.membershipAttributes = List.copyOf(membershipAttributes);
-		this.authenticationOptions = List.copyOf(authenticationOptions);
+		this.baseLocation = builder.baseLocation;
+		this.rootGroup = builder.rootGroup;
+		this.membershipGroups = List.copyOf(builder.membershipGroups);
+		this.excludedMembershipGroups = List.copyOf(builder.excludedMembershipGroups);
+		this.schemas = List.copyOf(builder.schemas);
+		this.membershipAttributes = List.copyOf(builder.membershipAttributes);
+		this.authenticationOptions = List.copyOf(builder.authenticationOptions);
 	}
 
 	@Override
@@ -55,5 +54,75 @@ public class SCIMEndpointDescription
 				&& Objects.equals(rootGroup, other.rootGroup) && Objects.equals(schemas, other.schemas)
 				&& Objects.equals(authenticationOptions, other.authenticationOptions);
 	}
+
+	public static Builder builder()
+	{
+		return new Builder();
+	}
+
+	public static final class Builder
+	{
+		private URI baseLocation;
+		private String rootGroup;
+		private List<String> membershipGroups = Collections.emptyList();
+		private List<String> excludedMembershipGroups = Collections.emptyList();
+		private List<SchemaWithMapping> schemas = Collections.emptyList();
+		private List<String> membershipAttributes = Collections.emptyList();
+		private List<String> authenticationOptions = Collections.emptyList();
+
+		private Builder()
+		{
+		}
+
+		public Builder withBaseLocation(URI baseLocation)
+		{
+			this.baseLocation = baseLocation;
+			return this;
+		}
+
+		public Builder withRootGroup(String rootGroup)
+		{
+			this.rootGroup = rootGroup;
+			return this;
+		}
+
+		public Builder withMembershipGroups(List<String> membershipGroups)
+		{
+			this.membershipGroups = membershipGroups;
+			return this;
+		}
+
+		public Builder withExcludedMembershipGroups(List<String> excludedMembershipGroups)
+		{
+			this.excludedMembershipGroups = excludedMembershipGroups;
+			return this;
+		}
+
+		public Builder withSchemas(List<SchemaWithMapping> schemas)
+		{
+			this.schemas = schemas;
+			return this;
+		}
+
+		public Builder withMembershipAttributes(List<String> membershipAttributes)
+		{
+			this.membershipAttributes = membershipAttributes;
+			return this;
+		}
+
+		public Builder withAuthenticationOptions(List<String> authenticationOptions)
+		{
+			this.authenticationOptions = authenticationOptions;
+			return this;
+		}
+
+		public SCIMEndpointDescription build()
+		{
+			return new SCIMEndpointDescription(this);
+		}
+	}
+	
+	
+	
 
 }

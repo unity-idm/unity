@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -79,9 +78,9 @@ public class UserSchemaEvaluatorTest
 		context.setLoginSession(new LoginSession(null, null, 0, 2, null, null, null, null));
 		InvocationContext.setCurrent(context);
 
-		evaluator = new UserSchemaEvaluator(new SCIMEndpointDescription(URI.create("https:localhost"), "/scim",
-				List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(),
-				Collections.emptyList(), Collections.emptyList()), mappingEvaluatorRegistry);
+		evaluator = new UserSchemaEvaluator(SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipGroups(List.of("/scim/Members1", "/scim/Members2")).build(), mappingEvaluatorRegistry);
 
 		AttributeDefinitionWithMapping complexAttr = AttributeDefinitionWithMapping.builder()
 				.withAttributeDefinition(AttributeDefinition.builder().withName("name").withMultiValued(false)
@@ -137,9 +136,9 @@ public class UserSchemaEvaluatorTest
 		context.setLoginSession(new LoginSession(null, null, 0, 2, null, null, null, null));
 		InvocationContext.setCurrent(context);
 
-		evaluator = new UserSchemaEvaluator(new SCIMEndpointDescription(URI.create("https:localhost"), "/scim",
-				List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList(),
-				Collections.emptyList(), Collections.emptyList()), mappingEvaluatorRegistry);
+		evaluator = new UserSchemaEvaluator(SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipGroups(List.of("/scim/Members1", "/scim/Members2")).build(), mappingEvaluatorRegistry);
 
 		AttributeDefinitionWithMapping complexAttr = AttributeDefinitionWithMapping.builder()
 				.withAttributeDefinition(AttributeDefinition.builder().withName("name").withMultiValued(false)

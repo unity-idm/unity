@@ -73,11 +73,13 @@ public class UserRetrievalServiceTest
 	@Before
 	public void init()
 	{
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
-				"/scim",
-				List.of("/scim", "/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members1/Subgroup2",
-						"/scim/Members2", "/scim/Members2/Subgroup1", "/scim/Members2/Subgroup2"),
-				Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipGroups(
+						List.of("/scim", "/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members1/Subgroup2",
+								"/scim/Members2", "/scim/Members2/Subgroup1", "/scim/Members2/Subgroup2"))
+				.build();
+
 		userRetrievalService = new UserRetrievalService(authzMan, entityManagement, bulkService, attributesManagement,
 				configuration);
 	}

@@ -64,7 +64,6 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 		memeberShipGroups.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroups"));
 		memeberShipGroups.setDescription(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroupsDesc"));
 		memeberShipGroups.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
-		//simplification
 		memeberShipGroups.setItems(allGroups);
 		main.addComponent(memeberShipGroups);
 		restBinder.forField(memeberShipGroups).asRequired().withValidator((value, context) ->
@@ -81,7 +80,6 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 		excludedMembershipGroups.setDescription(msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroupsDesc"));
 		excludedMembershipGroups.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
 		
-		//simplification
 		excludedMembershipGroups.setItems(allGroups);
 		main.addComponent(excludedMembershipGroups);
 		restBinder.forField(excludedMembershipGroups).bind("excludedMembershipGroups");
