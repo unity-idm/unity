@@ -8,7 +8,7 @@
     <parent>
         <artifactId>unity-server-parent</artifactId>
         <groupId>io.imunity</groupId>
-        <version>3.10.0-SNAPSHOT</version>
+        <version>3.11.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
