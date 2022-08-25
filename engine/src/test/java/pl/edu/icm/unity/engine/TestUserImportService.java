@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPIFactory;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.userimport.UserImportProperties;
 import pl.edu.icm.unity.engine.userimport.UserImportServiceImpl;
 
@@ -59,11 +58,10 @@ public class TestUserImportService
 
 		List<UserImportSPIFactory> importersF = new ArrayList<>();
 		importersF.add(factory);
-		CacheProvider cp = new CacheProvider();
 		
 		//when
 		UserImportServiceImpl impl = new UserImportServiceImpl(mainCfg, importersF, 
-				cp, verificatorUtil, cfgLoader);
+				verificatorUtil, cfgLoader);
 		List<ImportResult> importUser = impl.importUser(
 				Lists.newArrayList(new UserImportSpec("key", "id", "type")));
 
@@ -116,11 +114,10 @@ public class TestUserImportService
 
 		List<UserImportSPIFactory> importersF = new ArrayList<>();
 		importersF.add(factory);
-		CacheProvider cp = new CacheProvider();
 		
 		//when
 		UserImportServiceImpl impl = new UserImportServiceImpl(mainCfg, importersF, 
-				cp, verificatorUtil, cfgLoader);
+				verificatorUtil, cfgLoader);
 		List<ImportResult> importUser = impl.importUser(
 				Lists.newArrayList(UserImportSpec.withAllImporters("id", "type")));
 

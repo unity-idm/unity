@@ -5,21 +5,18 @@
 
 package pl.edu.icm.unity.engine.confirmation;
 
+import java.time.Duration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.config.Searchable;
-import net.sf.ehcache.search.Query;
-import net.sf.ehcache.search.Results;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
@@ -28,7 +25,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.MobileNumberConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -38,42 +34,30 @@ import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration
 
 /**
  * Mobile number confirmation manager
- * @author P.Piernik
- *
  */
 @Component
-public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirmationManager
+class MobileNumberConfirmationManagerImpl implements MobileNumberConfirmationManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CONFIRMATION, MobileNumberConfirmationManagerImpl.class);
-	private static final String CACHE_ID = "MobileConfirmationCache";
 	
-	private NotificationProducer notificationProducer;
-	private MessageSource msg;
-	private AttributeTypeHelper attrTypeHelper;
-	private Ehcache confirmationReqCache;
-	private int requestLimit;
+	private final NotificationProducer notificationProducer;
+	private final MessageSource msg;
+	private final AttributeTypeHelper attrTypeHelper;
+	private final Cache<String, Integer> confirmationReqCache;
+	private final int requestLimit;
 	
 	@Autowired
-	public MobileNumberConfirmationManagerImpl(NotificationProducer notificationProducer,
+	MobileNumberConfirmationManagerImpl(NotificationProducer notificationProducer,
 			MessageSource msg, AttributeTypeHelper attrTypeHelper,
-			CacheProvider cacheProvider, UnityServerConfiguration mainConf)
+			UnityServerConfiguration mainConf)
 	{
 		this.notificationProducer = notificationProducer;
 		this.msg = msg;
 		this.attrTypeHelper = attrTypeHelper;
 
-		CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_ID, 0);
-		Searchable searchable = new Searchable();
-		searchable.values(true);
-		cacheConfig.addSearchable(searchable);
-		cacheConfig.setTimeToIdleSeconds(24 * 3600);
-		cacheConfig.setTimeToLiveSeconds(24 * 3600);
-		cacheConfig.setEternal(false);
-		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
-		persistCfg.setStrategy("none");
-		cacheConfig.persistence(persistCfg);
-		confirmationReqCache = cacheProvider.getManager()
-				.addCacheIfAbsent(new Cache(cacheConfig));
+		confirmationReqCache = CacheBuilder.newBuilder()
+				.expireAfterWrite(Duration.ofHours(24))
+				.build();
 		requestLimit = mainConf
 				.getIntValue(UnityServerConfiguration.MOBILE_CONFIRMATION_REQUEST_LIMIT);
 
@@ -107,19 +91,29 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 				System.currentTimeMillis()
 						+ (configEntry.getValidityTime() * 60 * 1000),
 				code, mobileToConfirm);
-		
-		confirmationReqCache.put(new Element(ret, mobileToConfirm));
+		incCachedConfirmations(mobileToConfirm);
 		
 		return ret;
 	}
 	
+	private void incCachedConfirmations(String mobileToConfirm)
+	{
+		String key = getCacheKey(mobileToConfirm);
+		Integer currentConfirmations = confirmationReqCache.getIfPresent(key);
+		confirmationReqCache.put(key, currentConfirmations == null ? 1 : currentConfirmations + 1);
+	}
+
+	private String getCacheKey(String mobileToConfirm)
+	{
+		return mobileToConfirm.toLowerCase(Locale.US);
+	}
+
 	@Override
 	public Optional<MobileNumberConfirmationConfiguration> getConfirmationConfigurationForAttribute(
 			String attributeName)
 	{
 		try
 		{
-
 			AttributeValueSyntax<?> syntax = attrTypeHelper.getSyntax(
 					attrTypeHelper.getTypeForAttributeName(attributeName));
 			if (!syntax.getValueSyntaxId()
@@ -139,10 +133,8 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 	
 	private boolean checkSendingLimit(String mobileToConfirm)
 	{
-		confirmationReqCache.evictExpiredElements();
-		Results results = confirmationReqCache.createQuery().includeValues().addCriteria(
-				Query.VALUE.ilike(mobileToConfirm)).execute();
-		if (results.size() >= requestLimit)
+		Integer alreadySent = confirmationReqCache.getIfPresent(getCacheKey(mobileToConfirm));
+		if (alreadySent != null && alreadySent >= requestLimit)
 		{		
 			log.warn("Limit of sent confirmation requests to mobile " + mobileToConfirm + 
 					" was reached. (Limit=" +requestLimit + "/24H)");
