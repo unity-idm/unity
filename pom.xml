@@ -327,12 +327,6 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>eu.codearte.catch-exception</groupId>
-				<artifactId>catch-exception</artifactId>
-				<version>1.4.6</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
 				<version>3.21.0</version>
