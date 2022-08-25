@@ -85,7 +85,7 @@ public class AttributeValueConverterImpl implements AttributeValueConverter
 	* Converts a list of internal values to the object value
 	 */
 	@Override
-	public <T> List<?> internalValuesToObjectValues(String attributeName, List<String> internalValues) 
+	public List<?> internalValuesToObjectValues(String attributeName, List<String> internalValues) 
 			throws IllegalAttributeValueException
 	{
 		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(attributeName);

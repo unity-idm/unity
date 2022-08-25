@@ -5,9 +5,12 @@
 
 package pl.edu.icm.unity.oauth.client;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -16,25 +19,24 @@ import java.util.Properties;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OAuthDiscoveryMetadataCacheTest
 {
-	@Mock
-	private OpenIdConnectDiscovery mockDownloader;
-
 	@Test
 	public void shouldCacheMeta() throws ParseException, IOException, URISyntaxException
 	{
-		OAuthDiscoveryMetadataCache cache = new OAuthDiscoveryMetadataCache(new CacheProvider(), mockDownloader,
+		OpenIdConnectDiscovery mockDownloader = mock(OpenIdConnectDiscovery.class);
+		when(mockDownloader.getMetadata(any(), any())).thenReturn(mock(OIDCProviderMetadata.class));
+		
+		OAuthDiscoveryMetadataCache cache = new OAuthDiscoveryMetadataCache(mockDownloader,
 				Duration.ofMinutes(1));
 		cache.clear();
 		Properties props = new Properties();
@@ -57,8 +59,10 @@ public class OAuthDiscoveryMetadataCacheTest
 	@Test
 	public void shouldCacheAccordingToTtl() throws ParseException, IOException, URISyntaxException, InterruptedException
 	{
-		OAuthDiscoveryMetadataCache cache = new OAuthDiscoveryMetadataCache(new CacheProvider(), mockDownloader,
-				Duration.ofMillis(1000));
+		OpenIdConnectDiscovery mockDownloader = mock(OpenIdConnectDiscovery.class);
+		when(mockDownloader.getMetadata(any(), any())).thenReturn(mock(OIDCProviderMetadata.class));
+		OAuthDiscoveryMetadataCache cache = new OAuthDiscoveryMetadataCache(mockDownloader,
+				Duration.ofMillis(20));
 		cache.clear();	
 		Properties props = new Properties();
 		props.setProperty(CustomProviderProperties.OPENID_DISCOVERY,
@@ -71,7 +75,7 @@ public class OAuthDiscoveryMetadataCacheTest
 		props.setProperty(CustomProviderProperties.OPENID_CONNECT, "true");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
 		cache.getMetadata(def);
-		Thread.sleep(1001);
+		Thread.sleep(21);
 		cache.getMetadata(def);
 
 		verify(mockDownloader, times(2)).getMetadata(eq("https://accounts.google.com/.well-known/openid-configuration"),

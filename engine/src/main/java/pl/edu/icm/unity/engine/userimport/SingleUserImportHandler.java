@@ -4,84 +4,61 @@
  */
 package pl.edu.icm.unity.engine.userimport;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.config.Searchable;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Manages imports using a single configured import facility.
- * @author K. Benedyczak
  */
-public class SingleUserImportHandler
+class SingleUserImportHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_USER_IMPORT,
 			SingleUserImportHandler.class);
-	private static final String CACHE_PFX = "userImportCache_";
 	private UserImportSPI facility;
-	private Ehcache negativeCache;
-	private Ehcache positiveCache;
+	private Cache<String, Boolean> negativeCache;
+	private Cache<String, AuthenticationResult> positiveCache;
 	private RemoteAuthnResultTranslator remoteUtil;
 	private String translationProfile;
 	
-	public SingleUserImportHandler(RemoteAuthnResultTranslator remoteUtil, UserImportSPI facility, 
-			UserImportProperties cfg,
-			CacheProvider cacheProvider, String key)
+	SingleUserImportHandler(RemoteAuthnResultTranslator remoteUtil, UserImportSPI facility, 
+			UserImportProperties cfg)
 	{
 		this.remoteUtil = remoteUtil;
 		this.facility = facility;
 		this.translationProfile = cfg.getValue(UserImportProperties.TRANSLATION_PROFILE);
-		this.negativeCache = getCache(cacheProvider, 
-				cfg.getIntValue(UserImportProperties.NEGATIVE_CACHE), 
-				CACHE_PFX + "neg_" + key);
-		this.positiveCache = getCache(cacheProvider, 
-				cfg.getIntValue(UserImportProperties.POSITIVE_CACHE), 
-				CACHE_PFX + "pos_" + key);
+		this.negativeCache = CacheBuilder.newBuilder()
+				.expireAfterWrite(Duration.ofSeconds(cfg.getIntValue(UserImportProperties.NEGATIVE_CACHE)))
+				.build(); 
+		this.positiveCache = CacheBuilder.newBuilder()
+				.expireAfterWrite(Duration.ofSeconds(cfg.getIntValue(UserImportProperties.POSITIVE_CACHE)))
+				.build(); 
 	}
 
-	private Ehcache getCache(CacheProvider cacheProvider, long ttl, String name)
-	{
-		CacheConfiguration cacheConfig = new CacheConfiguration(name, 0);
-		Searchable searchable = new Searchable();
-		searchable.values(true);
-		cacheConfig.addSearchable(searchable);		
-		cacheConfig.setTimeToIdleSeconds(ttl);
-		cacheConfig.setTimeToLiveSeconds(ttl);
-		cacheConfig.setEternal(false);
-		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
-		persistCfg.setStrategy("none");
-		cacheConfig.persistence(persistCfg);		
-		return cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
-	}
-
-	
-	
-	public AuthenticationResult importUser(String identity, String type, 
+	AuthenticationResult importUser(String identity, String type, 
 			Optional<IdentityTaV> existingUser) throws RemoteAuthenticationException
 	{
 		String key = getCacheKey(identity, type);
-		Element negCache = negativeCache.get(key);
-		Element posCache = positiveCache.get(key);
-		if (posCache != null && !posCache.isExpired())
+		Boolean negCache = negativeCache.getIfPresent(key);
+		AuthenticationResult posCache = positiveCache.getIfPresent(key);
+		if (posCache != null)
 		{
 			log.debug("Returning cached positive import result for {}", identity);
-			return (AuthenticationResult) posCache.getObjectValue();
+			return posCache;
 		}
-		if (negCache != null && !negCache.isExpired())
+		if (negCache != null)
 		{
 			log.debug("Returning cached negative import result for {}", identity);
 			return null;
@@ -104,13 +81,13 @@ public class SingleUserImportHandler
 		if (importedUser == null)
 		{
 			log.debug("Caching negative import result for {}", identity);
-			negativeCache.put(new Element(cacheKey, true));
+			negativeCache.put(cacheKey, true);
 			return null;
 		}
 		log.debug("Caching positive import result for {}", identity);
 		AuthenticationResult result = remoteUtil.getTranslatedResult(importedUser, 
 				translationProfile, false, existingUser, null, false);
-		positiveCache.put(new Element(cacheKey, result));
+		positiveCache.put(cacheKey, result);
 		return result;
 	}
 }
