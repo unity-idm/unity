@@ -47,6 +47,7 @@ public class SCIMEndpointPropertiesConfigurationMapper
 		}
 
 		rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.ROOT_GROUP, configuration.rootGroup);
+		rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.REST_ADMIN_GROUP, configuration.restAdminGroup);
 		SCIMEndpointProperties propScim = new SCIMEndpointProperties(rawScim);
 		RESTEndpointProperties propRest = new RESTEndpointProperties(rawRest);
 		return propRest.getAsString() + "\n" + propScim.getAsString();
@@ -92,7 +93,9 @@ public class SCIMEndpointPropertiesConfigurationMapper
 				.withMembershipGroups(scimProp.getListOfValues(SCIMEndpointProperties.MEMBERSHIP_GROUPS))
 				.withExcludedMembershipGroups(scimProp.getListOfValues(SCIMEndpointProperties.EXCLUDED_MEMBERSHIP_GROUPS))
 				.withMembershipAttributes(scimProp.getListOfValues(SCIMEndpointProperties.MEMBERSHIP_ATTRIBUTES))
-				.withRootGroup(scimProp.getValue(SCIMEndpointProperties.ROOT_GROUP)).build();
+				.withRootGroup(scimProp.getValue(SCIMEndpointProperties.ROOT_GROUP))
+				.withRestAdminGroup(scimProp.getValue(SCIMEndpointProperties.REST_ADMIN_GROUP))
+				.build();
 	}
 
 }
