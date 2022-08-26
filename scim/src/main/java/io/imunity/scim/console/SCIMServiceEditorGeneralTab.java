@@ -59,6 +59,15 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 		main.addComponent(rootGroup);
 		restBinder.forField(rootGroup).asRequired().bind("rootGroup");
 		
+		MandatoryGroupSelection restAdminGroup = new MandatoryGroupSelection(msg);
+		restAdminGroup.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroup"));
+		restAdminGroup.setDescription(msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroupDesc"));
+		restAdminGroup.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
+		restAdminGroup.setItems(allGroups);
+		main.addComponent(restAdminGroup);
+		restBinder.forField(restAdminGroup).asRequired().bind("restAdminGroup");
+		TooltipExtension.tooltip(restAdminGroup);
+		
 		OptionalGroupWithWildcardSelection memeberShipGroups = new OptionalGroupWithWildcardSelection(msg);
 		memeberShipGroups.setSkipRemoveInvalidSelections(true);
 		memeberShipGroups.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroups"));

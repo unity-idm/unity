@@ -17,6 +17,7 @@ public class SCIMServiceConfigurationBean
 	private List<String> allowedCORSheaders;
 	private List<String> allowedCORSorigins;
 	private GroupWithIndentIndicator rootGroup;
+	private GroupWithIndentIndicator restAdminGroup;
 	private List<Group> membershipGroups;
 	private List<SchemaWithMappingBean> schemas;
 	private List<String> membershipAttributes;
@@ -106,11 +107,21 @@ public class SCIMServiceConfigurationBean
 		this.excludedMembershipGroups = excludedMembershipGroups;
 	}
 
+	public GroupWithIndentIndicator getRestAdminGroup()
+	{
+		return restAdminGroup;
+	}
+
+	public void setRestAdminGroup(GroupWithIndentIndicator adminGroup)
+	{
+		this.restAdminGroup = adminGroup;
+	}
+	
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(allowedCORSheaders, allowedCORSorigins, membershipGroups, excludedMembershipGroups,
-				rootGroup, schemas, membershipAttributes);
+				rootGroup, restAdminGroup, schemas, membershipAttributes);
 	}
 
 	@Override
@@ -128,7 +139,8 @@ public class SCIMServiceConfigurationBean
 				&& Objects.equals(membershipGroups, other.membershipGroups)
 				&& Objects.equals(excludedMembershipGroups, other.excludedMembershipGroups)
 				&& Objects.equals(membershipAttributes, other.membershipAttributes)
-				&& Objects.equals(rootGroup, other.rootGroup) && Objects.equals(schemas, other.schemas);
+				&& Objects.equals(rootGroup, other.rootGroup) 
+				&& Objects.equals(restAdminGroup, other.restAdminGroup) 
+				&& Objects.equals(schemas, other.schemas);
 	}
-
 }

@@ -75,6 +75,8 @@ public class SCIMEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons()
 		{
 			SCIMEndpointDescription enDesc = SCIMEndpointDescription.builder()
+					.withEndpointName(getEndpointDescription().getEndpoint().getName())
+					.withRestAdminGroup(scimEndpointConfiguration.restAdminGroup)
 					.withBaseLocation(URI.create(getServletUrl(""))).withRootGroup(scimEndpointConfiguration.rootGroup)
 					.withMembershipGroups(scimEndpointConfiguration.membershipGroups)
 					.withExcludedMembershipGroups(scimEndpointConfiguration.excludedMembershipGroups)
