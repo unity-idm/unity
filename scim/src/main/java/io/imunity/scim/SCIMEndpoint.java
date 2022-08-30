@@ -18,8 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.SCIMEndpointConfiguration;
-import io.imunity.scim.config.SCIMEndpointPropertiesConfigurationMapper;
 import io.imunity.scim.config.SCIMEndpointDescription;
+import io.imunity.scim.config.SCIMEndpointPropertiesConfigurationMapper;
 import io.imunity.scim.exception.providers.SCIMEndpointExceptionMapper;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -74,9 +74,17 @@ public class SCIMEndpoint extends RESTEndpoint
 		@Override
 		public Set<Object> getSingletons()
 		{
-			SCIMEndpointDescription enDesc = new SCIMEndpointDescription(URI.create(getServletUrl("")),
-					scimEndpointConfiguration.rootGroup, scimEndpointConfiguration.membershipGroups,
-					scimEndpointConfiguration.schemas, scimEndpointConfiguration.membershipAttributes);
+			SCIMEndpointDescription enDesc = SCIMEndpointDescription.builder()
+					.withEndpointName(getEndpointDescription().getEndpoint().getName())
+					.withRestAdminGroup(scimEndpointConfiguration.restAdminGroup)
+					.withBaseLocation(URI.create(getServletUrl(""))).withRootGroup(scimEndpointConfiguration.rootGroup)
+					.withMembershipGroups(scimEndpointConfiguration.membershipGroups)
+					.withExcludedMembershipGroups(scimEndpointConfiguration.excludedMembershipGroups)
+					.withSchemas(scimEndpointConfiguration.schemas)
+					.withMembershipAttributes(scimEndpointConfiguration.membershipAttributes)
+					.withAuthenticationOptions(
+							getEndpointDescription().getEndpoint().getConfiguration().getAuthenticationOptions())
+					.build();
 			Set<Object> ret = factories.stream().map(f -> f.getController(enDesc)).collect(Collectors.toSet());
 			SCIMEndpointExceptionMapper.installExceptionHandlers(ret);
 			return ret;

@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.token;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -54,9 +53,9 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 
 			dao.delete(obj.getType(), obj.getValue());
 
-			catchException(dao).getByKey(key);
+			Throwable error = catchThrowable(() -> dao.getByKey(key));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	
@@ -67,9 +66,9 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 			Token obj = getObject("name1");
 			dao.create(obj);
 
-			catchException(dao).delete(obj.getType(), obj.getValue() + "__OTHER");
+			Throwable error = catchThrowable(() -> dao.delete(obj.getType(), obj.getValue() + "__OTHER"));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -80,9 +79,9 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 			Token obj = getObject("name1");
 			dao.create(obj);
 
-			catchException(dao).delete(obj.getType() + "__OTHER", obj.getValue());
+			Throwable error = catchThrowable(() -> dao.delete(obj.getType() + "__OTHER", obj.getValue()));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	
@@ -124,9 +123,9 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 			Token obj = getObject("name1");
 			dao.create(obj);
 
-			catchException(dao).get(obj.getType(), obj.getValue() + "__CHANGED");
+			Throwable error = catchThrowable(() -> dao.get(obj.getType(), obj.getValue() + "__CHANGED"));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	
@@ -137,9 +136,9 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 			Token obj = getObject("name1");
 			dao.create(obj);
 
-			catchException(dao).get(obj.getType() + "__CHANGED", obj.getValue());
+			Throwable error = catchThrowable(() -> dao.get(obj.getType() + "__CHANGED", obj.getValue()));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	

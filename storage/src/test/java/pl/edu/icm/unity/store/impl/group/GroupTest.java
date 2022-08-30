@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.group;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -151,9 +150,9 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			dao.create(new Group("/A/B"));
 			long key = dao.create(new Group("/A/B/C"));
 
-			catchException(dao).updateByKey(key, new Group("/S/B/C"));
+			Throwable error = catchThrowable(() -> dao.updateByKey(key, new Group("/S/B/C")));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	

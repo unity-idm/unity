@@ -4,13 +4,8 @@
  */
 package pl.edu.icm.unity.engine.authz;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +37,10 @@ public class TestAuthorization extends DBIntegrationTestBase
 		setupUserContext("user1", null);
 		
 		// when
-		catchException(underTest).checkAuthorization("/unknown", AuthzCapability.readInfo);
+		Throwable error = catchThrowable(() -> underTest.checkAuthorization("/unknown", AuthzCapability.readInfo));
 		
 		// then
-		assertThat(caughtException(), is(nullValue()));
+		assertThat(error).isNull();
 	}
 	
 	private void setAdminsRole(String role) throws Exception
@@ -72,9 +67,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 	{
 		setAdminsRole(InternalAuthorizationManagerImpl.CONTENTS_MANAGER_ROLE);
 		
-		catchException(serverMan).resetDatabase();
+		Throwable error = catchThrowable(() -> serverMan.resetDatabase());
 		
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		assertThat(error).isInstanceOf(AuthorizationException.class);
 	}	
 
 	@Test
@@ -83,9 +78,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 		addRegularUser();
 		setupUserContext("user1", null);
 
-		catchException(serverMan).resetDatabase();
+		Throwable error = catchThrowable(() -> serverMan.resetDatabase());
 		
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 
 	@Test
@@ -101,9 +96,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 				"/A", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
 		setupUserContext("user1", null);
 		
-		catchException(serverMan).resetDatabase();
+		Throwable error = catchThrowable(() -> serverMan.resetDatabase());
 		
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 
 	
@@ -113,9 +108,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 		addRegularUser();
 		setupUserContext("user1", null);
 
-		catchException(groupsMan).addGroup(new Group("/A"));
+		Throwable error = catchThrowable(() -> groupsMan.addGroup(new Group("/A")));
 		
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 
 	@Test
@@ -124,9 +119,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 		EntityParam entity = addRegularUser();
 		setupUserContext("user1", null);
 
-		catchException(attrsMan).getAttributes(entity, "/", null);
+		Throwable error = catchThrowable(() -> attrsMan.getAttributes(entity, "/", null));
 		
-		assertThat(caughtException(), is(nullValue()));
+		assertThat(error).isNull();
 	}
 
 	
@@ -136,10 +131,10 @@ public class TestAuthorization extends DBIntegrationTestBase
 		EntityParam entity = addRegularUser();
 		setupUserContext("admin", EngineInitialization.DEFAULT_CREDENTIAL);
 		
-		catchException(attrsMan).setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-					"/", InternalAuthorizationManagerImpl.INSPECTOR_ROLE));
+		Throwable error = catchThrowable(() -> attrsMan.setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+					"/", InternalAuthorizationManagerImpl.INSPECTOR_ROLE)));
 		
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 	
 	
@@ -180,9 +175,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 				"/A", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
 		
 		setupUserContext("user1", null);
-		catchException(groupsMan).addGroup(new Group("/A/B"));
+		Throwable error = catchThrowable(() -> groupsMan.addGroup(new Group("/A/B")));
 		
-		assertThat(caughtException(), is(nullValue()));
+		assertThat(error).isNull();
 	}
 	
 	@Test
@@ -200,9 +195,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 
 		setupUserContext("user1", null);
 		
-		catchException(groupsMan).removeGroup("/A/B", true);
+		Throwable error = catchThrowable(() -> groupsMan.removeGroup("/A/B", true));
 		
-		assertThat(caughtException(), is(nullValue()));
+		assertThat(error).isNull();
 	}
 	
 	@Test
@@ -220,9 +215,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 				"/A/G", InternalAuthorizationManagerImpl.ANONYMOUS_ROLE));
 
 		setupUserContext("user1", null);
-		catchException(groupsMan).addGroup(new Group("/A/G/Z"));
+		Throwable error = catchThrowable(() -> groupsMan.addGroup(new Group("/A/G/Z")));
 		
-		assertThat(caughtException(), is(nullValue()));
+		assertThat(error).isNull();
 	}
 
 	
@@ -232,10 +227,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 		addRegularUser();
 		setupUserContext("user1", null);
 
-		catchException(groupsMan).addGroup(new Group("/B"));
+		Throwable error = catchThrowable(() -> groupsMan.addGroup(new Group("/B")));
 		
-		assertThat(caughtException(), isA(AuthorizationException.class));
-		assertThat(caughtException().getMessage(), containsString("addGroup"));
+		assertThat(error).isInstanceOf(AuthorizationException.class).hasMessageContaining("addGroup");
 	}
 
 }

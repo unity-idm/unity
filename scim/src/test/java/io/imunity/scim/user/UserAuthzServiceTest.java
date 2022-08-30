@@ -153,7 +153,7 @@ public class UserAuthzServiceTest
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void shouldNotFilterWhenDirectInvocationMaterial()
 	{
@@ -161,8 +161,9 @@ public class UserAuthzServiceTest
 		context.setLoginSession(new LoginSession(null, null, 0, 2, null, null, null, null));
 		InvocationContext.setCurrent(context);
 
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"));
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipAttributes(List.of("groupAttr1", "groupAttr2")).build();
 
 		UserAuthzService attributeFilterService = new UserAuthzService(authzMan, configuration);
 		Predicate<AttributeDefinitionWithMapping> filter = attributeFilterService.getFilter();
@@ -186,8 +187,9 @@ public class UserAuthzServiceTest
 		context.setScopes(List.of(SCIMSystemScopeProvider.READ_MEMBERSHIPS_SCOPE));
 		InvocationContext.setCurrent(context);
 
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"));
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipAttributes(List.of("groupAttr1", "groupAttr2")).build();
 
 		UserAuthzService attributeFilterService = new UserAuthzService(authzMan, configuration);
 		Predicate<AttributeDefinitionWithMapping> filter = attributeFilterService.getFilter();
@@ -215,8 +217,9 @@ public class UserAuthzServiceTest
 		context.setScopes(List.of(SCIMSystemScopeProvider.READ_PROFILE_SCOPE));
 		InvocationContext.setCurrent(context);
 
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"));
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipAttributes(List.of("groupAttr1", "groupAttr2")).build();
 
 		UserAuthzService attributeFilterService = new UserAuthzService(authzMan, configuration);
 		Predicate<AttributeDefinitionWithMapping> filter = attributeFilterService.getFilter();
@@ -241,11 +244,13 @@ public class UserAuthzServiceTest
 		InvocationContext context = new InvocationContext(null, null, null);
 		context.setLoginSession(new LoginSession(null, null, 0, 2, null, null, null, null));
 		context.setInvocationMaterial(InvocationMaterial.OAUTH_DELEGATION);
-		context.setScopes(List.of(SCIMSystemScopeProvider.READ_PROFILE_SCOPE, SCIMSystemScopeProvider.READ_MEMBERSHIPS_SCOPE));
+		context.setScopes(
+				List.of(SCIMSystemScopeProvider.READ_PROFILE_SCOPE, SCIMSystemScopeProvider.READ_MEMBERSHIPS_SCOPE));
 		InvocationContext.setCurrent(context);
 
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", Collections.emptyList(), Collections.emptyList(), List.of("groupAttr1", "groupAttr2"));
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipAttributes(List.of("groupAttr1", "groupAttr2")).build();
 
 		UserAuthzService attributeFilterService = new UserAuthzService(authzMan, configuration);
 		Predicate<AttributeDefinitionWithMapping> filter = attributeFilterService.getFilter();
@@ -263,11 +268,14 @@ public class UserAuthzServiceTest
 						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr2").build()).build()),
 				is(true));
 	}
-	
+
 	private UserAuthzService getAuthzService()
 	{
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https//localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"), Collections.emptyList(), Collections.emptyList());
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipGroups(List.of("/scim/Members1", "/scim/Members2"))
+				.withMembershipAttributes(List.of("groupAttr1", "groupAttr2")).build();
+
 		return new UserAuthzService(authzMan, configuration);
 	}
 }

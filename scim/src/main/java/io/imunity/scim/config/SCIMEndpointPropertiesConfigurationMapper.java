@@ -36,6 +36,8 @@ public class SCIMEndpointPropertiesConfigurationMapper
 		Properties rawScim = new Properties();
 		configuration.membershipGroups.forEach(g -> rawScim.put(SCIMEndpointProperties.PREFIX
 				+ SCIMEndpointProperties.MEMBERSHIP_GROUPS + (configuration.membershipGroups.indexOf(g) + 1), g));
+		configuration.excludedMembershipGroups.forEach(g -> rawScim.put(SCIMEndpointProperties.PREFIX
+				+ SCIMEndpointProperties.EXCLUDED_MEMBERSHIP_GROUPS + (configuration.excludedMembershipGroups.indexOf(g) + 1), g));
 		configuration.membershipAttributes.forEach(a -> rawScim.put(SCIMEndpointProperties.PREFIX
 				+ SCIMEndpointProperties.MEMBERSHIP_ATTRIBUTES + (configuration.membershipAttributes.indexOf(a) + 1), a));
 		for (SchemaWithMapping s : configuration.schemas)
@@ -45,6 +47,7 @@ public class SCIMEndpointPropertiesConfigurationMapper
 		}
 
 		rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.ROOT_GROUP, configuration.rootGroup);
+		rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.REST_ADMIN_GROUP, configuration.restAdminGroup);
 		SCIMEndpointProperties propScim = new SCIMEndpointProperties(rawScim);
 		RESTEndpointProperties propRest = new RESTEndpointProperties(rawRest);
 		return propRest.getAsString() + "\n" + propScim.getAsString();
@@ -88,8 +91,11 @@ public class SCIMEndpointPropertiesConfigurationMapper
 						restEndpointProperties.getListOfValues(RESTEndpointProperties.ENABLED_CORS_ORIGINS))
 				.withSchemas(schemas)
 				.withMembershipGroups(scimProp.getListOfValues(SCIMEndpointProperties.MEMBERSHIP_GROUPS))
+				.withExcludedMembershipGroups(scimProp.getListOfValues(SCIMEndpointProperties.EXCLUDED_MEMBERSHIP_GROUPS))
 				.withMembershipAttributes(scimProp.getListOfValues(SCIMEndpointProperties.MEMBERSHIP_ATTRIBUTES))
-				.withRootGroup(scimProp.getValue(SCIMEndpointProperties.ROOT_GROUP)).build();
+				.withRootGroup(scimProp.getValue(SCIMEndpointProperties.ROOT_GROUP))
+				.withRestAdminGroup(scimProp.getValue(SCIMEndpointProperties.REST_ADMIN_GROUP))
+				.build();
 	}
 
 }

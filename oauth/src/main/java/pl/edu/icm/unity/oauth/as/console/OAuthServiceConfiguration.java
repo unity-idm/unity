@@ -70,6 +70,11 @@ public class OAuthServiceConfiguration
 	private AccessTokenFormat accessTokenFormat;
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 
+	public OAuthServiceConfiguration()
+	{
+		
+	}
+	
 	public OAuthServiceConfiguration(MessageSource msg)
 	{
 		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);

@@ -31,7 +31,7 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, HomeEndpointProperties.class);
 
-	public enum Components {credentialTab, preferencesTab, userDetailsTab, accountUpdateTab, 
+	public enum Components {credentialTab, trustedApplications, userDetailsTab, accountUpdateTab, 
 		accountRemoval, attributesManagement, userInfo, identitiesManagement,
 		accountLinking};
 
@@ -58,10 +58,8 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 	
 	static
 	{
-		META.put(DISABLED_COMPONENTS, new PropertyMD().setList(false).
-				setDescription("List of tags of UI components "
-				+ "which should be disabled. Valid tags: '" + 
-				Arrays.deepToString(Arrays.asList(Components.values(), "oauthTokens").toArray()) + "'"));
+		META.put(DISABLED_COMPONENTS, new PropertyMD().setList(false).setDescription("List of tags of UI components "
+				+ "which should be disabled. Valid tags: '" + Arrays.asList(Components.values() + "'")));
 		META.put(REMOVAL_MODE, new PropertyMD(RemovalModes.remove).
 				setDescription("Relevant ONLY if the " + DISABLE_REMOVAL_SCHEDULE + " is true. "
 				+ "Controls what action should be performed when user "

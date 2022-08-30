@@ -184,8 +184,8 @@
 		<property name="maven.component.artifactId" value="${mypom.artifactId}" />
 		<property name="maven.component.groupId" value="${mypom.groupId}" />
 		<property name="maven.component.name" value="${mypom.name}" />
-		<propertyregex property="package.version" input="${maven.component.version}" regexp="(\d\.\d\.\d)(-(.*))?" select="\1" />
-		<propertyregex property="package.release" input="${maven.component.version}" regexp="(\d\.\d\.\d)(-(.*))?" select="\3" />
+		<propertyregex property="package.version" input="${maven.component.version}" regexp="(\d+\.\d+\.\d+)(-(.*))?" select="\1" />
+		<propertyregex property="package.release" input="${maven.component.version}" regexp="(\d+\.\d+\.\d+)(-(.*))?" select="\3" />
 		<echo message="-- set component: ${maven.component.groupId}.${maven.component.artifactId}.${maven.component.version}" />
 		<echo message="-- set package.version=${package.version},package.release=${package.release}" />
 

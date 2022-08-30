@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -35,6 +36,9 @@ public class AuthnResponseProcessorTest extends DBIntegrationTestBase
 {
 	@Autowired
 	private AttributeTypeSupport aTypeSupport;
+	
+	@Autowired
+	private LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 	
 	@Test
 	public void shouldProcessAttributesFromProfileWithDynamicOne() throws Exception
@@ -86,6 +90,6 @@ public class AuthnResponseProcessorTest extends DBIntegrationTestBase
 		AuthnRequestType request = mock(AuthnRequestType.class);
 		when(request.getIssuer()).thenReturn(mock(NameIDType.class));
 		when(context.getRequest()).thenReturn(request);
-		return new AuthnResponseProcessor(aTypeSupport, context);
+		return new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, context);
 	}
 }

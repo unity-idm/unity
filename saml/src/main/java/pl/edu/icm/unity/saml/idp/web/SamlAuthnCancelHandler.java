@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.idp.web;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
@@ -28,20 +29,22 @@ public class SamlAuthnCancelHandler implements CancelHandler
 	private final AttributeTypeSupport aTypeSupport;
 	private final Endpoint endpoint;
 	private final SamlIdpStatisticReporterFactory reporterFactory;
+	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
 	public SamlAuthnCancelHandler(FreemarkerAppHandler freemarkerHandler, AttributeTypeSupport aTypeSupport,
-			SamlIdpStatisticReporterFactory reporterFactory, Endpoint endpoint)
+			SamlIdpStatisticReporterFactory reporterFactory, LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement, Endpoint endpoint)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.aTypeSupport = aTypeSupport;
 		this.endpoint = endpoint;
 		this.reporterFactory = reporterFactory;
+		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 	}
 
 	@Override
 	public void onCancel()
 	{
-		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport,
+		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement,
 				SamlSessionService.getVaadinContext(), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		SamlResponseHandler responseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, reporterFactory,
 				endpoint);

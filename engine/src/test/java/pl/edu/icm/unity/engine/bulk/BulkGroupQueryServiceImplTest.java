@@ -200,6 +200,29 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		assertThat(result.get("/A/B").getGroup(), is(ab));
 		assertThat(result.get("/A/B").getSubGroups(), is(Lists.newArrayList()));
 	}
+	
+	@Test
+	public void shouldRetrieveSubgroupsOfSelectedSubgroup() throws EngineException
+	{
+		Group a = new Group("/A");
+		a.setDescription(new I18nString("desc"));
+		Group ab = new Group("/A/B");
+		Group abd = new Group("/A/B/D");
+		groupsMan.addGroup(a);
+		groupsMan.addGroup(ab);
+		groupsMan.addGroup(abd);
+		groupsMan.addGroup(new Group("/C"));
+		
+		GroupStructuralData bulkData = bulkService.getBulkStructuralData("/A");
+		Map<String, GroupContents> result = bulkService.getGroupAndSubgroups(bulkData, "/A/B");
+		assertThat(result.size(), is(2));
+		assertThat(result.get("/A/B"), is(notNullValue()));
+		assertThat(result.get("/A/B").getGroup(), is(ab));
+		assertThat(result.get("/A/B").getSubGroups(), is(Lists.newArrayList("/A/B/D")));
+		assertThat(result.get("/A/B/D"), is(notNullValue()));
+		assertThat(result.get("/A/B/D").getGroup(), is(abd));
+		assertThat(result.get("/A/B/D").getSubGroups(), is(Collections.emptyList()));
+	}
 
 	
 	@Test

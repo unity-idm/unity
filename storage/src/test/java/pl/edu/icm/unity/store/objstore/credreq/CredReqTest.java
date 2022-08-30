@@ -4,10 +4,8 @@
  */
 package pl.edu.icm.unity.store.objstore.credreq;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +46,8 @@ public class CredReqTest extends AbstractNamedWithTSTest<CredentialRequirements>
 			CredentialRequirements obj = getObject("name1");
 			dao.create(obj);
 
-			catchException(credentialDB).delete("cred1");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> credentialDB.delete("cred1"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 

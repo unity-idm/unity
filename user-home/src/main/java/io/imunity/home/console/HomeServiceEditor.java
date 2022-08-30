@@ -32,7 +32,6 @@ class HomeServiceEditor implements ServiceEditor
 	private List<AuthenticationFlowDefinition> flows;
 	private List<AuthenticatorInfo> authenticators;
 	private HomeServiceEditorComponent editor;
-	private String extraTab;
 	private List<String> allAttributes;
 	private List<Group> allGroups;
 	private List<String> upManServices;
@@ -50,7 +49,7 @@ class HomeServiceEditor implements ServiceEditor
 			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, String extraTab, List<String> allAttributes,
+			List<AuthenticatorInfo> authenticators, List<String> allAttributes,
 			List<Group> allGroups, List<String> upManServices, List<String> enquiryForms,
 			List<String> registrationForms, List<String> usedPaths, Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService)
@@ -60,7 +59,6 @@ class HomeServiceEditor implements ServiceEditor
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
-		this.extraTab = extraTab;
 		this.allAttributes = allAttributes;
 		this.allGroups = allGroups;
 		this.upManServices = upManServices;
@@ -79,7 +77,7 @@ class HomeServiceEditor implements ServiceEditor
 	{
 
 		HomeServiceEditorGeneralTab homeServiceEditorGeneralTab = new HomeServiceEditorGeneralTab(msg,
-				UserHomeEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths, extraTab, allAttributes, allGroups,
+				UserHomeEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths, allAttributes, allGroups,
 				upManServices, enquiryForms, registrationForms);
 		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg, uriAccessService,
 				serverConfig, authenticatorSupportService, flows, authenticators, allRealms,
@@ -87,7 +85,7 @@ class HomeServiceEditor implements ServiceEditor
 
 		editor = new HomeServiceEditorComponent(msg, homeServiceEditorGeneralTab, authenticationTab,
 				imageAccessService, fileStorageService, serverConfig, (DefaultServiceDefinition) endpoint,
-				extraTab, allGroups);
+				allGroups);
 		return editor;
 	}
 

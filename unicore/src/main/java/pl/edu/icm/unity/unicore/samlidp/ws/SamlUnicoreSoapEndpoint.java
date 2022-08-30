@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -69,11 +70,12 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement entityMan,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, server, idpEngine, preferencesMan, pkiManagement, executorsService, sessionMan,
 				logoutProcessorFactory, authnProcessor, aTypeSupport, metadataService, uriAccessService,
-				advertisedAddrProvider, entityMan, idpStatisticReporterFactory);
+				advertisedAddrProvider, entityMan, idpStatisticReporterFactory, lastAccessAttributeManagement);
 		this.servletPath = SERVLET_PATH;
 	}
 
@@ -87,7 +89,7 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
 		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
-				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()));
+				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()), lastAccessAttributeManagement);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 	}
 	

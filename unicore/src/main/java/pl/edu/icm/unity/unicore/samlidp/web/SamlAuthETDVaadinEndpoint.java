@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -56,19 +57,20 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			URIAccessService uriAccessService,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement
 			)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				SamlUnicoreIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory,
 				logoutProcessorFactory, sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
-				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory);
+				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory, lastAccessAttributeManagement);
 	}
 
 	@Override
 	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
 		return new SamlETDParseServlet(myMetadataManager, 
-				endpointURL, uiUrl, new ErrorHandler(aTypeSupport, freemarkerHandler));
+				endpointURL, uiUrl, new ErrorHandler(aTypeSupport, lastAccessAttributeManagement, freemarkerHandler));
 	}
 }

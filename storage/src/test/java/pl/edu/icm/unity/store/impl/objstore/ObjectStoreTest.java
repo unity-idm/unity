@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.objstore;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -124,8 +123,8 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 			
 			dao.removeObjectsByType("type");
 
-			catchException(dao).getByKey(key);
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> dao.getByKey(key));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 			assertThat(dao.getAll().size(), is(1));
 		});
 	}
@@ -142,8 +141,8 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 			
 			dao.removeObject("name1", "type");
 
-			catchException(dao).getByKey(key);
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> dao.getByKey(key));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 			assertThat(dao.getAll().size(), is(1));
 		});
 	}
@@ -152,9 +151,9 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 	public void removalOfMissingObjectFails()
 	{
 		tx.runInTransaction(() -> {
-			catchException(dao).removeObject("name1", "type");
+			Throwable error = catchThrowable(() -> dao.removeObject("name1", "type"));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
@@ -180,9 +179,9 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 	public void updateOfMissingObjectFails()
 	{
 		tx.runInTransaction(() -> {
-			catchException(dao).updateObject("name1", "type", getObject("name1"));
+			Throwable error = catchThrowable(() -> dao.updateObject("name1", "type", getObject("name1")));
 
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});	
 	}
 	

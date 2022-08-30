@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>3.10.0-SNAPSHOT</version>
+		<version>3.11.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -29,11 +29,6 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>eu.codearte.catch-exception</groupId>
-			<artifactId>catch-exception</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.awaitility</groupId>
@@ -86,6 +81,11 @@
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ws</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-idp-spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -8,10 +8,10 @@ import java.util.Collections;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.google.common.collect.ImmutableList;
 
-import io.codearte.catchexception.shade.mockito.Mockito;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 

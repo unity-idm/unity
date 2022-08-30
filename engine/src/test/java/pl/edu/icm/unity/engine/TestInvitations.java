@@ -4,13 +4,9 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static com.googlecode.catchexception.apis.CatchExceptionHamcrestMatchers.hasMessageThat;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -142,12 +138,11 @@ public class TestInvitations  extends DBIntegrationTestBase
 		invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest("invalid");
 		
-		catchException(registrationsMan)
-			.submitRegistrationRequest(request, REG_CONTEXT);
+		Throwable error = catchThrowable(() -> registrationsMan
+			.submitRegistrationRequest(request, REG_CONTEXT));
 		
-		assertThat(caughtException(), allOf(
-				isA(WrongArgumentException.class),
-				hasMessageThat(containsString("code is invalid"))));
+		assertThat(error).isInstanceOf(WrongArgumentException.class)
+			.hasMessageContaining("code is invalid");
 	}
 	
 	@Test
@@ -158,12 +153,11 @@ public class TestInvitations  extends DBIntegrationTestBase
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
-		catchException(registrationsMan)
-			.submitRegistrationRequest(request, REG_CONTEXT);
+		Throwable error = catchThrowable(() -> registrationsMan
+			.submitRegistrationRequest(request, REG_CONTEXT));
 		
-		assertThat(caughtException(), allOf(
-				isA(WrongArgumentException.class),
-				hasMessageThat(containsString("invitation"))));
+		assertThat(error).isInstanceOf(WrongArgumentException.class)
+				.hasMessageContaining("invitation");
 	}
 
 	@Test

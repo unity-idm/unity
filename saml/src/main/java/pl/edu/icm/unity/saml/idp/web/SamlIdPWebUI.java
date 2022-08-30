@@ -26,6 +26,7 @@ import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 
 import eu.unicore.samly2.SAMLConstants;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -100,7 +101,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected List<IdentityParam> validIdentities;
 	protected Map<String, AttributeType> attributeTypes;
 	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
-
+	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
+	
 	@Autowired
 	public SamlIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
 			FreemarkerAppHandler freemarkerHandler,
@@ -112,7 +114,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			AttributeTypeSupport aTypeSupport,
 			PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
@@ -129,6 +132,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
+		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 	}
 
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
@@ -189,7 +193,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	
 	private void activeValueSelectionAndConsentStage(SAMLAuthnContext samlCtx, SamlIdpProperties samlConfiguration)
 	{
-		samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
+		samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, idpStatisticReporterFactory, endpointDescription.getEndpoint());
 

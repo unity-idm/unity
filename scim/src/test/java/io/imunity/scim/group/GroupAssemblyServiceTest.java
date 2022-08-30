@@ -11,7 +11,6 @@ import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -33,10 +32,13 @@ public class GroupAssemblyServiceTest
 	@Before
 	public void init()
 	{
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", List.of("/scim/Members1", "/scim/Members2"), List.of(SchemaWithMapping.builder()
-						.withType(SchemaType.GROUP_CORE).withName("GroupCore").withId("UG").withEnable(true).build()),
-				Collections.emptyList());
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipGroups(List.of("/scim/Members1", "/scim/Members2"))
+				.withSchemas(List.of(SchemaWithMapping.builder().withType(SchemaType.GROUP_CORE).withName("GroupCore")
+						.withId("UG").withEnable(true).build()))
+				.build();
+
 		groupAssemblyService = new GroupAssemblyService(configuration);
 	}
 

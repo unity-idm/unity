@@ -18,7 +18,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import io.codearte.catchexception.shade.mockito.internal.util.collections.Sets;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 
@@ -54,7 +53,7 @@ public class GroupTest
 		Group parent2 = new Group("/parent2");
 		Group child1 = new Group("/parent1/child1");
 
-		Set<Group> parents = Group.getRootsOfSet(Sets.newSet(parent1, parent2, child1));
+		Set<Group> parents = Group.getRootsOfSet(Set.of(parent1, parent2, child1));
 		assertThat(parents, hasItem(parent1));
 		assertThat(parents, hasItem(parent2));
 		assertThat(parents, not(hasItem(child1)));
@@ -67,7 +66,7 @@ public class GroupTest
 		Group child1 = new Group("/parent1/child1");
 		Group child2 = new Group("/parent1/child2");
 
-		Set<Group> parents = Group.getRootsOfSet(Sets.newSet(parent1, child1, child2));
+		Set<Group> parents = Group.getRootsOfSet(Set.of(parent1, child1, child2));
 		assertThat(parents, hasItem(parent1));
 		assertThat(parents, not(hasItem(child1)));
 		assertThat(parents, not(hasItem(child2)));
@@ -80,7 +79,7 @@ public class GroupTest
 		Group child1 = new Group("/parent1/child1");
 		Group child2 = new Group("/parent1/child1/child2");
 
-		Set<Group> parents = Group.getRootsOfSet(Sets.newSet(parent1, child1, child2));
+		Set<Group> parents = Group.getRootsOfSet(Set.of(parent1, child1, child2));
 		assertThat(parents, hasItem(parent1));
 		assertThat(parents, not(hasItem(child1)));
 		assertThat(parents, not(hasItem(child2)));
@@ -94,7 +93,7 @@ public class GroupTest
 		Group child2 = new Group("/parent1/child2");
 
 		Set<Group> childs = Group.getOnlyChildrenOfSet(
-				Sets.newSet(parent1, child1, child2));
+				Set.of(parent1, child1, child2));
 
 		assertThat(childs, not(hasItem(parent1)));
 		assertThat(childs, hasItem(child1));
@@ -109,7 +108,7 @@ public class GroupTest
 		Group child2 = new Group("/parent1/child1/child2");
 
 		Set<Group> childs = Group.getOnlyChildrenOfSet(
-				Sets.newSet(parent1, child1, child2));
+				Set.of(parent1, child1, child2));
 
 		assertThat(childs, not(hasItem(parent1)));
 		assertThat(childs, not(hasItem(child1)));

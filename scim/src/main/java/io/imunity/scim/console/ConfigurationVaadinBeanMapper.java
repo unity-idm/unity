@@ -27,15 +27,14 @@ class ConfigurationVaadinBeanMapper
 {
 	private final GroupsManagement groupsManagement;
 
-	
-	 ConfigurationVaadinBeanMapper(GroupsManagement groupsManagement)
+	ConfigurationVaadinBeanMapper(GroupsManagement groupsManagement)
 	{
 		this.groupsManagement = groupsManagement;
 	}
 
-	SCIMServiceConfigurationBean mapToBean(SCIMEndpointConfiguration orgConfig) 
+	SCIMServiceConfigurationBean mapToBean(SCIMEndpointConfiguration orgConfig)
 	{
-		
+
 		Map<String, Group> allGroups;
 		try
 		{
@@ -44,14 +43,17 @@ class ConfigurationVaadinBeanMapper
 		{
 			throw new InternalException("Can not get all groups", e);
 		}
-		
+
 		SCIMServiceConfigurationBean bean = new SCIMServiceConfigurationBean(this);
 		bean.getAllowedCORSheaders().addAll(orgConfig.allowedCorsHeaders);
 		bean.getAllowedCORSorigins().addAll(orgConfig.allowedCorsOrigins);
 		bean.getMembershipGroups().addAll(orgConfig.membershipGroups.stream()
-				.map(g -> allGroups.getOrDefault(g, new Group(g)))
-				.collect(Collectors.toList()));
+				.map(g -> allGroups.getOrDefault(g, new Group(g))).collect(Collectors.toList()));
+		bean.getExcludedMembershipGroups().addAll(orgConfig.excludedMembershipGroups.stream()
+				.map(g -> allGroups.getOrDefault(g, new Group(g))).collect(Collectors.toList()));
+
 		bean.setRootGroup(new GroupWithIndentIndicator(new Group(orgConfig.rootGroup), false));
+		bean.setRestAdminGroup(new GroupWithIndentIndicator(new Group(orgConfig.restAdminGroup), false));
 		bean.setSchemas(
 				orgConfig.schemas.stream().map(s -> mapFromConfigurationSchema(s)).collect(Collectors.toList()));
 		bean.setMembershipAttributes(orgConfig.membershipAttributes);
@@ -72,8 +74,7 @@ class ConfigurationVaadinBeanMapper
 		return schemaBean;
 	}
 
-	private AttributeDefinitionWithMappingBean mapFromAttributeDefinitionWithMapping(
-			AttributeDefinitionWithMapping a)
+	private AttributeDefinitionWithMappingBean mapFromAttributeDefinitionWithMapping(AttributeDefinitionWithMapping a)
 	{
 		AttributeDefinitionWithMappingBean bean = new AttributeDefinitionWithMappingBean();
 		AttributeDefinitionBean attrBean = new AttributeDefinitionBean();
@@ -94,9 +95,11 @@ class ConfigurationVaadinBeanMapper
 		return SCIMEndpointConfiguration.builder().withAllowedCorsHeaders(bean.getAllowedCORSheaders())
 				.withAllowedCorsOrigins(bean.getAllowedCORSorigins())
 				.withRootGroup(bean.getRootGroup().group.getPathEncoded())
+				.withRestAdminGroup(bean.getRestAdminGroup().group.getPathEncoded())
 				.withMembershipGroups(
 						bean.getMembershipGroups().stream().map(g -> g.getPathEncoded()).collect(Collectors.toList()))
-
+				.withExcludedMembershipGroups(bean.getExcludedMembershipGroups().stream().map(g -> g.getPathEncoded())
+						.collect(Collectors.toList()))
 				.withSchemas(
 						bean.getSchemas().stream().map(s -> mapToConfigurationSchema(s)).collect(Collectors.toList()))
 				.withMembershipAttributes(bean.getMembershipAttributes()).build();

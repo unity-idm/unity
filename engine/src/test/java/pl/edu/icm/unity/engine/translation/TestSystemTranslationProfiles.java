@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.engine.translation;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.isA;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -44,8 +43,8 @@ public class TestSystemTranslationProfiles extends DBIntegrationTestBase
 		TranslationProfile tp1Cfg = new TranslationProfile("sys:oidc", "",
 				ProfileType.INPUT, ProfileMode.DEFAULT, rules);
 
-		catchException(tprofMan).updateProfile(tp1Cfg);
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error = catchThrowable(() -> tprofMan.updateProfile(tp1Cfg));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test
@@ -60,8 +59,8 @@ public class TestSystemTranslationProfiles extends DBIntegrationTestBase
 		TranslationProfile tp1Cfg = new TranslationProfile("demo", "",
 				ProfileType.INPUT, ProfileMode.READ_ONLY, rules);
 
-		catchException(tprofMan).addProfile(tp1Cfg);
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error = catchThrowable(() -> tprofMan.addProfile(tp1Cfg));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test

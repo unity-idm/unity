@@ -189,6 +189,13 @@ public class EndpointManagementImpl implements EndpointManagement
 	}
 	
 	@Override
+	public List<EndpointInstance> getDeployedEndpointInstances() throws AuthorizationException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		return internalManagement.getDeployedEndpoints();
+	}
+	
+	@Override
 	@Transactional
 	public List<Endpoint> getEndpoints() throws AuthorizationException
 	{

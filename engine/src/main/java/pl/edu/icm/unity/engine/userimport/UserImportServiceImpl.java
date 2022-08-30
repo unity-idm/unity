@@ -29,15 +29,12 @@ import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPIFactory;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 
 /**
  * Implementation of user import service. Loads configured importers, configures them and run when requested.
  * Maintains timers to skip too frequent imports.
- * 
- * @author K. Benedyczak
  */
 @Component
 public class UserImportServiceImpl implements UserImportSerivce
@@ -47,14 +44,14 @@ public class UserImportServiceImpl implements UserImportSerivce
 	
 	@Autowired
 	public UserImportServiceImpl(UnityServerConfiguration mainCfg, Optional<List<UserImportSPIFactory>> importersF,
-			CacheProvider cacheProvider, RemoteAuthnResultTranslator remoteAuthnResultProcessor)
+			RemoteAuthnResultTranslator remoteAuthnResultProcessor)
 	{
-		this(mainCfg, importersF.orElse(new ArrayList<>()), cacheProvider, 
+		this(mainCfg, importersF.orElse(new ArrayList<>()),  
 				remoteAuthnResultProcessor, new ConfigurationLoader());
 	}
 	
 	public UserImportServiceImpl(UnityServerConfiguration mainCfg, List<UserImportSPIFactory> importersF,
-			CacheProvider cacheProvider, RemoteAuthnResultTranslator verificatorUtil, 
+			RemoteAuthnResultTranslator verificatorUtil, 
 			ConfigurationLoader configLoader)
 	{
 		Map<String, UserImportSPIFactory> importersFM = new HashMap<>();
@@ -65,14 +62,14 @@ public class UserImportServiceImpl implements UserImportSerivce
 		for (String key: definedImporters)
 		{
 			String importerCfg = mainCfg.getValue(UnityServerConfiguration.IMPORT_PFX + key);
-			handlersByKey.put(key, loadHandler(importerCfg, importersFM, cacheProvider,  
-					verificatorUtil, configLoader, key));
+			handlersByKey.put(key, loadHandler(importerCfg, importersFM,   
+					verificatorUtil, configLoader));
 		}
 	}
 	
 	private SingleUserImportHandler loadHandler(String importerCfg, Map<String, UserImportSPIFactory> importersFM,
-			CacheProvider cacheProvider, RemoteAuthnResultTranslator verificatorUtil, 
-			ConfigurationLoader cfgLoader, String key)
+			RemoteAuthnResultTranslator verificatorUtil, 
+			ConfigurationLoader cfgLoader)
 	{
 		Properties properties = cfgLoader.getProperties(importerCfg);
 		UserImportProperties cfg = new UserImportProperties(properties);
@@ -84,7 +81,7 @@ public class UserImportServiceImpl implements UserImportSerivce
 					". Known types are: " + importersFM.keySet());
 		String remoteIdp = cfg.getValue(UserImportProperties.REMOTE_IDP_NAME);
 		UserImportSPI instance = userImportSPIFactory.getInstance(properties, remoteIdp);
-		return new SingleUserImportHandler(verificatorUtil, instance, cfg, cacheProvider, key);
+		return new SingleUserImportHandler(verificatorUtil, instance, cfg);
 	}
 
 	@Override

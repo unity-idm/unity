@@ -481,14 +481,19 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScopeBean.class,
 				() -> new ScopeEditor(msg, attrTypes, systemScopesNames), s -> false,
 				s -> s != null && s.getName() != null && systemScopesNames.contains(s.getName()), false);
-		Column<OAuthScopeBean, Component> addGotoEditColumn = scopesGrid.addGotoEditColumn(s -> s.getName(),
-				msg.getMessage("OAuthEditorGeneralTab.scopeName"), 30);
+		Column<OAuthScopeBean, Component> addGotoEditColumn = scopesGrid
+				.addGotoEditColumn(s -> s.getName(), msg.getMessage("OAuthEditorGeneralTab.scopeName"), 10)
+				.setMinimumWidth(200);
+		addGotoEditColumn.setResizable(true);
 		addGotoEditColumn.setId("name");
-		scopesGrid.addCheckboxColumn(s -> s.isEnabled(), msg.getMessage("OAuthEditorGeneralTab.scopeEnabled"), 10);
-		scopesGrid.addTextColumn(s -> s.getDescription(), msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 10);
+		scopesGrid.addCheckboxColumn(s -> s.isEnabled(), msg.getMessage("OAuthEditorGeneralTab.scopeEnabled"), 10)
+				.setResizable(true).setSortable(false)
+				.setMinimumWidth(70);
+		scopesGrid.addTextColumn(s -> s.getDescription(), msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 20)
+				.setResizable(true);
 		scopesGrid.addTextColumn(s -> s.getAttributes() != null ? String.join(",", s.getAttributes()) : "",
-				msg.getMessage("OAuthEditorGeneralTab.scopeAttributes"), 10);
-		scopesGrid.setMinHeightByRow(7);
+				msg.getMessage("OAuthEditorGeneralTab.scopeAttributes"), 20).setResizable(true);
+		scopesGrid.setMinHeightByRow(12);
 		addGotoEditColumn.setComparator((s1, s2) -> compareScopes(systemScopesNames, s1, s2));
 		configBinder.forField(scopesGrid).bind("scopes");
 		scopesLayout.addComponent(scopesGrid);

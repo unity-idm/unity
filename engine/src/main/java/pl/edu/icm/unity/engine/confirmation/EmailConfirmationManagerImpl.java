@@ -6,12 +6,14 @@ package pl.edu.icm.unity.engine.confirmation;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -21,14 +23,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.config.Searchable;
-import net.sf.ehcache.search.Query;
-import net.sf.ehcache.search.Results;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.base.token.Token;
@@ -49,7 +46,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;
@@ -67,31 +63,28 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Email confirmation manager, send or process confirmation request
- * 
- * @author P. Piernik
  */
 @Component
-public class EmailConfirmationManagerImpl implements EmailConfirmationManager
+class EmailConfirmationManagerImpl implements EmailConfirmationManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CONFIRMATION, EmailConfirmationManagerImpl.class);
-	private static final String CACHE_ID = "EmailConfirmationCache";
 	
-	private IdentityTypeHelper idTypeHelper;
-	private AttributeTypeHelper atTypeHelper;
-	private TokensManagement tokensMan;
-	private NotificationProducer notificationProducer;
-	private EmailConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
-	private MessageTemplateDB mtDB;
-	private URL advertisedAddress;
-	private MessageSource msg;
-	private EntityResolver idResolver;
-	private Ehcache confirmationReqCache;
-	private int requestLimit;
-	private String defaultRedirectURL;
-	private TransactionalRunner tx;
+	private final IdentityTypeHelper idTypeHelper;
+	private final AttributeTypeHelper atTypeHelper;
+	private final TokensManagement tokensMan;
+	private final NotificationProducer notificationProducer;
+	private final EmailConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
+	private final MessageTemplateDB mtDB;
+	private final URL advertisedAddress;
+	private final MessageSource msg;
+	private final EntityResolver idResolver;
+	private final Cache<String, Integer> confirmationReqCache;
+	private final int requestLimit;
+	private final String defaultRedirectURL;
+	private final TransactionalRunner tx;
 
 	@Autowired
-	public EmailConfirmationManagerImpl(IdentityTypeHelper idTypeHelper,
+	EmailConfirmationManagerImpl(IdentityTypeHelper idTypeHelper,
 			AttributeTypeHelper atTypeHelper,
 			TokensManagement tokensMan,
 			NotificationProducer notificationProducer,
@@ -101,7 +94,6 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 			MessageSource msg,
 			EntityResolver idResolver,
 			TransactionalRunner tx,
-			CacheProvider cacheProvider,
 			UnityServerConfiguration mainConf)
 	{
 		this.idTypeHelper = idTypeHelper;
@@ -115,17 +107,9 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		this.idResolver = idResolver;
 		this.tx = tx;
 		
-		CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_ID, 0);
-		Searchable searchable = new Searchable();
-		searchable.values(true);
-		cacheConfig.addSearchable(searchable);		
-		cacheConfig.setTimeToIdleSeconds(24 * 3600);
-		cacheConfig.setTimeToLiveSeconds(24 * 3600);
-		cacheConfig.setEternal(false);
-		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
-		persistCfg.setStrategy("none");
-		cacheConfig.persistence(persistCfg);		
-		confirmationReqCache = cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
+		confirmationReqCache = CacheBuilder.newBuilder()
+				.expireAfterWrite(Duration.ofHours(24))
+				.build();
 		requestLimit = mainConf.getEmailConfirmationRequestLimit();
 		defaultRedirectURL = mainConf.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
@@ -196,10 +180,8 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 
 	private boolean checkSendingLimit(String address)
 	{
-		confirmationReqCache.evictExpiredElements();
-		Results results = confirmationReqCache.createQuery().includeValues().addCriteria(
-				Query.VALUE.ilike(address)).execute();
-		if (results.size() >= requestLimit)
+		Integer alreadySent = confirmationReqCache.getIfPresent(getCacheKey(address));
+		if (alreadySent != null && alreadySent >= requestLimit)
 		{		
 			log.warn("Limit of sent confirmation requests to email " + address + 
 					" was reached. (Limit=" +requestLimit + "/24H)");
@@ -261,12 +243,23 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		log.info("Send confirmation request to " + recipientAddress + " with token = "
 				+ token);
 
-		confirmationReqCache.put(new Element(token, recipientAddress));
-		
+		incCachedConfirmations(recipientAddress);
 		notificationProducer.sendNotification(recipientAddress, templateId,
 				params, locale);
 	}
-
+	
+	private void incCachedConfirmations(String recipientAddress)
+	{
+		String key = getCacheKey(recipientAddress);
+		Integer currentConfirmations = confirmationReqCache.getIfPresent(key);
+		confirmationReqCache.put(key, currentConfirmations == null ? 1 : currentConfirmations + 1);
+	}
+	
+	private String getCacheKey(String recipientAddress)
+	{
+		return recipientAddress.toLowerCase(Locale.US);
+	}
+	
 	@Override
 	public WorkflowFinalizationConfiguration processConfirmation(String token)
 			throws EngineException
@@ -475,7 +468,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 	}
 
 	@Override
-	public <T> void sendVerification(EntityParam entity, Attribute attribute) throws EngineException
+	public void sendVerification(EntityParam entity, Attribute attribute) throws EngineException
 	{
 		tx.runInTransactionThrowing(() -> {
 			sendVerification(entity, attribute, true);

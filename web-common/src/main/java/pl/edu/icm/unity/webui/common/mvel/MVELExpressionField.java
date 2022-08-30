@@ -72,7 +72,7 @@ public class MVELExpressionField extends CustomField<String>
 		editor.configureBinding(binder, fieldName, mandatory);
 	}
 
-	public <T> void configureBinding(Binder<String> binder, ValueProvider<String, String> getter,
+	public void configureBinding(Binder<String> binder, ValueProvider<String, String> getter,
 			Setter<String, String> setter, boolean mandatory)
 	{
 		this.mandatory = mandatory;

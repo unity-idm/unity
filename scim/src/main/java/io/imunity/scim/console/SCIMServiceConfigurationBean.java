@@ -17,15 +17,18 @@ public class SCIMServiceConfigurationBean
 	private List<String> allowedCORSheaders;
 	private List<String> allowedCORSorigins;
 	private GroupWithIndentIndicator rootGroup;
+	private GroupWithIndentIndicator restAdminGroup;
 	private List<Group> membershipGroups;
 	private List<SchemaWithMappingBean> schemas;
 	private List<String> membershipAttributes;
+	private List<Group> excludedMembershipGroups;
 
 	SCIMServiceConfigurationBean(ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
 	{
 		allowedCORSheaders = new ArrayList<>();
 		allowedCORSorigins = new ArrayList<>();
 		membershipGroups = new ArrayList<>();
+		excludedMembershipGroups = new ArrayList<>();
 		membershipAttributes = new ArrayList<>(DefaultSchemaProvider.getBasicUserSchemaMembershipAttributes());
 		schemas = new ArrayList<>();
 		schemas.add(
@@ -94,10 +97,31 @@ public class SCIMServiceConfigurationBean
 		this.membershipAttributes = membershipAttributes;
 	}
 
+	public List<Group> getExcludedMembershipGroups()
+	{
+		return excludedMembershipGroups;
+	}
+
+	public void setExcludedMembershipGroups(List<Group> excludedMembershipGroups)
+	{
+		this.excludedMembershipGroups = excludedMembershipGroups;
+	}
+
+	public GroupWithIndentIndicator getRestAdminGroup()
+	{
+		return restAdminGroup;
+	}
+
+	public void setRestAdminGroup(GroupWithIndentIndicator adminGroup)
+	{
+		this.restAdminGroup = adminGroup;
+	}
+	
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(allowedCORSheaders, allowedCORSorigins, membershipGroups, rootGroup, schemas, membershipAttributes);
+		return Objects.hash(allowedCORSheaders, allowedCORSorigins, membershipGroups, excludedMembershipGroups,
+				rootGroup, restAdminGroup, schemas, membershipAttributes);
 	}
 
 	@Override
@@ -113,7 +137,10 @@ public class SCIMServiceConfigurationBean
 		return Objects.equals(allowedCORSheaders, other.allowedCORSheaders)
 				&& Objects.equals(allowedCORSorigins, other.allowedCORSorigins)
 				&& Objects.equals(membershipGroups, other.membershipGroups)
+				&& Objects.equals(excludedMembershipGroups, other.excludedMembershipGroups)
 				&& Objects.equals(membershipAttributes, other.membershipAttributes)
-				&& Objects.equals(rootGroup, other.rootGroup) && Objects.equals(schemas, other.schemas);
+				&& Objects.equals(rootGroup, other.rootGroup) 
+				&& Objects.equals(restAdminGroup, other.restAdminGroup) 
+				&& Objects.equals(schemas, other.schemas);
 	}
 }

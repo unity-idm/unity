@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -87,9 +86,9 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		AttributeType at = createSimpleAT("some2");
 		at.setFlags(100);
 
-		catchException(aTypeMan).addAttributeType(at);
+		Throwable error = catchThrowable(() -> aTypeMan.addAttributeType(at));
 
-		assertThat(caughtException(), isA(IllegalAttributeTypeException.class));
+		assertThat(error).isInstanceOf(IllegalAttributeTypeException.class);
 	}
 	
 	@Test
@@ -99,9 +98,9 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		at.setMaxElements(100);
 		at.setMinElements(200);
 
-		catchException(aTypeMan).addAttributeType(at);
+		Throwable error = catchThrowable(() -> aTypeMan.addAttributeType(at));
 
-		assertThat(caughtException(), isA(IllegalAttributeTypeException.class));
+		assertThat(error).isInstanceOf(IllegalAttributeTypeException.class);
 	}
 	
 	@Test
@@ -110,9 +109,9 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		AttributeType at = createSimpleAT("some");
 
 		aTypeMan.addAttributeType(at);
-		catchException(aTypeMan).addAttributeType(at);
+		Throwable error = catchThrowable(() -> aTypeMan.addAttributeType(at));
 		
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test
@@ -139,9 +138,9 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		Attribute at1 = StringAttribute.of("some", "/", "123456");
 		attrsMan.createAttribute(entity, at1);
 		
-		catchException(aTypeMan).removeAttributeType("some", false);
+		Throwable error = catchThrowable(() -> aTypeMan.removeAttributeType("some", false));
 		
-		assertThat(caughtException(), isA(IllegalAttributeTypeException.class));
+		assertThat(error).isInstanceOf(IllegalAttributeTypeException.class);
 	}
 	
 	@Test
@@ -185,9 +184,9 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 
 		at.setMaxElements(100);
 		at.setMinElements(200);
-		catchException(aTypeMan).updateAttributeType(at);
+		Throwable error = catchThrowable(() -> aTypeMan.updateAttributeType(at));
 
-		assertThat(caughtException(), isA(IllegalAttributeTypeException.class));
+		assertThat(error).isInstanceOf(IllegalAttributeTypeException.class);
 	}
 	
 	@Test
@@ -224,9 +223,9 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, at1);
 		
 		at.setMaxElements(2);
-		catchException(aTypeMan).updateAttributeType(at);
+		Throwable error = catchThrowable(() -> aTypeMan.updateAttributeType(at));
 		
-		assertThat(caughtException(), isA(IllegalAttributeTypeException.class));
+		assertThat(error).isInstanceOf(IllegalAttributeTypeException.class);
 	}
 	
 	/**
@@ -418,8 +417,8 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 	{
 		AttributeType at = createSimpleAT("some");
 		at.setValueSyntax("INCORRECT");
-		catchException(aTypeMan).addAttributeType(at);
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error = catchThrowable(() -> aTypeMan.addAttributeType(at));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test
@@ -430,8 +429,8 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		main.put("minLength", 1);
 		main.put("maxLength", 2);
 		at.setValueSyntaxConfiguration(main);
-		catchException(aTypeMan).addAttributeType(at);
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		Throwable error = catchThrowable(() -> aTypeMan.addAttributeType(at));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 }
 

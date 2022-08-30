@@ -4,11 +4,8 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.junit.Test;
 
@@ -41,8 +38,8 @@ public class AuthnRequestProcessingTest
 		
 		XMLExpandedMessage verifiableMessage = new XMLExpandedMessage(request.getXMLBeanDoc(), 
 				request.getXMLBeanDoc().getAuthnRequest());
-		catchException(validator).validate(request.getXMLBeanDoc(), verifiableMessage);
+		Throwable error = catchThrowable(() -> validator.validate(request.getXMLBeanDoc(), verifiableMessage));
 
-		assertThat(caughtException(), is(nullValue()));
+		assertThat(error).isNull();
 	}
 }

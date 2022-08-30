@@ -5,69 +5,47 @@
 
 package pl.edu.icm.unity.stdext.credential.sms;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.time.Duration;
+
 import org.springframework.stereotype.Component;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.config.Searchable;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 
 /**
  * Authn sms limit counter. Used by {@link SMSVerificator} to check how many authn sms have been sent to user
- * @author P.Piernik
- *
  */
 @Component
-public class AuthnSMSCounter
+class AuthnSMSCounter
 {
-	private static final String CACHE_ID = "AuthnSMSCounter";
-	private Ehcache smsReqCache;
+	private final Cache<AuthenticationSubject, Integer> smsReqCache;
 	
-	@Autowired
-	public AuthnSMSCounter(CacheProvider cacheProvider)
+	AuthnSMSCounter()
 	{
-
-		CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_ID, 0);
-		Searchable searchable = new Searchable();
-		searchable.values(true);
-		cacheConfig.addSearchable(searchable);
-		cacheConfig.setTimeToIdleSeconds(48 * 3600);
-		cacheConfig.setEternal(false);
-		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
-		persistCfg.setStrategy("none");
-		cacheConfig.persistence(persistCfg);
-		smsReqCache = cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
+		smsReqCache = CacheBuilder.newBuilder()
+				.expireAfterWrite(Duration.ofHours(48))
+				.build();
 	}
 
-	public synchronized void incValue(AuthenticationSubject username)
+	synchronized void incValue(AuthenticationSubject username)
 	{
-		Element element = smsReqCache.get(username);
-		int value = 1;
-		if (element != null && element.getObjectValue() != null)
-		{
-			int old = Integer.parseInt(element.getObjectValue().toString());
-			value = old + 1;
-		}
-		smsReqCache.put(new Element(username, value));
+		Integer lastValue = smsReqCache.getIfPresent(username);
+		int value = lastValue != null ? lastValue + 1 : 1;
+		smsReqCache.put(username, value);
 	}
 
-	public synchronized boolean reset(AuthenticationSubject username)
+	synchronized boolean reset(AuthenticationSubject username)
 	{
-		return smsReqCache.remove(username);
+		boolean wasPresent = smsReqCache.getIfPresent(username) != null;
+		smsReqCache.invalidate(username);
+		return wasPresent;
 	}
 	
-	public synchronized int getValue(AuthenticationSubject username)
+	synchronized int getValue(AuthenticationSubject username)
 	{
-		Element element = smsReqCache.get(username);
-		if (element != null && element.getObjectValue() != null)
-		{
-			return Integer.parseInt(element.getObjectValue().toString());
-		}
-		return 0;
+		Integer value = smsReqCache.getIfPresent(username);
+		return value == null ? 0 : value;
 	}
 }

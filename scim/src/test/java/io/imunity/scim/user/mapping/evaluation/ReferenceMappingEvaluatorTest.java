@@ -14,7 +14,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,8 +90,8 @@ public class ReferenceMappingEvaluatorTest
 
 		EvaluationResult eval = evaluator.eval(refAttr,
 				EvaluatorContext.builder()
-						.withScimEndpointDescription(new SCIMEndpointDescription(URI.create("https://localhost"), null,
-								Collections.emptyList(), Collections.emptyList(), Collections.emptyList()))
+						.withScimEndpointDescription(SCIMEndpointDescription.builder()
+								.withBaseLocation(URI.create("https://localhost")).build())
 						.build(),
 				mappingEvaluatorRegistry);
 
@@ -115,8 +114,8 @@ public class ReferenceMappingEvaluatorTest
 
 		EvaluationResult eval = evaluator.eval(refAttr,
 				EvaluatorContext.builder()
-						.withScimEndpointDescription(new SCIMEndpointDescription(URI.create("https://localhost"), null,
-								Collections.emptyList(), Collections.emptyList(), Collections.emptyList()))
+						.withScimEndpointDescription(SCIMEndpointDescription.builder()
+								.withBaseLocation(URI.create("https://localhost")).build())
 						.build(),
 				mappingEvaluatorRegistry);
 

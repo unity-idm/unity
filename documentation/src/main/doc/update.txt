@@ -328,4 +328,24 @@ unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS
 Of course the above covers only a migration preserving the previous version behavior. It is also possible to switch to 
 offline scope based refresh token issuance.
 
+==== From 3.9 to 3.10
+
+Version 3.10 changes modules available in HomeUI endpoint. Former 'oauthToken' and 'preferencesTab' modules are replaced 
+with a single, user-friendly module named 'trustedApplications' module.
+
+If HomeUI endpoints is used, and its configuration is loaded from a properties file (instead of management via Console) an update 
+of the properties file may be necessary. It is needed then to verify if the old modules 'oauthToken' or 'preferencesTab' were 
+disabled configuration. If this is the case replace them with disabling the 'trustedApplications' module. Note that it is impossible 
+to disable only one part of the functionality any more.
+
+
+==== From 3.10 to 3.11
+
+Version 3.11 is Java 17 compatible (both Java 11 and 17 can be used to run Unity). One user facing change that was required to 
+bring Java 17 compatibility was update of Groovy to version 3.0.12 (previously version 2 was used). This should be an invisible 
+change for majority of Unity users, however if you enhanced Unity with Groovy scripts, please make sure to read this document and 
+verify if your scripts will require an update: https://groovy-lang.org/releasenotes/groovy-3.0.html. Mostly the bottom part is 
+important covering "breaking changes".    
+
+
  

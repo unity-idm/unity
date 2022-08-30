@@ -11,7 +11,6 @@ import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,9 +35,11 @@ public class SchemeAssemblyServiceTest
 	@Before
 	public void init()
 	{
-		SCIMEndpointDescription configuration = new SCIMEndpointDescription(URI.create("https://localhost:2443/scim"),
-				"/scim", List.of("/scim"),
-				List.of(DefaultSchemaProvider.getBasicGroupSchema(), DefaultSchemaProvider.getBasicUserSchema(),
+		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
+				.withBaseLocation(URI.create("https://localhost:2443/scim")).withRootGroup("/scim")
+				.withMembershipGroups(List.of("/scim"))
+				.withSchemas(List.of(DefaultSchemaProvider.getBasicGroupSchema(),
+						DefaultSchemaProvider.getBasicUserSchema(),
 						SchemaWithMapping.builder().withId("urn:ietf:params:scim:schemas:NotEnabled")
 								.withType(SchemaType.USER).withName("NotEnabled").withDescription("NotEnabled")
 								.withEnable(false).build(),
@@ -67,7 +68,8 @@ public class SchemeAssemblyServiceTest
 														.build())
 												.withAttributeMapping(null).build()))
 
-								.build()), Collections.emptyList());
+								.build()))
+				.build();
 
 		schemaAssemblyService = new SchemaAssemblyService(configuration);
 	}

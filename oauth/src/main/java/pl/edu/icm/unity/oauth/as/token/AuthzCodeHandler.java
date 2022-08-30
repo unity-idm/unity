@@ -121,8 +121,7 @@ class AuthzCodeHandler
 		oauthTokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(codeToken.getOwner()), 
 				now, accessExpiration);
 
-		statisticsPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName());
-		
+		statisticsPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName(), new EntityParam(codeToken.getOwner()));		
 		
 		return BaseOAuthResource.toResponse(Response.ok(BaseOAuthResource.getResponseContent(oauthResponse)));
 	}

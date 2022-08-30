@@ -18,6 +18,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 
 import eu.unicore.security.etd.DelegationRestrictions;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -69,18 +70,19 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 			AttributeTypeManagement attrMan, EnquiresDialogLauncher enquiryDialogLauncher,
 			AttributeTypeSupport aTypeSupport, PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, imageAccessService, freemarkerHandler, handlersRegistry, preferencesMan, authnProcessor,
 				idpEngine, idTypeSupport, sessionMan, attrMan, enquiryDialogLauncher, aTypeSupport,
-				policyAgreementsMan, policyAgreementScreenObjectFactory, idpStatisticReporterFactory);
+				policyAgreementsMan, policyAgreementScreenObjectFactory, idpStatisticReporterFactory, lastAccessAttributeManagement);
 	}
 
 	@Override
 	protected void enter(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
-		samlWithEtdProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, samlCtx, 
+		samlWithEtdProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance());
 		super.enter(request);
 	}

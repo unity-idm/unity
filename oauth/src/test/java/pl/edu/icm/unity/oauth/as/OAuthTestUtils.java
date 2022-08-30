@@ -160,15 +160,22 @@ public class OAuthTestUtils
 		return ctx;
 	}
 
+	
 	public static AuthorizationSuccessResponse initOAuthFlowHybrid(OAuthASProperties config, 
 			OAuthProcessor processor, ClientType clientType) throws Exception
+	{
+		return initOAuthFlowHybrid(config, processor, clientType, TOKEN_OWNING_CLIENT_ENTITY_ID);
+	}
+	
+	public static AuthorizationSuccessResponse initOAuthFlowHybrid(OAuthASProperties config, 
+			OAuthProcessor processor, ClientType clientType, long clientId) throws Exception
 	{
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
 		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.TOKEN, 
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
-				GrantFlow.openidHybrid, TOKEN_OWNING_CLIENT_ENTITY_ID, clientType);
+				GrantFlow.openidHybrid, clientId, clientType);
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
 	}
@@ -176,7 +183,13 @@ public class OAuthTestUtils
 	public static AuthorizationSuccessResponse initOAuthFlowHybrid(OAuthASProperties config, 
 			OAuthProcessor processor) throws Exception
 	{
-		return initOAuthFlowHybrid(config, processor, ClientType.CONFIDENTIAL);
+		return initOAuthFlowHybrid(config, processor, ClientType.CONFIDENTIAL, TOKEN_OWNING_CLIENT_ENTITY_ID);
+	}
+	
+	public static AuthorizationSuccessResponse initOAuthFlowHybrid(OAuthASProperties config, 
+			OAuthProcessor processor, long clientId) throws Exception
+	{
+		return initOAuthFlowHybrid(config, processor, ClientType.CONFIDENTIAL, clientId);
 	}
 	
 	public static AuthorizationSuccessResponse initOAuthFlowAccessCode(OAuthProcessor processor, 

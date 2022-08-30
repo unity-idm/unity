@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
@@ -107,9 +106,9 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		EntityParam ep1 = new EntityParam(new IdentityParam(UsernameIdentity.ID, "u1"));
 
 		setupUserContext("u2", null);
-		catchException(securedTokensMan).getOwnedTokens("t", ep1);
+		Throwable error = catchThrowable(() -> securedTokensMan.getOwnedTokens("t", ep1));
 
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 
 	@Test
@@ -149,9 +148,9 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		EntityParam ep1 = new EntityParam(new IdentityParam(UsernameIdentity.ID, "u1"));
 
 		setupUserContext("u2", null);
-		catchException(securedTokensMan).getOwnedTokens(null, ep1);
+		Throwable error = catchThrowable(() -> securedTokensMan.getOwnedTokens(null, ep1));
 
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 
 	@Test
@@ -182,8 +181,8 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 
 		setupUserContext("u2", null);
 
-		catchException(securedTokensMan).removeToken("t", "1234");
-		assertThat(caughtException(), isA(AuthorizationException.class));
+		Throwable error = catchThrowable(() -> securedTokensMan.removeToken("t", "1234"));
+		assertThat(error).isInstanceOf(AuthorizationException.class);
 
 		setupAdmin();
 

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.security.dsig.DSigException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -69,10 +70,12 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
 			MessageSource msg,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(aTypeSupport, preferencesMan, idpEngine, 
-				freemarker, sessionMan, enquiryManagement, policyAgreementsMan, msg, idpStatisticReporterFactory);
+				freemarker, sessionMan, enquiryManagement, policyAgreementsMan, msg, idpStatisticReporterFactory, 
+				lastAccessAttributeManagement);
 	}
 	
 	
@@ -92,7 +95,7 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 	protected void autoReplay(SPSettings spPreferences, SAMLAuthnContext samlCtx, HttpServletRequest request,
 			HttpServletResponse response) throws EopException, IOException
 	{
-		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport,
+		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, lastAccessAttributeManagement,
 				samlCtx, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		
 		String serviceUrl = getServiceUrl(samlCtx);

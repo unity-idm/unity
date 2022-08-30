@@ -4,12 +4,8 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -28,10 +24,6 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
-/**
- * Invitations management test
- * @author Krzysztof Benedyczak
- */
 public class TestBulkProcessing extends RESTAdminTestBase
 {
 	@Test
@@ -49,10 +41,10 @@ public class TestBulkProcessing extends RESTAdminTestBase
 		post.setEntity(new StringEntity(jsonform, ContentType.APPLICATION_JSON));
 		HttpResponse responsePost = client.execute(host, post, localcontext);
 		String contents = EntityUtils.toString(responsePost.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), responsePost.getStatusLine().getStatusCode());
+		assertThat(responsePost.getStatusLine().getStatusCode()).as(contents).isEqualTo(Status.OK.getStatusCode());
 
-		assertThat(contents, is("sync"));
-		catchException(idsMan).getEntity(new EntityParam(identityParam));
-		assertThat(caughtException(), isA(IllegalArgumentException.class));
+		assertThat(contents).isEqualTo("sync");
+		Throwable error = catchThrowable(() -> idsMan.getEntity(new EntityParam(identityParam)));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 }

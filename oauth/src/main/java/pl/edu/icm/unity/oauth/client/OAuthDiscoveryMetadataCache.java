@@ -10,19 +10,14 @@ import java.time.Duration;
 import java.util.Objects;
 
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
 @Component
@@ -31,21 +26,20 @@ class OAuthDiscoveryMetadataCache
 	private static final Duration DEFAULT_CACHE_TTL = Duration.ofHours(3);
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2Verificator.class);
 
-	private static final String CACHE_ID = OAuthDiscoveryMetadataCache.class.getName() + "_cache";
+	private final Cache<MetaCacheKey, OIDCProviderMetadata> cache;
+	private final OpenIdConnectDiscovery downloader;
 
-	private Ehcache cache;
-	private OpenIdConnectDiscovery downloader;
-
-	@Autowired
-	OAuthDiscoveryMetadataCache(CacheProvider cacheProvider)
+	OAuthDiscoveryMetadataCache()
 	{
-		this(cacheProvider, new OpenIdConnectDiscovery(), DEFAULT_CACHE_TTL);
+		this(new OpenIdConnectDiscovery(), DEFAULT_CACHE_TTL);
 	}
 
-	OAuthDiscoveryMetadataCache(CacheProvider cacheProvider, OpenIdConnectDiscovery downloader, Duration ttl)
+	OAuthDiscoveryMetadataCache(OpenIdConnectDiscovery downloader, Duration ttl)
 	{
 		this.downloader = downloader;
-		initCache(cacheProvider.getManager(), ttl);
+		this.cache = CacheBuilder.newBuilder()
+				.expireAfterWrite(ttl)
+				.build();
 	}
 
 	synchronized OIDCProviderMetadata getMetadata(CustomProviderProperties properties)
@@ -55,35 +49,23 @@ class OAuthDiscoveryMetadataCache
 		MetaCacheKey metaCacheKey = new MetaCacheKey(url,
 				properties.getValue(CustomProviderProperties.CLIENT_TRUSTSTORE),
 				properties.getValue(CustomProviderProperties.CLIENT_HOSTNAME_CHECKING));
-		cache.evictExpiredElements();
-		Element element = cache.get(metaCacheKey);
+		OIDCProviderMetadata element = cache.getIfPresent(metaCacheKey);
 		if (element != null)
 		{
 			log.debug("Get oauth OIDC metadata provider from cache " + url);
-			return ((OIDCProviderMetadata) element.getObjectValue());
+			return element;
 		} else
 		{
 			log.debug("Get fresh oauth OIDC metadata from " + url);
 			OIDCProviderMetadata metadata = downloader.getMetadata(url, properties);
-			cache.put(new Element(metaCacheKey, metadata));
+			cache.put(metaCacheKey, metadata);
 			return metadata;
 		}
 	}
 
-	private void initCache(CacheManager cacheManager, Duration cacheTTL)
-	{
-		cache = cacheManager.addCacheIfAbsent(CACHE_ID);
-		CacheConfiguration config = cache.getCacheConfiguration();
-		config.setTimeToIdleSeconds(cacheTTL.toSeconds());
-		config.setTimeToLiveSeconds(cacheTTL.toSeconds());
-		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
-		persistCfg.setStrategy("none");
-		config.persistence(persistCfg);
-	}
-	
 	public void clear()
 	{
-		cache.removeAll();
+		cache.invalidateAll();
 	}
 
 	private static class MetaCacheKey

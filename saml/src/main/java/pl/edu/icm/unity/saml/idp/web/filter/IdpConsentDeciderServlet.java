@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.security.dsig.DSigException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -92,6 +93,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	private final MessageSource msg;
 	private final FreemarkerAppHandler freemarker;
 	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
+	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 	
 	@Autowired
 	public IdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
@@ -102,7 +104,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
 			MessageSource msg,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory)
+			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.preferencesMan = preferencesMan;
@@ -113,6 +116,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		this.msg = msg;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.freemarker = freemarker;
+		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 	}
 
 	protected void init(String samlUiServletPath, String authenticationUIServletPath, Endpoint endpoint)
@@ -176,7 +180,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			preferences = loadPreferences(samlCtx);
 		} catch (EngineException e1)
 		{
-			AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
+			AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 					Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 			String serviceUrl = getServiceUrl(samlCtx);
 			
@@ -212,7 +216,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	
 	private boolean isActiveValueSelectionRequired(SAMLAuthnContext samlCtx)
 	{
-		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
+		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		SamlIdpProperties config = samlCtx.getSamlConfiguration();
 		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(config, 
@@ -268,7 +272,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected void autoReplay(SPSettings spPreferences, SAMLAuthnContext samlCtx, HttpServletRequest request,
 			HttpServletResponse response) throws EopException, IOException
 	{
-		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
+		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		
 		String serviceUrl = getServiceUrl(samlCtx);

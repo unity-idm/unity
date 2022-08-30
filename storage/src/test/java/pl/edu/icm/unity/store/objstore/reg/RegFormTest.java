@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.objstore.reg;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -50,8 +49,8 @@ public class RegFormTest extends BaseFormTest<RegistrationForm>
 			RegistrationForm obj = getObject("name1");
 			getDAO().create(obj);
 
-			catchException(crDB).delete("credreq");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> crDB.delete("credreq"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 	

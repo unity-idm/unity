@@ -14,6 +14,7 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.security.etd.DelegationRestrictions;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -50,9 +51,10 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	public SAMLETDAuthnImpl(AttributeTypeSupport aTypeSupport,
 			SamlIdpProperties samlProperties, String endpointAddress,
 			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan, SamlIdpStatisticReporter idpStatisticReporter)
+			PreferencesManagement preferencesMan, SamlIdpStatisticReporter idpStatisticReporter,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
-		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan, idpStatisticReporter);
+		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan, idpStatisticReporter, lastAccessAttributeManagement);
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 			throw new Fault(e1);
 		}
 		
-		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, context);
+		AuthnWithETDResponseProcessor samlProcessor = new AuthnWithETDResponseProcessor(aTypeSupport, lastAccessAttributeManagement, context);
 		NameIDType samlRequester = context.getRequest().getIssuer();
 		
 		ResponseDocument respDoc;

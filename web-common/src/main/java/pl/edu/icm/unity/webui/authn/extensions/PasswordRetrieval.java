@@ -4,41 +4,19 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.server.Resource;
+import com.vaadin.ui.*;
+import com.vaadin.ui.Component.Focusable;
+import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Component.Focusable;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.PasswordField;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
-import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
@@ -56,6 +34,9 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+
+import java.io.StringReader;
+import java.util.*;
 
 /**
  * Retrieves passwords using a Vaadin widget.
@@ -256,7 +237,6 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		private void setError()
 		{
 			passwordField.setValue("");
-			usernameField.setValue("");
 		}
 		
 		private void showResetDialog()
@@ -272,7 +252,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		@Override
 		public void focus()
 		{
-			if (presetAuthenticatedIdentity == null)
+			if (presetAuthenticatedIdentity == null && usernameField.isEmpty())
 				usernameField.focus();
 			else
 				passwordField.focus();

@@ -4,10 +4,8 @@
  */
 package pl.edu.icm.unity.store.objstore.authnFlow;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +46,8 @@ public class AuthenticationFlowTest extends AbstractNamedWithTSTest<Authenticati
 			AuthenticationFlowDefinition obj = getObject("name1");
 			dao.create(obj);
 
-			catchException(authDB).delete("pass");
-			assertThat(caughtException(), isA(IllegalArgumentException.class));
+			Throwable error = catchThrowable(() -> authDB.delete("pass"));
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
 	}
 
