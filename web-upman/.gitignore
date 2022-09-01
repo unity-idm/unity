@@ -1,0 +1,8 @@
+/target/
+/frontend/
+/node_modules/
+/tsconfig.json
+/types.d.ts
+/webpack.config.js
+/package-lock.json
+/package.json

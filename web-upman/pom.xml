@@ -12,6 +12,7 @@
 	<description>Group management UI</description>
 	<properties>
 		<m.name>web-upman</m.name>
+		<vaadin.productionMode>true</vaadin.productionMode>
 	</properties>
 	
 	<scm>
@@ -49,12 +50,12 @@
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>vaadin23-endpoint-common</artifactId>
-			<version>3.10.0-SNAPSHOT</version>
+			<version>3.11.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>vaadin23-elements</artifactId>
-			<version>3.10.0-SNAPSHOT</version>
+			<version>3.11.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

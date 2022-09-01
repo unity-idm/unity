@@ -15,7 +15,6 @@ import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.*;
 import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.MessageSource;
@@ -45,7 +44,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URI;
 import java.util.*;
 
 import static pl.edu.icm.unity.webui.VaadinEndpoint.*;
@@ -112,7 +110,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		{
 			context = getWebAppContext(uiServletPath,
 					resourceProvider.getChosenClassPathElement(),
-					resourceProvider.getClientResource("META-INF/resources/").toURI(),
+					getWebContentsDir(),
 					new ServletContextListeners()
 			);
 		} catch (Exception e)
@@ -243,10 +241,10 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		return context;
 	}
 
-	WebAppContext getWebAppContext(String contextPath, Set<String> classPathElements, URI webResourceRootUri,
-	                               EventListener eventListener) throws Exception {
+	WebAppContext getWebAppContext(String contextPath, Set<String> classPathElements, String webResourceRootUri,
+	                               EventListener eventListener) {
 		WebAppContext context = new Vaadin23WebAppContext(properties, genericEndpointProperties);
-		context.setBaseResource(Resource.newResource(webResourceRootUri));
+		context.setResourceBase(webResourceRootUri);
 		context.setContextPath(contextPath);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(classPathElements));
 		context.setConfigurationDiscovered(true);
