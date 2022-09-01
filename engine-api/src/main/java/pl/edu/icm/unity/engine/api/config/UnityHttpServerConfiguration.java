@@ -77,6 +77,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	public static final String FRAME_OPTIONS = "xFrameOptions";
 	public static final String ALLOWED_TO_EMBED = "xFrameAllowed";
 	public static final String MAX_IDLE_TIME = "maxIdleTime";
+	public static final String SNI_HOSTNAME_CHECK = "sniHostnameChecking";
 	
 	/**
 	 * CORS support. For the parameters see 
@@ -235,6 +236,8 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 				setDescription("Deprecated and ignored. Use maxConnections option instead."));
 		defaults.put(LOW_RESOURCE_MAX_IDLE_TIME, new PropertyMD().setDeprecated().
 				setDescription("Not used anymore without a counterpart"));
+		defaults.put(SNI_HOSTNAME_CHECK, new PropertyMD("true").
+				setDescription("Allows for turning off the SNI hostname checking"));
 	}
 
 	public UnityHttpServerConfiguration(Properties source) throws ConfigurationException
