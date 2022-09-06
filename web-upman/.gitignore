@@ -3,6 +3,6 @@
 /node_modules/
 /tsconfig.json
 /types.d.ts
-/webpack.config.js
+/webpack.generated.js
 /package-lock.json
 /package.json

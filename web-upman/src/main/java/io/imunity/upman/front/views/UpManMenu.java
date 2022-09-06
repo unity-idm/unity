@@ -112,7 +112,14 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 			currentView.ifPresent(UnityViewComponent::loadData);
 		}
 		if(ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class) == null)
+		{
+			if (projectsLayout.selectedProject == null)
+			{
+				beforeEnterEvent.rerouteToError(IllegalAccessException.class);
+				return;
+			}
 			ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, projectsLayout.selectedProject);
+		}
 	}
 
 	class ProjectsLayout extends HorizontalLayout

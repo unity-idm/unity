@@ -6,13 +6,11 @@ package io.imunity.upman.front;
 
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.*;
 import io.imunity.upman.front.model.ProjectGroup;
 
 
-public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>
+public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>, AfterNavigationObserver
 {
 	public UnityViewComponent()
 	{
@@ -25,6 +23,12 @@ public abstract class UnityViewComponent extends Composite<Div> implements HasUr
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter)
 	{
+	}
+
+	@Override
+	public void afterNavigation(AfterNavigationEvent event)
+	{
+		loadData();
 	}
 
 	public abstract void loadData();

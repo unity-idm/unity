@@ -37,10 +37,10 @@ class MemberActionMenu extends ActionMenu
 		MenuItemFactory.MenuItem addToGroupItem = menuItemFactory.createAddToGroupItem(selectedProjectGetter, allGroupsGetter, selectedMembersGetter);
 		addItem(addToGroupItem.component, addToGroupItem.clickListener);
 
-		MenuItemFactory.MenuItem setProjectRoleItem = menuItemFactory.createSetProjectRoleItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter);
+		MenuItemFactory.MenuItem setProjectRoleItem = menuItemFactory.createSetProjectRoleItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter, roleGetter);
 		this.setProjectRoleItem = addItem(setProjectRoleItem.component, setProjectRoleItem.clickListener);
 
-		MenuItemFactory.MenuItem setSubProjectRoleItem = menuItemFactory.createSetSubProjectRoleItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter);
+		MenuItemFactory.MenuItem setSubProjectRoleItem = menuItemFactory.createSetSubProjectRoleItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter, roleGetter);
 		this.setSubProjectRoleItem = addItem(setSubProjectRoleItem.component, setSubProjectRoleItem.clickListener);
 
 		addOpenedChangeListener(event ->
@@ -70,7 +70,7 @@ class MemberActionMenu extends ActionMenu
 	void switchToSubprojectMode(GroupAuthorizationRole role)
 	{
 		setProjectRoleItem.setVisible(false);
-		setSubProjectRoleItem.setVisible(!role.equals(GroupAuthorizationRole.projectsAdmin));
+		setSubProjectRoleItem.setVisible(role.equals(GroupAuthorizationRole.projectsAdmin));
 	}
 
 	void switchToProjectMode()

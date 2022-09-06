@@ -71,7 +71,6 @@ public class MembersView extends UnityViewComponent
 		HorizontalLayout menuAndSearchLayout = createMenuAndSearchLayout(mainContextMenu.getTarget(), searchField);
 
 		getContent().add(groupComboBoxLayout, menuAndSearchLayout);
-		loadData();
 	}
 
 	private TextField createSearchField()
@@ -84,7 +83,7 @@ public class MembersView extends UnityViewComponent
 		HorizontalLayout layout = new HorizontalLayout(memberActionMenu, textField);
 		layout.setAlignItems(FlexComponent.Alignment.END);
 		layout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-		layout.getStyle().set("padding-left", "1em");
+		layout.getStyle().set("padding-left", "1.3em");
 		return layout;
 	}
 
@@ -113,7 +112,7 @@ public class MembersView extends UnityViewComponent
 
 	private MembersGrid createMembersGrid(Map<String, String> attributes)
 	{
-		return new MembersGrid(attributes, msg, this::createGridRowContextMenu);
+		return new MembersGrid(attributes, msg, this::createGridRowContextMenu, getContent());
 	}
 
 	private Component createGridRowContextMenu(MemberModel model)
@@ -144,6 +143,8 @@ public class MembersView extends UnityViewComponent
 	public void loadData()
 	{
 		projectGroup = ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class);
+		if(projectGroup == null)
+			return;
 		currentUserRole = projectService.getCurrentUserProjectRole(projectGroup);
 
 		GroupTreeNode groupTreeNode = projectService.getProjectGroups(projectGroup);

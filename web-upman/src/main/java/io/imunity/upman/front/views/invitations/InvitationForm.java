@@ -49,6 +49,7 @@ class InvitationForm extends FormLayout
 
 		emailsTextArea = new TextArea();
 		emailsTextArea.setPlaceholder(msg.getMessage("NewInvitationDialog.emailsPrompt"));
+		emailsTextArea.setWidth("24em");
 		TooltipAttacher.attachTooltip(msg.getMessage("NewInvitationDialog.emailsDesc"), emailsTextArea, container);
 
 		allowModifyGroupsCheckbox = new Checkbox(msg.getMessage("NewInvitationDialog.allowModifyGroups"));

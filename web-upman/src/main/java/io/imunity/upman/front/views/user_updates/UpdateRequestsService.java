@@ -115,7 +115,7 @@ class UpdateRequestsService
 			for (UpdateRequestModel request : items)
 			{
 				requestMan.accept(new ProjectRequestParam(projectGroup.path, request.id, request.operation, request.type));
-				accepted.add(request.email.getKey());
+				accepted.add(request.email.value);
 
 			}
 			notificationPresenter.showSuccess(msg.getMessage("UpdateRequestsComponent.accepted"));
@@ -146,7 +146,7 @@ class UpdateRequestsService
 			for (UpdateRequestModel request : items)
 			{
 				requestMan.decline(new ProjectRequestParam(projectGroup.path, request.id, request.operation, request.type));
-				declined.add(request.email.getKey());
+				declined.add(request.email.value);
 
 			}
 			notificationPresenter.showSuccess(msg.getMessage("UpdateRequestsComponent.declined"));

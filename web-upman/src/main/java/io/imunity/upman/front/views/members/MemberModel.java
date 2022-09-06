@@ -6,6 +6,7 @@
 package io.imunity.upman.front.views.members;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
+import io.imunity.upman.front.model.EmailModel;
 import org.apache.commons.lang3.tuple.Pair;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
@@ -19,9 +20,9 @@ public class MemberModel
 	public final String name;
 	public final Map<String, String> attributes;
 	public final Pair<String, VaadinIcon> role;
-	public final Pair<String, VaadinIcon> email;
+	public final EmailModel email;
 
-	private MemberModel(long entityId, String name, Map<String, String> attributes, Pair<String, VaadinIcon> role, Pair<String, VaadinIcon> email)
+	private MemberModel(long entityId, String name, Map<String, String> attributes, Pair<String, VaadinIcon> role, EmailModel email)
 	{
 		this.entityId = entityId;
 		this.name = name;
@@ -45,7 +46,7 @@ public class MemberModel
 		return value.isEmpty()
 				|| name.toLowerCase().contains(lowerCaseValue)
 				|| role.getKey().toLowerCase().contains(lowerCaseValue)
-				|| email.getKey().toLowerCase().contains(lowerCaseValue)
+				|| email.value.toLowerCase().contains(lowerCaseValue)
 				|| attributes.values().stream().anyMatch(attrValue -> attrValue.toLowerCase().contains(lowerCaseValue));
 	}
 
@@ -66,7 +67,7 @@ public class MemberModel
 		public String name;
 		public Map<String, String> attributes;
 		public Pair<String, VaadinIcon> role;
-		public Pair<String, VaadinIcon> email;
+		public EmailModel email;
 
 		private MembersGridModelBuilder()
 		{
@@ -104,7 +105,7 @@ public class MemberModel
 
 		public MembersGridModelBuilder email(VerifiableElementBase email)
 		{
-			this.email = Pair.of(email.getValue(), email.getConfirmationInfo().isConfirmed() ? VaadinIcon.CHECK_CIRCLE_O : VaadinIcon.EXCLAMATION_CIRCLE_O);
+			this.email = new EmailModel(email.getValue(), email.isConfirmed(), email.getConfirmationInfo().getConfirmationDate());
 			return this;
 		}
 

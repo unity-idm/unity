@@ -33,9 +33,11 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static java.util.stream.Collectors.toList;
@@ -75,16 +77,18 @@ class MenuItemFactory
 		return new MenuItem(menuButton, event -> createAddToGroupDialog(projectGetter.get(), modelsGetter.get(), groupGetter.get()).open());
 	}
 
-	MenuItem createSetProjectRoleItem(Supplier<ProjectGroup> projectGetter, Supplier<Group> groupGetter, Supplier<Set<MemberModel>> modelsGetter)
+	MenuItem createSetProjectRoleItem(Supplier<ProjectGroup> projectGetter, Supplier<Group> groupGetter, Supplier<Set<MemberModel>> modelsGetter,
+	                                  Supplier<GroupAuthorizationRole> roleGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.setProjectRoleAction"), STAR_O);
-		return new MenuItem(menuButton, event -> createSetProjectRoleDialog(projectGetter.get(), groupGetter.get(), modelsGetter.get()).open());
+		return new MenuItem(menuButton, event -> createSetProjectRoleDialog(projectGetter.get(), groupGetter.get(), modelsGetter.get(), roleGetter.get()).open());
 	}
 
-	MenuItem createSetSubProjectRoleItem(Supplier<ProjectGroup> projectGetter, Supplier<Group> groupGetter, Supplier<Set<MemberModel>> modelsGetter)
+	MenuItem createSetSubProjectRoleItem(Supplier<ProjectGroup> projectGetter, Supplier<Group> groupGetter, Supplier<Set<MemberModel>> modelsGetter,
+	                                     Supplier<GroupAuthorizationRole> roleGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.setSubProjectRoleAction"), STAR_O);
-		return new MenuItem(menuButton, event -> createSetSubProjectRoleDialog(projectGetter.get(), groupGetter.get(), modelsGetter.get()).open());
+		return new MenuItem(menuButton, event -> createSetSubProjectRoleDialog(projectGetter.get(), groupGetter.get(), modelsGetter.get(), roleGetter.get()).open());
 	}
 
 	private void removeFromGroup(ProjectGroup projectGroup, Group group, GroupAuthorizationRole role, Set<MemberModel> models)
@@ -186,11 +190,11 @@ class MenuItemFactory
 		return dialog;
 	}
 
-	private Dialog createSetProjectRoleDialog(ProjectGroup projectGroup, Group group, Set<MemberModel> items)
+	private Dialog createSetProjectRoleDialog(ProjectGroup projectGroup, Group group, Set<MemberModel> items, GroupAuthorizationRole role)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("RoleSelectionDialog.projectCaption"));
 
-		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup();
+		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role);
 		Label label = new Label(msg.getMessage("RoleSelectionDialog.projectRole"));
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
@@ -204,20 +208,25 @@ class MenuItemFactory
 		return dialog;
 	}
 
-	private RadioButtonGroup<GroupAuthorizationRole> createRoleRadioButtonGroup()
+	private RadioButtonGroup<GroupAuthorizationRole> createRoleRadioButtonGroup(GroupAuthorizationRole role)
 	{
 		RadioButtonGroup<GroupAuthorizationRole> radioGroup = new RadioButtonGroup<>();
 		radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-		radioGroup.setItems(GroupAuthorizationRole.values());
-		radioGroup.setItemLabelGenerator(role -> msg.getMessage("Role." + role.toString().toLowerCase()));
+
+		Set<GroupAuthorizationRole> roles = Arrays.stream(GroupAuthorizationRole.values()).collect(Collectors.toSet());
+		if(role.equals(GroupAuthorizationRole.manager))
+			roles.remove(GroupAuthorizationRole.projectsAdmin);
+
+		radioGroup.setItems(roles);
+		radioGroup.setItemLabelGenerator(r-> msg.getMessage("Role." + r.toString().toLowerCase()));
 		return radioGroup;
 	}
 
-	private Dialog createSetSubProjectRoleDialog(ProjectGroup projectGroup, Group group, Set<MemberModel> items)
+	private Dialog createSetSubProjectRoleDialog(ProjectGroup projectGroup, Group group, Set<MemberModel> items, GroupAuthorizationRole role)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("RoleSelectionDialog.subprojectCaption"));
 
-		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup();
+		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role);
 		Label label = new Label(msg.getMessage("RoleSelectionDialog.subprojectRole"));
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
@@ -264,7 +273,7 @@ class MenuItemFactory
 							groupMembersController.updateRole(projectGroup, group, role, items);
 							viewReloader.run();
 						}
-				);
+				).open();
 				return;
 			}
 			groupMembersController.updateRole(projectGroup, group, role, items);

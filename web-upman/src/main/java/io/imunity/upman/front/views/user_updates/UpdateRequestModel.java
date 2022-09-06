@@ -6,8 +6,7 @@
 package io.imunity.upman.front.views.user_updates;
 
 import com.google.common.base.Objects;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import org.apache.commons.lang3.tuple.Pair;
+import io.imunity.upman.front.model.EmailModel;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
@@ -23,11 +22,11 @@ class UpdateRequestModel
 	public final RequestOperation operation;
 	public final RequestType type;
 	public final String name;
-	public final Pair<String, VaadinIcon> email;
+	public final EmailModel email;
 	public final List<String> groupsDisplayedNames;
 	public final Instant requestedTime;
 
-	private UpdateRequestModel(String id, RequestOperation operation, RequestType type, Pair<String, VaadinIcon> email, String name,
+	private UpdateRequestModel(String id, RequestOperation operation, RequestType type, EmailModel email, String name,
 	                          List<String> groupsDisplayedNames, Instant requestedTime)
 	{
 		this.id = id;
@@ -70,7 +69,7 @@ class UpdateRequestModel
 		return value.isEmpty()
 				|| (operation != null && operation.name().toLowerCase().contains(value.replace(" ","")))
 				|| name.toLowerCase().contains(lowerCaseValue)
-				|| email.getKey().toLowerCase().contains(lowerCaseValue)
+				|| email.value.toLowerCase().contains(lowerCaseValue)
 				|| (requestedTime != null && formatStandardInstant(requestedTime).toLowerCase().contains(lowerCaseValue))
 				|| groupsDisplayedNames.stream().anyMatch(grp -> grp.toLowerCase().contains(lowerCaseValue));
 	}
@@ -86,7 +85,7 @@ class UpdateRequestModel
 		private RequestOperation operation;
 		private RequestType type;
 		private String name;
-		private Pair<String, VaadinIcon> email;
+		private EmailModel email;
 		private List<String> groupsDisplayedNames;
 		private Instant requestedTime;
 
@@ -120,7 +119,7 @@ class UpdateRequestModel
 
 		public UpdateRequestModelBuilder email(VerifiableElementBase email)
 		{
-			this.email = Pair.of(email.getValue(), email.getConfirmationInfo().isConfirmed() ? VaadinIcon.CHECK_CIRCLE_O : VaadinIcon.EXCLAMATION_CIRCLE_O);
+			this.email = new EmailModel(email.getValue(), email.isConfirmed(), email.getConfirmationInfo().getConfirmationDate());
 			return this;
 		}
 

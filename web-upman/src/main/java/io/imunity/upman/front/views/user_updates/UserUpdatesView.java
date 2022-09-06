@@ -58,7 +58,6 @@ public class UserUpdatesView extends UnityViewComponent
 				grid
 		);
 
-		loadData();
 	}
 
 	private VerticalLayout createLinksLayout()
@@ -83,7 +82,7 @@ public class UserUpdatesView extends UnityViewComponent
 		HorizontalLayout layout = new HorizontalLayout(memberActionMenu, textField);
 		layout.setAlignItems(FlexComponent.Alignment.END);
 		layout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-		layout.getStyle().set("padding-left", "1.2em");
+		layout.getStyle().set("padding-left", "1.3em");
 		return layout;
 	}
 
@@ -113,6 +112,12 @@ public class UserUpdatesView extends UnityViewComponent
 				}
 		);
 
+		menu.addOpenedChangeListener(event ->
+		{
+			boolean anySelected = !updateRequestGetter.get().isEmpty();
+			menu.getItems().forEach(menuItem -> menuItem.setEnabled(anySelected));
+		});
+
 		return menu.getTarget();
 	}
 
@@ -120,6 +125,8 @@ public class UserUpdatesView extends UnityViewComponent
 	public void loadData()
 	{
 		projectGroup = ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class);
+		if(projectGroup == null)
+			return;
 
 		linksLayout.removeAll();
 		updateRequestsService.getProjectRegistrationFormLink(projectGroup)

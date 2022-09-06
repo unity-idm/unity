@@ -57,14 +57,12 @@ public class InvitationsView extends UnityViewComponent
 				createMainMenuLayout(),
 				grid
 		);
-
-		loadData();
 	}
 
 	private HorizontalLayout createMainMenuLayout()
 	{
 		HorizontalLayout horizontalLayout = new HorizontalLayout(createContextMenu(grid::getSelectedItems));
-		horizontalLayout.getStyle().set("margin-left", "1.2em");
+		horizontalLayout.getStyle().set("margin-left", "1.3em");
 		return horizontalLayout;
 	}
 
@@ -142,6 +140,12 @@ public class InvitationsView extends UnityViewComponent
 					loadData();
 				}
 		);
+
+		menu.addOpenedChangeListener(event ->
+		{
+			boolean anySelected = !invitationsGetter.get().isEmpty();
+			menu.getItems().forEach(menuItem -> menuItem.setEnabled(anySelected));
+		});
 
 		return menu.getTarget();
 	}

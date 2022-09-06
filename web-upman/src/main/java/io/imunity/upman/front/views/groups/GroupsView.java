@@ -55,8 +55,6 @@ public class GroupsView extends UnityViewComponent
 		VerticalLayout verticalLayout = new VerticalLayout(createMainContextMenu(), grid);
 		verticalLayout.getStyle().set("margin-top", "1em");
 		getContent().add(verticalLayout);
-
-		loadData();
 	}
 
 	private TreeGrid<GroupTreeNode> createGroupsGrid()
@@ -68,6 +66,13 @@ public class GroupsView extends UnityViewComponent
 			if(groupTreeNode.isDelegationEnabled())
 				div.add(WORKPLACE.create());
 			div.add(new Label(groupTreeNode.getDisplayedName()));
+			div.addClickListener(event ->
+			{
+				if(gridExpandedElements.contains(groupTreeNode))
+					grid.collapse(groupTreeNode);
+				else
+					grid.expand(groupTreeNode);
+			});
 			return div;
 		});
 		grid.addComponentColumn(groupNode -> actionMenuFactory.createMenu(groupNode))
@@ -75,6 +80,7 @@ public class GroupsView extends UnityViewComponent
 
 		grid.addCollapseListener(event -> gridExpandedElements.removeAll(event.getItems()));
 		grid.addExpandListener(event -> gridExpandedElements.addAll(event.getItems()));
+//		grid.addItemClickListener(event -> grid.expand(event.getItem()));
 
 		return grid;
 	}
@@ -99,6 +105,8 @@ public class GroupsView extends UnityViewComponent
 	public void loadData()
 	{
 		projectGroup = ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class);
+		if(projectGroup == null)
+			return;
 		currentUserRole = projectService.getCurrentUserProjectRole(projectGroup);
 		gridExpandedElements = new HashSet<>();
 
