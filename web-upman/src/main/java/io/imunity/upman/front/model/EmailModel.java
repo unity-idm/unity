@@ -5,17 +5,28 @@
 
 package io.imunity.upman.front.model;
 
+import com.vaadin.flow.component.HtmlContainer;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import io.imunity.vaadin23.elements.TooltipAttacher;
+import pl.edu.icm.unity.MessageSource;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
 
 public class EmailModel
 {
+	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+			.withZone(ZoneId.systemDefault());
+
 	public final String value;
 	public final VaadinIcon icon;
-	public final Optional<Instant> zonedDateTime;
+	public final Optional<Instant> confirmedAt;
 
 	public EmailModel(String value, boolean confirmed, long confirmationDate)
 	{
@@ -23,13 +34,29 @@ public class EmailModel
 		if(confirmed)
 		{
 			icon = VaadinIcon.CHECK_CIRCLE_O;
-			zonedDateTime = Optional.of(Instant.ofEpochMilli(confirmationDate));
+			confirmedAt = Optional.of(Instant.ofEpochMilli(confirmationDate));
 		}
 		else
 		{
 			icon = VaadinIcon.EXCLAMATION_CIRCLE_O;
-			zonedDateTime = Optional.empty();
+			confirmedAt = Optional.empty();
 		}
+	}
+
+	public Div generateAsComponent(MessageSource msg, HtmlContainer container)
+	{
+		if(value == null)
+			return new Div();
+		Icon iconInstance = icon.create();
+		confirmedAt.ifPresentOrElse(
+				time -> TooltipAttacher.attachTooltip(msg.getMessage("SimpleConfirmationInfo.confirmed", formatter.format(time)), iconInstance, container),
+				() -> TooltipAttacher.attachTooltip(msg.getMessage("SimpleConfirmationInfo.unconfirmed"), iconInstance, container)
+		);
+		return new Div(iconInstance, new Label(" " + value));
+	}
+
+	public static EmailModel empty() {
+		return new EmailModel(null, false, 0);
 	}
 
 	@Override
@@ -38,13 +65,13 @@ public class EmailModel
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		EmailModel emailModel = (EmailModel) o;
-		return Objects.equals(value, emailModel.value) && icon == emailModel.icon && Objects.equals(zonedDateTime, emailModel.zonedDateTime);
+		return Objects.equals(value, emailModel.value) && icon == emailModel.icon && Objects.equals(confirmedAt, emailModel.confirmedAt);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(value, icon, zonedDateTime);
+		return Objects.hash(value, icon, confirmedAt);
 	}
 
 	@Override
@@ -53,7 +80,7 @@ public class EmailModel
 		return "GridEmail{" +
 				"text='" + value + '\'' +
 				", icon=" + icon +
-				", zonedDateTime=" + zonedDateTime +
+				", zonedDateTime=" + confirmedAt +
 				'}';
 	}
 }

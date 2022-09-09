@@ -12,5 +12,6 @@ public class UpManResourceProvider extends CustomResourceProvider
 {
 	public UpManResourceProvider()
 	{
+		super("vaadin23-endpoint-common");
 	}
 }

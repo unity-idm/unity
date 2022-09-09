@@ -11,22 +11,15 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import io.imunity.vaadin23.elements.TooltipAttacher;
 import pl.edu.icm.unity.MessageSource;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
 class MembersGrid extends Grid<MemberModel>
 {
-
-	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-			.withZone(ZoneId.systemDefault());
 	private final MessageSource msg;
 	private final Column<MemberModel> roleColumn;
 
@@ -46,15 +39,7 @@ class MembersGrid extends Grid<MemberModel>
 		addColumn(model -> model.name)
 				.setHeader(msg.getMessage("GroupMember.name"))
 				.setSortable(true);
-		addComponentColumn(model ->
-		{
-			Icon icon = model.email.icon.create();
-			model.email.zonedDateTime.ifPresentOrElse(
-					time -> TooltipAttacher.attachTooltip(msg.getMessage("SimpleConfirmationInfo.confirmed", formatter.format(time)), icon, container),
-					() -> TooltipAttacher.attachTooltip(msg.getMessage("SimpleConfirmationInfo.unconfirmed"), icon, container)
-			);
-			return new Div(icon, new Label(" " + model.email.value));
-		})
+		addComponentColumn(model -> model.email.generateAsComponent(msg, container))
 				.setHeader(msg.getMessage("GroupMember.email"))
 				.setAutoWidth(true)
 				.setSortable(true);

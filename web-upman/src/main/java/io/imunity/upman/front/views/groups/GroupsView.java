@@ -80,7 +80,6 @@ public class GroupsView extends UnityViewComponent
 
 		grid.addCollapseListener(event -> gridExpandedElements.removeAll(event.getItems()));
 		grid.addExpandListener(event -> gridExpandedElements.addAll(event.getItems()));
-//		grid.addItemClickListener(event -> grid.expand(event.getItem()));
 
 		return grid;
 	}

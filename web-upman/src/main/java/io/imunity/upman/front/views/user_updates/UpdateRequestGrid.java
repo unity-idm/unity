@@ -9,9 +9,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.Icon;
 import io.imunity.vaadin23.elements.TooltipAttacher;
 import pl.edu.icm.unity.MessageSource;
 
@@ -33,15 +31,7 @@ class UpdateRequestGrid extends Grid<UpdateRequestModel>
 				.setHeader(msg.getMessage("UpdateRequest.name"))
 				.setAutoWidth(true)
 				.setSortable(true);
-		addComponentColumn(model ->
-		{
-			Icon icon = model.email.icon.create();
-			model.email.zonedDateTime.ifPresentOrElse(
-					time -> TooltipAttacher.attachTooltip(msg.getMessage("SimpleConfirmationInfo.confirmed", formatter.format(time)), icon, container),
-					() -> TooltipAttacher.attachTooltip(msg.getMessage("SimpleConfirmationInfo.unconfirmed"), icon, container)
-			);
-			return new Div(new Label(model.email.value + " "), icon);
-		})
+		addComponentColumn(model -> model.email.generateAsComponent(msg, container))
 				.setHeader(msg.getMessage("UpdateRequest.email"))
 				.setAutoWidth(true)
 				.setSortable(true);

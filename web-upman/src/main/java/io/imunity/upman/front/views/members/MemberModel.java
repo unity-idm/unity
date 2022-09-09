@@ -105,7 +105,10 @@ public class MemberModel
 
 		public MembersGridModelBuilder email(VerifiableElementBase email)
 		{
-			this.email = new EmailModel(email.getValue(), email.isConfirmed(), email.getConfirmationInfo().getConfirmationDate());
+			if(email == null)
+				this.email = EmailModel.empty();
+			else
+				this.email = new EmailModel(email.getValue(), email.isConfirmed(), email.getConfirmationInfo().getConfirmationDate());
 			return this;
 		}
 

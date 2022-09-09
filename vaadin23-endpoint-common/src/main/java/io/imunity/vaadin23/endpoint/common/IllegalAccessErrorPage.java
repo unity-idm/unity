@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman;
+package io.imunity.vaadin23.endpoint.common;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
@@ -14,7 +14,7 @@ import com.vaadin.flow.router.HasErrorParameter;
 import javax.servlet.http.HttpServletResponse;
 
 @Tag(Tag.DIV)
-public class EmptyErrorPage extends Component implements HasErrorParameter<IllegalAccessException>
+public class IllegalAccessErrorPage extends Component implements HasErrorParameter<IllegalAccessException>
 {
 	@Override
 	public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<IllegalAccessException> parameter)
