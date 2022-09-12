@@ -13,10 +13,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
-import io.imunity.upman.utils.Vaddin23WebLogoutHandler;
 import io.imunity.vaadin23.elements.ExtraLayoutPanel;
 import io.imunity.vaadin23.elements.MenuComponent;
 import io.imunity.vaadin23.endpoint.common.Vaadin823EndpointProperties;
+import io.imunity.vaadin23.endpoint.common.Vaddin23WebLogoutHandler;
 
 import java.util.List;
 

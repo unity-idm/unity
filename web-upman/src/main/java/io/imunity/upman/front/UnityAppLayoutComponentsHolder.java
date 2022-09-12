@@ -17,9 +17,9 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.dom.Element;
-import io.imunity.upman.utils.Vaddin23WebLogoutHandler;
 import io.imunity.vaadin23.elements.MenuComponent;
 import io.imunity.vaadin23.elements.TabComponent;
+import io.imunity.vaadin23.endpoint.common.Vaddin23WebLogoutHandler;
 
 import java.util.List;
 import java.util.Optional;

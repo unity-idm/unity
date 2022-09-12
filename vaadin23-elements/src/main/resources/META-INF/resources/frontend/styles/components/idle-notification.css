@@ -1,0 +1,30 @@
+.idle-notification-container {
+	padding-right: 1.5em;
+	padding-left: 1.7em;
+	padding-bottom: 1.2em;
+	background-color: #ffc13f;
+}
+
+.idle-notification-container [part="header"] {
+	display: none;
+}
+
+.idle-notification-container [part="message-container"] {
+	padding-bottom: 0.7em;
+}
+
+.idle-notification-container [part="actions"] {
+	margin-left: 2em;
+}
+
+.idle-notification-container #redirect {
+    border-radius: 2em;
+    color: black;
+}
+
+.idle-notification-container #extend-session {
+	border-radius: 2em;
+	background-color: whitesmoke;
+	color: black;
+	margin-left: 0.7em;
+}

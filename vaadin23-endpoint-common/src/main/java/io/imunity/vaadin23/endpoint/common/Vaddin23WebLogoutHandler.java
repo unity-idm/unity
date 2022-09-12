@@ -2,14 +2,13 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.upman.utils;
+package io.imunity.vaadin23.endpoint.common;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.server.*;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
@@ -31,7 +30,6 @@ import java.net.URI;
  * Handles logouts in Vaadin 23 way
  */
 @Component
-@Primary
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class Vaddin23WebLogoutHandler implements WebLogoutHandler
 {

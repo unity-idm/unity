@@ -9,6 +9,7 @@ import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin23.elements.NotificationPresenter;
+import io.imunity.vaadin23.endpoint.common.Vaddin23WebLogoutHandler;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;

@@ -23,6 +23,8 @@ public class Vaadin823EndpointProperties extends VaadinEndpointProperties
 
 	public static final String CUSTOM_CSS = "customCss";
 
+	public static final String SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING = "secondsBeforeShowingSessionExpirationWarning";
+
 	static
 	{
 		VaadinEndpointProperties.META.put(EXTRA_LEFT_PANEL, new PropertyMD("").
@@ -35,6 +37,8 @@ public class Vaadin823EndpointProperties extends VaadinEndpointProperties
 				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html bottom panel"));
 		VaadinEndpointProperties.META.put(CUSTOM_CSS, new PropertyMD("").
 				setDescription("Relative path(starts from web contents path) to an optional CSS file containing custom css file"));
+		VaadinEndpointProperties.META.put(SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING, new PropertyMD("30").
+				setDescription("Seconds before showing session expiration warning notification"));
 	}
 
 	public Vaadin823EndpointProperties(Properties properties)
@@ -70,6 +74,12 @@ public class Vaadin823EndpointProperties extends VaadinEndpointProperties
 	{
 		String value = getValue(WEB_CONTENT_PATH) + "/" + getValue(CUSTOM_CSS);
 		return new File(value);
+	}
+
+	public int getSecondsBeforeShowingSessionExpirationWarning()
+	{
+		String value = getValue(SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING);
+		return Integer.parseInt(value);
 	}
 
 	public Properties getProperties()
