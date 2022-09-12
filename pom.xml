@@ -21,7 +21,7 @@
 		<log4j.version>2.18.0</log4j.version>
 		<spring.version>5.3.22</spring.version>
 		<vaadin.version>8.14.3</vaadin.version>
-		<vaadin.version.new>23.1.2</vaadin.version.new>
+		<vaadin.version.new>23.2.0</vaadin.version.new>
 		<cxf.version>3.4.5</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
 		<bc.version>1.69</bc.version>
@@ -318,9 +318,9 @@
 				<version>2.0.2</version>
 			</dependency>
 			<dependency>
-				<groupId>org.vaadin.gatanaso</groupId>
-				<artifactId>multiselect-combo-box-flow</artifactId>
-				<version>4.0.0-rc2</version>
+				<groupId>com.vaadin.componentfactory</groupId>
+				<artifactId>idle-notification</artifactId>
+				<version>1.1.6</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>

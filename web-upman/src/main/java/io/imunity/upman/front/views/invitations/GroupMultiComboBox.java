@@ -6,15 +6,15 @@
 package io.imunity.upman.front.views.invitations;
 
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import io.imunity.upman.front.model.GroupTreeNode;
-import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.util.HashSet;
 import java.util.Set;
 
-class GroupMultiComboBox extends MultiselectComboBox<GroupTreeNode>
+class GroupMultiComboBox extends MultiSelectComboBox<GroupTreeNode>
 {
 	GroupMultiComboBox()
 	{
@@ -55,7 +55,7 @@ class GroupMultiComboBox extends MultiselectComboBox<GroupTreeNode>
 				.forEach(newSet::addAll);
 	}
 
-	private void blockNullValue(ComponentValueChangeEvent<MultiselectComboBox<GroupTreeNode>, Set<GroupTreeNode>> event)
+	private void blockNullValue(ComponentValueChangeEvent<MultiSelectComboBox<GroupTreeNode>, Set<GroupTreeNode>> event)
 	{
 		if(event.getValue() == null && event.isFromClient())
 			setValue(event.getOldValue());
