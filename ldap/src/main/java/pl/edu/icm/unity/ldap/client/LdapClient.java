@@ -271,17 +271,20 @@ public class LdapClient
 					ServerHostnameCheckingMode.NONE : ServerHostnameCheckingMode.FAIL;
 			SSLContext ctx = SSLContextCreator.createSSLContext(null, validator, 
 					"TLS", "LDAP client", log, certificateCheckingMode);
+			log.debug("Will connect over TLS to: {}:{}", configuration.getServersAddresses(), configuration.getPorts());
 			failoverSet = new FailoverServerSet(configuration.getServersAddresses(), 
 					configuration.getPorts(), ctx.getSocketFactory(), connectionOptions);
 		} else
 		{
+			log.debug("Will connect to: {}:{}", configuration.getServersAddresses(), configuration.getPorts());
 			failoverSet = new FailoverServerSet(configuration.getServersAddresses(), 
 				configuration.getPorts(), connectionOptions);
 		}
 		
 		LDAPConnection connection = failoverSet.getConnection();
 		
-		log.debug("Established connection to LDAP server");
+		log.debug("Established connection to LDAP server: {}:{} (secured: {})", connection.getConnectedAddress(), 
+				connection.getConnectedPort(), connection.getSSLSession() != null);
 		if (configuration.getConnectionMode() == ConnectionMode.startTLS)
 		{
 			X509CertChainValidator validator = configuration.getConnectionValidator();

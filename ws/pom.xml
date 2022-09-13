@@ -54,7 +54,11 @@
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>secutils-cxf</artifactId>
 		</dependency>
-		
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine-api</artifactId>

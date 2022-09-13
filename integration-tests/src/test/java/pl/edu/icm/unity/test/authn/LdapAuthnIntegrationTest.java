@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
@@ -68,6 +70,7 @@ import pl.edu.icm.unity.unicore.samlidp.ws.SamlUnicoreSoapEndpoint;
 @TestPropertySource(properties = { "unityConfig: src/test/resources/authn-tests/unityServer.conf" })
 public class LdapAuthnIntegrationTest extends DBIntegrationTestBase
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, LdapAuthnIntegrationTest.class);
 	private static final String SAML_ENDP_CFG = "unity.endpoint.sessionTimeout=3600\n" +
 			"unity.saml.issuerURI=http://example-saml-idp.org\n" +
 			"unity.saml.signResponses=asRequest\n" +
@@ -196,6 +199,7 @@ public class LdapAuthnIntegrationTest extends DBIntegrationTestBase
 		ds = embeddedDirectoryServer.startEmbeddedServer();
 		ldapHostname = embeddedDirectoryServer.getPlainConnection().getConnectedAddress();
 		ldapPort = embeddedDirectoryServer.getPlainConnection().getConnectedPort()+"";
+		log.info("LDAP server address: {}:{}", ldapHostname, ldapPort);
 	}
 	
 	private void createTranslationProfile() throws Exception

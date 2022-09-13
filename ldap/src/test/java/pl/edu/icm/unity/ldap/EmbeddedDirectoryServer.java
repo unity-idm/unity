@@ -17,6 +17,8 @@ import java.util.Set;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.logging.log4j.Logger;
+
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -33,6 +35,7 @@ import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
@@ -46,6 +49,8 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
  */
 public class EmbeddedDirectoryServer
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP, EmbeddedDirectoryServer.class);
+	
 	private InMemoryDirectoryServer ds;
 	private final KeystoreCredential credential;
 	private final String cfgDirectory;
@@ -83,8 +88,8 @@ public class EmbeddedDirectoryServer
 		SSLSocketFactory clientSocketFactory = new SocketFactoryCreator2(null, 
 					acceptAll, new HostnameMismatchCallbackImpl(hostnameCheckingMode))
 				.getSocketFactory();
-		System.out.println(Arrays.toString(serverSocketFactory.getSupportedCipherSuites()));
-		System.out.println(Arrays.toString(clientSocketFactory.getSupportedCipherSuites()));
+		log.info("Server supported ciphers: {}", Arrays.toString(serverSocketFactory.getSupportedCipherSuites()));
+		log.info("Client supported ciphers: {}", Arrays.toString(clientSocketFactory.getSupportedCipherSuites()));
 		
 		InMemoryListenerConfig sslListener = new InMemoryListenerConfig("SSL", InetAddress.getByName("localhost"), 
 				0, serverSocketFactory, clientSocketFactory, null);
@@ -102,6 +107,9 @@ public class EmbeddedDirectoryServer
 		ds = new InMemoryDirectoryServer(config);
 		ds.importFromLDIF(true, cfgDirectory + testDataFilePath);
 		ds.startListening();
+		log.info("Started embedded LDAP server listening on: {}:{} and {}:{} (SSL)", 
+				getPlainConnection().getConnectedAddress(), getPlainConnection().getConnectedPort(), 
+				getSSLConnection().getConnectedAddress(), getSSLConnection().getConnectedPort());
 		return ds;
 	}
 	
