@@ -5,22 +5,26 @@
 
 package io.imunity.upman.front.model;
 
+import pl.edu.icm.unity.types.I18nString;
+
 import java.util.Objects;
 
 public class Group
 {
 	public final String path;
-	public final String displayedName;
+	public final I18nString displayedName;
+	public final String currentDisplayedName;
 	public final boolean delegationEnabled;
 	public final boolean subprojectsDelegationEnabled;
 	public final String logoUrl;
 	public final boolean isPublic;
 	public final int level;
 
-	public Group(String path, String displayedName, boolean delegationEnabled, boolean subprojectsDelegationEnabled, String logoUrl, boolean isPublic, int level)
+	public Group(String path, I18nString displayedName, String currentDisplayedName, boolean delegationEnabled, boolean subprojectsDelegationEnabled, String logoUrl, boolean isPublic, int level)
 	{
 		this.path = path;
 		this.displayedName = displayedName;
+		this.currentDisplayedName = currentDisplayedName;
 		this.delegationEnabled = delegationEnabled;
 		this.subprojectsDelegationEnabled = subprojectsDelegationEnabled;
 		this.logoUrl = logoUrl;
@@ -32,6 +36,7 @@ public class Group
 	{
 		this.path = group.path;
 		this.displayedName = group.displayedName;
+		this.currentDisplayedName = group.currentDisplayedName;
 		this.delegationEnabled = group.delegationEnabled;
 		this.subprojectsDelegationEnabled = group.subprojectsDelegationEnabled;
 		this.logoUrl = group.logoUrl;
@@ -45,13 +50,19 @@ public class Group
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Group group = (Group) o;
-		return delegationEnabled == group.delegationEnabled && level == group.level && Objects.equals(path, group.path) && Objects.equals(displayedName, group.displayedName);
+		return delegationEnabled == group.delegationEnabled &&
+				subprojectsDelegationEnabled == group.subprojectsDelegationEnabled &&
+				isPublic == group.isPublic &&
+				level == group.level && Objects.equals(path, group.path) &&
+				Objects.equals(displayedName, group.displayedName) &&
+				Objects.equals(currentDisplayedName, group.currentDisplayedName) &&
+				Objects.equals(logoUrl, group.logoUrl);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(path, displayedName, delegationEnabled, level);
+		return Objects.hash(path, displayedName, currentDisplayedName, delegationEnabled, subprojectsDelegationEnabled, logoUrl, isPublic, level);
 	}
 
 	@Override
@@ -59,8 +70,12 @@ public class Group
 	{
 		return "Group{" +
 				"path='" + path + '\'' +
-				", displayedName='" + displayedName + '\'' +
+				", displayedName=" + displayedName +
+				", currentDisplayedName='" + currentDisplayedName + '\'' +
 				", delegationEnabled=" + delegationEnabled +
+				", subprojectsDelegationEnabled=" + subprojectsDelegationEnabled +
+				", logoUrl='" + logoUrl + '\'' +
+				", isPublic=" + isPublic +
 				", level=" + level +
 				'}';
 	}

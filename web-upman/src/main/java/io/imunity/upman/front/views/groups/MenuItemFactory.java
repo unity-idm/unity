@@ -23,10 +23,7 @@ import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin23.elements.*;
 import pl.edu.icm.unity.MessageSource;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition.ASIDE;
@@ -68,13 +65,13 @@ class MenuItemFactory
 	MenuItem createDeleteGroupItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.deleteGroupAction"), BAN);
-		return new MenuItem(menuButton, event -> createConfirmDialog(msg.getMessage("RemoveGroupDialog.confirmDelete", group.displayedName), () -> groupService.deleteGroup(projectGroup, group)).open());
+		return new MenuItem(menuButton, event -> createConfirmDialog(msg.getMessage("RemoveGroupDialog.confirmDelete", group.currentDisplayedName), () -> groupService.deleteGroup(projectGroup, group)).open());
 	}
 
 	MenuItem createDeleteSubGroupItem(ProjectGroup projectGroup, Group group)
 	{
-		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.deleteSubprojectGroupAction", group.displayedName), BAN);
-		return new MenuItem(menuButton, event -> createConfirmDialog(msg.getMessage("RemoveGroupDialog.confirmSubprojectDelete", group.displayedName), () -> groupService.deleteSubProjectGroup(projectGroup, group)).open());
+		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.deleteSubprojectGroupAction"), BAN);
+		return new MenuItem(menuButton, event -> createConfirmDialog(msg.getMessage("RemoveGroupDialog.confirmSubprojectDelete", group.currentDisplayedName), () -> groupService.deleteSubProjectGroup(projectGroup, group)).open());
 	}
 
 	MenuItem createRenameGroupItem(ProjectGroup projectGroup, Group group)
@@ -123,7 +120,8 @@ class MenuItemFactory
 		dialogLayout.setWidth("30em");
 		LocaleTextFieldDetails localeTextFieldDetails = new LocaleTextFieldDetails(
 				new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(),
-				msg.getMessage("AddGroupDialog.info", group.displayedName)
+				msg.getMessage("AddGroupDialog.info", group.currentDisplayedName),
+				locale -> ""
 		);
 
 		Checkbox isPublic = new Checkbox(msg.getMessage("AddGroupDialog.public"));
@@ -192,7 +190,7 @@ class MenuItemFactory
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("GroupsComponent.renameGroupAction"));
 
-		LocaleTextFieldDetails details = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "");
+		LocaleTextFieldDetails details = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> Optional.ofNullable(group.displayedName.getValueRaw(locale.getLanguage())).orElse(""));
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
 		dialogLayout.add(details);

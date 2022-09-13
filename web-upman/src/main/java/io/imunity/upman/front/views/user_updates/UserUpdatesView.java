@@ -95,16 +95,18 @@ public class UserUpdatesView extends UnityViewComponent
 	{
 		ActionMenu menu = new ActionMenu();
 
+		MenuButton acceptButton = new MenuButton(msg.getMessage("UpdateRequestsComponent.accept"), CHECK_CIRCLE_O);
 		menu.addItem(
-				new MenuButton(msg.getMessage("UpdateRequestsComponent.accepted"), CHECK_CIRCLE_O),
+				acceptButton,
 				event ->
 				{
 					updateRequestsService.accept(projectGroup, updateRequestGetter.get());
 					loadData();
 				}
 		);
+		MenuButton declineButton = new MenuButton(msg.getMessage("UpdateRequestsComponent.declineRequestAction"), BAN);
 		menu.addItem(
-				new MenuButton(msg.getMessage("UpdateRequestsComponent.declineRequestAction"), BAN),
+				declineButton,
 				event ->
 				{
 					updateRequestsService.decline(projectGroup, updateRequestGetter.get());
@@ -116,6 +118,8 @@ public class UserUpdatesView extends UnityViewComponent
 		{
 			boolean anySelected = !updateRequestGetter.get().isEmpty();
 			menu.getItems().forEach(menuItem -> menuItem.setEnabled(anySelected));
+			acceptButton.setEnabled(anySelected);
+			declineButton.setEnabled(anySelected);
 		});
 
 		return menu.getTarget();

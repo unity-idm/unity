@@ -11,7 +11,6 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -92,7 +91,8 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 	{
 		Icon home = VaadinIcon.HOME.create();
 		home.getStyle().set("cursor", "pointer");
-		return new Anchor(url, home);
+		home.addClickListener(event -> UI.getCurrent().getPage().setLocation(url));
+		return home;
 	}
 
 	@Override

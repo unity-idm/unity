@@ -5,6 +5,8 @@
 
 package io.imunity.upman.front.model;
 
+import pl.edu.icm.unity.MessageSource;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,7 +83,17 @@ public class GroupTreeNode
 
 	public String getDisplayedName()
 	{
-		return group.displayedName;
+		return group.currentDisplayedName;
+	}
+
+	public String getDisplayedNameWithDescription(MessageSource msg)
+	{
+		String description = "";
+		if(isDelegationEnabled())
+			description = " (" + msg.getMessage("Sub-project") + ")";
+		if(isRoot())
+			description = " (" + msg.getMessage("AllMemebers") + ")";
+		return group.currentDisplayedName + description;
 	}
 
 	public List<GroupTreeNode> getChildren()

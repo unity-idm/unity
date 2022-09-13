@@ -65,6 +65,8 @@ public class GroupsView extends UnityViewComponent
 			Div div = new Div();
 			if(groupTreeNode.isDelegationEnabled())
 				div.add(WORKPLACE.create());
+			if(groupTreeNode.isPublic())
+				div.add(UNLOCK.create());
 			div.add(new Label(groupTreeNode.getDisplayedName()));
 			div.addClickListener(event ->
 			{

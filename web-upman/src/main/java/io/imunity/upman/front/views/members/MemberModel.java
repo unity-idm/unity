@@ -44,10 +44,10 @@ public class MemberModel
 	{
 		String lowerCaseValue = value.toLowerCase();
 		return value.isEmpty()
-				|| name.toLowerCase().contains(lowerCaseValue)
-				|| role.getKey().toLowerCase().contains(lowerCaseValue)
-				|| email.value.toLowerCase().contains(lowerCaseValue)
-				|| attributes.values().stream().anyMatch(attrValue -> attrValue.toLowerCase().contains(lowerCaseValue));
+				|| (name != null && name.toLowerCase().contains(lowerCaseValue))
+				|| (role.getKey() != null && role.getKey().toLowerCase().contains(lowerCaseValue))
+				|| (email.value != null && email.value.toLowerCase().contains(lowerCaseValue))
+				|| (attributes != null && attributes.values().stream().anyMatch(attrValue -> attrValue.toLowerCase().contains(lowerCaseValue)));
 	}
 
 	@Override

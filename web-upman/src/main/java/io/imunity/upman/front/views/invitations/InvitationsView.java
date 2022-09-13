@@ -124,16 +124,18 @@ public class InvitationsView extends UnityViewComponent
 	{
 		ActionMenu menu = new ActionMenu();
 
+		MenuButton removeInvitationButton = new MenuButton(msg.getMessage("InvitationsComponent.removeInvitationAction"), TRASH);
 		menu.addItem(
-				new MenuButton(msg.getMessage("InvitationsComponent.removeInvitationAction"), TRASH),
+				removeInvitationButton,
 				event ->
 				{
 					invitationsService.removeInvitations(projectGroup, invitationsGetter.get());
 					loadData();
 				}
 		);
+		MenuButton resendInvitationButton = new MenuButton(msg.getMessage("InvitationsComponent.resendInvitationAction"), ENVELOPE);
 		menu.addItem(
-				new MenuButton(msg.getMessage("InvitationsComponent.resendInvitationAction"), ENVELOPE),
+				resendInvitationButton,
 				event ->
 				{
 					invitationsService.resendInvitations(projectGroup, invitationsGetter.get());
@@ -145,6 +147,8 @@ public class InvitationsView extends UnityViewComponent
 		{
 			boolean anySelected = !invitationsGetter.get().isEmpty();
 			menu.getItems().forEach(menuItem -> menuItem.setEnabled(anySelected));
+			removeInvitationButton.setEnabled(anySelected);
+			resendInvitationButton.setEnabled(anySelected);
 		});
 
 		return menu.getTarget();

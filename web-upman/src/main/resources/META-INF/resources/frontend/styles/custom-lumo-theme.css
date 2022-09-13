@@ -37,7 +37,7 @@ h1, h2, h3, h4, h5, h6, b, strong {
 }
 
 vaadin-tab {
-	font-size: var(--lumo-font-size-s);
+	font-size: var(--lumo-font-size-m);
 	height: var(--lumo-size-l);
 	font-weight: var(--unity-font-weight);
 	color: white;

@@ -9,6 +9,7 @@ import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.edu.icm.unity.types.I18nString;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,19 +23,19 @@ public class TestGroupTreeNode
 	@BeforeEach
 	public void setUp()
 	{
-		Group group = new Group("/", "group", false, false, "", false, 0);
+		Group group = new Group("/", new I18nString("group"), "group", false, false, "", false, 0);
 		root = new GroupTreeNode(group, 0);
 	}
 
 	@Test
 	public void shouldGetAllNodes()
 	{
-		Group groupA = new Group("/A", "groupA", false, false, "", false, 0);
-		Group groupB = new Group("/B", "groupB", false, false, "", false, 0);
-		Group groupAB = new Group("/A/B", "sameName", false, false, "", false, 0);
-		Group groupAC = new Group("/A/C", "sameName", false, false, "", false, 0);
-		Group groupBA = new Group("/B/A", "groupBA", false, false, "", false, 0);
-		Group groupBD = new Group("/B/D", "groupBD", false, false, "", false, 0);
+		Group groupA = new Group("/A", new I18nString("group"), "groupA", false, false, "", false, 0);
+		Group groupB = new Group("/B", new I18nString("group"), "groupB", false, false, "", false, 0);
+		Group groupAB = new Group("/A/B", new I18nString("group"), "sameName", false, false, "", false, 0);
+		Group groupAC = new Group("/A/C", new I18nString("group"), "sameName", false, false, "", false, 0);
+		Group groupBA = new Group("/B/A", new I18nString("group"), "groupBA", false, false, "", false, 0);
+		Group groupBD = new Group("/B/D", new I18nString("group"), "groupBD", false, false, "", false, 0);
 
 		root.addChildren(groupA, groupB, groupAC, groupAB, groupBD, groupBA);
 
@@ -48,10 +49,10 @@ public class TestGroupTreeNode
 	@Test
 	public void shouldGetAllOffsprings()
 	{
-		Group groupA = new Group("/A", "groupA", false, false, "", false, 0);
-		Group groupB = new Group("/B", "groupB", false, false, "", false, 0);
-		Group groupAB = new Group("/A/B", "groupAB", false, false, "", false, 0);
-		Group groupBA = new Group("/B/A", "groupBA", false, false, "", false, 0);
+		Group groupA = new Group("/A", new I18nString("group"), "groupA", false, false, "", false, 0);
+		Group groupB = new Group("/B", new I18nString("group"), "groupB", false, false, "", false, 0);
+		Group groupAB = new Group("/A/B", new I18nString("group"), "groupAB", false, false, "", false, 0);
+		Group groupBA = new Group("/B/A", new I18nString("group"), "groupBA", false, false, "", false, 0);
 
 		root.addChildren(groupA, groupB, groupAB, groupBA);
 
@@ -65,11 +66,11 @@ public class TestGroupTreeNode
 	@Test
 	public void shouldGetAllParents()
 	{
-		Group groupA = new Group("/A", "groupA", false, false, "", false, 0);
-		Group groupB = new Group("/B", "groupB", false, false, "", false, 0);
-		Group groupAB = new Group("/A/B", "groupAB", false, false, "", false, 0);
-		Group groupAC = new Group("/A/C", "groupAC", false, false, "", false, 0);
-		Group groupBA = new Group("/B/A", "groupBA", false, false, "", false, 0);
+		Group groupA = new Group("/A", new I18nString("group"), "groupA", false, false, "", false, 0);
+		Group groupB = new Group("/B", new I18nString("group"), "groupB", false, false, "", false, 0);
+		Group groupAB = new Group("/A/B", new I18nString("group"), "groupAB", false, false, "", false, 0);
+		Group groupAC = new Group("/A/C", new I18nString("group"), "groupAC", false, false, "", false, 0);
+		Group groupBA = new Group("/B/A", new I18nString("group"), "groupBA", false, false, "", false, 0);
 
 		root.addChildren(groupA, groupB, groupAB, groupAC, groupBA);
 

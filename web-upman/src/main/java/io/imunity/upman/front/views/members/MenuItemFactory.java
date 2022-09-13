@@ -6,7 +6,6 @@
 package io.imunity.upman.front.views.members;
 
 import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -172,7 +171,7 @@ class MenuItemFactory
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("AddToGroupDialog.caption"));
 
-		ComboBox<GroupTreeNode> groupComboBox = new GroupComboBox();
+		ComboBox<GroupTreeNode> groupComboBox = new GroupComboBox(msg);
 		groupComboBox.setLabel(msg.getMessage("AddToGroupDialog.info"));
 		groupComboBox.setItems(groups);
 		if(groups.iterator().hasNext())
@@ -300,10 +299,10 @@ class MenuItemFactory
 
 	static class MenuItem
 	{
-		Component component;
+		MenuButton component;
 		ComponentEventListener<ClickEvent<com.vaadin.flow.component.contextmenu.MenuItem>> clickListener;
 
-		private MenuItem(Component component, ComponentEventListener<ClickEvent<com.vaadin.flow.component.contextmenu.MenuItem>> clickListener)
+		private MenuItem(MenuButton component, ComponentEventListener<ClickEvent<com.vaadin.flow.component.contextmenu.MenuItem>> clickListener)
 		{
 			this.component = component;
 			this.clickListener = clickListener;

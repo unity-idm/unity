@@ -97,7 +97,7 @@ public class MembersView extends UnityViewComponent
 
 	private GroupComboBox createGroupComboBox()
 	{
-		GroupComboBox groupComboBox = new GroupComboBox();
+		GroupComboBox groupComboBox = new GroupComboBox(msg);
 		groupComboBox.getStyle().set("width", "50%");
 		groupComboBox.addValueChangeListener(event ->
 		{

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 
 import java.util.List;
@@ -56,7 +57,7 @@ public class TestProjectService
 	{
 		long entityId = 1;
 
-		when(delGroupMan.getProjectsForEntity(entityId)).thenReturn(List.of(new DelegatedGroup("path", new GroupDelegationConfiguration(true), true, "name")));
+		when(delGroupMan.getProjectsForEntity(entityId)).thenReturn(List.of(new DelegatedGroup("path", new GroupDelegationConfiguration(true), true, new I18nString("name"))));
 
 		List<ProjectGroup> projectForUser = projectService.getProjectForUser(entityId);
 
@@ -69,7 +70,7 @@ public class TestProjectService
 		ProjectGroup project = new ProjectGroup("/project", "project");
 
 		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of());
-		when(delGroupMan.getContents(project.path, project.path)).thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, "name"), Optional.empty()));
+		when(delGroupMan.getContents(project.path, project.path)).thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), Optional.empty()));
 
 		String url = projectService.getProjectLogo(project);
 
@@ -82,10 +83,10 @@ public class TestProjectService
 		ProjectGroup project = new ProjectGroup("/project", "project");
 
 		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of());
-		when(delGroupMan.getContents(project.path, project.path)).thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, "name"), Optional.empty()));
+		when(delGroupMan.getContents(project.path, project.path)).thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), Optional.empty()));
 
 		Group group = projectService.getProjectGroup(project);
 
-		assertThat(new Group("path", "name", true, true, "url", true, 0)).isEqualTo(group);
+		assertThat(new Group("path", new I18nString("name"), "name", true, true, "url", true, 0)).isEqualTo(group);
 	}
 }

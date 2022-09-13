@@ -16,6 +16,7 @@ public class LocaleTextField extends TextField
 	public LocaleTextField(Locale locale)
 	{
 		this.locale = locale;
+		addToSuffix();
 		setSuffixComponent(new FlagIcon(locale.getLanguage()));
 	}
 }

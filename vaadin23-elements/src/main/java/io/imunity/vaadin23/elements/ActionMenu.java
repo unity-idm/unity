@@ -6,6 +6,7 @@ package io.imunity.vaadin23.elements;
 
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.icon.Icon;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
 
@@ -14,7 +15,9 @@ public class ActionMenu extends ContextMenu
 {
 	public ActionMenu()
 	{
-		super(new MenuButton(MENU));
+		super(MENU.create());
+		Icon target = (Icon)getTarget();
+		target.getStyle().set("cursor", "pointer");
 		setOpenOnClick(true);
 		addClassName("action-menu");
 	}

@@ -6,6 +6,7 @@
 package io.imunity.upman.front.views.groups;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin23.elements.ActionMenu;
@@ -36,10 +37,24 @@ class GroupActionMenuFactory
 
 		createDeleteItem(groupNode, menu);
 		createAddItem(groupNode, menu, subGroupAvailable);
-		createMakePrivateItem(groupNode, menu);
-		createMakePublicItem(groupNode, menu);
+		MenuItem makePrivateMenuItem = createMakePrivateItem(groupNode, menu);
+		MenuItem makePublicMenuItem = createMakePublicItem(groupNode, menu);
 		createRenameItem(groupNode, menu);
 		crateDelegateItem(groupNode, menu);
+
+		menu.addOpenedChangeListener(event ->
+		{
+			if(isNodePublicAndNodesChildrenNotPublic(groupNode))
+			{
+				makePrivateMenuItem.setVisible(true);
+				makePublicMenuItem.setVisible(false);
+			}
+			if(isParentsNodePublicAndNodeNotPublic(groupNode))
+			{
+				makePrivateMenuItem.setVisible(false);
+				makePublicMenuItem.setVisible(true);
+			}
+		});
 
 		return menu.getTarget();
 	}
@@ -62,22 +77,20 @@ class GroupActionMenuFactory
 		}
 	}
 
-	private void createMakePublicItem(GroupTreeNode groupNode, ActionMenu menu)
+	private MenuItem createMakePublicItem(GroupTreeNode groupNode, ActionMenu menu)
 	{
-		if(isParentsNodePublicAndNodeNotPublic(groupNode))
-		{
-			MenuItemFactory.MenuItem makePublicItem = menuItemFactory.createMakePublicItem(projectGroup, groupNode.group);
-			menu.addItem(makePublicItem.component, makePublicItem.clickListener);
-		}
+		MenuItemFactory.MenuItem makePublicItem = menuItemFactory.createMakePublicItem(projectGroup, groupNode.group);
+		MenuItem menuItem = menu.addItem(makePublicItem.component, makePublicItem.clickListener);
+		menuItem.setVisible(false);
+		return menuItem;
 	}
 
-	private void createMakePrivateItem(GroupTreeNode groupNode, ActionMenu menu)
+	private MenuItem createMakePrivateItem(GroupTreeNode groupNode, ActionMenu menu)
 	{
-		if(isNodePublicAndNodesChildrenNotPublic(groupNode))
-		{
-			MenuItemFactory.MenuItem makePrivateItem = menuItemFactory.createMakePrivateItem(projectGroup, groupNode.group);
-			menu.addItem(makePrivateItem.component, makePrivateItem.clickListener);
-		}
+		MenuItemFactory.MenuItem makePrivateItem = menuItemFactory.createMakePrivateItem(projectGroup, groupNode.group);
+		MenuItem menuItem = menu.addItem(makePrivateItem.component, makePrivateItem.clickListener);
+		menuItem.setVisible(false);
+		return menuItem;
 	}
 
 	private void createAddItem(GroupTreeNode groupNode, ActionMenu menu, boolean subGroupAvailable)

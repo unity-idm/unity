@@ -20,7 +20,7 @@ class GroupMultiComboBox extends MultiSelectComboBox<GroupTreeNode>
 	{
 		setRenderer(new ComponentRenderer<>(this::renderGroupWithIndent));
 		addValueChangeListener(this::blockNullValue);
-		setItemLabelGenerator(event -> event.group.displayedName);
+		setItemLabelGenerator(event -> event.group.currentDisplayedName);
 
 		addValueChangeListener(event ->
 		{

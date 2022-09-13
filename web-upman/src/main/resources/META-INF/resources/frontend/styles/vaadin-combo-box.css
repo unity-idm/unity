@@ -14,3 +14,7 @@
 :host(.project-combo-box:is([focused]):not([readonly])) [part='label'] {
     color: white;
 }
+
+[name~="label"] {
+    white-space: break-spaces;
+}

@@ -8,17 +8,17 @@ package io.imunity.upman.front.views.members;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import io.imunity.vaadin23.elements.MultiSelectGrid;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-class MembersGrid extends Grid<MemberModel>
+class MembersGrid extends MultiSelectGrid<MemberModel>
 {
 	private final MessageSource msg;
 	private final Column<MemberModel> roleColumn;
@@ -35,27 +35,29 @@ class MembersGrid extends Grid<MemberModel>
 		})
 				.setHeader(msg.getMessage("GroupMember.projectrole"))
 				.setFlexGrow(2)
-				.setSortable(true);
+				.setSortable(true)
+				.setResizable(true);
 		addColumn(model -> model.name)
 				.setHeader(msg.getMessage("GroupMember.name"))
-				.setSortable(true);
+				.setSortable(true)
+				.setResizable(true);
 		addComponentColumn(model -> model.email.generateAsComponent(msg, container))
 				.setHeader(msg.getMessage("GroupMember.email"))
 				.setAutoWidth(true)
-				.setSortable(true);
+				.setSortable(true)
+				.setResizable(true);
 
 		attributes.forEach((key, translatedValue) ->
 				addColumn(model -> model.attributes.get(key))
 						.setHeader(translatedValue)
 						.setSortable(true)
+						.setResizable(true)
 		);
 
 		addComponentColumn(menuGetter::apply)
 				.setHeader(msg.getMessage("GroupMember.action"))
-				.setTextAlign(ColumnTextAlign.END);
-
-		setThemeName("no-border");
-		setSelectionMode(Grid.SelectionMode.MULTI);
+				.setTextAlign(ColumnTextAlign.END)
+				.setResizable(true);
 	}
 
 	void switchToSubprojectMode()

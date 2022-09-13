@@ -20,6 +20,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.I18nString;
 
 import java.time.Instant;
 import java.util.List;
@@ -59,7 +60,7 @@ public class TestInvitationService
 	{
 		Instant expiration = Instant.now();
 		ProjectGroup project = new ProjectGroup("/project", "project");
-		Group group = new Group("/", "group", false, false, "", false, 0);
+		Group group = new Group("/", new I18nString("group"), "group", false, false, "", false, 0);
 		GroupTreeNode node = new GroupTreeNode(group, 0);
 		service.addInvitations(new InvitationRequest(project, Set.of("demo@demo.com"), Set.of(node), false, expiration));
 

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
@@ -58,7 +59,7 @@ public class TestGroupMembersService
 	public void shouldGerMembers() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
-		Group group = new Group("/project/group", "group", false, false, "", false, 0);
+		Group group = new Group("/project/group",  new I18nString("group"),"group", false, false, "", false, 0);
 
 		service.getGroupMembers(project, group);
 		verify(mockDelGroupMan).getDelegatedGroupMemebers(eq("/project"), eq("/project/group"));
@@ -69,7 +70,7 @@ public class TestGroupMembersService
 	public void shouldAddMember() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
-		Group group = new Group("/project/group", "group", false, false, "", false, 0);
+		Group group = new Group("/project/group", new I18nString("group"), "group", false, false, "", false, 0);
 
 		service.addToGroup(project, List.of(group), Set.of(getMember()));
 		verify(mockDelGroupMan).addMemberToGroup(eq("/project"), eq("/project/group"), eq(1L));
@@ -79,7 +80,7 @@ public class TestGroupMembersService
 	public void shouldRemoveMember() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
-		Group group = new Group("/project/group", "group", false, false, "", false, 0);
+		Group group = new Group("/project/group", new I18nString("group"), "group", false, false, "", false, 0);
 
 		service.removeFromGroup(project, group, Set.of(getMember()));
 		verify(mockDelGroupMan).removeMemberFromGroup(eq("/project"), eq("/project/group"), eq(1L));
@@ -90,7 +91,7 @@ public class TestGroupMembersService
 	public void shouldSetRole() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project");
-		Group group = new Group("/project/group", "group", false, false, "", false, 0);
+		Group group = new Group("/project/group", new I18nString("group"), "group", false, false, "", false, 0);
 
 		service.updateRole(project, group,  GroupAuthorizationRole.manager, Sets.newHashSet(getMember()));
 		verify(mockDelGroupMan).setGroupAuthorizationRole(eq("/project"), eq("/project/group"), eq(1L),
@@ -104,7 +105,7 @@ public class TestGroupMembersService
 		ProjectGroup project = new ProjectGroup("/project", "project");
 
 		DelegatedGroup delGroup = new DelegatedGroup("/project", new GroupDelegationConfiguration(true, false, null,
-				null, null, null, List.of("extraAttr")), true, "name");
+				null, null, null, List.of("extraAttr")), true, new I18nString("name"));
 
 		DelegatedGroupContents con = new DelegatedGroupContents(delGroup, Optional.empty());
 

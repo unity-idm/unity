@@ -68,10 +68,10 @@ class UpdateRequestModel
 		String lowerCaseValue = value.toLowerCase();
 		return value.isEmpty()
 				|| (operation != null && operation.name().toLowerCase().contains(value.replace(" ","")))
-				|| name.toLowerCase().contains(lowerCaseValue)
-				|| email.value.toLowerCase().contains(lowerCaseValue)
+				|| (name != null && name.toLowerCase().contains(lowerCaseValue))
+				|| (email.value != null && email.value.toLowerCase().contains(lowerCaseValue))
 				|| (requestedTime != null && formatStandardInstant(requestedTime).toLowerCase().contains(lowerCaseValue))
-				|| groupsDisplayedNames.stream().anyMatch(grp -> grp.toLowerCase().contains(lowerCaseValue));
+				|| (groupsDisplayedNames != null && groupsDisplayedNames.stream().anyMatch(grp -> grp.toLowerCase().contains(lowerCaseValue)));
 	}
 
 	public static UpdateRequestModelBuilder builder()

@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class IdleNotificationInitializer implements VaadinServiceInitListener, S
 	@Override
 	public void sessionInit(SessionInitEvent event) {
 		WrappedSession wrappedSession = event.getSession().getSession();
-		wrappedSession.setMaxInactiveInterval(InvocationContext.getCurrent().getRealm().getMaxInactivity());
+		wrappedSession.setMaxInactiveInterval(60);
 		LOG.debug("Session {} created, max inactivity set to {}",
 				wrappedSession.getId(),
 				wrappedSession.getMaxInactiveInterval());

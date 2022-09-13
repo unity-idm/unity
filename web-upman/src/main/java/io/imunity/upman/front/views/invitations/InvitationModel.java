@@ -66,9 +66,9 @@ class InvitationModel
 	{
 		String lowerCaseValue = value.toLowerCase();
 		return value.isEmpty()
-				|| email.toLowerCase().contains(lowerCaseValue)
+				|| (email != null && email.toLowerCase().contains(lowerCaseValue))
 				|| (requestedTime != null && formatStandardInstant(requestedTime).toLowerCase().contains(lowerCaseValue))
 				|| (expirationTime != null && formatStandardInstant(expirationTime).toLowerCase().contains(lowerCaseValue))
-				|| groupsDisplayedNames.stream().anyMatch(grp -> grp.toLowerCase().contains(lowerCaseValue));
+				|| (groupsDisplayedNames != null && groupsDisplayedNames.stream().anyMatch(grp -> grp.toLowerCase().contains(lowerCaseValue)));
 	}
 }

@@ -56,6 +56,8 @@ class InvitationForm extends FormLayout
 		allowModifyGroupsCheckbox.setEnabled(false);
 
 		groupsComboBox = new GroupMultiComboBox();
+		groupsComboBox.setWidth("24em");
+
 		groupsComboBox.setItems(groups);
 		groupsComboBox.addValueChangeListener(e -> {
 			if (e.getValue() == null || e.getValue().isEmpty())
