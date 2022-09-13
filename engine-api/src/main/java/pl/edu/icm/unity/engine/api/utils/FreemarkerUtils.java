@@ -46,8 +46,7 @@ public class FreemarkerUtils
 			primaryLoader = new FileTemplateLoader(webContents);
 		} catch (IOException e)
 		{
-			log.warn("Templates directory " + webContentsDirectory + 
-					" can not be read. Will use the default bundled templates only.");
+			log.warn("Templates directory {} can not be read. Will use the default bundled templates only.", webContents);
 			return fallbackLoader;
 		}
 		return new MultiTemplateLoader(new TemplateLoader [] {primaryLoader, fallbackLoader});
