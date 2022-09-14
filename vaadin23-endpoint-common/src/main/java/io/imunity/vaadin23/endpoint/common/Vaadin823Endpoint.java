@@ -9,9 +9,6 @@ import com.vaadin.server.Constants;
 import com.vaadin.server.VaadinServlet;
 import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.annotations.AnnotationConfiguration;
-import org.eclipse.jetty.plus.webapp.EnvConfiguration;
-import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -66,14 +63,16 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 	protected InvocationContextSetupFilter contextSetupFilter;
 	protected Vaadin823EndpointProperties genericEndpointProperties;
 	protected final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
-	
+	protected final Class<? extends com.vaadin.flow.server.VaadinServlet> servletClass;
+
 	public Vaadin823Endpoint(NetworkServer server,
 	                         AdvertisedAddressProvider advertisedAddrProvider,
 	                         MessageSource msg,
 	                         ApplicationContext applicationContext,
 	                         CustomResourceProvider resourceProvider,
 	                         String servletPath,
-	                         RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
+	                         RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
+	                         Class<? extends com.vaadin.flow.server.VaadinServlet> servletClass)
 	{
 		super(server, advertisedAddrProvider);
 		this.msg = msg;
@@ -81,7 +80,8 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		this.resourceProvider = resourceProvider;
 		this.uiServletPath = servletPath;
 		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
-		serverConfig = applicationContext.getBean(UnityServerConfiguration.class);
+		this.serverConfig = applicationContext.getBean(UnityServerConfiguration.class);
+		this.servletClass = servletClass;
 	}
 
 	@Override
@@ -248,17 +248,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		context.setContextPath(contextPath);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(classPathElements));
 		context.setConfigurationDiscovered(true);
-
-		context.setConfigurations(new Configuration[]{
-			new AnnotationConfiguration(),
-			new WebInfConfiguration(),
-			new WebXmlConfiguration(),
-			new MetaInfConfiguration(),
-			new FragmentConfiguration(),
-			new EnvConfiguration(),
-			new PlusConfiguration(),
-			new JettyWebXmlConfiguration()
-		});
+		context.addServlet(servletClass, uiServletPath + "/*").setAsyncSupported(true);
 		context.getServletContext().setExtendedListenerTypes(true);
 		if(eventListener != null)
 			context.addEventListener(eventListener);

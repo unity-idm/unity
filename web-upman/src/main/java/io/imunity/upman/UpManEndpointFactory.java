@@ -66,6 +66,6 @@ public class UpManEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new Vaadin823Endpoint(server, advertisedAddrProvider, msg, applicationContext,
-				new UpManResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter);
+				new UpManResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, UpManServlet.class);
 	}
 }
