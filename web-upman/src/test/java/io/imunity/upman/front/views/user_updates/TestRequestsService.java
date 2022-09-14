@@ -53,7 +53,7 @@ public class TestRequestsService
 	@Test
 	public void shouldGetRequests() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		service.getUpdateRequests(project);
 		verify(mockRequestMan).getRequests(eq("/project"));
@@ -62,7 +62,7 @@ public class TestRequestsService
 	@Test
 	public void shouldAccept() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		service.accept(project, Set.of(getRequest()));
 
@@ -77,7 +77,7 @@ public class TestRequestsService
 	@Test
 	public void shouldDeclineRequests() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		service.decline(project, Set.of(getRequest()));
 
@@ -103,7 +103,7 @@ public class TestRequestsService
 	@Test
 	public void shouldGetRegLink() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		service.getProjectRegistrationFormLink(project);
 
@@ -114,7 +114,7 @@ public class TestRequestsService
 	@Test
 	public void shouldGetEnqLink() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		service.getProjectSingUpEnquiryFormLink(project);
 

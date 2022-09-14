@@ -58,7 +58,7 @@ public class TestGroupMembersService
 	@Test
 	public void shouldGerMembers() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/group",  new I18nString("group"),"group", false, false, "", false, 0);
 
 		service.getGroupMembers(project, group);
@@ -69,7 +69,7 @@ public class TestGroupMembersService
 	@Test
 	public void shouldAddMember() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/group", new I18nString("group"), "group", false, false, "", false, 0);
 
 		service.addToGroup(project, List.of(group), Set.of(getMember()));
@@ -79,7 +79,7 @@ public class TestGroupMembersService
 	@Test
 	public void shouldRemoveMember() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/group", new I18nString("group"), "group", false, false, "", false, 0);
 
 		service.removeFromGroup(project, group, Set.of(getMember()));
@@ -90,7 +90,7 @@ public class TestGroupMembersService
 	@Test
 	public void shouldSetRole() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/group", new I18nString("group"), "group", false, false, "", false, 0);
 
 		service.updateRole(project, group,  GroupAuthorizationRole.manager, Sets.newHashSet(getMember()));
@@ -102,7 +102,7 @@ public class TestGroupMembersService
 	@Test
 	public void shouldGetAdditinalAttributes() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		DelegatedGroup delGroup = new DelegatedGroup("/project", new GroupDelegationConfiguration(true, false, null,
 				null, null, null, List.of("extraAttr")), true, new I18nString("name"));

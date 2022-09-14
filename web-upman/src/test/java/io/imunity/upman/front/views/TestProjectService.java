@@ -61,13 +61,13 @@ public class TestProjectService
 
 		List<ProjectGroup> projectForUser = projectService.getProjectForUser(entityId);
 
-		assertThat(List.of(new ProjectGroup("path", "name"))).isEqualTo(projectForUser);
+		assertThat(List.of(new ProjectGroup("path", "name", "regForm", "singupForm"))).isEqualTo(projectForUser);
 	}
 
 	@Test
 	public void shouldGetProjectLogo() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of());
 		when(delGroupMan.getContents(project.path, project.path)).thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), Optional.empty()));
@@ -80,7 +80,7 @@ public class TestProjectService
 	@Test
 	public void shouldGetProjectGroup() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of());
 		when(delGroupMan.getContents(project.path, project.path)).thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), Optional.empty()));

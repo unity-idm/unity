@@ -11,11 +11,15 @@ public class ProjectGroup
 {
 	public final String path;
 	public final String displayedName;
+	public final String registrationForm;
+	public final String signupEnquiryForm;
 
-	public ProjectGroup(String path, String displayedName)
+	public ProjectGroup(String path, String displayedName, String registrationForm, String signupEnquiryForm)
 	{
 		this.path = path;
 		this.displayedName = displayedName;
+		this.registrationForm = registrationForm;
+		this.signupEnquiryForm = signupEnquiryForm;
 	}
 
 	@Override

@@ -45,7 +45,7 @@ public class TestGroupsService
 	@Test
 	public void shouldAddGroup() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/", new I18nString("group"), "group", false, false, "", false, 0);
 		Map<Locale, String> translations = Map.of(Locale.UK, "uk");
 		I18nString names = new I18nString(Locale.UK.getLanguage(), "uk");
@@ -58,7 +58,7 @@ public class TestGroupsService
 	@Test
 	public void shouldRemoveGroup() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/A", new I18nString("group"), "group", false, false, "", false, 0);
 
 		groupService.deleteGroup(project, group);
@@ -69,7 +69,7 @@ public class TestGroupsService
 	@Test
 	public void shouldRemoveProject() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/A", new I18nString("group"), "group", false, false, "", false, 0);
 
 		groupService.deleteSubProjectGroup(project, group);
@@ -80,7 +80,7 @@ public class TestGroupsService
 	@Test
 	public void shouldSetMode() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/A", new I18nString("group"), "group", false, false, "", false, 0);
 
 		groupService.setGroupAccessMode(project, group, false);
@@ -91,7 +91,7 @@ public class TestGroupsService
 	@Test
 	public void shouldSetGroupName() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/A", new I18nString("group"), "group", false, false, "", false, 0);
 		Map<Locale, String> translations = Map.of(Locale.UK, "uk");
 		I18nString names = new I18nString(Locale.UK.getLanguage(), "uk");

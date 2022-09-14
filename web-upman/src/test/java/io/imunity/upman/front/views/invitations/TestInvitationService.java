@@ -59,7 +59,7 @@ public class TestInvitationService
 	public void shouldAdd() throws EngineException
 	{
 		Instant expiration = Instant.now();
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/", new I18nString("group"), "group", false, false, "", false, 0);
 		GroupTreeNode node = new GroupTreeNode(group, 0);
 		service.addInvitations(new InvitationRequest(project, Set.of("demo@demo.com"), Set.of(node), false, expiration));
@@ -77,7 +77,7 @@ public class TestInvitationService
 	@Test
 	public void shouldRemove() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		InvitationModel code = new InvitationModel("code", null, null, null, null, null);
 
 		service.removeInvitations(project, Set.of(code));
@@ -89,7 +89,7 @@ public class TestInvitationService
 	@Test
 	public void shouldSend() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		InvitationModel code = new InvitationModel("code", null, null, null, null, null);
 
 		service.resendInvitations(project, Set.of(code));
@@ -100,7 +100,7 @@ public class TestInvitationService
 	@Test
 	public void shouldGetInvitations() throws EngineException
 	{
-		ProjectGroup project = new ProjectGroup("/project", "project");
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		service.getInvitations(project);
 

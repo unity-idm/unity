@@ -66,7 +66,7 @@ public class ProjectService
 		}
 
 		return projects.stream()
-				.map(group -> new ProjectGroup(group.path, group.displayedName.getValue(msg)))
+				.map(group -> new ProjectGroup(group.path, group.displayedName.getValue(msg), group.delegationConfiguration.registrationForm, group.delegationConfiguration.signupEnquiryForm))
 				.collect(Collectors.toList());
 	}
 

@@ -39,6 +39,7 @@ public class InvitationsView extends UnityViewComponent
 
 	private final Grid<InvitationModel> grid;
 	private final TextField searchField;
+	private final Button invitationButton;
 	private ProjectGroup projectGroup;
 
 	public InvitationsView(MessageSource msg, InvitationsService invitationsService, ProjectService projectService)
@@ -48,7 +49,7 @@ public class InvitationsView extends UnityViewComponent
 		this.msg = msg;
 
 
-		Button invitationButton = createInvitationButton();
+		invitationButton = createInvitationButton();
 		searchField = createSearchField();
 		grid = createGrid();
 
@@ -80,7 +81,6 @@ public class InvitationsView extends UnityViewComponent
 	{
 		Button invitationButton = new Button(msg.getMessage("Invitations.newInvite"));
 		invitationButton.addClickListener(event -> createInvitationDialog().open());
-
 		return invitationButton;
 	}
 
@@ -159,6 +159,10 @@ public class InvitationsView extends UnityViewComponent
 	{
 		projectGroup = ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class);
 
+		invitationButton.setVisible(
+				(projectGroup.registrationForm != null && !projectGroup.registrationForm.isEmpty()) ||
+				(projectGroup.signupEnquiryForm != null && !projectGroup.signupEnquiryForm.isEmpty())
+		);
 		List<InvitationModel> invitations = invitationsService.getInvitations(projectGroup).stream()
 				.filter(model -> model.anyFieldContains(searchField.getValue()))
 				.collect(Collectors.toList());
