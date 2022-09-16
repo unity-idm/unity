@@ -63,7 +63,8 @@ public abstract class CustomResourceProvider implements ResourceProvider
 	{
 		Iterable<URL> iterable = getUrls(path);
 		return StreamSupport.stream(iterable.spliterator(), false)
-				.filter(url -> chosenClassPathElement.stream().anyMatch(classPathElement -> url.getPath().startsWith(classPathElement)))
+				.filter(url -> chosenClassPathElement.stream()
+						.anyMatch(classPathElement -> url.toString().replace("jar:", "").startsWith(classPathElement)))
 			.collect(Collectors.toList());
 	}
 

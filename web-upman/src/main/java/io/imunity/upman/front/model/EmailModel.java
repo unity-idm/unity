@@ -12,6 +12,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import io.imunity.vaadin23.elements.TooltipAttacher;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -55,7 +56,15 @@ public class EmailModel
 		return new Div(iconInstance, new Label(" " + value));
 	}
 
-	public static EmailModel empty() {
+	public static EmailModel of(VerifiableElementBase email)
+	{
+		if(email == null)
+			return EmailModel.empty();
+		else
+			return new EmailModel(email.getValue(), email.isConfirmed(), email.getConfirmationInfo().getConfirmationDate());
+	}
+	public static EmailModel empty()
+	{
 		return new EmailModel(null, false, 0);
 	}
 

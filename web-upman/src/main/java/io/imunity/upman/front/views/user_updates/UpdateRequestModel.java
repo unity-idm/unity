@@ -119,10 +119,7 @@ class UpdateRequestModel
 
 		public UpdateRequestModelBuilder email(VerifiableElementBase email)
 		{
-			if(email == null)
-				this.email = EmailModel.empty();
-			else
-				this.email = new EmailModel(email.getValue(), email.isConfirmed(), email.getConfirmationInfo().getConfirmationDate());
+			this.email = EmailModel.of(email);
 			return this;
 		}
 

@@ -65,13 +65,18 @@ class MenuItemFactory
 	MenuItem createDeleteGroupItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.deleteGroupAction"), BAN);
-		return new MenuItem(menuButton, event -> createConfirmDialog(msg.getMessage("RemoveGroupDialog.confirmDelete", group.currentDisplayedName), () -> groupService.deleteGroup(projectGroup, group)).open());
+		return new MenuItem(menuButton, event -> createConfirmDialog(
+				msg.getMessage("RemoveGroupDialog.confirmDelete", group.currentDisplayedName),
+				() -> groupService.deleteGroup(projectGroup, group)).open()
+		);
 	}
 
 	MenuItem createDeleteSubGroupItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.deleteSubprojectGroupAction"), BAN);
-		return new MenuItem(menuButton, event -> createConfirmDialog(msg.getMessage("RemoveGroupDialog.confirmSubprojectDelete", group.currentDisplayedName), () -> groupService.deleteSubProjectGroup(projectGroup, group)).open());
+		return new MenuItem(menuButton, event -> createConfirmDialog(
+				msg.getMessage("RemoveGroupDialog.confirmSubprojectDelete", group.currentDisplayedName),
+				() -> groupService.deleteSubProjectGroup(projectGroup, group)).open());
 	}
 
 	MenuItem createRenameGroupItem(ProjectGroup projectGroup, Group group)

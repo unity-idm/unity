@@ -27,13 +27,14 @@ public class SpringVaadin23ServletService extends VaadinServletService
 	}
 
 	@Override
-	protected Optional<Instantiator> loadInstantiators() throws ServiceException
+	protected Optional<Instantiator> loadInstantiators()
 	{
 		return Optional.of(new SpringInstantiator(this, context));
 	}
 
 	@Override
-	public void init() throws ServiceException {
+	public void init() throws ServiceException
+	{
 		super.init();
 		context.getBeansOfType(UIInitListener.class)
 				.values()

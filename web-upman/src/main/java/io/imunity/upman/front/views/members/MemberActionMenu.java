@@ -30,23 +30,28 @@ class MemberActionMenu extends ActionMenu
 	                        Supplier<Set<MemberModel>> selectedMembersGetter)
 	{
 		Set<MenuItemFactory.MenuItem> items = new HashSet<>();
-		MenuItemFactory.MenuItem removeFromProjectItem = menuItemFactory.createRemoveFromProjectItem(selectedProjectGetter, selectedMembersGetter, roleGetter);
+		MenuItemFactory.MenuItem removeFromProjectItem = menuItemFactory
+				.createRemoveFromProjectItem(selectedProjectGetter, selectedMembersGetter, roleGetter);
 		items.add(removeFromProjectItem);
 		addItem(removeFromProjectItem.component, removeFromProjectItem.clickListener);
 
-		MenuItemFactory.MenuItem removeFromGroupItem = menuItemFactory.createRemoveFromGroupItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter, roleGetter);
+		MenuItemFactory.MenuItem removeFromGroupItem = menuItemFactory
+				.createRemoveFromGroupItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter, roleGetter);
 		items.add(removeFromGroupItem);
 		addItem(removeFromGroupItem.component, removeFromGroupItem.clickListener);
 
-		MenuItemFactory.MenuItem addToGroupItem = menuItemFactory.createAddToGroupItem(selectedProjectGetter, allGroupsGetter, selectedMembersGetter);
+		MenuItemFactory.MenuItem addToGroupItem = menuItemFactory
+				.createAddToGroupItem(selectedProjectGetter, allGroupsGetter, selectedMembersGetter);
 		items.add(addToGroupItem);
 		addItem(addToGroupItem.component, addToGroupItem.clickListener);
 
-		MenuItemFactory.MenuItem setProjectRoleItem = menuItemFactory.createSetProjectRoleItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter, roleGetter);
+		MenuItemFactory.MenuItem setProjectRoleItem = menuItemFactory
+				.createSetProjectRoleItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter, roleGetter);
 		items.add(setProjectRoleItem);
 		this.setProjectRoleItem = addItem(setProjectRoleItem.component, setProjectRoleItem.clickListener);
 
-		MenuItemFactory.MenuItem setSubProjectRoleItem = menuItemFactory.createSetSubProjectRoleItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter, roleGetter);
+		MenuItemFactory.MenuItem setSubProjectRoleItem = menuItemFactory
+				.createSetSubProjectRoleItem(selectedProjectGetter, selectedGroupGetter, selectedMembersGetter, roleGetter);
 		items.add(setSubProjectRoleItem);
 		this.setSubProjectRoleItem = addItem(setSubProjectRoleItem.component, setSubProjectRoleItem.clickListener);
 

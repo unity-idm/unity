@@ -10,6 +10,7 @@ import com.vaadin.flow.server.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.MessageSource;
 
 import java.lang.invoke.MethodHandles;
 
@@ -17,6 +18,13 @@ import java.lang.invoke.MethodHandles;
 class CustomErrorPageInitializer implements VaadinServiceInitListener, SessionInitListener
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+	private final MessageSource messageSource;
+
+	public CustomErrorPageInitializer(MessageSource messageSource)
+	{
+		this.messageSource = messageSource;
+	}
 
 	@Override
 	public void serviceInit(ServiceInitEvent event)
@@ -29,8 +37,8 @@ class CustomErrorPageInitializer implements VaadinServiceInitListener, SessionIn
 	{
 		event.getSession().setErrorHandler(errorEvent ->
 		{
-			LOG.error("This error occurred, when vaadin has been loaded:", errorEvent.getThrowable());
-			UI.getCurrent().getElement().setText("Error");
+			LOG.error("Vaadin initialization error:", errorEvent.getThrowable());
+			UI.getCurrent().getElement().setText(messageSource.getMessage("Error"));
 		});
 	}
 }

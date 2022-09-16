@@ -120,7 +120,10 @@ public class ProjectService
 
 	private Group createGroup(DelegatedGroup group)
 	{
-		return new Group(group.path, group.displayedName, group.displayedName.getValue(msg), group.delegationConfiguration.enabled, group.delegationConfiguration.enableSubprojects, group.delegationConfiguration.logoUrl, group.open, 0);
+		return new Group(group.path, group.displayedName, group.displayedName.getValue(msg),
+				group.delegationConfiguration.enabled, group.delegationConfiguration.enableSubprojects,
+				group.delegationConfiguration.logoUrl, group.open, 0
+		);
 	}
 
 	public GroupAuthorizationRole getCurrentUserProjectRole(ProjectGroup projectGroup)

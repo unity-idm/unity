@@ -25,8 +25,8 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 
 import java.util.List;
-import java.util.Optional;
 
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -57,11 +57,14 @@ public class TestProjectService
 	{
 		long entityId = 1;
 
-		when(delGroupMan.getProjectsForEntity(entityId)).thenReturn(List.of(new DelegatedGroup("path", new GroupDelegationConfiguration(true), true, new I18nString("name"))));
+		when(delGroupMan.getProjectsForEntity(entityId)).thenReturn(
+				List.of(new DelegatedGroup("path", new GroupDelegationConfiguration(true), true, new I18nString("name")))
+		);
 
 		List<ProjectGroup> projectForUser = projectService.getProjectForUser(entityId);
 
-		assertThat(List.of(new ProjectGroup("path", "name", "regForm", "singupForm"))).isEqualTo(projectForUser);
+		assertThat(List.of(new ProjectGroup("path", "name", "regForm", "singupForm")))
+				.isEqualTo(projectForUser);
 	}
 
 	@Test
@@ -70,7 +73,8 @@ public class TestProjectService
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of());
-		when(delGroupMan.getContents(project.path, project.path)).thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), Optional.empty()));
+		when(delGroupMan.getContents(project.path, project.path))
+				.thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), empty()));
 
 		String url = projectService.getProjectLogo(project);
 
@@ -83,7 +87,8 @@ public class TestProjectService
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of());
-		when(delGroupMan.getContents(project.path, project.path)).thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), Optional.empty()));
+		when(delGroupMan.getContents(project.path, project.path))
+				.thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), empty()));
 
 		Group group = projectService.getProjectGroup(project);
 
