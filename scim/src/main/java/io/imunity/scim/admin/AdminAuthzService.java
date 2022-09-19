@@ -36,7 +36,7 @@ class AdminAuthzService
 		this.entityManagement = entityManagement;
 	}
 
-	void checkUpdateExposedGroups() throws EngineException
+	void authorizeUpdateOfExposedGroups() throws EngineException
 	{
 		if (configuration.restAdminGroup.isEmpty())
 		{
@@ -47,7 +47,7 @@ class AdminAuthzService
 		InvocationContext invocationContext = InvocationContext.getCurrent();
 		if (!invocationContext.getInvocationMaterial().equals(InvocationMaterial.DIRECT))
 		{
-			log.debug("Access is denied. Update exposed groups is available only via direct access");
+			log.debug("Access is denied. Update exposed groups is available only via direct authentication");
 			throw new AuthorizationException("Access is denied");
 		}
 
@@ -56,7 +56,7 @@ class AdminAuthzService
 
 		if (!userGroups.containsKey(configuration.restAdminGroup.get()))
 		{
-			log.debug("Access is denied. Caller not a member of admin SCIM group");
+			log.debug("Access is denied. Caller not a member of admin SCIM admin group");
 			throw new AuthorizationException("Access is denied");
 		}
 	}

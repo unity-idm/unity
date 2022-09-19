@@ -41,27 +41,25 @@ class AdminController
 	void updateExposedGroups(MembershipGroupsConfiguration config)
 			throws JsonProcessingException, EngineException
 	{
-		adminAuthzService.checkUpdateExposedGroups();
+		adminAuthzService.authorizeUpdateOfExposedGroups();
 
 		Endpoint endpoint = endpointManagement.getEndpoint(configuration.endpointName);
 
 		EndpointConfiguration endpointConfiguration = endpoint.getConfiguration();
 
-		SCIMEndpointConfiguration scimEndpointConfig = SCIMEndpointPropertiesConfigurationMapper
+		SCIMEndpointConfiguration currentScimEndpointConfig = SCIMEndpointPropertiesConfigurationMapper
 				.fromProperties(endpointConfiguration.getConfiguration());
 
-		SCIMEndpointConfiguration updatedScimEndpointConfig = SCIMEndpointConfiguration.builder()
-				.withRestAdminGroup(scimEndpointConfig.restAdminGroup).withRootGroup(scimEndpointConfig.rootGroup)
-				.withAllowedCorsHeaders(scimEndpointConfig.allowedCorsHeaders)
-				.withAllowedCorsOrigins(scimEndpointConfig.allowedCorsOrigins).withSchemas(scimEndpointConfig.schemas)
-				.withMembershipAttributes(scimEndpointConfig.membershipAttributes)
+		
+		SCIMEndpointConfiguration updatedScimEndpointConfig = SCIMEndpointConfiguration
+				.builder(currentScimEndpointConfig)
 				.withMembershipGroups(config.membershipGroups.isPresent() ? config.membershipGroups.get()
-						: scimEndpointConfig.membershipGroups)
+						: currentScimEndpointConfig.membershipGroups)
 				.withExcludedMembershipGroups(
 						config.excludedMemberhipGroups.isPresent() ? config.excludedMemberhipGroups.get()
-								: scimEndpointConfig.excludedMembershipGroups)
+								: currentScimEndpointConfig.excludedMembershipGroups)
 				.build();
-		if (scimEndpointConfig.equals(updatedScimEndpointConfig))
+		if (currentScimEndpointConfig.equals(updatedScimEndpointConfig))
 		{
 			log.debug(
 					"Skipping update membership groups configuration for SCIM endpoint {} , the groups remains unchanged",
