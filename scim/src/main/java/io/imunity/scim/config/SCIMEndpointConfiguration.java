@@ -63,6 +63,11 @@ public class SCIMEndpointConfiguration
 	{
 		return new Builder();
 	}
+	
+	public static Builder builder(SCIMEndpointConfiguration oldConfig)
+	{
+		return new Builder(oldConfig);
+	}
 
 	public static final class Builder
 	{
@@ -77,6 +82,18 @@ public class SCIMEndpointConfiguration
 
 		private Builder()
 		{
+		}
+		
+		private Builder(SCIMEndpointConfiguration oldConfig)
+		{
+			this.allowedCORSheaders = List.copyOf(oldConfig.allowedCorsHeaders);
+			this.allowedCORSorigins = List.copyOf(oldConfig.allowedCorsOrigins);
+			this.rootGroup = oldConfig.rootGroup;
+			this.restAdminGroup = oldConfig.restAdminGroup;
+			this.membershipGroups = List.copyOf(oldConfig.membershipGroups);
+			this.excludedMembershipGroups = List.copyOf(oldConfig.excludedMembershipGroups);
+			this.membershipAttributes = List.copyOf(oldConfig.membershipAttributes);
+			this.schemas = List.copyOf(oldConfig.schemas);
 		}
 
 		public Builder withAllowedCorsHeaders(List<String> allowedCorsHeaders)
