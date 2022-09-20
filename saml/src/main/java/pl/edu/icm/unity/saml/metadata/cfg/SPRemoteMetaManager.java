@@ -4,16 +4,9 @@
  */
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import java.security.cert.X509Certificate;
-import java.time.Duration;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -23,6 +16,12 @@ import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSourc
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+
+import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages the retrieval, loading and update of runtime configuration based on the remote SAML metadata. 
@@ -38,16 +37,19 @@ public class SPRemoteMetaManager
 	private final Map<String, MetadataConsumer> registeredConsumers = new HashMap<>();
 	private TrustedIdPs combinedTrustedIdPs;
 	private SAMLSPConfiguration configuration;
-	
+	private ExternalLogoFileHandler externalLogoFileHandler;
+
 	private SPRemoteMetaManager(
 			PKIManagement pkiManagement,
 			MetadataToSPConfigConverter converter,
-			RemoteMetadataService metadataService)
+			RemoteMetadataService metadataService,
+			ExternalLogoFileHandler externalLogoFileHandler)
 	{
 		this.converter = converter;
 		this.metadataService = metadataService;
 		this.verificator = new MetadataVerificator();
 		this.pkiManagement = pkiManagement;
+		this.externalLogoFileHandler = externalLogoFileHandler;
 	}
 
 	public synchronized TrustedIdPs getTrustedIdPs()
@@ -176,6 +178,7 @@ public class SPRemoteMetaManager
 				throw new IllegalStateException("Consumer got metadata from different federation than before. "
 						+ "Was " + this.federationId + " now it is " + federationId); 
 			assembleCombinedConfiguration(idpsFromMeta, federationId, consumerId);
+			externalLogoFileHandler.downloadLogoFiles(idpsFromMeta);
 		}
 	}
 	
@@ -185,19 +188,22 @@ public class SPRemoteMetaManager
 		private final PKIManagement pkiManagement;
 		private final MetadataToSPConfigConverter converter;
 		private final RemoteMetadataService metadataService;
-		
+		private final ExternalLogoFileHandler externalLogoFileHandler;
+
 		Factory(@Qualifier("insecure") PKIManagement pkiManagement,
 				MetadataToSPConfigConverter converter,
-				RemoteMetadataService metadataService)
+				RemoteMetadataService metadataService,
+				ExternalLogoFileHandler externalLogoFileHandler)
 		{
 			this.pkiManagement = pkiManagement;
 			this.converter = converter;
 			this.metadataService = metadataService;
+			this.externalLogoFileHandler = externalLogoFileHandler;
 		}
 
 		public SPRemoteMetaManager getInstance()
 		{
-			return new SPRemoteMetaManager(pkiManagement, converter, metadataService);
+			return new SPRemoteMetaManager(pkiManagement, converter, metadataService, externalLogoFileHandler);
 		}
 	}
 }

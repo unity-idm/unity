@@ -4,27 +4,15 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
-import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
-import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
+import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileHandler;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
@@ -33,6 +21,13 @@ import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Vaadin part of the SAML authn, creates the UI component driving the SAML auth, the {@link SAMLRetrievalUI}. 
@@ -51,15 +46,17 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	private SamlContextManagement samlContextManagement;
 	private SAMLProxyAuthnHandler proxyAuthnHandler;
 	private URIAccessService uriAccessService;
-	
+	private ExternalLogoFileHandler externalLogoFileHandler;
+
 	@Autowired
 	public SAMLRetrieval(MessageSource msg,
-			SamlContextManagement samlContextManagement, URIAccessService uriAccessService)
+			SamlContextManagement samlContextManagement, URIAccessService uriAccessService, ExternalLogoFileHandler externalLogoFileHandler)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.samlContextManagement = samlContextManagement;
 		this.uriAccessService = uriAccessService;
+		this.externalLogoFileHandler = externalLogoFileHandler;
 	}
 
 	@Override
@@ -90,7 +87,8 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 				ret.add(new SAMLRetrievalUI(msg, uriAccessService, credentialExchange, 
 						samlContextManagement, 
 						idp.key, context,
-						new AuthenticationStepContext(authnStepContext, authenticationOptionKey)));
+						new AuthenticationStepContext(authnStepContext, authenticationOptionKey),
+						externalLogoFileHandler));
 			}
 		}
 		return ret;

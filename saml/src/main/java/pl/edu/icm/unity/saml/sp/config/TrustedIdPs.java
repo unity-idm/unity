@@ -4,20 +4,12 @@
  */
 package pl.edu.icm.unity.saml.sp.config;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TrustedIdPs
 {
@@ -82,6 +74,11 @@ public class TrustedIdPs
 	public Set<TrustedIdPKey> getKeys()
 	{
 		return Collections.unmodifiableSet(trustedIdPs.keySet());
+	}
+
+	public Set<Map.Entry<TrustedIdPKey, TrustedIdPConfiguration>> getEntrySet()
+	{
+		return Collections.unmodifiableSet(trustedIdPs.entrySet());
 	}
 
 	private boolean isOfSingleFederation(String federationId)
