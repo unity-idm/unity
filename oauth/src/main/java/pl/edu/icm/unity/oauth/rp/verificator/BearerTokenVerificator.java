@@ -37,7 +37,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
@@ -65,12 +65,12 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	private OAuthRPProperties verificatorProperties;
 	private TokenVerificatorProtocol tokenChecker;
 	private PKIManagement pkiMan;
-	private OAuthTokenRepository tokensDAO;
+	private OAuthAccessTokenRepository tokensDAO;
 	private TranslationProfile translationProfile;
 	private ResultsCache cache;
 	
 	@Autowired
-	public BearerTokenVerificator(PKIManagement pkiMan, OAuthTokenRepository tokensDAO, 
+	public BearerTokenVerificator(PKIManagement pkiMan, OAuthAccessTokenRepository tokensDAO, 
 			RemoteAuthnResultTranslator processor)
 	{
 		super(NAME, DESC, AccessTokenExchange.ID, processor);

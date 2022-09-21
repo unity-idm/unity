@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as;
+package pl.edu.icm.unity.oauth.as.token;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -24,7 +24,8 @@ import net.minidev.json.JSONValue;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.token.TokenInfoResource;
+import pl.edu.icm.unity.oauth.as.MockTokensMan;
+import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 
 public class TokenInfoResourceTest
 {
@@ -66,7 +67,7 @@ public class TokenInfoResourceTest
 	
 	private TokenInfoResource createTokenInfoResource(TokensManagement tokensManagement)
 	{
-		return new TokenInfoResource(new OAuthTokenRepository(tokensManagement, 
+		return new TokenInfoResource(new OAuthAccessTokenRepository(tokensManagement, 
 				mock(SecuredTokensManagement.class)));
 	}
 }

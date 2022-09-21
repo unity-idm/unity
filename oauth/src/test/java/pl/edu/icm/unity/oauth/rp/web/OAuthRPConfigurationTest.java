@@ -13,7 +13,7 @@ import org.mockito.Mockito;
 import com.google.common.collect.ImmutableList;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 
 public class OAuthRPConfigurationTest
 {
@@ -156,7 +156,7 @@ public class OAuthRPConfigurationTest
 	private OAuthRPConfiguration mockConfig()
 	{
 		PKIManagement pkiMan = Mockito.mock(PKIManagement.class);
-		OAuthTokenRepository tokensDAO = Mockito.mock(OAuthTokenRepository.class);
+		OAuthAccessTokenRepository tokensDAO = Mockito.mock(OAuthAccessTokenRepository.class);
 		return new OAuthRPConfiguration(pkiMan, tokensDAO);
 	}
 	

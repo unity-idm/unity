@@ -2,7 +2,7 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as;
+package pl.edu.icm.unity.oauth.as.token;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -36,7 +36,6 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
-import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 
 /**
  * An integration test of token exchange flow

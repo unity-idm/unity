@@ -2,7 +2,7 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as;
+package pl.edu.icm.unity.oauth.as.token;
 
 import org.springframework.stereotype.Component;
 
@@ -18,6 +18,6 @@ class AccessTokenJsonSerializer extends TokenWithJsonContentsSerializer
 {
 	AccessTokenJsonSerializer()
 	{
-		super(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN, "Access token JSON formatter");
+		super(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN, "Access token JSON formatter");
 	}
 }

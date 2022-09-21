@@ -14,6 +14,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.Scope;
 
@@ -142,5 +145,27 @@ public class OAuthRequestValidator
 		return scopesDefinedOnServer.stream().filter(
 				scope -> (requestedScopes.contains(scope.name) && !notAllowedByClient.contains(scope.name)))
 				.collect(Collectors.toList());
+	}
+	
+	@Component
+	public static class OAuthRequestValidatorFactory
+	{
+		private final EntityManagement identitiesMan;
+		private final AttributesManagement attributesMan;
+		private final OAuthScopesService scopeService;
+		
+		@Autowired
+		public OAuthRequestValidatorFactory(EntityManagement identitiesMan, @Qualifier("insecure") AttributesManagement attributesMan,
+				OAuthScopesService scopeService)
+		{	
+			this.identitiesMan = identitiesMan;
+			this.attributesMan = attributesMan;
+			this.scopeService = scopeService;
+		}
+		
+		public OAuthRequestValidator getOAuthRequestValidator(OAuthASProperties oauthConfig)
+		{
+			return new OAuthRequestValidator(oauthConfig, identitiesMan, attributesMan, scopeService);
+		}	
 	}
 }

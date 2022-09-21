@@ -28,7 +28,6 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -40,7 +39,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.TestTxRunner;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -85,10 +83,28 @@ public class RevocationResourceAuthnHintTest
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
 				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		TransactionalRunner tx = new TestTxRunner();
-		AccessTokenResource tokenEndpoint = new AccessTokenResource(tokensManagement,
-				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)), config, null, null,
-				null, tx, mock(ApplicationEventPublisher.class), null, mock(EndpointManagement.class), mock(LastIdPClinetAccessAttributeManagement.class),
+		
+		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		
+		TokenUtils tokenUtils = new TokenUtils(null, config, null);
+		OAuthTokenStatisticPublisher publisher = new OAuthTokenStatisticPublisher(mock(ApplicationEventPublisher.class),
+				null, null, null, null, mock(LastIdPClinetAccessAttributeManagement.class), null, config,
 				OAuthTestUtils.getEndpoint());
+
+		AuthzCodeHandler authzCodeHandler = new AuthzCodeHandler(tokensManagement, accessTokenRepository,
+				refreshTokenRepository, tx, new AccessTokenFactory(config), publisher, tokenUtils, config);
+		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokenRepository, null,
+				accessTokenRepository, null);
+		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, refreshTokenRepository, null,
+				accessTokenRepository, null, null, null, null);
+		CredentialFlowHandler credentialFlowHandler = new CredentialFlowHandler(config, null, null, null,
+				accessTokenRepository, null);
+		
+		AccessTokenResource tokenEndpoint = new AccessTokenResource(authzCodeHandler, refreshTokenHandler, exchangeTokenHandler,
+				credentialFlowHandler, null);
 		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
 				null, null, null, null, null, null, null);
@@ -156,8 +172,13 @@ public class RevocationResourceAuthnHintTest
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
-		RevocationResource tested = new RevocationResource(tokensManagement, 
-				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)),
+		
+		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		
+		RevocationResource tested = new RevocationResource(accessTokenRepository, refreshTokenRepository, 
 				mock(SessionManagement.class),
 				new AuthenticationRealm(),
 				true);
@@ -207,8 +228,12 @@ public class RevocationResourceAuthnHintTest
 	
 	private RevocationResource createRevocationResource(TokensManagement tokensManagement)
 	{
-		return new RevocationResource(tokensManagement, 
-				new OAuthTokenRepository(tokensManagement, mock(SecuredTokensManagement.class)),
+		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement, 
+				mock(SecuredTokensManagement.class));
+		
+		return new RevocationResource(accessTokenRepository, refreshTokenRepository, 
 				mock(SessionManagement.class),
 				new AuthenticationRealm(),
 				false);

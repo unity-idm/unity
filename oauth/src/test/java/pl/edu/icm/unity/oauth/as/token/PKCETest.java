@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as;
+package pl.edu.icm.unity.oauth.as.token;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -33,8 +33,13 @@ import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.MockTokensMan;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
+import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.TestTxRunner;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
@@ -184,8 +189,28 @@ public class PKCETest
 	private AccessTokenResource createAccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
 			TransactionalRunner tx)
 	{
-		return new AccessTokenResource(tokensManagement, new OAuthTokenRepository(tokensManagement, 
-				mock(SecuredTokensManagement.class)), config, null, null, null, tx, mock(ApplicationEventPublisher.class), null, null, mock(LastIdPClinetAccessAttributeManagement.class), OAuthTestUtils.getEndpoint());
+		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement,
+				mock(SecuredTokensManagement.class));
+		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement,
+				mock(SecuredTokensManagement.class));
+
+		TokenUtils tokenUtils = new TokenUtils(null, config, null);
+		OAuthTokenStatisticPublisher publisher = new OAuthTokenStatisticPublisher(mock(ApplicationEventPublisher.class),
+				null, null, null, null, mock(LastIdPClinetAccessAttributeManagement.class), null, config,
+				OAuthTestUtils.getEndpoint());
+
+		AuthzCodeHandler authzCodeHandler = new AuthzCodeHandler(tokensManagement, accessTokenRepository,
+				refreshTokenRepository, tx, new AccessTokenFactory(config), publisher, tokenUtils, config);
+		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokenRepository, null,
+				accessTokenRepository, null);
+		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, refreshTokenRepository, null,
+				accessTokenRepository, null, null, null, null);
+		CredentialFlowHandler credentialFlowHandler = new CredentialFlowHandler(config, null, null, null,
+				accessTokenRepository, null);
+
+		return new AccessTokenResource(authzCodeHandler, refreshTokenHandler, exchangeTokenHandler,
+				credentialFlowHandler, null);
+
 	}
 	
 	private void setupInvocationContext()
