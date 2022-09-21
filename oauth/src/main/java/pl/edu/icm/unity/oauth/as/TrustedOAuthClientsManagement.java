@@ -230,7 +230,7 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 		{
 			return Optional.empty();
 		}
-		if (preferences.isEmpty())
+		if (preferences.isEmpty() || preferences.get().getTimestamp() == null)
 			return Optional.of(refreshTokens.get(refreshTokens.size() - 1).createdTime);
 
 		if (refreshTokens.isEmpty())

@@ -113,8 +113,8 @@ public class TrustedOAuthClientsManagementTest
 	{
 		setupInvocationContext();
 
-		Instant grantTime = setupPreferences();
-		setupTokens();
+		Instant grantTime = setupPreferences(Instant.now().truncatedTo(ChronoUnit.SECONDS));
+		setupTokens(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN);
 		setupEndpoints();
 		setupClientGroup();
 		Instant accessTime = setupAccessTime();
@@ -136,7 +136,7 @@ public class TrustedOAuthClientsManagementTest
 	{
 		setupInvocationContext();
 
-		Instant grantTime = setupPreferences();
+		Instant grantTime = setupPreferences(Instant.now().truncatedTo(ChronoUnit.SECONDS));
 		setupEndpoints();
 		setupClientGroup();
 		Instant accessTime = setupAccessTime();
@@ -152,11 +152,35 @@ public class TrustedOAuthClientsManagementTest
 	}
 
 	@Test
+	public void shouldGetTrustedApplicationWithPreferencesWithoutTimestamp()
+			throws EngineException, JsonProcessingException
+	{
+		
+		setupInvocationContext();
+
+		setupPreferences(null);
+
+		setupTokens(OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN);
+		setupEndpoints();
+		setupClientGroup();
+		Instant accessTime = setupAccessTime();
+
+		List<IdPClientData> idpClientsData = appMan.getIdpClientsData();
+		assertThat(idpClientsData.size(), is(1));
+		IdPClientData clientData = idpClientsData.get(0);
+		assertThat(clientData.applicationId.id, is("clientEntityId"));
+		assertThat(clientData.lastAccessTime.get(), is(accessTime));
+		assertThat(clientData.applicationDomain.get(), is("localhost"));
+		assertThat(clientData.technicalInformations.size(), is(1));
+		assertThat(clientData.technicalInformations.get(0).value.contains("ref"), is(true));
+	}
+	
+	@Test
 	public void shouldRevokeAccess() throws JsonProcessingException, EngineException
 	{
 		setupInvocationContext();
-		setupTokens();
-		setupPreferences();
+		setupTokens(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN);
+		setupPreferences(Instant.now().truncatedTo(ChronoUnit.SECONDS));
 		appMan.revokeAccess(new ApplicationId("clientEntityId"));
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(preferencesManagement).setPreference(any(), eq(OAuthPreferences.ID), argument.capture());
@@ -170,7 +194,7 @@ public class TrustedOAuthClientsManagementTest
 	public void shouldClearPreferencesWhenUnblockAccess() throws JsonProcessingException, EngineException
 	{
 		setupInvocationContext();
-		setupPreferences();
+		setupPreferences(Instant.now().truncatedTo(ChronoUnit.SECONDS));
 		appMan.unblockAccess(new ApplicationId("clientEntityId"));
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(preferencesManagement).setPreference(any(), eq(OAuthPreferences.ID), argument.capture());
@@ -217,7 +241,7 @@ public class TrustedOAuthClientsManagementTest
 		when(endpointManagement.getEndpoints()).thenReturn(List.of(endpoint));
 	}
 
-	private void setupTokens() throws JsonProcessingException, EngineException
+	private void setupTokens(String type) throws JsonProcessingException, EngineException
 	{
 		OAuthToken oauthToken = new OAuthToken();
 		oauthToken.setAccessToken("ac");
@@ -230,20 +254,18 @@ public class TrustedOAuthClientsManagementTest
 		oauthToken.setEffectiveScope(scopes);
 		Token token = new Token("", "ac", 1L);
 		token.setContents(oauthToken.getSerialized());
-		token.setType(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN);
+		token.setType(type);
 		token.setCreated(new Date());
-	//	token.setExpires(new Date());
 		when(oauthTokenDAO.getOwnedAccessTokens()).thenReturn(List.of(token));
 
 	}
 
-	private Instant setupPreferences() throws InternalException, EngineException
+	private Instant setupPreferences(Instant grantTime) throws InternalException, EngineException
 	{
 		OAuthPreferences pref = new OAuthPreferences();
 		OAuthClientSettings settings = new OAuthClientSettings();
 		settings.setDoNotAsk(true);
 		settings.setDefaultAccept(true);
-		Instant grantTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		settings.setTimestamp(grantTime);
 		pref.setSPSettings("clientEntityId", settings);
 		when(preferencesManagement.getPreference(any(), eq(OAuthPreferences.ID.toString())))
