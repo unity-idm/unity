@@ -13,7 +13,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileHandler;
+import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
@@ -62,11 +62,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private IdPAuthNComponent idpComponent;
 	private AuthenticationCallback callback;
 	private String redirectParam;
-	private ExternalLogoFileHandler externalLogoFileHandler;
+	private ExternalLogoFileLoader externalLogoFileLoader;
 
 	public SAMLRetrievalUI(MessageSource msg, URIAccessService uriAccessService, SAMLExchange credentialExchange,
 			SamlContextManagement samlContextManagement, TrustedIdPKey configKey,
-			Context context, AuthenticationStepContext authenticationStepContext, ExternalLogoFileHandler externalLogoFileHandler)
+			Context context, AuthenticationStepContext authenticationStepContext, ExternalLogoFileLoader externalLogoFileLoader)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
@@ -77,7 +77,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		this.authenticationStepContext = authenticationStepContext;
 		this.configuration = credentialExchange.getVisualSettings(configKey, msg.getLocale());
 		this.context = context;
-		this.externalLogoFileHandler = externalLogoFileHandler;
+		this.externalLogoFileLoader = externalLogoFileLoader;
 		initUI();
 	}
 
@@ -204,10 +204,9 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				return new FileResource(sourceFile);
 			return null;
 		}
-		File file = externalLogoFileHandler.getFile(configuration.federationId, configKey, msg.getLocale());
-		if (file == null)
-			return null;
-		return new FileResource(file);
+		return externalLogoFileLoader.getFile(configuration.federationId, configKey, VaadinService.getCurrentRequest().getLocale())
+				.map(FileResource::new)
+				.orElse(null);
 	}
 	
 	@Override

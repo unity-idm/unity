@@ -13,18 +13,18 @@ import java.util.Optional;
 public class TrustedIdPKey
 {
 	private final String key;
-	private final Optional<Metadata> metadata;
+	private final Optional<SourceData> sourceData;
 
 	public TrustedIdPKey(String key)
 	{
 		this.key = key;
-		this.metadata = Optional.empty();
+		this.sourceData = Optional.empty();
 	}
 
 	private TrustedIdPKey(String entityHex, int index)
 	{
 		this.key = "_entryFromMetadata_" + entityHex + "+" + index + ".";
-		this.metadata = Optional.of(new Metadata(entityHex, index));
+		this.sourceData = Optional.of(new SourceData(entityHex, index));
 	}
 
 	public static TrustedIdPKey individuallyConfigured(String configurationEntryPrefix)
@@ -41,9 +41,9 @@ public class TrustedIdPKey
 		return new TrustedIdPKey(entityHex, index);
 	}
 
-	public Optional<Metadata> getMetadata()
+	public Optional<SourceData> getSourceData()
 	{
-		return metadata;
+		return sourceData;
 	}
 	public String asString()
 	{
@@ -75,12 +75,12 @@ public class TrustedIdPKey
 		return Objects.equals(key, other.key);
 	}
 
-	public static class Metadata
+	public static class SourceData
 	{
 		public final String entityHex;
 		public final int index;
 
-		private Metadata(String entityHex, int index)
+		private SourceData(String entityHex, int index)
 		{
 			this.entityHex = entityHex;
 			this.index = index;
@@ -91,7 +91,7 @@ public class TrustedIdPKey
 		{
 			if (this == o) return true;
 			if (o == null || getClass() != o.getClass()) return false;
-			Metadata metadata = (Metadata) o;
+			SourceData metadata = (SourceData) o;
 			return index == metadata.index && Objects.equals(entityHex, metadata.entityHex);
 		}
 
@@ -104,7 +104,7 @@ public class TrustedIdPKey
 		@Override
 		public String toString()
 		{
-			return "Metadata{" +
+			return "SourceData{" +
 					"entityHex='" + entityHex + '\'' +
 					", index=" + index +
 					'}';

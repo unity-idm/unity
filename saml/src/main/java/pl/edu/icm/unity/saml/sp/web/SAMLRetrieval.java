@@ -12,7 +12,7 @@ import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileHandler;
+import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
@@ -46,17 +46,17 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	private SamlContextManagement samlContextManagement;
 	private SAMLProxyAuthnHandler proxyAuthnHandler;
 	private URIAccessService uriAccessService;
-	private ExternalLogoFileHandler externalLogoFileHandler;
+	private ExternalLogoFileLoader externalLogoFileLoader;
 
 	@Autowired
-	public SAMLRetrieval(MessageSource msg,
-			SamlContextManagement samlContextManagement, URIAccessService uriAccessService, ExternalLogoFileHandler externalLogoFileHandler)
+	public SAMLRetrieval(MessageSource msg, SamlContextManagement samlContextManagement,
+	                     URIAccessService uriAccessService, ExternalLogoFileLoader externalLogoFileLoader)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.samlContextManagement = samlContextManagement;
 		this.uriAccessService = uriAccessService;
-		this.externalLogoFileHandler = externalLogoFileHandler;
+		this.externalLogoFileLoader = externalLogoFileLoader;
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 						samlContextManagement, 
 						idp.key, context,
 						new AuthenticationStepContext(authnStepContext, authenticationOptionKey),
-						externalLogoFileHandler));
+						externalLogoFileLoader));
 			}
 		}
 		return ret;
