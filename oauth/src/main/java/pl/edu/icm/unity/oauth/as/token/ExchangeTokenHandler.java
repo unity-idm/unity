@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -30,9 +31,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenStatisticPublisher.OAuthTokenStatisticPublisherFactory;
 import pl.edu.icm.unity.oauth.as.token.TokenUtils.TokenUtilsFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -128,7 +129,7 @@ class ExchangeTokenHandler
 		newToken.setAccessToken(accessToken.getValue());
 
 		RefreshToken refreshToken = refreshTokensDAO
-				.getRefreshToken(config, now, newToken, subToken.getOwner()).orElse(null);
+				.getRefreshToken(config, now, newToken, subToken.getOwner(), Optional.empty()).orElse(null);
 		Date accessExpiration = tokenUtils.getAccessTokenExpiration(config, now);
 
 		Map<String, Object> additionalParams = new HashMap<>();

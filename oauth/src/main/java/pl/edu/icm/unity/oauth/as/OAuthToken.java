@@ -28,6 +28,7 @@ public class OAuthToken
 	private String authzCode;
 	private String accessToken;
 	private String refreshToken;
+	private String firstRefreshRollingToken;
 	private String[] effectiveScope;
 	private String[] requestedScope;
 	private long clientEntityId;
@@ -73,6 +74,7 @@ public class OAuthToken
 		setIssuerUri(source.getIssuerUri());
 		pkcsInfo = new PKCSInfo(source.pkcsInfo);
 		setClientType(source.getClientType());
+		setFirstRefreshRollingToken(source.getFirstRefreshRollingToken());
 		
 	}
 	
@@ -349,7 +351,7 @@ public class OAuthToken
 	public String toString()
 	{
 		return "OAuthToken [userInfo=" + userInfo + ", openidInfo=" + openidInfo + ", authzCode=" + authzCode
-				+ ", accessToken=" + accessToken + ", refreshToken=" + refreshToken
+				+ ", accessToken=" + accessToken + ", refreshToken=" + refreshToken + ", firstRefreshRollingToken=" + firstRefreshRollingToken
 				+ ", effectiveScope=" + Arrays.toString(effectiveScope) + ", requestedScope="
 				+ Arrays.toString(requestedScope) + ", clientEntityId=" + clientEntityId
 				+ ", redirectUri=" + redirectUri + ", subject=" + subject + ", clientName=" + clientName
@@ -357,6 +359,17 @@ public class OAuthToken
 				+ ", tokenValidity=" + tokenValidity + ", responseType=" + responseType + ", audience="
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
 				+ pkcsInfo + "]";
+	}
+
+
+	public String getFirstRefreshRollingToken()
+	{
+		return firstRefreshRollingToken;
+	}
+
+	public void setFirstRefreshRollingToken(String firstRefreshRollingToken)
+	{
+		this.firstRefreshRollingToken = firstRefreshRollingToken;
 	}
 
 

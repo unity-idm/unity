@@ -8,6 +8,7 @@ package pl.edu.icm.unity.oauth.as.token;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -39,22 +40,32 @@ class RefreshTokenHandler
 	private final OAuthRefreshTokenRepository refreshTokensDAO;
 	private final AccessTokenFactory accessTokenFactory;
 	private final OAuthAccessTokenRepository accessTokensDAO;
+	private final OAuthClientTokensCleaner tokenCleaner;
 	private final TokenUtils tokenUtils;
 
 	RefreshTokenHandler(OAuthASProperties config, OAuthRefreshTokenRepository refreshTokensDAO,
-			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO, TokenUtils tokenUtils)
+			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO,
+			OAuthClientTokensCleaner tokenCleaner, TokenUtils tokenUtils)
 	{
 
 		this.config = config;
 		this.refreshTokensDAO = refreshTokensDAO;
 		this.accessTokenFactory = accessTokenFactory;
 		this.accessTokensDAO = accessTokensDAO;
+		this.tokenCleaner = tokenCleaner;
 		this.tokenUtils = tokenUtils;
 	}
 
 	Response handleRefreshToken(String refToken, String scope, String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
+		Optional<Token> usedRefreshToken = getUsedRefreshTokenIfRotationIsActive(refToken);
+		if (usedRefreshToken.isEmpty())
+		{
+			clearTokensForClient(usedRefreshToken.get());
+			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "used refresh token");
+		}
+
 		Token refreshToken = null;
 		OAuthToken parsedRefreshToken = null;
 		try
@@ -99,7 +110,7 @@ class RefreshTokenHandler
 		newToken.setAccessToken(accessToken.getValue());
 
 		RefreshToken rolledRefreshToken = refreshTokensDAO
-				.getRefreshToken(config, now, newToken, refreshToken.getOwner())
+				.rollRefreshTokenIfNeeded(config, now, newToken, parsedRefreshToken, refreshToken.getOwner())
 				.orElse(null);
 
 		AccessTokenResponse oauthResponse = tokenUtils.getAccessTokenResponse(newToken, accessToken, rolledRefreshToken,
@@ -113,27 +124,51 @@ class RefreshTokenHandler
 
 	}
 
+	private Optional<Token> getUsedRefreshTokenIfRotationIsActive(String refToken)
+	{
+		if (config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS))
+		{
+			return refreshTokensDAO.getUsedRefreshToken(refToken);
+		}
+		
+		return Optional.empty();
+	}
+	
+	
+	private void clearTokensForClient(Token usedRefreshToken)
+	{
+		OAuthToken oldRefreshToken = OAuthToken.getInstanceFromJson(usedRefreshToken.getContents());
+		tokenCleaner.removeTokensForClient(oldRefreshToken.getClientId(), usedRefreshToken.getOwner(),
+				oldRefreshToken.getFirstRefreshRollingToken());
+		log.warn(
+				"Trying to reuse already used refresh token, revoke the currently active oauth tokens for client {} {}",
+				oldRefreshToken.getClientId(), oldRefreshToken.getClientName());
+		
+		
+	}
 	@Component
 	static class RefreshTokenHandlerFactory
 	{
 		private final OAuthRefreshTokenRepository refreshTokensDAO;
 		private final OAuthAccessTokenRepository accessTokensDAO;
+		private final OAuthClientTokensCleaner tokenCleaner;
 		private final TokenUtilsFactory tokenUtilsFactory;
 
 		@Autowired
 		RefreshTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO,
-				OAuthAccessTokenRepository accessTokensDAO,
+				OAuthAccessTokenRepository accessTokensDAO, OAuthClientTokensCleaner tokenCleaner,
 				TokenUtilsFactory tokenUtilsFactory)
 		{
 			this.refreshTokensDAO = refreshTokensDAO;
 			this.accessTokensDAO = accessTokensDAO;
+			this.tokenCleaner = tokenCleaner;
 			this.tokenUtilsFactory = tokenUtilsFactory;
 		}
 
 		RefreshTokenHandler getHandler(OAuthASProperties config)
 		{
 			return new RefreshTokenHandler(config, refreshTokensDAO, new AccessTokenFactory(config), accessTokensDAO,
-					tokenUtilsFactory.getTokenUtils(config));
+					tokenCleaner, tokenUtilsFactory.getTokenUtils(config));
 		}
 
 	}

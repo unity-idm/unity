@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.Date;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -118,7 +119,7 @@ class AuthzCodeHandler
 		internalToken.setAccessToken(accessToken.getValue());
 
 		RefreshToken refreshToken = refreshTokenDAO
-				.getRefreshToken(config, now, internalToken, codeToken.getOwner()).orElse(null);
+				.getRefreshToken(config, now, internalToken, codeToken.getOwner(), Optional.empty()).orElse(null);
 
 		Date accessExpiration = tokenUtils.getAccessTokenExpiration(config, now);
 
