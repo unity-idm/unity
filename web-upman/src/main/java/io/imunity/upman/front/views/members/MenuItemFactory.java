@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -157,7 +158,8 @@ class MenuItemFactory
 		dialog.addClassName(Vaadin23ClassNames.DIALOG_CONFIRM.getName());
 		dialog.add(new VerticalLayout(new Label(txt)));
 
-		Button saveButton = new Button(msg.getMessage("OK"), e ->
+		Button saveButton = new SubmitButton(msg::getMessage);
+		saveButton.addClickListener(e ->
 		{
 			job.run();
 			dialog.close();
@@ -172,6 +174,7 @@ class MenuItemFactory
 		Dialog dialog = createBaseDialog(msg.getMessage("AddToGroupDialog.caption"));
 
 		ComboBox<GroupTreeNode> groupComboBox = new GroupComboBox(msg);
+		groupComboBox.focus();
 		groupComboBox.setLabel(msg.getMessage("AddToGroupDialog.info"));
 		groupComboBox.setItems(groups);
 		if(groups.iterator().hasNext())
@@ -212,7 +215,8 @@ class MenuItemFactory
 		RadioButtonGroup<GroupAuthorizationRole> radioGroup = new RadioButtonGroup<>();
 		radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 
-		Set<GroupAuthorizationRole> roles = Arrays.stream(GroupAuthorizationRole.values()).collect(Collectors.toSet());
+		Set<GroupAuthorizationRole> roles = Arrays.stream(GroupAuthorizationRole.values())
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 		if(role.equals(GroupAuthorizationRole.manager))
 			roles.remove(GroupAuthorizationRole.projectsAdmin);
 

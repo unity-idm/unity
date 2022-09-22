@@ -9,8 +9,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.*;
 import io.imunity.upman.front.model.ProjectGroup;
 
-
-public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>, AfterNavigationObserver
+public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>, AfterNavigationObserver, HasDynamicTitle
 {
 	public UnityViewComponent()
 	{
@@ -29,6 +28,11 @@ public abstract class UnityViewComponent extends Composite<Div> implements HasUr
 	public void afterNavigation(AfterNavigationEvent event)
 	{
 		loadData();
+	}
+
+	@Override
+	public String getPageTitle() {
+		return "Upman";
 	}
 
 	public abstract void loadData();

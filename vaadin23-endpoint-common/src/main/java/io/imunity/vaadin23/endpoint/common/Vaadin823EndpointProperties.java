@@ -11,6 +11,8 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import java.io.File;
 import java.util.Properties;
 
+import static java.util.Optional.ofNullable;
+
 public class Vaadin823EndpointProperties extends VaadinEndpointProperties
 {
 	public static final String EXTRA_LEFT_PANEL = "extraLeftPanel";
@@ -24,6 +26,8 @@ public class Vaadin823EndpointProperties extends VaadinEndpointProperties
 	public static final String CUSTOM_CSS = "customCss";
 
 	public static final String SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING = "secondsBeforeShowingSessionExpirationWarning";
+
+	public final String defaultWebContentPath;
 
 	static
 	{
@@ -41,39 +45,45 @@ public class Vaadin823EndpointProperties extends VaadinEndpointProperties
 				setDescription("Seconds before showing session expiration warning notification"));
 	}
 
-	public Vaadin823EndpointProperties(Properties properties)
+	public Vaadin823EndpointProperties(Properties properties, String defaultWebContentPath)
 	{
 		super(properties);
+		this.defaultWebContentPath = defaultWebContentPath;
 	}
 
 	public File getExtraLeftPanel()
 	{
-		String value = getValue(WEB_CONTENT_PATH) + "/" + getValue(EXTRA_LEFT_PANEL);
+		String value = getWebContentPath() + "/" + getValue(EXTRA_LEFT_PANEL);
 		return new File(value);
 	}
 
 	public File getExtraRightPanel()
 	{
-		String value = getValue(WEB_CONTENT_PATH) + "/" + getValue(EXTRA_RIGHT_PANEL);
+		String value = getWebContentPath() + "/" + getValue(EXTRA_RIGHT_PANEL);
 		return new File(value);
 	}
 
 	public File getExtraTopPanel()
 	{
-		String value = getValue(WEB_CONTENT_PATH) + "/" + getValue(EXTRA_TOP_PANEL);
+		String value = getWebContentPath() + "/" + getValue(EXTRA_TOP_PANEL);
 		return new File(value);
 	}
 
 	public File getExtraBottomPanel()
 	{
-		String value = getValue(WEB_CONTENT_PATH) + "/" + getValue(EXTRA_BOTTOM_PANEL);
+		String value = getWebContentPath() + "/" + getValue(EXTRA_BOTTOM_PANEL);
 		return new File(value);
 	}
 
 	public File getCustomCssFile()
 	{
-		String value = getValue(WEB_CONTENT_PATH) + "/" + getValue(CUSTOM_CSS);
+		String value = getWebContentPath() + "/" + getValue(CUSTOM_CSS);
 		return new File(value);
+	}
+
+	private String getWebContentPath()
+	{
+		return ofNullable(getValue(WEB_CONTENT_PATH)).orElse(defaultWebContentPath);
 	}
 
 	public int getSecondsBeforeShowingSessionExpirationWarning()

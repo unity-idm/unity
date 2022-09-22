@@ -101,7 +101,6 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 
 		private boolean isCustomCssFileAvailable()
 		{
-
 			if (externalCSSFile == null)
 			{
 				LOG.debug("Custom style is not configured.");
@@ -110,13 +109,13 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 
 			if (!externalCSSFile.exists())
 			{
-				LOG.error("Could not load custom styles: file does not exists, {}.", externalCSSFile);
+				LOG.debug("Could not load custom styles: file does not exists, {}.", externalCSSFile);
 				return false;
 			}
 
 			if (!externalCSSFile.isFile())
 			{
-				LOG.error("Could not load custom styles: unable to read file content, {}.", externalCSSFile);
+				LOG.debug("Could not load custom styles: unable to read file content, {}.", externalCSSFile);
 				return false;
 			}
 

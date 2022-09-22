@@ -128,6 +128,7 @@ class MenuItemFactory
 				msg.getMessage("AddGroupDialog.info", group.currentDisplayedName),
 				locale -> ""
 		);
+		localeTextFieldDetails.focus();
 
 		Checkbox isPublic = new Checkbox(msg.getMessage("AddGroupDialog.public"));
 		isPublic.setValue(group.isPublic);
@@ -196,6 +197,7 @@ class MenuItemFactory
 		Dialog dialog = createBaseDialog(msg.getMessage("GroupsComponent.renameGroupAction"));
 
 		LocaleTextFieldDetails details = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> Optional.ofNullable(group.displayedName.getValueRaw(locale.getLanguage())).orElse(""));
+		details.focus();
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
 		dialogLayout.add(details);

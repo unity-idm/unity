@@ -14,18 +14,11 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 public class MenuButton extends Div
 {
 	private final Icon createdIcon;
-	private final String defaultColor;
 	public MenuButton(String label, VaadinIcon icon)
 	{
 		createdIcon = icon.create();
-		defaultColor = createdIcon.getColor();
 		add(createdIcon, new Span(label));
 		addClassName("menu-button");
-	}
-	
-	public MenuButton(VaadinIcon icon)
-	{
-		this(null, icon);
 	}
 
 	@Override
@@ -33,8 +26,8 @@ public class MenuButton extends Div
 	{
 		super.setEnabled(enabled);
 		if(enabled)
-			createdIcon.setColor(defaultColor);
+			createdIcon.removeClassName("disable-icon-color");
 		else
-			createdIcon.setColor("#cfd4db");
+			createdIcon.addClassName("disable-icon-color");
 	}
 }

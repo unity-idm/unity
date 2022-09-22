@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
 
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.*;
 
 public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
@@ -91,7 +92,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		try
 		{
 			properties.load(new StringReader(cfg));
-			genericEndpointProperties = new Vaadin823EndpointProperties(properties);
+			genericEndpointProperties = new Vaadin823EndpointProperties(properties, serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH));
 
 		} catch (Exception e)
 		{
@@ -229,8 +230,8 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 	{
 		if (genericEndpointProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
 			return genericEndpointProperties.getValue(VaadinEndpointProperties.WEB_CONTENT_PATH);
-		if (serverConfig.isSet(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH))
-			return serverConfig.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
+		if (serverConfig.isSet(DEFAULT_WEB_CONTENT_PATH))
+			return serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH);
 		return null;
 	}
 

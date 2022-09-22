@@ -70,6 +70,11 @@ public class LocaleTextFieldDetails extends VerticalLayout
 		setPadding(false);
 	}
 
+	public void focus()
+	{
+		fields.iterator().next().focus();
+	}
+
 	private Icon crateIcon(VaadinIcon angleDown, String label)
 	{
 		Icon icon = angleDown.create();

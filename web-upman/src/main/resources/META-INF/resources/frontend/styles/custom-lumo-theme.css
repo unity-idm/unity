@@ -87,3 +87,7 @@ vaadin-text-field > label {
 #scroller {
 	bottom: unset;
 }
+
+.disable-icon-color {
+    color: #cfd4db;
+}

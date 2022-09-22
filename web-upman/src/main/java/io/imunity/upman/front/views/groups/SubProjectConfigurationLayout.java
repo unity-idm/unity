@@ -47,6 +47,7 @@ class SubProjectConfigurationLayout extends FormLayout
 			logoUrl.setEnabled(event.getValue());
 			enableSubprojects.setEnabled(event.getValue());
 		});
+		enableDelegation.focus();
 
 		TooltipAttacher.attachTooltip(msg.getMessage("SubprojectDialog.enableDelegationDescription"), enableDelegation, tooltipAttachment);
 
