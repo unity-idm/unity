@@ -102,7 +102,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		{
 			if (refreshToken == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "refresh_token is required");
-			return refreshTokenHandler.handleRefreshToken(refreshToken, scope, acceptHeader);
+			return refreshTokenHandler.handleRefreshTokenGrant(refreshToken, scope, acceptHeader);
 		} else
 		{
 			return makeError(OAuth2Error.INVALID_GRANT, "wrong or not supported grant_type value");

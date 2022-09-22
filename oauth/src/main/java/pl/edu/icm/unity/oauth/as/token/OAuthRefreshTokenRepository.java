@@ -71,7 +71,7 @@ public class OAuthRefreshTokenRepository
 			Optional<String> oldRefreshToken) throws EngineException, JsonProcessingException
 	{
 		if (newToken.getClientType().equals(ClientType.PUBLIC)
-				&& !config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS))
+				&& !config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION))
 			return Optional.empty();
 		
 		RefreshToken refreshToken = checkPolicyAndGetRefreshToken(config,
@@ -94,7 +94,7 @@ public class OAuthRefreshTokenRepository
 	public Optional<RefreshToken> rollRefreshTokenIfNeeded(OAuthASProperties config, Date now, OAuthToken newToken,
 			OAuthToken oldRefreshToken, Long owner) throws EngineException, JsonProcessingException
 	{
-		if (config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS)
+		if (config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION)
 				&& newToken.getClientType().equals(ClientType.PUBLIC))
 		{
 			log.info("Move refresh token {} to history", oldRefreshToken.getRefreshToken());

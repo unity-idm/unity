@@ -61,41 +61,41 @@ public class RefreshTokenHandlerTest
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensDAO, accessTokenFactory,
 				accessTokensDAO, tokenCleaner, tokenUtils);
-		when(config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS)).thenReturn(true);
+		when(config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION)).thenReturn(true);
 		Token token = new Token(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN, "token", 1l);
 		token.setContents(new OAuthToken().getSerialized());
 
 		when(refreshTokensDAO.getUsedRefreshToken("usedRef")).thenReturn(Optional.of(token));
-		Response resp = refreshTokenHandler.handleRefreshToken("usedRef", "scope", "");
+		Response resp = refreshTokenHandler.handleRefreshTokenGrant("usedRef", "scope", "");
 		assertThat(resp.getStatus(), is(400));
 	}
 
 	@Test
-	public void shouldClearTokensWhenTokenUsedAgain() throws JsonProcessingException, EngineException
+	public void shouldClearAllTokensWhenRefreshTokenIsReused() throws JsonProcessingException, EngineException
 	{
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensDAO, accessTokenFactory,
 				accessTokensDAO, tokenCleaner, tokenUtils);
-		when(config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS)).thenReturn(true);
+		when(config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION)).thenReturn(true);
 		Token token = new Token(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN, "token", 1l);
 		OAuthToken oAuthToken = new OAuthToken();
 		oAuthToken.setFirstRefreshRollingToken("rolling");
 		oAuthToken.setClientId(999l);
 		token.setContents(oAuthToken.getSerialized());
 		when(refreshTokensDAO.getUsedRefreshToken("usedRef")).thenReturn(Optional.of(token));
-		refreshTokenHandler.handleRefreshToken("usedRef", "scope", "");
+		refreshTokenHandler.handleRefreshTokenGrant("usedRef", "scope", "");
 		verify(tokenCleaner).removeTokensForClient(999l, 1, "rolling");
 	}
 
 	@Test
-	public void shouldNotRotateTokensWhenConfidentialClient() throws JsonProcessingException, EngineException
+	public void shouldNotRotateTokensForConfidentialClientAndFeatureEnabledPublic() throws JsonProcessingException, EngineException
 	{
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensDAO, accessTokenFactory,
 				accessTokensDAO, tokenCleaner, tokenUtils);
-		when(config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS)).thenReturn(true);
+		when(config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION)).thenReturn(true);
 		Token token = new Token(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN, "token", 1l);
 		OAuthToken oAuthToken = new OAuthToken();
 		oAuthToken.setFirstRefreshRollingToken("rolling");
@@ -124,7 +124,7 @@ public class RefreshTokenHandlerTest
 		context.setInvocationMaterial(InvocationMaterial.OAUTH_DELEGATION);
 		InvocationContext.setCurrent(context);
 
-		Response resp = refreshTokenHandler.handleRefreshToken("ref", "scope1", "");
+		Response resp = refreshTokenHandler.handleRefreshTokenGrant("ref", "scope1", "");
 		ArgumentCaptor<RefreshToken> refreshToken = ArgumentCaptor.forClass(RefreshToken.class);
 
 		verify(tokenUtils).getAccessTokenResponse(eq(oAuthToken2), any(), refreshToken.capture(), isNull());
@@ -134,13 +134,13 @@ public class RefreshTokenHandlerTest
 	}
 
 	@Test
-	public void shouldNotRotateTokensWhenRollingNotConfiguredAndConfidentialClient() throws JsonProcessingException, EngineException
+	public void shouldNotRotateTokensWhenRollingNotEnabledAndConfidentialClient() throws JsonProcessingException, EngineException
 	{
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensDAO, accessTokenFactory,
 				accessTokensDAO, tokenCleaner, tokenUtils);
-		when(config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS)).thenReturn(false);
+		when(config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION)).thenReturn(false);
 		Token token = new Token(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN, "token", 1l);
 		OAuthToken oAuthToken = new OAuthToken();
 		oAuthToken.setFirstRefreshRollingToken("rolling");
@@ -168,7 +168,7 @@ public class RefreshTokenHandlerTest
 		context.setInvocationMaterial(InvocationMaterial.OAUTH_DELEGATION);
 		InvocationContext.setCurrent(context);
 
-		Response resp = refreshTokenHandler.handleRefreshToken("ref", "scope1", "");
+		Response resp = refreshTokenHandler.handleRefreshTokenGrant("ref", "scope1", "");
 		ArgumentCaptor<RefreshToken> refreshToken = ArgumentCaptor.forClass(RefreshToken.class);
 
 		verify(tokenUtils).getAccessTokenResponse(eq(oAuthToken2), any(), refreshToken.capture(), isNull());
@@ -177,13 +177,13 @@ public class RefreshTokenHandlerTest
 	}
 
 	@Test
-	public void shouldNotRotateTokensWhenRollingNotConfiguredAndPublicClient() throws JsonProcessingException, EngineException
+	public void shouldNotRotateTokensWhenRollingNotEnabledAndPublicClient() throws JsonProcessingException, EngineException
 	{
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensDAO, accessTokenFactory,
 				accessTokensDAO, tokenCleaner, tokenUtils);
-		when(config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS)).thenReturn(false);
+		when(config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION)).thenReturn(false);
 		Token token = new Token(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN, "token", 1l);
 		OAuthToken oAuthToken = new OAuthToken();
 		oAuthToken.setFirstRefreshRollingToken("rolling");
@@ -211,7 +211,7 @@ public class RefreshTokenHandlerTest
 		context.setInvocationMaterial(InvocationMaterial.OAUTH_DELEGATION);
 		InvocationContext.setCurrent(context);
 
-		Response resp = refreshTokenHandler.handleRefreshToken("ref", "scope1", "");
+		Response resp = refreshTokenHandler.handleRefreshTokenGrant("ref", "scope1", "");
 		ArgumentCaptor<RefreshToken> refreshToken = ArgumentCaptor.forClass(RefreshToken.class);
 
 		verify(tokenUtils).getAccessTokenResponse(eq(oAuthToken2), any(), refreshToken.capture(), isNull());

@@ -37,9 +37,9 @@ class RefreshTokenHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, RefreshTokenHandler.class);
 
 	private final OAuthASProperties config;
-	private final OAuthRefreshTokenRepository refreshTokensDAO;
+	private final OAuthRefreshTokenRepository refreshTokensRepository;
 	private final AccessTokenFactory accessTokenFactory;
-	private final OAuthAccessTokenRepository accessTokensDAO;
+	private final OAuthAccessTokenRepository accessTokensRepository;
 	private final OAuthClientTokensCleaner tokenCleaner;
 	private final TokenUtils tokenUtils;
 
@@ -49,28 +49,28 @@ class RefreshTokenHandler
 	{
 
 		this.config = config;
-		this.refreshTokensDAO = refreshTokensDAO;
+		this.refreshTokensRepository = refreshTokensDAO;
 		this.accessTokenFactory = accessTokenFactory;
-		this.accessTokensDAO = accessTokensDAO;
+		this.accessTokensRepository = accessTokensDAO;
 		this.tokenCleaner = tokenCleaner;
 		this.tokenUtils = tokenUtils;
 	}
 
-	Response handleRefreshToken(String refToken, String scope, String acceptHeader)
+	Response handleRefreshTokenGrant(String refToken, String scope, String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
 		Optional<Token> usedRefreshToken = getUsedRefreshTokenIfRotationIsActive(refToken);
-		if (usedRefreshToken.isEmpty())
+		if (usedRefreshToken.isPresent())
 		{
 			clearTokensForClient(usedRefreshToken.get());
-			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "used refresh token");
+			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "refresh token has already been used");
 		}
 
 		Token refreshToken = null;
 		OAuthToken parsedRefreshToken = null;
 		try
 		{
-			refreshToken = refreshTokensDAO.readRefreshToken(refToken);
+			refreshToken = refreshTokensRepository.readRefreshToken(refToken);
 			parsedRefreshToken = BaseOAuthResource.parseInternalToken(refreshToken);
 		} catch (Exception e)
 		{
@@ -80,8 +80,8 @@ class RefreshTokenHandler
 		long callerEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
 		if (parsedRefreshToken.getClientId() != callerEntityId)
 		{
-			log.warn("Client with id " + callerEntityId + " presented use refresh code issued " + "for client "
-					+ parsedRefreshToken.getClientId());
+			log.warn("Client with id {} presented use refresh code issued for client",
+					parsedRefreshToken.getClientId());
 			// intended - we mask the reason
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "wrong refresh token");
 		}
@@ -109,15 +109,15 @@ class RefreshTokenHandler
 		AccessToken accessToken = accessTokenFactory.create(newToken, now, acceptHeader);
 		newToken.setAccessToken(accessToken.getValue());
 
-		RefreshToken rolledRefreshToken = refreshTokensDAO
+		RefreshToken rotatedRefreshToken = refreshTokensRepository
 				.rollRefreshTokenIfNeeded(config, now, newToken, parsedRefreshToken, refreshToken.getOwner())
 				.orElse(null);
 
-		AccessTokenResponse oauthResponse = tokenUtils.getAccessTokenResponse(newToken, accessToken, rolledRefreshToken,
+		AccessTokenResponse oauthResponse = tokenUtils.getAccessTokenResponse(newToken, accessToken, rotatedRefreshToken,
 				null);
 		log.info("Refreshed access token {} of entity {}, valid until {}",
 				BaseOAuthResource.tokenToLog(accessToken.getValue()), refreshToken.getOwner(), accessExpiration);
-		accessTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(refreshToken.getOwner()), now,
+		accessTokensRepository.storeAccessToken(accessToken, newToken, new EntityParam(refreshToken.getOwner()), now,
 				accessExpiration);
 
 		return BaseOAuthResource.toResponse(Response.ok(BaseOAuthResource.getResponseContent(oauthResponse)));
@@ -126,9 +126,9 @@ class RefreshTokenHandler
 
 	private Optional<Token> getUsedRefreshTokenIfRotationIsActive(String refToken)
 	{
-		if (config.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS))
+		if (config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION))
 		{
-			return refreshTokensDAO.getUsedRefreshToken(refToken);
+			return refreshTokensRepository.getUsedRefreshToken(refToken);
 		}
 		
 		return Optional.empty();

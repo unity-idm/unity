@@ -133,7 +133,7 @@ public class OAuthServiceConfiguration
 		{
 			raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_VALIDITY, String.valueOf(refreshTokenExpiration));
 		}
-		raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS, String.valueOf(isRefreshTokenRotationForPublicClients()));
+		raw.put(OAuthASProperties.P + OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION, String.valueOf(isRefreshTokenRotationForPublicClients()));
 		
 		
 		if (credential != null)
@@ -261,7 +261,7 @@ public class OAuthServiceConfiguration
 		idTokenExpiration = oauthProperties.getIdTokenValidity();
 		refreshTokenExpiration = oauthProperties.getRefreshTokenValidity();
 		refreshTokenIssuePolicy = oauthProperties.getRefreshTokenIssuePolicy();
-		refreshTokenRotationForPublicClients = oauthProperties.getBooleanValue(OAuthASProperties.REFRESH_TOKEN_ROTATION_FOR_PUBLIC_CLIENTS);
+		refreshTokenRotationForPublicClients = oauthProperties.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION);
 		codeTokenExpiration = oauthProperties.getCodeTokenValidity();
 		accessTokenExpiration = oauthProperties.getAccessTokenValidity();
 		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	
