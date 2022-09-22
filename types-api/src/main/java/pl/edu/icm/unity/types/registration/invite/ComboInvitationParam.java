@@ -5,15 +5,9 @@
 
 package pl.edu.icm.unity.types.registration.invite;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -21,6 +15,11 @@ import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class ComboInvitationParam extends InvitationParam
 {
@@ -239,12 +238,12 @@ public class ComboInvitationParam extends InvitationParam
 
 	public static class Builder extends InvitationParam.Builder<Builder>
 	{
-		private ComboInvitationParam instance;
+//		private ComboInvitationParam instance;
 
 		public Builder()
 		{
 			super(new ComboInvitationParam());
-			instance = (ComboInvitationParam) super.getInstance();
+			instance = super.getInstance();
 		}
 
 		public Builder(ComboInvitationParam comboInvitationParam)
@@ -255,18 +254,18 @@ public class ComboInvitationParam extends InvitationParam
 
 		public ComboInvitationParam build()
 		{
-			return instance;
+			return (ComboInvitationParam)instance;
 		}
 
 		public Builder withRegistrationForm(FormPrefill formPrefill)
 		{
-			instance.registrationFormPrefill = formPrefill;
+			((ComboInvitationParam)instance).registrationFormPrefill = formPrefill;
 			return this;
 		}
 
 		public Builder withEnquiryForm(FormPrefill formPrefill)
 		{
-			instance.enquiryFormPrefill = formPrefill;
+			((ComboInvitationParam)instance).enquiryFormPrefill = formPrefill;
 			return this;
 		}
 	}

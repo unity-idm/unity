@@ -4,19 +4,12 @@
  */
 package pl.edu.icm.unity.types.registration.invite;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.springframework.util.AntPathMatcher;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
+import org.springframework.util.AntPathMatcher;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -26,6 +19,11 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Base data of invitation parameter. It is extracted as we have two ways to represent attributes:
@@ -255,7 +253,7 @@ public abstract class InvitationParam
 
 	protected static class Builder<T extends Builder<?>> {
 	
-		private InvitationParam instance;
+		protected InvitationParam instance;
 
 		protected Builder(InvitationParam aInstance)
 		{
