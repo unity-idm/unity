@@ -39,7 +39,7 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 				.setFlexGrow(5)
 				.setSortable(true)
 				.setResizable(true);
-		addColumn(model -> model.requestedTime)
+		addColumn(model -> formatter.format(model.requestedTime))
 				.setHeader(msg.getMessage("Invitation.lastSent"))
 				.setAutoWidth(true)
 				.setSortable(true)
