@@ -60,7 +60,9 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String ID_TOKEN_VALIDITY = "idTokenValidity";
 	public static final String REFRESH_TOKEN_VALIDITY = "refreshTokenValidity";
 	public static final String REFRESH_TOKEN_ISSUE_POLICY = "refreshTokenIssuePolicy";
+	public static final String ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION = "issueRefreshTokensWithRotationForPublicClients";
 
+	
 	public static final String CREDENTIAL = "signingCredential";
 	public static final String IDENTITY_TYPE_FOR_SUBJECT = "identityTypeForSubject";
 	public static final String ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI = "allowForWildcardsInAllowedURI";
@@ -104,6 +106,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 						+ "If is set to 0 refresh tokens will have an unlimited lifetime. "));
 		defaults.put(ACCESS_TOKEN_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_ACCESS_TOKEN_VALIDITY)).setPositive().
 				setDescription("Controls the maximum validity period of an Access token (in seconds)."));
+		defaults.put(ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION, new PropertyMD("false").setDescription(
+				"If enabled public clients will be able to obtain and use refresh tokens. Refresh tokens issued to public clients will be always rotated after each use."));
 		defaults.put(MAX_EXTEND_ACCESS_TOKEN_VALIDITY, new PropertyMD().setInt().setPositive().
 				setDescription("If defined then Unity will extend lifetime of a previously issued access token"
 						+ " up to this time (so must be larger then " + ACCESS_TOKEN_VALIDITY + 

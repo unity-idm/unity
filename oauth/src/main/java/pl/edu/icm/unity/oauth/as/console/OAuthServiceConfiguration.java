@@ -48,6 +48,7 @@ public class OAuthServiceConfiguration
 	private int idTokenExpiration;
 	private int refreshTokenExpiration;
 	private RefreshTokenIssuePolicy refreshTokenIssuePolicy;
+	private boolean refreshTokenRotationForPublicClients;
 	private int codeTokenExpiration;
 	private int accessTokenExpiration;
 	private boolean openIDConnect;
@@ -102,6 +103,7 @@ public class OAuthServiceConfiguration
 		accessTokenFormat = AccessTokenFormat.PLAIN;
 		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
 		refreshTokenIssuePolicy = RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED;
+		setRefreshTokenRotationForPublicClients(false);
 	}
 
 	public String toProperties(MessageSource msg)
@@ -131,6 +133,8 @@ public class OAuthServiceConfiguration
 		{
 			raw.put(OAuthASProperties.P + OAuthASProperties.REFRESH_TOKEN_VALIDITY, String.valueOf(refreshTokenExpiration));
 		}
+		raw.put(OAuthASProperties.P + OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION, String.valueOf(isRefreshTokenRotationForPublicClients()));
+		
 		
 		if (credential != null)
 		{
@@ -257,6 +261,7 @@ public class OAuthServiceConfiguration
 		idTokenExpiration = oauthProperties.getIdTokenValidity();
 		refreshTokenExpiration = oauthProperties.getRefreshTokenValidity();
 		refreshTokenIssuePolicy = oauthProperties.getRefreshTokenIssuePolicy();
+		refreshTokenRotationForPublicClients = oauthProperties.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION);
 		codeTokenExpiration = oauthProperties.getCodeTokenValidity();
 		accessTokenExpiration = oauthProperties.getAccessTokenValidity();
 		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	
@@ -278,8 +283,6 @@ public class OAuthServiceConfiguration
 		signingSecret = oauthProperties.getValue(OAuthASProperties.SIGNING_SECRET);
 		credential = oauthProperties.getValue(OAuthASProperties.CREDENTIAL);
 		identityTypeForSubject = oauthProperties.getSubjectIdentityType();
-
-		//Set<String> scopeKeys = oauthProperties.getStructuredListKeys(OAuthASProperties.SCOPES);
 
 		scopes.clear();
 		scopeService.getScopes(oauthProperties).stream().forEach(s -> {
@@ -617,4 +620,14 @@ public class OAuthServiceConfiguration
 	{
 		this.refreshTokenIssuePolicy = refreshTokenIssuePolicy;
 	}
+
+	public boolean isRefreshTokenRotationForPublicClients()
+	{
+		return refreshTokenRotationForPublicClients;
+	}
+
+	public void setRefreshTokenRotationForPublicClients(boolean refreshTokenRotationForPublicClients)
+	{
+		this.refreshTokenRotationForPublicClients = refreshTokenRotationForPublicClients;
+	}	
 }

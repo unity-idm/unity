@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as;
+package pl.edu.icm.unity.oauth.as.token;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -14,6 +14,10 @@ import org.junit.Test;
 import com.nimbusds.jose.JWSAlgorithm;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.oauth.as.MockPKIMan;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.TokenSigner;
 
 public class TokenSignerTest
 {

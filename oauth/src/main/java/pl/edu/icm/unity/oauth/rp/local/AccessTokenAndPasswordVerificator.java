@@ -34,7 +34,7 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.rp.verificator.TokenStatus;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
@@ -48,7 +48,7 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 	public static final String NAME = "local-oauth-rp";
 	public static final String DESC = "Verifies local tokens";
 
-	private final OAuthTokenRepository tokensDAO;
+	private final OAuthAccessTokenRepository tokensDAO;
 	private final CredentialHelper credentialHelper;
 	private final PasswordVerificator.Factory passwordVerificatorFactory;
 
@@ -57,7 +57,7 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 	private LocalOAuthRPProperties verificatorProperties;
 
 	@Autowired
-	public AccessTokenAndPasswordVerificator(OAuthTokenRepository tokensDAO,
+	public AccessTokenAndPasswordVerificator(OAuthAccessTokenRepository tokensDAO,
 			PasswordVerificator.Factory passwordVerificator, CredentialHelper credentialHelper)
 	{
 		super(NAME, DESC, AccessTokenAndPasswordExchange.ID);

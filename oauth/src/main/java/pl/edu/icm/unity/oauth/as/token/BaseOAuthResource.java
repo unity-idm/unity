@@ -57,7 +57,7 @@ public class BaseOAuthResource
 		}
 	}
 	
-	protected JWT decodeIDToken(OAuthToken internalToken)
+	static JWT decodeIDToken(OAuthToken internalToken)
 	{
 		try
 		{

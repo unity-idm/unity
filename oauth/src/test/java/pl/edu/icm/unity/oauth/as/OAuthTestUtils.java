@@ -46,6 +46,7 @@ import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
@@ -82,7 +83,7 @@ public class OAuthTestUtils
 	
 	public static OAuthProcessor getOAuthProcessor(TokensManagement tokensMan)
 	{
-		return new OAuthProcessor(tokensMan, new OAuthTokenRepository(tokensMan, 
+		return new OAuthProcessor(tokensMan, new OAuthAccessTokenRepository(tokensMan, 
 				mock(SecuredTokensManagement.class)), mock(ApplicationEventPublisher.class), mock(MessageSource.class));
 	}
 	

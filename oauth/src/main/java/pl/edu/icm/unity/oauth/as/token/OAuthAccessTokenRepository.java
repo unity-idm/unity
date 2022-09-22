@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as;
+package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.Date;
 import java.util.List;
@@ -20,21 +20,21 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.oauth.as.token.BearerJWTAccessToken;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Built on top of generic token storage handles access to persisted OAuth tokens.
  */
 @Component
-public class OAuthTokenRepository
+public class OAuthAccessTokenRepository
 {
-	static final String INTERNAL_ACCESS_TOKEN = "oauth2Access";
+	public static final String INTERNAL_ACCESS_TOKEN = "oauth2Access";
 	private final TokensManagement tokensMan;
 	private final SecuredTokensManagement securedTokensManagement;
 	
 	@Autowired
-	public OAuthTokenRepository(TokensManagement tokensMan, SecuredTokensManagement securedTokensManagement)
+	public OAuthAccessTokenRepository(TokensManagement tokensMan, SecuredTokensManagement securedTokensManagement)
 	{
 		this.tokensMan = tokensMan;
 		this.securedTokensManagement = securedTokensManagement;
@@ -95,6 +95,25 @@ public class OAuthTokenRepository
 		} else
 		{
 			return token.getValue();
+		}
+	}
+
+	public void secureRemove(String value) throws EngineException
+	{
+		securedTokensManagement.removeToken(INTERNAL_ACCESS_TOKEN, value);
+		
+	}
+
+	public void removeOwnedByClient(long clientId, long userId) throws EngineException
+	{
+		List<Token> ownedTokens = tokensMan.getOwnedTokens(INTERNAL_ACCESS_TOKEN, new EntityParam(userId));
+		for (Token token : ownedTokens)
+		{
+			OAuthToken oauthToken = OAuthToken.getInstanceFromJson(token.getContents());
+			if (oauthToken.getClientId() == clientId)
+			{
+				tokensMan.removeToken(token.getType(), token.getValue());
+			}
 		}
 	}
 }

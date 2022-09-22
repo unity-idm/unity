@@ -12,7 +12,7 @@ import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
@@ -27,12 +27,12 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 class OAuthRPAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private MessageSource msg;
-	private OAuthTokenRepository tokenDAO;
+	private OAuthAccessTokenRepository tokenDAO;
 	private PKIManagement pkiMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;;
 
 	@Autowired
-	OAuthRPAuthenticatorEditorFactory(MessageSource msg, OAuthTokenRepository tokenDAO, PKIManagement pkiMan,
+	OAuthRPAuthenticatorEditorFactory(MessageSource msg, OAuthAccessTokenRepository tokenDAO, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;

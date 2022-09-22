@@ -37,7 +37,7 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -271,7 +271,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		Assert.assertEquals(200, response.getStatusCode());
 		
 		//remove
-		new OAuthTokenRepository(tokensMan, null).removeAccessToken(ac.getValue());
+		new OAuthAccessTokenRepository(tokensMan, null).removeAccessToken(ac.getValue());
 		
 		//test cached
 		HTTPResponse response2 = httpReq.send();
