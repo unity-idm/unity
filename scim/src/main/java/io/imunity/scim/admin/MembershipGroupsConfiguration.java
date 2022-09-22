@@ -5,17 +5,17 @@
 
 package io.imunity.scim.admin;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = MembershipGroupsConfiguration.Builder.class)
-class MembershipGroupsConfiguration
+public class MembershipGroupsConfiguration
 {
-	final Optional<List<String>> membershipGroups;
-	final Optional<List<String>> excludedMemberhipGroups;
+	public final List<String> membershipGroups;
+	public final List<String> excludedMemberhipGroups;
 
 	private MembershipGroupsConfiguration(Builder builder)
 	{
@@ -50,20 +50,20 @@ class MembershipGroupsConfiguration
 
 	public static final class Builder
 	{
-		private Optional<List<String>> membershipGroups = Optional.empty();
-		private Optional<List<String>> excludedMemberhipGroups = Optional.empty();
+		private List<String> membershipGroups = Collections.emptyList();
+		private List<String> excludedMemberhipGroups = Collections.emptyList();
 
 		private Builder()
 		{
 		}
 
-		public Builder withMembershipGroups(Optional<List<String>> membershipGroups)
+		public Builder withMembershipGroups(List<String> membershipGroups)
 		{
 			this.membershipGroups = membershipGroups;
 			return this;
 		}
 
-		public Builder withExcludedMemberhipGroups(Optional<List<String>> excludedMemberhipGroups)
+		public Builder withExcludedMemberhipGroups(List<String> excludedMemberhipGroups)
 		{
 			this.excludedMemberhipGroups = excludedMemberhipGroups;
 			return this;

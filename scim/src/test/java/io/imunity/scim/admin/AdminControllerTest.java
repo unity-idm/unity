@@ -5,17 +5,16 @@
 
 package io.imunity.scim.admin;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.CoreMatchers.is;
 
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.any;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,8 +57,8 @@ public class AdminControllerTest
 				.thenReturn(new Endpoint("endpoint", SCIMEndpoint.TYPE.getName(), "/scim", endpointConfiguration, 0));
 
 		controller.updateExposedGroups(
-				MembershipGroupsConfiguration.builder().withMembershipGroups(Optional.of(List.of("/membership")))
-						.withExcludedMemberhipGroups(Optional.of(List.of("/excluded"))).build());
+				MembershipGroupsConfiguration.builder().withMembershipGroups(List.of("/membership"))
+						.withExcludedMemberhipGroups(List.of("/excluded")).build());
 
 		ArgumentCaptor<EndpointConfiguration> configCaptor = ArgumentCaptor.forClass(EndpointConfiguration.class);
 		verify(endpointManagement).updateEndpoint(eq("scim"), configCaptor.capture());
@@ -88,8 +87,8 @@ public class AdminControllerTest
 				.thenReturn(new Endpoint("endpoint", SCIMEndpoint.TYPE.getName(), "/scim", endpointConfiguration, 0));
 
 		controller.updateExposedGroups(
-				MembershipGroupsConfiguration.builder().withMembershipGroups(Optional.of(List.of("/membership")))
-						.withExcludedMemberhipGroups(Optional.of(List.of("/excluded"))).build());
+				MembershipGroupsConfiguration.builder().withMembershipGroups(List.of("/membership"))
+						.withExcludedMemberhipGroups(List.of("/excluded")).build());
 
 		verify(endpointManagement, times(0)).updateEndpoint(eq("scim"), any());
 	}

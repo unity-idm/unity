@@ -103,4 +103,34 @@ If configuring the endpoint from file, the following options of the endpoint (be
 
 include::ref-scimEndpointProperties.txt[]
 
+==== Configuration API reference
+
+
+===== Get exposed groups
+
++@Path("/configuration/exposed-groups")+ +
++@GET+ +
+
+Get configuration of exposed groups
+
+Example output: 
+----
+{
+    "membershipGroups": [
+        "/A/B/C"
+    ],
+    "excludedMemberhipGroups": [
+        "/D/G"
+    ]
+}
+----
+
+===== Update exposed groups
+
++@Path("/configuration/exposed-groups")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Update configuration of exposed groups. The body has same format as 
+returned by the corresponding GET.
 

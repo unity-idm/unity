@@ -36,7 +36,7 @@ class AdminAuthzService
 		this.entityManagement = entityManagement;
 	}
 
-	void authorizeUpdateOfExposedGroups() throws EngineException
+	void authorizeReadOrUpdateOfExposedGroups() throws EngineException
 	{
 		if (configuration.restAdminGroup.isEmpty())
 		{

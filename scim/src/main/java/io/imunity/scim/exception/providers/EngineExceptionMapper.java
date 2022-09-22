@@ -4,6 +4,7 @@
  */
 package io.imunity.scim.exception.providers;
 
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -29,6 +30,9 @@ class EngineExceptionMapper implements ExceptionMapper<Exception>
 			return Response.status(Status.FORBIDDEN).entity(ErrorResponse.builder()
 					.withStatus(Status.FORBIDDEN.getStatusCode()).withDetail("Forbidden").build().toJsonString())
 					.type(MediaType.APPLICATION_JSON).build();
+		} else if (ex instanceof ClientErrorException)
+		{
+			return ((ClientErrorException) ex).getResponse();
 		} else
 		{
 			log.debug("Engine exception during SCIM API invocation", ex);
