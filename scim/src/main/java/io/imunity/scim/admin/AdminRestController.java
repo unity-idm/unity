@@ -6,10 +6,11 @@ package io.imunity.scim.admin;
 
 import java.io.IOException;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.logging.log4j.Logger;
@@ -45,12 +46,21 @@ public class AdminRestController implements SCIMRestController
 
 	@Path(CONFIGURATION_LOCATION + "/exposed-groups")
 	@PUT
-	public void setExposedGroups(@QueryParam("membershipGroupsConfiguration") String membershipGroupsConfiguration)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void setExposedGroups(String membershipGroupsConfiguration)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("setExposedGroups with groups config: " + membershipGroupsConfiguration);
 		MembershipGroupsConfiguration parsedMembershipGroupsConfig = parseGroups(membershipGroupsConfiguration);
 		controller.updateExposedGroups(parsedMembershipGroupsConfig);
+	}
+	
+	@Path(CONFIGURATION_LOCATION + "/exposed-groups")
+	@GET
+	public String getExposedGroups() throws EngineException, JsonProcessingException
+	{
+		String ret = Constants.MAPPER.writeValueAsString(controller.getExposedGroups());
+		return ret;
 	}
 
 	private MembershipGroupsConfiguration parseGroups(String groupsAsString) throws WrongArgumentException
