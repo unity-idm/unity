@@ -238,8 +238,6 @@ public class ComboInvitationParam extends InvitationParam
 
 	public static class Builder extends InvitationParam.Builder<Builder>
 	{
-//		private ComboInvitationParam instance;
-
 		public Builder()
 		{
 			super(new ComboInvitationParam());
