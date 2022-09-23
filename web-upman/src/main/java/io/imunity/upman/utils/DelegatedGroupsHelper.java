@@ -5,19 +5,18 @@
 
 package io.imunity.upman.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author P.Piernik
@@ -51,7 +50,7 @@ public class DelegatedGroupsHelper
 			try
 			{
 				con = delGroupMan.getContents(project, path);
-				groups.add(con.group.displayedName);
+				groups.add(con.group.displayedName.getValue(msg));
 			} catch (IllegalArgumentException e)
 			{
 				groups.add(msg.getMessage("DelegatedGroupsHelper.removedGroup"));

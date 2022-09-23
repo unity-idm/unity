@@ -21,6 +21,7 @@
 		<log4j.version>2.18.0</log4j.version>
 		<spring.version>5.3.22</spring.version>
 		<vaadin.version>8.14.3</vaadin.version>
+		<vaadin.version.new>23.2.0</vaadin.version.new>
 		<cxf.version>3.5.3</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
 		<bc.version>1.71</bc.version>
@@ -85,6 +86,8 @@
 		<module>web-attr-introspection</module>
 		<module>scim</module>
         <module>unity-rest-api</module>
+        <module>vaadin23-endpoint-common</module>
+        <module>vaadin23-elements</module>
     </modules>
 
 	<developers>
@@ -303,6 +306,23 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-bom</artifactId>
+				<version>${vaadin.version.new}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin.componentfactory</groupId>
+				<artifactId>tooltip</artifactId>
+				<version>2.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin.componentfactory</groupId>
+				<artifactId>idle-notification</artifactId>
+				<version>1.1.6</version>
+			</dependency>
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.12</version>
@@ -310,13 +330,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-engine</artifactId>
-				<version>${junit5.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-params</artifactId>
+				<artifactId>junit-jupiter</artifactId>
 				<version>${junit5.version}</version>
 				<scope>test</scope>
 			</dependency>
@@ -341,6 +355,12 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
+				<version>2.27.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-junit-jupiter</artifactId>
 				<version>2.27.0</version>
 				<scope>test</scope>
 			</dependency>
@@ -398,6 +418,16 @@
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>apache-jsp</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-webapp</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.websocket</groupId>
+				<artifactId>websocket-javax-server</artifactId>
 				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>
