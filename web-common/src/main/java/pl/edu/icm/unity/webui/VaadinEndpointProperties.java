@@ -4,20 +4,19 @@
  */
 package pl.edu.icm.unity.webui;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.Strings;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Generic settings for all Vaadin web-endpoints.
@@ -54,8 +53,8 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
 	public static final String SHOW_REGISTRATION_FORMS_IN_HEADER = "showRegistrationFormsInHeader";
 
-	public static final String AUTHN_SCREEN_MODE = "screenType";	
-	
+	public static final String AUTHN_SCREEN_MODE = "screenType";
+
 	public static final String AUTHN_LOGO = "authnScreenLogo";
 	public static final String AUTHN_TITLE = "authnScreenTitle";
 	public static final String AUTHN_SHOW_SEARCH = "authnScreenShowSearch";
@@ -192,7 +191,6 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 		META.put(CRED_RESET_COMPACT, new PropertyMD("true").
 				setDescription("Controls if credential reset UI and outdated credential UI should use separate captions (false), "
 						+ "or captions put as placeholders resembling authN UI (true)."));
-		
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
 		META.put(EXTERNAL_REGISTRATION_URL, new PropertyMD().

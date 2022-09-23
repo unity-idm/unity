@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2021 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+.usual-row {
+    background-color: inherit;
+}
+
+.light-red-row {
+    background-color: #ffe5e5;
+}
