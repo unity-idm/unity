@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.token.OAuthClientTokensCleaner;
 import pl.edu.icm.unity.oauth.as.token.access.TokenService.TokenServiceFactory;
 
 @Component

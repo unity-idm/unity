@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -126,7 +125,7 @@ class ExchangeTokenHandler
 		newToken.setAccessToken(accessToken.getValue());
 
 		RefreshToken refreshToken = refreshTokensDAO
-				.getRefreshToken(config, now, newToken, subToken.getOwner(), Optional.empty()).orElse(null);
+				.createRefreshToken(config, now, newToken, subToken.getOwner()).orElse(null);
 		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
 		Map<String, Object> additionalParams = new HashMap<>();

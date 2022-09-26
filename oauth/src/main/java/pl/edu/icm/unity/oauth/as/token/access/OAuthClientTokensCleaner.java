@@ -3,15 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
-import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 
 @Component
 public class OAuthClientTokensCleaner
