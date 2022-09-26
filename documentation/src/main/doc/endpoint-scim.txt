@@ -105,13 +105,16 @@ include::ref-scimEndpointProperties.txt[]
 
 ==== Configuration API reference
 
+Configuration of the SCIM endpoint can be partially managed using the REST interface of the SCIM endpoint. 
 
-===== Get exposed groups
+Note, that complete configuration of the endpoint can be also managed using the standard Unity REST administration interface, however this management is significantly more complex.   
+
+===== Get configuration of exposed groups
 
 +@Path("/configuration/exposed-groups")+ +
 +@GET+ +
 
-Get configuration of exposed groups
+Returns configuration of exposed groups.
 
 Example output: 
 ----
@@ -125,12 +128,11 @@ Example output:
 }
 ----
 
-===== Update exposed groups
+===== Update configuration of exposed groups
 
 +@Path("/configuration/exposed-groups")+ +
 +@PUT+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
-Update configuration of exposed groups. The body has same format as 
-returned by the corresponding GET.
+Update configuration of exposed groups. The body shall utilize the same format as returned by the corresponding GET request.
 
