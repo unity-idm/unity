@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.util.Date;
-import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -50,7 +49,7 @@ class AuthzCodeHandler
 	private final TransactionalRunner tx;
 	private final AccessTokenFactory accessTokenFactory;
 	private final OAuthAccessTokenRepository accessTokenDAO;
-	private final OAuthRefreshTokenRepository refreshTokenDAO;
+	private final OAuthRefreshTokenRepository refreshTokenRepository;
 	private final OAuthTokenStatisticPublisher statisticsPublisher;
 	private final TokenService tokenService;
 
@@ -60,7 +59,7 @@ class AuthzCodeHandler
 	{
 		this.tokensManagement = tokensManagement;
 		this.accessTokenDAO = accessTokenDAO;
-		this.refreshTokenDAO = refreshTokenDAO;
+		this.refreshTokenRepository = refreshTokenDAO;
 		this.config = config;
 		this.tx = tx;
 		this.accessTokenFactory = accesstokenFactory;
@@ -115,8 +114,8 @@ class AuthzCodeHandler
 		AccessToken accessToken = accessTokenFactory.create(internalToken, now, acceptHeader);
 		internalToken.setAccessToken(accessToken.getValue());
 
-		RefreshToken refreshToken = refreshTokenDAO
-				.getRefreshToken(config, now, internalToken, codeToken.getOwner(), Optional.empty()).orElse(null);
+		RefreshToken refreshToken = refreshTokenRepository
+				.createRefreshToken(config, now, internalToken, codeToken.getOwner()).orElse(null);
 
 		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 

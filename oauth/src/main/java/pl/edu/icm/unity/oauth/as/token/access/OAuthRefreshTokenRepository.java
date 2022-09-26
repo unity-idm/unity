@@ -68,8 +68,14 @@ public class OAuthRefreshTokenRepository
 		return tokensMan.getTokenById(INTERNAL_REFRESH_TOKEN, tokenValue);
 	}
 
-	public Optional<RefreshToken> getRefreshToken(OAuthASProperties config, Date now, OAuthToken newToken, Long owner,
-			Optional<String> oldRefreshToken) throws EngineException, JsonProcessingException
+	
+	public Optional<RefreshToken> createRefreshToken(OAuthASProperties config, Date now, OAuthToken newToken, Long owner) throws EngineException, JsonProcessingException
+	{
+	 return createRefreshToken(config, now, newToken, owner, null);
+	}
+	
+	private Optional<RefreshToken> createRefreshToken(OAuthASProperties config, Date now, OAuthToken newToken, Long owner,
+			String oldRefreshToken) throws EngineException, JsonProcessingException
 	{
 		if (newToken.getClientType().equals(ClientType.PUBLIC)
 				&& !config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION))
@@ -80,8 +86,13 @@ public class OAuthRefreshTokenRepository
 		if (refreshToken != null)
 		{
 			newToken.setRefreshToken(refreshToken.getValue());
-			oldRefreshToken.ifPresentOrElse(t -> newToken.setFirstRefreshRollingToken(t),
-					() -> newToken.setFirstRefreshRollingToken(refreshToken.getValue()));
+			if (oldRefreshToken == null)
+			{
+				newToken.setFirstRefreshRollingToken(refreshToken.getValue());
+			}else
+			{
+				newToken.setFirstRefreshRollingToken(oldRefreshToken);
+			}
 			Date refreshExpiration = getRefreshTokenExpiration(config, now);
 			log.info("Issuing new refresh token {}, valid until {}",
 					BaseOAuthResource.tokenToLog(refreshToken.getValue()), refreshExpiration);
@@ -92,18 +103,18 @@ public class OAuthRefreshTokenRepository
 		return Optional.ofNullable(refreshToken);
 	}
 
-	public Optional<RefreshToken> rollRefreshTokenIfNeeded(OAuthASProperties config, Date now, OAuthToken newToken,
+	public Optional<RefreshToken> rotateRefreshTokenIfNeeded(OAuthASProperties config, Date now, OAuthToken newToken,
 			OAuthToken oldRefreshToken, Long owner) throws EngineException, JsonProcessingException
 	{
 		if (config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION)
 				&& newToken.getClientType().equals(ClientType.PUBLIC))
 		{
-			log.info("Move refresh token {} to history", oldRefreshToken.getRefreshToken());
+			log.debug("Rotation refresh token {}", oldRefreshToken.getRefreshToken());
 			tokensMan.removeToken(INTERNAL_REFRESH_TOKEN, oldRefreshToken.getRefreshToken());
 			tokensMan.addToken(INTERNAL_USED_REFRESH_TOKEN, oldRefreshToken.getRefreshToken(), new EntityParam(owner),
 					oldRefreshToken.getSerialized(), now, null);
-			return getRefreshToken(config, now, newToken, owner,
-					Optional.of(oldRefreshToken.getFirstRefreshRollingToken()));
+			return createRefreshToken(config, now, newToken, owner,
+					oldRefreshToken.getFirstRefreshRollingToken());
 		}
 
 		return Optional.empty();

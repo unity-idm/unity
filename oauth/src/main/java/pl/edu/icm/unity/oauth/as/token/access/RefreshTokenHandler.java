@@ -28,7 +28,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
-import pl.edu.icm.unity.oauth.as.token.OAuthClientTokensCleaner;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -109,7 +108,7 @@ class RefreshTokenHandler
 		newToken.setAccessToken(accessToken.getValue());
 
 		RefreshToken rotatedRefreshToken = refreshTokensRepository
-				.rollRefreshTokenIfNeeded(config, now, newToken, parsedRefreshToken, refreshToken.getOwner())
+				.rotateRefreshTokenIfNeeded(config, now, newToken, parsedRefreshToken, refreshToken.getOwner())
 				.orElse(null);
 
 		AccessTokenResponse oauthResponse = tokenService.getAccessTokenResponse(newToken, accessToken, rotatedRefreshToken,
