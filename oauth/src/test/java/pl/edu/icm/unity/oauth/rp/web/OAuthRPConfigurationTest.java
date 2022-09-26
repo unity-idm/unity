@@ -13,7 +13,7 @@ import org.mockito.Mockito;
 import com.google.common.collect.ImmutableList;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 
 public class OAuthRPConfigurationTest
 {

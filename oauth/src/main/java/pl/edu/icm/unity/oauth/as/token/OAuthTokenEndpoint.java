@@ -33,11 +33,9 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
-import pl.edu.icm.unity.oauth.as.token.AuthzCodeHandler.AuthzCodeHandlerFactory;
-import pl.edu.icm.unity.oauth.as.token.CredentialFlowHandler.CredentialFlowHandlerFactory;
-import pl.edu.icm.unity.oauth.as.token.ExchangeTokenHandler.ExchangeTokenHandlerFactory;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenStatisticPublisher.OAuthTokenStatisticPublisherFactory;
-import pl.edu.icm.unity.oauth.as.token.RefreshTokenHandler.RefreshTokenHandlerFactory;
+import pl.edu.icm.unity.oauth.as.token.access.AccessTokenResourceFactory;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.exception.OAuthExceptionMapper;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
@@ -71,12 +69,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
 	private final OAuthScopesService scopeService;
-	private final AuthzCodeHandlerFactory authzCodeHandlerFactory;
-	private final RefreshTokenHandlerFactory refreshTokenHandlerFactory;
-	private final ExchangeTokenHandlerFactory exchangeTokenHandlerFactory;
-	private final CredentialFlowHandlerFactory credentialFlowHandlerFactory;
-	private final OAuthTokenStatisticPublisherFactory statisticPublisherFactory;
-	//insecure
+	private final AccessTokenResourceFactory accessTokenResourceFactory;
 	private final OAuthAccessTokenRepository accessTokenRepository;
 	private final OAuthRefreshTokenRepository refreshTokenRepository;
 	
@@ -88,22 +81,15 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			@Qualifier("insecure") IdPEngine idPEngine, TokensManagement tokensManagement,
 			OAuthAccessTokenRepository accessTokenRepository, OAuthRefreshTokenRepository refreshTokenRepository,
 			AdvertisedAddressProvider advertisedAddrProvider, OAuthScopesService scopeService,
-			AuthzCodeHandlerFactory authzCodeHandlerFactory, RefreshTokenHandlerFactory refreshTokenHandlerFactory,
-			ExchangeTokenHandlerFactory exchangeTokenHandlerFactory,
-			CredentialFlowHandlerFactory credentialFlowHandlerFactory,
-			OAuthTokenStatisticPublisherFactory statisticPublisherFactory)
+			AccessTokenResourceFactory accessTokenResourceFactory)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
-		this.statisticPublisherFactory = statisticPublisherFactory;
 		this.accessTokenRepository = accessTokenRepository;
 		this.refreshTokenRepository = refreshTokenRepository;
 		this.scopeService = scopeService;
-		this.authzCodeHandlerFactory = authzCodeHandlerFactory;
-		this.refreshTokenHandlerFactory = refreshTokenHandlerFactory;
-		this.exchangeTokenHandlerFactory = exchangeTokenHandlerFactory;
-		this.credentialFlowHandlerFactory = credentialFlowHandlerFactory;
+		this.accessTokenResourceFactory = accessTokenResourceFactory;
 	}
 	
 	@Override
@@ -132,11 +118,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		public Set<Object> getSingletons() 
 		{
 			HashSet<Object> ret = new HashSet<>();
-			ret.add(new AccessTokenResource(authzCodeHandlerFactory.getHandler(config, description),
-					refreshTokenHandlerFactory.getHandler(config),
-					exchangeTokenHandlerFactory.getHandler(config, description),
-					credentialFlowHandlerFactory.getHandler(config, description),
-					statisticPublisherFactory.getOAuthTokenStatisticPublisher(config, description)));
+			ret.add(accessTokenResourceFactory.getHandler(config, description));
 			ret.add(new DiscoveryResource(config, coordinator, scopeService));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(accessTokenRepository));

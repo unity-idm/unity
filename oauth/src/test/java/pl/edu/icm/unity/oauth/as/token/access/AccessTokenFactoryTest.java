@@ -2,10 +2,10 @@
  * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static pl.edu.icm.unity.oauth.as.token.AccessTokenFactory.JWT_AT_MEDIA_TYPE;
+import static pl.edu.icm.unity.oauth.as.token.access.AccessTokenFactory.JWT_AT_MEDIA_TYPE;
 
 import java.security.interfaces.ECPublicKey;
 import java.text.ParseException;
@@ -20,6 +20,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.oauth.as.MockPKIMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;

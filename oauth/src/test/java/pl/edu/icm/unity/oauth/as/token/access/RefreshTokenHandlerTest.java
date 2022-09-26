@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -41,6 +41,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.token.OAuthClientTokensCleaner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RefreshTokenHandlerTest
@@ -52,7 +53,7 @@ public class RefreshTokenHandlerTest
 	@Mock
 	private OAuthClientTokensCleaner tokenCleaner;
 	@Mock
-	private TokenUtils tokenUtils;
+	private TokenService tokenUtils;
 
 	@Test
 	public void shouldReturnErrorWhenTokenUsedAgain() throws JsonProcessingException, EngineException
@@ -114,8 +115,9 @@ public class RefreshTokenHandlerTest
 
 		OAuthToken oAuthToken2 = new OAuthToken(oAuthToken);
 
-		when(tokenUtils.prepareNewToken(any(), any(), any(), anyLong(), anyLong(), any(), anyBoolean(), any()))
+		when(tokenUtils.prepareNewTokenBasedOnOldToken(any(), any(), any(), anyLong(), anyLong(), any(), anyBoolean(), any()))
 				.thenReturn(oAuthToken2);
+	
 		when(tokenUtils.getAccessTokenResponse(any(), any(), any(), any()))
 				.thenReturn(new AccessTokenResponse(new Tokens(new BearerAccessToken(), null)));
 
@@ -128,7 +130,8 @@ public class RefreshTokenHandlerTest
 		ArgumentCaptor<RefreshToken> refreshToken = ArgumentCaptor.forClass(RefreshToken.class);
 
 		verify(tokenUtils).getAccessTokenResponse(eq(oAuthToken2), any(), refreshToken.capture(), isNull());
-
+		
+		
 		assertThat(refreshToken.getValue(), is(nullValue()));
 		assertThat(resp.getStatus(), is(200));
 	}
@@ -158,7 +161,7 @@ public class RefreshTokenHandlerTest
 
 		OAuthToken oAuthToken2 = new OAuthToken(oAuthToken);
 
-		when(tokenUtils.prepareNewToken(any(), any(), any(), anyLong(), anyLong(), any(), anyBoolean(), any()))
+		when(tokenUtils.prepareNewTokenBasedOnOldToken(any(), any(), any(), anyLong(), anyLong(), any(), anyBoolean(), any()))
 				.thenReturn(oAuthToken2);
 		when(tokenUtils.getAccessTokenResponse(any(), any(), any(), any()))
 				.thenReturn(new AccessTokenResponse(new Tokens(new BearerAccessToken(), null)));
@@ -201,7 +204,7 @@ public class RefreshTokenHandlerTest
 
 		OAuthToken oAuthToken2 = new OAuthToken(oAuthToken);
 
-		when(tokenUtils.prepareNewToken(any(), any(), any(), anyLong(), anyLong(), any(), anyBoolean(), any()))
+		when(tokenUtils.prepareNewTokenBasedOnOldToken(any(), any(), any(), anyLong(), anyLong(), any(), anyBoolean(), any()))
 				.thenReturn(oAuthToken2);
 		when(tokenUtils.getAccessTokenResponse(any(), any(), any(), any()))
 				.thenReturn(new AccessTokenResponse(new Tokens(new BearerAccessToken(), null)));

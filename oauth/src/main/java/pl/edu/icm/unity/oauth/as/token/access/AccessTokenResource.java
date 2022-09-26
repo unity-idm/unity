@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
@@ -20,6 +20,8 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 
 /**
  * RESTful implementation of the access token resource.

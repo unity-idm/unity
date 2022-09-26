@@ -11,8 +11,8 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
-import pl.edu.icm.unity.oauth.as.token.OAuthRefreshTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.webui.providers.AdminUITabProvider;
 
 /**

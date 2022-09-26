@@ -2,7 +2,7 @@
  * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.util.Date;
 import java.util.Optional;
@@ -10,8 +10,6 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -33,11 +31,10 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthToken.PKCSInfo;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenStatisticPublisher.OAuthTokenStatisticPublisherFactory;
-import pl.edu.icm.unity.oauth.as.token.TokenUtils.TokenUtilsFactory;
+import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
+import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * Handles the fundamental OAuth authz code flow, from the perspective of the
@@ -55,11 +52,11 @@ class AuthzCodeHandler
 	private final OAuthAccessTokenRepository accessTokenDAO;
 	private final OAuthRefreshTokenRepository refreshTokenDAO;
 	private final OAuthTokenStatisticPublisher statisticsPublisher;
-	private final TokenUtils tokenUtils;
+	private final TokenService tokenService;
 
 	AuthzCodeHandler(TokensManagement tokensManagement, OAuthAccessTokenRepository accessTokenDAO,
 			OAuthRefreshTokenRepository refreshTokenDAO, TransactionalRunner tx, AccessTokenFactory accesstokenFactory,
-			OAuthTokenStatisticPublisher statisticsPublisher, TokenUtils tokenUtils, OAuthASProperties config)
+			OAuthTokenStatisticPublisher statisticsPublisher, OAuthASProperties config, TokenService tokenService)
 	{
 		this.tokensManagement = tokensManagement;
 		this.accessTokenDAO = accessTokenDAO;
@@ -68,7 +65,7 @@ class AuthzCodeHandler
 		this.tx = tx;
 		this.accessTokenFactory = accesstokenFactory;
 		this.statisticsPublisher = statisticsPublisher;
-		this.tokenUtils = tokenUtils;
+		this.tokenService = tokenService;
 	}
 
 	Response handleAuthzCodeFlow(String code, String redirectUri, String codeVerifier, String acceptHeader)
@@ -121,9 +118,9 @@ class AuthzCodeHandler
 		RefreshToken refreshToken = refreshTokenDAO
 				.getRefreshToken(config, now, internalToken, codeToken.getOwner(), Optional.empty()).orElse(null);
 
-		Date accessExpiration = tokenUtils.getAccessTokenExpiration(config, now);
+		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
-		AccessTokenResponse oauthResponse = tokenUtils.getAccessTokenResponse(internalToken, accessToken, refreshToken,
+		AccessTokenResponse oauthResponse = tokenService.getAccessTokenResponse(internalToken, accessToken, refreshToken,
 				null);
 		log.info("Authz code grant: issuing new access token {}, valid until {}",
 				BaseOAuthResource.tokenToLog(accessToken.getValue()), accessExpiration);
@@ -212,40 +209,6 @@ class AuthzCodeHandler
 			this.codeToken = codeToken;
 			this.parsedAuthzCodeToken = parsedAuthzCodeToken;
 		}
-	}
-
-	@Component
-	static class AuthzCodeHandlerFactory
-	{
-		private final TokensManagement tokensManagement;
-		private final TransactionalRunner tx;
-		private final OAuthAccessTokenRepository accessTokenDAO;
-		private final OAuthRefreshTokenRepository refreshTokenDAO;
-		private final TokenUtilsFactory tokenUtilsFactory;
-		private final OAuthTokenStatisticPublisherFactory statisticPublisherFactory;
-
-		@Autowired
-		AuthzCodeHandlerFactory(TokensManagement tokensManagement, TransactionalRunner tx,
-				OAuthAccessTokenRepository accessTokenDAO, OAuthRefreshTokenRepository refreshTokenDAO,
-				TokenUtilsFactory tokenUtilsFactory, OAuthTokenStatisticPublisherFactory statisticPublisherFactory)
-		{
-
-			this.tokensManagement = tokensManagement;
-			this.tx = tx;
-			this.accessTokenDAO = accessTokenDAO;
-			this.refreshTokenDAO = refreshTokenDAO;
-			this.tokenUtilsFactory = tokenUtilsFactory;
-			this.statisticPublisherFactory = statisticPublisherFactory;
-		}
-
-		AuthzCodeHandler getHandler(OAuthASProperties config, ResolvedEndpoint endpoint)
-		{
-			return new AuthzCodeHandler(tokensManagement, accessTokenDAO, refreshTokenDAO, tx,
-					new AccessTokenFactory(config),
-					statisticPublisherFactory.getOAuthTokenStatisticPublisher(config, endpoint),
-					tokenUtilsFactory.getTokenUtils(config), config);
-		}
-
 	}
 
 }

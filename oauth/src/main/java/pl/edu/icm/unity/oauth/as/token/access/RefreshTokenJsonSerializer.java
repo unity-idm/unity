@@ -1,23 +1,22 @@
-/*
+/**
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.utils.json.TokenWithJsonContentsSerializer;
 
 /**
- * Map access token contents to JsonNode
+ * Map refresh token contents to JsonNode
  * @author P.Piernik
- *
  */
 @Component
-class AccessTokenJsonSerializer extends TokenWithJsonContentsSerializer
+public class RefreshTokenJsonSerializer extends TokenWithJsonContentsSerializer
 {
-	AccessTokenJsonSerializer()
+	public RefreshTokenJsonSerializer()
 	{
-		super(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN, "Access token JSON formatter");
+		super(OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN, "Refresh token JSON formatter");
 	}
 }

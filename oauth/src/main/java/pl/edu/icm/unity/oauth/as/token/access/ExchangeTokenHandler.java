@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -13,9 +13,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.ws.rs.core.Response;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -33,14 +30,12 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenStatisticPublisher.OAuthTokenStatisticPublisherFactory;
-import pl.edu.icm.unity.oauth.as.token.TokenUtils.TokenUtilsFactory;
+import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
+import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 class ExchangeTokenHandler
 {
@@ -49,24 +44,26 @@ class ExchangeTokenHandler
 	private final OAuthRefreshTokenRepository refreshTokensDAO;
 	private final AccessTokenFactory accessTokenFactory;
 	private final OAuthAccessTokenRepository accessTokensDAO;
-	private final TokenUtils tokenUtils;
+	private final TokenService tokenService;
+	private final ClientAttributesProvider clientAttributesProvider;
 	private final OAuthTokenStatisticPublisher statisticPublisher;
 	private final OAuthRequestValidator requestValidator;
 	private final EntityManagement idMan;
 
 	public ExchangeTokenHandler(OAuthASProperties config, OAuthRefreshTokenRepository refreshTokensDAO,
-			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO, TokenUtils tokenUtils,
+			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO, TokenService tokenService,
 			OAuthTokenStatisticPublisher statisticPublisher, OAuthRequestValidator requestValidator,
-			EntityManagement idMan)
+			EntityManagement idMan, ClientAttributesProvider clientAttributesProvider)
 	{
 		this.config = config;
 		this.refreshTokensDAO = refreshTokensDAO;
 		this.accessTokenFactory = accessTokenFactory;
 		this.accessTokensDAO = accessTokensDAO;
-		this.tokenUtils = tokenUtils;
+		this.tokenService = tokenService;
 		this.statisticPublisher = statisticPublisher;
 		this.requestValidator = requestValidator;
 		this.idMan = idMan;
+		this.clientAttributesProvider = clientAttributesProvider;
 	}
 
 	Response handleExchangeToken(String subjectToken, String subjectTokenType, String requestedTokenType,
@@ -102,7 +99,7 @@ class ExchangeTokenHandler
 		OAuthToken newToken = null;
 		try
 		{
-			newToken = tokenUtils.prepareNewToken(parsedSubjectToken, scope, oldRequestedScopesList,
+			newToken = tokenService.prepareNewTokenBasedOnOldToken(parsedSubjectToken, scope, oldRequestedScopesList,
 					subToken.getOwner(), callerEntityId, audience,
 					requestedTokenType != null && requestedTokenType.equals(AccessTokenResource.ID_TOKEN_TYPE_ID),
 					GrantType.TOKEN_EXCHANGE.getValue());
@@ -118,7 +115,7 @@ class ExchangeTokenHandler
 
 		try
 		{
-			newToken.setClientName(tokenUtils.getClientName(audienceEntity));
+			newToken.setClientName(clientAttributesProvider.getClientName(audienceEntity));
 		} catch (OAuthErrorException e)
 		{
 			return e.response;
@@ -130,12 +127,12 @@ class ExchangeTokenHandler
 
 		RefreshToken refreshToken = refreshTokensDAO
 				.getRefreshToken(config, now, newToken, subToken.getOwner(), Optional.empty()).orElse(null);
-		Date accessExpiration = tokenUtils.getAccessTokenExpiration(config, now);
+		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
 		Map<String, Object> additionalParams = new HashMap<>();
 		additionalParams.put("issued_token_type", AccessTokenResource.ACCESS_TOKEN_TYPE_ID);
 
-		AccessTokenResponse oauthResponse = tokenUtils.getAccessTokenResponse(newToken, accessToken, refreshToken,
+		AccessTokenResponse oauthResponse = tokenService.getAccessTokenResponse(newToken, accessToken, refreshToken,
 				additionalParams);
 		accessTokensDAO.storeAccessToken(accessToken, newToken, new EntityParam(subToken.getOwner()), now,
 				accessExpiration);
@@ -188,40 +185,5 @@ class ExchangeTokenHandler
 			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE,
 					"Orginal token must have  " + AccessTokenResource.EXCHANGE_SCOPE + " scope"));
 		}
-	}
-
-	@Component
-	static class ExchangeTokenHandlerFactory
-	{
-		private final OAuthRefreshTokenRepository refreshTokensDAO;
-		private final OAuthAccessTokenRepository accessTokensDAO;
-		private final TokenUtilsFactory tokenUtilsFactory;
-		private final OAuthTokenStatisticPublisherFactory statisticPublisherFactory;
-		private final OAuthRequestValidatorFactory requestValidatorFactory;
-		private final EntityManagement idMan;
-
-		@Autowired
-		ExchangeTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO,
-				OAuthAccessTokenRepository accessTokensDAO, TokenUtilsFactory tokenUtilsFactory,
-				OAuthTokenStatisticPublisherFactory statisticPublisherFactory,
-				OAuthRequestValidatorFactory requestValidatorFactory, EntityManagement idMan)
-		{
-
-			this.refreshTokensDAO = refreshTokensDAO;
-			this.accessTokensDAO = accessTokensDAO;
-			this.tokenUtilsFactory = tokenUtilsFactory;
-			this.statisticPublisherFactory = statisticPublisherFactory;
-			this.requestValidatorFactory = requestValidatorFactory;
-			this.idMan = idMan;
-		}
-
-		ExchangeTokenHandler getHandler(OAuthASProperties config, ResolvedEndpoint endpoint)
-		{
-			return new ExchangeTokenHandler(config, refreshTokensDAO, new AccessTokenFactory(config), accessTokensDAO,
-					tokenUtilsFactory.getTokenUtils(config),
-					statisticPublisherFactory.getOAuthTokenStatisticPublisher(config, endpoint),
-					requestValidatorFactory.getOAuthRequestValidator(config), idMan);
-		}
-
 	}
 }

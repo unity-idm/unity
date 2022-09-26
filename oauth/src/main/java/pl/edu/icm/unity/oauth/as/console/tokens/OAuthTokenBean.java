@@ -16,7 +16,7 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.BearerJWTAccessToken;
-import pl.edu.icm.unity.oauth.as.token.OAuthRefreshTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 class OAuthTokenBean implements FilterableEntry
