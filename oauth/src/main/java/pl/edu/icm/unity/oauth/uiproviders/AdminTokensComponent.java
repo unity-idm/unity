@@ -27,8 +27,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository;
-import pl.edu.icm.unity.oauth.as.token.OAuthRefreshTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
@@ -196,10 +196,10 @@ class AdminTokensComponent extends VerticalLayout
 		{
 			if (OAuthRefreshTokenRepository.isRefreshToken(token))
 			{
-				refreshTokenDAO.secureRemove(token.getValue());
+				refreshTokenDAO.removeWithAuthorization(token.getValue());
 			}else
 			{
-				accessTokenDAO.secureRemove(token.getValue());
+				accessTokenDAO.removeWithAuthorization(token.getValue());
 			}
 			refresh();
 			return true;

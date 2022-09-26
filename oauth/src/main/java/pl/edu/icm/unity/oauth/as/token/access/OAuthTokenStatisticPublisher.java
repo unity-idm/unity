@@ -3,17 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 
 import io.imunity.idp.AccessProtocol;
 import io.imunity.idp.ApplicationId;
@@ -29,7 +26,6 @@ import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -40,7 +36,7 @@ import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
-class OAuthTokenStatisticPublisher
+public class OAuthTokenStatisticPublisher
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthTokenStatisticPublisher.class);
 
@@ -182,43 +178,5 @@ class OAuthTokenStatisticPublisher
 			log.error("Can not get relateed OAauth authz endpoint for token endpoint " + endpoint.getName(), e);
 			return endpoint.getEndpoint();
 		}
-	}
-
-	@Component
-	static class OAuthTokenStatisticPublisherFactory
-	{
-
-		private final ApplicationEventPublisher eventPublisher;
-		private final MessageSource msg;
-		private final EntityManagement idMan;
-		private final OAuthRequestValidatorFactory requestValidatorFactory;
-		private final EndpointManagement endpointMan;
-		private final LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement;
-		private final AttributesManagement unsecureAttributesMan;
-
-		@Autowired
-		OAuthTokenStatisticPublisherFactory(ApplicationEventPublisher eventPublisher, MessageSource msg,
-				@Qualifier("insecure") EntityManagement idMan, OAuthRequestValidatorFactory requestValidator,
-				@Qualifier("insecure") EndpointManagement endpointMan,
-				LastIdPClinetAccessAttributeManagement lastIdPClinetAccessAttributeManagement,
-				@Qualifier("insecure") AttributesManagement unsecureAttributesMan)
-		{
-			this.eventPublisher = eventPublisher;
-			this.msg = msg;
-			this.idMan = idMan;
-			this.requestValidatorFactory = requestValidator;
-			this.endpointMan = endpointMan;
-			this.lastIdPClinetAccessAttributeManagement = lastIdPClinetAccessAttributeManagement;
-			this.unsecureAttributesMan = unsecureAttributesMan;
-		}
-
-		OAuthTokenStatisticPublisher getOAuthTokenStatisticPublisher(OAuthASProperties oauthConfig,
-				ResolvedEndpoint endpoint)
-		{
-			return new OAuthTokenStatisticPublisher(eventPublisher, msg, idMan,
-					requestValidatorFactory.getOAuthRequestValidator(oauthConfig), endpointMan,
-					lastIdPClinetAccessAttributeManagement, unsecureAttributesMan, oauthConfig, endpoint);
-		}
-
 	}
 }

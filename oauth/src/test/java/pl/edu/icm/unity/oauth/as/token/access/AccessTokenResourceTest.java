@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -279,17 +279,18 @@ public class AccessTokenResourceTest
 		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement, 
 				mock(SecuredTokensManagement.class));
 		
-		TokenUtils tokenUtils = new TokenUtils(null, config, null);
+		ClientAttributesProvider clientAttributesProvider = new ClientAttributesProvider(null);
+		TokenService tokenUtils = new TokenService(null, config, null, clientAttributesProvider);
 		OAuthTokenStatisticPublisher publisher = new OAuthTokenStatisticPublisher(mock(ApplicationEventPublisher.class),
 				null, null, null, null, mock(LastIdPClinetAccessAttributeManagement.class), null, config,
 				OAuthTestUtils.getEndpoint());
 
 		AuthzCodeHandler authzCodeHandler = new AuthzCodeHandler(tokensManagement, accessTokenRepository,
-				refreshTokenRepository, tx, new AccessTokenFactory(config), publisher, tokenUtils, config);
+				refreshTokenRepository, tx, new AccessTokenFactory(config), publisher, config, tokenUtils);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokenRepository, null,
 				accessTokenRepository, null, null);
 		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, refreshTokenRepository, null,
-				accessTokenRepository, null, null, null, null);
+				accessTokenRepository, null, null, null, null, null);
 		CredentialFlowHandler credentialFlowHandler = new CredentialFlowHandler(config, null, null, null,
 				accessTokenRepository, null);
 		

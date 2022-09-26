@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -13,8 +13,6 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -29,7 +27,9 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.token.TokenUtils.TokenUtilsFactory;
+import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
+import pl.edu.icm.unity.oauth.as.token.OAuthClientTokensCleaner;
+import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 class RefreshTokenHandler
@@ -41,19 +41,18 @@ class RefreshTokenHandler
 	private final AccessTokenFactory accessTokenFactory;
 	private final OAuthAccessTokenRepository accessTokensRepository;
 	private final OAuthClientTokensCleaner tokenCleaner;
-	private final TokenUtils tokenUtils;
+	private final TokenService tokenService;
 
 	RefreshTokenHandler(OAuthASProperties config, OAuthRefreshTokenRepository refreshTokensDAO,
 			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO,
-			OAuthClientTokensCleaner tokenCleaner, TokenUtils tokenUtils)
+			OAuthClientTokensCleaner tokenCleaner, TokenService tokenService)
 	{
-
 		this.config = config;
 		this.refreshTokensRepository = refreshTokensDAO;
 		this.accessTokenFactory = accessTokenFactory;
 		this.accessTokensRepository = accessTokensDAO;
 		this.tokenCleaner = tokenCleaner;
-		this.tokenUtils = tokenUtils;
+		this.tokenService = tokenService;
 	}
 
 	Response handleRefreshTokenGrant(String refToken, String scope, String acceptHeader)
@@ -95,7 +94,7 @@ class RefreshTokenHandler
 
 		try
 		{
-			newToken = tokenUtils.prepareNewToken(parsedRefreshToken, scope, oldRequestedScopesList,
+			newToken = tokenService.prepareNewTokenBasedOnOldToken(parsedRefreshToken, scope, oldRequestedScopesList,
 					refreshToken.getOwner(), callerEntityId, parsedRefreshToken.getClientUsername(), true,
 					GrantType.REFRESH_TOKEN.getValue());
 		} catch (OAuthErrorException e)
@@ -104,7 +103,7 @@ class RefreshTokenHandler
 		}
 
 		Date now = new Date();
-		Date accessExpiration = tokenUtils.getAccessTokenExpiration(config, now);
+		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
 		AccessToken accessToken = accessTokenFactory.create(newToken, now, acceptHeader);
 		newToken.setAccessToken(accessToken.getValue());
@@ -113,7 +112,7 @@ class RefreshTokenHandler
 				.rollRefreshTokenIfNeeded(config, now, newToken, parsedRefreshToken, refreshToken.getOwner())
 				.orElse(null);
 
-		AccessTokenResponse oauthResponse = tokenUtils.getAccessTokenResponse(newToken, accessToken, rotatedRefreshToken,
+		AccessTokenResponse oauthResponse = tokenService.getAccessTokenResponse(newToken, accessToken, rotatedRefreshToken,
 				null);
 		log.info("Refreshed access token {} of entity {}, valid until {}",
 				BaseOAuthResource.tokenToLog(accessToken.getValue()), refreshToken.getOwner(), accessExpiration);
@@ -134,7 +133,6 @@ class RefreshTokenHandler
 		return Optional.empty();
 	}
 	
-	
 	private void clearTokensForClient(Token usedRefreshToken)
 	{
 		OAuthToken oldRefreshToken = OAuthToken.getInstanceFromJson(usedRefreshToken.getContents());
@@ -145,32 +143,6 @@ class RefreshTokenHandler
 				oldRefreshToken.getClientId(), oldRefreshToken.getClientName());
 		
 		
-	}
-	@Component
-	static class RefreshTokenHandlerFactory
-	{
-		private final OAuthRefreshTokenRepository refreshTokensDAO;
-		private final OAuthAccessTokenRepository accessTokensDAO;
-		private final OAuthClientTokensCleaner tokenCleaner;
-		private final TokenUtilsFactory tokenUtilsFactory;
-
-		@Autowired
-		RefreshTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO,
-				OAuthAccessTokenRepository accessTokensDAO, OAuthClientTokensCleaner tokenCleaner,
-				TokenUtilsFactory tokenUtilsFactory)
-		{
-			this.refreshTokensDAO = refreshTokensDAO;
-			this.accessTokensDAO = accessTokensDAO;
-			this.tokenCleaner = tokenCleaner;
-			this.tokenUtilsFactory = tokenUtilsFactory;
-		}
-
-		RefreshTokenHandler getHandler(OAuthASProperties config)
-		{
-			return new RefreshTokenHandler(config, refreshTokensDAO, new AccessTokenFactory(config), accessTokensDAO,
-					tokenCleaner, tokenUtilsFactory.getTokenUtils(config));
-		}
-
 	}
 
 }

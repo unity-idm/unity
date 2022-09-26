@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 
 @Component
 public class OAuthClientTokensCleaner

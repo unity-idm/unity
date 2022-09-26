@@ -8,7 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static pl.edu.icm.unity.oauth.as.token.OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN;
+import static pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN;
 
 import java.util.Date;
 
@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 
 public class UserInfoResourceTest
 {

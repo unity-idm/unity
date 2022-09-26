@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.util.Date;
 import java.util.List;
@@ -21,6 +21,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.token.BearerJWTAccessToken;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
@@ -98,7 +99,7 @@ public class OAuthAccessTokenRepository
 		}
 	}
 
-	public void secureRemove(String value) throws EngineException
+	public void removeWithAuthorization(String value) throws EngineException
 	{
 		securedTokensManagement.removeToken(INTERNAL_ACCESS_TOKEN, value);
 		

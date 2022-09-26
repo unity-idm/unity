@@ -25,6 +25,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.BaseTokenResource.TokensPair;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 
 /**
  * Implementation of RFC 7662 - OAuth 2.0 Token Introspection. 
@@ -37,15 +39,15 @@ import pl.edu.icm.unity.oauth.as.token.BaseTokenResource.TokensPair;
 public class TokenIntrospectionResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TokenIntrospectionResource.class);
-	private final OAuthAccessTokenRepository accessTokenDAO;
-	private final OAuthRefreshTokenRepository refreshTokenDAO;
+	private final OAuthAccessTokenRepository accessTokenRespository;
+	private final OAuthRefreshTokenRepository refreshTokenRepository;
 
 	
 	public TokenIntrospectionResource(OAuthAccessTokenRepository tokenDAO, 
 			OAuthRefreshTokenRepository refreshTokenDAO)
 	{
-		this.accessTokenDAO = tokenDAO;
-		this.refreshTokenDAO = refreshTokenDAO;
+		this.accessTokenRespository = tokenDAO;
+		this.refreshTokenRepository = refreshTokenDAO;
 	}
 
 	@Path("/")
@@ -76,14 +78,14 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 	{
 		try
 		{
-			Token rawToken = accessTokenDAO.readAccessToken(token);
+			Token rawToken = accessTokenRespository.readAccessToken(token);
 			OAuthToken parsedAccessToken = parseInternalToken(rawToken);
 			return Optional.of(new TokensPair(rawToken, parsedAccessToken));
 		} catch (IllegalArgumentException e)
 		{
 			try
 			{
-				Token rawToken = refreshTokenDAO.readRefreshToken(token);
+				Token rawToken = refreshTokenRepository.readRefreshToken(token);
 				OAuthToken parsedAccessToken = parseInternalToken(rawToken);
 				return Optional.of(new TokensPair(rawToken, parsedAccessToken));
 			} catch (IllegalArgumentException e2)

@@ -261,7 +261,10 @@ public class OAuthServiceConfiguration
 		idTokenExpiration = oauthProperties.getIdTokenValidity();
 		refreshTokenExpiration = oauthProperties.getRefreshTokenValidity();
 		refreshTokenIssuePolicy = oauthProperties.getRefreshTokenIssuePolicy();
-		refreshTokenRotationForPublicClients = oauthProperties.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION);
+		if (oauthProperties.isSet(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION))
+		{
+			refreshTokenRotationForPublicClients = oauthProperties.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION);
+		}
 		codeTokenExpiration = oauthProperties.getCodeTokenValidity();
 		accessTokenExpiration = oauthProperties.getAccessTokenValidity();
 		skipConsentScreen = oauthProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);	

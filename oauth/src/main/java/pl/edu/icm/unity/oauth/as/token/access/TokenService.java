@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -52,33 +51,37 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
-import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
+import pl.edu.icm.unity.oauth.as.OAuthScope;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
+import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
+import pl.edu.icm.unity.oauth.as.token.access.ClientAttributesProvider.ClientAttributesProviderFactory;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
-public class TokenUtils
+class TokenService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TokenUtils.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TokenService.class);
 
 	private final OAuthRequestValidator requestValidator;
 	private final OAuthASProperties config;
 	private final OAuthIdPEngine notAuthorizedOauthIdpEngine;
+	private final ClientAttributesProvider clientAttributesProvider;
 
-	public TokenUtils(OAuthRequestValidator requestValidator, OAuthASProperties config,
-			OAuthIdPEngine notAuthorizedOauthIdpEngine)
+	TokenService(OAuthRequestValidator requestValidator, OAuthASProperties config,
+			OAuthIdPEngine notAuthorizedOauthIdpEngine, ClientAttributesProvider clientAttributesProvider)
 	{
 		this.requestValidator = requestValidator;
 		this.config = config;
 		this.notAuthorizedOauthIdpEngine = notAuthorizedOauthIdpEngine;
+		this.clientAttributesProvider = clientAttributesProvider;
 	}
 
-	OAuthToken prepareNewToken(OAuthToken oldToken, String scope, List<String> oldRequestedScopesList, long ownerId,
-			long clientId, String clientUserName, boolean createIdToken, String grant) throws OAuthErrorException
+	OAuthToken prepareNewTokenBasedOnOldToken(OAuthToken oldToken, String scope, List<String> oldRequestedScopesList,
+			long ownerId, long clientId, String clientUserName, boolean createIdToken, String grant)
+			throws OAuthErrorException
 	{
 		OAuthToken newToken = new OAuthToken(oldToken);
 
@@ -98,7 +101,8 @@ public class TokenUtils
 		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
 
 		List<OAuthScope> newValidRequestedScopes = requestValidator.getValidRequestedScopes(
-				getClientAttributes(new EntityParam(clientId)), Scope.parse(String.join(" ", newRequestedScopeList)));
+				clientAttributesProvider.getClientAttributes(new EntityParam(clientId)),
+				Scope.parse(String.join(" ", newRequestedScopeList)));
 		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.name).toArray(String[]::new));
 
 		UserInfo userInfoClaimSet = createUserInfo(newValidRequestedScopes, newToken.getSubject(), userInfoRes);
@@ -133,6 +137,16 @@ public class TokenUtils
 
 		return newToken;
 	}
+	
+	AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken, AccessToken accessToken,
+			RefreshToken refreshToken, Map<String, Object> additionalParams)
+	{
+		JWT signedJWT = TokenUtils.decodeIDToken(internalToken);
+		AccessTokenResponse oauthResponse = signedJWT == null
+				? new AccessTokenResponse(new Tokens(accessToken, refreshToken), additionalParams)
+				: new OIDCTokenResponse(new OIDCTokens(signedJWT, accessToken, refreshToken), additionalParams);
+		return oauthResponse;
+	}
 
 	private TranslationResult getAttributes(long clientId, long ownerId, String grant) throws OAuthErrorException
 	{
@@ -159,17 +173,6 @@ public class TokenUtils
 			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.SERVER_ERROR, e.getMessage()));
 		}
 		return userInfoRes;
-	}
-
-	private Map<String, AttributeExt> getClientAttributes(EntityParam entity) throws OAuthErrorException
-	{
-		try
-		{
-			return requestValidator.getAttributesNoAuthZ(entity);
-		} catch (Exception e)
-		{
-			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.SERVER_ERROR, e.getMessage()));
-		}
 	}
 
 	private UserInfo createUserInfo(List<OAuthScope> validScopes, String userIdentity, TranslationResult userInfoRes)
@@ -199,7 +202,7 @@ public class TokenUtils
 			throw new InternalException("Can not parse the internal id token", e);
 		}
 		IDTokenClaimsSet newClaims = new IDTokenClaimsSet(new Issuer(config.getIssuerName()),
-				new Subject(token.getSubject()), audience, getAccessTokenExpiration(config, now), now);
+				new Subject(token.getSubject()), audience, TokenUtils.getAccessTokenExpiration(config, now), now);
 		newClaims.setNonce(oldClaims.getNonce());
 
 		ResponseType responseType = null;
@@ -212,70 +215,30 @@ public class TokenUtils
 
 		return config.getTokenSigner().sign(newClaims).serialize();
 	}
-	
-	String getClientName(EntityParam entity) throws OAuthErrorException
-	{
-		Map<String, AttributeExt> attributes = getClientAttributes(entity);
-		AttributeExt nameA = attributes.get(OAuthSystemAttributesProvider.CLIENT_NAME);
-		if (nameA != null)
-			return ((String) nameA.getValues().get(0));
-		else
-			return null;
-	}
 
-	
-	Date getAccessTokenExpiration(OAuthASProperties config, Date now)
-	{
-		int accessTokenValidity = config.getAccessTokenValidity();
-		
-		return new Date(now.getTime() + accessTokenValidity * 1000);
-	}
-	
-	AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken,
-			AccessToken accessToken, RefreshToken refreshToken,
-			Map<String, Object> additionalParams)
-	{
-		JWT signedJWT = decodeIDToken(internalToken);
-		AccessTokenResponse oauthResponse = signedJWT == null
-				? new AccessTokenResponse(new Tokens(accessToken, refreshToken),
-						additionalParams)
-				: new OIDCTokenResponse(new OIDCTokens(signedJWT, accessToken,
-						refreshToken), additionalParams);
-		return oauthResponse;
-	}
-	
-	private JWT decodeIDToken(OAuthToken internalToken)
-	{
-		try
-		{
-			return internalToken.getOpenidInfo() == null ? null : 
-				SignedJWT.parse(internalToken.getOpenidInfo());
-		} catch (java.text.ParseException e)
-		{
-			throw new InternalException("Can not parse the internal id token", e);
-		}
-	}
-	
-	
 	@Component
-	public static class TokenUtilsFactory
+	public static class TokenServiceFactory
 	{
 		private final OAuthRequestValidatorFactory requestValidatorFactory;
 		private final IdPEngine idPEngine;
-		
+		private final ClientAttributesProviderFactory clientAttributesProviderFactory;
+
 		@Autowired
-		public TokenUtilsFactory(OAuthRequestValidatorFactory requestValidatorFactory, @Qualifier("insecure")  IdPEngine idPEngine)
+		public TokenServiceFactory(OAuthRequestValidatorFactory requestValidatorFactory,
+				@Qualifier("insecure") IdPEngine idPEngine,
+				ClientAttributesProviderFactory clientAttributesProviderFactory)
 		{
 			this.requestValidatorFactory = requestValidatorFactory;
 			this.idPEngine = idPEngine;
+			this.clientAttributesProviderFactory = clientAttributesProviderFactory;
 		}
-		
-		public TokenUtils getTokenUtils(OAuthASProperties config)
+
+		public TokenService getTokenService(OAuthASProperties config)
 		{
-			return new TokenUtils(requestValidatorFactory.getOAuthRequestValidator(config), config, new OAuthIdPEngine(idPEngine));
-				
+			return new TokenService(requestValidatorFactory.getOAuthRequestValidator(config), config,
+					new OAuthIdPEngine(idPEngine), clientAttributesProviderFactory.getClientAttributeProvider(config));
+
 		}
-		
 	}
-	
+
 }

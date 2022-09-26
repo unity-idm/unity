@@ -8,11 +8,11 @@ import javax.ws.rs.core.Response;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 
-class OAuthErrorException extends EngineException
+public class OAuthErrorException extends EngineException
 {
-	Response response;
+	public Response response;
 
-	OAuthErrorException(Response response)
+	public OAuthErrorException(Response response)
 	{
 		this.response = response;
 	}

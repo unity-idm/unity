@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token;
+package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
+import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
 import pl.edu.icm.unity.store.api.TokenDAO.TokenNotFoundException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
@@ -159,7 +160,7 @@ public class OAuthRefreshTokenRepository
 		return token.getType().equals(INTERNAL_REFRESH_TOKEN);
 	}
 
-	public void secureRemove(String value) throws EngineException
+	public void removeWithAuthorization(String value) throws EngineException
 	{
 		securedTokensManagement.removeToken(INTERNAL_REFRESH_TOKEN, value);
 	}

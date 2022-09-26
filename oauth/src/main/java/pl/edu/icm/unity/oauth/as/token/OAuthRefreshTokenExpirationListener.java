@@ -12,6 +12,7 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement.TokenExpirationListener;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 
 class OAuthRefreshTokenExpirationListener implements TokenExpirationListener
 {
