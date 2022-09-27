@@ -75,7 +75,7 @@ public class AccessTokenResourceTest
 	}
 
 	@Test
-	public void allGrantsExceptCodeAreFailingWithoutAuthentication() throws Exception
+	public void allGrantsExceptCodeAndRefershAreFailingWithoutAuthentication() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
 		OAuthASProperties config = OAuthTestUtils.getConfig();
@@ -91,7 +91,7 @@ public class AccessTokenResourceTest
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 
 		for (GrantType grant : new GrantType[]
-		{ GrantType.CLIENT_CREDENTIALS, GrantType.TOKEN_EXCHANGE, GrantType.REFRESH_TOKEN })
+		{ GrantType.CLIENT_CREDENTIALS, GrantType.TOKEN_EXCHANGE })
 		{
 			Response r = tested.getToken(grant.getValue(), step1Resp.getAuthorizationCode().getValue(), null,
 					"https://return.host.com/foo", null, null, null, null, null, null, null);
