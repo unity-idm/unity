@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 
@@ -74,8 +75,11 @@ class RefreshTokenHandler
 		{
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong refresh token");
 		}
-
-		long callerEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
+		validateClientAuthenticationForConfidentialClient(parsedRefreshToken.getClientType());
+		
+		long callerEntityId = parsedRefreshToken.getClientType().equals(ClientType.CONFIDENTIAL)
+				? InvocationContext.getCurrent().getLoginSession().getEntityId()
+				: parsedRefreshToken.getClientId();	
 		if (parsedRefreshToken.getClientId() != callerEntityId)
 		{
 			log.warn("Client with id {} presented use refresh code issued for client",
@@ -83,7 +87,7 @@ class RefreshTokenHandler
 			// intended - we mask the reason
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "wrong refresh token");
 		}
-
+	
 		List<String> oldRequestedScopesList = Arrays.asList(parsedRefreshToken.getRequestedScope());
 		OAuthToken newToken = null;
 
@@ -120,6 +124,13 @@ class RefreshTokenHandler
 
 		return BaseOAuthResource.toResponse(Response.ok(BaseOAuthResource.getResponseContent(oauthResponse)));
 
+	}
+	
+	private boolean validateClientAuthenticationForConfidentialClient(ClientType clientType)
+	{
+		if (clientType.equals(ClientType.PUBLIC))
+				return true;
+		return InvocationContext.getCurrent().getLoginSession() != null;
 	}
 
 	private Optional<Token> getUsedRefreshTokenIfRotationIsActive(String refToken)
