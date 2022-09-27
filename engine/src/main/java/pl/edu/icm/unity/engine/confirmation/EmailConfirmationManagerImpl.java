@@ -248,7 +248,7 @@ class EmailConfirmationManagerImpl implements EmailConfirmationManager
 				params, locale);
 	}
 	
-	private void incCachedConfirmations(String recipientAddress)
+	private synchronized void incCachedConfirmations(String recipientAddress)
 	{
 		String key = getCacheKey(recipientAddress);
 		Integer currentConfirmations = confirmationReqCache.getIfPresent(key);
