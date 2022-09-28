@@ -4,6 +4,20 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
+import pl.edu.icm.unity.base.file.FileData;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.exceptions.EngineException;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,22 +27,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Optional;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
-import pl.edu.icm.unity.base.file.FileData;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.exceptions.EngineException;
-import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 /**
  * Downloads on demand a remote metadata file and caches it on disk. 
@@ -45,7 +43,7 @@ public class CachedMetadataLoader
 	private final FileStorageService fileStorageService;
 	private final MetadataDownloader downloader;
 	private final Cache<String, EntitiesDescriptorDocument> parsedMetaCache;
-	
+
 	
 	public CachedMetadataLoader(URIAccessService uriAccessService, FileStorageService fileStorageService)
 	{
@@ -84,6 +82,9 @@ public class CachedMetadataLoader
 			doc = loadFile(downloadAndCache(uri, customTruststore));
 		}
 		addMetaToMemoryCache(rawUri, doc);
+		doc.getEntitiesDescriptor();
+//		asyncExternalLogoFileDownloader.downloadLogoFilesAsync(doc.getEntitiesDescriptor(), customTruststore);
+
 		return doc;
 
 	}

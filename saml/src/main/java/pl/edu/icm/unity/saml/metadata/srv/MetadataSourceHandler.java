@@ -4,24 +4,19 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
+import com.google.common.base.Stopwatch;
+import org.apache.logging.log4j.Logger;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.logging.log4j.Logger;
-
-import com.google.common.base.Stopwatch;
-
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 /**
  * Downloads metadata from a single remote source. Maintains a list of consumers and allows
@@ -43,6 +38,7 @@ class MetadataSourceHandler
 	private final RemoteMetadataSrc source;
 	private final ExecutorsService executorsService;
 	private final CachedMetadataLoader downloader;
+	private final AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader;
 
 	private Duration refreshInterval;
 	private Instant lastRefresh;
@@ -50,18 +46,19 @@ class MetadataSourceHandler
 	private ScheduledFuture<?> scheduleWithFixedDelay;
 	
 	MetadataSourceHandler(RemoteMetadataSrc source, ExecutorsService executorsService,
-			CachedMetadataLoader downloader)
+			CachedMetadataLoader downloader, AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader)
 	{
-		this(source, executorsService, downloader, DEFAULT_RERUN_INTERVAL);
+		this(source, executorsService, downloader, DEFAULT_RERUN_INTERVAL, asyncExternalLogoFileDownloader);
 	}
 	
 	MetadataSourceHandler(RemoteMetadataSrc source, ExecutorsService executorsService,
-			CachedMetadataLoader downloader, long reRunInterval)
+			CachedMetadataLoader downloader, long reRunInterval, AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader)
 	{
 		this.source = source;
 		this.executorsService = executorsService;
 		this.downloader = downloader;
 		this.rerunInterval = reRunInterval;
+		this.asyncExternalLogoFileDownloader = asyncExternalLogoFileDownloader;
 	}
 
 	synchronized RemoteMetadataSrc getSource()
@@ -169,6 +166,7 @@ class MetadataSourceHandler
 			log.error("Error downloading fresh metadata from " + source.url, e);
 			return;
 		}
+		asyncExternalLogoFileDownloader.downloadLogoFilesAsync(metadata, source.truststore);
 		notifyConsumers(metadata);
 		log.info("Metadata refresh for {} done in {}", source.url, watch);
 	}

@@ -4,22 +4,22 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 /**
  * See {@link RemoteMetadataService}  
@@ -33,22 +33,27 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 	private final ExecutorsService executorsService;
 	private final CachedMetadataLoader downloader;
 
+	private final AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader;
+
 	private long nextConsumerId = 0;
 	private Map<String, MetadataSourceHandler> metadataHandlersByURL = new HashMap<>();
 	private Map<String, String> consumers2URL = new HashMap<>();	
 	
 	@Autowired
 	public RemoteMetadataServiceImpl(FileStorageService fileStorageService, URIAccessService uriAccessService, 
-			ExecutorsService executorsService)
+			ExecutorsService executorsService, AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader)
 	{
 		this.executorsService = executorsService;
+		this.asyncExternalLogoFileDownloader = asyncExternalLogoFileDownloader;
 		this.downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 	}
 
-	RemoteMetadataServiceImpl(ExecutorsService executorsService, CachedMetadataLoader downloader)
+	RemoteMetadataServiceImpl(ExecutorsService executorsService, CachedMetadataLoader downloader,
+	                          AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader)
 	{
 		this.executorsService = executorsService;
 		this.downloader = downloader;
+		this.asyncExternalLogoFileDownloader = asyncExternalLogoFileDownloader;
 	}
 	
 
@@ -72,7 +77,7 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 		{
 			RemoteMetadataSrc remoteMetaDesc = new RemoteMetadataSrc(url, customTruststore);
 			handler = new MetadataSourceHandler(remoteMetaDesc, executorsService, 
-					downloader);
+					downloader, asyncExternalLogoFileDownloader);
 			metadataHandlersByURL.put(url, handler);
 		}
 		checkTruststoresConsistency(handler, customTruststore);

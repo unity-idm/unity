@@ -37,19 +37,15 @@ public class SPRemoteMetaManager
 	private final Map<String, MetadataConsumer> registeredConsumers = new HashMap<>();
 	private TrustedIdPs combinedTrustedIdPs;
 	private SAMLSPConfiguration configuration;
-	private AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader;
-
 	private SPRemoteMetaManager(
 			PKIManagement pkiManagement,
 			MetadataToSPConfigConverter converter,
-			RemoteMetadataService metadataService,
-			AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader)
+			RemoteMetadataService metadataService)
 	{
 		this.converter = converter;
 		this.metadataService = metadataService;
 		this.verificator = new MetadataVerificator();
 		this.pkiManagement = pkiManagement;
-		this.asyncExternalLogoFileDownloader = asyncExternalLogoFileDownloader;
 	}
 
 	public synchronized TrustedIdPs getTrustedIdPs()
@@ -178,7 +174,6 @@ public class SPRemoteMetaManager
 				throw new IllegalStateException("Consumer got metadata from different federation than before. "
 						+ "Was " + this.federationId + " now it is " + federationId); 
 			assembleCombinedConfiguration(idpsFromMeta, federationId, consumerId);
-			asyncExternalLogoFileDownloader.downloadLogoFilesAsync(idpsFromMeta, metadataConfig.httpsTruststore);
 		}
 	}
 	
@@ -188,22 +183,19 @@ public class SPRemoteMetaManager
 		private final PKIManagement pkiManagement;
 		private final MetadataToSPConfigConverter converter;
 		private final RemoteMetadataService metadataService;
-		private final AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader;
 
 		Factory(@Qualifier("insecure") PKIManagement pkiManagement,
 				MetadataToSPConfigConverter converter,
-				RemoteMetadataService metadataService,
-				AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader)
+				RemoteMetadataService metadataService)
 		{
 			this.pkiManagement = pkiManagement;
 			this.converter = converter;
 			this.metadataService = metadataService;
-			this.asyncExternalLogoFileDownloader = asyncExternalLogoFileDownloader;
 		}
 
 		public SPRemoteMetaManager getInstance()
 		{
-			return new SPRemoteMetaManager(pkiManagement, converter, metadataService, asyncExternalLogoFileDownloader);
+			return new SPRemoteMetaManager(pkiManagement, converter, metadataService);
 		}
 	}
 }
