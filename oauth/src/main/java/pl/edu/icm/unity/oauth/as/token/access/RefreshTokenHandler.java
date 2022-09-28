@@ -75,8 +75,12 @@ class RefreshTokenHandler
 		{
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong refresh token");
 		}
-		validateClientAuthenticationForConfidentialClient(parsedRefreshToken.getClientType());
-		
+
+		if (isRequiredAuthenticationMissing(parsedRefreshToken.getClientType()))
+		{
+			return BaseOAuthResource.makeError(OAuth2Error.INVALID_CLIENT, "not authenticated");
+		}
+				
 		long callerEntityId = parsedRefreshToken.getClientType().equals(ClientType.CONFIDENTIAL)
 				? InvocationContext.getCurrent().getLoginSession().getEntityId()
 				: parsedRefreshToken.getClientId();	
@@ -126,11 +130,11 @@ class RefreshTokenHandler
 
 	}
 	
-	private boolean validateClientAuthenticationForConfidentialClient(ClientType clientType)
+	private boolean isRequiredAuthenticationMissing(ClientType clientType)
 	{
 		if (clientType.equals(ClientType.PUBLIC))
-				return true;
-		return InvocationContext.getCurrent().getLoginSession() != null;
+				return false;
+		return InvocationContext.getCurrent().getLoginSession() == null;
 	}
 
 	private Optional<Token> getUsedRefreshTokenIfRotationIsActive(String refToken)
