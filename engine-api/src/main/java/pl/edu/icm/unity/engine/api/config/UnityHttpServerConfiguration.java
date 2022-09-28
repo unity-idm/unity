@@ -236,7 +236,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 				setDescription("Deprecated and ignored. Use maxConnections option instead."));
 		defaults.put(LOW_RESOURCE_MAX_IDLE_TIME, new PropertyMD().setDeprecated().
 				setDescription("Not used anymore without a counterpart"));
-		defaults.put(SNI_HOSTNAME_CHECK, new PropertyMD("true").
+		defaults.put(SNI_HOSTNAME_CHECK, new PropertyMD("false").setHidden().
 				setDescription("Allows for turning off the SNI hostname checking"));
 	}
 
