@@ -9,6 +9,7 @@ import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.Properties;
 
 import static java.util.Optional.ofNullable;
@@ -51,34 +52,37 @@ public class Vaadin823EndpointProperties extends VaadinEndpointProperties
 		this.defaultWebContentPath = defaultWebContentPath;
 	}
 
-	public File getExtraLeftPanel()
+	public Optional<File> getExtraLeftPanel()
 	{
-		String value = getWebContentPath() + "/" + getValue(EXTRA_LEFT_PANEL);
-		return new File(value);
+		return getFile(EXTRA_LEFT_PANEL);
 	}
 
-	public File getExtraRightPanel()
+	public Optional<File> getExtraRightPanel()
 	{
-		String value = getWebContentPath() + "/" + getValue(EXTRA_RIGHT_PANEL);
-		return new File(value);
+		return getFile(EXTRA_RIGHT_PANEL);
 	}
 
-	public File getExtraTopPanel()
+	public Optional<File> getExtraTopPanel()
 	{
-		String value = getWebContentPath() + "/" + getValue(EXTRA_TOP_PANEL);
-		return new File(value);
+		return getFile(EXTRA_TOP_PANEL);
 	}
 
-	public File getExtraBottomPanel()
+	public Optional<File> getExtraBottomPanel()
 	{
-		String value = getWebContentPath() + "/" + getValue(EXTRA_BOTTOM_PANEL);
-		return new File(value);
+		return getFile(EXTRA_BOTTOM_PANEL);
 	}
 
-	public File getCustomCssFile()
+	public Optional<File> getCustomCssFile()
 	{
-		String value = getWebContentPath() + "/" + getValue(CUSTOM_CSS);
-		return new File(value);
+		return getFile(CUSTOM_CSS);
+	}
+
+	private Optional<File> getFile(String key)
+	{
+		if(getValue(key).isBlank())
+			return Optional.empty();
+		String value = getWebContentPath() + "/" + getValue(key);
+		return Optional.of(new File(value));
 	}
 
 	private String getWebContentPath()
