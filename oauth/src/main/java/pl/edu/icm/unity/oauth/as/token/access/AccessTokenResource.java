@@ -74,7 +74,7 @@ public class AccessTokenResource extends BaseOAuthResource
 			return makeError(OAuth2Error.INVALID_REQUEST, "grant_type is required");
 		}
 
-		if (!validateClientAuthenticationForNonCodeOrRefreshGrant(grantType))
+		if (isRequiredClientAuthenticationMissing(grantType))
 			return makeError(OAuth2Error.INVALID_CLIENT, "not authenticated");
 
 		log.trace("Handle new token request with " + grantType + " grant");
@@ -113,15 +113,15 @@ public class AccessTokenResource extends BaseOAuthResource
 
 	/**
 	 * Authentication is optional for this REST path. However, this is only for the
-	 * code grant (where we allow unauthenticated public clients secured by PKCE).
+	 * code or refresh grant (where we allow unauthenticated public clients secured by PKCE).
 	 * So let's ensure for other cases that client's authn was performed.
 	 */
-	private boolean validateClientAuthenticationForNonCodeOrRefreshGrant(String grantType)
+	private boolean isRequiredClientAuthenticationMissing(String grantType)
 	{
 		if (grantType.equals(GrantType.AUTHORIZATION_CODE.getValue())
 				|| grantType.equals(GrantType.REFRESH_TOKEN.getValue()))
-			return true;
-		return InvocationContext.getCurrent().getLoginSession() != null;
+			return false;
+		return InvocationContext.getCurrent().getLoginSession() == null;
 	}
 
 }
