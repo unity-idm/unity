@@ -48,6 +48,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -64,7 +66,8 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 {
 	private final SecuredTokensManagement tokenMan;
 	private final PreferencesManagement preferencesManagement;
-	private final OAuthTokenRepository oauthTokenDAO;
+	private final OAuthAccessTokenRepository accessTokenDAO;
+	private final OAuthRefreshTokenRepository refreshTokenDAO;
 	private final EndpointManagement endpointManagement;
 	private final AttributeTypeSupport aTypeSupport;
 
@@ -75,14 +78,15 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
 	public TrustedOAuthClientsManagement(SecuredTokensManagement tokenMan, PreferencesManagement preferencesManagement,
-			OAuthTokenRepository oauthTokenDAO, @Qualifier("insecure") EndpointManagement endpointManagement,
+			OAuthAccessTokenRepository accessTokenDAO, OAuthRefreshTokenRepository refreshTokenDAO, @Qualifier("insecure") EndpointManagement endpointManagement,
 			@Qualifier("insecure") BulkGroupQueryService bulkService, IdpUsersHelper idpUsersHelper, MessageSource msg,
 			OAuthScopesService scopesService, AttributeTypeSupport aTypeSupport,
 			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		this.tokenMan = tokenMan;
 		this.preferencesManagement = preferencesManagement;
-		this.oauthTokenDAO = oauthTokenDAO;
+		this.accessTokenDAO = accessTokenDAO;
+		this.refreshTokenDAO = refreshTokenDAO;
 		this.endpointManagement = endpointManagement;
 		this.bulkService = bulkService;
 		this.idpUsersHelper = idpUsersHelper;
@@ -103,11 +107,11 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 			for (String client : perClientData.keySet())
 			{
 				List<OAuthTokenWithTime> accessTokens = perClientData.get(client).tokens.stream()
-						.filter(t -> t.type.equals(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN)
+						.filter(t -> t.type.equals(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN)
 								&& t.token.getIssuerUri().equals(service.issuerURI))
 						.sorted((t1, t2) -> t2.createdTime.compareTo(t1.createdTime)).collect(Collectors.toList());
 				List<OAuthTokenWithTime> refreshTokens = perClientData.get(client).tokens.stream()
-						.filter(t -> t.type.equals(OAuthProcessor.INTERNAL_REFRESH_TOKEN)
+						.filter(t -> t.type.equals(OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN)
 								&& t.token.getIssuerUri().equals(service.issuerURI))
 						.sorted((t1, t2) -> t2.createdTime.compareTo(t1.createdTime)).collect(Collectors.toList());
 
@@ -296,12 +300,12 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 	protected List<OAuthTokenWithTime> getTokens() throws EngineException
 	{
 		List<OAuthTokenWithTime> tokens = new ArrayList<>();
-		tokens.addAll(oauthTokenDAO.getOwnedAccessTokens().stream()
+		tokens.addAll(accessTokenDAO.getOwnedAccessTokens().stream()
 				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(),
 						t.getExpires() != null ? t.getExpires().toInstant() : null,
 						OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))
 				.collect(Collectors.toList()));
-		tokens.addAll(tokenMan.getOwnedTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN).stream()
+		tokens.addAll(refreshTokenDAO.getOwnedRefreshTokens().stream()
 				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(),
 						t.getExpires() != null ? t.getExpires().toInstant() : null,
 						OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))

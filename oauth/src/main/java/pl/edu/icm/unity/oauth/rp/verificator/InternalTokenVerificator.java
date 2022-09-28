@@ -13,7 +13,7 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 
 /**
  * Verifies the token against internal Unity's token storage, i.e. the token is checked if was 
@@ -25,9 +25,9 @@ public class InternalTokenVerificator implements TokenVerificatorProtocol
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, InternalTokenVerificator.class);
 	
-	private OAuthTokenRepository tokensDAO;
+	private OAuthAccessTokenRepository tokensDAO;
 	
-	public InternalTokenVerificator(OAuthTokenRepository tokensDAO)
+	public InternalTokenVerificator(OAuthAccessTokenRepository tokensDAO)
 	{
 		this.tokensDAO = tokensDAO;
 	}

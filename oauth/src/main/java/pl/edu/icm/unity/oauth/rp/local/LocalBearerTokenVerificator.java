@@ -17,7 +17,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.verificator.InternalTokenVerificator;
 import pl.edu.icm.unity.oauth.rp.verificator.TokenStatus;
@@ -29,7 +29,7 @@ class LocalBearerTokenVerificator
 	private final InternalTokenVerificator tokenChecker;
 	private final LocalOAuthRPProperties verificatorProperties;
 
-	public LocalBearerTokenVerificator(OAuthTokenRepository tokensDAO, LocalOAuthRPProperties verificatorProperties)
+	public LocalBearerTokenVerificator(OAuthAccessTokenRepository tokensDAO, LocalOAuthRPProperties verificatorProperties)
 	{
 		this.tokenChecker = new InternalTokenVerificator(tokensDAO);
 		this.verificatorProperties = verificatorProperties;

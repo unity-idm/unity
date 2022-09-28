@@ -15,7 +15,7 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 
 /**
  * Common code inherited by OAuth resources
@@ -24,9 +24,9 @@ public class BaseTokenResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, BaseTokenResource.class);
 	
-	private final OAuthTokenRepository tokensDAO;
+	private final OAuthAccessTokenRepository tokensDAO;
 	
-	public BaseTokenResource(OAuthTokenRepository tokensDAO)
+	public BaseTokenResource(OAuthAccessTokenRepository tokensDAO)
 	{
 		this.tokensDAO = tokensDAO;
 	}

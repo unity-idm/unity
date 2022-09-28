@@ -38,10 +38,22 @@ class AdminController
 		this.adminAuthzService = adminAuthzService;
 	}
 
-	void updateExposedGroups(MembershipGroupsConfiguration config)
-			throws JsonProcessingException, EngineException
+	public MembershipGroupsConfiguration getExposedGroups() throws EngineException
 	{
-		adminAuthzService.authorizeUpdateOfExposedGroups();
+		adminAuthzService.authorizeReadOrUpdateOfExposedGroups();
+		Endpoint endpoint = endpointManagement.getEndpoint(configuration.endpointName);
+		EndpointConfiguration endpointConfiguration = endpoint.getConfiguration();
+		SCIMEndpointConfiguration currentScimEndpointConfig = SCIMEndpointPropertiesConfigurationMapper
+				.fromProperties(endpointConfiguration.getConfiguration());
+
+		return MembershipGroupsConfiguration.builder()
+				.withExcludedMemberhipGroups(currentScimEndpointConfig.excludedMembershipGroups)
+				.withMembershipGroups(currentScimEndpointConfig.membershipGroups).build();
+	}
+
+	void updateExposedGroups(MembershipGroupsConfiguration config) throws JsonProcessingException, EngineException
+	{
+		adminAuthzService.authorizeReadOrUpdateOfExposedGroups();
 
 		Endpoint endpoint = endpointManagement.getEndpoint(configuration.endpointName);
 
@@ -50,15 +62,9 @@ class AdminController
 		SCIMEndpointConfiguration currentScimEndpointConfig = SCIMEndpointPropertiesConfigurationMapper
 				.fromProperties(endpointConfiguration.getConfiguration());
 
-		
 		SCIMEndpointConfiguration updatedScimEndpointConfig = SCIMEndpointConfiguration
-				.builder(currentScimEndpointConfig)
-				.withMembershipGroups(config.membershipGroups.isPresent() ? config.membershipGroups.get()
-						: currentScimEndpointConfig.membershipGroups)
-				.withExcludedMembershipGroups(
-						config.excludedMemberhipGroups.isPresent() ? config.excludedMemberhipGroups.get()
-								: currentScimEndpointConfig.excludedMembershipGroups)
-				.build();
+				.builder(currentScimEndpointConfig).withMembershipGroups(config.membershipGroups)
+				.withExcludedMembershipGroups(config.excludedMemberhipGroups).build();
 		if (currentScimEndpointConfig.equals(updatedScimEndpointConfig))
 		{
 			log.debug(

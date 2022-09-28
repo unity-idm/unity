@@ -16,14 +16,15 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>10.0.11</jetty.version>
+		<jetty.version>10.0.12</jetty.version>
 		<slf4j.version>1.7.32</slf4j.version>
-		<log4j.version>2.18.0</log4j.version>
-		<spring.version>5.3.22</spring.version>
+		<log4j.version>2.19.0</log4j.version>
+		<spring.version>5.3.23</spring.version>
 		<vaadin.version>8.14.3</vaadin.version>
+		<vaadin.version.new>23.2.0</vaadin.version.new>
 		<cxf.version>3.5.3</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
-		<bc.version>1.71</bc.version>
+		<bc.version>1.71.1</bc.version>
 		<selenium.version>4.4.0</selenium.version>
 		<jackson.version>2.13.3</jackson.version>
 		<junit5.version>5.8.2</junit5.version>
@@ -85,6 +86,8 @@
 		<module>web-attr-introspection</module>
 		<module>scim</module>
         <module>unity-rest-api</module>
+        <module>vaadin23-endpoint-common</module>
+        <module>vaadin23-elements</module>
     </modules>
 
 	<developers>
@@ -303,6 +306,23 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-bom</artifactId>
+				<version>${vaadin.version.new}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin.componentfactory</groupId>
+				<artifactId>tooltip</artifactId>
+				<version>2.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin.componentfactory</groupId>
+				<artifactId>idle-notification</artifactId>
+				<version>1.1.6</version>
+			</dependency>
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.12</version>
@@ -310,13 +330,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-engine</artifactId>
-				<version>${junit5.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-params</artifactId>
+				<artifactId>junit-jupiter</artifactId>
 				<version>${junit5.version}</version>
 				<scope>test</scope>
 			</dependency>
@@ -341,6 +355,12 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
+				<version>2.27.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-junit-jupiter</artifactId>
 				<version>2.27.0</version>
 				<scope>test</scope>
 			</dependency>
@@ -398,6 +418,16 @@
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>apache-jsp</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-webapp</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.websocket</groupId>
+				<artifactId>websocket-javax-server</artifactId>
 				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>
@@ -463,7 +493,7 @@
 			<dependency>
 				<groupId>eu.unicore</groupId>
 				<artifactId>jproperties-conf</artifactId>
-				<version>1.1.0</version>
+				<version>1.1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
@@ -528,7 +558,7 @@
 			<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
-				<version>42.4.2</version>
+				<version>42.5.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mariadb.jdbc</groupId>
@@ -543,7 +573,7 @@
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis</artifactId>
-				<version>3.5.10</version>
+				<version>3.5.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mybatis</groupId>
@@ -719,7 +749,7 @@
 			<dependency>
 				<groupId>org.codehaus.groovy</groupId>
 				<artifactId>groovy-all</artifactId>
-				<version>3.0.12</version>
+				<version>3.0.13</version>
 				<type>pom</type>
 				<exclusions>
 					<exclusion>

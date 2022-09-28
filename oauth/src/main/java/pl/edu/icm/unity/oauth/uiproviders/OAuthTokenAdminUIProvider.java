@@ -10,9 +10,9 @@ import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.webui.providers.AdminUITabProvider;
 
 /**
@@ -23,18 +23,20 @@ import pl.edu.icm.unity.webui.providers.AdminUITabProvider;
 public class OAuthTokenAdminUIProvider implements AdminUITabProvider
 {	
 	public static final String ID = "oauthAdminTokens";
-	private SecuredTokensManagement tokenMan;
 	private MessageSource msg;
 	private EntityManagement entityManagement;
-	private OAuthTokenRepository tokenDAO;
+	private OAuthAccessTokenRepository accessTokenDAO;
+	private OAuthRefreshTokenRepository refreshTokenDAO;
+
 	
 	@Autowired
-	public OAuthTokenAdminUIProvider(SecuredTokensManagement tokenMan, OAuthTokenRepository tokenDAO,
+	public OAuthTokenAdminUIProvider(OAuthAccessTokenRepository accessTokenDAO,
+			OAuthRefreshTokenRepository refreshTokenDAO,
 			MessageSource msg,
 			EntityManagement entityManagement)
 	{
-		this.tokenMan = tokenMan;
-		this.tokenDAO = tokenDAO;
+		this.accessTokenDAO = accessTokenDAO;
+		this.refreshTokenDAO = refreshTokenDAO;
 		this.msg = msg;
 		this.entityManagement = entityManagement;
 	}
@@ -42,7 +44,7 @@ public class OAuthTokenAdminUIProvider implements AdminUITabProvider
 	@Override
 	public Component getUI()
 	{
-		return new AdminTokensComponent(tokenMan, tokenDAO, msg, entityManagement, true);
+		return new AdminTokensComponent(accessTokenDAO, refreshTokenDAO, msg, entityManagement, true);
 	}
 
 	@Override

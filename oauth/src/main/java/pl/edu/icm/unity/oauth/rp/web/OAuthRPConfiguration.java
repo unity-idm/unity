@@ -15,7 +15,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.client.console.OAuthBaseConfiguration;
@@ -31,9 +31,9 @@ public class OAuthRPConfiguration extends OAuthBaseConfiguration
 	private boolean openIdMode;
 	private List<String> requiredScopes;
 	private PKIManagement pkiMan;
-	private OAuthTokenRepository tokensDAO;
+	private OAuthAccessTokenRepository tokensDAO;
 
-	public OAuthRPConfiguration(PKIManagement pkiMan, OAuthTokenRepository tokensDAO)
+	public OAuthRPConfiguration(PKIManagement pkiMan, OAuthAccessTokenRepository tokensDAO)
 	{
 		this.pkiMan = pkiMan;
 		this.tokensDAO = tokensDAO;

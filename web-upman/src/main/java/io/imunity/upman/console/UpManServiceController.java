@@ -5,18 +5,10 @@
 
 package io.imunity.upman.console;
 
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Component;
-
-import io.imunity.upman.HomeServiceLinkController;
 import io.imunity.upman.UpManEndpointFactory;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
-import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
-import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
@@ -29,6 +21,8 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceController;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+
+import java.util.stream.Collectors;
 
 /**
  * Upman service controller. Based on the standard web service editor

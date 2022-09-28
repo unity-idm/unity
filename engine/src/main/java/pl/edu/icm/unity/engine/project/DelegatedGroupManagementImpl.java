@@ -5,37 +5,17 @@
 
 package pl.edu.icm.unity.engine.project;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
-import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-import pl.edu.icm.unity.engine.api.project.SubprojectGroupDelegationConfiguration;
+import pl.edu.icm.unity.engine.api.project.*;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -46,17 +26,12 @@ import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
+import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Implementation of {@link DelegatedGroupManagement}
@@ -203,7 +178,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 				ret.put(entry.getKey(),
 						new DelegatedGroupContents(new DelegatedGroup(orgGroup.toString(),
 								orgGroup.getDelegationConfiguration(),
-								orgGroup.isPublic(), getGroupDisplayName(orgGroup)),
+								orgGroup.isPublic(), orgGroup.getDisplayedName()),
 								Optional.ofNullable(content.getSubGroups())));
 			}
 		}
@@ -221,7 +196,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 		return new DelegatedGroupContents(
 				new DelegatedGroup(orgGroup.toString(), orgGroup.getDelegationConfiguration(),
-						orgGroup.isPublic(), getGroupDisplayName(orgGroup)),
+						orgGroup.isPublic(), orgGroup.getDisplayedName()),
 				Optional.ofNullable(orgGroupContents.getSubGroups()));
 
 	}
@@ -309,7 +284,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 						
 				{
 					projects.add(new DelegatedGroup(gr.toString(), gr.getDelegationConfiguration(),
-							gr.isPublic(), getGroupDisplayName(gr)));
+							gr.isPublic(), gr.getDisplayedName()));
 
 				}
 			}
@@ -511,18 +486,6 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		String current = notMember.pollLast();
 		groupMan.addMemberFromParent(current, new EntityParam(entity));
 		addToGroupRecursive(notMember, entity);
-	}
-
-	private String getGroupDisplayName(Group group)
-	{
-		String displayName = group.getDisplayedName().getValue(msg);
-
-		if (group.getName().equals(displayName))
-		{
-			return group.getNameShort();
-		}
-
-		return displayName;
 	}
 	
 	private VerifiableElementBase getEmailIdentity(long entityId) throws EngineException

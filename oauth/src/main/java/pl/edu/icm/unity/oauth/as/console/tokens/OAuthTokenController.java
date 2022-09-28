@@ -28,8 +28,8 @@ import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
@@ -45,15 +45,19 @@ class OAuthTokenController
 	private EndpointManagement endpointMan;
 	private MessageSource msg;
 
-	private final OAuthTokenRepository oauthTokenRepository;
+	private final OAuthAccessTokenRepository accessTokenRepository;
+	private final OAuthRefreshTokenRepository refreshTokenRepository;
+
 
 	@Autowired
-	OAuthTokenController(MessageSource msg, OAuthTokenRepository oauthTokenRepository,
+	OAuthTokenController(MessageSource msg, OAuthAccessTokenRepository oauthTokenRepository,
+			OAuthRefreshTokenRepository refreshTokenRepository,
 			SecuredTokensManagement tokensManagement,
 			EntityManagement entityManagement, EndpointManagement endpointMan)
 	{
 		this.msg = msg;
-		this.oauthTokenRepository = oauthTokenRepository;
+		this.accessTokenRepository = oauthTokenRepository;
+		this.refreshTokenRepository = refreshTokenRepository;
 		this.tokenMan = tokensManagement;
 		this.entityManagement = entityManagement;
 		this.endpointMan = endpointMan;
@@ -133,8 +137,8 @@ class OAuthTokenController
 	private List<Token> getTokens() throws EngineException
 	{
 		List<Token> tokens = new ArrayList<>();
-		tokens.addAll(oauthTokenRepository.getAllAccessTokens());
-		tokens.addAll(tokenMan.getAllTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN));
+		tokens.addAll(accessTokenRepository.getAllAccessTokens());
+		tokens.addAll(refreshTokenRepository.getAllRefreshTokens());
 		return tokens;
 	}
 

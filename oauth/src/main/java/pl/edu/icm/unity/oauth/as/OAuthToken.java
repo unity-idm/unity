@@ -28,6 +28,7 @@ public class OAuthToken
 	private String authzCode;
 	private String accessToken;
 	private String refreshToken;
+	private String firstRefreshRollingToken;
 	private String[] effectiveScope;
 	private String[] requestedScope;
 	private long clientEntityId;
@@ -73,6 +74,7 @@ public class OAuthToken
 		setIssuerUri(source.getIssuerUri());
 		pkcsInfo = new PKCSInfo(source.pkcsInfo);
 		setClientType(source.getClientType());
+		setFirstRefreshRollingToken(source.getFirstRefreshRollingToken());
 		
 	}
 	
@@ -304,6 +306,16 @@ public class OAuthToken
 		this.pkcsInfo = pkcsInfo;
 	}
 
+	public String getFirstRefreshRollingToken()
+	{
+		return firstRefreshRollingToken;
+	}
+
+	public void setFirstRefreshRollingToken(String firstRefreshRollingToken)
+	{
+		this.firstRefreshRollingToken = firstRefreshRollingToken;
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -313,7 +325,7 @@ public class OAuthToken
 		result = prime * result + Arrays.hashCode(requestedScope);
 		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
 				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
-				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo);
+				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo, firstRefreshRollingToken);
 		return result;
 	}
 
@@ -341,7 +353,8 @@ public class OAuthToken
 				&& Arrays.equals(requestedScope, other.requestedScope)
 				&& Objects.equals(responseType, other.responseType)
 				&& Objects.equals(subject, other.subject) && tokenValidity == other.tokenValidity
-				&& Objects.equals(userInfo, other.userInfo);
+				&& Objects.equals(userInfo, other.userInfo)
+				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken);
 	}
 
 
@@ -349,7 +362,7 @@ public class OAuthToken
 	public String toString()
 	{
 		return "OAuthToken [userInfo=" + userInfo + ", openidInfo=" + openidInfo + ", authzCode=" + authzCode
-				+ ", accessToken=" + accessToken + ", refreshToken=" + refreshToken
+				+ ", accessToken=" + accessToken + ", refreshToken=" + refreshToken + ", firstRefreshRollingToken=" + firstRefreshRollingToken
 				+ ", effectiveScope=" + Arrays.toString(effectiveScope) + ", requestedScope="
 				+ Arrays.toString(requestedScope) + ", clientEntityId=" + clientEntityId
 				+ ", redirectUri=" + redirectUri + ", subject=" + subject + ", clientName=" + clientName
@@ -358,7 +371,6 @@ public class OAuthToken
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
 				+ pkcsInfo + "]";
 	}
-
 
 	public static class PKCSInfo
 	{

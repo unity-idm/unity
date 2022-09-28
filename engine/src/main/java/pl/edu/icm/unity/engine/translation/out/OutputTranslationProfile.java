@@ -191,23 +191,23 @@ public class OutputTranslationProfile
 						group -> new MVELGroup(groupProvider.apply(group.getPathEncoded()))));
 		ret.put(OutputTranslationMVELContextKey.groupsObj.name(), groupsObj);
 		
-		if (InvocationContext.hasCurrent())
+		if (InvocationContext.hasCurrent() && InvocationContext.getCurrent().getLoginSession() != null)
 		{
-			LoginSession loginSession = InvocationContext.getCurrent()
-					.getLoginSession();
-			Set<String> authenticatedIdentities = loginSession
-					.getAuthenticatedIdentities();
+			LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+
+			Set<String> authenticatedIdentities = loginSession.getAuthenticatedIdentities();
 			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(),
 					new ArrayList<String>(authenticatedIdentities));
-			ret.put(OutputTranslationMVELContextKey.idp.name(), loginSession.getRemoteIdP() == null ? "_LOCAL"
-					: loginSession.getRemoteIdP());
+			ret.put(OutputTranslationMVELContextKey.idp.name(),
+					loginSession.getRemoteIdP() == null ? "_LOCAL" : loginSession.getRemoteIdP());
 			List<String> usedAuthenticators = new ArrayList<>();
 			if (loginSession.getLogin1stFactor().optionId != null)
 				usedAuthenticators.add(loginSession.getLogin1stFactor().optionId.getAuthenticatorKey());
 			if (loginSession.getLogin2ndFactor().optionId != null)
 				usedAuthenticators.add(loginSession.getLogin2ndFactor().optionId.getAuthenticatorKey());
 			ret.put(OutputTranslationMVELContextKey.authentications.name(), usedAuthenticators);
-			ret.put(OutputTranslationMVELContextKey.mfa.name(), usedAuthenticators.size() > 1);			
+			ret.put(OutputTranslationMVELContextKey.mfa.name(), usedAuthenticators.size() > 1);
+
 		} else
 		{
 			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(), new ArrayList<String>());

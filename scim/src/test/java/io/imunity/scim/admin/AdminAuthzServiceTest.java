@@ -43,7 +43,7 @@ public class AdminAuthzServiceTest
 				.thenReturn(Map.of("/admin", new GroupMembership("/admin", 1, new Date())));
 		try
 		{
-			adminAuthzService.authorizeUpdateOfExposedGroups();
+			adminAuthzService.authorizeReadOrUpdateOfExposedGroups();
 		} catch (Exception e)
 		{
 			fail();
@@ -58,7 +58,7 @@ public class AdminAuthzServiceTest
 				SCIMEndpointDescription.builder().withRestAdminGroup("/admin").build(), entityManagement);
 		when(entityManagement.getGroups(new EntityParam(1L)))
 				.thenReturn(Map.of("/", new GroupMembership("/", 1, new Date())));
-		Throwable error = Assertions.catchThrowable(() -> adminAuthzService.authorizeUpdateOfExposedGroups());
+		Throwable error = Assertions.catchThrowable(() -> adminAuthzService.authorizeReadOrUpdateOfExposedGroups());
 		Assertions.assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 
@@ -68,7 +68,7 @@ public class AdminAuthzServiceTest
 		setupInvocationContext(InvocationMaterial.OAUTH_DELEGATION);
 		AdminAuthzService adminAuthzService = new AdminAuthzService(
 				SCIMEndpointDescription.builder().withRestAdminGroup("/admin").build(), entityManagement);
-		Throwable error = Assertions.catchThrowable(() -> adminAuthzService.authorizeUpdateOfExposedGroups());
+		Throwable error = Assertions.catchThrowable(() -> adminAuthzService.authorizeReadOrUpdateOfExposedGroups());
 		Assertions.assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 	
@@ -77,7 +77,7 @@ public class AdminAuthzServiceTest
 	{
 		AdminAuthzService adminAuthzService = new AdminAuthzService(
 				SCIMEndpointDescription.builder().build(), entityManagement);
-		Throwable error = Assertions.catchThrowable(() -> adminAuthzService.authorizeUpdateOfExposedGroups());
+		Throwable error = Assertions.catchThrowable(() -> adminAuthzService.authorizeReadOrUpdateOfExposedGroups());
 		Assertions.assertThat(error).isInstanceOf(AuthorizationException.class);
 	}
 

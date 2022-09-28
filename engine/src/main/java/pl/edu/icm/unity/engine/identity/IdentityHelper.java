@@ -258,7 +258,10 @@ public class IdentityHelper
 		if (idTypeImpl.isTargeted() && (realm == null || target == null))
 			return null;
 		Identity newId = idTypeImpl.createNewIdentity(realm, target, entityId);
-		identityDAO.create(new StoredIdentity(newId));
+		if (newId != null)
+		{
+			identityDAO.create(new StoredIdentity(newId));
+		}
 		return newId;
 	}
 }

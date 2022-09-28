@@ -26,12 +26,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.store.api.TokenDAO.TokenNotFoundException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -73,19 +72,20 @@ public class RevocationResource extends BaseOAuthResource
 	public static final String LOGOUT = "logout";
 	public static final String LOGOUT_SCOPE = "single-logout";
 	
-	private final TokensManagement tokensManagement;
 	private final SessionManagement sessionManagement;
 	private final AuthenticationRealm realm;
-	private final OAuthTokenRepository oauthTokenRepository;
+	private final OAuthAccessTokenRepository accessTokenRepository;
 	private final boolean allowUnauthenticatedRevocation;
+	private final OAuthRefreshTokenRepository refreshTokenRepository;
 	
-	public RevocationResource(TokensManagement tokensManagement, OAuthTokenRepository oauthTokenRepository,
+	public RevocationResource(OAuthAccessTokenRepository accessTokenRepository,
+			OAuthRefreshTokenRepository refreshTokenRepository,
 			SessionManagement sessionManagement, 
 			AuthenticationRealm realm,
 			boolean allowUnauthenticatedRevocation)
 	{
-		this.tokensManagement = tokensManagement;
-		this.oauthTokenRepository = oauthTokenRepository;
+		this.accessTokenRepository = accessTokenRepository;
+		this.refreshTokenRepository = refreshTokenRepository;
 		this.sessionManagement = sessionManagement;
 		this.realm = realm;
 		this.allowUnauthenticatedRevocation = allowUnauthenticatedRevocation;
@@ -154,7 +154,7 @@ public class RevocationResource extends BaseOAuthResource
 		
 		try
 		{
-			tokensManagement.removeToken(internalToken.getType(), token);
+			removeToken(token, parsedToken, tokenHint, internalToken.getOwner());
 		} catch (TokenNotFoundException e)
 		{
 			//ok
@@ -173,18 +173,38 @@ public class RevocationResource extends BaseOAuthResource
 	{
 		if (TOKEN_TYPE_ACCESS.equals(tokenHint))
 		{
-			return oauthTokenRepository.readAccessToken(token);
+			return accessTokenRepository.readAccessToken(token);
 		} else if (TOKEN_TYPE_REFRESH.equals(tokenHint))
 		{
-			return tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, token);
+			return refreshTokenRepository.readRefreshToken(token);
 		} else
 		{
 			try
 			{
-				return oauthTokenRepository.readAccessToken(token);
+				return accessTokenRepository.readAccessToken(token);
 			} catch (TokenNotFoundException notFound)
 			{
-				return tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, token);
+				return refreshTokenRepository.readRefreshToken(token);
+			}
+		}
+	}
+	
+	private void removeToken(String token, OAuthToken parsedToken, String tokenHint, long userId)
+	{
+		if (TOKEN_TYPE_ACCESS.equals(tokenHint))
+		{
+			accessTokenRepository.removeAccessToken(token);
+		} else if (TOKEN_TYPE_REFRESH.equals(tokenHint))
+		{
+			refreshTokenRepository.removeRefreshToken(token, parsedToken, userId);
+		} else
+		{
+			try
+			{
+				accessTokenRepository.removeAccessToken(token);
+			} catch (TokenNotFoundException notFound)
+			{
+				refreshTokenRepository.removeRefreshToken(token, parsedToken, userId);
 			}
 		}
 	}

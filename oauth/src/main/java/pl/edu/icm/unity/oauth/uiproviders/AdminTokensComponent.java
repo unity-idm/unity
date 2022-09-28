@@ -25,11 +25,10 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
@@ -50,27 +49,27 @@ class AdminTokensComponent extends VerticalLayout
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			AdminTokensComponent.class);
 	private EntityManagement entityManagement;
-	protected SecuredTokensManagement tokenMan;
 	private MessageSource msg;
-	
 	protected VerticalLayout main;
 	protected VerticalLayout tokensTablePanel;
 	protected ComponentWithToolbar tableWithToolbar;
 	protected Grid<TableTokensBean> tokensTable;
 	private OAuthTokenViewer viewer;
 	private boolean showViewer;
-	protected final OAuthTokenRepository oauthTokenDAO;
+	protected final OAuthAccessTokenRepository accessTokenDAO;
+	protected final OAuthRefreshTokenRepository refreshTokenDAO;
+
 	
-	AdminTokensComponent(SecuredTokensManagement tokenMan, OAuthTokenRepository oauthTokenDAO, 
+	AdminTokensComponent(OAuthAccessTokenRepository accessTokenDAO,
+			OAuthRefreshTokenRepository refreshTokenDAO,
 			MessageSource msg,
 			EntityManagement entityManagement, boolean showViewer)
 	{
-		
-		this.tokenMan = tokenMan;
-		this.oauthTokenDAO = oauthTokenDAO;
+		this.accessTokenDAO = accessTokenDAO;
 		this.msg = msg;
 		this.entityManagement = entityManagement;
 		this.showViewer = showViewer;
+		this.refreshTokenDAO = refreshTokenDAO;
 		initUI();
 	}
 	
@@ -185,17 +184,23 @@ class AdminTokensComponent extends VerticalLayout
 				() -> 
 			{
 				for (TableTokensBean item : items)
-					removeToken(item.getRealType(), item.getValue());
+					removeToken(item.token);
 			}
 		).show();
 
 	}
 	
-	protected boolean removeToken(String type, String value)
+	protected boolean removeToken(Token token)
 	{
 		try
 		{
-			tokenMan.removeToken(type, value);
+			if (OAuthRefreshTokenRepository.isRefreshToken(token))
+			{
+				refreshTokenDAO.removeWithAuthorization(token.getValue());
+			}else
+			{
+				accessTokenDAO.removeWithAuthorization(token.getValue());
+			}
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -212,8 +217,8 @@ class AdminTokensComponent extends VerticalLayout
 	protected List<Token> getTokens() throws EngineException
 	{
 		List<Token> tokens = new ArrayList<>();	
-		tokens.addAll(oauthTokenDAO.getAllAccessTokens());
-		tokens.addAll(tokenMan.getAllTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN));
+		tokens.addAll(accessTokenDAO.getAllAccessTokens());
+		tokens.addAll(refreshTokenDAO.getAllRefreshTokens());
 		return tokens;
 	}
 	
@@ -314,7 +319,7 @@ class AdminTokensComponent extends VerticalLayout
 		public String getRefreshToken()
 		{
 			//show refresh token only for access token
-			boolean isRefreshToken = token.getType().equals(OAuthProcessor.INTERNAL_REFRESH_TOKEN);
+			boolean isRefreshToken = OAuthRefreshTokenRepository.isRefreshToken(token);
 			return oauthToken.getRefreshToken() != null &&	!isRefreshToken ? 
 					oauthToken.getRefreshToken() : "";
 		}

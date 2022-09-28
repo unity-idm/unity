@@ -22,12 +22,11 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.BaseTokenResource.TokensPair;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 
 /**
  * Implementation of RFC 7662 - OAuth 2.0 Token Introspection. 
@@ -40,13 +39,15 @@ import pl.edu.icm.unity.oauth.as.token.BaseTokenResource.TokensPair;
 public class TokenIntrospectionResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TokenIntrospectionResource.class);
-	private final TokensManagement tokensManagement;
-	private final OAuthTokenRepository tokenDAO;
+	private final OAuthAccessTokenRepository accessTokenRespository;
+	private final OAuthRefreshTokenRepository refreshTokenRepository;
+
 	
-	public TokenIntrospectionResource(TokensManagement tokensManagement, OAuthTokenRepository tokenDAO)
+	public TokenIntrospectionResource(OAuthAccessTokenRepository tokenDAO, 
+			OAuthRefreshTokenRepository refreshTokenDAO)
 	{
-		this.tokensManagement = tokensManagement;
-		this.tokenDAO = tokenDAO;
+		this.accessTokenRespository = tokenDAO;
+		this.refreshTokenRepository = refreshTokenDAO;
 	}
 
 	@Path("/")
@@ -77,14 +78,14 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 	{
 		try
 		{
-			Token rawToken = tokenDAO.readAccessToken(token);
+			Token rawToken = accessTokenRespository.readAccessToken(token);
 			OAuthToken parsedAccessToken = parseInternalToken(rawToken);
 			return Optional.of(new TokensPair(rawToken, parsedAccessToken));
 		} catch (IllegalArgumentException e)
 		{
 			try
 			{
-				Token rawToken = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, token);
+				Token rawToken = refreshTokenRepository.readRefreshToken(token);
 				OAuthToken parsedAccessToken = parseInternalToken(rawToken);
 				return Optional.of(new TokensPair(rawToken, parsedAccessToken));
 			} catch (IllegalArgumentException e2)

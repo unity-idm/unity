@@ -15,10 +15,9 @@ import com.vaadin.ui.HorizontalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 
@@ -32,11 +31,11 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 	private Button removeButton;
 	private Button refreshButton;
 
-	public UserHomeTokensComponent(SecuredTokensManagement tokenMan, OAuthTokenRepository tokensDAO,
+	public UserHomeTokensComponent(OAuthAccessTokenRepository accessTokensDAO, OAuthRefreshTokenRepository refreshTokenDAO,
 			MessageSource msg,
 			EntityManagement entityManagement)
 	{
-		super(tokenMan, tokensDAO, msg, entityManagement, false);
+		super(accessTokensDAO, refreshTokenDAO, msg, entityManagement, false);
 		setCaption("");
 		HorizontalLayout buttons = new HorizontalLayout();
 		removeButton = new Button(msg.getMessage("OAuthTokenUserHomeUI.remove"));
@@ -67,7 +66,7 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 					() -> 
 			{
 				for (TableTokensBean item : items)
-					removeToken(item.getRealType(), item.getValue());
+					removeToken(item.getToken());
 			}
 			).show();
 		});
@@ -80,8 +79,8 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 	{
 		//Get only owned tokens	
 		List<Token> tokens = new ArrayList<>();	
-		tokens.addAll(oauthTokenDAO.getOwnedAccessTokens());
-		tokens.addAll(tokenMan.getOwnedTokens(OAuthProcessor.INTERNAL_REFRESH_TOKEN));
+		tokens.addAll(accessTokenDAO.getOwnedAccessTokens());
+		tokens.addAll(refreshTokenDAO.getOwnedRefreshTokens());
 		return tokens;
 	}
 }

@@ -5,9 +5,10 @@
 
 package pl.edu.icm.unity.engine.api.project;
 
-import java.util.Objects;
-
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+
+import java.util.Objects;
 
 /**
  * Holds information about delegated group.
@@ -20,10 +21,10 @@ public class DelegatedGroup
 	public final String path;
 	public final GroupDelegationConfiguration delegationConfiguration;
 	public final boolean open;
-	public final String displayedName;
+	public final I18nString displayedName;
 
 	public DelegatedGroup(String path, GroupDelegationConfiguration delegationConfiguration, boolean open,
-			String displayedName)
+			I18nString displayedName)
 	{
 		this.path = path;
 		this.delegationConfiguration = delegationConfiguration;

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static pl.edu.icm.unity.oauth.as.OAuthTokenRepository.INTERNAL_ACCESS_TOKEN;
+import static pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -34,6 +34,7 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -116,7 +117,7 @@ public class OAuthProcessorTest
 		assertHasCHash((AuthenticationSuccessResponse) resp);
 		
 		AccessToken accessToken = resp.getAccessToken();
-		Token internalAccessToken = tokensMan.getTokenById(OAuthTokenRepository.INTERNAL_ACCESS_TOKEN, 
+		Token internalAccessToken = tokensMan.getTokenById(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN, 
 				accessToken.getValue());
 		verifyToken(internalAccessToken, start, end, 100);
 		assertHasCHash(internalAccessToken);
