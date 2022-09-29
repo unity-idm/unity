@@ -39,7 +39,7 @@ class MetadataSourceHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
 			MetadataSourceHandler.class);
 	private static final Duration DEFAULT_RERUN_INTERVAL = Duration.ofSeconds(5);
-	private static final Duration INITIAL_REFRESH_DELAY = Duration.ofMillis(5);
+	private static final Duration INITIAL_REFRESH_DELAY = Duration.ofMillis(2);
 	private final Duration rerunInterval;
 	private final RemoteMetadataSrc source;
 	private final ExecutorsService executorsService;
@@ -75,10 +75,9 @@ class MetadataSourceHandler
 		consumersById.put(consumer.id, consumer);
 		refreshInterval = getNewRefreshInterval();
 		boolean addedFirstConsumer = consumersById.size() == 1;
+		feedWithCached(consumer);
 		if (addedFirstConsumer)
 			startRefresh();
-		else
-			feedWithCached(consumer);	
 	}
 	
 	/**
