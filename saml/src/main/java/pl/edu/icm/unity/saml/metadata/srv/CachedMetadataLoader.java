@@ -83,7 +83,6 @@ public class CachedMetadataLoader
 		}
 		addMetaToMemoryCache(rawUri, doc);
 		doc.getEntitiesDescriptor();
-//		asyncExternalLogoFileDownloader.downloadLogoFilesAsync(doc.getEntitiesDescriptor(), customTruststore);
 
 		return doc;
 

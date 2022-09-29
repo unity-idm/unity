@@ -70,7 +70,7 @@ class MetadataSourceHandler
 	{
 		consumersById.put(consumer.id, consumer);
 		refreshInterval = getNewRefreshInterval();
-		if (!feedWithCached(consumer))
+		if (!feedWithCached(consumer) && consumersById.size() == 1)
 			scheduleQuickRefresh();
 		if (consumersById.size() == 1)
 			startRefresh();
