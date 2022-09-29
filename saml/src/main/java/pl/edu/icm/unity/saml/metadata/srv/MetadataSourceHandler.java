@@ -38,8 +38,9 @@ class MetadataSourceHandler
 	private static final Duration MAX_REFRESH_INTERVAL = Duration.ofDays(365);
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
 			MetadataSourceHandler.class);
-	private static final long DEFAULT_RERUN_INTERVAL = 5000;
-	private final long rerunInterval;
+	private static final Duration DEFAULT_RERUN_INTERVAL = Duration.ofSeconds(5);
+	private static final Duration INITIAL_REFRESH_DELAY = Duration.ofMillis(5);
+	private final Duration rerunInterval;
 	private final RemoteMetadataSrc source;
 	private final ExecutorsService executorsService;
 	private final CachedMetadataLoader downloader;
@@ -56,7 +57,7 @@ class MetadataSourceHandler
 	}
 	
 	MetadataSourceHandler(RemoteMetadataSrc source, ExecutorsService executorsService,
-			CachedMetadataLoader downloader, long reRunInterval)
+			CachedMetadataLoader downloader, Duration reRunInterval)
 	{
 		this.source = source;
 		this.executorsService = executorsService;
@@ -73,20 +74,13 @@ class MetadataSourceHandler
 	{
 		consumersById.put(consumer.id, consumer);
 		refreshInterval = getNewRefreshInterval();
-		if (!feedWithCached(consumer))
-			scheduleQuickRefresh();
-		if (consumersById.size() == 1)
+		boolean addedFirstConsumer = consumersById.size() == 1;
+		if (addedFirstConsumer)
 			startRefresh();
+		else
+			feedWithCached(consumer);	
 	}
 	
-	/**
-	 * Schedule an extra refresh
-	 */
-	private void scheduleQuickRefresh()
-	{
-		executorsService.getService().submit(this::doRefresh); 
-	}
-
 	/**
 	 * @return true if this was the last consumer
 	 */
@@ -119,7 +113,7 @@ class MetadataSourceHandler
 	{
 		scheduleWithFixedDelay = executorsService.getService().scheduleWithFixedDelay(
 				this::refresh, 
-				refreshInterval.toMillis(), rerunInterval, TimeUnit.MILLISECONDS);
+				INITIAL_REFRESH_DELAY.toMillis(), rerunInterval.toMillis(), TimeUnit.MILLISECONDS);
 	}
 	
 	
@@ -173,7 +167,7 @@ class MetadataSourceHandler
 		log.info("Metadata refresh for {} done in {}", source.url, watch);
 	}
 
-	private boolean feedWithCached(MetadataConsumer consumer)
+	private void feedWithCached(MetadataConsumer consumer)
 	{
 		Optional<EntitiesDescriptorDocument> metadata;
 		try
@@ -182,17 +176,18 @@ class MetadataSourceHandler
 		} catch (Exception e)
 		{
 			log.error("Error loading cached metadata of " + source.url, e);
-			return false;
+			return;
 		}
+		
 		if (metadata.isPresent())
 		{
 			log.debug("Providing cached metadata for new consumer of {}", source.url);
 			notifyConsumer(consumer, metadata.get());
-			return true;
+			return;
 		} else
 		{
 			log.debug("No cached metadata for new consumer of {}", source.url);
-			return false;
+			return;
 		}
 	}
 	
