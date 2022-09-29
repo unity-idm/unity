@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -78,7 +79,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, 15);
+				executorsService, downloader, Duration.ofMillis(15));
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		MetadataConsumer consumer = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "1");
@@ -94,7 +95,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, 15);
+				executorsService, downloader, Duration.ofMillis(15));
 		
 		AtomicBoolean event1 = new AtomicBoolean(false);
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> event1.set(true), "1");
@@ -113,7 +114,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, 15);
+				executorsService, downloader, Duration.ofMillis(15));
 		
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
@@ -139,7 +140,7 @@ public class MetadataSourceHandlerTest
 		});
 		
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, 20);
+				executorsService, downloader, Duration.ofMillis(20));
 		
 		AtomicInteger invCount = new AtomicInteger(0);
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(20), (m,id) -> invCount.incrementAndGet(), "1");
@@ -155,7 +156,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, 15);
+				executorsService, downloader, Duration.ofMillis(15));
 		
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
@@ -175,7 +176,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, 1000);
+				executorsService, downloader, Duration.ofMillis(1000));
 		
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
@@ -191,7 +192,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, 1000);
+				executorsService, downloader, Duration.ofMillis(1000));
 		
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
@@ -210,7 +211,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, 10000);
+				executorsService, downloader, Duration.ofMillis(10000));
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> gotEvent.set(true), "1");
