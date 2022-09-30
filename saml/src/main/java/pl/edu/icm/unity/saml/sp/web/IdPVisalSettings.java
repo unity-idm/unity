@@ -17,11 +17,13 @@ public class IdPVisalSettings
 	public final String logoURI;
 	public final Set<String> tags;
 	public final String name;
-	
-	public IdPVisalSettings(String logoURI, Collection<String> tags, String name)
+	public final String federationId;
+
+	public IdPVisalSettings(String logoURI, Collection<String> tags, String name, String federationId)
 	{
 		this.logoURI = logoURI;
 		this.tags = Set.copyOf(tags);
 		this.name = name;
+		this.federationId = federationId;
 	}
 }

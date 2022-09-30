@@ -4,29 +4,19 @@
  */
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import java.security.cert.X509Certificate;
-import java.time.Duration;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.metadata.cfg.MetadataVerificator.MetadataValidationException;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
-import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+
+import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.util.*;
 
 /**
  * Manages the retrieval, loading and update of runtime configuration based on the remote SAML metadata. 
@@ -64,14 +54,6 @@ public class RemoteMetaManager
 	public synchronized SamlProperties getVirtualConfiguration()
 	{
 		return virtualConfiguration.clone();
-	}
-
-	public synchronized IdPVisalSettings getVisualSettings(String configKey, Locale locale)
-	{
-		String logoURI = virtualConfiguration.getLocalizedValue(configKey + SAMLSPProperties.IDP_LOGO, locale);
-		String name = ((SAMLSPProperties)virtualConfiguration).getLocalizedName(configKey, locale);
-		List<String> tags = virtualConfiguration.getListOfValues(configKey + SAMLSPProperties.IDP_NAME + ".");
-		return new IdPVisalSettings(logoURI, tags, name);
 	}
 	
 	public synchronized void setBaseConfiguration(SamlProperties configuration)

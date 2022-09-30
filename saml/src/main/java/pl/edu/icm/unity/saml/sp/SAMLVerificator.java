@@ -4,36 +4,19 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import java.net.URL;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
+import eu.emi.security.authn.x509.X509Credential;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import eu.emi.security.authn.x509.X509Credential;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
-import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
+import pl.edu.icm.unity.engine.api.authn.remote.*;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
@@ -49,11 +32,7 @@ import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.SPRemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
-import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
-import pl.edu.icm.unity.saml.sp.config.SAMLSPConfigurationParser;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
+import pl.edu.icm.unity.saml.sp.config.*;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs.EndpointBindingCategory;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
 import pl.edu.icm.unity.types.authn.IdPInfo;
@@ -61,6 +40,10 @@ import pl.edu.icm.unity.types.authn.IdPInfo.IdpGroup;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
+
+import java.net.URL;
+import java.security.PublicKey;
+import java.util.*;
 
 /**
  * Binding irrelevant SAML logic: creation of a SAML authentication request and
@@ -268,7 +251,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			throw new IllegalArgumentException("There is no IdP with key " + configKey);
 		return new IdPVisalSettings(trustedIdPConfiguration.logoURI.getValue(locale.toLanguageTag()), 
 				trustedIdPConfiguration.tags, 
-				trustedIdPConfiguration.name.getValue(locale.toLanguageTag()));
+				trustedIdPConfiguration.name.getValue(locale.toLanguageTag()),
+				trustedIdPConfiguration.federationId);
 	}
 
 	@Override
