@@ -18,6 +18,19 @@ public class TrustedIdPs
 	
 	public TrustedIdPs(Collection<TrustedIdPConfiguration> trustedIdPs)
 	{
+		List<String> duplicates = trustedIdPs.stream()
+				.collect(Collectors.groupingBy(trustedIdPConfiguration -> trustedIdPConfiguration.key))
+				.values().stream()
+				.filter(trustedIdPConfigurations -> trustedIdPConfigurations.size() > 1)
+				.map(trustedIdPConfigurations ->
+						String.format(
+								"Duplicated samlId: %s for federations %s",
+								trustedIdPConfigurations.get(0).samlId,
+								trustedIdPConfigurations.stream().map(conf -> conf.federationId).collect(Collectors.toList()))
+				)
+				.collect(Collectors.toList());
+		if(duplicates.size() > 0)
+			throw new IllegalArgumentException(String.join(";", duplicates));
 		this.trustedIdPs = trustedIdPs.stream()
 				.collect(Collectors.toUnmodifiableMap(idp -> idp.key, idp -> idp));
 		this.samlEntityIdToKey = buildEntityToKeyMap(); 
