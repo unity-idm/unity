@@ -4,16 +4,9 @@
  */
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import java.security.cert.X509Certificate;
-import java.time.Duration;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -23,6 +16,12 @@ import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSourc
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+
+import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages the retrieval, loading and update of runtime configuration based on the remote SAML metadata. 
@@ -38,7 +37,6 @@ public class SPRemoteMetaManager
 	private final Map<String, MetadataConsumer> registeredConsumers = new HashMap<>();
 	private TrustedIdPs combinedTrustedIdPs;
 	private SAMLSPConfiguration configuration;
-	
 	private SPRemoteMetaManager(
 			PKIManagement pkiManagement,
 			MetadataToSPConfigConverter converter,
@@ -185,7 +183,7 @@ public class SPRemoteMetaManager
 		private final PKIManagement pkiManagement;
 		private final MetadataToSPConfigConverter converter;
 		private final RemoteMetadataService metadataService;
-		
+
 		Factory(@Qualifier("insecure") PKIManagement pkiManagement,
 				MetadataToSPConfigConverter converter,
 				RemoteMetadataService metadataService)

@@ -4,20 +4,12 @@
  */
 package pl.edu.icm.unity.saml.sp.config;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TrustedIdPs
 {
@@ -26,6 +18,19 @@ public class TrustedIdPs
 	
 	public TrustedIdPs(Collection<TrustedIdPConfiguration> trustedIdPs)
 	{
+		List<String> duplicates = trustedIdPs.stream()
+				.collect(Collectors.groupingBy(trustedIdPConfiguration -> trustedIdPConfiguration.key))
+				.values().stream()
+				.filter(trustedIdPConfigurations -> trustedIdPConfigurations.size() > 1)
+				.map(trustedIdPConfigurations ->
+						String.format(
+								"Duplicated samlId: %s for federations %s",
+								trustedIdPConfigurations.get(0).samlId,
+								trustedIdPConfigurations.stream().map(conf -> conf.federationId).collect(Collectors.toList()))
+				)
+				.collect(Collectors.toList());
+		if(duplicates.size() > 0)
+			throw new IllegalArgumentException(String.join(";", duplicates));
 		this.trustedIdPs = trustedIdPs.stream()
 				.collect(Collectors.toUnmodifiableMap(idp -> idp.key, idp -> idp));
 		this.samlEntityIdToKey = buildEntityToKeyMap(); 
@@ -82,6 +87,11 @@ public class TrustedIdPs
 	public Set<TrustedIdPKey> getKeys()
 	{
 		return Collections.unmodifiableSet(trustedIdPs.keySet());
+	}
+
+	public Set<Map.Entry<TrustedIdPKey, TrustedIdPConfiguration>> getEntrySet()
+	{
+		return Collections.unmodifiableSet(trustedIdPs.entrySet());
 	}
 
 	private boolean isOfSingleFederation(String federationId)

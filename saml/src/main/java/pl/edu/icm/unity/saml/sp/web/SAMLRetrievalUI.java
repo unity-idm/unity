@@ -4,29 +4,16 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
-
-import com.vaadin.server.ExternalResource;
-import com.vaadin.server.Page;
-import com.vaadin.server.RequestHandler;
-import com.vaadin.server.Resource;
+import com.vaadin.server.*;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
-
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
@@ -39,9 +26,14 @@ import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+
+import java.io.File;
+import java.net.URI;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The UI part of the remote SAML authn. Shows widget with a single, chosen IdP,
@@ -70,10 +62,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private IdPAuthNComponent idpComponent;
 	private AuthenticationCallback callback;
 	private String redirectParam;
+	private ExternalLogoFileLoader externalLogoFileLoader;
 
 	public SAMLRetrievalUI(MessageSource msg, URIAccessService uriAccessService, SAMLExchange credentialExchange,
 			SamlContextManagement samlContextManagement, TrustedIdPKey configKey,
-			Context context, AuthenticationStepContext authenticationStepContext)
+			Context context, AuthenticationStepContext authenticationStepContext, ExternalLogoFileLoader externalLogoFileLoader)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
@@ -84,6 +77,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		this.authenticationStepContext = authenticationStepContext;
 		this.configuration = credentialExchange.getVisualSettings(configKey, msg.getLocale());
 		this.context = context;
+		this.externalLogoFileLoader = externalLogoFileLoader;
 		initUI();
 	}
 
@@ -202,27 +196,17 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	public Resource getImage()
 	{
 		if (configuration.logoURI == null)
+			return null;
+		if(configuration.logoURI.startsWith("file:"))
 		{
+			File sourceFile = new File(configuration.logoURI);
+			if(sourceFile.exists())
+				return new FileResource(sourceFile);
 			return null;
 		}
-
-		try
-		{
-			URI uri = URIHelper.parseURI(configuration.logoURI);
-			if (URIHelper.isWebReady(uri))
-			{
-				return new ExternalResource(uri.toString());
-			} else
-			{
-				return new FileStreamResource(
-						uriAccessService.readImageURI(uri, UI.getCurrent().getTheme()))
-								.getResource();
-			}
-		} catch (Exception e)
-		{
-			log.error("Invalid logo URI " + configuration.logoURI, e);
-			return null;
-		}
+		return externalLogoFileLoader.getFile(configuration.federationId, configKey, VaadinService.getCurrentRequest().getLocale())
+				.map(FileResource::new)
+				.orElse(null);
 	}
 	
 	@Override

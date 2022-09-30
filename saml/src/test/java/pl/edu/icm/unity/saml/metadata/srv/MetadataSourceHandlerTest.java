@@ -4,16 +4,18 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
-import static java.time.Duration.ofMillis;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.apache.commons.io.IOUtils;
+import org.awaitility.Awaitility;
+import org.awaitility.Durations;
+import org.junit.Before;
+import org.junit.Test;
+import pl.edu.icm.unity.base.file.FileData;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,18 +32,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.IOUtils;
-import org.awaitility.Awaitility;
-import org.awaitility.Durations;
-import org.junit.Before;
-import org.junit.Test;
-
-import pl.edu.icm.unity.base.file.FileData;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.exceptions.EngineException;
-import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+import static java.time.Duration.ofMillis;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class MetadataSourceHandlerTest
 {
@@ -49,7 +45,8 @@ public class MetadataSourceHandlerTest
 	private RemoteMetadataSrc src;
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
-	
+	private AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader;
+
 	@Before
 	public void init() throws EngineException, IOException, URISyntaxException
 	{
@@ -61,7 +58,8 @@ public class MetadataSourceHandlerTest
 
 		fileStorageService = mock(FileStorageService.class);
 		uriAccessService = mock(URIAccessService.class);
-		
+		asyncExternalLogoFileDownloader = mock(AsyncExternalLogoFileDownloader.class);
+
 		when(fileStorageService.readFileFromWorkspace(any())).thenThrow(EngineException.class);
 		
 		when(uriAccessService.readURI(eq(new URI("http://url")))).thenAnswer((a) -> new FileData("xx",
@@ -79,7 +77,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, Duration.ofMillis(15));
+				executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		MetadataConsumer consumer = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "1");
@@ -95,7 +93,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, Duration.ofMillis(15));
+				executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
 		
 		AtomicBoolean event1 = new AtomicBoolean(false);
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> event1.set(true), "1");
@@ -114,7 +112,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, Duration.ofMillis(15));
+				executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
 		
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
@@ -140,7 +138,7 @@ public class MetadataSourceHandlerTest
 		});
 		
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, Duration.ofMillis(20));
+				executorsService, downloader, Duration.ofMillis(20), asyncExternalLogoFileDownloader);
 		
 		AtomicInteger invCount = new AtomicInteger(0);
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(20), (m,id) -> invCount.incrementAndGet(), "1");
@@ -156,7 +154,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, Duration.ofMillis(15));
+				executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
 		
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
@@ -176,7 +174,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, Duration.ofMillis(1000));
+				executorsService, downloader, Duration.ofMillis(1000), asyncExternalLogoFileDownloader);
 		
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
@@ -192,7 +190,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, Duration.ofMillis(1000));
+				executorsService, downloader, Duration.ofMillis(1000), asyncExternalLogoFileDownloader);
 		
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1");
 		handler.addConsumer(consumer1);
@@ -211,7 +209,7 @@ public class MetadataSourceHandlerTest
 	{
 		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
-				executorsService, downloader, Duration.ofMillis(10000));
+				executorsService, downloader, Duration.ofMillis(10000), asyncExternalLogoFileDownloader);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> gotEvent.set(true), "1");

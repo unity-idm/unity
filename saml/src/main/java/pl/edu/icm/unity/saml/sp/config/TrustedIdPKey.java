@@ -4,19 +4,27 @@
  */
 package pl.edu.icm.unity.saml.sp.config;
 
-import java.util.Objects;
-
 import org.apache.commons.codec.digest.DigestUtils;
-
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+
+import java.util.Objects;
+import java.util.Optional;
 
 public class TrustedIdPKey
 {
 	private final String key;
-	
+	private final Optional<SourceData> sourceData;
+
 	public TrustedIdPKey(String key)
 	{
 		this.key = key;
+		this.sourceData = Optional.empty();
+	}
+
+	private TrustedIdPKey(String entityHex, int index)
+	{
+		this.key = "_entryFromMetadata_" + entityHex + "+" + index + ".";
+		this.sourceData = Optional.of(new SourceData(entityHex, index));
 	}
 
 	public static TrustedIdPKey individuallyConfigured(String configurationEntryPrefix)
@@ -30,9 +38,13 @@ public class TrustedIdPKey
 	public static TrustedIdPKey metadataEntity(String samlEntityId, int index)
 	{
 		String entityHex = DigestUtils.md5Hex(samlEntityId);
-		return new TrustedIdPKey("_entryFromMetadata_" + entityHex + "+" + index + ".");
+		return new TrustedIdPKey(entityHex, index);
 	}
-	
+
+	public Optional<SourceData> getSourceData()
+	{
+		return sourceData;
+	}
 	public String asString()
 	{
 		return key;
@@ -61,5 +73,41 @@ public class TrustedIdPKey
 			return false;
 		TrustedIdPKey other = (TrustedIdPKey) obj;
 		return Objects.equals(key, other.key);
+	}
+
+	public static class SourceData
+	{
+		public final String entityHex;
+		public final int index;
+
+		private SourceData(String entityHex, int index)
+		{
+			this.entityHex = entityHex;
+			this.index = index;
+		}
+
+		@Override
+		public boolean equals(Object o)
+		{
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			SourceData metadata = (SourceData) o;
+			return index == metadata.index && Objects.equals(entityHex, metadata.entityHex);
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(entityHex, index);
+		}
+
+		@Override
+		public String toString()
+		{
+			return "SourceData{" +
+					"entityHex='" + entityHex + '\'' +
+					", index=" + index +
+					'}';
+		}
 	}
 }
