@@ -43,7 +43,6 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "default_email";
-	public static final String DEFAULT_LOGO_DOWNLOAD_TIMEOUT = "default_logo_download_timeout";
 	public static final String DEFAULT_SMS_CHANNEL = "default_sms";
 
 	public static final String SYSTEM_ALLOW_FULL_HTML = "unity.server.allowFullHtml"; 
@@ -53,6 +52,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	@DocumentationReferencePrefix
 	public static final String P = BASE_PREFIX + "core.";
 	
+	public static final String BULK_FILES_DOWNLOAD_TIMEOUT = "bulkFilesDownloadTimeout";
 	public static final String ENABLED_LOCALES = "enabledLocales.";
 	public static final String DEFAULT_LOCALE = "defaultLocale";
 	public static final String MAIL_CONF = "mailConfig";
@@ -520,8 +520,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "JVM max heap size in GB times 2 (but not less then 1)."));
 		
 		defaults.put(EXTENSION_PFX, new PropertyMD().setCategory(mainCat).setCanHaveSubkeys().setHidden());
-		defaults.put(DEFAULT_LOGO_DOWNLOAD_TIMEOUT, new PropertyMD("10000").setHidden()
-				.setDescription("Http connection timeout(milliseconds) defined for saml logo files downloading"));
+		defaults.put(BULK_FILES_DOWNLOAD_TIMEOUT, new PropertyMD("10000").setHidden()
+				.setDescription("Http connection & read timeout in ms, used for small files downloading, "
+						+ "like logo files. This timeout is used only in cases where downloads "
+						+ "can not take too long and failure to download is not criticlal for "
+						+ "system operation."));
 
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
