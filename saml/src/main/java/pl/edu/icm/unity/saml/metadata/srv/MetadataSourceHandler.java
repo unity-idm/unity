@@ -148,7 +148,8 @@ class MetadataSourceHandler
 	
 	private void doRefresh()
 	{
-		log.info("Refreshing metadata for {}", source.url);
+		log.info("Refreshing metadata for {}, (current refresh interval is {}s", 
+				source.url, refreshInterval.toSeconds());
 		Stopwatch watch = Stopwatch.createStarted();
 		EntitiesDescriptorDocument metadata;
 		try

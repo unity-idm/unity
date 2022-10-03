@@ -65,7 +65,7 @@ public class AsyncExternalLogoFileDownloader
 		defaultLocale = msg.getLocale().toString();
 		this.uriAccessService = uriAccessService;
 		this.converter = converter;
-		this.connectionTimeout = Integer.parseInt(conf.getValue(UnityServerConfiguration.DEFAULT_LOGO_DOWNLOAD_TIMEOUT));
+		this.connectionTimeout = conf.getIntValue(UnityServerConfiguration.BULK_FILES_DOWNLOAD_TIMEOUT);
 	}
 
 	public void downloadLogoFilesAsync(EntitiesDescriptorDocument entitiesDescriptorDocument, String httpsTruststore)
@@ -76,7 +76,8 @@ public class AsyncExternalLogoFileDownloader
 				.withRefreshInterval(Duration.ZERO)
 				.build();
 		TrustedIdPs trustedIdPs = converter.convertToTrustedIdPs(entitiesDescriptorDocument, metadataSource);
-
+		log.debug("Will download logos for {} IdPs of federation {}", trustedIdPs.getKeys().size(), 
+				entitiesDescriptorDocument.getEntitiesDescriptor().getName());
 		CompletableFuture<?>[] completableFutures = trustedIdPs.getEntrySet().stream()
 				.map(entry -> CompletableFuture.runAsync(() -> downloadFiles(entry, httpsTruststore), executorService))
 				.toArray(CompletableFuture[]::new);
@@ -101,10 +102,11 @@ public class AsyncExternalLogoFileDownloader
 			finalDir.toFile().mkdir();
 			finalDestinationFileNames = getFileNamesFromDir(finalDir);
 
-			removeFileFromFinalDestinationWhichDoNotHaveEquivalentInStageDestination(finalDestinationFileNames, stagingDestinationFileNames, finalDir);
+			removeFileFromFinalDestinationWhichDoNotHaveEquivalentInStageDestination(finalDestinationFileNames, 
+					stagingDestinationFileNames, finalDir);
 			copyDirectory(stagingDir.toFile(), finalDir.toFile());
 			deleteDirectory(stagingDir.toFile());
-			log.info("Logos from federation id {} has been refreshed", federationId);
+			log.info("Logos from federation id {} has been refreshed and put into {}", federationId, finalDir);
 		}
 		catch (IOException e)
 		{
@@ -113,8 +115,8 @@ public class AsyncExternalLogoFileDownloader
 	}
 
 	private static void removeFileFromFinalDestinationWhichDoNotHaveEquivalentInStageDestination(Set<Path> finalDestinationFileNames,
-	                                                                                             Set<Path> stagingDestinationFileNames,
-	                                                                                             Path finalDir) throws IOException
+				Set<Path> stagingDestinationFileNames,
+				Path finalDir) throws IOException
 	{
 		finalDestinationFileNames.removeAll(stagingDestinationFileNames);
 		try (Stream<Path> paths = Files.walk(finalDir))
@@ -141,11 +143,11 @@ public class AsyncExternalLogoFileDownloader
 		entry.getValue().logoURI
 				.getMap()
 				.forEach((locale, uri) ->
-						{
-							String federationDirName = federationDirName(entry.getValue().federationId);
-							String logoFileBasename = getLogoFileBasename(entry.getKey(), new Locale(locale), defaultLocale);
-							fetchAndSaveFileOnDisk(federationDirName, logoFileBasename, uri, httpsTruststore);
-						}
+					{
+						String federationDirName = federationDirName(entry.getValue().federationId);
+						String logoFileBasename = getLogoFileBasename(entry.getKey(), new Locale(locale), defaultLocale);
+						fetchAndSaveFileOnDisk(federationDirName, logoFileBasename, uri, httpsTruststore);
+					}
 				);
 	}
 
@@ -159,7 +161,7 @@ public class AsyncExternalLogoFileDownloader
 			else
 				downloadFile(catalog, name, uri, httpsTruststore);
 
-			log.trace("Logo file with uri {} has downloaded.", logoURI);
+			log.trace("Logo file with uri {} was downloaded", logoURI);
 		} catch (Exception e)
 		{
 			log.debug("Logo file with uri {} cannot be downloaded: {}", logoURI, e.getMessage());
@@ -168,6 +170,7 @@ public class AsyncExternalLogoFileDownloader
 
 	private void downloadFile(String catalog, String name, URI uri, String httpsTruststore) throws IOException
 	{
+		log.trace("Downloading from {}", uri);
 		FileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionTimeout, 0);
 		File yourFile = createFile(catalog, name + "." + FilenameUtils.getExtension(fileData.getName()));
 		Files.write(yourFile.toPath(), fileData.getContents());

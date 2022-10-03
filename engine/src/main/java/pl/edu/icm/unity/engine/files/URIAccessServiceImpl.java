@@ -216,9 +216,11 @@ public class URIAccessServiceImpl implements URIAccessService
 		return new FileData(url.toString(), fileNetworkClient.download(url, customTruststore), new Date());
 	}
 
-	private FileData readURL(URL url, String customTruststore, int connectionTimeout, int retriesNumber) throws IOException, EngineException
+	private FileData readURL(URL url, String customTruststore, int connectionTimeout, int retriesNumber) 
+			throws IOException, EngineException
 	{
-		return new FileData(url.toString(), fileNetworkClient.download(url, customTruststore, connectionTimeout, retriesNumber), new Date());
+		return new FileData(url.toString(), 
+				fileNetworkClient.download(url, customTruststore, connectionTimeout, retriesNumber), new Date());
 	}
 
 	private FileData readRestrictedFile(URI uri, String root) throws IOException, IllegalURIException

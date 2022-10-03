@@ -13,6 +13,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -37,18 +38,19 @@ class RemoteFileNetworkClient
 		this.pkiManagement = pkiManagement;
 	}
 
-	public byte[] download(URL url, String customTruststore, int connectionTimeout, int retriesNumber) throws EngineException, IOException
+	public byte[] download(URL url, String customTruststore, int connectionTimeout, int retriesNumber) 
+			throws EngineException, IOException
 	{
-		HttpClient client = url.getProtocol().equals("https") ? getSSLClient(url.toString(), customTruststore, retriesNumber)
-				: HttpClientBuilder.create()
-				.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, retriesNumber > 0))
-				.build();
+		HttpClient client = url.getProtocol().equals("https") ? 
+				getSSLClient(url.toString(), customTruststore, retriesNumber)
+				: getPlainClient(retriesNumber);
 		HttpClientContext httpClientContext = HttpClientContext.create();
 		httpClientContext.setRequestConfig(RequestConfig.custom()
 				.setConnectTimeout(connectionTimeout)
 				.build());
 		return download(client, url, httpClientContext);
 	}
+
 	public byte[] download(URL url, String customTruststore) throws EngineException, IOException
 	{
 		HttpClient client = url.getProtocol().equals("https") ? getSSLClient(url.toString(), customTruststore)
@@ -77,6 +79,12 @@ class RemoteFileNetworkClient
 		return IOUtils.toByteArray(response.getEntity().getContent());
 	}
 	
+	private CloseableHttpClient getPlainClient(int retriesNumber)
+	{
+		return HttpClientBuilder.create()
+				.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, retriesNumber > 0))
+				.build();
+	}
 	
 	private HttpClient getSSLClient(String url, String customTruststore) throws EngineException
 	{
@@ -85,7 +93,6 @@ class RemoteFileNetworkClient
 			DefaultClientConfiguration config = new DefaultClientConfiguration();
 			config.setSslEnabled(true);
 			config.setValidator(pkiManagement.getValidator(customTruststore));
-			config.setMaxWSRetries(0);
 			return HttpUtils.createClient(url, config);
 		} else
 		{
@@ -105,9 +112,7 @@ class RemoteFileNetworkClient
 			return HttpUtils.createClient(url, config);
 		} else
 		{
-			return HttpClientBuilder.create()
-					.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, retriesNumber > 0))
-					.build();
+			return getPlainClient(retriesNumber);
 		}
 	}
 
