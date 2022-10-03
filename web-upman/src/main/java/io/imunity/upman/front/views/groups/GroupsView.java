@@ -27,6 +27,8 @@ import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static java.util.stream.Collectors.toSet;
@@ -71,7 +73,7 @@ public class GroupsView extends UnityViewComponent
 			div.addClickListener(event ->
 			{
 				if(gridExpandedElements.contains(groupTreeNode))
-					grid.collapse(groupTreeNode);
+					grid.collapseRecursively(Stream.of(groupTreeNode), Integer.MAX_VALUE);
 				else
 					grid.expand(groupTreeNode);
 			});
@@ -80,7 +82,11 @@ public class GroupsView extends UnityViewComponent
 		grid.addComponentColumn(groupNode -> actionMenuFactory.createMenu(groupNode))
 				.setTextAlign(ColumnTextAlign.END);
 
-		grid.addCollapseListener(event -> gridExpandedElements.removeAll(event.getItems()));
+		grid.addCollapseListener(event ->
+		{
+			gridExpandedElements.removeAll(event.getItems());
+			grid.collapseRecursively(event.getItems(), Integer.MAX_VALUE);
+		});
 		grid.addExpandListener(event -> gridExpandedElements.addAll(event.getItems()));
 
 		return grid;
@@ -116,12 +122,26 @@ public class GroupsView extends UnityViewComponent
 
 	private void loadGrid()
 	{
+		Set<String> paths = getExtendedGroupPaths();
 		root = projectService.getProjectGroups(projectGroup);
 
 		actionMenuFactory = new GroupActionMenuFactory(menuItemFactory, this.projectGroup, root, currentUserRole);
 
+		gridExpandedElements.clear();
 		grid.setItems(List.of(root), GroupTreeNode::getChildren);
-		Set<String> paths = gridExpandedElements.stream().map(GroupTreeNode::getPath).collect(toSet());
 		grid.expand(root.getNodeWithAllOffspring().stream().filter(node -> paths.contains(node.getPath())).collect(toSet()));
+	}
+
+	private Set<String> getExtendedGroupPaths()
+	{
+		Set<String> paths;
+		if(root == null)
+			paths = Set.of();
+		else
+			paths = root.getNodeWithAllOffspring().stream()
+				.filter(grid::isExpanded)
+				.map(GroupTreeNode::getPath)
+			.collect(Collectors.toSet());
+		return paths;
 	}
 }

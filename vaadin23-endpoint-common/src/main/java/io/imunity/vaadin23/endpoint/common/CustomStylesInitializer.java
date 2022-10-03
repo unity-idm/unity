@@ -35,7 +35,7 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 	public void serviceInit(ServiceInitEvent serviceInitEvent)
 	{
 		Vaadin823EndpointProperties currentWebAppVaadinProperties = getCurrentWebAppVaadinProperties();
-		File externalCSSResource = currentWebAppVaadinProperties.getCustomCssFile();
+		File externalCSSResource = currentWebAppVaadinProperties.getCustomCssFile().orElse(null);
 
 		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(externalCSSResource));
 	}
@@ -109,13 +109,13 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 
 			if (!externalCSSFile.exists())
 			{
-				LOG.debug("Could not load custom styles: file does not exists, {}.", externalCSSFile);
+				LOG.error("Could not load custom styles: file does not exists, {}.", externalCSSFile);
 				return false;
 			}
 
 			if (!externalCSSFile.isFile())
 			{
-				LOG.debug("Could not load custom styles: unable to read file content, {}.", externalCSSFile);
+				LOG.error("Could not load custom styles: unable to read file content, {}.", externalCSSFile);
 				return false;
 			}
 
