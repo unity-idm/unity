@@ -4,21 +4,23 @@
  */
 package pl.edu.icm.unity.engine.files;
 
-import java.io.IOException;
-import java.net.URL;
-
+import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import eu.unicore.util.httpclient.HttpUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-
-import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * Wraps configuration of HTTP client which can use custom truststore and makes
@@ -35,17 +37,33 @@ class RemoteFileNetworkClient
 		this.pkiManagement = pkiManagement;
 	}
 
+	public byte[] download(URL url, String customTruststore, int connectionTimeout, int retriesNumber) throws EngineException, IOException
+	{
+		HttpClient client = url.getProtocol().equals("https") ? getSSLClient(url.toString(), customTruststore, retriesNumber)
+				: HttpClientBuilder.create()
+				.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, retriesNumber > 0))
+				.build();
+		HttpClientContext httpClientContext = HttpClientContext.create();
+		httpClientContext.setRequestConfig(RequestConfig.custom()
+				.setConnectTimeout(connectionTimeout)
+				.build());
+		return download(client, url, httpClientContext);
+	}
 	public byte[] download(URL url, String customTruststore) throws EngineException, IOException
 	{
 		HttpClient client = url.getProtocol().equals("https") ? getSSLClient(url.toString(), customTruststore)
 				: HttpClientBuilder.create().build();
-		return download(client, url);
+		return download(client, url, null);
 	}
 			
-	private byte[] download(HttpClient client, URL url) throws EngineException, IOException
+	private byte[] download(HttpClient client, URL url, HttpClientContext httpClientContext) throws EngineException, IOException
 	{
 		HttpGet request = new HttpGet(url.toString());
-		HttpResponse response = client.execute(request);
+		HttpResponse response;
+		if(httpClientContext != null)
+			response = client.execute(request, httpClientContext);
+		else
+			response = client.execute(request);
 		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 		{
 			String body = response.getEntity().getContentLength() < 10240
@@ -67,10 +85,29 @@ class RemoteFileNetworkClient
 			DefaultClientConfiguration config = new DefaultClientConfiguration();
 			config.setSslEnabled(true);
 			config.setValidator(pkiManagement.getValidator(customTruststore));
+			config.setMaxWSRetries(0);
 			return HttpUtils.createClient(url, config);
 		} else
 		{
-			return HttpClientBuilder.create().build();
+			return HttpClientBuilder.create().disableAutomaticRetries()
+					.build();
+		}
+	}
+
+	private HttpClient getSSLClient(String url, String customTruststore, int retriesNumber) throws EngineException
+	{
+		if (customTruststore != null)
+		{
+			DefaultClientConfiguration config = new DefaultClientConfiguration();
+			config.setSslEnabled(true);
+			config.setValidator(pkiManagement.getValidator(customTruststore));
+			config.setMaxWSRetries(retriesNumber);
+			return HttpUtils.createClient(url, config);
+		} else
+		{
+			return HttpClientBuilder.create()
+					.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, retriesNumber > 0))
+					.build();
 		}
 	}
 

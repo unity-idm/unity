@@ -21,8 +21,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Optional;
 
-import static pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader.federationDirName;
-import static pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader.getLogoFileBasename;
+import static pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader.*;
 
 
 @Component
@@ -35,7 +34,7 @@ public class ExternalLogoFileLoader
 
 	ExternalLogoFileLoader(UnityServerConfiguration conf, MessageSource msg)
 	{
-		workspaceDir = conf.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY);
+		workspaceDir = getLogosWorkspace(conf);
 		defaultLocale = msg.getLocale().toString();
 	}
 
@@ -48,6 +47,8 @@ public class ExternalLogoFileLoader
 		try
 		{
 			Path path = Path.of(workspaceDir, catalogName);
+			if(!Files.exists(path))
+				return Optional.empty();
 			Optional<File> file = findFile(path, fileName + ".*");
 			if(file.isPresent())
 				return file;
@@ -61,7 +62,7 @@ public class ExternalLogoFileLoader
 	}
 
 
-	public Optional<File> findFile(Path path, String glob) throws IOException
+	Optional<File> findFile(Path path, String glob) throws IOException
 	{
 		try (DirectoryStream<Path> paths = Files.newDirectoryStream(path, glob))
 		{
