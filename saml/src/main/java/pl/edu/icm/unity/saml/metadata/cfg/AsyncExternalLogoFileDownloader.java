@@ -55,39 +55,41 @@ public class AsyncExternalLogoFileDownloader
 	private final MetadataToSPConfigConverter converter;
 	private final String workspaceDir;
 	private final String defaultLocale;
+	private final int connectionTimeout;
 
 	public AsyncExternalLogoFileDownloader(UnityServerConfiguration conf, MessageSource msg, URIAccessService uriAccessService,
 	                                       ExecutorsService executorsService, MetadataToSPConfigConverter converter)
 	{
-		workspaceDir = conf.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY);
+		workspaceDir = getLogosWorkspace(conf);
 		executorService = executorsService.getService();
 		defaultLocale = msg.getLocale().toString();
 		this.uriAccessService = uriAccessService;
 		this.converter = converter;
+		this.connectionTimeout = Integer.parseInt(conf.getValue(UnityServerConfiguration.DEFAULT_LOGO_DOWNLOAD_TIMEOUT));
 	}
 
 	public void downloadLogoFilesAsync(EntitiesDescriptorDocument entitiesDescriptorDocument, String httpsTruststore)
 	{
-		RemoteMetadataSource build = RemoteMetadataSource.builder()
+		RemoteMetadataSource metadataSource = RemoteMetadataSource.builder()
 				.withTranslationProfile(new TranslationProfile("mock", "description", ProfileType.INPUT, List.of()))
 				.withUrl("url")
 				.withRefreshInterval(Duration.ZERO)
 				.build();
-		TrustedIdPs trustedIdPs = converter.convertToTrustedIdPs(entitiesDescriptorDocument, build);
-		CompletableFuture.runAsync(() ->
-				trustedIdPs.getEntrySet().forEach(entry -> downloadFiles(entry, httpsTruststore)),
-				executorService
-		).thenRunAsync(() ->
-				trustedIdPs.getEntrySet().stream()
-						.map(entry -> federationDirName(entry.getValue().federationId))
-						.distinct()
-						.forEach(this::copyToAndCleanFinalDir),
-				executorService
-		);
+		TrustedIdPs trustedIdPs = converter.convertToTrustedIdPs(entitiesDescriptorDocument, metadataSource);
+
+		CompletableFuture<?>[] completableFutures = trustedIdPs.getEntrySet().stream()
+				.map(entry -> CompletableFuture.runAsync(() -> downloadFiles(entry, httpsTruststore), executorService))
+				.toArray(CompletableFuture[]::new);
+		CompletableFuture.allOf(completableFutures)
+				.thenRunAsync(
+						() -> copyToAndCleanFinalDir(entitiesDescriptorDocument.getEntitiesDescriptor().getID()),
+						executorService
+				);
 	}
 
-	private void copyToAndCleanFinalDir(String catalog)
+	private void copyToAndCleanFinalDir(String federationId)
 	{
+		String catalog = federationDirName(federationId);
 		try
 		{
 			Set<Path> stagingDestinationFileNames;
@@ -102,10 +104,11 @@ public class AsyncExternalLogoFileDownloader
 			removeFileFromFinalDestinationWhichDoNotHaveEquivalentInStageDestination(finalDestinationFileNames, stagingDestinationFileNames, finalDir);
 			copyDirectory(stagingDir.toFile(), finalDir.toFile());
 			deleteDirectory(stagingDir.toFile());
+			log.info("Logos from federation id {} has been refreshed", federationId);
 		}
 		catch (IOException e)
 		{
-			log.info("Failed while coping/cleaning images from stage to final destination", e);
+			log.error("Failed while coping/cleaning images from stage to final destination", e);
 		}
 	}
 
@@ -141,12 +144,12 @@ public class AsyncExternalLogoFileDownloader
 						{
 							String federationDirName = federationDirName(entry.getValue().federationId);
 							String logoFileBasename = getLogoFileBasename(entry.getKey(), new Locale(locale), defaultLocale);
-							saveFileOnDisk(federationDirName, logoFileBasename, uri, httpsTruststore);
+							fetchAndSaveFileOnDisk(federationDirName, logoFileBasename, uri, httpsTruststore);
 						}
 				);
 	}
 
-	private void saveFileOnDisk(String catalog, String name, String logoURI, String httpsTruststore)
+	private void fetchAndSaveFileOnDisk(String catalog, String name, String logoURI, String httpsTruststore)
 	{
 		try
 		{
@@ -155,6 +158,8 @@ public class AsyncExternalLogoFileDownloader
 				saveFileBasedOnDataURI(catalog, name, logoURI);
 			else
 				downloadFile(catalog, name, uri, httpsTruststore);
+
+			log.trace("Logo file with uri {} has downloaded.", logoURI);
 		} catch (Exception e)
 		{
 			log.debug("Logo file with uri {} cannot be downloaded: {}", logoURI, e.getMessage());
@@ -163,7 +168,7 @@ public class AsyncExternalLogoFileDownloader
 
 	private void downloadFile(String catalog, String name, URI uri, String httpsTruststore) throws IOException
 	{
-		FileData fileData = uriAccessService.readURI(uri, httpsTruststore);
+		FileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionTimeout, 0);
 		File yourFile = createFile(catalog, name + "." + FilenameUtils.getExtension(fileData.getName()));
 		Files.write(yourFile.toPath(), fileData.getContents());
 	}
@@ -198,6 +203,11 @@ public class AsyncExternalLogoFileDownloader
 		return trustedIdPKey.getSourceData()
 				.map(metadata -> metadata.entityHex + metadata.index)
 				.orElse(trustedIdPKey.asString()) + defaultLocale;
+	}
+
+	static String getLogosWorkspace(UnityServerConfiguration conf)
+	{
+		return Path.of(conf.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY), "downloadedIdPLogos").toString();
 	}
 
 	static String federationDirName(String federationId)

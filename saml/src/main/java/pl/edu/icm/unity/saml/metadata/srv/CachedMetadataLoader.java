@@ -82,8 +82,6 @@ public class CachedMetadataLoader
 			doc = loadFile(downloadAndCache(uri, customTruststore));
 		}
 		addMetaToMemoryCache(rawUri, doc);
-		doc.getEntitiesDescriptor();
-
 		return doc;
 
 	}
