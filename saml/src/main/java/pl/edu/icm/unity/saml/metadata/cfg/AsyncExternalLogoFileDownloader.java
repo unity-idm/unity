@@ -106,7 +106,7 @@ public class AsyncExternalLogoFileDownloader
 					stagingDestinationFileNames, finalDir);
 			copyDirectory(stagingDir.toFile(), finalDir.toFile());
 			deleteDirectory(stagingDir.toFile());
-			log.info("Logos from federation id {} has been refreshed", federationId);
+			log.info("Logos from federation id {} has been refreshed and put into {}", federationId, finalDir);
 		}
 		catch (IOException e)
 		{
