@@ -19,6 +19,7 @@
         <mdui:UIInfo>
           <mdui:DisplayName xml:lang="en">Test - Unity</mdui:DisplayName>
           <mdui:Description xml:lang="en">Unity SP endpoint for testing</mdui:Description>
+          <mdui:Logo height="16" width="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAACF0RVh0U29mdHdhcmUAR3JhcGhpY0NvbnZlcnRlciAoSW50ZWwpd4f6GQAAAlBJREFUeJyUkstrE1EUxqdVW/sacVGk2pimjU0MvqkYXVmwWFC7cqUNiF24Eh/VhQsXogiiKx8g3ahVEUWlYlEraLULxX9AC7bSNPNIZiavycxk0mbm884NbWybFLzwDXdmzve759xzGN7P/hH8bNoR2auLxXmq1GhnQM1n0qrx7bPKuSpU/e1z1bIsVTl9PMIQoyL6WZSTsHEFjFeDgGVBPrgDqQt9cJZ29zo4V6XGcH5WKmtuWQW5Zw816A9uIxZ0wzZ0mF8/QGytRsRbpy4PcFVCfzoAeyaH2N4WmomdMyEd2ELh0z42w0R8rFwSsKkOsV1NsFMJGK+fQNrvA2wb+sM7EDYwNIYAtKUAXz01800M4r3dNP1EqBvq1X66lw/vhuCpKgLIg16i85GSvTWIbm8k9bZCH7xXAJzsQe7HGPITvwqHtNcXAWFPteLUKh/qgHrjEsxPw7BiPEot4+Uj2hXRxxYB3D6Pog3cWhA4OzGO7PAL5EUOVpSH/vg+zNF3SF/rLwD8/wBmtIzimMzR90ieCUHq3IxYRzPkrq2YnRyHOTYCYT0pra0GYmDNgoumgMzIkCIfCSK6cx2SZ0PIfhyCnU7OZ+Oc7NyL6K0lqTcsBUwH1irpK+dgxSVqsCQR2TfPoN68jNTFPsSPdRVqXmSeBxi/f9ISct+/IHHqKKLbGiG4V4InaTtdcQam3KBRgBkJK6nzJ0iNqyE0V9AZKHVaWQAfdCedNs719n9EAFlmqq12ikyjRl50IsNRmPxYTnNxk+0N0l8AAAD//wMAMHyFkegai4oAAAAASUVORK5CYII=</mdui:Logo>
         </mdui:UIInfo>
       </Extensions>
       <KeyDescriptor use="signing">

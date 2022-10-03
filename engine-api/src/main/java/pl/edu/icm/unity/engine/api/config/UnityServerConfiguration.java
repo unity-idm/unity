@@ -8,40 +8,27 @@
 
 package pl.edu.icm.unity.engine.api.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import eu.unicore.util.configuration.*;
+import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import eu.unicore.util.jetty.HttpServerProperties;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.CommandLinePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.configuration.DocumentationReferenceMeta;
-import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.FilePropertiesHelper;
-import eu.unicore.util.configuration.PropertyMD;
-import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
-import eu.unicore.util.jetty.HttpServerProperties;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Principal options are defined here: ids and corresponding default values.
@@ -56,6 +43,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
 	public static final String DEFAULT_EMAIL_CHANNEL = "default_email";
+	public static final String DEFAULT_LOGO_DOWNLOAD_TIMEOUT = "default_logo_download_timeout";
 	public static final String DEFAULT_SMS_CHANNEL = "default_sms";
 
 	public static final String SYSTEM_ALLOW_FULL_HTML = "unity.server.allowFullHtml"; 
@@ -532,7 +520,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "JVM max heap size in GB times 2 (but not less then 1)."));
 		
 		defaults.put(EXTENSION_PFX, new PropertyMD().setCategory(mainCat).setCanHaveSubkeys().setHidden());
-		
+		defaults.put(DEFAULT_LOGO_DOWNLOAD_TIMEOUT, new PropertyMD("10000").setHidden()
+				.setDescription("Http connection timeout(milliseconds) defined for saml logo files downloading"));
+
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
 		SUPPORTED_LOCALES.put("de", new Locale("de"));
