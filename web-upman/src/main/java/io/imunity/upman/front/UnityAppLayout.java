@@ -50,10 +50,10 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout
 	{
 		setId("unity-layout");
 
-		ExtraLayoutPanel top = new ExtraLayoutPanel("unity-layout-top", vaadinEndpointProperties.getExtraTopPanel());
-		ExtraLayoutPanel left = new ExtraLayoutPanel("unity-layout-left", vaadinEndpointProperties.getExtraLeftPanel());
-		ExtraLayoutPanel right = new ExtraLayoutPanel("unity-layout-right", vaadinEndpointProperties.getExtraRightPanel());
-		ExtraLayoutPanel bottom = new ExtraLayoutPanel("unity-layout-bottom", vaadinEndpointProperties.getExtraBottomPanel());
+		ExtraLayoutPanel top = new ExtraLayoutPanel("unity-layout-top", vaadinEndpointProperties.getExtraTopPanel().orElse(null));
+		ExtraLayoutPanel left = new ExtraLayoutPanel("unity-layout-left", vaadinEndpointProperties.getExtraLeftPanel().orElse(null));
+		ExtraLayoutPanel right = new ExtraLayoutPanel("unity-layout-right", vaadinEndpointProperties.getExtraRightPanel().orElse(null));
+		ExtraLayoutPanel bottom = new ExtraLayoutPanel("unity-layout-bottom", vaadinEndpointProperties.getExtraBottomPanel().orElse(null));
 
 
 		HorizontalLayout mainLayout = new HorizontalLayout();

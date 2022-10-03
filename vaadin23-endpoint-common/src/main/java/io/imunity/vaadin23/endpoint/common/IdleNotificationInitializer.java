@@ -71,8 +71,7 @@ public class IdleNotificationInitializer implements VaadinServiceInitListener, S
 		int secondsBeforeShowingSessionExpirationWarning = getCurrentWebAppVaadinProperties().getSecondsBeforeShowingSessionExpirationWarning();
 		LOG.debug("A new UI has been initialized, warning will be shown {}s before expiration", secondsBeforeShowingSessionExpirationWarning);
 		UnityIdleNotification idleNotification = new UnityIdleNotification(secondsBeforeShowingSessionExpirationWarning);
-		String warning = messageSource.getMessage("SessionExpiration.expirationWarning",
-				secondsBeforeShowingSessionExpirationWarning);
+		String warning = messageSource.getMessage("SessionExpiration.expirationWarning");
 		idleNotification.setMessage(warning);
 		idleNotification.addExtendSessionButton(messageSource.getMessage("SessionExpiration.extend"));
 		idleNotification.addRedirectButton(messageSource.getMessage("SessionExpiration.logoutNow"),
