@@ -7,7 +7,8 @@ package pl.edu.icm.unity.saml.metadata.cfg;
 import static java.util.Collections.emptyList;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,8 +32,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.MessageSource;
@@ -45,9 +44,9 @@ import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration.Builder;
-import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
+import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
@@ -313,15 +312,16 @@ class MetadataToSPConfigConverter
 							+ "X.509 certificate. Entity " + entityId);
 					continue;
 				}
+				
 				for (X509DataType x509Key: x509Keys)
 				{
 					byte[][] certsAsBytes = x509Key.getX509CertificateArray();
 					X509Certificate cert;
 					try
 					{
-						cert = CertificateUtils.loadCertificate(
-								new ByteArrayInputStream(certsAsBytes[0]), Encoding.DER);
-					} catch (IOException e)
+						CertificateFactory instance = CertificateFactory.getInstance("X.509");
+						cert = (X509Certificate) instance.generateCertificate(new ByteArrayInputStream(certsAsBytes[0]));
+					} catch (CertificateException e)
 					{
 						log.warn("Can not load/parse a certificate from metadata of " + entityId
 								+ ", ignoring it", e);
@@ -329,6 +329,22 @@ class MetadataToSPConfigConverter
 					}
 					ret.add(cert);
 				}
+//				for (X509DataType x509Key: x509Keys)
+//				{
+//					byte[][] certsAsBytes = x509Key.getX509CertificateArray();
+//					X509Certificate cert;
+//					try
+//					{
+//						cert = CertificateUtils.loadCertificate(
+//								new ByteArrayInputStream(certsAsBytes[0]), Encoding.DER);
+//					} catch (IOException e)
+//					{
+//						log.warn("Can not load/parse a certificate from metadata of " + entityId
+//								+ ", ignoring it", e);
+//						continue;
+//					}
+//					ret.add(cert);
+//				}
 			}
 		}
 		return ret;

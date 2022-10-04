@@ -5,7 +5,8 @@
 package pl.edu.icm.unity.saml.metadata.cfg;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +21,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.MessageSource;
@@ -129,7 +128,7 @@ public abstract class AbstractMetaToConfigConverter
 	
 	protected List<X509Certificate> getSigningCerts(KeyDescriptorType[] keys, String entityId)
 	{
-		List<X509Certificate> ret = new ArrayList<X509Certificate>();
+		List<X509Certificate> ret = new ArrayList<>();
 		for (KeyDescriptorType key: keys)
 		{
 			if (!key.isSetUse() || KeyTypes.SIGNING.equals(key.getUse()))
@@ -147,9 +146,9 @@ public abstract class AbstractMetaToConfigConverter
 					X509Certificate cert;
 					try
 					{
-						cert = CertificateUtils.loadCertificate(
-								new ByteArrayInputStream(certsAsBytes[0]), Encoding.DER);
-					} catch (IOException e)
+						CertificateFactory instance = CertificateFactory.getInstance("X.509");
+						cert = (X509Certificate) instance.generateCertificate(new ByteArrayInputStream(certsAsBytes[0]));
+					} catch (CertificateException e)
 					{
 						log.warn("Can not load/parse a certificate from metadata of " + entityId
 								+ ", ignoring it", e);
