@@ -91,16 +91,20 @@ public class AsyncExternalLogoFileDownloader
 	private void copyToAndCleanFinalDir(String federationId)
 	{
 		String catalog = federationDirName(federationId);
+		Path stagingDir = Paths.get(workspaceDir, STAGING, catalog);
+		if (!Files.exists(stagingDir))
+		{
+			log.info("No logos for federation id {}", federationId);
+			return;
+		}
+
 		try
 		{
-			Set<Path> stagingDestinationFileNames;
-			Path stagingDir = Paths.get(workspaceDir, STAGING, catalog);
-			stagingDestinationFileNames = getFileNamesFromDir(stagingDir);
+			Set<Path> stagingDestinationFileNames = getFileNamesFromDir(stagingDir);
 
-			Set<Path> finalDestinationFileNames;
 			Path finalDir = Paths.get(workspaceDir, catalog);
 			finalDir.toFile().mkdir();
-			finalDestinationFileNames = getFileNamesFromDir(finalDir);
+			Set<Path> finalDestinationFileNames = getFileNamesFromDir(finalDir);
 
 			removeFileFromFinalDestinationWhichDoNotHaveEquivalentInStageDestination(finalDestinationFileNames, 
 					stagingDestinationFileNames, finalDir);
