@@ -5,24 +5,9 @@
 
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.base.file.FileData;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+import static java.util.Base64.getDecoder;
+import static org.apache.commons.io.FileUtils.copyDirectory;
+import static org.apache.commons.io.FileUtils.deleteDirectory;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,9 +25,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Base64.getDecoder;
-import static org.apache.commons.io.FileUtils.copyDirectory;
-import static org.apache.commons.io.FileUtils.deleteDirectory;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.file.FileData;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 @Component
 public class AsyncExternalLogoFileDownloader
@@ -55,7 +56,7 @@ public class AsyncExternalLogoFileDownloader
 	private final MetadataToSPConfigConverter converter;
 	private final String workspaceDir;
 	private final String defaultLocale;
-	private final int connectionTimeout;
+	private final Duration connectionAndSocketReadTimeout;
 
 	public AsyncExternalLogoFileDownloader(UnityServerConfiguration conf, MessageSource msg, URIAccessService uriAccessService,
 	                                       ExecutorsService executorsService, MetadataToSPConfigConverter converter)
@@ -65,7 +66,7 @@ public class AsyncExternalLogoFileDownloader
 		defaultLocale = msg.getLocale().toString();
 		this.uriAccessService = uriAccessService;
 		this.converter = converter;
-		this.connectionTimeout = conf.getIntValue(UnityServerConfiguration.BULK_FILES_DOWNLOAD_TIMEOUT);
+		this.connectionAndSocketReadTimeout = Duration.ofMillis(conf.getIntValue(UnityServerConfiguration.BULK_FILES_DOWNLOAD_TIMEOUT));
 	}
 
 	public void downloadLogoFilesAsync(EntitiesDescriptorDocument entitiesDescriptorDocument, String httpsTruststore)
@@ -168,14 +169,15 @@ public class AsyncExternalLogoFileDownloader
 			log.trace("Logo file with uri {} was downloaded", logoURI);
 		} catch (Exception e)
 		{
-			log.debug("Logo file with uri {} cannot be downloaded: {}", logoURI, e.getMessage());
+			String cause = e.getCause() != null ? e.getCause().getMessage() : null;
+			log.debug("Logo file with uri {} cannot be downloaded: {}, cause: {}", logoURI, e.getMessage(), cause);
 		}
 	}
 
 	private void downloadFile(String catalog, String name, URI uri, String httpsTruststore) throws IOException
 	{
 		log.trace("Downloading from {}", uri);
-		FileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionTimeout, 0);
+		FileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionAndSocketReadTimeout, 0);
 		File yourFile = createFile(catalog, name + "." + FilenameUtils.getExtension(fileData.getName()));
 		Files.write(yourFile.toPath(), fileData.getContents());
 	}
