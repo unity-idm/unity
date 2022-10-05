@@ -9,6 +9,7 @@ package pl.edu.icm.unity.engine.api.files;
 import pl.edu.icm.unity.base.file.FileData;
 
 import java.net.URI;
+import java.time.Duration;
 
 public interface URIAccessService
 {
@@ -18,7 +19,7 @@ public interface URIAccessService
 
 	FileData readURI(URI uri, String customTruststore);
 
-	FileData readURL(URI uri, String customTruststore, int connectionTimeout, int retriesNumber);
+	FileData readURL(URI uri, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber);
 	
 	FileData readImageURI(URI uri, String themeName);
 }

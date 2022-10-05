@@ -4,24 +4,39 @@
  */
 package pl.edu.icm.unity.engine.files;
 
-import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import eu.unicore.util.httpclient.HttpUtils;
+import java.io.IOException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+
+import com.google.common.base.Preconditions;
+
+import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManagerWithHostnameChecking;
+import eu.emi.security.authn.x509.impl.HostnameMismatchCallback2;
+import eu.unicore.util.httpclient.CustomSSLConnectionSocketFactory;
+import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import eu.unicore.util.httpclient.EmptyHostnameVerifier;
+import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
+import eu.unicore.util.httpclient.HttpClientProperties;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * Wraps configuration of HTTP client which can use custom truststore and makes
@@ -38,81 +53,157 @@ class RemoteFileNetworkClient
 		this.pkiManagement = pkiManagement;
 	}
 
-	public byte[] download(URL url, String customTruststore, int connectionTimeout, int retriesNumber) 
+	byte[] download(URL url, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber)
 			throws EngineException, IOException
 	{
-		HttpClient client = url.getProtocol().equals("https") ? 
-				getSSLClient(url.toString(), customTruststore, retriesNumber)
-				: getPlainClient(retriesNumber);
-		HttpClientContext httpClientContext = HttpClientContext.create();
-		httpClientContext.setRequestConfig(RequestConfig.custom()
-				.setConnectTimeout(connectionTimeout)
-				.build());
-		return download(client, url, httpClientContext);
+		HttpClient client = new ApacheHttpClientBuilder(pkiManagement)
+				.withConnectionAndSocketReadTimeout(connectionAndSocketReadTimeout)
+				.withCustomTruststore(customTruststore)
+				.withRetriesNumber(retriesNumber)
+				.withURL(url)
+				.build();
+		return download(client, url);
 	}
 
-	public byte[] download(URL url, String customTruststore) throws EngineException, IOException
+	byte[] download(URL url, String customTruststore) throws EngineException, IOException
 	{
-		HttpClient client = url.getProtocol().equals("https") ? getSSLClient(url.toString(), customTruststore)
-				: HttpClientBuilder.create().build();
-		return download(client, url, null);
+		HttpClient client = new ApacheHttpClientBuilder(pkiManagement)
+				.withCustomTruststore(customTruststore)
+				.withURL(url)
+				.build();
+		return download(client, url);
 	}
 			
-	private byte[] download(HttpClient client, URL url, HttpClientContext httpClientContext) throws EngineException, IOException
+	private byte[] download(HttpClient client, URL url) throws EngineException, IOException
 	{
 		HttpGet request = new HttpGet(url.toString());
-		HttpResponse response;
-		if(httpClientContext != null)
-			response = client.execute(request, httpClientContext);
-		else
-			response = client.execute(request);
-		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
+		HttpResponse response = client.execute(request);
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (statusCode != HttpStatus.SC_OK)
 		{
-			String body = response.getEntity().getContentLength() < 10240
-					? EntityUtils.toString(response.getEntity())
-					: "";
-
-			throw new IOException("File download from " + url + " error: "
-					+ response.getStatusLine().toString() + "; " + body);
+			StringBuilder errorMessage = new StringBuilder()
+					.append("File download from ")
+					.append(url)
+					.append(", error: ")
+					.append(response.getStatusLine().toString());
+			if (statusCode != HttpStatus.SC_NOT_FOUND && statusCode != HttpStatus.SC_FORBIDDEN)
+			{
+				String body = response.getEntity().getContentLength() < 10240 
+						? EntityUtils.toString(response.getEntity())
+						: "HTTP body too large";
+				errorMessage.append(", body: ").append(body);
+			}
+			throw new IOException(errorMessage.toString());
 		}
 
 		return IOUtils.toByteArray(response.getEntity().getContent());
 	}
 	
-	private CloseableHttpClient getPlainClient(int retriesNumber)
+	
+	private static class ApacheHttpClientBuilder
 	{
-		return HttpClientBuilder.create()
-				.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, retriesNumber > 0))
-				.build();
+		private final PKIManagement pkiManagement;
+		
+		private URL url;
+		private String customTruststore; 
+		private Integer connectionTimeout;
+		private Integer socketReadTimeout;
+		private int retriesNumber = -1;
+
+		ApacheHttpClientBuilder(PKIManagement pkiManagement)
+		{
+			this.pkiManagement = pkiManagement;
+			HttpClientProperties properties = new DefaultClientConfiguration().getHttpClientProperties();
+			this.connectionTimeout = properties.getIntValue(HttpClientProperties.CONNECT_TIMEOUT);
+			this.socketReadTimeout = properties.getIntValue(HttpClientProperties.SO_TIMEOUT);
+		}
+		
+		ApacheHttpClientBuilder withURL(URL url)
+		{
+			this.url = url;
+			return this;
+		}
+		
+		ApacheHttpClientBuilder withCustomTruststore(String customTruststore)
+		{
+			this.customTruststore = customTruststore;
+			return this;
+		}
+		
+		ApacheHttpClientBuilder withConnectionAndSocketReadTimeout(Duration connectionAndSocketReadTimeout)
+		{
+			this.connectionTimeout = (int) connectionAndSocketReadTimeout.toMillis();
+			this.socketReadTimeout = (int) connectionAndSocketReadTimeout.toMillis();
+			return this;
+		}
+		
+		ApacheHttpClientBuilder withRetriesNumber(int retriesNumber)
+		{
+			this.retriesNumber = retriesNumber;
+			return this;
+		}
+		
+		HttpClient build() throws EngineException
+		{
+			Preconditions.checkNotNull(url, "url must not provided");
+			
+			HttpClientBuilder builder = HttpClientBuilder.create();
+			
+			if (retriesNumber == 0)
+			{
+				builder.disableAutomaticRetries();
+				
+			} else if (retriesNumber > 0)
+			{
+				builder.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, retriesNumber > 0));
+			}
+			
+			builder.setDefaultRequestConfig(RequestConfig.custom()
+					.setSocketTimeout(socketReadTimeout)
+					.setConnectTimeout(connectionTimeout)
+					.setConnectionRequestTimeout(connectionTimeout)
+					.build());
+			
+			if (customTruststore != null && url.getProtocol().equals("https"))
+			{
+				X509CertChainValidatorExt validator = pkiManagement.getValidator(customTruststore);
+				SSLContext sslContext = new SSLContextBuilder(validator).build();
+				CustomSSLConnectionSocketFactory sslsf = new CustomSSLConnectionSocketFactory(sslContext,
+						new EmptyHostnameVerifier(), socketReadTimeout);
+				builder.setSSLSocketFactory(sslsf);
+			}
+			
+			return builder.build();
+		}
+		
 	}
 	
-	private HttpClient getSSLClient(String url, String customTruststore) throws EngineException
+	private static class SSLContextBuilder
 	{
-		if (customTruststore != null)
-		{
-			DefaultClientConfiguration config = new DefaultClientConfiguration();
-			config.setSslEnabled(true);
-			config.setValidator(pkiManagement.getValidator(customTruststore));
-			return HttpUtils.createClient(url, config);
-		} else
-		{
-			return HttpClientBuilder.create().disableAutomaticRetries()
-					.build();
-		}
-	}
+		private static final String TLSV_1_2 = "TLSv1.2";
 
-	private HttpClient getSSLClient(String url, String customTruststore, int retriesNumber) throws EngineException
-	{
-		if (customTruststore != null)
+		private final X509CertChainValidatorExt validator;
+		
+		SSLContextBuilder(X509CertChainValidatorExt validator)
 		{
-			DefaultClientConfiguration config = new DefaultClientConfiguration();
-			config.setSslEnabled(true);
-			config.setValidator(pkiManagement.getValidator(customTruststore));
-			config.setMaxWSRetries(retriesNumber);
-			return HttpUtils.createClient(url, config);
-		} else
+			this.validator = validator;
+		}
+
+		SSLContext build()
 		{
-			return getPlainClient(retriesNumber);
+			try
+			{
+				SSLContext sslContext = SSLContext.getInstance(TLSV_1_2);
+				HostnameMismatchCallback2 hostnameVerificationCallback = new HostnameMismatchCallbackImpl(
+						ServerHostnameCheckingMode.NONE);
+				X509TrustManager tm = new SSLTrustManagerWithHostnameChecking(validator, hostnameVerificationCallback);
+				sslContext.init(null, new TrustManager[] { tm }, null);
+				return sslContext;
+
+			} catch (NoSuchAlgorithmException | KeyManagementException e)
+			{
+				throw new IllegalStateException("Could not build SSLContext", e);
+			}
 		}
 	}
 

@@ -31,6 +31,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 
@@ -92,11 +93,11 @@ public class URIAccessServiceImpl implements URIAccessService
 
 	@Override
 	@Transactional
-	public FileData readURL(URI uri, String customTruststore, int connectionTimeout, int retriesNumber)
+	public FileData readURL(URI uri, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber)
 	{
 		try
 		{
-			return readURL(uri.toURL(), customTruststore, connectionTimeout, retriesNumber);
+			return readURL(uri.toURL(), customTruststore, connectionAndSocketReadTimeout, retriesNumber);
 		} catch (EngineException | IOException e)
 		{
 			log.trace("Can not read uri: " + uri, e);
@@ -216,11 +217,11 @@ public class URIAccessServiceImpl implements URIAccessService
 		return new FileData(url.toString(), fileNetworkClient.download(url, customTruststore), new Date());
 	}
 
-	private FileData readURL(URL url, String customTruststore, int connectionTimeout, int retriesNumber) 
+	private FileData readURL(URL url, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber) 
 			throws IOException, EngineException
 	{
 		return new FileData(url.toString(), 
-				fileNetworkClient.download(url, customTruststore, connectionTimeout, retriesNumber), new Date());
+				fileNetworkClient.download(url, customTruststore, connectionAndSocketReadTimeout, retriesNumber), new Date());
 	}
 
 	private FileData readRestrictedFile(URI uri, String root) throws IOException, IllegalURIException
