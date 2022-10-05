@@ -166,7 +166,7 @@ public class AsyncExternalLogoFileDownloader
 			else
 				downloadFile(catalog, name, uri, httpsTruststore);
 
-			log.trace("Logo file with uri {} was downloaded", logoURI);
+			log.debug("Logo file with uri {} was downloaded to {}", logoURI, name);
 		} catch (Exception e)
 		{
 			String cause = e.getCause() != null ? e.getCause().getMessage() : null;
@@ -178,7 +178,10 @@ public class AsyncExternalLogoFileDownloader
 	{
 		log.trace("Downloading from {}", uri);
 		FileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionAndSocketReadTimeout, 0);
-		File yourFile = createFile(catalog, name + "." + FilenameUtils.getExtension(fileData.getName()));
+		String extension = FilenameUtils.getExtension(uri.getPath());
+		if (extension == null || extension.isBlank())
+			throw new IllegalStateException("Can not decode extension from path " + uri.getPath());
+		File yourFile = createFile(catalog, name + "." + extension);
 		Files.write(yourFile.toPath(), fileData.getContents());
 	}
 
@@ -188,7 +191,10 @@ public class AsyncExternalLogoFileDownloader
 		String data = logoURI.substring(dataStartIndex);
 		byte[] decoded = getDecoder().decode(data);
 		String mimeType = StringUtils.substringBetween(logoURI, ":", ";");
-		File yourFile = createFile(catalog, name + "." + getExtension(mimeType));
+		String extension = getExtension(mimeType);
+		if (extension == null)
+			throw new IllegalStateException("Can not decode extension from data URI " + logoURI);
+		File yourFile = createFile(catalog, name + "." + extension);
 		Files.write(yourFile.toPath(), decoded);
 	}
 
@@ -202,16 +208,15 @@ public class AsyncExternalLogoFileDownloader
 
 	static String getLogoFileBasename(TrustedIdPKey trustedIdPKey, Locale locale, String defaultLocale)
 	{
-		return trustedIdPKey.getSourceData()
-				.map(metadata -> metadata.entityHex + metadata.index)
-				.orElse(trustedIdPKey.asString()) + ((locale == null || locale.toString().isBlank()) ? defaultLocale : locale);
+		return getLogoFileBasename(trustedIdPKey, locale == null || locale.toString().isBlank() ? defaultLocale : locale.toString());
 	}
 
-	static String getLogoFileBasename(TrustedIdPKey trustedIdPKey, String defaultLocale)
+	static String getLogoFileBasename(TrustedIdPKey trustedIdPKey, String localeString)
 	{
 		return trustedIdPKey.getSourceData()
 				.map(metadata -> metadata.entityHex + metadata.index)
-				.orElse(trustedIdPKey.asString()) + defaultLocale;
+				.orElse(trustedIdPKey.asString()) 
+			+ localeString;
 	}
 
 	static String getLogosWorkspace(UnityServerConfiguration conf)
@@ -236,6 +241,7 @@ public class AsyncExternalLogoFileDownloader
 			Map.entry("image/gif", "gif"),
 			Map.entry("image/png", "png"),
 			Map.entry("image/jpeg", "jpeg"),
+			Map.entry("image/jpg", "jpeg"),
 			Map.entry("image/svg+xml", "svg"),
 			Map.entry("image/x-icon", "ico"),
 			Map.entry("image/vnd.microsoft.icon", "ico")
