@@ -300,7 +300,7 @@ class MetadataToSPConfigConverter
 	
 	private static List<X509Certificate> getSigningCerts(KeyDescriptorType[] keys, String entityId)
 	{
-		List<X509Certificate> ret = new ArrayList<X509Certificate>();
+		List<X509Certificate> ret = new ArrayList<>();
 		for (KeyDescriptorType key: keys)
 		{
 			if (!key.isSetUse() || KeyTypes.SIGNING.equals(key.getUse()))
@@ -329,22 +329,6 @@ class MetadataToSPConfigConverter
 					}
 					ret.add(cert);
 				}
-//				for (X509DataType x509Key: x509Keys)
-//				{
-//					byte[][] certsAsBytes = x509Key.getX509CertificateArray();
-//					X509Certificate cert;
-//					try
-//					{
-//						cert = CertificateUtils.loadCertificate(
-//								new ByteArrayInputStream(certsAsBytes[0]), Encoding.DER);
-//					} catch (IOException e)
-//					{
-//						log.warn("Can not load/parse a certificate from metadata of " + entityId
-//								+ ", ignoring it", e);
-//						continue;
-//					}
-//					ret.add(cert);
-//				}
 			}
 		}
 		return ret;
