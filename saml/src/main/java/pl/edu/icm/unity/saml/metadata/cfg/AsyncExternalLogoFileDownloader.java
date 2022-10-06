@@ -171,6 +171,7 @@ public class AsyncExternalLogoFileDownloader
 		{
 			String cause = e.getCause() != null ? e.getCause().getMessage() : null;
 			log.debug("Logo file with uri {} cannot be downloaded: {}, cause: {}", logoURI, e.getMessage(), cause);
+			log.trace("Failed to fetch logo: {}", logoURI, e);
 		}
 	}
 

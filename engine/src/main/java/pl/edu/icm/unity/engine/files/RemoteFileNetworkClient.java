@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.engine.files;
 
+import static eu.unicore.util.httpclient.HttpClientProperties.CONNECT_TIMEOUT;
+import static eu.unicore.util.httpclient.HttpClientProperties.SO_TIMEOUT;
+
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -46,6 +49,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  */
 class RemoteFileNetworkClient
 {
+	private static final long MAX_BODY_SIZE_TO_LOG = 10240;
 	private PKIManagement pkiManagement;
 
 	RemoteFileNetworkClient(PKIManagement pkiManagement)
@@ -67,8 +71,12 @@ class RemoteFileNetworkClient
 
 	byte[] download(URL url, String customTruststore) throws EngineException, IOException
 	{
+		HttpClientProperties properties = new DefaultClientConfiguration().getHttpClientProperties();
 		HttpClient client = new ApacheHttpClientBuilder(pkiManagement)
 				.withCustomTruststore(customTruststore)
+				.withSocketReadTimeout(properties.getIntValue(SO_TIMEOUT))
+				.withConnectionTimeout(properties.getIntValue(CONNECT_TIMEOUT))
+				.withDefaultRetries()
 				.withURL(url)
 				.build();
 		return download(client, url);
@@ -88,7 +96,7 @@ class RemoteFileNetworkClient
 					.append(response.getStatusLine().toString());
 			if (statusCode != HttpStatus.SC_NOT_FOUND && statusCode != HttpStatus.SC_FORBIDDEN)
 			{
-				String body = response.getEntity().getContentLength() < 10240 
+				String body = response.getEntity().getContentLength() < MAX_BODY_SIZE_TO_LOG 
 						? EntityUtils.toString(response.getEntity())
 						: "HTTP body too large";
 				errorMessage.append(", body: ").append(body);
@@ -102,22 +110,26 @@ class RemoteFileNetworkClient
 	
 	private static class ApacheHttpClientBuilder
 	{
+		private static final int DEFAULT_RETRY_MECHANISM = -1;
 		private final PKIManagement pkiManagement;
 		
 		private URL url;
 		private String customTruststore; 
 		private Integer connectionTimeout;
 		private Integer socketReadTimeout;
-		private int retriesNumber = -1;
+		private int retriesNumber = DEFAULT_RETRY_MECHANISM;
 
 		ApacheHttpClientBuilder(PKIManagement pkiManagement)
 		{
 			this.pkiManagement = pkiManagement;
-			HttpClientProperties properties = new DefaultClientConfiguration().getHttpClientProperties();
-			this.connectionTimeout = properties.getIntValue(HttpClientProperties.CONNECT_TIMEOUT);
-			this.socketReadTimeout = properties.getIntValue(HttpClientProperties.SO_TIMEOUT);
 		}
 		
+		public ApacheHttpClientBuilder withDefaultRetries()
+		{
+			this.retriesNumber = DEFAULT_RETRY_MECHANISM;
+			return this;
+		}
+
 		ApacheHttpClientBuilder withURL(URL url)
 		{
 			this.url = url;
@@ -127,6 +139,18 @@ class RemoteFileNetworkClient
 		ApacheHttpClientBuilder withCustomTruststore(String customTruststore)
 		{
 			this.customTruststore = customTruststore;
+			return this;
+		}
+		
+		ApacheHttpClientBuilder withConnectionTimeout(int connectionTimeout)
+		{
+			this.connectionTimeout = connectionTimeout;
+			return this;
+		}
+		
+		ApacheHttpClientBuilder withSocketReadTimeout(int socketReadTimeout)
+		{
+			this.socketReadTimeout = socketReadTimeout;
 			return this;
 		}
 		
@@ -146,6 +170,8 @@ class RemoteFileNetworkClient
 		HttpClient build() throws EngineException
 		{
 			Preconditions.checkNotNull(url, "url must not provided");
+			Preconditions.checkNotNull(connectionTimeout, "connectionTimeout must not provided");
+			Preconditions.checkNotNull(socketReadTimeout, "socketReadTimeout must not provided");
 			
 			HttpClientBuilder builder = HttpClientBuilder.create();
 			
@@ -155,7 +181,11 @@ class RemoteFileNetworkClient
 				
 			} else if (retriesNumber > 0)
 			{
-				builder.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, retriesNumber > 0));
+				builder.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, true));
+				
+			} else if (retriesNumber == DEFAULT_RETRY_MECHANISM)
+			{
+				builder.setRetryHandler(DefaultHttpRequestRetryHandler.INSTANCE);
 			}
 			
 			builder.setDefaultRequestConfig(RequestConfig.custom()
