@@ -12,7 +12,6 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
@@ -48,7 +47,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
 
 	private final MessageSource msg;
-	private final URIAccessService uriAccessService;
 	private final AuthenticationStepContext authenticationStepContext;
 	private final SAMLExchange credentialExchange;
 	private final TrustedIdPKey configKey;
@@ -64,12 +62,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private String redirectParam;
 	private ExternalLogoFileLoader externalLogoFileLoader;
 
-	public SAMLRetrievalUI(MessageSource msg, URIAccessService uriAccessService, SAMLExchange credentialExchange,
+	public SAMLRetrievalUI(MessageSource msg, SAMLExchange credentialExchange,
 			SamlContextManagement samlContextManagement, TrustedIdPKey configKey,
 			Context context, AuthenticationStepContext authenticationStepContext, ExternalLogoFileLoader externalLogoFileLoader)
 	{
 		this.msg = msg;
-		this.uriAccessService = uriAccessService;
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
 		this.idpKey = authenticationStepContext.authnOptionId.getOptionKey();
@@ -201,12 +198,20 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		{
 			File sourceFile = new File(configuration.logoURI);
 			if(sourceFile.exists())
-				return new FileResource(sourceFile);
+				return new IdPAuthNComponent.DisappearingFileResource(sourceFile);
 			return null;
 		}
-		return externalLogoFileLoader.getFile(configuration.federationId, configKey, VaadinService.getCurrentRequest().getLocale())
-				.map(FileResource::new)
+		try
+		{
+			return externalLogoFileLoader.getFile(configuration.federationId, configKey,
+					VaadinService.getCurrentRequest().getLocale())
+				.map(IdPAuthNComponent.DisappearingFileResource::new)
 				.orElse(null);
+		} catch (Exception e)
+		{
+			log.debug("Can not load logo fetched from URI " + configuration.logoURI, e);
+			return null;
+		}
 	}
 	
 	@Override
