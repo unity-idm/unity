@@ -12,6 +12,7 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,16 +26,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.files.RemoteFileData;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
@@ -61,7 +59,7 @@ public class AsyncExternalLogoFileDownloader
 	public AsyncExternalLogoFileDownloader(UnityServerConfiguration conf, MessageSource msg, URIAccessService uriAccessService,
 	                                       ExecutorsService executorsService, MetadataToSPConfigConverter converter)
 	{
-		workspaceDir = getLogosWorkspace(conf);
+		workspaceDir = LogoFilenameUtils.getLogosWorkspace(conf);
 		executorService = executorsService.getService();
 		defaultLocale = msg.getLocale().toString();
 		this.uriAccessService = uriAccessService;
@@ -91,7 +89,7 @@ public class AsyncExternalLogoFileDownloader
 
 	private void copyToAndCleanFinalDir(String federationId)
 	{
-		String catalog = federationDirName(federationId);
+		String catalog = LogoFilenameUtils.federationDirName(federationId);
 		Path stagingDir = Paths.get(workspaceDir, STAGING, catalog);
 		if (!Files.exists(stagingDir))
 		{
@@ -149,8 +147,8 @@ public class AsyncExternalLogoFileDownloader
 				.getMap()
 				.forEach((locale, uri) ->
 					{
-						String federationDirName = federationDirName(entry.getValue().federationId);
-						String logoFileBasename = getLogoFileBasename(entry.getKey(), new Locale(locale), defaultLocale);
+						String federationDirName = LogoFilenameUtils.federationDirName(entry.getValue().federationId);
+						String logoFileBasename = LogoFilenameUtils.getLogoFileBasename(entry.getKey(), new Locale(locale), defaultLocale);
 						fetchAndSaveFileOnDisk(federationDirName, logoFileBasename, uri, httpsTruststore);
 					}
 				);
@@ -162,95 +160,59 @@ public class AsyncExternalLogoFileDownloader
 		{
 			URI uri = URI.create(logoURI);
 			if(uri.getScheme().equals("data"))
-				saveFileBasedOnDataURI(catalog, name, logoURI);
+				saveFileBasedOnDataURI(catalog, name, uri);
 			else
 				downloadFile(catalog, name, uri, httpsTruststore);
 
-			log.debug("Logo file with uri {} was downloaded to {}", logoURI, name);
+			log.trace("Logo file with uri {} was downloaded to {}", logoURI, name);
 		} catch (Exception e)
 		{
-			String cause = e.getCause() != null ? e.getCause().getMessage() : null;
-			log.debug("Logo file with uri {} cannot be downloaded: {}, cause: {}", logoURI, e.getMessage(), cause);
-			log.trace("Failed to fetch logo: {}", logoURI, e);
+			String cause = e.getCause() != null ? e.getCause().getMessage() : "-";
+			if (e.getCause() == null || !knownException(e.getCause()))
+				log.debug("Details of fetching logo {} error", logoURI, e);
+			else if (log.isTraceEnabled())
+				log.trace("Details of fetching logo {} error", logoURI, e);
+			else
+				log.debug("Logo file with uri {} cannot be downloaded: {}, cause: {}", logoURI, e.getMessage(), cause);
 		}
+	}
+
+	private boolean knownException(Throwable exception)
+	{
+		return exception instanceof IOException; 
 	}
 
 	private void downloadFile(String catalog, String name, URI uri, String httpsTruststore) throws IOException
 	{
 		log.trace("Downloading from {}", uri);
-		FileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionAndSocketReadTimeout, 0);
-		String extension = FilenameUtils.getExtension(uri.getPath());
-		if (extension == null || extension.isBlank())
-			throw new IllegalStateException("Can not decode extension from path " + uri.getPath());
-		File yourFile = createFile(catalog, name + "." + extension);
-		Files.write(yourFile.toPath(), fileData.getContents());
+		RemoteFileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionAndSocketReadTimeout, 0);
+		String extension = LogoFilenameUtils.getExtensionForRemoteFile(fileData);
+		saveImageFileAndItsPointer(catalog, name, fileData.getContents(), extension);
 	}
 
-	private void saveFileBasedOnDataURI(String catalog, String name, String logoURI) throws IOException
+	private void saveFileBasedOnDataURI(String catalog, String name, URI logoURI) throws IOException
 	{
-		int dataStartIndex = logoURI.indexOf(",") + 1;
-		String data = logoURI.substring(dataStartIndex);
+		String logoURIStr = logoURI.toString();
+		int dataStartIndex = logoURIStr.indexOf(",") + 1;
+		String data = logoURIStr.substring(dataStartIndex);
 		byte[] decoded = getDecoder().decode(data);
-		String mimeType = StringUtils.substringBetween(logoURI, ":", ";");
-		String extension = getExtension(mimeType);
-		if (extension == null)
-			throw new IllegalStateException("Can not decode extension from data URI " + logoURI);
-		File yourFile = createFile(catalog, name + "." + extension);
-		Files.write(yourFile.toPath(), decoded);
+		String extension = LogoFilenameUtils.getExtensionFromDataURI(logoURI);
+		saveImageFileAndItsPointer(catalog, name, decoded, extension);
+	}
+
+	private void saveImageFileAndItsPointer(String catalog, String name, byte[] decoded, String extension) throws IOException
+	{
+		File imageFile = createFile(catalog, name + "." + extension);
+		Files.write(imageFile.toPath(), decoded);
+		File pointerFile = createFile(catalog, name);
+		Files.write(pointerFile.toPath(), extension.getBytes(StandardCharsets.UTF_8));
 	}
 
 	private File createFile(String catalog, String name) throws IOException
 	{
 		new File(Path.of(workspaceDir, STAGING, catalog).toUri()).mkdirs();
-		File yourFile = new File(Path.of(workspaceDir, STAGING, catalog, name).toUri());
-		yourFile.createNewFile();
-		return yourFile;
-	}
-
-	static String getLogoFileBasename(TrustedIdPKey trustedIdPKey, Locale locale, String defaultLocale)
-	{
-		return getLogoFileBasename(trustedIdPKey, locale == null || locale.toString().isBlank() ? defaultLocale : locale.toString());
-	}
-
-	static String getLogoFileBasename(TrustedIdPKey trustedIdPKey, String localeString)
-	{
-		return trustedIdPKey.getSourceData()
-				.map(metadata -> metadata.entityHex + metadata.index)
-				.orElse(trustedIdPKey.asString()) 
-			+ localeString;
-	}
-
-	static String getLogosWorkspace(UnityServerConfiguration conf)
-	{
-		return Path.of(conf.getValue(UnityServerConfiguration.WORKSPACE_DIRECTORY), "downloadedIdPLogos").toString();
-	}
-
-	static String federationDirName(String federationId)
-	{
-		return DigestUtils.md5Hex(federationId);
-	}
-
-	private String getExtension(String mimeType)
-	{
-		return MimeToExtensionTranslator.translateMimeTypeToExtension(mimeType);
-	}
-
-	static class MimeToExtensionTranslator
-	{
-		private static Map<String, String> mimeTypesToExtensions = Map.ofEntries(
-			Map.entry("image/bmp", "bmp"),
-			Map.entry("image/gif", "gif"),
-			Map.entry("image/png", "png"),
-			Map.entry("image/jpeg", "jpeg"),
-			Map.entry("image/jpg", "jpeg"),
-			Map.entry("image/svg+xml", "svg"),
-			Map.entry("image/x-icon", "ico"),
-			Map.entry("image/vnd.microsoft.icon", "ico")
-		);
-
-		private static String translateMimeTypeToExtension(String mimeType)
-		{
-			return mimeTypesToExtensions.get(mimeType);
-		}
+		File file = new File(Path.of(workspaceDir, STAGING, catalog, name).toUri());
+		file.createNewFile();
+		return file;
 	}
 }

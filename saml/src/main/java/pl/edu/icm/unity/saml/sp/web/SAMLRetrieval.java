@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.*;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
@@ -45,17 +44,15 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	private MessageSource msg;
 	private SamlContextManagement samlContextManagement;
 	private SAMLProxyAuthnHandler proxyAuthnHandler;
-	private URIAccessService uriAccessService;
 	private ExternalLogoFileLoader externalLogoFileLoader;
 
 	@Autowired
 	public SAMLRetrieval(MessageSource msg, SamlContextManagement samlContextManagement,
-	                     URIAccessService uriAccessService, ExternalLogoFileLoader externalLogoFileLoader)
+	                     ExternalLogoFileLoader externalLogoFileLoader)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.samlContextManagement = samlContextManagement;
-		this.uriAccessService = uriAccessService;
 		this.externalLogoFileLoader = externalLogoFileLoader;
 	}
 
@@ -84,7 +81,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 				AuthenticationOptionKey authenticationOptionKey = 
 						new AuthenticationOptionKey(getAuthenticatorId(), idpKey.asString());
 
-				ret.add(new SAMLRetrievalUI(msg, uriAccessService, credentialExchange, 
+				ret.add(new SAMLRetrievalUI(msg, credentialExchange, 
 						samlContextManagement, 
 						idp.key, context,
 						new AuthenticationStepContext(authnStepContext, authenticationOptionKey),

@@ -18,6 +18,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -57,7 +58,7 @@ class RemoteFileNetworkClient
 		this.pkiManagement = pkiManagement;
 	}
 
-	byte[] download(URL url, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber)
+	ContentsWithType download(URL url, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber)
 			throws EngineException, IOException
 	{
 		HttpClient client = new ApacheHttpClientBuilder(pkiManagement)
@@ -69,7 +70,7 @@ class RemoteFileNetworkClient
 		return download(client, url);
 	}
 
-	byte[] download(URL url, String customTruststore) throws EngineException, IOException
+	ContentsWithType download(URL url, String customTruststore) throws EngineException, IOException
 	{
 		HttpClientProperties properties = new DefaultClientConfiguration().getHttpClientProperties();
 		HttpClient client = new ApacheHttpClientBuilder(pkiManagement)
@@ -82,7 +83,7 @@ class RemoteFileNetworkClient
 		return download(client, url);
 	}
 			
-	private byte[] download(HttpClient client, URL url) throws EngineException, IOException
+	private ContentsWithType download(HttpClient client, URL url) throws EngineException, IOException
 	{
 		HttpGet request = new HttpGet(url.toString());
 		HttpResponse response = client.execute(request);
@@ -103,10 +104,22 @@ class RemoteFileNetworkClient
 			}
 			throw new IOException(errorMessage.toString());
 		}
-
-		return IOUtils.toByteArray(response.getEntity().getContent());
+		Header contentTypeHeader = response.getFirstHeader("Content-Type");
+		String contentType = contentTypeHeader != null ? contentTypeHeader.getValue() : null;
+		return new ContentsWithType(IOUtils.toByteArray(response.getEntity().getContent()), contentType);
 	}
 	
+	static class ContentsWithType
+	{
+		final byte[] contents;
+		final String mimeType;
+
+		ContentsWithType(byte[] contents, String mimeType)
+		{
+			this.contents = contents;
+			this.mimeType = mimeType;
+		}
+	}
 	
 	private static class ApacheHttpClientBuilder
 	{

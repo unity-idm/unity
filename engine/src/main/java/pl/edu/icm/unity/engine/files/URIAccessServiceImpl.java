@@ -17,9 +17,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.IllegalURIException;
+import pl.edu.icm.unity.engine.api.files.RemoteFileData;
 import pl.edu.icm.unity.engine.api.files.URIAccessException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.engine.files.RemoteFileNetworkClient.ContentsWithType;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.FileDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -93,7 +95,7 @@ public class URIAccessServiceImpl implements URIAccessService
 
 	@Override
 	@Transactional
-	public FileData readURL(URI uri, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber)
+	public RemoteFileData readURL(URI uri, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber)
 	{
 		try
 		{
@@ -214,14 +216,16 @@ public class URIAccessServiceImpl implements URIAccessService
 
 	private FileData readURL(URL url, String customTruststore) throws IOException, EngineException
 	{
-		return new FileData(url.toString(), fileNetworkClient.download(url, customTruststore), new Date());
+		ContentsWithType contentsWithType = fileNetworkClient.download(url, customTruststore);
+		return new FileData(url.toString(), contentsWithType.contents, new Date());
 	}
 
-	private FileData readURL(URL url, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber) 
+	private RemoteFileData readURL(URL url, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber) 
 			throws IOException, EngineException
 	{
-		return new FileData(url.toString(), 
-				fileNetworkClient.download(url, customTruststore, connectionAndSocketReadTimeout, retriesNumber), new Date());
+		ContentsWithType contentsWithType = fileNetworkClient.download(url, customTruststore, 
+				connectionAndSocketReadTimeout, retriesNumber);
+		return new RemoteFileData(url.toString(), contentsWithType.contents, new Date(), contentsWithType.mimeType);
 	}
 
 	private FileData readRestrictedFile(URI uri, String root) throws IOException, IllegalURIException
