@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.files.IllegalURIException;
 import pl.edu.icm.unity.engine.api.files.URIAccessException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.engine.files.RemoteFileNetworkClient.ContentsWithType;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.FileDAO;
 import pl.edu.icm.unity.test.utils.ExceptionsUtils;
@@ -92,9 +93,11 @@ public class URIAccessServiceTest
 	@Test
 	public void shouldReadImageUrl() throws IllegalURIException, EngineException, MalformedURLException, IOException, URISyntaxException
 	{
-		uriService = new URIAccessServiceImpl(conf, dao, networkClient);
 		String uri = "https://unity-idm.eu/site-wp/wp-content/uploads/2016/11/lezka.png";
-		uriService.readImageURI(URIHelper.parseURI(uri), "demo");
-		verify(networkClient).download(eq(new URI(uri).toURL()), any());
+		URI parsedURI = URIHelper.parseURI(uri);
+		when(networkClient.download(eq(parsedURI.toURL()), any())).thenReturn(new ContentsWithType(new byte[] {}, "image/jpg"));
+		uriService = new URIAccessServiceImpl(conf, dao, networkClient);
+		uriService.readImageURI(parsedURI, "demo");
+		verify(networkClient).download(eq(parsedURI.toURL()), any());
 	}
 }
