@@ -4,6 +4,7 @@
  */
 package io.imunity.vaadin23.endpoint.common;
 
+import com.vaadin.flow.server.InitParameters;
 import com.vaadin.flow.server.startup.ServletContextListeners;
 import com.vaadin.server.Constants;
 import com.vaadin.server.VaadinServlet;
@@ -12,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.*;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -249,7 +250,9 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		context.setContextPath(contextPath);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(classPathElements));
 		context.setConfigurationDiscovered(true);
-		context.addServlet(servletClass, uiServletPath + "/*").setAsyncSupported(true);
+		ServletHolder servletHolder = context.addServlet(servletClass, uiServletPath + "/*");
+		servletHolder.setAsyncSupported(true);
+		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
 		context.getServletContext().setExtendedListenerTypes(true);
 		if(eventListener != null)
 			context.addEventListener(eventListener);

@@ -21,7 +21,7 @@ public class ExpiredSessionManagerInitializer implements VaadinServiceInitListen
 
 	private final MessageSource messageSource;
 
-	public ExpiredSessionManagerInitializer(Vaddin23WebLogoutHandler vaddin23WebLogoutHandler, MessageSource messageSource)
+	public ExpiredSessionManagerInitializer(MessageSource messageSource)
 	{
 		this.messageSource = messageSource;
 	}
