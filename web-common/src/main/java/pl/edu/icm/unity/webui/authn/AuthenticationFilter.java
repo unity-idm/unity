@@ -4,35 +4,10 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
-
-import com.vaadin.shared.ApplicationConstants;
-
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
-import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
-import pl.edu.icm.unity.engine.api.authn.SessionCookie;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -41,6 +16,18 @@ import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.MDCKeys;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import static com.vaadin.shared.ApplicationConstants.HEARTBEAT_PATH;
 
 /**
  * Servlet filter forwarding unauthenticated requests to the protected authentication servlet.
@@ -163,8 +150,8 @@ public class AuthenticationFilter implements Filter
 			String loginSessionId = loginSession.getId();
 			try
 			{
-				if (!HiddenResourcesFilter.hasPathPrefix(httpRequest.getPathInfo(),
-						ApplicationConstants.HEARTBEAT_PATH + '/'))
+				if ((!HiddenResourcesFilter.hasPathPrefix(httpRequest.getPathInfo(), HEARTBEAT_PATH + '/')
+				&& (!HiddenResourcesFilter.isPushOrHeartbeatV23Request(httpRequest))))
 				{
 					log.trace("Update session activity for " + loginSessionId);
 					sessionMan.updateSessionActivity(loginSessionId);

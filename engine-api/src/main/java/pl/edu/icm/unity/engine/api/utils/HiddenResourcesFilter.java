@@ -4,17 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.utils;
 
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import static java.util.Optional.ofNullable;
 
 /**
  * Servlet filter blocking access to all configured resources. The purpose is to hide servlets 
@@ -25,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class HiddenResourcesFilter implements Filter
 {
+	private static final List<String> PUSH_AND_HEARTBEAT_PARAMETERS = List.of("push", "heartbeat");
 	private List<String> protectedServletPaths;
 	
 	public HiddenResourcesFilter(List<String> protectedServletPaths)
@@ -79,6 +76,11 @@ public class HiddenResourcesFilter implements Filter
 		}
 
 		return false;
+	}
+
+	public static boolean isPushOrHeartbeatV23Request(HttpServletRequest request)
+	{
+		return PUSH_AND_HEARTBEAT_PARAMETERS.contains(ofNullable(request.getParameter("v-r")).orElse(""));
 	}
 
 	@Override

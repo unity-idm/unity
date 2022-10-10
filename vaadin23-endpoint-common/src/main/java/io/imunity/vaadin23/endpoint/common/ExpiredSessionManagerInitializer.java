@@ -15,13 +15,13 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import java.lang.invoke.MethodHandles;
 
 @Component
-public class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, SessionInitListener
+class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, SessionInitListener
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final MessageSource messageSource;
 
-	public ExpiredSessionManagerInitializer(MessageSource messageSource)
+	ExpiredSessionManagerInitializer(MessageSource messageSource)
 	{
 		this.messageSource = messageSource;
 	}
@@ -47,6 +47,7 @@ public class ExpiredSessionManagerInitializer implements VaadinServiceInitListen
 			messages.setSessionExpiredMessage(messageSource.getMessage("SessionExpiration.refresh"));
 			messages.setSessionExpiredNotificationEnabled(true);
 			messages.setSessionExpiredURL(VaadinServlet.getFrontendMapping().replace("*", ""));
+
 			return messages;
 		});
 	}
