@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static com.vaadin.shared.ApplicationConstants.HEARTBEAT_PATH;
+import static pl.edu.icm.unity.webui.VaadinRequestTypeMatcher.isVaadinBackgroundRequest;
 
 /**
  * Servlet filter forwarding unauthenticated requests to the protected authentication servlet.
@@ -150,8 +150,7 @@ public class AuthenticationFilter implements Filter
 			String loginSessionId = loginSession.getId();
 			try
 			{
-				if ((!HiddenResourcesFilter.hasPathPrefix(httpRequest.getPathInfo(), HEARTBEAT_PATH + '/')
-				&& (!HiddenResourcesFilter.isPushOrHeartbeatV23Request(httpRequest))))
+				if (!isVaadinBackgroundRequest(httpRequest))
 				{
 					log.trace("Update session activity for " + loginSessionId);
 					sessionMan.updateSessionActivity(loginSessionId);

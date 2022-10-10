@@ -10,8 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-import static java.util.Optional.ofNullable;
-
 /**
  * Servlet filter blocking access to all configured resources. The purpose is to hide servlets 
  * which should be accessible only by internal forwards. To achieve this, this filter should be installed 
@@ -21,7 +19,6 @@ import static java.util.Optional.ofNullable;
  */
 public class HiddenResourcesFilter implements Filter
 {
-	private static final List<String> PUSH_AND_HEARTBEAT_PARAMETERS = List.of("push", "heartbeat");
 	private List<String> protectedServletPaths;
 	
 	public HiddenResourcesFilter(List<String> protectedServletPaths)
@@ -58,7 +55,7 @@ public class HiddenResourcesFilter implements Filter
 		return false;
 	}
 	
-	public static boolean hasPathPrefix(String pathInfo , String prefix) 
+	private static boolean hasPathPrefix(String pathInfo , String prefix)
 	{
 		if (pathInfo == null || pathInfo.equals("")) 
 		{
@@ -76,11 +73,6 @@ public class HiddenResourcesFilter implements Filter
 		}
 
 		return false;
-	}
-
-	public static boolean isPushOrHeartbeatV23Request(HttpServletRequest request)
-	{
-		return PUSH_AND_HEARTBEAT_PARAMETERS.contains(ofNullable(request.getParameter("v-r")).orElse(""));
 	}
 
 	@Override

@@ -102,7 +102,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		}
 	}
 
-	protected ServletContextHandler getServletContextHandlerOverridable()
+	private ServletContextHandler getServletContextHandlerOverridable()
 	{
 		if (context != null)
 			return context;
@@ -155,7 +155,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		authenticationServlet = new AuthenticationVaadinServlet(applicationContext,
 			description, authenticationFlows,
 			registrationConfiguration, properties, handler4Authn);
-		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet);
+		ServletHolder authnServletHolder = createVaadin8ServletHolder(authenticationServlet);
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH + "/*");
 		context.addServlet(authnServletHolder, "/VAADIN/vaadinBootstrap.js*");
 		context.addServlet(authnServletHolder, "/VAADIN/widgetsets/*");
@@ -166,17 +166,9 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		return context;
 	}
 
-	protected int getHeartbeatInterval(int sessionTimeout)
+	private ServletHolder createVaadin8ServletHolder(VaadinServlet servlet)
 	{
-		if (sessionTimeout >= 3*DEFAULT_HEARTBEAT)
-			return DEFAULT_HEARTBEAT;
-		int ret = sessionTimeout/3;
-		return ret < 2 ? 2 : ret;
-	}
-
-	protected ServletHolder createVaadinServletHolder(VaadinServlet servlet)
-	{
-		ServletHolder holder = createServletHolder(servlet, true);
+		ServletHolder holder = createServletHolder(servlet);
 
 		int heartBeat = LONG_HEARTBEAT;
 		log.debug("Servlet " + servlet.toString() + " - heartBeat=" +heartBeat);
@@ -192,32 +184,21 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		return holder;
 	}
 
-	protected ServletHolder createServletHolder(Servlet servlet, boolean unrestrictedSessionTime)
+	private ServletHolder createServletHolder(Servlet servlet)
 	{
 		ServletHolder holder = new ServletHolder(servlet);
 		holder.setInitParameter("closeIdleSessions", "true");
 
-		if (unrestrictedSessionTime)
-		{
-			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(LONG_SESSION));
-		} else
-		{
-			int sessionTimeout = description.getRealm().getMaxInactivity();
-			int heartBeat = getHeartbeatInterval(sessionTimeout);
-			sessionTimeout = sessionTimeout - heartBeat;
-			if (sessionTimeout < 2)
-				sessionTimeout = 2;
-			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
-		}
+		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(LONG_SESSION));
 		return holder;
 	}
 
-	protected UnityBootstrapHandler getBootstrapHandler4Authn(String uiPath)
+	private UnityBootstrapHandler getBootstrapHandler4Authn(String uiPath)
 	{
 		return getBootstrapHandlerGeneric(uiPath, LONG_HEARTBEAT, genericEndpointProperties.getEffectiveAuthenticationTheme());
 	}
 
-	protected UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath, int heartBeat, String theme)
+	private UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath, int heartBeat, String theme)
 	{
 		String template = genericEndpointProperties.getValue(VaadinEndpointProperties.TEMPLATE);
 		boolean productionMode = genericEndpointProperties.getBooleanValue(
@@ -227,7 +208,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 			heartBeat, uiPath);
 	}
 
-	protected String getWebContentsDir()
+	private String getWebContentsDir()
 	{
 		if (genericEndpointProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
 			return genericEndpointProperties.getValue(VaadinEndpointProperties.WEB_CONTENT_PATH);
