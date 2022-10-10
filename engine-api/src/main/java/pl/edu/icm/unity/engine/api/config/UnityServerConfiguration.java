@@ -247,7 +247,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				+ "+internalAndAsyncPeers+ will logout remote session participants also using asynchronous"
 				+ " protocols (with web browser redirects) if needed. This last option is risky as it may"
 				+ " happen that a faulty peer won't redirect the web agent back."));
-		defaults.put(THREAD_POOL_SIZE, new PropertyMD("4").setCategory(mainCat).setDescription(
+		defaults.put(THREAD_POOL_SIZE, new PropertyMD("16").setCategory(mainCat).setDescription(
 				"Number of threads used by internal processes of the server. HTTP server threads use a separate pool."));
 		defaults.put(INITIALIZERS, new PropertyMD().setList(true).setCategory(mainCat).setDescription(
 				"List of identifiers of initialization modules that should be run on the first startup."));
