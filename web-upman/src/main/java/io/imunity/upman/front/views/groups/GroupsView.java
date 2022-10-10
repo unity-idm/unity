@@ -130,6 +130,7 @@ public class GroupsView extends UnityViewComponent
 		gridExpandedElements.clear();
 		grid.setItems(List.of(root), GroupTreeNode::getChildren);
 		grid.expand(root.getNodeWithAllOffspring().stream().filter(node -> paths.contains(node.getPath())).collect(toSet()));
+		grid.expand(root);
 	}
 
 	private Set<String> getExtendedGroupPaths()
