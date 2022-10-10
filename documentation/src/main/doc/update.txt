@@ -347,5 +347,13 @@ change for majority of Unity users, however if you enhanced Unity with Groovy sc
 verify if your scripts will require an update: https://groovy-lang.org/releasenotes/groovy-3.0.html. Mostly the bottom part is 
 important covering "breaking changes".    
 
+In version 3.11.0 SAML federation logo images are pre-fetched and served directly from the local server. Therefore please make 
+sure to have a time buffer between subsequent SAML metadata refreshes, as otherwise asynchronous processes of downloading 
+logos may overlap, degrading server's performance. Also please note that on the first start, no logo will be available until the first
+full fetch of images is completed. On the biggest federations this may take couple of minutes (or more on slow internet connection).
 
+Version 3.11.0 also changed the default amount of server working threads from 4 to 16 
+(the config property is +unityServer.core.threadPoolSize+). This option affects speed of SAML logo downloading a lot (among other things).
+
+  
  
