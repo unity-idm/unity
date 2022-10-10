@@ -104,11 +104,7 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 			return;
 		MetadataSourceHandler handler = metadataHandlersByURL.get(url);
 
-		if (handler.removeConsumer(id))
-		{
-			metadataHandlersByURL.remove(url);
-			log.debug("Unregistered the last consumer, handler is removed for {}", url);
-		}
+		handler.removeConsumer(id);
 		log.info("Unregistered consumer {} of metadata from {}", id, url);
 	}
 

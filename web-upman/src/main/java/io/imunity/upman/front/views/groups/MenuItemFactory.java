@@ -47,13 +47,21 @@ class MenuItemFactory
 	MenuItem createMakePrivateItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.makePrivateAction"), LOCK);
-		return new MenuItem(menuButton, event -> groupService.setGroupAccessMode(projectGroup, group, false));
+		return new MenuItem(menuButton, event ->
+		{
+			groupService.setGroupAccessMode(projectGroup, group, false);
+			viewReloader.run();
+		});
 	}
 
 	MenuItem createMakePublicItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.makePublicAction"), UNLOCK);
-		return new MenuItem(menuButton, event -> groupService.setGroupAccessMode(projectGroup, group, true));
+		return new MenuItem(menuButton, event ->
+		{
+			groupService.setGroupAccessMode(projectGroup, group, true);
+			viewReloader.run();
+		});
 	}
 
 	MenuItem createAddGroupItem(ProjectGroup projectGroup, Group group, boolean subGroupAvailable)

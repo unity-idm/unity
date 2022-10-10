@@ -6,6 +6,8 @@
 package io.imunity.vaadin23.endpoint.common;
 
 import org.eclipse.jetty.webapp.WebAppContext;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 import java.util.Optional;
 import java.util.Properties;
@@ -14,11 +16,16 @@ public class Vaadin23WebAppContext extends WebAppContext
 {
 	public final Properties properties;
 	public final Vaadin823EndpointProperties vaadin23Properties;
+	public final MessageSource messageSource;
+	public final ResolvedEndpoint description;
 
-	public Vaadin23WebAppContext(Properties properties, Vaadin823EndpointProperties vaadinEndpointProperties)
+	public Vaadin23WebAppContext(Properties properties, Vaadin823EndpointProperties vaadinEndpointProperties,
+	                             MessageSource messageSource, ResolvedEndpoint description)
 	{
 		this.properties = properties;
 		this.vaadin23Properties = vaadinEndpointProperties;
+		this.messageSource = messageSource;
+		this.description = description;
 	}
 
 	public static Properties getCurrentWebAppContextProperties()
@@ -34,6 +41,18 @@ public class Vaadin23WebAppContext extends WebAppContext
 		return Optional.ofNullable(getCurrentWebAppContext())
 				.map(context -> (Vaadin23WebAppContext) context)
 				.map(context -> context.vaadin23Properties)
+				.orElse(null);
+	}
+
+	public static String getCurrentWebAppDisplayedName()
+	{
+		return Optional.ofNullable(getCurrentWebAppContext())
+				.map(context -> (Vaadin23WebAppContext) context)
+				.map(context -> context.description.getEndpoint()
+						.getConfiguration()
+						.getDisplayedName()
+						.getValue(context.messageSource)
+				)
 				.orElse(null);
 	}
 }

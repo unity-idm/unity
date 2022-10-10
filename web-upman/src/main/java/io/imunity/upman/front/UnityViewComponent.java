@@ -4,13 +4,19 @@
  */
 package io.imunity.upman.front;
 
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.*;
 import io.imunity.upman.front.model.ProjectGroup;
 
+import static io.imunity.vaadin23.endpoint.common.Vaadin23WebAppContext.getCurrentWebAppDisplayedName;
+
 public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>, AfterNavigationObserver, HasDynamicTitle
 {
+	public final String pageTitle = getCurrentWebAppDisplayedName();
+
 	public UnityViewComponent()
 	{
 		if(ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class) == null)
@@ -32,7 +38,7 @@ public abstract class UnityViewComponent extends Composite<Div> implements HasUr
 
 	@Override
 	public String getPageTitle() {
-		return "Upman";
+		return pageTitle;
 	}
 
 	public abstract void loadData();

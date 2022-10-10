@@ -4,6 +4,11 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+
+import com.vaadin.server.DownloadStream;
+import com.vaadin.server.FileResource;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
@@ -38,5 +43,32 @@ public class IdPAuthNComponent extends CustomComponent
 	public void addClickListener(ClickListener listener)
 	{
 		providerB.addClickListener(listener);
+	}
+	
+	public static class DisappearingFileResource extends FileResource
+	{
+		private final File sourceFileCopy;
+
+		public DisappearingFileResource(File sourceFile)
+		{
+			super(sourceFile);
+			this.sourceFileCopy = sourceFile;
+		}
+		
+		@Override
+		public DownloadStream getStream() 
+		{
+			if (sourceFileCopy.exists())
+				return super.getStream();
+
+			final DownloadStream ds = new DownloadStream(
+					new ByteArrayInputStream(new byte[0]), getMIMEType(),
+					getFilename());
+			ds.setParameter("Content-Length", "0");
+			ds.setBufferSize(getBufferSize());
+			ds.setCacheTime(getCacheTime());
+			return ds;
+		}
+
 	}
 }

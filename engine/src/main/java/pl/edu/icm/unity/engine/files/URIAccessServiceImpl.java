@@ -6,6 +6,26 @@
 
 package pl.edu.icm.unity.engine.files;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.file.FileData;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.files.IllegalURIException;
+import pl.edu.icm.unity.engine.api.files.RemoteFileData;
+import pl.edu.icm.unity.engine.api.files.URIAccessException;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.engine.files.RemoteFileNetworkClient.ContentsWithType;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.FileDAO;
+import pl.edu.icm.unity.store.api.tx.Transactional;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -13,27 +33,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.base.file.FileData;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.IllegalURIException;
-import pl.edu.icm.unity.engine.api.files.URIAccessException;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.store.api.FileDAO;
-import pl.edu.icm.unity.store.api.tx.Transactional;
 
 @Component
 public class URIAccessServiceImpl implements URIAccessService
@@ -87,6 +89,20 @@ public class URIAccessServiceImpl implements URIAccessService
 		} catch (EngineException e)
 		{
 			log.trace("Can not read uri: " + uri.toString(), e);
+			throw new URIAccessException("Can not read uri", e);
+		}
+	}
+
+	@Override
+	@Transactional
+	public RemoteFileData readURL(URI uri, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber)
+	{
+		try
+		{
+			return readURL(uri.toURL(), customTruststore, connectionAndSocketReadTimeout, retriesNumber);
+		} catch (EngineException | IOException e)
+		{
+			log.trace("Can not read uri: " + uri, e);
 			throw new URIAccessException("Can not read uri", e);
 		}
 	}
@@ -200,7 +216,16 @@ public class URIAccessServiceImpl implements URIAccessService
 
 	private FileData readURL(URL url, String customTruststore) throws IOException, EngineException
 	{
-		return new FileData(url.toString(), fileNetworkClient.download(url, customTruststore), new Date());
+		ContentsWithType contentsWithType = fileNetworkClient.download(url, customTruststore);
+		return new FileData(url.toString(), contentsWithType.contents, new Date());
+	}
+
+	private RemoteFileData readURL(URL url, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber) 
+			throws IOException, EngineException
+	{
+		ContentsWithType contentsWithType = fileNetworkClient.download(url, customTruststore, 
+				connectionAndSocketReadTimeout, retriesNumber);
+		return new RemoteFileData(url.toString(), contentsWithType.contents, new Date(), contentsWithType.mimeType);
 	}
 
 	private FileData readRestrictedFile(URI uri, String root) throws IOException, IllegalURIException

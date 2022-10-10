@@ -18,6 +18,14 @@ public class TrustedIdPs
 	
 	public TrustedIdPs(Collection<TrustedIdPConfiguration> trustedIdPs)
 	{
+		handleDuplicates(trustedIdPs);
+		this.trustedIdPs = trustedIdPs.stream()
+				.collect(Collectors.toUnmodifiableMap(idp -> idp.key, idp -> idp));
+		this.samlEntityIdToKey = buildEntityToKeyMap(); 
+	}
+
+	private static void handleDuplicates(Collection<TrustedIdPConfiguration> trustedIdPs)
+	{
 		List<String> duplicates = trustedIdPs.stream()
 				.collect(Collectors.groupingBy(trustedIdPConfiguration -> trustedIdPConfiguration.key))
 				.values().stream()
@@ -31,11 +39,8 @@ public class TrustedIdPs
 				.collect(Collectors.toList());
 		if(duplicates.size() > 0)
 			throw new IllegalArgumentException(String.join(";", duplicates));
-		this.trustedIdPs = trustedIdPs.stream()
-				.collect(Collectors.toUnmodifiableMap(idp -> idp.key, idp -> idp));
-		this.samlEntityIdToKey = buildEntityToKeyMap(); 
 	}
-	
+
 	public TrustedIdPs withWebBinding()
 	{
 		return new TrustedIdPs(trustedIdPs.values().stream()
