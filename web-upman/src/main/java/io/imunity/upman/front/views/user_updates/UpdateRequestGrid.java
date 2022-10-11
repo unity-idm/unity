@@ -57,8 +57,11 @@ class UpdateRequestGrid extends MultiSelectGrid<UpdateRequestModel>
 	private Label createGroupsLabel(UpdateRequestModel model, HtmlContainer container)
 	{
 		String groups = String.join(", ", model.groupsDisplayedNames);
-		Label label = new Label(groups);
+		Label label = new Label();
 		TooltipAttacher.attachTooltip(groups, label, container);
+		if(groups.length() > 30)
+			groups = groups.substring(0, 30) + "...";
+		label.setText(groups);
 		return label;
 	}
 }

@@ -32,15 +32,13 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static java.util.stream.Collectors.toList;
+import static pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole.*;
 
 class MenuItemFactory
 {
@@ -125,7 +123,7 @@ class MenuItemFactory
 					message, () ->
 					{
 						groupMembersController.removeFromProject(projectGroup, models);
-						if(role.equals(GroupAuthorizationRole.projectsAdmin))
+						if(role.equals(projectsAdmin))
 							reloadMainLayout();
 						else
 							viewReloader.run();
@@ -196,7 +194,7 @@ class MenuItemFactory
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("RoleSelectionDialog.projectCaption"));
 
-		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role);
+		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role, items);
 		Label label = new Label(msg.getMessage("RoleSelectionDialog.projectRole"));
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
@@ -210,18 +208,21 @@ class MenuItemFactory
 		return dialog;
 	}
 
-	private RadioButtonGroup<GroupAuthorizationRole> createRoleRadioButtonGroup(GroupAuthorizationRole role)
+	private RadioButtonGroup<GroupAuthorizationRole> createRoleRadioButtonGroup(GroupAuthorizationRole role, Set<MemberModel> items)
 	{
 		RadioButtonGroup<GroupAuthorizationRole> radioGroup = new RadioButtonGroup<>();
 		radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 
-		Set<GroupAuthorizationRole> roles = Arrays.stream(GroupAuthorizationRole.values())
-				.collect(Collectors.toCollection(LinkedHashSet::new));
-		if(role.equals(GroupAuthorizationRole.manager))
-			roles.remove(GroupAuthorizationRole.projectsAdmin);
+		List<GroupAuthorizationRole> roles;
+		if(role.equals(manager))
+			roles = List.of(manager, regular);
+		else
+			roles = List.of(projectsAdmin, manager, regular);
 
 		radioGroup.setItems(roles);
 		radioGroup.setItemLabelGenerator(r-> msg.getMessage("Role." + r.toString().toLowerCase()));
+		if(items.size() == 1)
+			radioGroup.setValue(GroupAuthorizationRole.valueOf(items.iterator().next().role.getKey()));
 		return radioGroup;
 	}
 
@@ -229,7 +230,7 @@ class MenuItemFactory
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("RoleSelectionDialog.subprojectCaption"));
 
-		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role);
+		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role, items);
 		Label label = new Label(msg.getMessage("RoleSelectionDialog.subprojectRole"));
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
@@ -266,7 +267,7 @@ class MenuItemFactory
 		button.addClickListener(event ->
 		{
 			GroupAuthorizationRole role = radioGroup.getValue();
-			if(role.equals(GroupAuthorizationRole.regular) && isCurrentUserSelected(items))
+			if(role.equals(regular) && isCurrentUserSelected(items))
 			{
 				dialog.close();
 				createSelfRemoveDialog(
