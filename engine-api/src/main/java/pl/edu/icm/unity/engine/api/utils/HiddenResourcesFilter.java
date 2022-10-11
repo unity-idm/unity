@@ -4,17 +4,11 @@
  */
 package pl.edu.icm.unity.engine.api.utils;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Servlet filter blocking access to all configured resources. The purpose is to hide servlets 
@@ -61,7 +55,7 @@ public class HiddenResourcesFilter implements Filter
 		return false;
 	}
 	
-	public static boolean hasPathPrefix(String pathInfo , String prefix) 
+	private static boolean hasPathPrefix(String pathInfo , String prefix)
 	{
 		if (pathInfo == null || pathInfo.equals("")) 
 		{

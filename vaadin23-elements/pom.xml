@@ -29,10 +29,6 @@
             <groupId>com.vaadin.componentfactory</groupId>
             <artifactId>tooltip</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.vaadin.componentfactory</groupId>
-            <artifactId>idle-notification</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
