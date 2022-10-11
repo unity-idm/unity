@@ -7,32 +7,42 @@ package pl.edu.icm.unity.webui;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.List;
-
 import static com.vaadin.shared.ApplicationConstants.HEARTBEAT_PATH;
 import static java.util.Optional.ofNullable;
 
 public class VaadinRequestTypeMatcher
 {
-	private static final List<String> PUSH_AND_HEARTBEAT_PARAMETERS = List.of("push", "heartbeat");
+	private static final String PUSH_PARAMETER = "push";
+	private static final String HEARTBEAT_PARAMETER = "heartbeat";
+	private static final String GET_METHOD = "get";
+	private static final String POST_METHOD = "post";
 
 	public static boolean isVaadinBackgroundRequest(HttpServletRequest request)
 	{
-		return isVaadin8HeartbeatRequest(request) || isVaadin23PushOrHeartbeatRequest(request);
+		String pathInfo = request.getPathInfo();
+		if (pathInfo == null || pathInfo.isBlank())
+			return false;
+		return isVaadin8HeartbeatRequest(request) || isVaadin23PushRequest(request) || isVaadin23HeartbeatRequest(request);
 	}
 
-	public static boolean isVaadin8HeartbeatRequest(HttpServletRequest request)
+	static boolean isVaadin8HeartbeatRequest(HttpServletRequest request)
 	{
 		String pathInfo = request.getPathInfo();
-		if (pathInfo == null || pathInfo.equals(""))
-			return false;
-		return pathInfo.startsWith(HEARTBEAT_PATH + '/');
+		return pathInfo.startsWith('/' + HEARTBEAT_PATH + '/');
 	}
 
-	public static boolean isVaadin23PushOrHeartbeatRequest(HttpServletRequest request)
+
+	static boolean isVaadin23PushRequest(HttpServletRequest request)
 	{
-		if(request.getMethod().equalsIgnoreCase("post") || request.getMethod().equalsIgnoreCase("get"))
-			return PUSH_AND_HEARTBEAT_PARAMETERS.contains(ofNullable(request.getParameter("v-r")).orElse(""));
-		return false;
+		return request.getMethod().equalsIgnoreCase(GET_METHOD) &&
+				ofNullable(request.getParameter("v-r")).orElse("").equalsIgnoreCase(PUSH_PARAMETER) &&
+				request.getPathInfo().equals("/");
+	}
+
+	static boolean isVaadin23HeartbeatRequest(HttpServletRequest request)
+	{
+		return request.getMethod().equalsIgnoreCase(POST_METHOD) &&
+				ofNullable(request.getParameter("v-r")).orElse("").equalsIgnoreCase(HEARTBEAT_PARAMETER) &&
+				request.getPathInfo().equals("/");
 	}
 }

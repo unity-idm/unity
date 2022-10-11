@@ -34,7 +34,6 @@ import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import javax.servlet.DispatcherType;
-import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -168,7 +167,10 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 
 	private ServletHolder createVaadin8ServletHolder(VaadinServlet servlet)
 	{
-		ServletHolder holder = createServletHolder(servlet);
+		ServletHolder holder = new ServletHolder(servlet);
+		holder.setInitParameter("closeIdleSessions", "true");
+
+		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(LONG_SESSION));
 
 		int heartBeat = LONG_HEARTBEAT;
 		log.debug("Servlet " + servlet.toString() + " - heartBeat=" +heartBeat);
@@ -183,16 +185,6 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 			"pl.edu.icm.unity.webui.customWidgetset");
 		return holder;
 	}
-
-	private ServletHolder createServletHolder(Servlet servlet)
-	{
-		ServletHolder holder = new ServletHolder(servlet);
-		holder.setInitParameter("closeIdleSessions", "true");
-
-		holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(LONG_SESSION));
-		return holder;
-	}
-
 	private UnityBootstrapHandler getBootstrapHandler4Authn(String uiPath)
 	{
 		return getBootstrapHandlerGeneric(uiPath, LONG_HEARTBEAT, genericEndpointProperties.getEffectiveAuthenticationTheme());
