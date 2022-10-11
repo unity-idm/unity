@@ -7,6 +7,11 @@ There are two ways (which can be combined) to perform such customizations:
 * Change of the default CSS style, allowing for customizing colors, decorations and sizing of the whole UI
 * Change of the default web page template, allowing for adding a custom header, footer or even side bars to the Unity UI.
 
+IMPORTANT: Since version 3.11.0, part of Unity UI was updated to use a more recent technology: Vaadin 23+. Branding
+of the updated *UpMan endpoint* is using different (and significantly simplified) configuration method than the legacy UI.
+The following two sections are discussing branding in the case of the legacy endpoints as well as branding of the authentication
+screen (likely the most important one). Vaadin 23 branding, specific to UpMan, is described in the section <<v2x-branding>>.
+Please note, that in the version 4 of Unity all UIs will be upgraded and only the new style of branding will be used. 
 
 === Modification of web page styles
 
@@ -175,6 +180,11 @@ templates for every endpoint, what is configured with the +unity.endpoint.web.te
 
 There are also options to set templates for the shared (not endpoint specific UIs), as the email confirmation
 screen. See the main server reference documentation: <<configuration>>. 
+
+
+include::branding-v2x.txt[]
+
+
 
 [[i18n]]
 === Controlling translation of messages
