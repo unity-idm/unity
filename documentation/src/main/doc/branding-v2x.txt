@@ -1,0 +1,85 @@
+
+[[v2x-branding]]
+=== UpMan branding (new UI stack)
+
+NOTE: While in Unity 4 customization of UI will be only possible with the settings described in this section, 
+currently this section covers only branding of the UpMan UI. Note that authentication screen branding is using the
+legacy method described above, even if the authentication UI is protecting the UpMan endpoint.  
+
+==== Modification of CSS styles
+
+If the default Unity style requires tweaking, it can be provided in a CSS file with custom overrides. This optional file is 
+set in endpoint's configuration as follows:
+
+----
+unity.endpoint.web.customCss=VAADIN/foo-company-style/custom.css
+----
+
+Note, that all files (e.g. images) served by Unity must be present in the configured web contents  
+directory (by default +/webContents+) used for the endpoint in question. 
+
+Contents of the new CSS is arbitrary and simple changes can be made after inspection of the Unity UI in the browser's web tools.
+
+In case of more complex redesign it might be useful to know that Unity default theme is based on the Lumo Vaadin theme.
+It is documented in here: https://vaadin.com/docs/latest/styling[Lumo documentation]. 
+Among others it is possible to use Lumo variables in the custom CSS, as well as use 
+https://demo.vaadin.com/lumo-editor/[Lumo editor] to generate generic CSS which can be used to configure cross-cutting UI options. 
+
+Couple of example CSS modifications follows:
+
+----
+#unity-main-container {
+   background: #fff url("VAADIN/themes/common/img/background.png") no-repeat scroll center center;
+}
+
+vaadin-button.submit-button {
+   background-color: #52A899;
+   color: white;
+   width: 100%;
+   text-transform: uppercase;
+}
+
+html {
+  --lumo-font-size-xxxl: 3rem;
+  --lumo-font-family: Verdana, "Verdana Ref", sans-serif;
+  --lumo-size-xl: 5rem;
+  --lumo-primary-text-color: rgb(0, 105, 151);
+  --lumo-primary-color-50pct: rgba(0, 105, 151, 0.5);
+  --lumo-primary-color-10pct: rgba(0, 105, 151, 0.1);
+  --lumo-primary-color: #006997;
+  --lumo-shade-90pct: hsla(214, 40%, 16%, 0.94);
+  --lumo-header-text-color: #006997;
+  --lumo-error-color: #FF4637;
+  --lumo-success-color: #00B720;  
+  --unity-font-weight: 500;
+  --vaadin-text-field-default-width: 16em;
+}
+
+h1, h2, h3, h4, h5, h6, b, strong {
+	font-weight: var(--unity-font-weight);
+}
+----
+
+
+==== Customizing the template of web pages
+
+Besides configuring custom CSS, it is also possible to wrap Unity web page with custom header, footer or sidebars.
+Each of the wrapping panels should be prepared as a separate, plain HTML file. Panels should be enabled as follows: 
+
+----
+unity.endpoint.web.extraLeftPanel=VAADIN/left.html
+unity.endpoint.web.extraRightPanel=VAADIN/right.html
+unity.endpoint.web.extraTopPanel=VAADIN/top.html
+unity.endpoint.web.extraBottomPanel=VAADIN/bottom.html
+----
+
+Naturally each of the panels is optional. Note, that all panel files served by Unity must be present in the configured web contents  
+directory - same as in the case of custom CSS files and referenced images. 
+
+Example panel with a simple header added:
+
+----
+<div style="background-color: blue;">CUSTOM HEADER</div>
+----
+
+
