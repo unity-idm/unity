@@ -64,7 +64,7 @@ h1, h2, h3, h4, h5, h6, b, strong {
 ==== Customizing the template of web pages
 
 Besides configuring custom CSS, it is also possible to wrap Unity web page with custom header, footer or sidebars.
-Each of the wrapping panels should be prepared as a separate, plain HTML file. Panels should be enabled as follows: 
+Each of the wrapping panels should be prepared as a separate, plain HTML file. Panels should be enabled in endpoint's configuration as follows: 
 
 ----
 unity.endpoint.web.extraLeftPanel=VAADIN/left.html
