@@ -86,6 +86,18 @@ under the path +/unitygw/saml-sp-metadata/NAME+, where +NAME+ is configurable wi
 +unity.saml.requester.metadataPath+ property and is used to distinguish the metadata of 
 different SAML authenticators (as it is possible to configure more then one).
 
+==== Serving of logo files of trusted federation IdPs
+
+Since version 3.11.0 Unity, after each refresh of trusted federation metadata, downloads all logo files of the federation 
+IdPs. The files are placed in Unity workspace directory. Logo images displayed on the sign-in page are served from Unity server.
+
+Note that the process of fetching all federation logos may take considerable amount of time:
+
+* Larger pool of worker threads configured for the server will help Unity to download them faster.
+* Federation metadata refresh interval should be big enough to allow for downloading all logo files. It is suggested
+to keep it at no less than one hour, in the case of huge federations. Otherwise Unity may be busy re-fetching the 
+logos in majority of its runtime.    
+
 ==== SAML specific information in translation profile
 
 If the authentication response returned by the remote IdP contains the +AuthnContextClassRef+ element, then its 
