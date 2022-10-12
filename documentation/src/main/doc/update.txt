@@ -341,19 +341,49 @@ to disable only one part of the functionality any more.
 
 ==== From 3.10 to 3.11
 
+===== Groovy scripts
+
 Version 3.11 is Java 17 compatible (both Java 11 and 17 can be used to run Unity). One user facing change that was required to 
 bring Java 17 compatibility was update of Groovy to version 3.0.12 (previously version 2 was used). This should be an invisible 
 change for majority of Unity users, however if you enhanced Unity with Groovy scripts, please make sure to read this document and 
 verify if your scripts will require an update: https://groovy-lang.org/releasenotes/groovy-3.0.html. Mostly the bottom part is 
 important covering "breaking changes".    
 
+===== SAML federation logo serving
+
 In version 3.11.0 SAML federation logo images are pre-fetched and served directly from the local server. Therefore please make 
 sure to have a time buffer between subsequent SAML metadata refreshes, as otherwise asynchronous processes of downloading 
 logos may overlap, degrading server's performance. Also please note that on the first start, no logo will be available until the first
 full fetch of images is completed. On the biggest federations this may take couple of minutes (or more on slow internet connection).
 
+===== Default number of worker threads
+
 Version 3.11.0 also changed the default amount of server working threads from 4 to 16 
 (the config property is +unityServer.core.threadPoolSize+). This option affects speed of SAML logo downloading a lot (among other things).
 
-  
- 
+===== UpMan UI and branding
+
+The biggest change in version 3.11.0 is upgrade of the UI framework, which was done for the UpMan service. This change also refreshes 
+the default look and feel of its UI (however the layout and capabilities are unchanged). 
+
+If UpMan UI was refined with either of custom CSS or custom layout (e.g. providing a custom footer), those UI customizations
+won't work after the upgrade. It is necessary to rework the custom CSS and layout basing on the instructions from the section <<v2x-branding>>.
+
+In a nutshell:
+
+* Freemarker templates which were used for controlling layout are not supported on UpMan service anymore. 
+* Instead it is possible to add any of custom footer, header, left or right bars, as plain HTML files. 
+Therefore during the upgrade Freemarker templates need to be converted into one to four files, 
+and those files shall be enabled in endpoint's configuration.
+* SASS compilation of SCSS styles is not needed anymore for UpMan.
+* Plain CSS can be added from a custom file, overwriting and enriching the default Unity theme. This file must be configured
+in endpoint's configuration.
+* UpMan UI is using web components (and so the shadow DOM) a lot.
+* Custom favicon must be setup in the file +webContents/VAADIN/favicon.html+. 
+
+Note that in future all Unity endpoints will be upgraded to the same technology as UpMan is using since version 3.11.0 and then 
+UI customization methods will be unified.
+
+Also note that the changes introduced in this version affect only the UpMan main UI. The authentication screen shown to sign-in 
+to UpMan is unaffected, and so the old styling and templates will still work intact.
+
