@@ -345,9 +345,9 @@ to disable only one part of the functionality any more.
 
 Version 3.11 is Java 17 compatible (both Java 11 and 17 can be used to run Unity). One user facing change that was required to 
 bring Java 17 compatibility was update of Groovy to version 3.0.12 (previously version 2 was used). This should be an invisible 
-change for majority of Unity users, however if you enhanced Unity with Groovy scripts, please make sure to read this document and 
-verify if your scripts will require an update: https://groovy-lang.org/releasenotes/groovy-3.0.html. Mostly the bottom part is 
-important covering "breaking changes".    
+change for majority of Unity users, however if you enhanced Unity with Groovy scripts, please make sure to read 
+https://groovy-lang.org/releasenotes/groovy-3.0.html[Groovy 3 release notes] and verify if your scripts will require an update. 
+The last part of the linked document covers "breaking changes" and is the most important.    
 
 ===== SAML federation logo serving
 
