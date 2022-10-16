@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.client.ClientType;
@@ -40,7 +39,6 @@ public class OAuthToken
 	private int maxExtendedValidity;
 	private int tokenValidity;
 	private String responseType;
-	@JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
 	private List<String> audience;
 	private String issuerUri;
 	private ClientType clientType;
