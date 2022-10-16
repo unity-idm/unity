@@ -22,7 +22,7 @@ import pl.edu.icm.unity.store.export.JsonDumpUpdate;
  */
 public class AppDataSchemaVersion
 {
-	public static final AppSchemaVersions CURRENT = AppSchemaVersions.V_SINCE_3_10_0;
+	public static final AppSchemaVersions CURRENT = AppSchemaVersions.V_SINCE_3_12_0;
 	
 	/**
 	 * The oldest version of software which can be automatically updated to the current version 
