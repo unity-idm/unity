@@ -53,6 +53,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String P = BASE_PREFIX + "core.";
 	
 	public static final String BULK_FILES_DOWNLOAD_TIMEOUT = "bulkFilesDownloadTimeout";
+
+	public static final String BULK_FILES_CONNECTION_TIMEOUT = "bulkFilesConnectionTimeout";
 	public static final String ENABLED_LOCALES = "enabledLocales.";
 	public static final String DEFAULT_LOCALE = "defaultLocale";
 	public static final String MAIL_CONF = "mailConfig";
@@ -521,9 +523,14 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		
 		defaults.put(EXTENSION_PFX, new PropertyMD().setCategory(mainCat).setCanHaveSubkeys().setHidden());
 		defaults.put(BULK_FILES_DOWNLOAD_TIMEOUT, new PropertyMD("10000").setHidden()
-				.setDescription("Http connection & read timeout in ms, used for small files downloading, "
+				.setDescription("Http read timeout in ms, used for small files downloading, "
 						+ "like logo files. This timeout is used only in cases where downloads "
-						+ "can not take too long and failure to download is not criticlal for "
+						+ "can not take too long and failure to download is not critical for "
+						+ "system operation."));
+		defaults.put(BULK_FILES_CONNECTION_TIMEOUT, new PropertyMD("5000").setHidden()
+				.setDescription("Http connection in ms, used for small files downloading, "
+						+ "like logo files. This timeout is used only in cases where downloads "
+						+ "can not take too long and failure to download is not critical for "
 						+ "system operation."));
 
 		SUPPORTED_LOCALES.put("en", new Locale("en"));

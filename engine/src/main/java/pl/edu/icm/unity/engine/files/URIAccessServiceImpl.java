@@ -95,11 +95,11 @@ public class URIAccessServiceImpl implements URIAccessService
 
 	@Override
 	@Transactional
-	public RemoteFileData readURL(URI uri, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber)
+	public RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber)
 	{
 		try
 		{
-			return readURL(uri.toURL(), customTruststore, connectionAndSocketReadTimeout, retriesNumber);
+			return readURL(uri.toURL(), customTruststore, connectionTimeout, socketReadTimeout, retriesNumber);
 		} catch (EngineException | IOException e)
 		{
 			log.trace("Can not read uri: " + uri, e);
@@ -220,11 +220,11 @@ public class URIAccessServiceImpl implements URIAccessService
 		return new FileData(url.toString(), contentsWithType.contents, new Date());
 	}
 
-	private RemoteFileData readURL(URL url, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber) 
+	private RemoteFileData readURL(URL url, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber)
 			throws IOException, EngineException
 	{
 		ContentsWithType contentsWithType = fileNetworkClient.download(url, customTruststore, 
-				connectionAndSocketReadTimeout, retriesNumber);
+				connectionTimeout, socketReadTimeout, retriesNumber);
 		return new RemoteFileData(url.toString(), contentsWithType.contents, new Date(), contentsWithType.mimeType);
 	}
 
