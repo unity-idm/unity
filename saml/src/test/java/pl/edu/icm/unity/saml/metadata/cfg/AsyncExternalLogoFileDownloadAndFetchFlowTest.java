@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.apache.commons.io.FileUtils.deleteDirectory;
+
 public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegrationTestBase
 {
 	@Autowired
@@ -30,7 +32,7 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 	@After
 	public void tearDown() throws IOException
 	{
-//		deleteDirectory(new File("target/workspace/downloadedIdPLogos"));
+		deleteDirectory(new File("target/workspace/downloadedIdPLogos"));
 	}
 
 	@Test
