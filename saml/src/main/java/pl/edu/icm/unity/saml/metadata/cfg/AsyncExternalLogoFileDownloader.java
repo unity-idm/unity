@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Base64.getDecoder;
+import static java.util.Collections.synchronizedSet;
 
 @Component
 public class AsyncExternalLogoFileDownloader
@@ -54,7 +55,7 @@ public class AsyncExternalLogoFileDownloader
 	private final Duration socketReadTimeout;
 	private final Duration connectionTimeout;
 
-	private final FederationSet currentlyDownloadingFederation = new FederationSet();
+	private final Set<String> currentlyDownloadingFederation = synchronizedSet(new HashSet<>());
 
 	public AsyncExternalLogoFileDownloader(UnityServerConfiguration conf, MessageSource msg, URIAccessService uriAccessService,
 	                                       ExecutorsService executorsService, MetadataToSPConfigConverter converter)
@@ -71,53 +72,63 @@ public class AsyncExternalLogoFileDownloader
 	public void downloadLogoFilesAsync(EntitiesDescriptorDocument entitiesDescriptorDocument, String httpsTruststore)
 	{
 		String federationId = entitiesDescriptorDocument.getEntitiesDescriptor().getID();
-		if(currentlyDownloadingFederation.blockIfNotProcess(federationId))
+		if(!currentlyDownloadingFederation.add(federationId))
 			return;
-		RemoteMetadataSource metadataSource = RemoteMetadataSource.builder()
-				.withTranslationProfile(new TranslationProfile("mock", "description", ProfileType.INPUT, List.of()))
-				.withUrl("url")
-				.withRefreshInterval(Duration.ZERO)
-				.build();
-		TrustedIdPs trustedIdPs = converter.convertToTrustedIdPs(entitiesDescriptorDocument, metadataSource);
+		TrustedIdPs trustedIdPs;
+		try
+		{
+			RemoteMetadataSource metadataSource = RemoteMetadataSource.builder()
+					.withTranslationProfile(new TranslationProfile("mock", "description", ProfileType.INPUT, List.of()))
+					.withUrl("url")
+					.withRefreshInterval(Duration.ZERO)
+					.build();
+			trustedIdPs = converter.convertToTrustedIdPs(entitiesDescriptorDocument, metadataSource);
+		}
+		catch (Exception e)
+		{
+			currentlyDownloadingFederation.remove(federationId);
+			log.error("This exception occurred when metadata has been converted to TrustedIdPs", e);
+			return;
+		}
 		log.debug("Will download logos for {} IdPs of federation {}", trustedIdPs.getKeys().size(),
 				entitiesDescriptorDocument.getEntitiesDescriptor().getName());
 		CompletableFuture<Set<String>>[] savedFilesNamesFutures = trustedIdPs.getEntrySet().stream()
 				.map(entry -> CompletableFuture.supplyAsync(() -> downloadFiles(entry, httpsTruststore), executorService))
 				.toArray(CompletableFuture[]::new);
 		CompletableFuture.allOf(savedFilesNamesFutures).thenRunAsync(
-				() -> cleanFinalDir(entitiesDescriptorDocument, savedFilesNamesFutures),
+				() -> cleanUp(entitiesDescriptorDocument, savedFilesNamesFutures),
 				executorService
 		).whenComplete((ignore, ignore1) -> currentlyDownloadingFederation.remove(federationId));
 	}
 
-	private void cleanFinalDir(EntitiesDescriptorDocument entitiesDescriptorDocument, CompletableFuture<Set<String>>[] savedFilesNamesFutures)
+	private void cleanUp(EntitiesDescriptorDocument entitiesDescriptorDocument, CompletableFuture<Set<String>>[] savedFilesNamesFutures)
 	{
 		Set<String> downloadedFilesName = Arrays.stream(savedFilesNamesFutures)
 				.filter(future -> !future.isCompletedExceptionally())
-				.flatMap(this::getFuture)
+				.flatMap(this::getFileNamesAfterJobCompletion)
 				.collect(Collectors.toSet());
-		cleanFinalDir(entitiesDescriptorDocument.getEntitiesDescriptor().getID(), downloadedFilesName);
+		cleanUp(entitiesDescriptorDocument.getEntitiesDescriptor().getID(), downloadedFilesName);
 	}
 
-	private Stream<String> getFuture(CompletableFuture<Set<String>> completableFuture)
+	private Stream<String> getFileNamesAfterJobCompletion(CompletableFuture<Set<String>> completableFuture)
 	{
 		try
 		{
 			return completableFuture.get().stream();
 		} catch (InterruptedException | ExecutionException e)
 		{
-			throw new IllegalStateException("This shouldn't happen, only completed future should be process " ,e);
+			throw new IllegalStateException("This shouldn't happen, only completed future should be processed ", e);
 		}
 	}
 
-	private void cleanFinalDir(String federationId, Set<String> downloadedFilesName)
+	private void cleanUp(String federationId, Set<String> downloadedFilesName)
 	{
 		String catalog = LogoFilenameUtils.federationDirName(federationId);
 		try
 		{
 			Path finalDir = Paths.get(workspaceDir, catalog);
 			Paths.get(workspaceDir, STAGING, catalog).toFile().deleteOnExit();
-			removeFilesFromFinalDestinationWhichAreNotReplaceByNewOne(downloadedFilesName, finalDir);
+			removeFilesFromFinalDestinationWhichAreNotReplacedByNewOne(downloadedFilesName, finalDir);
 			log.info("Not used logos from federation id {} has been clean from {}", federationId, finalDir);
 		}
 		catch (IOException e)
@@ -126,8 +137,8 @@ public class AsyncExternalLogoFileDownloader
 		}
 	}
 
-	private static void removeFilesFromFinalDestinationWhichAreNotReplaceByNewOne(Set<String> savedFilesBasedNames,
-	                                                                              Path finalDir) throws IOException
+	private static void removeFilesFromFinalDestinationWhichAreNotReplacedByNewOne(Set<String> savedFilesBasedNames,
+	                                                                               Path finalDir) throws IOException
 	{
 		try (Stream<Path> paths = Files.walk(finalDir))
 		{
@@ -222,22 +233,5 @@ public class AsyncExternalLogoFileDownloader
 		File file = new File(Path.of(workspaceDir, STAGING, catalog, name).toUri());
 		file.createNewFile();
 		return file;
-	}
-
-	static class FederationSet
-	{
-		private final Set<String> set = new HashSet<>();
-
-		synchronized void remove(String federationId)
-		{
-			set.remove(federationId);
-		}
-
-		synchronized boolean blockIfNotProcess(String federationId)
-		{
-			boolean contains = set.contains(federationId);
-			set.add(federationId);
-			return contains;
-		}
 	}
 }

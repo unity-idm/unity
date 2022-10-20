@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class AsyncExternalLogoFileDownloaderTest
 {
 	@Test
-	public void shouldAllowToDownloadLogosOnlyFirstThread()
+	public void shouldBlockAnotherInvocationOfDownloadLogosWhenLogosAreCurrentlyDownloading()
 	{
 		UnityServerConfiguration configuration = mock(UnityServerConfiguration.class);
 		MessageSource messageSource = mock(MessageSource.class);

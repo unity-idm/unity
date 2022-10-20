@@ -52,9 +52,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	@DocumentationReferencePrefix
 	public static final String P = BASE_PREFIX + "core.";
 	
-	public static final String BULK_FILES_DOWNLOAD_TIMEOUT = "bulkFilesDownloadTimeout";
+	public static final String BULK_FILES_DOWNLOAD_TIMEOUT = "bulkFilesDownloadReadTimeout";
 
-	public static final String BULK_FILES_CONNECTION_TIMEOUT = "bulkFilesConnectionTimeout";
+	public static final String BULK_FILES_CONNECTION_TIMEOUT = "bulkFilesDownloadConnectionTimeout";
 	public static final String ENABLED_LOCALES = "enabledLocales.";
 	public static final String DEFAULT_LOCALE = "defaultLocale";
 	public static final String MAIL_CONF = "mailConfig";
@@ -522,15 +522,13 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "JVM max heap size in GB times 2 (but not less then 1)."));
 		
 		defaults.put(EXTENSION_PFX, new PropertyMD().setCategory(mainCat).setCanHaveSubkeys().setHidden());
-		defaults.put(BULK_FILES_DOWNLOAD_TIMEOUT, new PropertyMD("10000").setHidden()
-				.setDescription("Http read timeout in ms, used for small files downloading, "
-						+ "like logo files. This timeout is used only in cases where downloads "
-						+ "can not take too long and failure to download is not critical for "
+		defaults.put(BULK_FILES_DOWNLOAD_TIMEOUT, new PropertyMD("10000")
+				.setDescription("TCP read timeout in milliseconds."
+						+ "This read timeout is not critical for "
 						+ "system operation."));
-		defaults.put(BULK_FILES_CONNECTION_TIMEOUT, new PropertyMD("5000").setHidden()
-				.setDescription("Http connection in ms, used for small files downloading, "
-						+ "like logo files. This timeout is used only in cases where downloads "
-						+ "can not take too long and failure to download is not critical for "
+		defaults.put(BULK_FILES_CONNECTION_TIMEOUT, new PropertyMD("5000")
+				.setDescription("TCP connection timeout in milliseconds."
+						+ "This connection timeout is not critical for "
 						+ "system operation."));
 
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
