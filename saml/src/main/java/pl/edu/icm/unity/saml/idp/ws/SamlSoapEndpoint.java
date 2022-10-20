@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.saml.idp.ws;
 
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.Servlet;
-
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.webservice.SAMLAuthnInterface;
+import eu.unicore.samly2.webservice.SAMLLogoutInterface;
+import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
@@ -18,13 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.webservice.SAMLAuthnInterface;
-import eu.unicore.samly2.webservice.SAMLLogoutInterface;
-import eu.unicore.samly2.webservice.SAMLQueryInterface;
-import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -57,6 +49,12 @@ import pl.edu.icm.unity.ws.CXFEndpoint;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 
+import javax.servlet.Servlet;
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * Endpoint exposing SAML SOAP binding.
  * 
@@ -82,7 +80,6 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private URIAccessService uriAccessService;
 	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
-	
 	@Autowired
 	public SamlSoapEndpoint(MessageSource msg,
 			NetworkServer server,
@@ -204,9 +201,9 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		sloSoap.setLocation(samlEndpointURL + "/SingleLogoutService");
 		sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] sloEndpoints = new EndpointType[] {sloSoap};
-		
+
 		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, uriAccessService, 
-				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints);
+				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints, description.getEndpoint().getConfiguration().getDisplayedName());
 		return new MetadataServlet(provider);
 	}
 	
