@@ -5,12 +5,15 @@
 
 package io.imunity.scim.config;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -73,11 +76,31 @@ public class SCIMEndpointPropertiesConfigurationMapper
 			RESTEndpointProperties restEndpointProperties)
 	{
 		List<SchemaWithMapping> schemas = new ArrayList<>();
+	
+		for (String schemaFile : scimProp.getListOfValues(SCIMEndpointProperties.SCHEMAS_FILE))
+		{
+			try
+			{
+				String source = FileUtils.readFileToString(new File(schemaFile), Charset.defaultCharset());
+				schemas.add(SCIMConstants.MAPPER.readValue(source, SchemaWithMapping.class));
+			} catch (JsonProcessingException e)
+			{
+				log.error("Cannot read SCIM endpoint schema configuration", e);
+			} catch (IOException e)
+			{
+				log.error("Cannot read SCIM endpoint schema from file " + schemaFile, e);
+			}
+		}
+
 		for (String schema : scimProp.getListOfValues(SCIMEndpointProperties.SCHEMAS))
 		{
 			try
 			{
-				schemas.add(SCIMConstants.MAPPER.readValue(schema, SchemaWithMapping.class));
+				SchemaWithMapping parsedSchema = SCIMConstants.MAPPER.readValue(schema, SchemaWithMapping.class);
+				if (schemas.stream().filter(s -> s.id.equals(parsedSchema.id)).findFirst().isEmpty())
+				{
+					schemas.add(parsedSchema);
+				}
 			} catch (JsonProcessingException e)
 			{
 				log.error("Cannot read SCIM endpoint schema configuration", e);

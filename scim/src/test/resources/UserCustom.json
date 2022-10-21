@@ -1,0 +1,25 @@
+{
+  "id" : "custom",
+  "type" : "USER",
+  "name" : "CustomFromFile",
+  "description" : "",
+  "enable" : true,
+  "attributesWithMapping" : [ {
+    "attributeDefinition" : {
+      "name" : "login",
+      "type" : "STRING",
+      "description" : "",
+      "subAttributesWithMapping" : [ ],
+      "multiValued" : false
+    },
+    "attributeMapping" : {
+      "mappingType" : "Simple",
+      "dataArray" : null,
+      "dataValue" : {
+        "type" : "IDENTITY",
+        "value" : "userName"
+      },
+      "evaluatorId" : "Simple"
+    }
+  } ]
+}
