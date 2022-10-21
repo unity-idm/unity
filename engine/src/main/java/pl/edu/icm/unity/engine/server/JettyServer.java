@@ -64,6 +64,8 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
 	private Map<String, ServletContextHandler> usedContextPaths;
+
+	private Map<String, ClientIPSettingHandler> usedContextPathsForIPHandler;
 	private ContextHandlerCollection mainContextHandler;
 	private FilterHolder dosFilter = null;
 	private UnityServerConfiguration cfg;
@@ -422,6 +424,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private synchronized void initRootHandler()
 	{
 		usedContextPaths = new HashMap<>();
+		usedContextPathsForIPHandler = new HashMap<>();
 		mainContextHandler = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<>(16);
 	}
@@ -470,8 +473,8 @@ public class JettyServer implements Lifecycle, NetworkServer
 		
 		addDoSFilter(handler);
 		addCORSFilter(handler);
-		
-		Handler wrappedHandler = applyClientIPDiscoveryHandler(handler, endpointId);
+
+		ClientIPSettingHandler wrappedHandler = applyClientIPDiscoveryHandler(handler, endpointId);
 		mainContextHandler.addHandler(wrappedHandler);
 		if(theServer.isStarted())
 		{
@@ -485,6 +488,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			}
 		}
 		usedContextPaths.put(contextPath, handler);
+		usedContextPathsForIPHandler.put(contextPath, wrappedHandler);
 	}
 	
 	@Override
@@ -521,6 +525,10 @@ public class JettyServer implements Lifecycle, NetworkServer
 		}
 		mainContextHandler.removeHandler(handler);
 		usedContextPaths.remove(handler.getContextPath());
+
+		ClientIPSettingHandler wrappedHandler = usedContextPathsForIPHandler.get(contextPath);
+		mainContextHandler.removeHandler(wrappedHandler);
+		usedContextPathsForIPHandler.remove(handler.getContextPath());
 	}
 	
 	@Override
@@ -550,6 +558,10 @@ public class JettyServer implements Lifecycle, NetworkServer
 		mainContextHandler.removeHandler(handler);
 		usedContextPaths.remove(handler.getContextPath());
 		deployedEndpoints.remove(endpoint);
+
+		ClientIPSettingHandler wrappedHandler = usedContextPathsForIPHandler.get(handler.getContextPath());
+		mainContextHandler.removeHandler(wrappedHandler);
+		usedContextPathsForIPHandler.remove(handler.getContextPath());
 	}
 	
 	@Override
