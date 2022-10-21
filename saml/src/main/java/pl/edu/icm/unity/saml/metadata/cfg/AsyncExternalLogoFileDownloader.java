@@ -128,6 +128,8 @@ public class AsyncExternalLogoFileDownloader
 		{
 			Path finalDir = Paths.get(workspaceDir, catalog);
 			Paths.get(workspaceDir, STAGING, catalog).toFile().deleteOnExit();
+			if(!finalDir.toFile().exists())
+				return;
 			removeFilesFromFinalDestinationWhichAreNotReplacedByNewOne(downloadedFilesName, finalDir);
 			log.info("Not used logos from federation id {} has been clean from {}", federationId, finalDir);
 		}
