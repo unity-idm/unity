@@ -1,0 +1,86 @@
+{
+  "id" : "urn:ietf:params:scim:schemas:core:2.0:Group",
+  "type" : "GROUP_CORE",
+  "name" : "Group",
+  "description" : "Group Schema",
+  "enable" : true,
+  "attributesWithMapping" : [ {
+    "attributeDefinition" : {
+      "name" : "displayName",
+      "type" : "STRING",
+      "description" : "A human-readable name for the Group.",
+      "subAttributesWithMapping" : [ ],
+      "multiValued" : false
+    },
+    "attributeMapping" : {
+      "mappingType" : "UndefinedMapping",
+      "dataArray" : null,
+      "evaluatorId" : "Undefined"
+    }
+  }, {
+    "attributeDefinition" : {
+      "name" : "groupType",
+      "type" : "STRING",
+      "description" : "Used to identify the relationship between the organization and the group. Typical values used might be 'Organization', 'Site', 'Team', but any value may be used.",
+      "subAttributesWithMapping" : [ ],
+      "multiValued" : false
+    },
+    "attributeMapping" : {
+      "mappingType" : "UndefinedMapping",
+      "dataArray" : null,
+      "evaluatorId" : "Undefined"
+    }
+  }, {
+    "attributeDefinition" : {
+      "name" : "members",
+      "type" : "COMPLEX",
+      "description" : "A list of members of the Group.",
+      "subAttributesWithMapping" : [ {
+        "attributeDefinition" : {
+          "name" : "value",
+          "type" : "STRING",
+          "description" : "Identifier of the member of this Group.",
+          "subAttributesWithMapping" : [ ],
+          "multiValued" : false
+        },
+        "attributeMapping" : {
+          "mappingType" : "UndefinedMapping",
+          "dataArray" : null,
+          "evaluatorId" : "Undefined"
+        }
+      }, {
+        "attributeDefinition" : {
+          "name" : "$ref",
+          "type" : "REFERENCE",
+          "description" : "The URI corresponding to a SCIM resource that is a member of this Group.",
+          "subAttributesWithMapping" : [ ],
+          "multiValued" : false
+        },
+        "attributeMapping" : {
+          "mappingType" : "UndefinedMapping",
+          "dataArray" : null,
+          "evaluatorId" : "Undefined"
+        }
+      }, {
+        "attributeDefinition" : {
+          "name" : "type",
+          "type" : "STRING",
+          "description" : "A label indicating the type of resource, e.g., 'User' or 'Group'.",
+          "subAttributesWithMapping" : [ ],
+          "multiValued" : false
+        },
+        "attributeMapping" : {
+          "mappingType" : "UndefinedMapping",
+          "dataArray" : null,
+          "evaluatorId" : "Undefined"
+        }
+      } ],
+      "multiValued" : false
+    },
+    "attributeMapping" : {
+      "mappingType" : "Complex",
+      "dataArray" : null,
+      "evaluatorId" : "Complex"
+    }
+  } ]
+}

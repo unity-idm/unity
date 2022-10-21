@@ -31,6 +31,7 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 	public static final String EXCLUDED_MEMBERSHIP_GROUPS = "exludedMembershipGroups.";
 	public static final String MEMBERSHIP_ATTRIBUTES = "membershipAttributes.";
 	public static final String SCHEMAS = "schemas.";
+	public static final String SCHEMAS_FILE = "schemasFile.";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
@@ -48,6 +49,7 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 		META.put(MEMBERSHIP_ATTRIBUTES,
 				new PropertyMD().setList(false).setDescription("SCIM group membership attributes"));
 		META.put(SCHEMAS, new PropertyMD().setList(false).setDescription("SCIM schemas definitions"));
+		META.put(SCHEMAS_FILE, new PropertyMD().setList(false).setDescription("SCIM schemas definitions from file"));
 	}
 
 	public SCIMEndpointProperties(Properties properties) throws ConfigurationException
