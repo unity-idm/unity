@@ -236,13 +236,6 @@
 
 		<plugins>
 			<plugin>
-      <groupId>com.github.ferstl</groupId>
-      <artifactId>depgraph-maven-plugin</artifactId>
-      <version>4.0.2</version>
-    </plugin>
-		
-		
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<configuration>
