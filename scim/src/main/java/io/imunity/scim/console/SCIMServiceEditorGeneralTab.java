@@ -22,6 +22,7 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
 import pl.edu.icm.unity.webui.common.groups.OptionalGroupWithWildcardSelection;
+import pl.edu.icm.unity.webui.common.groups.SingleGroupSelectionWithIndentCombo;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 
@@ -59,13 +60,13 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 		main.addComponent(rootGroup);
 		restBinder.forField(rootGroup).asRequired().bind("rootGroup");
 		
-		MandatoryGroupSelection restAdminGroup = new MandatoryGroupSelection(msg);
+		SingleGroupSelectionWithIndentCombo restAdminGroup = new SingleGroupSelectionWithIndentCombo(msg);
 		restAdminGroup.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroup"));
 		restAdminGroup.setDescription(msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroupDesc"));
 		restAdminGroup.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
 		restAdminGroup.setItems(allGroups);
 		main.addComponent(restAdminGroup);
-		restBinder.forField(restAdminGroup).asRequired().bind("restAdminGroup");
+		restBinder.forField(restAdminGroup).bind("restAdminGroup");
 		TooltipExtension.tooltip(restAdminGroup);
 		
 		OptionalGroupWithWildcardSelection memeberShipGroups = new OptionalGroupWithWildcardSelection(msg);
