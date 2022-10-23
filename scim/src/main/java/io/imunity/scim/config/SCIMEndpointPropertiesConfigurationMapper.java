@@ -50,7 +50,10 @@ public class SCIMEndpointPropertiesConfigurationMapper
 		}
 
 		rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.ROOT_GROUP, configuration.rootGroup);
-		rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.REST_ADMIN_GROUP, configuration.restAdminGroup);
+		if (configuration.restAdminGroup != null)
+		{
+			rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.REST_ADMIN_GROUP, configuration.restAdminGroup);
+		}
 		SCIMEndpointProperties propScim = new SCIMEndpointProperties(rawScim);
 		RESTEndpointProperties propRest = new RESTEndpointProperties(rawRest);
 		return propRest.getAsString() + "\n" + propScim.getAsString();

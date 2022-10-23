@@ -53,7 +53,10 @@ class ConfigurationVaadinBeanMapper
 				.map(g -> allGroups.getOrDefault(g, new Group(g))).collect(Collectors.toList()));
 
 		bean.setRootGroup(new GroupWithIndentIndicator(new Group(orgConfig.rootGroup), false));
-		bean.setRestAdminGroup(new GroupWithIndentIndicator(new Group(orgConfig.restAdminGroup), false));
+		if (orgConfig.restAdminGroup != null)
+		{
+			bean.setRestAdminGroup(new GroupWithIndentIndicator(new Group(orgConfig.restAdminGroup), false));
+		}
 		bean.setSchemas(
 				orgConfig.schemas.stream().map(s -> mapFromConfigurationSchema(s)).collect(Collectors.toList()));
 		bean.setMembershipAttributes(orgConfig.membershipAttributes);
@@ -95,7 +98,8 @@ class ConfigurationVaadinBeanMapper
 		return SCIMEndpointConfiguration.builder().withAllowedCorsHeaders(bean.getAllowedCORSheaders())
 				.withAllowedCorsOrigins(bean.getAllowedCORSorigins())
 				.withRootGroup(bean.getRootGroup().group.getPathEncoded())
-				.withRestAdminGroup(bean.getRestAdminGroup().group.getPathEncoded())
+				.withRestAdminGroup(
+						bean.getRestAdminGroup() != null ? bean.getRestAdminGroup().group.getPathEncoded() : null)
 				.withMembershipGroups(
 						bean.getMembershipGroups().stream().map(g -> g.getPathEncoded()).collect(Collectors.toList()))
 				.withExcludedMembershipGroups(bean.getExcludedMembershipGroups().stream().map(g -> g.getPathEncoded())
