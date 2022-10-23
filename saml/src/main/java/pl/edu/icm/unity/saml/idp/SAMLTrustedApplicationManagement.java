@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.api.files.URIAccessException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -207,7 +208,7 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 			if (source.isSet(prefix + SamlIdpProperties.ALLOWED_SP_LOGO))
 			{
 				String logoUri = source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_LOGO);
-				logo = imageAccessService.readURI(URI.create(logoUri)).getContents();
+				logo = readLogo(imageAccessService, logoUri);
 			} else
 			{
 				logo = null;
@@ -225,6 +226,17 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 				authorizedRedirectsUri.add(c);
 			});
 
+		}
+		
+		private byte[] readLogo(URIAccessService imageAccessService, String logoUri)
+		{
+			try
+			{
+				return imageAccessService.readURI(URI.create(logoUri)).getContents();
+			} catch (URIAccessException e)
+			{
+				return null;
+			}
 		}
 	}
 }
