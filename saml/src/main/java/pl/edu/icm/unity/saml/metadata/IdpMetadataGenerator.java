@@ -4,28 +4,25 @@
  */
 package pl.edu.icm.unity.saml.metadata;
 
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.SAMLConstants;
+import org.apache.xmlbeans.XmlBase64Binary;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlString;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
+import pl.edu.icm.unity.types.I18nString;
+import xmlbeans.org.oasis.saml2.metadata.*;
+import xmlbeans.org.w3.x2000.x09.xmldsig.KeyInfoType;
+
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Set;
 
-import org.apache.xmlbeans.XmlBase64Binary;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlOptions;
-
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.SAMLConstants;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
-import xmlbeans.org.oasis.saml2.metadata.AnyURIListType;
-import xmlbeans.org.oasis.saml2.metadata.AttributeAuthorityDescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.EndpointType;
-import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
-import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.IDPSSODescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.RoleDescriptorType;
-import xmlbeans.org.w3.x2000.x09.xmldsig.KeyInfoType;
+import static java.util.Optional.ofNullable;
 
 /**
  * Automatically generates SAML metadata from IdP configuration.
@@ -37,18 +34,24 @@ public class IdpMetadataGenerator implements MetadataProvider
 {
 	private Date generationDate;
 	private SamlIdpProperties samlConfig;
+
+	private I18nString displayedName;
+
+	private MessageSource msg;
 	private EntityDescriptorDocument document;
 	private EndpointType[] ssoEndpoints;
 	private EndpointType[] attributeQueryEndpoints;
 	private EndpointType[] sloEndpoints;
 	
 	public IdpMetadataGenerator(SamlIdpProperties samlConfig, EndpointType[] ssoEndpoints, 
-			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints)
+			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints, I18nString displayedName, MessageSource msg)
 	{
 		this.samlConfig = samlConfig;
 		this.ssoEndpoints = ssoEndpoints;
 		this.attributeQueryEndpoints = attributeQueryEndpoints;
 		this.sloEndpoints = sloEndpoints;
+		this.displayedName = displayedName;
+		this.msg = msg;
 		generateMetadata();
 	}
 
@@ -77,7 +80,9 @@ public class IdpMetadataGenerator implements MetadataProvider
 			addIdpSSODescriptor(meta);
 		if (attributeQueryEndpoints != null && attributeQueryEndpoints.length > 0)
 			addIdpAttributeAuthorityDescriptor(meta);
-		
+
+		addOrganizationDisplayedName(meta);
+
 		String asText = document.xmlText(new XmlOptions().setSavePrettyPrint());
 		try
 		{
@@ -87,7 +92,21 @@ public class IdpMetadataGenerator implements MetadataProvider
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+	private void addOrganizationDisplayedName(EntityDescriptorType meta)
+	{
+		OrganizationType organizationType = meta.addNewOrganization();
+		displayedName.getMap().forEach((locale, value) -> addDisplayedName(organizationType, locale, value));
+		ofNullable(displayedName.getDefaultValue()).ifPresent(value -> addDisplayedName(organizationType, msg.getDefaultLocaleCode(), value));
+	}
+
+	private static void addDisplayedName(OrganizationType organizationType, String locale, String value)
+	{
+		LocalizedNameType localizedNameType = organizationType.addNewOrganizationDisplayName();
+		localizedNameType.setLang(locale);
+		localizedNameType.set(XmlString.Factory.newValue(value));
+	}
+
 	private void addIdpSSODescriptor(EntityDescriptorType meta)
 	{
 		IDPSSODescriptorType idpDesc = meta.addNewIDPSSODescriptor();
