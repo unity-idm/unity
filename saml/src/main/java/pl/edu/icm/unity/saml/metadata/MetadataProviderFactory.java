@@ -6,12 +6,14 @@ package pl.edu.icm.unity.saml.metadata;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
+import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 
@@ -21,9 +23,10 @@ import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
  */
 public class MetadataProviderFactory
 {
-	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, URIAccessService uriAccessService, 
-			ExecutorsService executorsService, EndpointType[] ssoEndpoints, 
-			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints)
+	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, URIAccessService uriAccessService,
+	                                              ExecutorsService executorsService, EndpointType[] ssoEndpoints,
+	                                              EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints,
+	                                              I18nString displayedName, MessageSource msg)
 	{
 		MetadataProvider metaProvider;		
 		String uri = samlProperties.getValue(SamlProperties.METADATA_SOURCE);
@@ -31,7 +34,7 @@ public class MetadataProviderFactory
 		if (uri == null)
 		{
 			metaProvider = new IdpMetadataGenerator(samlProperties, ssoEndpoints, 
-					attributeQueryEndpoints, sloEndpoints);
+					attributeQueryEndpoints, sloEndpoints, displayedName, msg);
 		} else
 		{
 			try
