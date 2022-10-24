@@ -63,9 +63,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
-	private Map<String, ServletContextHandler> usedContextPaths;
-
-	private Map<String, ClientIPSettingHandler> usedContextPathsForIPHandler;
+	private Map<String, Handler> usedContextPaths;
 	private ContextHandlerCollection mainContextHandler;
 	private FilterHolder dosFilter = null;
 	private UnityServerConfiguration cfg;
@@ -424,7 +422,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private synchronized void initRootHandler()
 	{
 		usedContextPaths = new HashMap<>();
-		usedContextPathsForIPHandler = new HashMap<>();
 		mainContextHandler = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<>(16);
 	}
@@ -474,7 +471,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		addDoSFilter(handler);
 		addCORSFilter(handler);
 
-		ClientIPSettingHandler wrappedHandler = applyClientIPDiscoveryHandler(handler, endpointId);
+		Handler wrappedHandler = applyClientIPDiscoveryHandler(handler, endpointId);
 		mainContextHandler.addHandler(wrappedHandler);
 		if(theServer.isStarted())
 		{
@@ -487,14 +484,13 @@ public class JettyServer implements Lifecycle, NetworkServer
 				throw new EngineException("Can not start handler", e);
 			}
 		}
-		usedContextPaths.put(contextPath, handler);
-		usedContextPathsForIPHandler.put(contextPath, wrappedHandler);
+		usedContextPaths.put(contextPath, wrappedHandler);
 	}
 	
 	@Override
 	public synchronized void undeployAllHandlers() throws EngineException
 	{
-		for (ServletContextHandler handler : usedContextPaths.values())
+		for (Handler handler : usedContextPaths.values())
 		{
 			try
 			{
@@ -515,7 +511,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	@Override
 	public synchronized void undeployHandler(String contextPath) throws EngineException
 	{
-		ServletContextHandler handler = usedContextPaths.get(contextPath);
+		Handler handler = usedContextPaths.get(contextPath);
 		try
 		{
 			handler.stop();
@@ -524,11 +520,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			throw new EngineException("Can not stop handler", e);
 		}
 		mainContextHandler.removeHandler(handler);
-		usedContextPaths.remove(handler.getContextPath());
-
-		ClientIPSettingHandler wrappedHandler = usedContextPathsForIPHandler.get(contextPath);
-		mainContextHandler.removeHandler(wrappedHandler);
-		usedContextPathsForIPHandler.remove(handler.getContextPath());
+		usedContextPaths.remove(contextPath);
 	}
 	
 	@Override
@@ -545,9 +537,9 @@ public class JettyServer implements Lifecycle, NetworkServer
 		}
 		if (endpoint == null)
 			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
-		
-		ServletContextHandler handler = usedContextPaths.get(
-				endpoint.getEndpointDescription().getEndpoint().getContextAddress());
+
+		String contextPath = endpoint.getEndpointDescription().getEndpoint().getContextAddress();
+		Handler handler = usedContextPaths.get(contextPath);
 		try
 		{
 			handler.stop();
@@ -556,12 +548,8 @@ public class JettyServer implements Lifecycle, NetworkServer
 			throw new EngineException("Can not stop handler", e);
 		}
 		mainContextHandler.removeHandler(handler);
-		usedContextPaths.remove(handler.getContextPath());
+		usedContextPaths.remove(contextPath);
 		deployedEndpoints.remove(endpoint);
-
-		ClientIPSettingHandler wrappedHandler = usedContextPathsForIPHandler.get(handler.getContextPath());
-		mainContextHandler.removeHandler(wrappedHandler);
-		usedContextPathsForIPHandler.remove(handler.getContextPath());
 	}
 	
 	@Override
