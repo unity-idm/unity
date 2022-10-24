@@ -4,19 +4,11 @@
  */
 package pl.edu.icm.unity.engine.files;
 
-import static eu.unicore.util.httpclient.HttpClientProperties.CONNECT_TIMEOUT;
-import static eu.unicore.util.httpclient.HttpClientProperties.SO_TIMEOUT;
-
-import java.io.IOException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
+import com.google.common.base.Preconditions;
+import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManagerWithHostnameChecking;
+import eu.emi.security.authn.x509.impl.HostnameMismatchCallback2;
+import eu.unicore.util.httpclient.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -27,20 +19,20 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-
-import com.google.common.base.Preconditions;
-
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManagerWithHostnameChecking;
-import eu.emi.security.authn.x509.impl.HostnameMismatchCallback2;
-import eu.unicore.util.httpclient.CustomSSLConnectionSocketFactory;
-import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import eu.unicore.util.httpclient.EmptyHostnameVerifier;
-import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
-import eu.unicore.util.httpclient.HttpClientProperties;
-import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.IOException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+
+import static eu.unicore.util.httpclient.HttpClientProperties.CONNECT_TIMEOUT;
+import static eu.unicore.util.httpclient.HttpClientProperties.SO_TIMEOUT;
 
 /**
  * Wraps configuration of HTTP client which can use custom truststore and makes
@@ -58,11 +50,12 @@ class RemoteFileNetworkClient
 		this.pkiManagement = pkiManagement;
 	}
 
-	ContentsWithType download(URL url, String customTruststore, Duration connectionAndSocketReadTimeout, int retriesNumber)
+	ContentsWithType download(URL url, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber)
 			throws EngineException, IOException
 	{
 		HttpClient client = new ApacheHttpClientBuilder(pkiManagement)
-				.withConnectionAndSocketReadTimeout(connectionAndSocketReadTimeout)
+				.withConnectionTimeout(connectionTimeout)
+				.withSocketReadTimeout(socketReadTimeout)
 				.withCustomTruststore(customTruststore)
 				.withRetriesNumber(retriesNumber)
 				.withURL(url)
@@ -166,11 +159,16 @@ class RemoteFileNetworkClient
 			this.socketReadTimeout = socketReadTimeout;
 			return this;
 		}
-		
-		ApacheHttpClientBuilder withConnectionAndSocketReadTimeout(Duration connectionAndSocketReadTimeout)
+
+		ApacheHttpClientBuilder withConnectionTimeout(Duration connectionTimeout)
 		{
-			this.connectionTimeout = (int) connectionAndSocketReadTimeout.toMillis();
-			this.socketReadTimeout = (int) connectionAndSocketReadTimeout.toMillis();
+			this.connectionTimeout = (int) connectionTimeout.toMillis();
+			return this;
+		}
+
+		ApacheHttpClientBuilder withSocketReadTimeout(Duration socketReadTimeout)
+		{
+			this.socketReadTimeout = (int) socketReadTimeout.toMillis();
 			return this;
 		}
 		

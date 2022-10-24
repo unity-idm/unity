@@ -5,18 +5,11 @@
 
 package pl.edu.icm.unity.saml.idp.console;
 
+import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
-import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
-import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -72,4 +65,5 @@ public class SAMLServiceController extends SAMLServiceControllerBase
 	{
 		return SamlIdPWebEndpointFactory.TYPE;
 	}
+
 }

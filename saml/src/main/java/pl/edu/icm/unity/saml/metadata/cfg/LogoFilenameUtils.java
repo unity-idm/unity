@@ -8,18 +8,17 @@
  **********************************************************************/
 package pl.edu.icm.unity.saml.metadata.cfg;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.files.RemoteFileData;
+import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
+
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Map;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.RemoteFileData;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 
 class LogoFilenameUtils
 {
@@ -77,7 +76,7 @@ class LogoFilenameUtils
 		path = path.endsWith("/") ? path.substring(0, path.length()-1) : path;
 		String extension = FilenameUtils.getExtension(path);
 		if (extension == null || extension.isBlank())
-			throw new IllegalStateException("Can not decode extension from URI path " + path);
+			throw new IllegalStateException("Can not decode extension from URI path " + path +", wrong mime type " + remoteFile.mimeType);
 		return extension;
 	}
 	
