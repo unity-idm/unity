@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ import io.imunity.idp.TrustedIdPClientsManagement;
 import io.imunity.idp.IdPClientData.AccessStatus;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -37,6 +39,7 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
+import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
 import pl.edu.icm.unity.types.I18nString;
@@ -46,6 +49,8 @@ import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
 @Component
 class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, AuthnResponseProcessor.class);
+	
 	private final PreferencesManagement preferencesManagement;
 	private final EndpointManagement endpointManagement;
 	private final MessageSource msg;
@@ -235,6 +240,7 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 				return imageAccessService.readURI(URI.create(logoUri)).getContents();
 			} catch (URIAccessException e)
 			{
+				log.trace("Can not read logo URI", e);
 				return null;
 			}
 		}
