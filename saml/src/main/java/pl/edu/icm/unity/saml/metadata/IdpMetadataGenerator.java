@@ -22,6 +22,8 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Set;
 
+import static java.util.Optional.ofNullable;
+
 /**
  * Automatically generates SAML metadata from IdP configuration.
  * The metadata is never signed - signing must be performed separately.
@@ -94,13 +96,15 @@ public class IdpMetadataGenerator implements MetadataProvider
 	private void addOrganizationDisplayedName(EntityDescriptorType meta)
 	{
 		OrganizationType organizationType = meta.addNewOrganization();
-		displayedName.getMap().forEach((locale, value) -> {
-			if(locale.isEmpty())
-				locale = msg.getDefaultLocaleCode();
-			LocalizedNameType localizedNameType = organizationType.addNewOrganizationDisplayName();
-			localizedNameType.setLang(locale);
-			localizedNameType.set(XmlString.Factory.newValue(value));
-		});
+		displayedName.getMap().forEach((locale, value) -> addDisplayedName(organizationType, locale, value));
+		ofNullable(displayedName.getDefaultValue()).ifPresent(value -> addDisplayedName(organizationType, msg.getDefaultLocaleCode(), value));
+	}
+
+	private static void addDisplayedName(OrganizationType organizationType, String locale, String value)
+	{
+		LocalizedNameType localizedNameType = organizationType.addNewOrganizationDisplayName();
+		localizedNameType.setLang(locale);
+		localizedNameType.set(XmlString.Factory.newValue(value));
 	}
 
 	private void addIdpSSODescriptor(EntityDescriptorType meta)

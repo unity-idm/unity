@@ -63,8 +63,7 @@ public class IdpMetadataGeneratorTest
 	@Test
 	public void shouldAddDefaultOrganizationDisplayNames()
 	{
-		I18nString displayedNames = new I18nString();
-		displayedNames.addValue("", "Ala has a cat");
+		I18nString displayedNames = new I18nString("Ala has a cat");
 
 		IdpMetadataGenerator generator = new IdpMetadataGenerator(samlIdpProperties,
 				new EndpointType[0], new EndpointType[0], new EndpointType[0], displayedNames, messageSource);
