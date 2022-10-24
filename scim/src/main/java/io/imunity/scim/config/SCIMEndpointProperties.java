@@ -49,7 +49,7 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 		META.put(MEMBERSHIP_ATTRIBUTES,
 				new PropertyMD().setList(false).setDescription("SCIM group membership attributes"));
 		META.put(SCHEMAS, new PropertyMD().setList(false).setDescription("SCIM schemas definitions"));
-		META.put(SCHEMAS_FILE, new PropertyMD().setList(false).setDescription("SCIM schemas definitions from file"));
+		META.put(SCHEMAS_FILE, new PropertyMD().setList(false).setHidden().setDescription("SCIM schemas definitions from file"));
 	}
 
 	public SCIMEndpointProperties(Properties properties) throws ConfigurationException
