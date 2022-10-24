@@ -523,11 +523,13 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		
 		defaults.put(EXTENSION_PFX, new PropertyMD().setCategory(mainCat).setCanHaveSubkeys().setHidden());
 		defaults.put(BULK_FILES_DOWNLOAD_TIMEOUT, new PropertyMD("10000")
-				.setDescription("TCP read timeout in milliseconds."
+				.setDescription("Http read timeout in milliseconds, used for small files downloading, "
+						+ "like logo files."
 						+ "This read timeout is not critical for "
 						+ "system operation."));
 		defaults.put(BULK_FILES_CONNECTION_TIMEOUT, new PropertyMD("5000")
-				.setDescription("TCP connection timeout in milliseconds."
+				.setDescription("TCP connection timeout in milliseconds, used for small files downloading,"
+						+ "like logo files."
 						+ "This connection timeout is not critical for "
 						+ "system operation."));
 

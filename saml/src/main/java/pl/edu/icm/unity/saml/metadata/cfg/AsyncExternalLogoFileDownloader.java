@@ -74,7 +74,7 @@ public class AsyncExternalLogoFileDownloader
 		String federationId = entitiesDescriptorDocument.getEntitiesDescriptor().getID();
 		if(!currentlyDownloadingFederation.add(federationId))
 			return;
-		TrustedIdPs trustedIdPs;
+		CompletableFuture<Set<String>>[] savedFilesNamesFutures;
 		try
 		{
 			RemoteMetadataSource metadataSource = RemoteMetadataSource.builder()
@@ -82,7 +82,12 @@ public class AsyncExternalLogoFileDownloader
 					.withUrl("url")
 					.withRefreshInterval(Duration.ZERO)
 					.build();
-			trustedIdPs = converter.convertToTrustedIdPs(entitiesDescriptorDocument, metadataSource);
+			TrustedIdPs trustedIdPs = converter.convertToTrustedIdPs(entitiesDescriptorDocument, metadataSource);
+			log.debug("Will download logos for {} IdPs of federation {}", trustedIdPs.getKeys().size(),
+					entitiesDescriptorDocument.getEntitiesDescriptor().getName());
+			savedFilesNamesFutures = trustedIdPs.getEntrySet().stream()
+					.map(entry -> CompletableFuture.supplyAsync(() -> downloadFiles(entry, httpsTruststore), executorService))
+					.toArray(CompletableFuture[]::new);
 		}
 		catch (Exception e)
 		{
@@ -90,11 +95,6 @@ public class AsyncExternalLogoFileDownloader
 			log.error("This exception occurred when metadata has been converted to TrustedIdPs", e);
 			return;
 		}
-		log.debug("Will download logos for {} IdPs of federation {}", trustedIdPs.getKeys().size(),
-				entitiesDescriptorDocument.getEntitiesDescriptor().getName());
-		CompletableFuture<Set<String>>[] savedFilesNamesFutures = trustedIdPs.getEntrySet().stream()
-				.map(entry -> CompletableFuture.supplyAsync(() -> downloadFiles(entry, httpsTruststore), executorService))
-				.toArray(CompletableFuture[]::new);
 		CompletableFuture.allOf(savedFilesNamesFutures).thenRunAsync(
 				() -> cleanUp(entitiesDescriptorDocument, savedFilesNamesFutures),
 				executorService
