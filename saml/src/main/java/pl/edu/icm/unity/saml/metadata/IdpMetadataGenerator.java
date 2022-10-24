@@ -10,6 +10,7 @@ import org.apache.xmlbeans.XmlBase64Binary;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
+import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
 import pl.edu.icm.unity.types.I18nString;
@@ -33,19 +34,22 @@ public class IdpMetadataGenerator implements MetadataProvider
 	private SamlIdpProperties samlConfig;
 
 	private I18nString displayedName;
+
+	private MessageSource msg;
 	private EntityDescriptorDocument document;
 	private EndpointType[] ssoEndpoints;
 	private EndpointType[] attributeQueryEndpoints;
 	private EndpointType[] sloEndpoints;
 	
 	public IdpMetadataGenerator(SamlIdpProperties samlConfig, EndpointType[] ssoEndpoints, 
-			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints, I18nString displayedName)
+			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints, I18nString displayedName, MessageSource msg)
 	{
 		this.samlConfig = samlConfig;
 		this.ssoEndpoints = ssoEndpoints;
 		this.attributeQueryEndpoints = attributeQueryEndpoints;
 		this.sloEndpoints = sloEndpoints;
 		this.displayedName = displayedName;
+		this.msg = msg;
 		generateMetadata();
 	}
 
@@ -91,6 +95,8 @@ public class IdpMetadataGenerator implements MetadataProvider
 	{
 		OrganizationType organizationType = meta.addNewOrganization();
 		displayedName.getMap().forEach((locale, value) -> {
+			if(locale.isEmpty())
+				locale = msg.getDefaultLocaleCode();
 			LocalizedNameType localizedNameType = organizationType.addNewOrganizationDisplayName();
 			localizedNameType.setLang(locale);
 			localizedNameType.set(XmlString.Factory.newValue(value));

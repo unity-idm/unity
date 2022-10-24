@@ -319,7 +319,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		EndpointType[] sloEndpoints = new EndpointType[] {sloPost, sloRedirect, sloSoap};
 
 		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, uriAccessService, 
-				executorsService, authnEndpoints, null, sloEndpoints, description.getEndpoint().getConfiguration().getDisplayedName());
+				executorsService, authnEndpoints, null, sloEndpoints,
+				description.getEndpoint().getConfiguration().getDisplayedName(), msg);
 		return new MetadataServlet(provider);
 	}
 	

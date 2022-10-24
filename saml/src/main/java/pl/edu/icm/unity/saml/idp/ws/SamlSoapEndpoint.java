@@ -203,7 +203,8 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		EndpointType[] sloEndpoints = new EndpointType[] {sloSoap};
 
 		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, uriAccessService, 
-				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints, description.getEndpoint().getConfiguration().getDisplayedName());
+				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints,
+				description.getEndpoint().getConfiguration().getDisplayedName(), msg);
 		return new MetadataServlet(provider);
 	}
 	
