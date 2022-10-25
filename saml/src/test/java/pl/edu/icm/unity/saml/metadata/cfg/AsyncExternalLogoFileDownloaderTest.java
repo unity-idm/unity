@@ -30,6 +30,7 @@ public class AsyncExternalLogoFileDownloaderTest
 	public void shouldBlockAnotherInvocationOfDownloadLogosWhenLogosAreCurrentlyDownloading()
 	{
 		UnityServerConfiguration configuration = mock(UnityServerConfiguration.class);
+		when(configuration.getValue(eq(UnityServerConfiguration.WORKSPACE_DIRECTORY))).thenReturn(".");
 		MessageSource messageSource = mock(MessageSource.class);
 		URIAccessService uriAccessService = mock(URIAccessService.class);
 		ExecutorsService executorService = mock(ExecutorsService.class);
