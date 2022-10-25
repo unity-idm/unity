@@ -4,16 +4,14 @@
  */
 package pl.edu.icm.unity.engine.bulkops;
 
-import java.util.List;
-import java.util.concurrent.TimeoutException;
-
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
-import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.ProcessingRuleDB;
@@ -21,6 +19,9 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.types.translation.TranslationRule;
+
+import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Implements {@link BulkProcessingManagement}.
@@ -34,6 +35,9 @@ public class BulkProcessingManagementImpl implements BulkProcessingManagement, B
 	private InternalAuthorizationManager authz;
 	private BulkProcessingSupport bulkProcessingSupport;
 	private BulkOperationsUpdater updater;
+
+	private static final Logger log = Log.getLogger(Log.BUG_CATCHER, BulkProcessingManagementImpl.class);
+
 
 	@Autowired
 	public BulkProcessingManagementImpl(ProcessingRuleDB db, InternalAuthorizationManager authz,
@@ -68,7 +72,9 @@ public class BulkProcessingManagementImpl implements BulkProcessingManagement, B
 				rule.getCronExpression(), BulkProcessingSupport.generateJobKey());
 		try
 		{
+			log.trace("Starting to save rule: {} in thread {}", fullRule, Thread.currentThread().getName());
 			db.create(fullRule);
+			log.trace("Saved rule {} in thread {}", db.get(fullRule.getId()), Thread.currentThread().getName());
 			updater.updateManual();
 		} catch (Exception e)
 		{
@@ -108,6 +114,7 @@ public class BulkProcessingManagementImpl implements BulkProcessingManagement, B
 	public List<ScheduledProcessingRule> getScheduledRules() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		log.trace("Getting all rules, in thread {}", Thread.currentThread().getName());
 		return db.getAll();
 	}
 	

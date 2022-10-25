@@ -29,7 +29,9 @@ public class SQLTransactionEngine implements TransactionEngine
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, TransactionalAspect.class);
 	public static final long RETRY_BASE_DELAY = 50;
 	public static final long RETRY_MAX_DELAY = 200;
-	
+
+	private static final Logger testLog = Log.getLogger(Log.BUG_CATCHER, SQLTransactionEngine.class);
+
 	@Autowired
 	private DBSessionManager dbSessionMan;
 	
@@ -42,8 +44,10 @@ public class SQLTransactionEngine implements TransactionEngine
 			setupTransactionSession(pjp);
 			try
 			{
+				testLog.trace("Starting transaction in thread {}", Thread.currentThread().getName());
 				Object retVal = pjp.proceed();
 				commitIfNeeded(pjp, autoCommit);
+				testLog.trace("Finished transaction in thread {}", Thread.currentThread().getName());
 				return retVal;
 			} catch (TxPersistenceException pe)
 			{
