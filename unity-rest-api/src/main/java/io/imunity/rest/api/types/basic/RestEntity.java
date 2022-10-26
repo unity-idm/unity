@@ -23,7 +23,7 @@ public class RestEntity
 	private RestEntity(Builder builder)
 	{
 		this.entityInformation = builder.entityInformation;
-		this.identities = builder.identities;
+		this.identities = List.copyOf(builder.identities);
 		this.credentialInfo = builder.credentialInfo;
 	}
 

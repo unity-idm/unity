@@ -61,7 +61,7 @@ public class RestAttributeExt
 		this.name = builder.name;
 		this.valueSyntax = builder.valueSyntax;
 		this.groupPath = builder.groupPath;
-		this.values = builder.values;
+		this.values = List.copyOf(builder.values);
 		this.translationProfile = builder.translationProfile;
 		this.remoteIdp = builder.remoteIdp;
 	}

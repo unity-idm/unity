@@ -27,8 +27,8 @@ public class RestGroupMemberWithAttributes
 	private RestGroupMemberWithAttributes(Builder builder)
 	{
 		this.entityInformation = builder.entityInformation;
-		this.identities = builder.identities;
-		this.attributes = builder.attributes;
+		this.identities = List.copyOf(builder.identities);
+		this.attributes = List.copyOf(builder.attributes);
 	}
 
 	@Override

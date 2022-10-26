@@ -22,7 +22,7 @@ public class RestCredentialInfo
 	private RestCredentialInfo(Builder builder)
 	{
 		this.credentialRequirementId = builder.credentialRequirementId;
-		this.credentialsState = builder.credentialsState;
+		this.credentialsState = Map.copyOf(builder.credentialsState);
 	}
 
 	@Override

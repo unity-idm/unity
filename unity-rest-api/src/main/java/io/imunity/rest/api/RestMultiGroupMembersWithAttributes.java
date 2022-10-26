@@ -25,7 +25,7 @@ public class RestMultiGroupMembersWithAttributes
 
 	private RestMultiGroupMembersWithAttributes(Builder builder)
 	{
-		this.members = builder.members;
+		this.members = Map.copyOf(builder.members);
 	}
 
 	@Override
