@@ -37,6 +37,8 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
 import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
+import pl.edu.icm.unity.restadm.mappers.EntityMapper;
+import pl.edu.icm.unity.restadm.mappers.GroupMemberWithAttributesMapper;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.*;
@@ -145,7 +147,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		log.debug("resolve query for " + identityType + ":" + identityValue);
 		Entity entity = identitiesMan.getEntity(new EntityParam(new IdentityTaV(identityType, identityValue)));
-		return mapper.writeValueAsString(entity);
+		return mapper.writeValueAsString(EntityMapper.map(entity));
 	}
 
 	
@@ -156,7 +158,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		log.debug("getEntity query for " + entityId);
 		Entity entity = identitiesMan.getEntity(getEP(entityId, idType));
-		return mapper.writeValueAsString(entity);
+		return mapper.writeValueAsString(EntityMapper.map(entity));
 	}
 	
 	@Path("/entity/{entityId}")
@@ -308,7 +310,7 @@ public class RESTAdmin implements RESTAdminHandler
 		List<RestGroupMemberWithAttributes> groupMembers = groupMembersService
 				.getGroupMembersWithSelectedAttributes(group, attributes)
 				.stream()
-				.map(RestApiMapper::map)
+				.map(GroupMemberWithAttributesMapper::map)
 				.collect(Collectors.toList());
 		String s = mapper.writeValueAsString(groupMembers);
 		log.debug("Request completed: {}", stopwatch.toString());
@@ -338,10 +340,10 @@ public class RESTAdmin implements RESTAdminHandler
 				.collect(Collectors.toMap(
 						Map.Entry::getKey,
 						entry -> entry.getValue().stream()
-								.map(RestApiMapper::map)
+								.map(GroupMemberWithAttributesMapper::map)
 								.collect(Collectors.toList())
 				));
-		return mapper.writeValueAsString(new RestMultiGroupMembersWithAttributes(groupMembers));
+		return mapper.writeValueAsString(RestMultiGroupMembersWithAttributes.builder().withMembers(groupMembers).build());
 	}
 
 	@Path("/entity/{entityId}/record")

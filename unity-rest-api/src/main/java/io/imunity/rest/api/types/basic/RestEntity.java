@@ -1,40 +1,36 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.rest.api;
 
-import java.util.Collection;
+package io.imunity.rest.api.types.basic;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import io.imunity.rest.api.types.basic.RestAttributeExt;
-import io.imunity.rest.api.types.basic.RestEntityInformation;
-import io.imunity.rest.api.types.basic.RestIdentity;
+import io.imunity.rest.api.types.authn.RestCredentialInfo;
 
-@JsonDeserialize(builder = RestGroupMemberWithAttributes.Builder.class)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class RestGroupMemberWithAttributes
+@JsonDeserialize(builder = RestEntity.Builder.class)
+public class RestEntity
 {
 	public final RestEntityInformation entityInformation;
 	public final List<RestIdentity> identities;
-	public final Collection<RestAttributeExt> attributes;
+	public final RestCredentialInfo credentialInfo;
 
-	private RestGroupMemberWithAttributes(Builder builder)
+	private RestEntity(Builder builder)
 	{
 		this.entityInformation = builder.entityInformation;
 		this.identities = builder.identities;
-		this.attributes = builder.attributes;
+		this.credentialInfo = builder.credentialInfo;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(attributes, entityInformation, identities);
+		return Objects.hash(credentialInfo, entityInformation, identities);
 	}
 
 	@Override
@@ -46,8 +42,8 @@ public class RestGroupMemberWithAttributes
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		RestGroupMemberWithAttributes other = (RestGroupMemberWithAttributes) obj;
-		return Objects.equals(attributes, other.attributes)
+		RestEntity other = (RestEntity) obj;
+		return Objects.equals(credentialInfo, other.credentialInfo)
 				&& Objects.equals(entityInformation, other.entityInformation)
 				&& Objects.equals(identities, other.identities);
 	}
@@ -61,7 +57,7 @@ public class RestGroupMemberWithAttributes
 	{
 		private RestEntityInformation entityInformation;
 		private List<RestIdentity> identities = Collections.emptyList();
-		private Collection<RestAttributeExt> attributes = Collections.emptyList();
+		private RestCredentialInfo credentialInfo;
 
 		private Builder()
 		{
@@ -79,15 +75,15 @@ public class RestGroupMemberWithAttributes
 			return this;
 		}
 
-		public Builder withAttributes(Collection<RestAttributeExt> attributes)
+		public Builder withCredentialInfo(RestCredentialInfo credentialInfo)
 		{
-			this.attributes = attributes;
+			this.credentialInfo = credentialInfo;
 			return this;
 		}
 
-		public RestGroupMemberWithAttributes build()
+		public RestEntity build()
 		{
-			return new RestGroupMemberWithAttributes(this);
+			return new RestEntity(this);
 		}
 	}
 
