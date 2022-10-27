@@ -98,7 +98,8 @@ class MetadataSourceHandler
 	{
 		try
 		{
-			scheduleWithFixedDelay.cancel(true);
+			log.debug("Stopping refreshing of {} metadata", source.url);
+			scheduleWithFixedDelay.cancel(false);
 		} catch (Exception e)
 		{
 			log.warn("Error stopping metadata task", e);
@@ -107,9 +108,10 @@ class MetadataSourceHandler
 
 	private void startRefresh()
 	{
-		scheduleWithFixedDelay = executorsService.getService().scheduleWithFixedDelay(
+		scheduleWithFixedDelay = executorsService.getScheduledService().scheduleWithFixedDelay(
 				this::refresh, 
 				INITIAL_REFRESH_DELAY.toMillis(), rerunInterval.toMillis(), TimeUnit.MILLISECONDS);
+		log.debug("Started refreshing of {} metadata", source.url);
 	}
 	
 	
@@ -124,8 +126,16 @@ class MetadataSourceHandler
 	
 	private void refresh()
 	{
-		if (isRefreshNeeded())
-			doRefresh();
+		try
+		{
+			log.trace("Re-running refresh task");
+			if (isRefreshNeeded())
+				doRefresh();
+		} catch (Exception e)
+		{
+			log.error("Error in metadata refresh task", e);
+		}
+		log.trace("Refresh task finished");
 	}
 
 	private synchronized boolean isRefreshNeeded()
@@ -148,7 +158,7 @@ class MetadataSourceHandler
 	
 	private void doRefresh()
 	{
-		log.info("Refreshing metadata for {}, (current refresh interval is {}s", 
+		log.info("Refreshing metadata for {}, (current refresh interval is {}s)", 
 				source.url, refreshInterval.toSeconds());
 		Stopwatch watch = Stopwatch.createStarted();
 		EntitiesDescriptorDocument metadata;

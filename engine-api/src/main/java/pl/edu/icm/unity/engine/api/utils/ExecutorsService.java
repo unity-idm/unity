@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.utils;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -14,22 +15,27 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 /**
  * Provides server-wide thread pool.
- * 
- * @author K. Benedyczak
  */
 @Component
 public class ExecutorsService
 {
-	private ScheduledExecutorService executors;
+	private final ScheduledExecutorService scheduledExecutor;
+	private final ExecutorService workStealingExecutor;
 	
 	@Autowired
 	public ExecutorsService(UnityServerConfiguration cfg)
 	{
-		executors = Executors.newScheduledThreadPool(cfg.getIntValue(UnityServerConfiguration.THREAD_POOL_SIZE));
+		scheduledExecutor = Executors.newScheduledThreadPool(cfg.getIntValue(UnityServerConfiguration.SCHEDULED_THREAD_POOL_SIZE));
+		workStealingExecutor = Executors.newWorkStealingPool(cfg.getIntValue(UnityServerConfiguration.CONCURRENT_THREAD_POOL_SIZE));
 	}
 	
-	public ScheduledExecutorService getService()
+	public ScheduledExecutorService getScheduledService()
 	{
-		return executors;
+		return scheduledExecutor;
+	}
+	
+	public ExecutorService getExecutionService()
+	{
+		return workStealingExecutor;
 	}
 }

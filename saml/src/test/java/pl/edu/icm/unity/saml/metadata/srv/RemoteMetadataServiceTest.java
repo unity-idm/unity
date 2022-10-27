@@ -38,7 +38,7 @@ public class RemoteMetadataServiceTest
 	{
 		executorsService = mock(ExecutorsService.class);
 		ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
-		when(executorsService.getService()).thenReturn(pool);
+		when(executorsService.getScheduledService()).thenReturn(pool);
 		downloader = mock(CachedMetadataLoader.class);
 		asyncExternalLogoFileDownloader = mock(AsyncExternalLogoFileDownloader.class);
 		when(downloader.getFresh("url", null)).thenAnswer((a) -> {

@@ -92,7 +92,7 @@ public class SessionManagementImpl implements SessionManagement
 		this.attributeHelper = attributeHelper;
 		this.auditPublisher = auditPublisher;
 		this.tx = tx;
-		execService.getService().scheduleWithFixedDelay(new TerminateInactiveSessions(), 
+		execService.getScheduledService().scheduleWithFixedDelay(new TerminateInactiveSessions(), 
 				20, 30, TimeUnit.SECONDS);
 	}
 

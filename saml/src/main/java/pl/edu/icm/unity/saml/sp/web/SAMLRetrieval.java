@@ -11,7 +11,6 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
@@ -31,8 +30,6 @@ import java.util.List;
 /**
  * Vaadin part of the SAML authn, creates the UI component driving the SAML auth, the {@link SAMLRetrievalUI}. 
  * @see SAMLRetrievalFactory
- * 
- * @author K. Benedyczak
  */
 @PrototypeComponent
 public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> 
@@ -44,16 +41,16 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	private MessageSource msg;
 	private SamlContextManagement samlContextManagement;
 	private SAMLProxyAuthnHandler proxyAuthnHandler;
-	private ExternalLogoFileLoader externalLogoFileLoader;
+	private LogoExposingService logoExposingService;
 
 	@Autowired
 	public SAMLRetrieval(MessageSource msg, SamlContextManagement samlContextManagement,
-	                     ExternalLogoFileLoader externalLogoFileLoader)
+			LogoExposingService logoExposingService)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.samlContextManagement = samlContextManagement;
-		this.externalLogoFileLoader = externalLogoFileLoader;
+		this.logoExposingService = logoExposingService;
 	}
 
 	@Override
@@ -85,7 +82,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 						samlContextManagement, 
 						idp.key, context,
 						new AuthenticationStepContext(authnStepContext, authenticationOptionKey),
-						externalLogoFileLoader));
+						logoExposingService));
 			}
 		}
 		return ret;
