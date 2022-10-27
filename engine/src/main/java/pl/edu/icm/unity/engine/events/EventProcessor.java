@@ -26,24 +26,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Takes events from producers and dispatches them to all registered {@link EventListener}s.
  * This class is thread safe.
- * @author K. Benedyczak
  */
 @Component
 public class EventProcessor implements EventPublisher, EventListenersManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_EVENT, EventProcessor.class);
-	private Set<EventListener> listeners = new HashSet<EventListener>();
-	private Map<String, EventListener> listenersById = new HashMap<String, EventListener>();
+	private Set<EventListener> listeners = new HashSet<>();
+	private Map<String, EventListener> listenersById = new HashMap<>();
 	private ReadWriteLock lock = new ReentrantReadWriteLock();
 	
-	private ScheduledExecutorService executorService;
+	private ExecutorService executorService;
 	private EventDAO dbEvents;
 	private EventsProcessingThread asyncProcessor;
 	private TransactionalRunner tx;
@@ -52,7 +51,7 @@ public class EventProcessor implements EventPublisher, EventListenersManagement
 	public EventProcessor(ExecutorsService executorsService, EventDAO dbEvents,
 			TransactionalRunner tx)
 	{
-		executorService = executorsService.getService();
+		executorService = executorsService.getExecutionService();
 		this.dbEvents = dbEvents;
 		this.tx = tx;
 		this.asyncProcessor = new EventsProcessingThread(this, dbEvents, tx);

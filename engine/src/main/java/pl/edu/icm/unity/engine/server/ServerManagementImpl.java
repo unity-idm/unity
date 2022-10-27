@@ -75,7 +75,7 @@ public class ServerManagementImpl implements ServerManagement
 		this.authz = authz;
 		this.config = config;
 		this.bulkProcessing = bulkProcessing;
-		executorsService.getService().scheduleWithFixedDelay(new ClenupDumpsTask(), 20, 60, TimeUnit.SECONDS);
+		executorsService.getScheduledService().scheduleWithFixedDelay(new ClenupDumpsTask(), 20, 60, TimeUnit.SECONDS);
 	}
 
 

@@ -42,7 +42,7 @@ public class URIMetadataProvider implements MetadataProvider
 	{
 		this.uriAccessService = uriAccessService;
 		this.uri = URIHelper.parseURI(uriRaw);
-		scheduler = executorsService.getService();
+		scheduler = executorsService.getScheduledService();
 		load(uriAccessService.readURI(uri));
 		
 		task = () -> {

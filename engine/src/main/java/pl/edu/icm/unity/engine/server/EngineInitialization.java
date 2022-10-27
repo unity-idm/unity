@@ -284,10 +284,10 @@ public class EngineInitialization extends LifecycleBase
 	{
 		int interval = config.getIntValue(UnityServerConfiguration.UPDATE_INTERVAL);
 		endpointsUpdater.setInitialUpdate(endpointsLoadTime);
-		executors.getService().scheduleWithFixedDelay(endpointsUpdater, interval + interval / 10, interval,
+		executors.getScheduledService().scheduleWithFixedDelay(endpointsUpdater, interval + interval / 10, interval,
 				TimeUnit.SECONDS);
 
-		executors.getService().scheduleWithFixedDelay(bulkOperationsUpdater, interval + 10, interval,
+		executors.getScheduledService().scheduleWithFixedDelay(bulkOperationsUpdater, interval + 10, interval,
 				TimeUnit.SECONDS);
 
 		Runnable attributeStatementsUpdater = new Runnable()
@@ -305,7 +305,7 @@ public class EngineInitialization extends LifecycleBase
 			}
 		};
 		// the cleaner is just a cleaner. No need to call it very often.
-		executors.getService().scheduleWithFixedDelay(attributeStatementsUpdater, interval * 10, interval * 10,
+		executors.getScheduledService().scheduleWithFixedDelay(attributeStatementsUpdater, interval * 10, interval * 10,
 				TimeUnit.SECONDS);
 
 		Runnable expiredIdentitiesCleaner = new Runnable()
@@ -325,7 +325,7 @@ public class EngineInitialization extends LifecycleBase
 				}
 			}
 		};
-		executors.getService().scheduleWithFixedDelay(expiredIdentitiesCleaner, interval * 100, interval * 100,
+		executors.getScheduledService().scheduleWithFixedDelay(expiredIdentitiesCleaner, interval * 100, interval * 100,
 				TimeUnit.SECONDS);
 
 		Runnable entitiesUpdaterTask = new Runnable()
@@ -336,7 +336,7 @@ public class EngineInitialization extends LifecycleBase
 				try
 				{
 					Date nextUpdate = entitiesUpdater.updateEntities();
-					executors.getService().schedule(this,
+					executors.getScheduledService().schedule(this,
 							nextUpdate.getTime() - System.currentTimeMillis(),
 							TimeUnit.MILLISECONDS);
 				} catch (Exception e)
@@ -345,7 +345,7 @@ public class EngineInitialization extends LifecycleBase
 				}
 			}
 		};
-		executors.getService().schedule(entitiesUpdaterTask, (int) (interval * 0.5), TimeUnit.SECONDS);
+		executors.getScheduledService().schedule(entitiesUpdaterTask, (int) (interval * 0.5), TimeUnit.SECONDS);
 
 		// wait to ensure that we return only when endpoint updates will
 		// be caught
