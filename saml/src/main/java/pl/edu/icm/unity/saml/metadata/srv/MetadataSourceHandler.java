@@ -108,7 +108,7 @@ class MetadataSourceHandler
 
 	private void startRefresh()
 	{
-		scheduleWithFixedDelay = executorsService.getService().scheduleWithFixedDelay(
+		scheduleWithFixedDelay = executorsService.getScheduledService().scheduleWithFixedDelay(
 				this::refresh, 
 				INITIAL_REFRESH_DELAY.toMillis(), rerunInterval.toMillis(), TimeUnit.MILLISECONDS);
 		log.debug("Started refreshing of {} metadata", source.url);

@@ -54,7 +54,7 @@ public class TokensManagementImpl implements TokensManagement
 				removeExpired();
 			}
 		};
-		executorsService.getService().scheduleWithFixedDelay(cleaner, 30, 60, TimeUnit.SECONDS);
+		executorsService.getScheduledService().scheduleWithFixedDelay(cleaner, 30, 60, TimeUnit.SECONDS);
 	}
 
 	@Transactional

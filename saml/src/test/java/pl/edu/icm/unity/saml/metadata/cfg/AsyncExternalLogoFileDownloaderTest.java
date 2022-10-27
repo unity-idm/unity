@@ -37,7 +37,7 @@ public class AsyncExternalLogoFileDownloaderTest
 		MetadataToSPConfigConverter metadataConverter = mock(MetadataToSPConfigConverter.class);
 
 		when(messageSource.getLocale()).thenReturn(new Locale("en"));
-		when(executorService.getService()).thenReturn(Executors.newScheduledThreadPool(1));
+		when(executorService.getExecutionService()).thenReturn(Executors.newWorkStealingPool(1));
 		AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader = new AsyncExternalLogoFileDownloader(
 				configuration,
 				messageSource,

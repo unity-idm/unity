@@ -61,7 +61,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String SMS_CONF = "smsConfig";
 	public static final String TEMPLATES_CONF = "templatesFile";
 	public static final String PKI_CONF = "pkiConfigFile";
-	public static final String THREAD_POOL_SIZE = "threadPoolSize";
+	public static final String SCHEDULED_THREAD_POOL_SIZE = "threadPoolSize";
+	public static final String CONCURRENT_THREAD_POOL_SIZE = "concurrentThreadPoolSize";
 	public static final String USE_CONFIG_FILE_AS_INITIAL_TEMPLATE_ONLY = "useConfiguredContentsOnFreshStartOnly";
 	public static final String IGNORE_CONFIGURED_CONTENTS_SETTING = "ignoreContentsReloadingFromConfiguration";
 	public static final String RELOAD_MSG_TEMPLATES = "reloadMessageTemplatesFromConfiguration";
@@ -249,8 +250,14 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				+ "+internalAndAsyncPeers+ will logout remote session participants also using asynchronous"
 				+ " protocols (with web browser redirects) if needed. This last option is risky as it may"
 				+ " happen that a faulty peer won't redirect the web agent back."));
-		defaults.put(THREAD_POOL_SIZE, new PropertyMD("16").setCategory(mainCat).setDescription(
-				"Number of threads used by internal processes of the server. HTTP server threads use a separate pool."));
+		defaults.put(SCHEDULED_THREAD_POOL_SIZE, new PropertyMD("4").setCategory(mainCat).setDescription(
+				"Number of threads used by internal processes of the server, to run asynchronous, "
+				+ "periodically scheduled tasks like tokens cleanup resync of various subsystem configurations. "
+				+ " This pool needs not to be very big."));
+		defaults.put(CONCURRENT_THREAD_POOL_SIZE, new PropertyMD("16").setCategory(mainCat).setDescription(
+				"Number of threads used by internal processes of the server to execute concurrently run tasks. "
+				+ "Increasing size of this thread pool increases performance of certain parallel operations like"
+				+ "external logo downloading from SAML federations. Note that HTTP server threads use a separate pool."));
 		defaults.put(INITIALIZERS, new PropertyMD().setList(true).setCategory(mainCat).setDescription(
 				"List of identifiers of initialization modules that should be run on the first startup."));
 		defaults.put(UPDATE_INTERVAL, new PropertyMD("60").setPositive().setCategory(mainCat).setDescription(

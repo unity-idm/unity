@@ -68,7 +68,7 @@ public class ClickatellChannel implements NotificationChannelInstance
 	public Future<NotificationStatus> sendNotification(String recipientAddress, Message message)
 	{
 		NotificationStatus retStatus = new NotificationStatus();
-		return execService.getService().submit(() ->
+		return execService.getExecutionService().submit(() ->
 		{
 			try
 			{

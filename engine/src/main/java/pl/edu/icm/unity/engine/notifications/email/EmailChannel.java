@@ -85,7 +85,7 @@ class EmailChannel implements NotificationChannelInstance
 			final MessageTemplate.Message message)
 	{
 		NotificationStatus retStatus = new NotificationStatus();
-		return executorsService.getService().submit(() -> 
+		return executorsService.getExecutionService().submit(() -> 
 		{
 			try
 			{

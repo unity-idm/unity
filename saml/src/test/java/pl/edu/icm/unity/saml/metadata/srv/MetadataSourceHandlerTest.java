@@ -52,7 +52,7 @@ public class MetadataSourceHandlerTest
 	{
 		executorsService = mock(ExecutorsService.class);
 		ScheduledExecutorService pool = Executors.newScheduledThreadPool(1);
-		when(executorsService.getService()).thenReturn(pool);
+		when(executorsService.getScheduledService()).thenReturn(pool);
 		
 		src = new RemoteMetadataSrc("http://url", null);
 
