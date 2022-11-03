@@ -5,14 +5,13 @@
 
 package io.imunity.rest.api.types.basic;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.Collections;
 
 @JsonDeserialize(builder = RestAttributeExt.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -27,6 +26,19 @@ public class RestAttributeExt
 	public final List<String> values;
 	public final String translationProfile;
 	public final String remoteIdp;
+
+	private RestAttributeExt(Builder builder)
+	{
+		this.direct = builder.direct;
+		this.creationTs = builder.creationTs;
+		this.updateTs = builder.updateTs;
+		this.name = builder.name;
+		this.valueSyntax = builder.valueSyntax;
+		this.groupPath = builder.groupPath;
+		this.values = List.copyOf(builder.values);
+		this.translationProfile = builder.translationProfile;
+		this.remoteIdp = builder.remoteIdp;
+	}
 
 	@Override
 	public int hashCode()
@@ -51,19 +63,6 @@ public class RestAttributeExt
 				&& Objects.equals(translationProfile, other.translationProfile)
 				&& Objects.equals(updateTs, other.updateTs) && Objects.equals(valueSyntax, other.valueSyntax)
 				&& Objects.equals(values, other.values);
-	}
-
-	private RestAttributeExt(Builder builder)
-	{
-		this.direct = builder.direct;
-		this.creationTs = builder.creationTs;
-		this.updateTs = builder.updateTs;
-		this.name = builder.name;
-		this.valueSyntax = builder.valueSyntax;
-		this.groupPath = builder.groupPath;
-		this.values = List.copyOf(builder.values);
-		this.translationProfile = builder.translationProfile;
-		this.remoteIdp = builder.remoteIdp;
 	}
 
 	public static Builder builder()

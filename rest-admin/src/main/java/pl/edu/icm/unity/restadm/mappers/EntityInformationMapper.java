@@ -14,8 +14,8 @@ public class EntityInformationMapper
 {
 	static RestEntityInformation map(EntityInformation entityInformation)
 	{
-		return RestEntityInformation.builder().withId(entityInformation.getId())
-				.withEntityState(
+		return RestEntityInformation.builder().withEntityId(entityInformation.getId())
+				.withState(
 						Optional.ofNullable(entityInformation.getEntityState()).map(s -> s.name()).orElse(null))
 				.withRemovalByUserTime(entityInformation.getRemovalByUserTime())
 				.withScheduledOperationTime(entityInformation.getScheduledOperationTime())

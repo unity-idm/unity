@@ -9,32 +9,40 @@ import java.util.Date;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = RestEntityInformation.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RestEntityInformation
 {
-	public final Long id;
-	public final String entityState;
+	public final Long entityId;
+	public final String state;
+	@JsonProperty("ScheduledOperationTime")
 	public final Date scheduledOperationTime;
+	@JsonProperty("ScheduledOperation")
 	public final String scheduledOperation;
+	@JsonProperty("RemovalByUserTime")
 	public final Date removalByUserTime;
 
 	private RestEntityInformation(Builder builder)
 	{
-		this.id = builder.id;
-		this.entityState = builder.entityState;
+		this.entityId = builder.entityId;
+		this.state = builder.state;
 		this.scheduledOperationTime = builder.scheduledOperationTime;
 		this.scheduledOperation = builder.scheduledOperation;
 		this.removalByUserTime = builder.removalByUserTime;
 	}
 
+	
+	
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(entityState, id, removalByUserTime, scheduledOperation, scheduledOperationTime);
+		return Objects.hash(entityId, removalByUserTime, scheduledOperation, scheduledOperationTime, state);
 	}
+
+
 
 	@Override
 	public boolean equals(Object obj)
@@ -46,11 +54,13 @@ public class RestEntityInformation
 		if (getClass() != obj.getClass())
 			return false;
 		RestEntityInformation other = (RestEntityInformation) obj;
-		return Objects.equals(entityState, other.entityState) && Objects.equals(id, other.id)
-				&& Objects.equals(removalByUserTime, other.removalByUserTime)
+		return Objects.equals(entityId, other.entityId) && Objects.equals(removalByUserTime, other.removalByUserTime)
 				&& Objects.equals(scheduledOperation, other.scheduledOperation)
-				&& Objects.equals(scheduledOperationTime, other.scheduledOperationTime);
+				&& Objects.equals(scheduledOperationTime, other.scheduledOperationTime)
+				&& Objects.equals(state, other.state);
 	}
+
+
 
 	public static Builder builder()
 	{
@@ -59,25 +69,28 @@ public class RestEntityInformation
 
 	public static final class Builder
 	{
-		private Long id;
-		private String entityState;
+		private Long entityId;
+		private String state;
+		@JsonProperty("ScheduledOperationTime")
 		private Date scheduledOperationTime;
+		@JsonProperty("ScheduledOperation")
 		private String scheduledOperation;
+		@JsonProperty("RemovalByUserTime")
 		private Date removalByUserTime;
 
 		private Builder()
 		{
 		}
 
-		public Builder withId(Long id)
+		public Builder withEntityId(Long id)
 		{
-			this.id = id;
+			this.entityId = id;
 			return this;
 		}
 
-		public Builder withEntityState(String entityState)
+		public Builder withState(String entityState)
 		{
-			this.entityState = entityState;
+			this.state = entityState;
 			return this;
 		}
 

@@ -5,13 +5,11 @@
 
 package io.imunity.rest.api.types.authn;
 
+import java.util.Collections;
 import java.util.Map;
-
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.Collections;
 
 @JsonDeserialize(builder = RestCredentialInfo.Builder.class)
 public class RestCredentialInfo
