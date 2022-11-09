@@ -5,17 +5,8 @@
 
 package pl.edu.icm.unity.saml.idp.console;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.util.configuration.ConfigurationException;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.file.FileData;
@@ -46,6 +37,14 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.console.services.idp.ActiveValueConfig;
 import pl.edu.icm.unity.webui.console.services.idp.UserImportConfig;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Related to {@link SamlIdpProperties}. Contains whole SAML service configuration
@@ -265,7 +264,7 @@ public class SAMLServiceConfiguration
 			raw.putAll(IdpPolicyAgreementsConfigurationParser.toProperties(msg, policyAgreementConfig, SamlIdpProperties.P));
 		}
 
-		SamlIdpProperties samlProperties = new SamlIdpProperties(raw, pkiManagement);
+		SamlIdpProperties samlProperties = new SamlIdpProperties(raw);
 		return samlProperties.getAsString();
 	}
 
@@ -284,7 +283,7 @@ public class SAMLServiceConfiguration
 		}
 		VaadinEndpointProperties vProperties = new VaadinEndpointProperties(raw);
 		
-		SamlIdpProperties samlIdpProperties = new SamlIdpProperties(raw, pkiManagement);
+		SamlIdpProperties samlIdpProperties = new SamlIdpProperties(raw);
 		issuerURI = samlIdpProperties.getValue(SamlIdpProperties.ISSUER_URI);
 
 		signResponcePolicy = samlIdpProperties.getEnumValue(SamlIdpProperties.SIGN_RESPONSE,

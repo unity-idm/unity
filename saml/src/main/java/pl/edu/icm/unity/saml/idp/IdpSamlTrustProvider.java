@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import java.security.PublicKey;
-import java.util.Collection;
-import java.util.List;
-
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+
+import java.security.PublicKey;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Used to obtain configuration information, which is changed at runtime.
@@ -30,22 +30,17 @@ public class IdpSamlTrustProvider implements SamlTrustProvider
 	public Collection<SAMLEndpointDefinition> getSLOEndpoints(
 			NameIDType samlEntity)
 	{
-		SamlIdpProperties virtualConf = (SamlIdpProperties) 
-				myMetadataManager.getVirtualConfiguration();
-		String entityKey = virtualConf.getSPConfigKey(samlEntity);
-		if (entityKey == null)
+		SAMLIdPConfiguration samlIdPConfiguration = myMetadataManager.getSAMLIdPConfiguration();
+		TrustedServiceProviderConfiguration configuration = samlIdPConfiguration.getSPConfig(samlEntity);
+		if (configuration == null)
 			return null;
-		return virtualConf.getLogoutEndpointsFromStructuredList(entityKey);
+		return configuration.getLogoutEndpointsFromStructuredList();
 	}
 
 	@Override
 	public List<PublicKey> getTrustedKeys(NameIDType samlEntity)
 	{
-		SamlIdpProperties virtualConf = (SamlIdpProperties) 
-				myMetadataManager.getVirtualConfiguration();
-		String entityKey = virtualConf.getSPConfigKey(samlEntity);
-		if (entityKey == null)
-			return null;
-		return virtualConf.getTrustedKeysForSamlEntity(entityKey);
+		SAMLIdPConfiguration samlIdPConfiguration = myMetadataManager.getSAMLIdPConfiguration();
+		return samlIdPConfiguration.getTrustedKeysForSamlEntity(samlEntity);
 	}
 }

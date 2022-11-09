@@ -4,41 +4,25 @@
  */
 package pl.edu.icm.unity.engine.idp;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.util.configuration.PropertiesHelper;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
-import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.idp.*;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * IdP engine is responsible for performing common IdP-related functionality. It resolves the information
@@ -78,7 +62,7 @@ class IdPEngineImplBase implements IdPEngine
 			String group, TranslationProfile profile, String requester, 
 			Optional<EntityInGroup> requesterEntity, String protocol,
 			String protocolSubType, boolean allowIdentityCreate,
-			PropertiesHelper importsConfig) throws EngineException
+			UserImportConfigs userImportConfigs) throws EngineException
 	{
 		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
 		Map<String, String> firstIdentitiesByType = new HashMap<>();
@@ -87,7 +71,7 @@ class IdPEngineImplBase implements IdPEngine
 				firstIdentitiesByType.put(id.getTypeId(), id.getValue());
 		});
 		List<UserImportSpec> userImports = CommonIdPProperties.getUserImports(
-				importsConfig, firstIdentitiesByType);
+				userImportConfigs.configs, firstIdentitiesByType);
 		
 		List<ImportResult> importResult = userImportService.importToExistingUser(
 				userImports, getRegularIdentity(fullEntity.getIdentities()));
@@ -111,7 +95,7 @@ class IdPEngineImplBase implements IdPEngine
 	public TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV identity, String group, TranslationProfile profile,
 			String requester, Optional<EntityInGroup> requesterEntity, 
 			String protocol, String protocolSubType, boolean allowIdentityCreate,
-			PropertiesHelper config)
+			UserImportConfigs config)
 			throws EngineException
 	{
 		List<UserImportSpec> userImports = CommonIdPProperties.getUserImportsLegacy(

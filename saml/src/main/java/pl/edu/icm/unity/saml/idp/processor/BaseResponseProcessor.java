@@ -4,25 +4,14 @@
  */
 package pl.edu.icm.unity.saml.idp.processor;
 
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TimeZone;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlObject;
-
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.AssertionResponse;
 import eu.unicore.security.dsig.DSigException;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -31,20 +20,17 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
 import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAssertionResponseContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
-import xmlbeans.org.oasis.saml2.assertion.AttributeType;
-import xmlbeans.org.oasis.saml2.assertion.EncryptedAssertionDocument;
-import xmlbeans.org.oasis.saml2.assertion.EncryptedElementType;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
-import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationType;
-import xmlbeans.org.oasis.saml2.assertion.SubjectType;
+import xmlbeans.org.oasis.saml2.assertion.*;
 import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import java.security.cert.X509Certificate;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Base class for all processors which return SAML Response. I.e. processors for Authentication and
@@ -67,7 +53,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	{
 		super(context);
 		this.aTypeSupport = aTypeSupport;
-		GroupChooser chooser = samlConfiguration.getGroupChooser();
+		GroupChooser chooser = samlConfiguration.groupChooser;
 		chosenGroup = chooser.chooseGroup(getRequestIssuer());
 		this.authnTime = authnTime;
 	}
@@ -129,7 +115,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		if (attributes.size() == 0)
 			return null;
 		Assertion assertion = new Assertion();
-		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), 
+		assertion.setIssuer(samlConfiguration.issuerURI,
 				SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
 
@@ -152,7 +138,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	{
 		if (attributes.size() == 0)
 			return false;
-		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
+		SamlAttributeMapper mapper = samlConfiguration.attributesMapper;
 		List<AttributeType> converted = new ArrayList<AttributeType>(attributes.size());
 		for (Attribute attribute: attributes)
 		{
@@ -310,7 +296,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	private Map<String, Attribute> filterSupportedBySamlAttributes(TranslationResult userInfo)
 	{
 		Map<String, Attribute> ret = new HashMap<String, Attribute>();
-		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
+		SamlAttributeMapper mapper = samlConfiguration.attributesMapper;
 		
 		for (DynamicAttribute da: userInfo.getAttributes())
 		{

@@ -9,52 +9,19 @@
 package pl.edu.icm.unity.saml.idp;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.logging.log4j.Logger;
-
-import com.vaadin.server.Resource;
-
-import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.impl.X500NameUtils;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.trust.AcceptingSamlTrustChecker;
-import eu.unicore.samly2.trust.EnumeratedTrustChecker;
-import eu.unicore.samly2.trust.PKISamlTrustChecker;
-import eu.unicore.samly2.trust.SamlTrustChecker;
-import eu.unicore.samly2.trust.StrictSamlTrustChecker;
-import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
-import pl.edu.icm.unity.MessageSource;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Properties-based configuration of SAML IdP endpoint.
@@ -244,36 +211,12 @@ public class SamlIdpProperties extends SamlProperties
 						+ "consent screen. Note that attributes marked as mandatory in output profile "
 						+ "can not be removed regardless of this option."));
 	}
-
-	private boolean signRespNever;
-	private boolean signRespAlways;
-	private ReplayAttackChecker replayChecker;
-	private SamlTrustChecker authnTrustChecker;
-	private SamlTrustChecker soapTrustChecker;
-	private SamlTrustChecker sloTrustChecker;
-	private long requestValidity;
-	private X509CertChainValidator trustedValidator;
-	private GroupChooser groupChooser;
-	private SamlAttributeMapper attributesMapper;
-	private PKIManagement pkiManagement;
-	private IdentityTypeMapper idTypeMapper;
-	private Map<Integer, String> allowedRequestersByIndex;
 	
-	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException
+	public SamlIdpProperties(Properties src) throws ConfigurationException
 	{
 		super(P, cleanupLegacyProperties(src), defaults, log);
 		sourceProperties = new Properties();
 		sourceProperties.putAll(properties);
-		this.pkiManagement = pkiManagement;
-		checkIssuer();
-		try
-		{
-			initPki();
-		} catch (EngineException e)
-		{
-			throw new ConfigurationException("Can't init SAML PKI settings", e);
-		}
-		init();
 	}
 	
 	private static Properties cleanupLegacyProperties(Properties src)
@@ -294,413 +237,13 @@ public class SamlIdpProperties extends SamlProperties
 		}
 		return src;
 	}
-	
-	private void init()
-	{
-		ResponseSigningPolicy repPolicy = getEnumValue(SamlIdpProperties.SIGN_RESPONSE, ResponseSigningPolicy.class);
-		signRespAlways = signRespNever = false;
-		if (repPolicy == ResponseSigningPolicy.always)
-			signRespAlways = true;
-		else if (repPolicy == ResponseSigningPolicy.never)
-			signRespNever = true;
-
-		RequestAcceptancePolicy spPolicy = getEnumValue(SP_ACCEPT_POLICY, RequestAcceptancePolicy.class);
-		
-		if (spPolicy == RequestAcceptancePolicy.all)
-		{
-			authnTrustChecker = new AcceptingSamlTrustChecker();
-			sloTrustChecker = new AcceptingSamlTrustChecker();
-			log.info("All SPs will be authorized to submit authentication requests");
-		} else if (spPolicy == RequestAcceptancePolicy.validSigner)
-		{
-			authnTrustChecker = new PKISamlTrustChecker(trustedValidator);
-			sloTrustChecker = new PKISamlTrustChecker(trustedValidator);
-			log.info("All SPs using a valid certificate will be authorized to submit authentication requests");
-		} else if (spPolicy == RequestAcceptancePolicy.strict)
-		{
-			authnTrustChecker = createStrictTrustChecker();
-			sloTrustChecker = authnTrustChecker;
-		} else
-		{
-			EnumeratedTrustChecker authnTrustChecker = new EnumeratedTrustChecker();
-			this.authnTrustChecker = authnTrustChecker;
-			
-			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
-			for (String allowedKey: allowedKeys)
-				initValidRequester(authnTrustChecker, allowedKey);
-			this.sloTrustChecker = createStrictTrustChecker();
-		}
-		
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
-		for (String allowedKey: allowedKeys)
-		{
-			Set<String> spCertNames = getAllowedSpCerts(allowedKey);
-			if (getBooleanValue(allowedKey + ALLOWED_SP_ENCRYPT) && spCertNames.isEmpty())
-				throw new ConfigurationException(
-						"Invalid specification of allowed Service "
-								+ "Provider "
-								+ allowedKey
-								+ " must have the certificate defined to be able to encrypt assertions.");
-		}
-		
-		if (trustedValidator != null)
-			soapTrustChecker = new PKISamlTrustChecker(trustedValidator, true);
-		else
-			soapTrustChecker = new AcceptingSamlTrustChecker();
-		replayChecker = new ReplayAttackChecker();
-		requestValidity = getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY)*1000;
-		
-		groupChooser = new GroupChooser(this);
-		idTypeMapper = new IdentityTypeMapper(this);
-		attributesMapper = new DefaultSamlAttributesMapper();
-	}
-	
-	private void initValidRequester(EnumeratedTrustChecker authnTrustChecker, String allowedKey)
-	{
-		String returnAddress = getValue(allowedKey + ALLOWED_SP_RETURN_URL);
-		if (returnAddress == null)
-			throw new ConfigurationException("Invalid specification of allowed Service " +
-				"Provider " + allowedKey + ", return address is not set.");
-		
-		if (isSet(allowedKey + ALLOWED_SP_ENTITY) && isSet(allowedKey + ALLOWED_SP_DN))
-			throw new ConfigurationException("The allowed SP entry " + allowedKey + 
-					" has both the DN and SAML entity id defined. "
-					+ "Please use only one, which is actually used by "
-					+ "the SP to identify itself." );
-		
-		String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
-		if (name != null)
-		{
-			List<String> allowedEndpoints = getListOfValues(allowedKey + ALLOWED_SP_RETURN_URLS);
-			allowedRequestersByIndex = initAllowedRequesters(allowedEndpoints);
-			authnTrustChecker.addTrustedIssuer(name, returnAddress);
-			for (String endpoint: allowedRequestersByIndex.values())
-				authnTrustChecker.addTrustedIssuer(name, endpoint);
-		} else
-		{
-			name = getValue(allowedKey + ALLOWED_SP_DN);
-			if (name == null)
-				throw new ConfigurationException("Invalid specification of allowed Service " +
-					"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
-			authnTrustChecker.addTrustedDNIssuer(name, returnAddress);
-		}
-
-		log.debug("SP authorized to submit authentication requests: " + name);
-	}
-	
-	static Map<Integer, String> initAllowedRequesters(List<String> allowedEndpoints)
-	{
-		Map<Integer, String> allowedRequestersByIndex = new HashMap<>();
-		Pattern pattern = Pattern.compile("\\[([\\d]+)\\](.+)");
-		for (String endpoint: allowedEndpoints)
-		{
-			Matcher matcher = pattern.matcher(endpoint);
-			if (!matcher.matches())
-				throw new ConfigurationException("SAML allowed endpoint '" 
-						+ endpoint + "' has incorrect syntax. Should be [N]URL");
-			String indexStr = matcher.group(1);
-			String url = matcher.group(2);
-			allowedRequestersByIndex.put(Integer.parseInt(indexStr), url);
-		}
-		return allowedRequestersByIndex;
-	}
-	
-	private void initPki() throws EngineException
-	{
-		RequestAcceptancePolicy policy = getEnumValue(SP_ACCEPT_POLICY, RequestAcceptancePolicy.class); 
-		if (policy == RequestAcceptancePolicy.validSigner)
-		{
-			String validator = getValue(TRUSTSTORE);
-			if (validator == null)
-				throw new ConfigurationException("The SAML truststore must be defined for " +
-						"the selected SP acceptance policy " + policy);
-			if (!pkiManagement.getValidatorNames().contains(validator))
-				throw new ConfigurationException("The SAML truststore " + validator + " is unknown");
-			trustedValidator = pkiManagement.getValidator(validator);
-		}
-		String credential = getValue(CREDENTIAL);
-		if (!pkiManagement.getCredentialNames().contains(credential))
-			throw new ConfigurationException("The SAML credential " + credential + " is unknown");
-	}
-	
-	private StrictSamlTrustChecker createStrictTrustChecker()
-	{
-		StrictSamlTrustChecker authnTrustChecker = new StrictSamlTrustChecker();
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
-		for (String allowedKey: allowedKeys)
-		{
-			
-			String type = SAMLConstants.NFORMAT_ENTITY;
-			String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
-			if (name == null)
-			{
-				name = getValue(allowedKey + ALLOWED_SP_DN);
-				type = SAMLConstants.NFORMAT_DN;
-			}
-			if (name == null)
-				throw new ConfigurationException("Invalid specification of allowed Service " +
-						"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
-			
-			Set<String> spCertNames = getAllowedSpCerts(allowedKey);
-			for (String spCertName: spCertNames)
-			{
-				X509Certificate spCert;
-				try
-				{
-					spCert = pkiManagement.getCertificate(spCertName).value;
-					authnTrustChecker.addTrustedIssuer(
-							name, type, spCert.getPublicKey());
-				} catch (EngineException e)
-				{
-					throw new ConfigurationException("Can't set certificate of trusted " +
-							"issuer named " + spCertName, e);
-				}
-			}
-			
-			log.debug("SP authorized to submit authentication requests: " + name);
-		}
-		return authnTrustChecker;
-	}
-	
-	public List<PublicKey> getTrustedKeysForSamlEntity(String idpKey)
-	{
-		Set<String> spCertNames = getAllowedSpCerts(idpKey);
-		List<PublicKey> trusted = new ArrayList<>();
-		for (String spCertName: spCertNames)
-		{
-			try
-			{
-				X509Certificate spCert = pkiManagement.getCertificate(spCertName).value;
-				trusted.add(spCert.getPublicKey());
-			} catch (EngineException e)
-			{
-				throw new ConfigurationException("Can't set certificate of trusted " +
-						"issuer named " + spCertName, e);
-			}
-		}
-		return trusted;
-	}
-	
-	
-	private void checkIssuer()
-	{
-		String uri = getValue(ISSUER_URI);
-		try
-		{
-			new URI(uri);
-		} catch (URISyntaxException e)
-		{
-			throw new ConfigurationException("SAML endpoint's issuer is not a valid URI: " + 
-					e.getMessage(), e);
-		}
-	}
-	
-	public long getRequestValidity()
-	{
-		return requestValidity;
-	}
-	
-	public SamlTrustChecker getAuthnTrustChecker()
-	{
-		return authnTrustChecker;
-	}
-	
-	public void configureKnownRequesters(UnityAuthnRequestValidator validator)
-	{
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
-		for (String allowedKey: allowedKeys)
-		{
-			String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
-			if (name == null)
-				continue;
-			if (!isSet(allowedKey + ALLOWED_SP_RETURN_URL))
-				continue;
-			validator.addKnownRequester(name);
-		}
-	}
-
-	public String getReturnAddressForRequester(AuthnRequestType req)
-	{
-		String requesterReturnUrl = req.getAssertionConsumerServiceURL();
-		if (requesterReturnUrl != null)
-			return requesterReturnUrl;
-		String spKey = getSPConfigKey(req.getIssuer());
-		if (spKey == null)
-			return null;
-		Integer requestedServiceIdx = req.isSetAssertionConsumerServiceIndex()
-				? req.getAssertionConsumerServiceIndex()
-				: null;
-		return (requestedServiceIdx != null) ? allowedRequestersByIndex.get(requestedServiceIdx)
-				: getValue(spKey + ALLOWED_SP_RETURN_URL);
-	}
-
-	public String getDisplayedNameForRequester(NameIDType id)
-	{
-		String spKey = getSPConfigKey(id);
-		if (spKey == null)
-			return null;
-		return getValue(spKey + ALLOWED_SP_NAME);
-	}
-
-	public Resource getLogoForRequesterOrNull(NameIDType id, MessageSource msg, ImageAccessService imageAccessService)
-	{
-		String spKey = getSPConfigKey(id);
-		if (spKey == null)
-			return null;
-
-		String logoURI = getLocalizedValue(spKey + ALLOWED_SP_LOGO, msg.getLocale());
-		return imageAccessService.getConfiguredImageResourceFromNullableUri(logoURI)
-				.orElse(null);
-	}
-	
-	/**
-	 * @param requester
-	 * @return certificate which should be used for encryption or null if no encryption should be performed
-	 * for the given requester
-	 */
-	public X509Certificate getEncryptionCertificateForRequester(NameIDType requester)
-	{
-		X509Certificate rc = null;
-		String spKey = getSPConfigKey(requester);
-		if (spKey == null)
-			return null;
-		
-		if (!getBooleanValue(spKey + ALLOWED_SP_ENCRYPT))
-			return null;
-						
-		Set<String> spCertNames = getAllowedSpCerts(spKey);
-		Set<X509Certificate> certs = new HashSet<X509Certificate>();
-		for (String spCertName: spCertNames)
-		{
-			try
-			{	 
-				certs.add(pkiManagement.getCertificate(spCertName).value);
-
-			} catch (EngineException e)
-			{
-				throw new InternalException("Can't retrieve SAML encryption certificate " + spCertName +
-						" for requester with config key " + spKey, e);
-			}	
-		}
-
-		for (X509Certificate c : certs)
-		{
-			if (rc == null)
-			{
-				rc = c;
-			} else if (c.getNotAfter().compareTo(rc.getNotAfter()) > 0)
-			{
-				rc = c;
-			}
-		}
-		return rc;
-	}
-	
-	public Set<String> getAllowedSpCerts(String idpKey)
-	{
-		return getCertificateNames(idpKey, ALLOWED_SP_CERTIFICATE, ALLOWED_SP_CERTIFICATES);
-	}
-	
-	public String getSPConfigKey(NameIDType requester)
-	{
-		Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
-		boolean dnName = requester.getFormat() != null && requester.getFormat().equals(
-				SAMLConstants.NFORMAT_DN); 
-		for (String allowedKey: allowedKeys)
-		{
-			if (dnName)
-			{
-				String name = getValue(allowedKey + ALLOWED_SP_DN);
-				if (name == null)
-					continue;
-				if (!X500NameUtils.equal(name, requester.getStringValue()))
-					continue;
-			} else
-			{
-				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
-				if (name == null)
-					continue;
-				if (!name.equals(requester.getStringValue()))
-					continue;
-			}
-			return allowedKey;
-		}
-		return null;
-	}
-
-	public String getPrefixOfSP(String entity)
-	{
-		Set<String> keys = getStructuredListKeys(ALLOWED_SP_PREFIX);
-		for (String key: keys)
-		{
-			if (entity.equals(getValue(key+ALLOWED_SP_ENTITY)))
-				return key;
-		}
-		return null;
-	}
-	
-	public SamlTrustChecker getSoapTrustChecker()
-	{
-		return soapTrustChecker;
-	}
-
-	public SamlTrustChecker getSloTrustChecker()
-	{
-		return sloTrustChecker;
-	}
-
-	public X509Credential getSamlIssuerCredential()
-	{
-		try
-		{
-			return pkiManagement.getCredential(getValue(CREDENTIAL));
-		} catch (EngineException e)
-		{
-			throw new InternalException("Can't retrieve SAML credential", e);
-		}
-	}
-	
-	public ReplayAttackChecker getReplayChecker()
-	{
-		return replayChecker;
-	}
-
-	public boolean isSignRespNever()
-	{
-		return signRespNever;
-	}
-
-	public boolean isSignRespAlways()
-	{
-		return signRespAlways;
-	}
-
-	public Properties getProperties()
-	{
-		return properties;
-	}
-
-	public GroupChooser getGroupChooser()
-	{
-		return groupChooser;
-	}
-
-	public IdentityTypeMapper getIdTypeMapper()
-	{
-		return idTypeMapper;
-	}
-
-	public SamlAttributeMapper getAttributesMapper()
-	{
-		return attributesMapper;
-	}
 
 	@Override
 	public SamlProperties clone()
 	{
 		try
 		{
-			return new SamlIdpProperties(getProperties(), pkiManagement);
+			return new SamlIdpProperties(getProperties());
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can not clone saml properties", e);
@@ -713,11 +256,5 @@ public class SamlIdpProperties extends SamlProperties
 		Properties configProps = new Properties();
 		configProps.putAll(sourceProperties);
 		return configProps;
-	}
-
-	public TranslationProfile getOutputTranslationProfile()
-	{
-		return PropertiesTranslationProfileLoader.getTranslationProfile(this, CommonIdPProperties.TRANSLATION_PROFILE,
-				CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE);
 	}
 }

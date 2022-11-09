@@ -4,24 +4,20 @@
  */
 package pl.edu.icm.unity.saml.idp.ws;
 
-import java.util.Collection;
-import java.util.Optional;
-
-import org.apache.cxf.interceptor.Fault;
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAttributeQueryContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -31,11 +27,10 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-import xmlbeans.org.oasis.saml2.protocol.AssertionIDRequestDocument;
-import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
-import xmlbeans.org.oasis.saml2.protocol.AuthnQueryDocument;
-import xmlbeans.org.oasis.saml2.protocol.AuthzDecisionQueryDocument;
-import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+import xmlbeans.org.oasis.saml2.protocol.*;
+
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Implementation of the SAML Assertion Query and Request protocol, SOAP binding.
@@ -45,18 +40,18 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLAssertionQueryImpl.class);
-	protected SamlIdpProperties samlProperties;
+	protected SAMLIdPConfiguration samlIdPConfiguration;
 	protected String endpointAddress;
 	protected IdPEngine idpEngine;
 	protected PreferencesManagement preferencesMan;
 	private AttributeTypeSupport aTypeSupport;
 	
-	public SAMLAssertionQueryImpl(AttributeTypeSupport aTypeSupport, 
-			SamlIdpProperties samlProperties, String endpointAddress,
-			IdPEngine idpEngine, PreferencesManagement preferencesMan)
+	public SAMLAssertionQueryImpl(AttributeTypeSupport aTypeSupport,
+	                              SAMLIdPConfiguration samlIdPConfiguration, String endpointAddress,
+	                              IdPEngine idpEngine, PreferencesManagement preferencesMan)
 	{
 		this.aTypeSupport = aTypeSupport;
-		this.samlProperties = samlProperties;
+		this.samlIdPConfiguration = samlIdPConfiguration;
 		this.endpointAddress = endpointAddress;
 		this.idpEngine = idpEngine;
 		this.preferencesMan = preferencesMan;
@@ -67,7 +62,7 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	{
 		if (log.isTraceEnabled())
 			log.trace("Received SAML AttributeQuery: " + query.xmlText());
-		SAMLAttributeQueryContext context = new SAMLAttributeQueryContext(query, samlProperties);
+		SAMLAttributeQueryContext context = new SAMLAttributeQueryContext(query, samlIdPConfiguration);
 		try
 		{
 			validate(context);
@@ -124,18 +119,18 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 			AttributeQueryResponseProcessor processor, SPSettings preferences) throws EngineException
 	{
 		TranslationResult userInfo = idpEngine.obtainUserInformationWithEarlyImport(subjectId, 
-				processor.getChosenGroup(), samlProperties.getOutputTranslationProfile(), 
+				processor.getChosenGroup(), samlIdPConfiguration.getOutputTranslationProfile(),
 				processor.getIdentityTarget(), Optional.empty(), 
 				"SAML2", SAMLConstants.BINDING_SOAP, false,
-				samlProperties);
+				samlIdPConfiguration.userImportConfigs);
 		return processor.getAttributes(userInfo, preferences);
 	}
 
 	protected void validate(SAMLAttributeQueryContext context) throws SAMLServerException
 	{
 		UnityAttributeQueryValidator validator = new UnityAttributeQueryValidator(endpointAddress, 
-				samlProperties.getSoapTrustChecker(), samlProperties.getRequestValidity(), 
-				samlProperties.getReplayChecker());
+				samlIdPConfiguration.getSoapTrustChecker(), samlIdPConfiguration.getRequestValidity(),
+				samlIdPConfiguration.getReplayChecker());
 		
 		validator.validate(context.getRequestDocument());
 	}

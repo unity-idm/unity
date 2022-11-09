@@ -8,81 +8,95 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.metadata.cfg.MetadataVerificator.MetadataValidationException;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProviderConfiguration;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProviders;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 import java.security.cert.X509Certificate;
 import java.time.Duration;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
 
 /**
- * Manages the retrieval, loading and update of runtime configuration based on the remote SAML metadata. 
- * 
- * TODO: this class to be dropped after refactoring of SAML IDP code to be based on non Properties config.
+ * Manages the retrieval, loading and update of runtime configuration based on the remote SAML metadata.
  */
 public class RemoteMetaManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RemoteMetaManager.class);
-	private PKIManagement pkiManagement;
-	private SamlProperties configuration;
-	private AbstractMetaToConfigConverter converter;
-	private MetadataVerificator verificator;
-	private SamlProperties virtualConfiguration;
-	private String metaPrefix;
-	private RemoteMetadataService metadataService;
-	private Set<String> registeredConsumers = new HashSet<>();
-	private Map<String, Properties> configurationsFromMetadata = new HashMap<>();
+	private final PKIManagement pkiManagement;
+	private final MetaToIDPConfigConverter converter;
+	private final MetadataVerificator verificator;
+	private final RemoteMetadataService metadataService;
+	private final Map<String, MetadataConsumer> registeredConsumers = new HashMap<>();
+	private TrustedServiceProviders combinedSps;
+	private SAMLIdPConfiguration configuration;
 	
-	public RemoteMetaManager(SamlProperties configuration, 
-			PKIManagement pkiManagement,
-			AbstractMetaToConfigConverter converter,
-			RemoteMetadataService metadataService, String metaPrefix)
+	public RemoteMetaManager(SAMLIdPConfiguration configuration, PKIManagement pkiManagement,
+			RemoteMetadataService metadataService, MetaToIDPConfigConverter converter)
 	{
-		this.configuration = configuration;
-		this.converter = converter;
 		this.metadataService = metadataService;
 		this.verificator = new MetadataVerificator();
 		this.pkiManagement = pkiManagement;
-		this.virtualConfiguration = configuration.clone();
-		this.metaPrefix = metaPrefix;
+		this.converter = converter;
+		setBaseConfiguration(configuration);
+	}
+
+	public synchronized TrustedServiceProviders getTrustedSps()
+	{
+		return combinedSps;
+	}
+
+	public SAMLIdPConfiguration getSAMLIdPConfiguration()
+	{
+		return configuration;
+	}
+
+	protected synchronized void setBaseConfiguration(SAMLIdPConfiguration configuration)
+	{
+		if (this.configuration == null)
+		{
+			this.configuration = configuration;
+			reinitialize(configuration);
+			return;
+		}
+
+		Map<String, RemoteMetadataSource> oldMetaSrcs = this.configuration.trustedMetadataSourcesByUrl;
+		Map<String, RemoteMetadataSource> newMetaSrcs = configuration.trustedMetadataSourcesByUrl;
+		TrustedServiceProviders oldIndividualTrustedIdPs = this.configuration.trustedServiceProviders;
+		TrustedServiceProviders newIndividualTrustedIdPs = configuration.trustedServiceProviders;
+
+		boolean reload = !oldMetaSrcs.equals(newMetaSrcs) || !oldIndividualTrustedIdPs.equals(newIndividualTrustedIdPs);
+		this.configuration = configuration;
+		if (reload)
+			reinitialize(configuration);
+	}
+
+	private void reinitialize(SAMLIdPConfiguration configuration)
+	{
+		combinedSps = configuration.trustedServiceProviders;
+		unregisterAll();
 		registerMetadataConsumers();
 	}
 
-	public synchronized SamlProperties getVirtualConfiguration()
-	{
-		return virtualConfiguration.clone();
-	}
-	
-	public synchronized void setBaseConfiguration(SamlProperties configuration)
-	{
-		Properties oldP = this.configuration.getProperties();
-		Properties newP = configuration.getProperties();
-		boolean reload = !oldP.equals(newP);
-		this.configuration = configuration;
-		if (reload)
-		{
-			unregisterAll();
-			virtualConfiguration = configuration.clone();
-			registerMetadataConsumers();
-		}
-	}
-	
 	private void registerMetadataConsumers()
 	{
 		log.trace("Registering remote metadata consumers");
-		Set<String> keys = configuration.getStructuredListKeys(metaPrefix);
-		for (String key: keys)
+		for (RemoteMetadataSource metadataSource: configuration.trustedMetadataSourcesByUrl.values())
 		{
-			String url = configuration.getValue(key + SamlProperties.METADATA_URL);
-			long refreshInterval = configuration.getIntValue(key + SamlProperties.METADATA_REFRESH) * 1000L;
-			String customTruststore = configuration.getValue(key + SamlProperties.METADATA_HTTPS_TRUSTSTORE);
-			MetadataConsumer consumer = new MetadataConsumer(url, key);
+			String url = metadataSource.url;
+			Duration refreshInterval = metadataSource.refreshInterval;
+			String customTruststore = metadataSource.httpsTruststore;
+			MetadataConsumer consumer = new MetadataConsumer(metadataSource);
 			String consumerId = metadataService.preregisterConsumer(url);
-			registeredConsumers.add(consumerId);
-			metadataService.registerConsumer(consumerId, Duration.ofMillis(refreshInterval), customTruststore, 
+			registeredConsumers.put(consumerId, consumer);
+			metadataService.registerConsumer(consumerId, refreshInterval, customTruststore,
 					consumer::updateMetadata);
 		}
 	}
@@ -90,67 +104,62 @@ public class RemoteMetaManager
 	public synchronized void unregisterAll()
 	{
 		log.trace("Unregistering all remote metadata consumers");
-		registeredConsumers.forEach(id -> metadataService.unregisterConsumer(id));
+		registeredConsumers.keySet().forEach(id -> metadataService.unregisterConsumer(id));
 		registeredConsumers.clear();
 	}
-	
-	private synchronized void assembleProperties(String propertiesKey, Properties newProperties, String consumerId)
+
+	private synchronized void assembleCombinedConfiguration(Set<TrustedServiceProviderConfiguration> trustedIdPs, String consumerId)
 	{
-		if (!registeredConsumers.contains(consumerId)) 
-			//not likely but can happen in case of race condition between 
+		if (!registeredConsumers.containsKey(consumerId))
+			//not likely but can happen in case of race condition between
 			//deregistration of a consumer happening at the same time as async refresh
 			return;
-		Properties virtualConfigProps = configuration.getSourceProperties();
-		configurationsFromMetadata.put(propertiesKey, newProperties);
-		for (Properties properties: configurationsFromMetadata.values())
-			virtualConfigProps.putAll(properties);
-		this.virtualConfiguration.setProperties(virtualConfigProps);
+		combinedSps.replace(trustedIdPs);
 	}
 
-	private void reloadSingle(EntitiesDescriptorDocument metadata, String key, String url,
-			Properties virtualProps, SamlProperties configuration)
+	private Set<TrustedServiceProviderConfiguration> parseMetadata(EntitiesDescriptorDocument metadata, RemoteMetadataSource metadataConfig)
 	{
-		MetadataSignatureValidation sigCheckingMode = configuration.getEnumValue(
-				key + SamlProperties.METADATA_SIGNATURE, MetadataSignatureValidation.class);
-		String issuerCertificateName = configuration.getValue(key + SamlProperties.METADATA_ISSUER_CERT);
-		
+		Set<TrustedServiceProviderConfiguration> trustedIdPs = converter.convertToTrustedSps(metadata, combinedSps, configuration);
+		log.trace("Converted metadata from {} to virtual configuration", metadataConfig.url);
+		return trustedIdPs;
+	}
+
+	private boolean isMetadataValid(EntitiesDescriptorDocument metadata, RemoteMetadataSource metadataConfig)
+	{
+		String issuerCertificateName = metadataConfig.issuerCertificate;
 		try
 		{
-			X509Certificate issuerCertificate = issuerCertificateName != null ? 
+			X509Certificate issuerCertificate = issuerCertificateName != null ?
 					pkiManagement.getCertificate(issuerCertificateName).value: null;
-			verificator.validate(metadata, new Date(),
-					sigCheckingMode, issuerCertificate);
+			verificator.validate(metadata, new Date(), metadataConfig.signatureValidation, issuerCertificate);
+			return true;
 		} catch (MetadataValidationException e)
 		{
-			log.error("Metadata from " + url + " is invalid, won't be used", e);
-			return;
+			log.error("Metadata from " + metadataConfig.url + " is invalid, won't be used", e);
+			return false;
 		} catch (EngineException e)
 		{
-			log.error("Problem establishing certificate for metadata validation " + 
+			log.error("Problem establishing certificate for metadata validation " +
 					issuerCertificateName, e);
-			return;
+			return false;
 		}
-		
-		converter.convertToProperties(metadata, virtualProps, configuration, key);
-		log.trace("Converted metadata from " + url + " to virtual configuration");
 	}
 
 	private class MetadataConsumer
 	{
-		private String url;
-		private String propertiesKey;
-		
-		public MetadataConsumer(String url, String propertiesKey)
+		private final RemoteMetadataSource metadataConfig;
+
+		public MetadataConsumer(RemoteMetadataSource metadataConfig)
 		{
-			this.url = url;
-			this.propertiesKey = propertiesKey;
+			this.metadataConfig = metadataConfig;
 		}
 		
 		private void updateMetadata(EntitiesDescriptorDocument metadata, String consumerId)
 		{
-			Properties virtualConfigProps = configuration.getSourceProperties();
-			reloadSingle(metadata, propertiesKey, url, virtualConfigProps, configuration);
-			assembleProperties(propertiesKey, virtualConfigProps, consumerId);
+			if (!isMetadataValid(metadata, metadataConfig))
+				return;
+			Set<TrustedServiceProviderConfiguration> trustedIdPs = parseMetadata(metadata, metadataConfig);
+			assembleCombinedConfiguration(trustedIdPs, consumerId);
 		}
 	}
 }

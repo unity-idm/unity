@@ -8,12 +8,12 @@
 
 package pl.edu.icm.unity.saml.idp.ctx;
 
-import java.util.Date;
-
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
+
+import java.util.Date;
 
 /**
  * SAML Context for authN request protocol.
@@ -26,7 +26,7 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 	private Date creationTs;
 	private final SAMLVerifiableElement verifiableElement;
 	
-	public SAMLAuthnContext(AuthnRequestDocument reqDoc, SamlIdpProperties samlConfiguration, 
+	public SAMLAuthnContext(AuthnRequestDocument reqDoc, SAMLIdPConfiguration samlConfiguration,
 			SAMLVerifiableElement verifiableElement)
 	{
 		super(reqDoc, reqDoc.getAuthnRequest(), samlConfiguration);
@@ -51,7 +51,7 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 	
 	public boolean isExpired()
 	{
-		long timeout = 1000L*samlConfiguration.getIntValue(SamlIdpProperties.AUTHENTICATION_TIMEOUT);
+		long timeout = 1000L*samlConfiguration.authenticationTimeout;
 		return System.currentTimeMillis() > timeout+creationTs.getTime();
 	}
 	

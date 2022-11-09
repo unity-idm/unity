@@ -25,7 +25,7 @@ public class SamlIdpStatisticReporter extends IdpStatisticReporter
 	public void reportStatus(SAMLAuthnContext samlCtx, Status status)
 	{
 		super.reportStatus(samlCtx.getRequest().getIssuer().getStringValue(),
-				samlCtx.getSamlConfiguration().getDisplayedNameForRequester(samlCtx.getRequest().getIssuer()), status);
+				samlCtx.getSamlConfiguration().getDisplayedNameForRequester(samlCtx.getRequest().getIssuer(), msg), status);
 	}
 
 	@Component

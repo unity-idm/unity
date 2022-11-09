@@ -4,25 +4,16 @@
  */
 package pl.edu.icm.unity.engine.api.idp;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.Lists;
-
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Contains settings which are common for all IdP endpoints
@@ -140,80 +131,77 @@ public class CommonIdPProperties
 		return defaults;
 	}
 
-	public static List<UserImportSpec> getUserImportsLegacy(PropertiesHelper cfg, 
+	public static List<UserImportSpec> getUserImportsLegacy(UserImportConfigs userImportConfigs,
 			String identity, String type)
 	{
-		Set<String> structuredListKeys = cfg.getStructuredListKeys(USERIMPORT_PFX);
-		Boolean skip = cfg.getBooleanValue(SKIP_USERIMPORT);
-		if (structuredListKeys.isEmpty())
+		if (userImportConfigs.configs.isEmpty())
 		{
-			return skip ? Collections.emptyList() 
+			return userImportConfigs.skip ? Collections.emptyList()
 				: Lists.newArrayList(UserImportSpec.withAllImporters(identity, type));
 		} else
 		{
 			Map<String, String> map = new HashMap<>();
 			map.put(type, identity);
-			return getUserImports(cfg, map);
+			return getUserImports(userImportConfigs.configs, map);
 		}
 	}
 
-	public static List<UserImportSpec> getUserImports(PropertiesHelper cfg, 
+	public static List<UserImportSpec> getUserImports(Set<UserImportConfig> userImportConfigs,
 			Map<String, String> identitiesByType)
 	{
-		Set<String> structuredListKeys = cfg.getStructuredListKeys(USERIMPORT_PFX);
-		if (structuredListKeys.isEmpty() || cfg.getBooleanValue(SKIP_USERIMPORT))
-			return Collections.emptyList();
-		List<UserImportSpec> ret = new ArrayList<>();
-		for (String key: structuredListKeys)
-		{
-			String importer = cfg.getValue(key + USERIMPORT_IMPORTER);
-			String type = cfg.getValue(key + USERIMPORT_IDENTITY_TYPE);
-			String identityValue = identitiesByType.get(type);
-			if (identityValue != null)
-				ret.add(new UserImportSpec(importer, identityValue, type));
-		}
-		return ret;
+		return userImportConfigs.stream()
+				.map(config -> new UserImportSpec(config.importer, identitiesByType.get(config.type), config.type))
+				.collect(Collectors.toList());
 	}
 
-	public static Optional<ActiveValueSelectionConfig> getActiveValueSelectionConfig(PropertiesHelper cfg, 
+	public static Optional<ActiveValueSelectionConfig> getActiveValueSelectionConfig(Set<ActiveValueClient> activeValueClients,
 			String client, Collection<DynamicAttribute> allAttributes)
 	{
-		Optional<String> key = getActiveValueSelectionConfigKey(cfg, client);
-		return key.isPresent() ? getActiveValueSelectionConfigFromKey(cfg, key.get(), allAttributes) : Optional.empty();
+		Optional<String> key = getActiveValueSelectionConfigKey(activeValueClients, client);
+		return key.isPresent() ? getActiveValueSelectionConfigFromKey(activeValueClients, key.get(), allAttributes) : Optional.empty();
 	}
 
-	public static boolean isActiveValueSelectionConfiguredForClient(PropertiesHelper cfg, String client)
+	public static boolean isActiveValueSelectionConfiguredForClient(Set<ActiveValueClient> activeValueClients, String client)
 	{
-		return getActiveValueSelectionConfigKey(cfg, client).isPresent();
+		return getActiveValueSelectionConfigKey(activeValueClients, client).isPresent();
 	}
 
-	private static Optional<String> getActiveValueSelectionConfigKey(PropertiesHelper cfg, String client)
+	private static Optional<String> getActiveValueSelectionConfigKey(Set<ActiveValueClient> activeValueClients, String client)
 	{
-		Set<String> listKeys = cfg.getStructuredListKeys(ACTIVE_VALUE_SELECTION_PFX);
 		String defaultClientKey = null;
-		for (String key: listKeys)
+		for (ActiveValueClient activeValueClient: activeValueClients)
 		{
-			String entryClient = cfg.getValue(key + ACTIVE_VALUE_CLIENT);
-			if (entryClient == null)
+			if (activeValueClient.client == null)
 			{
-				defaultClientKey = key;
+				defaultClientKey = activeValueClient.key;
 				continue;
 			}
-			if (entryClient.equals(client))
+			if (activeValueClient.client.equals(client))
 			{
-				return Optional.of(key);
+				return Optional.of(activeValueClient.key);
 			}
 		}
 		return Optional.ofNullable(defaultClientKey);
 	}
 	
-	private static Optional<ActiveValueSelectionConfig> getActiveValueSelectionConfigFromKey(PropertiesHelper cfg,
+	private static Optional<ActiveValueSelectionConfig> getActiveValueSelectionConfigFromKey(Set<ActiveValueClient> activeValueClients,
 			String key, Collection<DynamicAttribute> attributes)
 	{
 		Map<String, DynamicAttribute> attrsMap = attributes.stream()
 				.collect(Collectors.toMap(da -> da.getAttribute().getName(), da -> da));
-		List<DynamicAttribute> singleSelectable = getAttributeForSelection(cfg, attrsMap, key + ACTIVE_VALUE_SINGLE_SELECTABLE);
-		List<DynamicAttribute> multiSelectable = getAttributeForSelection(cfg, attrsMap, key + ACTIVE_VALUE_MULTI_SELECTABLE);
+
+		List<String> singleValueAttributes = activeValueClients.stream()
+				.filter(client -> client.key.equals(key))
+				.flatMap(client -> client.singleValueAttributes.stream())
+				.collect(Collectors.toList());
+
+		List<String> multiValueAttributes = activeValueClients.stream()
+				.filter(client -> client.key.equals(key))
+				.flatMap(client -> client.multiValueAttributes.stream())
+				.collect(Collectors.toList());
+
+		List<DynamicAttribute> singleSelectable = getAttributeForSelection(singleValueAttributes, attrsMap);
+		List<DynamicAttribute> multiSelectable = getAttributeForSelection(multiValueAttributes, attrsMap);
 		if (singleSelectable.isEmpty() && multiSelectable.isEmpty())
 			return Optional.empty();
 		List<DynamicAttribute> remaining = new ArrayList<>(attributes);
@@ -222,10 +210,9 @@ public class CommonIdPProperties
 		return Optional.of(new ActiveValueSelectionConfig(multiSelectable, singleSelectable, remaining));
 	}
 	
-	private static List<DynamicAttribute> getAttributeForSelection(PropertiesHelper cfg, 
-			Map<String, DynamicAttribute> attributes, String key)
+	private static List<DynamicAttribute> getAttributeForSelection(List<String> names,
+			Map<String, DynamicAttribute> attributes)
 	{
-		List<String> names = cfg.getListOfValues(key);
 		return names.stream()
 				.map(attr -> attributes.get(attr))
 				.filter(attr -> attr != null)

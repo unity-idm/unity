@@ -16,7 +16,13 @@ public class GroupChooser
 {
 	private String defaultGroup;
 	private Map<String, String> groupMappings;
-	
+
+
+	public GroupChooser(Map<String, String> groupMappings, String defaultGroup)
+	{
+		this.groupMappings = groupMappings;
+		this.defaultGroup = defaultGroup;
+	}
 	public GroupChooser(SamlIdpProperties config)
 	{
 		defaultGroup = config.getValue(SamlIdpProperties.DEFAULT_GROUP);

@@ -5,44 +5,17 @@
 
 package pl.edu.icm.unity.saml.idp;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static pl.edu.icm.unity.saml.SamlProperties.PUBLISH_METADATA;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_ENTITY;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_NAME;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_PREFIX;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_RETURN_URL;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.CREDENTIAL;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.DEFAULT_GROUP;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ISSUER_URI;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import io.imunity.idp.AccessProtocol;
 import io.imunity.idp.ApplicationId;
 import io.imunity.idp.IdPClientData;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -55,10 +28,21 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
-import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static pl.edu.icm.unity.saml.SamlProperties.PUBLISH_METADATA;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SAMLTrustedApplicationManagementTest
@@ -141,16 +125,16 @@ public class SAMLTrustedApplicationManagementTest
 
 	private void setupEndpoint() throws EngineException
 	{
-		SamlAuthVaadinEndpoint instance = mock(SamlAuthVaadinEndpoint.class);
-		ResolvedEndpoint rendpoint = mock(ResolvedEndpoint.class);
-		when(instance.getEndpointDescription()).thenReturn(rendpoint);
-		Endpoint endpoint = mock(Endpoint.class);
-		when(rendpoint.getEndpoint()).thenReturn(endpoint);
-		when(endpoint.getTypeId()).thenReturn(SamlIdPWebEndpointFactory.TYPE.getName());
-		when(pkiManagement.getCredentialNames()).thenReturn(Set.of("MAIN"));
-		SamlIdpProperties configuration = getIdpProperties();
-		when(instance.getVirtualConfiguration()).thenReturn(configuration);
-		when(endpointManagement.getDeployedEndpointInstances()).thenReturn(List.of(instance));
+//		SamlAuthVaadinEndpoint instance = mock(SamlAuthVaadinEndpoint.class);
+//		ResolvedEndpoint rendpoint = mock(ResolvedEndpoint.class);
+//		when(instance.getEndpointDescription()).thenReturn(rendpoint);
+//		Endpoint endpoint = mock(Endpoint.class);
+//		when(rendpoint.getEndpoint()).thenReturn(endpoint);
+//		when(endpoint.getTypeId()).thenReturn(SamlIdPWebEndpointFactory.TYPE.getName());
+//		when(pkiManagement.getCredentialNames()).thenReturn(Set.of("MAIN"));
+//		SAMLIdPConfiguration configuration = getIdpProperties();
+//		when(instance.getSpsConfiguration()).thenReturn(configuration);
+//		when(endpointManagement.getDeployedEndpointInstances()).thenReturn(List.of(instance));
 
 	}
 
@@ -179,7 +163,7 @@ public class SAMLTrustedApplicationManagementTest
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + ALLOWED_SP_ENTITY, "clientEntityId");
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + ALLOWED_SP_RETURN_URL, "URL");
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + ALLOWED_SP_NAME, "Name");
-		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
+		SamlIdpProperties configuration = new SamlIdpProperties(p);
 		return configuration;
 	}
 
