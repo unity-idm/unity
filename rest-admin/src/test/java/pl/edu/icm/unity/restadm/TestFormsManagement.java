@@ -13,20 +13,21 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
@@ -44,15 +45,14 @@ public class TestFormsManagement extends RESTAdminTestBase
 	public void addedFormIsReturned() throws Exception
 	{
 		HttpPost add = getAddRequest();
-		HttpResponse response = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		HttpResponse responseGet = client.execute(host, get, localcontext);
-
+		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contents);
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getCode());
 		List<RegistrationForm> returnedL = m.readValue(contents, 
 				new TypeReference<List<RegistrationForm>>() {});
 		assertThat(returnedL.size(), is(1));
@@ -63,18 +63,18 @@ public class TestFormsManagement extends RESTAdminTestBase
 	public void removedFormIsNotReturned() throws Exception
 	{
 		HttpPost add = getAddRequest();
-		HttpResponse response = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		
 		HttpDelete delete = new HttpDelete("/restadm/v1/registrationForm/exForm");
-		HttpResponse deleteResponse =client.execute(host, delete, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getStatusLine().getStatusCode());
+		ClassicHttpResponse deleteResponse =client.execute(host, delete, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getCode());
 		
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		HttpResponse responseGet = client.execute(host, get, localcontext);
+		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 
 		String contents = EntityUtils.toString(responseGet.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getCode());
 		List<RegistrationForm> returnedL = m.readValue(contents, 
 				new TypeReference<List<RegistrationForm>>() {});
 		assertThat(returnedL.isEmpty(), is(true));
@@ -84,19 +84,19 @@ public class TestFormsManagement extends RESTAdminTestBase
 	public void updatedFormIsReturned() throws Exception
 	{
 		HttpPost add = getAddRequest();
-		HttpResponse response = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 
 		HttpPut update = getUpdateRequest();
-		HttpResponse response2 = client.execute(host, update, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getStatusLine().getStatusCode());
+		ClassicHttpResponse response2 = client.execute(host, update, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getCode());
 
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		HttpResponse getResponse = client.execute(host, get, localcontext);
+		ClassicHttpResponse getResponse = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 
 		String contents = EntityUtils.toString(getResponse.getEntity());
 		System.out.println(contents);
-		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getCode());
 		List<RegistrationForm> returnedL = m.readValue(contents, 
 				new TypeReference<List<RegistrationForm>>() {});
 		assertThat(returnedL.size(), is(1));
@@ -131,7 +131,7 @@ public class TestFormsManagement extends RESTAdminTestBase
 			.build();
 	}
 	
-	private void configureRequest(HttpEntityEnclosingRequestBase request, RegistrationForm form)
+	private void configureRequest(HttpUriRequestBase request, RegistrationForm form)
 			throws UnsupportedEncodingException, JsonProcessingException
 	{
 		String jsonform = m.writeValueAsString(form);

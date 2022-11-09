@@ -493,7 +493,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>5.4.3</version>
+				<version>6.0.0-SNAPSHOT</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
@@ -687,9 +687,9 @@
 				<version>2.4.14.Final</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpclient</artifactId>
-				<version>4.5.13</version>
+				<groupId>org.apache.httpcomponents.client5</groupId>
+				<artifactId>httpclient5</artifactId>
+				<version>5.2-beta1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>

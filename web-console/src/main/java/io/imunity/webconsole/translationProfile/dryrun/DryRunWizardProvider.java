@@ -6,7 +6,7 @@ package io.imunity.webconsole.translationProfile.dryrun;
 
 import java.net.URISyntaxException;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.vaadin.teemu.wizards.Wizard;
 
 import pl.edu.icm.unity.MessageSource;

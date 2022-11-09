@@ -16,20 +16,21 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
@@ -71,11 +72,11 @@ public class TestInvitations extends RESTAdminTestBase
 		String code = addInvitation(invitation);
 
 		HttpGet get = new HttpGet("/restadm/v1/invitation/"+code);
-		HttpResponse responseGet = client.execute(host, get, localcontext);
+		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
-		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
+		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getCode());
 		InvitationWithCode returned = m.readValue(contentsGet, InvitationWithCode.class);
 		assertThat(returned.getRegistrationCode(), is(code));
 		assertThat(returned.getInvitation(), is(invitation));
@@ -88,11 +89,11 @@ public class TestInvitations extends RESTAdminTestBase
 		String code = addInvitation(invitation);
 
 		HttpGet get = new HttpGet("/restadm/v1/invitations");
-		HttpResponse responseGet = client.execute(host, get, localcontext);
+		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
-		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
+		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getCode());
 		
 		
 		List<InvitationWithCode> returned = m.readValue(contentsGet, 
@@ -111,13 +112,13 @@ public class TestInvitations extends RESTAdminTestBase
 		String code = addInvitation(invitation);
 		
 		HttpDelete delete = new HttpDelete("/restadm/v1/invitation/" + code);
-		HttpResponse deleteResponse = client.execute(host, delete, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getStatusLine().getStatusCode());
+		ClassicHttpResponse deleteResponse = client.execute(host, delete, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getCode());
 		
 		HttpGet get = new HttpGet("/restadm/v1/invitations");
-		HttpResponse responseGet = client.execute(host, get, localcontext);
+		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
-		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
+		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getCode());
 		List<InvitationWithCode> returned = m.readValue(contentsGet, 
 				new TypeReference<List<InvitationWithCode>>() {});
 		assertThat(returned.isEmpty(), is(true));
@@ -136,15 +137,15 @@ public class TestInvitations extends RESTAdminTestBase
 		String code = addInvitation(invitation);
 		
 		HttpPost send = new HttpPost("/restadm/v1/invitation/" + code + "/send");
-		HttpResponse responseSend = client.execute(host, send, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), responseSend.getStatusLine().getStatusCode());
+		ClassicHttpResponse responseSend = client.execute(host, send, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), responseSend.getCode());
 		
 		HttpGet get = new HttpGet("/restadm/v1/invitation/"+code);
-		HttpResponse responseGet = client.execute(host, get, localcontext);
+		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
-		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
+		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getCode());
 		InvitationWithCode returned = m.readValue(contentsGet, InvitationWithCode.class);
 
 		assertThat(returned.getNumberOfSends(), is(1));
@@ -154,12 +155,12 @@ public class TestInvitations extends RESTAdminTestBase
 	private String addInvitation(InvitationParam invitation) throws Exception
 	{
 		HttpPost addRequest = getAddRequest(invitation);
-		HttpResponse responseAdd = client.execute(host, addRequest, localcontext);
-		assertEquals(Status.OK.getStatusCode(), responseAdd.getStatusLine().getStatusCode());
+		ClassicHttpResponse responseAdd = client.execute(host, addRequest, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.OK.getStatusCode(), responseAdd.getCode());
 		return EntityUtils.toString(responseAdd.getEntity());
 	}
 	
-	private void configureRequest(HttpEntityEnclosingRequestBase request, InvitationParam invitation)
+	private void configureRequest(HttpUriRequestBase request, InvitationParam invitation)
 			throws UnsupportedEncodingException, JsonProcessingException
 	{
 		String jsonform = m.writeValueAsString(invitation);

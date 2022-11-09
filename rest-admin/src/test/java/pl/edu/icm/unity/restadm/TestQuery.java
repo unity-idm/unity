@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.attr.ImageType;
 import pl.edu.icm.unity.attr.UnityImage;
@@ -92,13 +93,13 @@ public class TestQuery extends TestRESTBase
 				EntityState.valid);
 		
 		HttpClient client = getClient();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(host);
+		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClientContext localcontext = getClientContext(host);
 
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/a+foo@ex.com");
-		HttpResponse response = client.execute(host, resolve, localcontext);
+		ClassicHttpResponse response = client.execute(host, resolve, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		log.info("User's info:\n" + formatJson(contents));
 	}	
 	
@@ -108,31 +109,31 @@ public class TestQuery extends TestRESTBase
 		long e = createTestContents();
 		
 		HttpClient client = getClient();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(host);
+		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClientContext localcontext = getClientContext(host);
 
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/userName/admin");
-		HttpResponse response = client.execute(host, resolve, localcontext);
+		ClassicHttpResponse response = client.execute(host, resolve, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		log.info("User's info:\n" + formatJson(contents));
 		
 		HttpGet getGroups = new HttpGet("/restadm/v1/entity/"+e+"/groups");
-		response = client.execute(host, getGroups, localcontext);
+		response = client.execute(host, getGroups, localcontext, HttpResponseHandler.INSTANCE);
 		contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		log.info("User's groups:\n" + contents);
 		
 		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/%2Fexample%2Fsub");
-		response = client.execute(host, getGroupContents, localcontext);
+		response = client.execute(host, getGroupContents, localcontext, HttpResponseHandler.INSTANCE);
 		contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		log.info("Group's /example/sub contents:\n" + formatJson(contents));
 
 		HttpGet getAttributes = new HttpGet("/restadm/v1/entity/" + e + "/attributes?group=%2Fexample");
-		response = client.execute(host, getAttributes, localcontext);
+		response = client.execute(host, getAttributes, localcontext, HttpResponseHandler.INSTANCE);
 		contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		log.info("Attributes in /example:\n" + formatJson(contents));
 	}
 	
@@ -142,10 +143,10 @@ public class TestQuery extends TestRESTBase
 		long e = createTestContents();
 		
 		HttpGet getEntity = new HttpGet("/restadm/v1/entity/"+e);
-		HttpResponse response = executeQuery(getEntity);
+		ClassicHttpResponse response = executeQuery(getEntity);
 		
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		log.info("User's info:\n" + formatJson(contents));
 		Entity parsed = m.readValue(contents, Entity.class);
 		assertThat(parsed.getId(), is(e));
@@ -158,10 +159,10 @@ public class TestQuery extends TestRESTBase
 		long e = createTestContents();
 
 		HttpGet getEntity = new HttpGet("/restadm/v1/entity/" + e + "/record");
-		HttpResponse response = executeQuery(getEntity);
+		ClassicHttpResponse response = executeQuery(getEntity);
 
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		log.info("User's info:\n" + formatJson(contents));
 
 		EntityWithAttributes parsed = m.readValue(contents, EntityWithAttributes.class);
@@ -181,8 +182,8 @@ public class TestQuery extends TestRESTBase
 		long entityId = createTestContents();
 		
 		HttpClient client = getClient();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(host);
+		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClientContext localcontext = getClientContext(host);
 
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
 		Identity persistent = entity.getIdentities().stream().
@@ -192,9 +193,9 @@ public class TestQuery extends TestRESTBase
 				
 		
 		HttpGet getGroups = new HttpGet("/restadm/v1/entity/"+persistent.getValue()+"/groups");
-		HttpResponse response = client.execute(host, getGroups, localcontext);
+		ClassicHttpResponse response = client.execute(host, getGroups, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		log.info("User's groups:\n" + contents);
 	}
 
@@ -204,10 +205,10 @@ public class TestQuery extends TestRESTBase
 		createTestContents();
 		
 		HttpGet getEntity = new HttpGet("/restadm/v1/group-members/example");
-		HttpResponse response = executeQuery(getEntity);
+		ClassicHttpResponse response = executeQuery(getEntity);
 		
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		log.info("Group's /example contents:\n" + formatJson(contents));
 		ArrayNode parsed = JsonUtil.parse(contents, ArrayNode.class);
 		
@@ -218,12 +219,12 @@ public class TestQuery extends TestRESTBase
 	}
 
 	
-	private HttpResponse executeQuery(HttpRequest request) throws Exception
+	private ClassicHttpResponse executeQuery(HttpUriRequestBase request) throws Exception
 	{
 		HttpClient client = getClient();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(host);
-		return client.execute(host, request, localcontext);
+		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClientContext localcontext = getClientContext(host);
+		return client.execute(host, request, localcontext, HttpResponseHandler.INSTANCE);
 	}
 	
 	

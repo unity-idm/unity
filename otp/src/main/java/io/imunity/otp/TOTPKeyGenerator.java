@@ -22,7 +22,7 @@ import java.security.SecureRandom;
 import java.util.Optional;
 
 import org.apache.commons.codec.binary.Base32;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 
 public class TOTPKeyGenerator
 {

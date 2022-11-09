@@ -14,20 +14,21 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -42,10 +43,10 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void deployedEndpointsAreReturned() throws Exception
 	{
 		HttpGet get = new HttpGet("/restadm/v1/endpoints");
-		HttpResponse response = client.execute(host, get, localcontext);
+		ClassicHttpResponse response = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
 		System.out.println(contents);
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		List<ResolvedEndpoint> returnedL = m.readValue(contents,
 				new TypeReference<List<ResolvedEndpoint>>() {});
 
@@ -67,9 +68,9 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	{
 		HttpPost deploy = getDeployRequest();
 
-		HttpResponse response = client.execute(host, deploy, localcontext);
+		ClassicHttpResponse response = client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		ResolvedEndpoint returned = m.readValue(contents, ResolvedEndpoint.class);
 
 		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(), is(
@@ -87,15 +88,15 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void undeployedEndpointIsNotReturned() throws Exception
 	{
 		HttpPost deploy = getDeployRequest();
-		client.execute(host, deploy, localcontext);
+		client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
 
 		HttpDelete delete = new HttpDelete("/restadm/v1/endpoint/newEndpoint");
-		client.execute(host, delete, localcontext);
+		client.execute(host, delete, localcontext, HttpResponseHandler.INSTANCE);
 
 		HttpGet get = new HttpGet("/restadm/v1/endpoints");
-		HttpResponse response = client.execute(host, get, localcontext);
+		ClassicHttpResponse response = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		List<ResolvedEndpoint> returnedL = m.readValue(contents,
 				new TypeReference<List<ResolvedEndpoint>>() {});
 
@@ -106,17 +107,17 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void updatedEndpointIsReturned() throws Exception
 	{
 		HttpPost deploy = getDeployRequest();
-		client.execute(host, deploy, localcontext);
+		client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
 
 		HttpPut update = getUpdateRequest();
-		HttpResponse response2 = client.execute(host, update, localcontext);
+		ClassicHttpResponse response2 = client.execute(host, update, localcontext, HttpResponseHandler.INSTANCE);
 
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getStatusLine().getStatusCode());
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getCode());
 
 		HttpGet get = new HttpGet("/restadm/v1/endpoints");
-		HttpResponse response3 = client.execute(host, get, localcontext);
+		ClassicHttpResponse response3 = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 		String contents3 = EntityUtils.toString(response3.getEntity());
-		assertEquals(contents3, Status.OK.getStatusCode(), response3.getStatusLine().getStatusCode());
+		assertEquals(contents3, Status.OK.getStatusCode(), response3.getCode());
 		List<ResolvedEndpoint> returnedL = m.readValue(contents3,
 				new TypeReference<List<ResolvedEndpoint>>() {});
 
@@ -140,17 +141,17 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void onlyTheSetEntriesAreUpdated() throws Exception
 	{
 		HttpPost deploy = getDeployRequest();
-		client.execute(host, deploy, localcontext);
+		client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
 
 		HttpPut update = getEmptyUpdateRequest();
-		HttpResponse response2 = client.execute(host, update, localcontext);
+		ClassicHttpResponse response2 = client.execute(host, update, localcontext, HttpResponseHandler.INSTANCE);
 
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getStatusLine().getStatusCode());
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getCode());
 
 		HttpGet get = new HttpGet("/restadm/v1/endpoints");
-		HttpResponse response3 = client.execute(host, get, localcontext);
+		ClassicHttpResponse response3 = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 		String contents3 = EntityUtils.toString(response3.getEntity());
-		assertEquals(contents3, Status.OK.getStatusCode(), response3.getStatusLine().getStatusCode());
+		assertEquals(contents3, Status.OK.getStatusCode(), response3.getCode());
 		List<ResolvedEndpoint> returnedL = m.readValue(contents3,
 				new TypeReference<List<ResolvedEndpoint>>() {});
 
@@ -181,8 +182,8 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void deployWithInvalidConfigurationResultsInBadRequest() throws Exception
 	{
 		HttpPost deploy = getDeployRequestWithInvalidAuthn();
-		HttpResponse response = client.execute(host, deploy, localcontext);
-		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getCode());
 	}
 
 	private HttpPost getDeployRequest() throws UnsupportedEncodingException, JsonProcessingException

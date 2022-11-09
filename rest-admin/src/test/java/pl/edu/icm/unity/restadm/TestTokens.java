@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -75,12 +76,12 @@ public class TestTokens extends RESTAdminTestBase
 	public void shouldReturnAllToken() throws Exception
 	{
 		HttpGet get = new HttpGet("/restadm/v1/tokens");
-		HttpResponse responseGet = client.execute(host, get, localcontext);
+		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
 		
-		assertThat(responseGet.getStatusLine().getStatusCode(), is(Status.OK.getStatusCode()));
+		assertThat(responseGet.getCode(), is(Status.OK.getStatusCode()));
 		List<JsonNode> returned = m.readValue(contentsGet,
 				new TypeReference<List<JsonNode>>()
 				{
@@ -94,10 +95,10 @@ public class TestTokens extends RESTAdminTestBase
 	@Test
 	public void shouldReturnOnlyOwnedTokenWithType() throws Exception
 	{
-		HttpContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
+		HttpClientContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
 		List<JsonNode> tokens = getTokensFromRESTAPI(u1, "type1");
 		assertThat(tokens.size(), is(1));
-		HttpContext u2 = getClientContext(host, "u2", DEF_PASSWORD);
+		HttpClientContext u2 = getClientContext(host, "u2", DEF_PASSWORD);
 		tokens = getTokensFromRESTAPI(u2, "type1");
 		assertThat(tokens.size(), is(2));
 		tokens = getTokensFromRESTAPI(u2, "type2");
@@ -108,10 +109,10 @@ public class TestTokens extends RESTAdminTestBase
 	public void shouldRemoveToken() throws Exception
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v4");
-		HttpContext u2 = getClientContext(host, "u2", DEF_PASSWORD);
-		HttpResponse responseDel = client.execute(host, del, u2);
+		HttpClientContext u2 = getClientContext(host, "u2", DEF_PASSWORD);
+		ClassicHttpResponse responseDel = client.execute(host, del, u2, HttpResponseHandler.INSTANCE);
 
-		assertThat(responseDel.getStatusLine().getStatusCode(), is(Status.NO_CONTENT.getStatusCode()));
+		assertThat(responseDel.getCode(), is(Status.NO_CONTENT.getStatusCode()));
 		List<JsonNode> tokens = getTokensFromRESTAPI(u2, "type2");
 		assertThat(tokens.size(), is(0));
 	}
@@ -120,30 +121,30 @@ public class TestTokens extends RESTAdminTestBase
 	public void shouldDeniedRemoveNotOwnedToken() throws Exception
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v4");
-		HttpContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
-		HttpResponse responseDel = client.execute(host, del, u1);
+		HttpClientContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
+		ClassicHttpResponse responseDel = client.execute(host, del, u1, HttpResponseHandler.INSTANCE);
 
-		assertThat(responseDel.getStatusLine().getStatusCode(), is(Status.BAD_REQUEST.getStatusCode()));
+		assertThat(responseDel.getCode(), is(Status.BAD_REQUEST.getStatusCode()));
 	}
 	
 	@Test
 	public void shouldReturnErrorWhenRemoveMissingToken() throws Exception
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v5");
-		HttpContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
-		HttpResponse responseDel = client.execute(host, del, u1);
+		HttpClientContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
+		ClassicHttpResponse responseDel = client.execute(host, del, u1, HttpResponseHandler.INSTANCE);
 		
-		assertThat(responseDel.getStatusLine().getStatusCode(), is(Status.BAD_REQUEST.getStatusCode()));
+		assertThat(responseDel.getCode(), is(Status.BAD_REQUEST.getStatusCode()));
 	}
 
-	private List<JsonNode> getTokensFromRESTAPI(HttpContext context, String type) throws Exception
+	private List<JsonNode> getTokensFromRESTAPI(HttpClientContext context, String type) throws Exception
 	{
 		HttpGet get = new HttpGet("/restadm/v1/tokens?type=" + type);
-		HttpResponse responseGet = client.execute(host, get, context);
+		ClassicHttpResponse responseGet = client.execute(host, get, context, HttpResponseHandler.INSTANCE);
 
 		String contentsGet = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contentsGet);
-		assertThat(responseGet.getStatusLine().getStatusCode(), is( Status.OK.getStatusCode()));
+		assertThat(responseGet.getCode(), is( Status.OK.getStatusCode()));
 		
 		List<JsonNode> returned = m.readValue(contentsGet,
 				new TypeReference<List<JsonNode>>()

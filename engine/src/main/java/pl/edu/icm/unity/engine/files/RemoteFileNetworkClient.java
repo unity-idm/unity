@@ -4,35 +4,49 @@
  */
 package pl.edu.icm.unity.engine.files;
 
-import com.google.common.base.Preconditions;
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManagerWithHostnameChecking;
-import eu.emi.security.authn.x509.impl.HostnameMismatchCallback2;
-import eu.unicore.util.httpclient.*;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
+import static eu.unicore.util.httpclient.HttpClientProperties.CONNECT_TIMEOUT;
+import static eu.unicore.util.httpclient.HttpClientProperties.SO_TIMEOUT;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 
-import static eu.unicore.util.httpclient.HttpClientProperties.CONNECT_TIMEOUT;
-import static eu.unicore.util.httpclient.HttpClientProperties.SO_TIMEOUT;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
+
+import com.google.common.base.Preconditions;
+
+import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManagerWithHostnameChecking;
+import eu.emi.security.authn.x509.impl.HostnameMismatchCallback2;
+import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import eu.unicore.util.httpclient.EmptyHostnameVerifier;
+import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
+import eu.unicore.util.httpclient.HttpClientProperties;
+import eu.unicore.util.httpclient.HttpResponseHandler;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Wraps configuration of HTTP client which can use custom truststore and makes
@@ -79,21 +93,27 @@ class RemoteFileNetworkClient
 	private ContentsWithType download(HttpClient client, URL url) throws EngineException, IOException
 	{
 		HttpGet request = new HttpGet(url.toString());
-		HttpResponse response = client.execute(request);
-		int statusCode = response.getStatusLine().getStatusCode();
+		ClassicHttpResponse response = client.execute(request, new HttpResponseHandler());
+		int statusCode = response.getCode();
 		if (statusCode != HttpStatus.SC_OK)
 		{
 			StringBuilder errorMessage = new StringBuilder()
 					.append("File download from ")
 					.append(url)
 					.append(", error: ")
-					.append(response.getStatusLine().toString());
+					.append(response.getReasonPhrase());
 			if (statusCode != HttpStatus.SC_NOT_FOUND && statusCode != HttpStatus.SC_FORBIDDEN)
 			{
-				String body = response.getEntity().getContentLength() < MAX_BODY_SIZE_TO_LOG 
-						? EntityUtils.toString(response.getEntity())
-						: "HTTP body too large";
-				errorMessage.append(", body: ").append(body);
+				try 
+				{
+					String body = response.getEntity().getContentLength() < MAX_BODY_SIZE_TO_LOG 
+							? EntityUtils.toString(response.getEntity())
+									: "HTTP body too large";
+							errorMessage.append(", body: ").append(body);
+				}catch(ParseException pe)
+				{
+					throw new IOException(pe);
+				}
 			}
 			throw new IOException(errorMessage.toString());
 		}
@@ -192,28 +212,27 @@ class RemoteFileNetworkClient
 				
 			} else if (retriesNumber > 0)
 			{
-				builder.setRetryHandler(new DefaultHttpRequestRetryHandler(retriesNumber, true));
+				builder.setRetryStrategy(new DefaultHttpRequestRetryStrategy(retriesNumber, TimeValue.ofSeconds(5)));
 				
 			} else if (retriesNumber == DEFAULT_RETRY_MECHANISM)
 			{
-				builder.setRetryHandler(DefaultHttpRequestRetryHandler.INSTANCE);
+				builder.setRetryStrategy(new DefaultHttpRequestRetryStrategy());
 			}
-			
 			builder.setDefaultRequestConfig(RequestConfig.custom()
-					.setSocketTimeout(socketReadTimeout)
-					.setConnectTimeout(connectionTimeout)
-					.setConnectionRequestTimeout(connectionTimeout)
+					.setConnectionRequestTimeout(Timeout.ofMilliseconds(connectionTimeout))
 					.build());
-			
+			PoolingHttpClientConnectionManagerBuilder connManagerB = PoolingHttpClientConnectionManagerBuilder.create();
+			connManagerB.setDefaultConnectionConfig(ConnectionConfig.custom()
+					.setConnectTimeout(Timeout.ofMilliseconds(connectionTimeout))
+					.setSocketTimeout(Timeout.ofMilliseconds(socketReadTimeout)).build());
 			if (customTruststore != null && url.getProtocol().equals("https"))
 			{
 				X509CertChainValidatorExt validator = pkiManagement.getValidator(customTruststore);
 				SSLContext sslContext = new SSLContextBuilder(validator).build();
-				CustomSSLConnectionSocketFactory sslsf = new CustomSSLConnectionSocketFactory(sslContext,
-						new EmptyHostnameVerifier(), socketReadTimeout);
-				builder.setSSLSocketFactory(sslsf);
+				SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, new EmptyHostnameVerifier());
+				connManagerB.setSSLSocketFactory(sslsf);
+				builder.setConnectionManager(connManagerB.build());
 			}
-			
 			return builder.build();
 		}
 		

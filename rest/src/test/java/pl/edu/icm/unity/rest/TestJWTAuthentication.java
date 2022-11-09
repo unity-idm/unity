@@ -11,15 +11,16 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.TestPropertySource;
@@ -27,6 +28,7 @@ import org.springframework.test.context.TestPropertySource;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -74,8 +76,8 @@ public class TestJWTAuthentication extends TestRESTBase
 	public void tokenIsReturned() throws Exception
 	{
 		HttpGet get = new HttpGet("/jwt/token");
-		HttpResponse response = executeWithLC(get);
-		assertEquals(response.getStatusLine().toString(), 200, response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = executeWithLC(get);
+		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
 		String token = EntityUtils.toString(response.getEntity());
 		System.out.println("Received token: " + token);
 	}	
@@ -84,23 +86,23 @@ public class TestJWTAuthentication extends TestRESTBase
 	public void tokenIsNotReturnedWithoutAuthn() throws Exception
 	{
 		HttpGet get = new HttpGet("/jwt/token");
-		HttpResponse response2 = execute(get);
-		assertEquals(response2.getStatusLine().toString(), 500, response2.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = execute(get);
+		assertEquals(new StatusLine(response).toString(), 500, response.getCode());
 	}	
 
 	@Test
 	public void tokenCanBeRefreshed() throws Exception
 	{
 		HttpGet get = new HttpGet("/jwt/token");
-		HttpResponse response = executeWithLC(get);
+		ClassicHttpResponse response = executeWithLC(get);
 		String token = EntityUtils.toString(response.getEntity());
 		
 		HttpPost post = new HttpPost("/jwt/refreshToken");
 		post.setHeader("Authorization", "Bearer " + token);
 		post.setEntity(new StringEntity(token));
-		HttpResponse response3 = execute(post);
-		String token2 = EntityUtils.toString(response3.getEntity());
-		assertEquals(response3.getStatusLine().toString(), 200, response3.getStatusLine().getStatusCode());
+		response = execute(post);
+		String token2 = EntityUtils.toString(response.getEntity());
+		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
 		assertThat(token2, is(not(token)));
 	}
 
@@ -108,52 +110,52 @@ public class TestJWTAuthentication extends TestRESTBase
 	public void invalidatedTokenCantBeRefreshed() throws Exception
 	{
 		HttpGet get = new HttpGet("/jwt/token");
-		HttpResponse response = executeWithLC(get);
+		ClassicHttpResponse response = executeWithLC(get);
 		String token = EntityUtils.toString(response.getEntity());
 		
-		HttpPost post2 = new HttpPost("/jwt/invalidateToken");
+		HttpPost post = new HttpPost("/jwt/invalidateToken");
+		post.setHeader("Authorization", "Bearer " + token);
+		post.setEntity(new StringEntity(token));
+		response = execute(post);
+		assertEquals(new StatusLine(response).toString(), 204, response.getCode());
+		
+		HttpPost post2 = new HttpPost("/jwt/refreshToken");
 		post2.setHeader("Authorization", "Bearer " + token);
 		post2.setEntity(new StringEntity(token));
-		HttpResponse response4 = execute(post2);
-		assertEquals(response4.getStatusLine().toString(), 204, response4.getStatusLine().getStatusCode());
-		
-		HttpPost post3 = new HttpPost("/jwt/refreshToken");
-		post3.setHeader("Authorization", "Bearer " + token);
-		post3.setEntity(new StringEntity(token));
-		HttpResponse response5 = execute(post3);
-		assertEquals(response5.getStatusLine().toString(), 410, response5.getStatusLine().getStatusCode());
+		response = execute(post2);
+		assertEquals(new StatusLine(response).toString(), 410, response.getCode());
 	}
 	
 	@Test
 	public void expiredTokenCantBeUsedForAuthenticationOfRequest() throws Exception
 	{
 		HttpGet get = new HttpGet("/jwt/token");
-		HttpResponse response = executeWithLC(get);
+		ClassicHttpResponse response = executeWithLC(get);
 		String token = EntityUtils.toString(response.getEntity());
 		long start = System.currentTimeMillis();
 
 		Thread.sleep(2001-(System.currentTimeMillis()-start));
-		HttpPost post4 = new HttpPost("/jwt/refreshToken");
-		post4.setHeader("Authorization", "Bearer " + token);
-		post4.setEntity(new StringEntity(token));
-		HttpResponse response6 = execute(post4);
+		HttpPost post = new HttpPost("/jwt/refreshToken");
+		post.setHeader("Authorization", "Bearer " + token);
+		post.setEntity(new StringEntity(token));
+		response = execute(post);
 		
-		assertEquals(response6.getStatusLine().toString(), 500, response6.getStatusLine().getStatusCode());
+		assertEquals(new StatusLine(response).toString(), 500, response.getCode());
 	}
 	
 
-	private HttpResponse executeWithLC(HttpRequest request) throws Exception
+	private ClassicHttpResponse executeWithLC(ClassicHttpRequest request) throws Exception
 	{
 		HttpClient client = getClient();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(host);
-		return client.execute(host, request, localcontext);
+		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClientContext localcontext = getClientContext(host);
+		return client.execute(host, request, localcontext, HttpResponseHandler.INSTANCE);
 	}
 	
-	private HttpResponse execute(HttpRequest request) throws Exception
+	private ClassicHttpResponse execute(ClassicHttpRequest request) throws Exception
 	{
 		HttpClient client = getClient();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
-		return client.execute(host, request);
+		HttpHost host = new HttpHost("https", "localhost", 53456);
+		return client.execute(host, request, HttpResponseHandler.INSTANCE);
 	}
 }

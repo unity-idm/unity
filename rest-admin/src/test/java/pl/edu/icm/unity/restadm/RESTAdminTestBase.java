@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpHost;
 import org.junit.Before;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.rest.TestRESTBase;
  */
 public abstract class RESTAdminTestBase extends TestRESTBase
 {
-	protected HttpContext localcontext;
+	protected HttpClientContext localcontext;
 	
 	protected ObjectMapper m = new ObjectMapper().findAndRegisterModules();
 
@@ -40,8 +40,12 @@ public abstract class RESTAdminTestBase extends TestRESTBase
 		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");		
 		client = getClient();
-		host = new HttpHost("localhost", 53456, "https");
+		host = getHost();
 		localcontext = getClientContext(host);
 	}
 
+	protected HttpHost getHost() {
+		return new HttpHost("https", "localhost", 53456);
+	}
+	
 }

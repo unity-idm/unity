@@ -15,14 +15,14 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
@@ -30,6 +30,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
@@ -55,13 +56,13 @@ public class TestGroupsManagement extends RESTAdminTestBase
 	public void addedGroupIsReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restadm/v1/group/subgroup");
-		HttpResponse response = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 
 		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/%2F");
-		response = client.execute(host, getGroupContents, localcontext);
+		response = client.execute(host, getGroupContents, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/subgroup"), is(true));
 	}
@@ -76,20 +77,20 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		String jsonString = JsonUtil.toJsonString(Lists.newArrayList(groupToAdd1, groupToAdd12));
 		log.info("Groups to add:\n" + jsonString);
 		addGroups.setEntity(new StringEntity(jsonString, ContentType.APPLICATION_JSON));
-		HttpResponse addGroupResponse = client.execute(host, addGroups, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), addGroupResponse.getStatusLine().getStatusCode());
+		ClassicHttpResponse addGroupResponse = client.execute(host, addGroups, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), addGroupResponse.getCode());
 
 		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/%2F");
-		HttpResponse response = client.execute(host, getGroupContents, localcontext);
+		ClassicHttpResponse response = client.execute(host, getGroupContents, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/g1"), is(true));
 		
 		getGroupContents = new HttpGet("/restadm/v1/group/%2Fg1");
-		response = client.execute(host, getGroupContents, localcontext);
+		response = client.execute(host, getGroupContents, localcontext, HttpResponseHandler.INSTANCE);
 		String contents2 = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		groupContent = JsonUtil.parse(contents2, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/g1/g2"), is(true));
 	}
@@ -104,13 +105,13 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		String jsonString = JsonUtil.toJsonString(Lists.newArrayList(groupToAdd1));
 		log.info("Group to add:\n" + jsonString);
 		addGroups.setEntity(new StringEntity(jsonString, ContentType.APPLICATION_JSON));
-		HttpResponse addGroupResponse = client.execute(host, addGroups, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), addGroupResponse.getStatusLine().getStatusCode());
+		ClassicHttpResponse addGroupResponse = client.execute(host, addGroups, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), addGroupResponse.getCode());
 
 		HttpGet	getGroupContents = new HttpGet("/restadm/v1/group/%2Fg1/meta");
-		HttpResponse response = client.execute(host, getGroupContents, localcontext);
+		ClassicHttpResponse response = client.execute(host, getGroupContents, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		Group group = JsonUtil.parse(contents, Group.class);
 		assertThat(group.getProperties().get("k1").value, is("v1"));
 	}
@@ -123,14 +124,14 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		String params = "?withParents=true";
 		String uri = "/restadm/v1/group/subgroup1" + encodedSlash + "subgroup2" + encodedSlash + "subgroup3" + params;
 		HttpPost add = new HttpPost(uri);
-		HttpResponse response = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 
 		HttpGet getGroupContents =
 			new HttpGet("/restadm/v1/group/" + encodedSlash + "subgroup1" + encodedSlash + "subgroup2");
-		response = client.execute(host, getGroupContents, localcontext);
+		response = client.execute(host, getGroupContents, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/subgroup1/subgroup2/subgroup3"), is(true));
 	}
@@ -139,17 +140,17 @@ public class TestGroupsManagement extends RESTAdminTestBase
 	public void removedGroupIsNotReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restadm/v1/group/subgroup");
-		HttpResponse addResponse = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), addResponse.getStatusLine().getStatusCode());
+		ClassicHttpResponse addResponse = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), addResponse.getCode());
 
 		HttpDelete delete = new HttpDelete("/restadm/v1/group/subgroup");
-		HttpResponse deleteResponse = client.execute(host, delete, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getStatusLine().getStatusCode());
+		ClassicHttpResponse deleteResponse = client.execute(host, delete, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getCode());
 
 		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/%2F");
-		HttpResponse getResponse = client.execute(host, getGroupContents, localcontext);
+		ClassicHttpResponse getResponse = client.execute(host, getGroupContents, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(getResponse.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getCode());
 		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/subgroup"), is(false));
 	}
@@ -158,8 +159,8 @@ public class TestGroupsManagement extends RESTAdminTestBase
 	public void addedAttributeStatementIsReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restadm/v1/group/subgroup");
-		HttpResponse addResponse = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), addResponse.getStatusLine().getStatusCode());
+		ClassicHttpResponse addResponse = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), addResponse.getCode());
 
 		
 		AttributeStatement statement = new AttributeStatement("true", "/", ConflictResolution.skip, 
@@ -168,14 +169,14 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		String jsonString = JsonUtil.toJsonString(Lists.newArrayList(statement));
 		log.info("Statements:\n" + jsonString);
 		addStmt.setEntity(new StringEntity(jsonString, ContentType.APPLICATION_JSON));
-		HttpResponse addStmtResponse = client.execute(host, addStmt, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), addStmtResponse.getStatusLine().getStatusCode());
+		ClassicHttpResponse addStmtResponse = client.execute(host, addStmt, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), addStmtResponse.getCode());
 		
 		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/subgroup/statements");
-		HttpResponse getResponse = client.execute(host, getGroupContents, localcontext);
+		ClassicHttpResponse getResponse = client.execute(host, getGroupContents, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(getResponse.getEntity());
 		log.info("Statements:\n" + contents);
-		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getCode());
 		List<AttributeStatement> groupStatements = Constants.MAPPER.readValue(contents, 
 				new TypeReference<List<AttributeStatement>>(){});
 		assertThat(groupStatements.size(), is(1));
@@ -202,10 +203,10 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		HttpPost add = new HttpPost("/restadm/v1/group/%2FA%2FB%2FC/entity/" +  DEF_USER + "?identityType=" + UsernameIdentity.ID);
 		
 		// when
-		HttpResponse addResponse = client.execute(host, add, localcontext);
+		ClassicHttpResponse addResponse = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
 		
 		// then
-		assertEquals(Status.NO_CONTENT.getStatusCode(), addResponse.getStatusLine().getStatusCode());
+		assertEquals(Status.NO_CONTENT.getStatusCode(), addResponse.getCode());
 		existingGroups = idsMan.getGroups(entityParam).keySet();
 		assertThat(existingGroups, equalTo(Sets.newHashSet("/", "/A", "/A/B", "/A/B/C")));
 	}
@@ -219,11 +220,11 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		HttpGet get = new HttpGet("/restadm/v1/group-members/%2F");
 		
 		// when
-		HttpResponse getResponse = client.execute(host, get, localcontext);
+		ClassicHttpResponse getResponse = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 		
 		// then
 		String contents = EntityUtils.toString(getResponse.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getCode());
 		List<GroupMember> groupContent = Constants.MAPPER.readValue(contents, 
 				new TypeReference<List<GroupMember>>(){});
 		assertThat(groupContent.size(), is(2));

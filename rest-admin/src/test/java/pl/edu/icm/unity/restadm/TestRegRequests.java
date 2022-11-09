@@ -12,9 +12,9 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -64,11 +65,11 @@ public class TestRegRequests extends RESTAdminTestBase
 		regMan.submitRegistrationRequest(request, context);
 		
 		HttpGet get = new HttpGet("/restadm/v1/registrationRequests");
-		HttpResponse responseGet = client.execute(host, get, localcontext);
+		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 
 		String contents = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contents);
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getCode());
 
 		List<RegistrationRequestState> returnedL = m.readValue(contents, 
 				new TypeReference<List<RegistrationRequestState>>() {});
@@ -85,11 +86,11 @@ public class TestRegRequests extends RESTAdminTestBase
 		String id = regMan.submitRegistrationRequest(request, context);
 		
 		HttpGet get = new HttpGet("/restadm/v1/registrationRequest/" + id);
-		HttpResponse responseGet = client.execute(host, get, localcontext);
+		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
 
 		String contents = EntityUtils.toString(responseGet.getEntity());
 		System.out.println("Response:\n" + contents);
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getCode());
 
 		RegistrationRequestState returned = m.readValue(contents, RegistrationRequestState.class);
 		assertEqual(request, returned);

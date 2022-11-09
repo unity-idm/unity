@@ -6,32 +6,28 @@ package pl.edu.icm.unity.saml.idp.ecp;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.auth.BasicScheme;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,6 +41,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -151,8 +148,8 @@ public class TestECP extends AbstractTestIdpBase
 		httpPost.setEntity(new StringEntity(envDoc2.xmlText(), ContentType.APPLICATION_XML));
 		
 		HttpClient httpclient = HttpUtils.createClient(ecpUrl, clientCfg);
-		HttpResponse response = httpclient.execute(httpPost);
-		Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = httpclient.execute(httpPost, HttpResponseHandler.INSTANCE);
+		Assert.assertEquals(HttpServletResponse.SC_OK, response.getCode());
 		Assert.assertTrue(response.getFirstHeader("Content-Type").getValue().startsWith("application/jwt"));
 		HttpEntity entity = response.getEntity();
 		if (entity != null) 
@@ -178,11 +175,11 @@ public class TestECP extends AbstractTestIdpBase
 
 		HttpClient httpclient = HttpUtils.createClient(authnWSUrl, clientCfg);
 		
-		HttpHost targetHost = new HttpHost("localhost", 52443, "https");
-		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		HttpHost targetHost = new HttpHost("https", "localhost", 52443);
+		BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
 		credsProvider.setCredentials(
 				new AuthScope(targetHost.getHostName(), targetHost.getPort()),
-				new UsernamePasswordCredentials("user1", "mockPassword1"));
+				new UsernamePasswordCredentials("user1", "mockPassword1".toCharArray()));
 		AuthCache authCache = new BasicAuthCache();
 		BasicScheme basicAuth = new BasicScheme();
 		authCache.put(targetHost, basicAuth);
@@ -201,7 +198,7 @@ public class TestECP extends AbstractTestIdpBase
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		log.info("Deployed endpoints: {}", endpoints);
 		
-		HttpResponse response = httpclient.execute(targetHost, httpPost, context);
+		ClassicHttpResponse response = httpclient.execute(targetHost, httpPost, context, HttpResponseHandler.INSTANCE);
 		HttpEntity entity = response.getEntity();
 		if (entity != null) 
 		{
@@ -216,8 +213,7 @@ public class TestECP extends AbstractTestIdpBase
 		}
 	}
 	
-	private EnvelopeDocument getSamlRequest() throws ClientProtocolException, IOException, XmlException
-	{
+	private EnvelopeDocument getSamlRequest() throws Exception	{
 		String ecpUrl = "https://localhost:52443/ecp" + ECPEndpointFactory.SERVLET_PATH;
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setValidator(new BinaryCertChainValidator(true));
@@ -231,7 +227,7 @@ public class TestECP extends AbstractTestIdpBase
 				"\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp:2.0:cb\"," +
 				"\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp:2.0:hok\"");
 		System.out.println("\n\nSending GET request to ECP enabled SP\n\n");
-		HttpResponse response = httpclient.execute(httpget);
+		ClassicHttpResponse response = httpclient.execute(httpget, HttpResponseHandler.INSTANCE);
 		HttpEntity entity = response.getEntity();
 		if (entity != null) 
 		{

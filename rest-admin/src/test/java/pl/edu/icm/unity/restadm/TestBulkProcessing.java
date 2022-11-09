@@ -9,13 +9,14 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Test;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.engine.bulkops.action.RemoveEntityActionFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -39,9 +40,9 @@ public class TestBulkProcessing extends RESTAdminTestBase
 		String jsonform = m.writeValueAsString(param);
 		System.out.println("Request to be sent:\n" + jsonform);
 		post.setEntity(new StringEntity(jsonform, ContentType.APPLICATION_JSON));
-		HttpResponse responsePost = client.execute(host, post, localcontext);
+		ClassicHttpResponse responsePost = client.execute(host, post, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(responsePost.getEntity());
-		assertThat(responsePost.getStatusLine().getStatusCode()).as(contents).isEqualTo(Status.OK.getStatusCode());
+		assertThat(responsePost.getCode()).as(contents).isEqualTo(Status.OK.getStatusCode());
 
 		assertThat(contents).isEqualTo("sync");
 		Throwable error = catchThrowable(() -> idsMan.getEntity(new EntityParam(identityParam)));

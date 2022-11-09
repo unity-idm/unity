@@ -21,15 +21,15 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
+import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.attr.ImageType;
 import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -105,8 +106,8 @@ public class TestWrite extends RESTAdminTestBase
 		setSingleAttribute(entityId,ImageAttribute.of("jpegA", "/", new UnityImage(image, ImageType.JPG)));
 
 		HttpDelete removeAttribute = new HttpDelete("/restadm/v1/entity/" + entityId + "/attribute/stringA");
-		HttpResponse response = client.execute(host, removeAttribute, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = client.execute(host, removeAttribute, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		assertEquals(0, attrsMan.getAttributes(new EntityParam(entityId), "/", "stringA").size());
 	}
 
@@ -138,8 +139,8 @@ public class TestWrite extends RESTAdminTestBase
 		List<Attribute> params = Lists.newArrayList(a1, a2);
 		setAttribute.setEntity(new StringEntity(m.writeValueAsString(params), ContentType.APPLICATION_JSON));
 		
-		HttpResponse response = client.execute(host, setAttribute, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = client.execute(host, setAttribute, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		assertEquals(1, attrsMan.getAttributes(new EntityParam(entityId), a1.getGroupPath(), 
 				a1.getName()).size());
 		assertEquals(a1.getValues().size(), attrsMan.getAttributes(new EntityParam(entityId), a1.getGroupPath(), 
@@ -152,8 +153,8 @@ public class TestWrite extends RESTAdminTestBase
 	{
 		HttpPut setAttribute = new HttpPut("/restadm/v1/entity/" + entityId + "/attribute");
 		setAttribute.setEntity(new StringEntity(m.writeValueAsString(a), ContentType.APPLICATION_JSON));
-		HttpResponse response = client.execute(host, setAttribute, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		ClassicHttpResponse response = client.execute(host, setAttribute, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		assertEquals(1, attrsMan.getAttributes(new EntityParam(entityId), a.getGroupPath(), 
 				a.getName()).size());
 		assertEquals(a.getValues().size(), attrsMan.getAttributes(new EntityParam(entityId), a.getGroupPath(), 
@@ -166,9 +167,9 @@ public class TestWrite extends RESTAdminTestBase
 	{
 		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/email/"
 				+ "user%40example.com%5BCONFIRMED%5D?credentialRequirement=cr-pass");
-		HttpResponse response = client.execute(host, addEntity, localcontext);
+		ClassicHttpResponse response = client.execute(host, addEntity, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		ObjectNode root = (ObjectNode) m.readTree(contents);
 		long entityId = root.get("entityId").asLong();
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
@@ -177,9 +178,9 @@ public class TestWrite extends RESTAdminTestBase
 		assertEquals("user@example.com", emailId.getValue());
 		
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/user%40example.com");
-		response = client.execute(host, resolve, localcontext);
+		response = client.execute(host, resolve, localcontext, HttpResponseHandler.INSTANCE);
 		contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		JsonNode n = m.readTree(contents);
 		System.out.println("User's info:\n" + m.writeValueAsString(n));
 	}
@@ -188,9 +189,9 @@ public class TestWrite extends RESTAdminTestBase
 	public void addRemoveIdentityAndEntity() throws Exception
 	{
 		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/userName/userA?credentialRequirement=cr-pass");
-		HttpResponse response = client.execute(host, addEntity, localcontext);
+		ClassicHttpResponse response = client.execute(host, addEntity, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		ObjectNode root = (ObjectNode) m.readTree(contents);
 		long entityId = root.get("entityId").asLong();
 		assertTrue(checkIdentity("userA"));
@@ -198,17 +199,17 @@ public class TestWrite extends RESTAdminTestBase
 		
 
 		HttpPost addIdentity = new HttpPost("/restadm/v1/entity/" + entityId + "/identity/userName/userB");
-		response = client.execute(host, addIdentity, localcontext);
+		response = client.execute(host, addIdentity, localcontext, HttpResponseHandler.INSTANCE);
 		assertNull(response.getEntity());
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		assertTrue(checkIdentity("userB"));
 		System.out.println("Added identity");
 
 		
 		HttpDelete deleteIdentity = new HttpDelete("/restadm/v1/entity/identity/userName/userB");
-		response = client.execute(host, deleteIdentity, localcontext);
+		response = client.execute(host, deleteIdentity, localcontext, HttpResponseHandler.INSTANCE);
 		assertNull(response.getEntity());
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		assertFalse(checkIdentity("userB"));
 		System.out.println("Removed identity");
 		
@@ -218,8 +219,8 @@ public class TestWrite extends RESTAdminTestBase
 		pass.setQuestion(1);
 		pass.setAnswer("Some answer");
 	        setCredentialAdm.setEntity(new StringEntity(pass.toJson(), ContentType.APPLICATION_JSON));
-		response = client.execute(host, setCredentialAdm, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		response = client.execute(host, setCredentialAdm, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		assertNull(response.getEntity());
 		System.out.println("Set entity credential (adm) with new secret:\n" + pass.toJson());
 
@@ -232,34 +233,34 @@ public class TestWrite extends RESTAdminTestBase
 		arrayNode.add(pass.toJson());
 	        setCredential.setEntity(new StringEntity(m.writeValueAsString(arrayNode), 
 	        		ContentType.APPLICATION_JSON));
-		response = client.execute(host, setCredential, localcontext);
+		response = client.execute(host, setCredential, localcontext, HttpResponseHandler.INSTANCE);
 		assertNull(response.getEntity());
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		System.out.println("Set entity credential (user) with new secret:\n" + m.writeValueAsString(arrayNode));
 		
 		
 		groupsMan.addGroup(new Group("/example"));
 
 		HttpPost addMember = new HttpPost("/restadm/v1/group/%2Fexample/entity/" + entityId);
-		response = client.execute(host, addMember, localcontext);
+		response = client.execute(host, addMember, localcontext, HttpResponseHandler.INSTANCE);
 		assertNull(response.getEntity());
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		assertTrue(idsMan.getGroups(new EntityParam(entityId)).containsKey("/example"));
 		System.out.println("Added entity to group");
 
 		
 		HttpDelete removeMember = new HttpDelete("/restadm/v1/group/%2Fexample/entity/" + entityId);
-		response = client.execute(host, removeMember, localcontext);
+		response = client.execute(host, removeMember, localcontext, HttpResponseHandler.INSTANCE);
 		assertNull(response.getEntity());
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		assertFalse(idsMan.getGroups(new EntityParam(entityId)).containsKey("/example"));
 		System.out.println("Removed membership");
 
 		
 		HttpDelete deleteEntity = new HttpDelete("/restadm/v1/entity/" + entityId);
-		response = client.execute(host, deleteEntity, localcontext);
+		response = client.execute(host, deleteEntity, localcontext, HttpResponseHandler.INSTANCE);
 		assertNull(response.getEntity());
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		System.out.println("Removed entity");
 		
 		try
@@ -288,9 +289,9 @@ public class TestWrite extends RESTAdminTestBase
 	public void scheduleOperationByAdminWorks() throws Exception
 	{
 		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/userName/userA?credentialRequirement=cr-pass");
-		HttpResponse response = client.execute(host, addEntity, localcontext);
+		ClassicHttpResponse response = client.execute(host, addEntity, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		ObjectNode root = (ObjectNode) m.readTree(contents);
 		long entityId = root.get("entityId").asLong();
 		assertTrue(checkIdentity("userA"));
@@ -299,8 +300,8 @@ public class TestWrite extends RESTAdminTestBase
 		long time = System.currentTimeMillis() + 20000;
 		HttpPut scheduleRemoval = new HttpPut("/restadm/v1/entity/" + entityId + "/admin-schedule?when=" + 
 				time + "&operation=REMOVE");
-		response = client.execute(host, scheduleRemoval, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		response = client.execute(host, scheduleRemoval, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
 		assertEquals(new Date(time), entity.getEntityInformation().getScheduledOperationTime());
@@ -308,17 +309,17 @@ public class TestWrite extends RESTAdminTestBase
 		
 		HttpPut scheduleRemovalWrong = new HttpPut("/restadm/v1/entity/" + entityId + "/admin-schedule?when=" + 
 				time + "&operation=WRONG");
-		response = client.execute(host, scheduleRemovalWrong, localcontext);
-		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatusLine().getStatusCode());
+		response = client.execute(host, scheduleRemovalWrong, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getCode());
 	}
 
 	@Test
 	public void scheduleRemovalByUserWorks() throws Exception
 	{
 		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/userName/userA?credentialRequirement=cr-pass");
-		HttpResponse response = client.execute(host, addEntity, localcontext);
+		ClassicHttpResponse response = client.execute(host, addEntity, localcontext, HttpResponseHandler.INSTANCE);
 		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		ObjectNode root = (ObjectNode) m.readTree(contents);
 		long entityId = root.get("entityId").asLong();
 		assertTrue(checkIdentity("userA"));
@@ -327,8 +328,8 @@ public class TestWrite extends RESTAdminTestBase
 		long time = System.currentTimeMillis() + 20000;
 		HttpPut scheduleRemoval = new HttpPut("/restadm/v1/entity/" + entityId + "/removal-schedule?when=" + 
 				time);
-		response = client.execute(host, scheduleRemoval, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
+		response = client.execute(host, scheduleRemoval, localcontext, HttpResponseHandler.INSTANCE);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
 		assertEquals(new Date(time), entity.getEntityInformation().getRemovalByUserTime());
@@ -341,8 +342,8 @@ public class TestWrite extends RESTAdminTestBase
 		HttpPost trigger = new HttpPost("/restadm/v1/triggerEvent/test_event");
 		trigger.setEntity(new StringEntity("user-triggered", ContentType.APPLICATION_JSON));
 		
-		HttpResponse response = client.execute(host, trigger, localcontext);
-		assertThat(response.getStatusLine().getStatusCode(), is(Status.NO_CONTENT.getStatusCode()));
+		ClassicHttpResponse response = client.execute(host, trigger, localcontext, HttpResponseHandler.INSTANCE);
+		assertThat(response.getCode(), is(Status.NO_CONTENT.getStatusCode()));
 		
 		Entity entity = idsMan.getEntity(new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user-triggered")));
 		assertThat(entity, is(notNullValue()));
@@ -359,8 +360,8 @@ public class TestWrite extends RESTAdminTestBase
 		assertThat(entity.getEntityInformation().getEntityState(), is(EntityState.valid));
 		
 		HttpPut changeStatus = new HttpPut("/restadm/v1/entity/" + entityId + "/status/" + EntityState.disabled.toString());		
-		HttpResponse response = client.execute(host, changeStatus, localcontext);
-		assertThat(response.getStatusLine().getStatusCode(), is(Status.NO_CONTENT.getStatusCode()));
+		ClassicHttpResponse response = client.execute(host, changeStatus, localcontext, HttpResponseHandler.INSTANCE);
+		assertThat(response.getCode(), is(Status.NO_CONTENT.getStatusCode()));
 		
 		entity = idsMan.getEntity(new EntityParam((entityId)));
 		assertThat(entity, is(notNullValue()));
