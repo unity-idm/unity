@@ -10,15 +10,13 @@ import java.util.List;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.message.StatusLine;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.rest.MockRESTEndpoint;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -67,8 +65,7 @@ public class TstPerfLogin extends PerformanceTestBase
 			HttpClientContext localcontext = getClientContext(host, "user" + i,
 					"PassWord8743#%$^&*");
 			HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
-			ClassicHttpResponse response = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-			assertEquals(new StatusLine(response).toString(), 200, response.getCode());
+			client.execute(host, get, localcontext, new BasicHttpClientResponseHandler());
 		}
 
 		int jump = USERS / TEST_REPETITIONS;
@@ -85,8 +82,7 @@ public class TstPerfLogin extends PerformanceTestBase
 						"user" + index, "PassWord8743#%$^&*");
 				index++;
 				HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
-				ClassicHttpResponse response = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-				assertEquals(new StatusLine(response).toString(), 200, response.getCode());
+				client.execute(host, get, localcontext, new BasicHttpClientResponseHandler());
 			}
 			timer.stopTimer(jump, "Login user");
 		}

@@ -7,16 +7,11 @@ package pl.edu.icm.unity.restadm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import javax.ws.rs.core.Response.Status;
-
 import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Test;
 
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.engine.bulkops.action.RemoveEntityActionFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -40,9 +35,7 @@ public class TestBulkProcessing extends RESTAdminTestBase
 		String jsonform = m.writeValueAsString(param);
 		System.out.println("Request to be sent:\n" + jsonform);
 		post.setEntity(new StringEntity(jsonform, ContentType.APPLICATION_JSON));
-		ClassicHttpResponse responsePost = client.execute(host, post, localcontext, HttpResponseHandler.INSTANCE);
-		String contents = EntityUtils.toString(responsePost.getEntity());
-		assertThat(responsePost.getCode()).as(contents).isEqualTo(Status.OK.getStatusCode());
+		String contents = executeQuery(post);
 
 		assertThat(contents).isEqualTo("sync");
 		Throwable error = catchThrowable(() -> idsMan.getEntity(new EntityParam(identityParam)));

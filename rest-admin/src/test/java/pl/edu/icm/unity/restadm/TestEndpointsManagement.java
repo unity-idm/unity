@@ -18,6 +18,7 @@ import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -28,7 +29,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -43,10 +43,8 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void deployedEndpointsAreReturned() throws Exception
 	{
 		HttpGet get = new HttpGet("/restadm/v1/endpoints");
-		ClassicHttpResponse response = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-		String contents = EntityUtils.toString(response.getEntity());
+		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		System.out.println(contents);
-		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
 		List<ResolvedEndpoint> returnedL = m.readValue(contents,
 				new TypeReference<List<ResolvedEndpoint>>() {});
 
@@ -68,9 +66,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	{
 		HttpPost deploy = getDeployRequest();
 
-		ClassicHttpResponse response = client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
-		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
+		String contents = client.execute(host, deploy, getClientContext(host), new BasicHttpClientResponseHandler());
 		ResolvedEndpoint returned = m.readValue(contents, ResolvedEndpoint.class);
 
 		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(), is(
@@ -88,15 +84,13 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void undeployedEndpointIsNotReturned() throws Exception
 	{
 		HttpPost deploy = getDeployRequest();
-		client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
+		client.execute(host, deploy, getClientContext(host), new BasicHttpClientResponseHandler());
 
 		HttpDelete delete = new HttpDelete("/restadm/v1/endpoint/newEndpoint");
-		client.execute(host, delete, localcontext, HttpResponseHandler.INSTANCE);
+		client.execute(host, delete, getClientContext(host), new BasicHttpClientResponseHandler());
 
 		HttpGet get = new HttpGet("/restadm/v1/endpoints");
-		ClassicHttpResponse response = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
+		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		List<ResolvedEndpoint> returnedL = m.readValue(contents,
 				new TypeReference<List<ResolvedEndpoint>>() {});
 
@@ -107,17 +101,15 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void updatedEndpointIsReturned() throws Exception
 	{
 		HttpPost deploy = getDeployRequest();
-		client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
+		client.execute(host, deploy, getClientContext(host), new BasicHttpClientResponseHandler());
 
 		HttpPut update = getUpdateRequest();
-		ClassicHttpResponse response2 = client.execute(host, update, localcontext, HttpResponseHandler.INSTANCE);
-
+		ClassicHttpResponse response2 = client.executeOpen(host, update, getClientContext(host));
 		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getCode());
-
+		EntityUtils.consumeQuietly(response2.getEntity());
+		response2.close();
 		HttpGet get = new HttpGet("/restadm/v1/endpoints");
-		ClassicHttpResponse response3 = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-		String contents3 = EntityUtils.toString(response3.getEntity());
-		assertEquals(contents3, Status.OK.getStatusCode(), response3.getCode());
+		String contents3 = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		List<ResolvedEndpoint> returnedL = m.readValue(contents3,
 				new TypeReference<List<ResolvedEndpoint>>() {});
 
@@ -141,17 +133,14 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void onlyTheSetEntriesAreUpdated() throws Exception
 	{
 		HttpPost deploy = getDeployRequest();
-		client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
+		client.execute(host, deploy, getClientContext(host), new BasicHttpClientResponseHandler());
 
 		HttpPut update = getEmptyUpdateRequest();
-		ClassicHttpResponse response2 = client.execute(host, update, localcontext, HttpResponseHandler.INSTANCE);
-
+		ClassicHttpResponse response2 = client.executeOpen(host, update, getClientContext(host));
 		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getCode());
-
+		response2.close();
 		HttpGet get = new HttpGet("/restadm/v1/endpoints");
-		ClassicHttpResponse response3 = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-		String contents3 = EntityUtils.toString(response3.getEntity());
-		assertEquals(contents3, Status.OK.getStatusCode(), response3.getCode());
+		String contents3 = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		List<ResolvedEndpoint> returnedL = m.readValue(contents3,
 				new TypeReference<List<ResolvedEndpoint>>() {});
 
@@ -182,8 +171,9 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	public void deployWithInvalidConfigurationResultsInBadRequest() throws Exception
 	{
 		HttpPost deploy = getDeployRequestWithInvalidAuthn();
-		ClassicHttpResponse response = client.execute(host, deploy, localcontext, HttpResponseHandler.INSTANCE);
-		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getCode());
+		try(ClassicHttpResponse response = client.executeOpen(host, deploy, getClientContext(host))){
+			assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getCode());
+		}
 	}
 
 	private HttpPost getDeployRequest() throws UnsupportedEncodingException, JsonProcessingException

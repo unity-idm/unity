@@ -25,6 +25,7 @@ import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
@@ -43,7 +44,6 @@ import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.EmptyHostnameVerifier;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.HttpClientProperties;
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -93,7 +93,7 @@ class RemoteFileNetworkClient
 	private ContentsWithType download(HttpClient client, URL url) throws EngineException, IOException
 	{
 		HttpGet request = new HttpGet(url.toString());
-		ClassicHttpResponse response = client.execute(request, new HttpResponseHandler());
+		ClassicHttpResponse response = client.executeOpen(null, request, HttpClientContext.create());
 		int statusCode = response.getCode();
 		if (statusCode != HttpStatus.SC_OK)
 		{

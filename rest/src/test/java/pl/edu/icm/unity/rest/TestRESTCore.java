@@ -34,7 +34,6 @@ import org.springframework.test.context.TestPropertySource;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -89,12 +88,13 @@ public class TestRESTCore extends TestRESTBase
 	public void basicGetIsServed() throws Exception
 	{
 		HttpClient client = getClient();
+		
 		HttpHost host = new HttpHost("https", "localhost", 53456);
 		HttpClientContext localcontext = getClientContext(host);
-		
+
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
-		ClassicHttpResponse response = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-		
+
+		ClassicHttpResponse		 response = client.executeOpen(host, get, localcontext);//){
 		System.out.println(EntityUtils.toString(response.getEntity()));
 		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
 	}
@@ -107,9 +107,9 @@ public class TestRESTCore extends TestRESTBase
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
 
 		//no password, should fail.
-		HttpResponse response2 = client.execute(host, get, HttpResponseHandler.INSTANCE);
+		HttpResponse response = client.executeOpen(host, get, null);
 
-		assertThat(response2.getCode(), is(Status.BAD_REQUEST.getStatusCode()));
+		assertThat(response.getCode(), is(Status.BAD_REQUEST.getStatusCode()));
 	}
 	
 	@Test
@@ -120,7 +120,7 @@ public class TestRESTCore extends TestRESTBase
 		HttpClientContext localcontext = getClientContext(host);
 		
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1/exception");
-		ClassicHttpResponse response = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
+		ClassicHttpResponse response = client.executeOpen(host, get, localcontext);
 		String entity = EntityUtils.toString(response.getEntity());
 		System.out.println(entity);
 		assertThat(response.getCode(), is(Status.FORBIDDEN.getStatusCode()));
@@ -138,7 +138,7 @@ public class TestRESTCore extends TestRESTBase
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
 		preflight.addHeader("Access-Control-Request-Method", "PUT");
 		
-		ClassicHttpResponse response = client.execute(host, preflight, localcontext, HttpResponseHandler.INSTANCE);
+		ClassicHttpResponse response = client.executeOpen(host, preflight, localcontext);
 		
 		assertCorsAllowed(response);
 	}
@@ -154,7 +154,7 @@ public class TestRESTCore extends TestRESTBase
 		preflight.addHeader("Access-Control-Request-Method", "PUT");
 		preflight.addHeader("Access-Control-Request-Headers", ALLOWED_HEADER);
 		
-		ClassicHttpResponse response = client.execute(host, preflight, localcontext, HttpResponseHandler.INSTANCE);
+		ClassicHttpResponse response = client.executeOpen(host, preflight, localcontext);
 		
 		assertCorsAllowed(response);
 	}
@@ -184,7 +184,7 @@ public class TestRESTCore extends TestRESTBase
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", "http://notAllowedOrigin.com");
 		
-		HttpResponse response = client.execute(host, preflight, localcontext, HttpResponseHandler.INSTANCE);
+		HttpResponse response = client.executeOpen(host, preflight, localcontext);
 		
 		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
 		System.out.println(Arrays.toString(response.getHeaders()));
@@ -205,7 +205,7 @@ public class TestRESTCore extends TestRESTBase
 		preflight.addHeader("Access-Control-Request-Method", "PUT");
 		preflight.addHeader("Access-Control-Request-Headers", "X-notAllowed");
 		
-		HttpResponse response = client.execute(host, preflight, localcontext, HttpResponseHandler.INSTANCE);
+		HttpResponse response = client.executeOpen(host, preflight, localcontext);
 		
 		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
 		System.out.println(Arrays.toString(response.getHeaders()));

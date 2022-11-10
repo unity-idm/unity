@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.ParseException;
@@ -23,7 +24,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
@@ -105,15 +105,15 @@ public class ClickatellChannel implements NotificationChannelInstance
 		httpPost.setHeader("Accept", ContentType.APPLICATION_JSON.getMimeType());
 
 		log.debug("Will send SMS over Clickatell service, request:\n {}", body);
-		ClassicHttpResponse response = client.execute(httpPost, new HttpResponseHandler());
-		if (response.getCode() >= 300)
-		{
-			throw new IOException("Communication with Clickatell service failed, error: " + 
-					new StatusLine(response).toString() + ", received contents: " +
-					EntityUtils.toString(response.getEntity()));
+		try(ClassicHttpResponse response = client.executeOpen(null, httpPost, HttpClientContext.create())){
+			if (response.getCode() >= 300)
+			{
+				throw new IOException("Communication with Clickatell service failed, error: " + 
+						new StatusLine(response).toString() + ", received contents: " +
+						EntityUtils.toString(response.getEntity()));
+			}
 		}
 		log.info("SMS to {} sent successfully");
-		client.close();
 	}
 	
 	private ObjectNode createRequest(String recipientAddress, Message message)

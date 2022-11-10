@@ -44,8 +44,7 @@ public class TOTPKeyGenerator
 			throw new IllegalArgumentException("Label can not contain colon");
 		try
 		{
-			URIBuilder uriBuilder = new URIBuilder("otpauth://totp/");
-			uriBuilder.setPath(issuer + ":" + label);
+			URIBuilder uriBuilder = new URIBuilder("otpauth://totp/"+issuer+":"+label);
 			uriBuilder.addParameter(SECRET_URI_PARAM, secretBase32); 
 			uriBuilder.addParameter(ISSUER_URI_PARAM, issuer); 
 			uriBuilder.addParameter(ALGORITHM_URI_PARAM, otpParams.hashFunction.toString()); 

@@ -30,7 +30,6 @@ import org.junit.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
@@ -70,13 +69,9 @@ public class TestInvitations extends RESTAdminTestBase
 	{
 		InvitationParam invitation = createInvitation();
 		String code = addInvitation(invitation);
-
 		HttpGet get = new HttpGet("/restadm/v1/invitation/"+code);
-		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-
-		String contentsGet = EntityUtils.toString(responseGet.getEntity());
+		String contentsGet = executeQuery(get);
 		System.out.println("Response:\n" + contentsGet);
-		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getCode());
 		InvitationWithCode returned = m.readValue(contentsGet, InvitationWithCode.class);
 		assertThat(returned.getRegistrationCode(), is(code));
 		assertThat(returned.getInvitation(), is(invitation));
@@ -89,13 +84,8 @@ public class TestInvitations extends RESTAdminTestBase
 		String code = addInvitation(invitation);
 
 		HttpGet get = new HttpGet("/restadm/v1/invitations");
-		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-
-		String contentsGet = EntityUtils.toString(responseGet.getEntity());
+		String contentsGet = executeQuery(get);
 		System.out.println("Response:\n" + contentsGet);
-		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getCode());
-		
-		
 		List<InvitationWithCode> returned = m.readValue(contentsGet, 
 				new TypeReference<List<InvitationWithCode>>() {});
 		assertThat(returned.size(), is(1));
@@ -112,13 +102,12 @@ public class TestInvitations extends RESTAdminTestBase
 		String code = addInvitation(invitation);
 		
 		HttpDelete delete = new HttpDelete("/restadm/v1/invitation/" + code);
-		ClassicHttpResponse deleteResponse = client.execute(host, delete, localcontext, HttpResponseHandler.INSTANCE);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getCode());
+		try(ClassicHttpResponse response = client.executeOpen(host, delete, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		
 		HttpGet get = new HttpGet("/restadm/v1/invitations");
-		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-		String contentsGet = EntityUtils.toString(responseGet.getEntity());
-		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getCode());
+		String contentsGet = executeQuery(get);
 		List<InvitationWithCode> returned = m.readValue(contentsGet, 
 				new TypeReference<List<InvitationWithCode>>() {});
 		assertThat(returned.isEmpty(), is(true));
@@ -137,15 +126,13 @@ public class TestInvitations extends RESTAdminTestBase
 		String code = addInvitation(invitation);
 		
 		HttpPost send = new HttpPost("/restadm/v1/invitation/" + code + "/send");
-		ClassicHttpResponse responseSend = client.execute(host, send, localcontext, HttpResponseHandler.INSTANCE);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), responseSend.getCode());
+		try(ClassicHttpResponse response = client.executeOpen(host, send, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		
 		HttpGet get = new HttpGet("/restadm/v1/invitation/"+code);
-		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-
-		String contentsGet = EntityUtils.toString(responseGet.getEntity());
+		String contentsGet = executeQuery(get);
 		System.out.println("Response:\n" + contentsGet);
-		assertEquals(contentsGet, Status.OK.getStatusCode(), responseGet.getCode());
 		InvitationWithCode returned = m.readValue(contentsGet, InvitationWithCode.class);
 
 		assertThat(returned.getNumberOfSends(), is(1));
@@ -155,7 +142,7 @@ public class TestInvitations extends RESTAdminTestBase
 	private String addInvitation(InvitationParam invitation) throws Exception
 	{
 		HttpPost addRequest = getAddRequest(invitation);
-		ClassicHttpResponse responseAdd = client.execute(host, addRequest, localcontext, HttpResponseHandler.INSTANCE);
+		ClassicHttpResponse responseAdd = client.executeOpen(host, addRequest, getClientContext(host));
 		assertEquals(Status.OK.getStatusCode(), responseAdd.getCode());
 		return EntityUtils.toString(responseAdd.getEntity());
 	}

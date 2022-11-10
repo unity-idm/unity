@@ -18,6 +18,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
@@ -29,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -83,7 +83,7 @@ public class WebhookProcessorImpl implements WebhookProcessor
 		}
 		
 		log.info("Request GET to " + url.toString());
-		return httpClient.execute(request, new HttpResponseHandler());
+		return httpClient.executeOpen(null, request, HttpClientContext.create());
 	}
 
 	private ClassicHttpResponse sendPost(Webhook webhook, Map<String, String> params)
@@ -101,7 +101,7 @@ public class WebhookProcessorImpl implements WebhookProcessor
 		}
 		HttpClient httpClient = getSSLClient(webhook.url, webhook.truststore);
 		log.info("Request POST to " + webhook.url + " with entity: " + EntityUtils.toString(post.getEntity()));
-		return httpClient.execute(post, new HttpResponseHandler());
+		return httpClient.executeOpen(null, post, HttpClientContext.create());
 	}
 
 	private HttpClient getSSLClient(String url, String customTruststore) throws EngineException

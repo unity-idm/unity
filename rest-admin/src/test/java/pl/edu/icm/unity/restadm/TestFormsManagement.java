@@ -18,16 +18,15 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
@@ -45,14 +44,12 @@ public class TestFormsManagement extends RESTAdminTestBase
 	public void addedFormIsReturned() throws Exception
 	{
 		HttpPost add = getAddRequest();
-		ClassicHttpResponse response = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
-
+		try(ClassicHttpResponse response = client.executeOpen(host, add, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-		String contents = EntityUtils.toString(responseGet.getEntity());
+		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		System.out.println("Response:\n" + contents);
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getCode());
 		List<RegistrationForm> returnedL = m.readValue(contents, 
 				new TypeReference<List<RegistrationForm>>() {});
 		assertThat(returnedL.size(), is(1));
@@ -63,18 +60,15 @@ public class TestFormsManagement extends RESTAdminTestBase
 	public void removedFormIsNotReturned() throws Exception
 	{
 		HttpPost add = getAddRequest();
-		ClassicHttpResponse response = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
-		
+		try(ClassicHttpResponse response = client.executeOpen(host, add, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		HttpDelete delete = new HttpDelete("/restadm/v1/registrationForm/exForm");
-		ClassicHttpResponse deleteResponse =client.execute(host, delete, localcontext, HttpResponseHandler.INSTANCE);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getCode());
-		
+		try(ClassicHttpResponse deleteResponse =client.executeOpen(host, delete, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getCode());
+		}
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		ClassicHttpResponse responseGet = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-
-		String contents = EntityUtils.toString(responseGet.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getCode());
+		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		List<RegistrationForm> returnedL = m.readValue(contents, 
 				new TypeReference<List<RegistrationForm>>() {});
 		assertThat(returnedL.isEmpty(), is(true));
@@ -84,19 +78,17 @@ public class TestFormsManagement extends RESTAdminTestBase
 	public void updatedFormIsReturned() throws Exception
 	{
 		HttpPost add = getAddRequest();
-		ClassicHttpResponse response = client.execute(host, add, localcontext, HttpResponseHandler.INSTANCE);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
-
+		try(ClassicHttpResponse response = client.executeOpen(host, add, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		HttpPut update = getUpdateRequest();
-		ClassicHttpResponse response2 = client.execute(host, update, localcontext, HttpResponseHandler.INSTANCE);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getCode());
-
+		try(ClassicHttpResponse response = client.executeOpen(host, update, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		ClassicHttpResponse getResponse = client.execute(host, get, localcontext, HttpResponseHandler.INSTANCE);
-
-		String contents = EntityUtils.toString(getResponse.getEntity());
+		
+		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		System.out.println(contents);
-		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getCode());
 		List<RegistrationForm> returnedL = m.readValue(contents, 
 				new TypeReference<List<RegistrationForm>>() {});
 		assertThat(returnedL.size(), is(1));

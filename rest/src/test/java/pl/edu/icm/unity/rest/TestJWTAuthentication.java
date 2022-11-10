@@ -28,7 +28,6 @@ import org.springframework.test.context.TestPropertySource;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -149,13 +148,13 @@ public class TestJWTAuthentication extends TestRESTBase
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("https", "localhost", 53456);
 		HttpClientContext localcontext = getClientContext(host);
-		return client.execute(host, request, localcontext, HttpResponseHandler.INSTANCE);
+		return client.executeOpen(host, request, localcontext);
 	}
 	
 	private ClassicHttpResponse execute(ClassicHttpRequest request) throws Exception
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("https", "localhost", 53456);
-		return client.execute(host, request, HttpResponseHandler.INSTANCE);
+		return client.executeOpen(host, request, null);
 	}
 }

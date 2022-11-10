@@ -11,6 +11,7 @@ import java.net.URL;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -27,7 +28,6 @@ import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpClientProperties;
-import eu.unicore.util.httpclient.HttpResponseHandler;
 import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
@@ -114,13 +114,14 @@ public class TestJettyServer
 	private boolean makeRequest(HttpClient client, String url) throws Exception
 	{
 		HttpGet get = new HttpGet(url);
-		ClassicHttpResponse response = client.execute(get, new HttpResponseHandler());
-		if (response.getCode() == 429)
-		{
-			System.out.println("Our request was denied");
-			return true;
+		try(ClassicHttpResponse response = client.executeOpen(null, get, HttpClientContext.create())){
+			if (response.getCode() == 429)
+			{
+				System.out.println("Our request was denied");
+				return true;
+			}
+			return false;
 		}
-		return false;
 	}
 	
 	private class DOSser extends Thread
