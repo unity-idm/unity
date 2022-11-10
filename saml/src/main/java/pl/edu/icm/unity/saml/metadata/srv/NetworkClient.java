@@ -26,8 +26,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
  * Wraps configuration of HTTP client which can use custom truststore 
  * and makes GET connection, returning the stream with HTTP entity.
  *
- * TODO this does not seem to be used anywhere
- *
  * @author K. Benedyczak
  */
 public class NetworkClient
