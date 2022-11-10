@@ -117,7 +117,7 @@ public class TestJWTAuthentication extends TestRESTBase
 		post.setEntity(new StringEntity(token));
 		response = execute(post);
 		assertEquals(new StatusLine(response).toString(), 204, response.getCode());
-		
+
 		HttpPost post2 = new HttpPost("/jwt/refreshToken");
 		post2.setHeader("Authorization", "Bearer " + token);
 		post2.setEntity(new StringEntity(token));

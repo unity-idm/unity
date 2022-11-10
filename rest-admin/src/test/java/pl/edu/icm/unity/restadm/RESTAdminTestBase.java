@@ -52,7 +52,7 @@ public abstract class RESTAdminTestBase extends TestRESTBase
 	{
 		return executeQuery(request, getClientContext(host));
 	}
-	
+
 	protected String executeQuery(HttpUriRequestBase request, HttpContext context) throws Exception
 	{
 		HttpClient client = getClient();

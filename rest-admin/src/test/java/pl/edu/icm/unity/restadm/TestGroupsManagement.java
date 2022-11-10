@@ -145,7 +145,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		try(ClassicHttpResponse response = client.executeOpen(host, delete, getClientContext(host))){
 			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		}
-		
+
 		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/%2F");
 		String contents = client.execute(host, getGroupContents, getClientContext(host), new BasicHttpClientResponseHandler());
 		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);

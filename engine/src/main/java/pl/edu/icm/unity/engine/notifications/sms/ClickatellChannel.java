@@ -108,7 +108,7 @@ public class ClickatellChannel implements NotificationChannelInstance
 		try(ClassicHttpResponse response = client.executeOpen(null, httpPost, HttpClientContext.create())){
 			if (response.getCode() >= 300)
 			{
-				throw new IOException("Communication with Clickatell service failed, error: " + 
+				throw new IOException("Communication with Clickatell service failed, error: " +
 						new StatusLine(response).toString() + ", received contents: " +
 						EntityUtils.toString(response.getEntity()));
 			}

@@ -148,7 +148,7 @@ public class TestECP extends AbstractTestIdpBase
 			Assert.assertEquals(HttpServletResponse.SC_OK, response.getCode());
 			Assert.assertTrue(response.getFirstHeader("Content-Type").getValue().startsWith("application/jwt"));
 			HttpEntity entity = response.getEntity();
-			if (entity != null) 
+			if (entity != null)
 			{
 				String resp = EntityUtils.toString(entity);
 				System.out.println(resp);

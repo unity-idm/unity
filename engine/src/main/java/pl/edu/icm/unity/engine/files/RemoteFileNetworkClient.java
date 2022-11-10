@@ -104,9 +104,9 @@ class RemoteFileNetworkClient
 					.append(response.getReasonPhrase());
 			if (statusCode != HttpStatus.SC_NOT_FOUND && statusCode != HttpStatus.SC_FORBIDDEN)
 			{
-				try 
+				try
 				{
-					String body = response.getEntity().getContentLength() < MAX_BODY_SIZE_TO_LOG 
+					String body = response.getEntity().getContentLength() < MAX_BODY_SIZE_TO_LOG
 							? EntityUtils.toString(response.getEntity())
 									: "HTTP body too large";
 							errorMessage.append(", body: ").append(body);

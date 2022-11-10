@@ -86,7 +86,7 @@ public class TestFormsManagement extends RESTAdminTestBase
 			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		}
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		
+
 		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		System.out.println(contents);
 		List<RegistrationForm> returnedL = m.readValue(contents, 

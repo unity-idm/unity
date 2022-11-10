@@ -211,7 +211,7 @@ public class TestWrite extends RESTAdminTestBase
 		PasswordToken pass = new PasswordToken("newpass");
 		pass.setQuestion(1);
 		pass.setAnswer("Some answer");
-	    setCredentialAdm.setEntity(new StringEntity(pass.toJson(), ContentType.APPLICATION_JSON));
+	        setCredentialAdm.setEntity(new StringEntity(pass.toJson(), ContentType.APPLICATION_JSON));
 		try(ClassicHttpResponse response = client.executeOpen(host, setCredentialAdm, getClientContext(host))){
 			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		}
@@ -224,7 +224,7 @@ public class TestWrite extends RESTAdminTestBase
 		ArrayNode arrayNode = m.createArrayNode();
 		arrayNode.add(pass2.toJson());
 		arrayNode.add(pass.toJson());
-	    setCredential.setEntity(new StringEntity(m.writeValueAsString(arrayNode), 
+		setCredential.setEntity(new StringEntity(m.writeValueAsString(arrayNode),
 	        		ContentType.APPLICATION_JSON));
 	    try(ClassicHttpResponse response = client.executeOpen(host, setCredential, getClientContext(host))){
 			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());

@@ -64,7 +64,7 @@ public class TestTokens extends RESTAdminTestBase
 	@Test
 	public void shouldReturnAllTokenWithType() throws Exception
 	{
-		List<JsonNode> tokens = getTokensFromRESTAPI(getClientContext(host), "type1");	
+		List<JsonNode> tokens = getTokensFromRESTAPI(getClientContext(host), "type1");
 		
 		assertThat(tokens.size(), is(3));
 		assertThat(tokens.get(0).get("type").asText(), is("type1"));
@@ -134,7 +134,7 @@ public class TestTokens extends RESTAdminTestBase
 		HttpGet get = new HttpGet("/restadm/v1/tokens?type=" + type);
 		String contentsGet = executeQuery(get, context);
 		System.out.println("Response:\n" + contentsGet);
-			
+
 		List<JsonNode> returned = m.readValue(contentsGet,
 				new TypeReference<List<JsonNode>>()
 				{
