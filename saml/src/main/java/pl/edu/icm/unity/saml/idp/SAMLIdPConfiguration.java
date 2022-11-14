@@ -64,7 +64,6 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 
 	public final boolean signMetadata;
 
-
 	private boolean signRespNever;
 	private boolean signRespAlways;
 	private ReplayAttackChecker replayChecker;
@@ -109,10 +108,10 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		this.credential = credential;
 		this.trustedValidator = chainValidator;
 		this.signMetadata = signMetadata;
-		init();
+		load();
 	}
 
-	private void init()
+	public void load()
 	{
 		checkIssuer();
 		SamlIdpProperties.ResponseSigningPolicy repPolicy = signResponses;
@@ -333,7 +332,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	public String getDisplayedNameForRequester(NameIDType id, MessageSource msg)
 	{
 		TrustedServiceProviderConfiguration config = getSPConfig(id);
-		if (config == null)
+		if (config == null || config.name == null)
 			return null;
 		return config.name.getDefaultLocaleValue(msg);
 	}
@@ -341,7 +340,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	public Resource getLogoForRequesterOrNull(NameIDType id, MessageSource msg, ImageAccessService imageAccessService)
 	{
 		TrustedServiceProviderConfiguration config = getSPConfig(id);
-		if (config == null)
+		if (config == null || config.logoUri == null)
 			return null;
 
 		String logoURI = config.logoUri.getDefaultLocaleValue(msg);

@@ -35,7 +35,6 @@ public class RemoteMetaManager
 	private final MetadataVerificator verificator;
 	private final RemoteMetadataService metadataService;
 	private final Map<String, MetadataConsumer> registeredConsumers = new HashMap<>();
-	private TrustedServiceProviders combinedSps;
 	private SAMLIdPConfiguration configuration;
 	
 	public RemoteMetaManager(SAMLIdPConfiguration configuration, PKIManagement pkiManagement,
@@ -50,7 +49,7 @@ public class RemoteMetaManager
 
 	public synchronized TrustedServiceProviders getTrustedSps()
 	{
-		return combinedSps;
+		return configuration.trustedServiceProviders;
 	}
 
 	public SAMLIdPConfiguration getSAMLIdPConfiguration()
@@ -63,7 +62,7 @@ public class RemoteMetaManager
 		if (this.configuration == null)
 		{
 			this.configuration = configuration;
-			reinitialize(configuration);
+			reinitialize();
 			return;
 		}
 
@@ -75,12 +74,11 @@ public class RemoteMetaManager
 		boolean reload = !oldMetaSrcs.equals(newMetaSrcs) || !oldIndividualTrustedIdPs.equals(newIndividualTrustedIdPs);
 		this.configuration = configuration;
 		if (reload)
-			reinitialize(configuration);
+			reinitialize();
 	}
 
-	private void reinitialize(SAMLIdPConfiguration configuration)
+	private void reinitialize()
 	{
-		combinedSps = configuration.trustedServiceProviders;
 		unregisterAll();
 		registerMetadataConsumers();
 	}
@@ -104,7 +102,7 @@ public class RemoteMetaManager
 	public synchronized void unregisterAll()
 	{
 		log.trace("Unregistering all remote metadata consumers");
-		registeredConsumers.keySet().forEach(id -> metadataService.unregisterConsumer(id));
+		registeredConsumers.keySet().forEach(metadataService::unregisterConsumer);
 		registeredConsumers.clear();
 	}
 
@@ -114,12 +112,13 @@ public class RemoteMetaManager
 			//not likely but can happen in case of race condition between
 			//deregistration of a consumer happening at the same time as async refresh
 			return;
-		combinedSps.replace(trustedIdPs);
+		configuration.trustedServiceProviders.replace(trustedIdPs);
+		configuration.load();
 	}
 
 	private Set<TrustedServiceProviderConfiguration> parseMetadata(EntitiesDescriptorDocument metadata, RemoteMetadataSource metadataConfig)
 	{
-		Set<TrustedServiceProviderConfiguration> trustedIdPs = converter.convertToTrustedSps(metadata, combinedSps, configuration);
+		Set<TrustedServiceProviderConfiguration> trustedIdPs = converter.convertToTrustedSps(metadata, configuration);
 		log.trace("Converted metadata from {} to virtual configuration", metadataConfig.url);
 		return trustedIdPs;
 	}

@@ -5,29 +5,24 @@
 
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import eu.unicore.samly2.SAMLConstants;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.types.I18nString;
-import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.ExtensionsType;
-import xmlbeans.org.oasis.saml2.metadata.LocalizedNameType;
-import xmlbeans.org.oasis.saml2.metadata.OrganizationType;
-import xmlbeans.org.oasis.saml2.metadata.SSODescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.*;
 import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoDocument;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A collection of methods helpful in reading SAML metadata
@@ -79,7 +74,10 @@ public class MetaToConfigConverterHelper
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
 		I18nString ret = new I18nString();
-		ret.addAllValues(getLocalizedNames(msg, uiInfo, idpDesc, mainDescriptor));
+		Map<String, String> localizedNames = getLocalizedNames(msg, uiInfo, idpDesc, mainDescriptor);
+		if(localizedNames.isEmpty())
+			return null;
+		ret.addAllValues(localizedNames);
 		return ret;
 	}
 	
@@ -110,6 +108,8 @@ public class MetaToConfigConverterHelper
 	{
 		I18nString ret = new I18nString();
 		Map<String, LogoType> asMap = getLocalizedLogos(uiInfo);
+		if(asMap.isEmpty())
+			return null;
 		ret.addAllValues(asMap.entrySet().stream()
 				.collect(Collectors.toMap(entry -> entry.getKey(), 
 						entry -> entry.getValue().getStringValue())));

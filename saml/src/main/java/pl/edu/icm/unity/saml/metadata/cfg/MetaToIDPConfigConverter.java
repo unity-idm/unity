@@ -51,7 +51,7 @@ public class MetaToIDPConfigConverter
 		this.pkiManagement = pkiManagement;
 		this.msg = msg;
 	}
-	protected Set<TrustedServiceProviderConfiguration> convertToTrustedSps(EntitiesDescriptorDocument metadata, TrustedServiceProviders providers, SAMLIdPConfiguration samlIdPConfiguration)
+	protected Set<TrustedServiceProviderConfiguration> convertToTrustedSps(EntitiesDescriptorDocument metadata, SAMLIdPConfiguration samlIdPConfiguration)
 	{
 		EntitiesDescriptorType meta = metadata.getEntitiesDescriptor();
 		Set<TrustedServiceProviderConfiguration> overrideConfigurations = new HashSet<>();
@@ -65,6 +65,12 @@ public class MetaToIDPConfigConverter
 			String entityId = descriptorType.getEntityID();
 			for (SPSSODescriptorType spDef: spDefs)
 			{
+				TrustedServiceProviderConfiguration spConfig = samlIdPConfiguration.trustedServiceProviders.getSPConfig(entityId);
+				if(spConfig != null && spConfig.allowedKey != null)
+				{
+					log.trace("SP of entity " + entityId +	" is configured in property, so cannot be overwrite.");
+					continue;
+				}
 				if (!MetaToConfigConverterHelper.supportsSaml2(spDef))
 				{
 					log.trace("SP of entity " + entityId +	" doesn't support SAML2 - ignoring.");
@@ -115,9 +121,9 @@ public class MetaToIDPConfigConverter
 				I18nString names = MetaToConfigConverterHelper.getLocalizedNamesAsI18nString(msg, uiInfo, spDef, descriptorType);
 				I18nString logos = MetaToConfigConverterHelper.getLocalizedLogosAsI18nString(uiInfo);
 
-				TrustedServiceProviderConfiguration trustedServiceProviderConfiguration = generateOverridedSP(entityId, defaultEndpoint, endpointURLs,
+				TrustedServiceProviderConfiguration trustedServiceProviderConfiguration = generateOverrodeSP(entityId, defaultEndpoint, endpointURLs,
 						soapSLOEndpoint, postSLOEndpoint, redirectSLOEndpoint,
-						providers, certs, names, logos);
+						samlIdPConfiguration.trustedServiceProviders, certs, names, logos);
 				overrideConfigurations.add(trustedServiceProviderConfiguration);
 			}
 		}
@@ -236,11 +242,11 @@ public class MetaToIDPConfigConverter
 		}
 		return ret;
 	}
-	private TrustedServiceProviderConfiguration generateOverridedSP(String entityId, String defaultServiceEndpoint,
-	                                                                Map<Integer, String> indexedServiceEndpoints,
-	                                                                EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
-	                                                                TrustedServiceProviders providers,
-	                                                                List<X509Certificate> certs, I18nString names, I18nString logos)
+	private TrustedServiceProviderConfiguration generateOverrodeSP(String entityId, String defaultServiceEndpoint,
+	                                                               Map<Integer, String> indexedServiceEndpoints,
+	                                                               EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
+	                                                               TrustedServiceProviders providers,
+	                                                               List<X509Certificate> certs, I18nString names, I18nString logos)
 	{
 		TrustedServiceProviderConfiguration got = providers.getSPConfig(entityId);
 		TrustedServiceProviderConfiguration.TrustedServiceProviderConfigurationBuilder builder;
@@ -251,55 +257,40 @@ public class MetaToIDPConfigConverter
 		else
 			builder = got.copyToBuilder();
 
-		if (noPerSpConfig || got.entityId != null)
-			builder.withEntityId(entityId);
-		if (noPerSpConfig || got.returnUrl != null)
-			builder.withReturnUrl(defaultServiceEndpoint);
-		
-		if (noPerSpConfig || !got.returnUrls.isEmpty())
+		if (noPerSpConfig)
 		{
+			builder.withEntityId(entityId);
+			builder.withReturnUrl(defaultServiceEndpoint);
+
 			Set<String> urls = indexedServiceEndpoints.entrySet().stream()
 					.map(entry -> "[" + entry.getKey() + "]" + entry.getValue())
 					.collect(Collectors.toSet());
 			builder.withReturnUrls(urls);
-		}
-		if (noPerSpConfig && builder.returnUrls.isEmpty())
-		{
 			builder.withReturnUrl(defaultServiceEndpoint);
-		}
-		if ((noPerSpConfig || got.soapLogoutUrl != null) && sloSoapEndpoint != null)
-		{
-			builder.withSoapLogoutUrl(sloSoapEndpoint.getLocation());
-		}
-		if ((noPerSpConfig || got.postLogoutRetUrl != null) && sloPostEndpoint != null)
-		{
-			builder.withPostLogoutUrl(sloPostEndpoint.getLocation());
-			if (sloPostEndpoint.getResponseLocation() != null)
-				builder.withPostLogoutRetUrl(sloPostEndpoint.getResponseLocation());
-		}
-		if ((noPerSpConfig || got.redirectLogoutRetUrl != null) && sloRedirectEndpoint != null)
-		{
-			builder.withRedirectLogoutUrl(sloRedirectEndpoint.getLocation());
-			if (sloRedirectEndpoint.getResponseLocation() != null)
-				builder.withRedirectLogoutRetUrl(sloRedirectEndpoint.getResponseLocation());
-		}
-		if (noPerSpConfig || got.certificate != null)
-		{
+			if (sloSoapEndpoint != null)
+			{
+				builder.withSoapLogoutUrl(sloSoapEndpoint.getLocation());
+			}
+			if (sloPostEndpoint != null)
+			{
+				builder.withPostLogoutUrl(sloPostEndpoint.getLocation());
+				if (sloPostEndpoint.getResponseLocation() != null)
+					builder.withPostLogoutRetUrl(sloPostEndpoint.getResponseLocation());
+			}
+			if (sloRedirectEndpoint != null)
+			{
+				builder.withRedirectLogoutUrl(sloRedirectEndpoint.getLocation());
+				if (sloRedirectEndpoint.getResponseLocation() != null)
+					builder.withRedirectLogoutRetUrl(sloRedirectEndpoint.getResponseLocation());
+			}
 			Set<String> certificates = certs.stream()
 					.map(cert -> getCertificateKey(cert, entityId, IDP_META_CERT))
 					.collect(Collectors.toSet());
 			builder.withCertificateNames(certificates);
 			builder.withCertificates(certificates.stream().map(this::getCertificate).collect(Collectors.toSet()));
-		}
-		if (noPerSpConfig || got.name != null)
-		{
 			builder.withName(names);
-		}
-		if (noPerSpConfig || got.logoUri != null)
-		{
 			builder.withLogoUri(logos);
 		}
-
 		return builder.build();
 	}
 
