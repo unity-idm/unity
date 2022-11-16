@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -36,13 +36,13 @@ import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProvider;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
-import pl.edu.icm.unity.saml.idp.TrustedServiceProviderConfiguration;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -212,7 +212,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
 		SAMLIdPConfiguration config = samlCtx.getSamlConfiguration();
-		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(config.activeValueClient,
+		return ActiveValueClientHelper.isActiveValueSelectionConfiguredForClient(config.activeValueClient,
 						samlProcessor.getRequestIssuer());
 	}
 	
@@ -348,12 +348,12 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
 		SAMLIdPConfiguration samlConfiguration = samlCtx.getSamlConfiguration();
 		String credentialName = samlConfiguration.credentialName;
-		TrustedServiceProviderConfiguration config = samlConfiguration.getSPConfig(samlCtx.getRequest().getIssuer());
+		TrustedServiceProvider config = samlConfiguration.getSPConfig(samlCtx.getRequest().getIssuer());
 		String localIdpSamlId = samlConfiguration.issuerURI;
-		Set<String> allowedCerts = Optional.ofNullable(config).map(TrustedServiceProviderConfiguration::getCertificateNames).orElseGet(Set::of);
+		Set<String> allowedCerts = Optional.ofNullable(config).map(TrustedServiceProvider::getCertificateNames).orElseGet(Set::of);
 		List<SAMLEndpointDefinition> logoutEndpoints = config == null ?
 				new ArrayList<SAMLEndpointDefinition>(0) :
-				config.getLogoutEndpointsFromStructuredList();
+				config.getLogoutEndpoints();
 		sessionMan.addSessionParticipant(new SAMLSessionParticipant(participantId, 
 				returnedSubject, sessionId, logoutEndpoints, localIdpSamlId,
 				credentialName, allowedCerts));

@@ -28,21 +28,22 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
+import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static pl.edu.icm.unity.saml.SamlProperties.PUBLISH_METADATA;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SAMLTrustedApplicationManagementTest
@@ -125,16 +126,15 @@ public class SAMLTrustedApplicationManagementTest
 
 	private void setupEndpoint() throws EngineException
 	{
-//		SamlAuthVaadinEndpoint instance = mock(SamlAuthVaadinEndpoint.class);
-//		ResolvedEndpoint rendpoint = mock(ResolvedEndpoint.class);
-//		when(instance.getEndpointDescription()).thenReturn(rendpoint);
-//		Endpoint endpoint = mock(Endpoint.class);
-//		when(rendpoint.getEndpoint()).thenReturn(endpoint);
-//		when(endpoint.getTypeId()).thenReturn(SamlIdPWebEndpointFactory.TYPE.getName());
-//		when(pkiManagement.getCredentialNames()).thenReturn(Set.of("MAIN"));
-//		SAMLIdPConfiguration configuration = getIdpProperties();
-//		when(instance.getSpsConfiguration()).thenReturn(configuration);
-//		when(endpointManagement.getDeployedEndpointInstances()).thenReturn(List.of(instance));
+		SamlAuthVaadinEndpoint instance = mock(SamlAuthVaadinEndpoint.class);
+		ResolvedEndpoint rendpoint = mock(ResolvedEndpoint.class);
+		when(instance.getEndpointDescription()).thenReturn(rendpoint);
+		Endpoint endpoint = mock(Endpoint.class);
+		when(rendpoint.getEndpoint()).thenReturn(endpoint);
+		when(endpoint.getTypeId()).thenReturn(SamlIdPWebEndpointFactory.TYPE.getName());
+		SAMLIdPConfiguration configuration = getSAMLIdPConfiguration();
+		when(instance.getSpsConfiguration()).thenReturn(configuration.trustedServiceProviders);
+		when(endpointManagement.getDeployedEndpointInstances()).thenReturn(List.of(instance));
 
 	}
 
@@ -152,19 +152,20 @@ public class SAMLTrustedApplicationManagementTest
 		return grantTime;
 	}
 
-	private SamlIdpProperties getIdpProperties()
+	private SAMLIdPConfiguration getSAMLIdPConfiguration()
 	{
-		Properties p = new Properties();
-		p.setProperty(P + CREDENTIAL, "MAIN");
-		p.setProperty(P + PUBLISH_METADATA, "false");
-		p.setProperty(P + ISSUER_URI, "me");
-		p.setProperty(P + GROUP, "group");
-		p.setProperty(P + DEFAULT_GROUP, "group");
-		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + ALLOWED_SP_ENTITY, "clientEntityId");
-		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + ALLOWED_SP_RETURN_URL, "URL");
-		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + ALLOWED_SP_NAME, "Name");
-		SamlIdpProperties configuration = new SamlIdpProperties(p);
-		return configuration;
+		return SAMLIdPConfiguration.builder()
+				.withCredentialName("MAIN")
+				.withPublishMetadata(false)
+				.withIssuerURI("me")
+				.withGroupChooser(Map.of("group", "group"),"group")
+				.withTrustedServiceProviders(new TrustedServiceProviders(
+						List.of(TrustedServiceProvider.builder()
+								.withEntityId("clientEntityId")
+								.withReturnUrl("URL")
+								.withName(new I18nString("Name"))
+								.build())
+				)).build();
 	}
 
 	private void setupInvocationContext()

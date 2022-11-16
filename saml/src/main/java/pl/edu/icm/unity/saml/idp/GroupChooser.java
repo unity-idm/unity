@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Chooses a correct group for the requester.
@@ -14,26 +12,14 @@ import java.util.Set;
  */
 public class GroupChooser
 {
-	private String defaultGroup;
-	private Map<String, String> groupMappings;
+	private final String defaultGroup;
+	private final Map<String, String> groupMappings;
 
 
 	public GroupChooser(Map<String, String> groupMappings, String defaultGroup)
 	{
 		this.groupMappings = groupMappings;
 		this.defaultGroup = defaultGroup;
-	}
-	public GroupChooser(SamlIdpProperties config)
-	{
-		defaultGroup = config.getValue(SamlIdpProperties.DEFAULT_GROUP);
-		Set<String> keys = config.getStructuredListKeys(SamlIdpProperties.GROUP_PFX);
-		groupMappings = new HashMap<String, String>(keys.size());
-		for (String key: keys)
-		{
-			String target = config.getValue(key+SamlIdpProperties.GROUP_TARGET);
-			String group = config.getValue(key+SamlIdpProperties.GROUP);
-			groupMappings.put(target, group);
-		}
 	}
 	
 	public String chooseGroup(String requester)

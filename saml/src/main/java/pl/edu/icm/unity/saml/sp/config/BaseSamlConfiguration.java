@@ -4,18 +4,14 @@
  */
 package pl.edu.icm.unity.saml.sp.config;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import java.time.Duration;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Base configuration for both authenticators and IdPs
@@ -30,8 +26,8 @@ public abstract class BaseSamlConfiguration
 	public BaseSamlConfiguration(List<RemoteMetadataSource> trustedMetadataSources, boolean publishMetadata,
 			String metadataURLPath, String ourMetadataFilePath)
 	{
-		this.trustedMetadataSourcesByUrl = Map.copyOf(trustedMetadataSources.stream()
-				.collect(Collectors.toMap(src -> src.url, src -> src)));
+		this.trustedMetadataSourcesByUrl = trustedMetadataSources.stream()
+				.collect(Collectors.toUnmodifiableMap(src -> src.url, src -> src));
 		this.publishMetadata = publishMetadata;
 		this.metadataURLPath = metadataURLPath;
 		this.ourMetadataFilePath = ourMetadataFilePath;

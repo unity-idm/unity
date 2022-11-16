@@ -13,6 +13,8 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -48,11 +50,11 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 	{
 		return creationTs;
 	}
-	
+
 	public boolean isExpired()
 	{
-		long timeout = 1000L*samlConfiguration.authenticationTimeout;
-		return System.currentTimeMillis() > timeout+creationTs.getTime();
+		Duration timeout = samlConfiguration.getAuthenticationTimeoutDuration();
+		return creationTs.toInstant().plus(timeout).isAfter(Instant.now());
 	}
 	
 	public String getResponseDestination()

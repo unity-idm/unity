@@ -11,25 +11,25 @@ import java.util.stream.Collectors;
 
 public class TrustedServiceProviders
 {
-	private final Map<String, TrustedServiceProviderConfiguration> entityIdToSPConfiguration;
+	private final Map<SamlEntityId, TrustedServiceProvider> entityIdToSPConfiguration;
 
-	public TrustedServiceProviders(Collection<TrustedServiceProviderConfiguration> trustedSPs)
+	public TrustedServiceProviders(Collection<TrustedServiceProvider> trustedSPs)
 	{
 		this.entityIdToSPConfiguration = trustedSPs.stream()
 				.collect(Collectors.toMap(sp -> sp.entityId, sp -> sp));
 	}
 
-	public TrustedServiceProviderConfiguration getSPConfig(String entityId)
+	public TrustedServiceProvider getSPConfig(SamlEntityId entityId)
 	{
 		return entityIdToSPConfiguration.get(entityId);
 	}
 
-	public Set<TrustedServiceProviderConfiguration> getSPConfigs()
+	public Set<TrustedServiceProvider> getSPConfigs()
 	{
 		return Set.copyOf(entityIdToSPConfiguration.values());
 	}
 
-	public void replace(Set<TrustedServiceProviderConfiguration> trustedIdPs)
+	public void replace(Set<TrustedServiceProvider> trustedIdPs)
 	{
 		trustedIdPs.forEach(config -> entityIdToSPConfiguration.put(config.entityId, config));
 	}

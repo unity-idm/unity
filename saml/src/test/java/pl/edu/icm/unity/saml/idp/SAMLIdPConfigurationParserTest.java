@@ -13,7 +13,7 @@ import static pl.edu.icm.unity.saml.SamlProperties.*;
 import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
 import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
 
-public class TestSamlConfiguration
+public class SAMLIdPConfigurationParserTest
 {
 	@Test
 	public void testGroupChooser() throws Exception
@@ -27,12 +27,6 @@ public class TestSamlConfiguration
 		p.setProperty(P+GROUP_PFX+"2."+GROUP, "/");
 		p.setProperty(P+DEFAULT_GROUP, "/def");
 		p.setProperty(P+CREDENTIAL, "MAIN");
-//		SamlIdpProperties cfg = new SamlIdpProperties(p, new SimplePKIManagement());
-//
-//		GroupChooser chooser = cfg.getGroupChooser();
-//		assertEquals("/some/gr", chooser.chooseGroup("http://sp.org1"));
-//		assertEquals("/", chooser.chooseGroup("sp2"));
-//		assertEquals("/def", chooser.chooseGroup("other"));
 	}
 	
 	@Test
@@ -49,23 +43,5 @@ public class TestSamlConfiguration
 		p.setProperty(P+IDENTITY_MAPPING_PFX+"2."+IDENTITY_SAML, SAMLConstants.NFORMAT_TRANSIENT);
 		p.setProperty(P+IDENTITY_MAPPING_PFX+"3."+IDENTITY_LOCAL, "");
 		p.setProperty(P+IDENTITY_MAPPING_PFX+"3."+IDENTITY_SAML, "unity:identifier");
-//		SamlIdpProperties cfg = new SamlIdpProperties(p, new SimplePKIManagement());
-//
-//		IdentityTypeMapper idMapper = cfg.getIdTypeMapper();
-//		assertEquals("qqq", idMapper.mapIdentity("123"));
-//		assertEquals("aaa", idMapper.mapIdentity(SAMLConstants.NFORMAT_TRANSIENT));
-//		assertEquals(X500Identity.ID, idMapper.mapIdentity(SAMLConstants.NFORMAT_DN));
-//		assertEquals(TargetedPersistentIdentity.ID, idMapper.mapIdentity(SAMLConstants.NFORMAT_UNSPEC));
-//
-//		try
-//		{
-//			idMapper.mapIdentity("unity:identifier");
-//			fail("Should get exception");
-//		} catch (SAMLRequesterException e)
-//		{
-//			//OK
-//		}
-//
-//		assertEquals(idMapper.getSupportedIdentityTypes().toString(), 7, idMapper.getSupportedIdentityTypes().size());
 	}
 }

@@ -16,7 +16,7 @@ public class UserImportConfigs
 	public UserImportConfigs(boolean skip, Set<UserImportConfig> configs)
 	{
 		this.skip = skip;
-		this.configs = configs;
+		this.configs = Set.copyOf(configs);
 	}
 
 	@Override

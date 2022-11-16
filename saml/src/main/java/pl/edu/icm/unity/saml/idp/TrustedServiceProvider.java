@@ -13,11 +13,10 @@ import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-public class TrustedServiceProviderConfiguration
+public class TrustedServiceProvider
 {
 	public final String allowedKey;
-	public final String dnSamlId;
-	public final String entityId;
+	public final SamlEntityId entityId;
 	public final boolean encrypt;
 	public final String returnUrl;
 	public final Set<String> returnUrls;
@@ -33,18 +32,17 @@ public class TrustedServiceProviderConfiguration
 	public final X509Certificate certificate;
 	public final Set<X509Certificate> certificates;
 
-	TrustedServiceProviderConfiguration(String allowedKey, String dnSamlId, String entityId, boolean encrypt, String returnUrl,
-	                                            Set<String> returnUrls, String soapLogoutUrl, String redirectLogoutUrl,
-	                                            String postLogoutUrl, String redirectLogoutRetUrl, String postLogoutRetUrl,
-	                                            I18nString name, I18nString logoUri, X509Certificate certificate,
-	                                            Set<X509Certificate> certificates, String certificateName, Set<String> certificateNames)
+	TrustedServiceProvider(String allowedKey, SamlEntityId entityId, boolean encrypt, String returnUrl,
+	                       Set<String> returnUrls, String soapLogoutUrl, String redirectLogoutUrl,
+	                       String postLogoutUrl, String redirectLogoutRetUrl, String postLogoutRetUrl,
+	                       I18nString name, I18nString logoUri, X509Certificate certificate,
+	                       Set<X509Certificate> certificates, String certificateName, Set<String> certificateNames)
 	{
 		this.allowedKey = allowedKey;
-		this.dnSamlId = dnSamlId;
 		this.entityId = entityId;
 		this.encrypt = encrypt;
 		this.returnUrl = returnUrl;
-		this.returnUrls = returnUrls;
+		this.returnUrls = Set.copyOf(returnUrls);
 		this.soapLogoutUrl = soapLogoutUrl;
 		this.redirectLogoutUrl = redirectLogoutUrl;
 		this.postLogoutUrl = postLogoutUrl;
@@ -53,12 +51,12 @@ public class TrustedServiceProviderConfiguration
 		this.name = name;
 		this.logoUri = logoUri;
 		this.certificate = certificate;
-		this.certificates = certificates;
+		this.certificates = Set.copyOf(certificates);
 		this.certificateName = certificateName;
-		this.certificateNames = certificateNames;
+		this.certificateNames = Set.copyOf(certificateNames);
 	}
 
-	public List<SAMLEndpointDefinition> getLogoutEndpointsFromStructuredList()
+	public List<SAMLEndpointDefinition> getLogoutEndpoints()
 	{
 		String postSlo = postLogoutUrl;
 		String redirectSlo = redirectLogoutUrl;
@@ -104,8 +102,8 @@ public class TrustedServiceProviderConfiguration
 	{
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		TrustedServiceProviderConfiguration that = (TrustedServiceProviderConfiguration) o;
-		return encrypt == that.encrypt && Objects.equals(dnSamlId, that.dnSamlId) &&
+		TrustedServiceProvider that = (TrustedServiceProvider) o;
+		return encrypt == that.encrypt &&
 				Objects.equals(entityId, that.entityId) &&
 				Objects.equals(returnUrl, that.returnUrl) &&
 				Objects.equals(returnUrls, that.returnUrls) &&
@@ -125,7 +123,7 @@ public class TrustedServiceProviderConfiguration
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(dnSamlId, entityId, encrypt, returnUrl, returnUrls, soapLogoutUrl, redirectLogoutUrl,
+		return Objects.hash(entityId, encrypt, returnUrl, returnUrls, soapLogoutUrl, redirectLogoutUrl,
 				postLogoutUrl, redirectLogoutRetUrl, postLogoutRetUrl, name, logoUri, certificate, certificates,
 				certificateName, certificateNames);
 	}
@@ -134,7 +132,6 @@ public class TrustedServiceProviderConfiguration
 	public String toString()
 	{
 		return "TrustedServiceProviderConfiguration{" +
-				"dnSamlId='" + dnSamlId + '\'' +
 				", entityId='" + entityId + '\'' +
 				", encrypt=" + encrypt +
 				", returnUrl='" + returnUrl + '\'' +
@@ -160,8 +157,8 @@ public class TrustedServiceProviderConfiguration
 	{
 		return new TrustedServiceProviderConfigurationBuilder()
 				.withAllowedKey(allowedKey)
-				.withDnSamlId(dnSamlId)
-				.withEntityId(entityId)
+				.withEntityId(entityId.id)
+				.withDnSamlId(entityId.dnSamlId)
 				.withEncrypt(encrypt)
 				.withReturnUrl(returnUrl)
 				.withReturnUrls(returnUrls)
@@ -181,11 +178,10 @@ public class TrustedServiceProviderConfiguration
 	public static final class TrustedServiceProviderConfigurationBuilder
 	{
 		public String allowedKey;
-		public String dnSamlId;
-		public String entityId;
+		public final SamlEntityId.SamlEntityIdBuilder entityId = SamlEntityId.builder();
 		public boolean encrypt;
 		public String returnUrl;
-		public Set<String> returnUrls;
+		public Set<String> returnUrls = Set.of();
 		public String soapLogoutUrl;
 		public String redirectLogoutUrl;
 		public String postLogoutUrl;
@@ -194,9 +190,9 @@ public class TrustedServiceProviderConfiguration
 		public I18nString name;
 		public I18nString logoUri;
 		public String certificateName;
-		public Set<String> certificateNames;
+		public Set<String> certificateNames = Set.of();
 		public X509Certificate certificate;
-		public Set<X509Certificate> certificates;
+		public Set<X509Certificate> certificates = Set.of();
 
 		private TrustedServiceProviderConfigurationBuilder()
 		{
@@ -210,13 +206,13 @@ public class TrustedServiceProviderConfiguration
 
 		public TrustedServiceProviderConfigurationBuilder withDnSamlId(String dnSamlId)
 		{
-			this.dnSamlId = dnSamlId;
+			this.entityId.withDnSamlId(dnSamlId);
 			return this;
 		}
 
 		public TrustedServiceProviderConfigurationBuilder withEntityId(String entityId)
 		{
-			this.entityId = entityId;
+			this.entityId.withId(entityId);
 			return this;
 		}
 
@@ -304,9 +300,9 @@ public class TrustedServiceProviderConfiguration
 			return this;
 		}
 
-		public TrustedServiceProviderConfiguration build()
+		public TrustedServiceProvider build()
 		{
-			return new TrustedServiceProviderConfiguration(allowedKey, dnSamlId, entityId, encrypt, returnUrl, returnUrls,
+			return new TrustedServiceProvider(allowedKey, entityId.build(), encrypt, returnUrl, returnUrls,
 					soapLogoutUrl, redirectLogoutUrl, postLogoutUrl, redirectLogoutRetUrl, postLogoutRetUrl, name, logoUri,
 					certificate, certificates, certificateName, certificateNames);
 		}

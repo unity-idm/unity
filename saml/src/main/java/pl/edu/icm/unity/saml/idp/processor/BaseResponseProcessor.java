@@ -53,7 +53,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	{
 		super(context);
 		this.aTypeSupport = aTypeSupport;
-		GroupChooser chooser = samlConfiguration.groupChooser;
+		GroupChooser chooser = samlConfiguration.getGroupChooser();
 		chosenGroup = chooser.chooseGroup(getRequestIssuer());
 		this.authnTime = authnTime;
 	}
@@ -221,7 +221,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		subConf.setMethod(SAMLConstants.CONFIRMATION_SENDER_VOUCHES);
 		SubjectConfirmationDataType confData = subConf.addNewSubjectConfirmationData();
 		Calendar validity = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		validity.setTimeInMillis(authnTime.getTimeInMillis()+samlConfiguration.getRequestValidity());
+		validity.setTimeInMillis(authnTime.getTimeInMillis()+samlConfiguration.requestValidityPeriod.toMillis());
 		confData.setNotOnOrAfter(validity);
 		requested.setSubjectConfirmationArray(new SubjectConfirmationType[] {subConf});
 		return requested;
@@ -296,7 +296,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 	private Map<String, Attribute> filterSupportedBySamlAttributes(TranslationResult userInfo)
 	{
 		Map<String, Attribute> ret = new HashMap<String, Attribute>();
-		SamlAttributeMapper mapper = samlConfiguration.attributesMapper;
+		SamlAttributeMapper mapper = samlConfiguration.getAttributesMapper();
 		
 		for (DynamicAttribute da: userInfo.getAttributes())
 		{

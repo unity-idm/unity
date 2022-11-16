@@ -70,7 +70,7 @@ class IdPEngineImplBase implements IdPEngine
 			if (!firstIdentitiesByType.containsKey(id.getTypeId()))
 				firstIdentitiesByType.put(id.getTypeId(), id.getValue());
 		});
-		List<UserImportSpec> userImports = CommonIdPProperties.getUserImports(
+		List<UserImportSpec> userImports = UserImportHelper.getUserImports(
 				userImportConfigs.configs, firstIdentitiesByType);
 		
 		List<ImportResult> importResult = userImportService.importToExistingUser(
@@ -98,7 +98,7 @@ class IdPEngineImplBase implements IdPEngine
 			UserImportConfigs config)
 			throws EngineException
 	{
-		List<UserImportSpec> userImports = CommonIdPProperties.getUserImportsLegacy(
+		List<UserImportSpec> userImports = UserImportHelper.getUserImportsLegacy(
 				config, identity.getValue(), identity.getTypeId());
 		List<ImportResult> importResult = userImportService.importUser(userImports);
 		EntityParam entity = new EntityParam(identity);

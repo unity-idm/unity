@@ -12,7 +12,6 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
 import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.metadata.*;
 import xmlbeans.org.w3.x2000.x09.xmldsig.KeyInfoType;
@@ -23,6 +22,7 @@ import java.util.Date;
 import java.util.Set;
 
 import static java.util.Optional.ofNullable;
+import static pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.*;
 
 /**
  * Automatically generates SAML metadata from IdP configuration.

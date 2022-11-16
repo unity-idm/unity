@@ -19,8 +19,8 @@ public class ActiveValueClient
 	{
 		this.key = key;
 		this.client = client;
-		this.singleValueAttributes = singleValueAttributes;
-		this.multiValueAttributes = multiValueAttributes;
+		this.singleValueAttributes = List.copyOf(singleValueAttributes);
+		this.multiValueAttributes = List.copyOf(multiValueAttributes);
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -58,7 +59,7 @@ class ASConsentDecider
 
 	private boolean isActiveValueSelectionRequired(OAuthAuthzContext oauthCtx)
 	{
-		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(oauthCtx.getConfig().getActiveValueClients(),
+		return ActiveValueClientHelper.isActiveValueSelectionConfiguredForClient(oauthCtx.getConfig().getActiveValueClients(),
 				oauthCtx.getClientUsername());
 	}
 

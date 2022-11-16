@@ -22,8 +22,9 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -177,7 +178,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult,
 				ctx.getEffectiveRequestedAttrs());
 
-		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = CommonIdPProperties
+		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = ActiveValueClientHelper
 				.getActiveValueSelectionConfig(config.getActiveValueClients(), ctx.getClientUsername(), allAttributes);
 
 		if (activeValueSelectionConfig.isPresent())

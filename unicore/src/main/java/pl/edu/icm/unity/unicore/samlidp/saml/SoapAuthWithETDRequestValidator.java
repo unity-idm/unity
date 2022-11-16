@@ -16,6 +16,8 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
+import java.time.Duration;
+
 /**
  * Extension of the {@link UnityAuthnRequestValidator}. Requests for ETD generation
  * can have X.500 issuer as well as entity. Requested format must be X.500.
@@ -30,7 +32,7 @@ public class SoapAuthWithETDRequestValidator extends UnityAuthnRequestValidator
 {
 
 	public SoapAuthWithETDRequestValidator(String consumerEndpointUri,
-			SamlTrustChecker trustChecker, long requestValidity,
+			SamlTrustChecker trustChecker, Duration requestValidity,
 			ReplayAttackChecker replayChecker)
 	{
 		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker);

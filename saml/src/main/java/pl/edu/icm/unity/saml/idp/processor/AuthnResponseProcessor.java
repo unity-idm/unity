@@ -19,7 +19,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -36,6 +35,8 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import java.time.Instant;
 import java.util.*;
+
+import static pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
 
 /**
  * Extends {@link StatusResponseProcessor} to produce SAML Response documents,
@@ -166,7 +167,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		SubjectConfirmationDataType confData = subConf.addNewSubjectConfirmationData();
 		confData.setInResponseTo(context.getRequest().getID());
 		Calendar validity = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		validity.setTimeInMillis(getAuthnTime().getTimeInMillis() + samlConfiguration.getRequestValidity());
+		validity.setTimeInMillis(getAuthnTime().getTimeInMillis() + samlConfiguration.requestValidityPeriod.toMillis());
 		confData.setNotOnOrAfter(validity);
 		String consumerServiceURL = samlConfiguration.getReturnAddressForRequester(context.getRequest());
 		confData.setRecipient(consumerServiceURL);

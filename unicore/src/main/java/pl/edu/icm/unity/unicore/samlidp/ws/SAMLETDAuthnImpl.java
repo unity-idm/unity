@@ -114,7 +114,7 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	protected void validate(SAMLAuthnContext context) throws SAMLServerException
 	{
 		SoapAuthWithETDRequestValidator validator = new SoapAuthWithETDRequestValidator(endpointAddress, 
-				samlConfiguration.getSoapTrustChecker(), samlConfiguration.getRequestValidity(),
+				samlConfiguration.getSoapTrustChecker(), samlConfiguration.requestValidityPeriod,
 				samlConfiguration.getReplayChecker());
 		
 		validator.validate(context.getRequestDocument(), context.getVerifiableElement());

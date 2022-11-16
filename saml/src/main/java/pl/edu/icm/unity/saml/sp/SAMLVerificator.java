@@ -43,6 +43,8 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
 import java.net.URL;
 import java.security.PublicKey;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -197,8 +199,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		String samlId = spConfiguration.requesterSamlId;
 		X509Credential credential = spConfiguration.requesterCredential;
 		IdentityTypeMapper idMapper = new IdentityTypeMapper(spConfiguration.effectiveMappings);
-		sloManager.deployAsyncServlet(sloPath, idMapper, 600000, samlId, credential, samlTrustProvider, sloRealm);
-		sloManager.deploySyncServlet(sloPath, idMapper, 600000, samlId, credential, samlTrustProvider, sloRealm);
+		sloManager.deployAsyncServlet(sloPath, idMapper, Duration.of(600000, ChronoUnit.MILLIS), samlId, credential, samlTrustProvider, sloRealm);
+		sloManager.deploySyncServlet(sloPath, idMapper, Duration.of(600000, ChronoUnit.MILLIS), samlId, credential, samlTrustProvider, sloRealm);
 
 		sloReplyInstaller.enable();
 	}

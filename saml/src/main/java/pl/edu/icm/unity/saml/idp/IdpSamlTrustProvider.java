@@ -31,10 +31,10 @@ public class IdpSamlTrustProvider implements SamlTrustProvider
 			NameIDType samlEntity)
 	{
 		SAMLIdPConfiguration samlIdPConfiguration = myMetadataManager.getSAMLIdPConfiguration();
-		TrustedServiceProviderConfiguration configuration = samlIdPConfiguration.getSPConfig(samlEntity);
+		TrustedServiceProvider configuration = samlIdPConfiguration.getSPConfig(samlEntity);
 		if (configuration == null)
 			return null;
-		return configuration.getLogoutEndpointsFromStructuredList();
+		return configuration.getLogoutEndpoints();
 	}
 
 	@Override

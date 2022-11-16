@@ -87,7 +87,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	public static final String SAML_SLO_SOAP_SERVLET_PATH = "/SLO-SOAP";
 	
 	protected String publicEntryPointPath;
-	protected SamlIdpProperties samlProperties;
+	protected SAMLIdPConfiguration samlConfiguration;
 	protected FreemarkerAppHandler freemarkerHandler;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
@@ -174,7 +174,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		super.setSerializedConfiguration(properties);
 		try
 		{
-			samlProperties = new SamlIdpProperties(this.properties);
+			samlConfiguration = samlIdPConfigurationParser.parse(this.properties);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML Web IdP endpoint's configuration", e);
@@ -185,7 +185,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	public void startOverridable()
 	{
 		myMetadataManager = new RemoteMetaManager(
-				samlIdPConfigurationParser.parse(properties), pkiManagement,
+				samlConfiguration, pkiManagement,
 				metadataService, new MetaToIDPConfigConverter(pkiManagement, msg)
 		);
 		try
@@ -287,7 +287,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				getBootstrapHandler(SAML_ENTRY_SERVLET_PATH));
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 		
-		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
+		if (samlConfiguration.publishMetadata)
 		{
 			Servlet metadataServlet = getMetadataServlet(samlPublicEntryPointUrl, sloAsyncURL, sloSyncURL);
 			context.addServlet(createServletHolder(metadataServlet, true), SAML_META_SERVLET_PATH + "/*");
@@ -363,7 +363,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		return logoutProcessorFactory.getInstance(
 				configuration.idTypeMapper,
 				endpointURL,
-				configuration.requestValidityPeriod * 1000L,
+				configuration.requestValidityPeriod,
 				configuration.issuerURI,
 				configuration.getSamlIssuerCredential(),
 				trustProvider, 

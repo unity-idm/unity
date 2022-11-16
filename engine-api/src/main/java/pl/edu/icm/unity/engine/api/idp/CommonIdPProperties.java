@@ -4,16 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.idp;
 
-import com.google.common.collect.Lists;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Contains settings which are common for all IdP endpoints
@@ -131,117 +128,8 @@ public class CommonIdPProperties
 		return defaults;
 	}
 
-	public static List<UserImportSpec> getUserImportsLegacy(UserImportConfigs userImportConfigs,
-			String identity, String type)
-	{
-		if (userImportConfigs.configs.isEmpty())
-		{
-			return userImportConfigs.skip ? Collections.emptyList()
-				: Lists.newArrayList(UserImportSpec.withAllImporters(identity, type));
-		} else
-		{
-			Map<String, String> map = new HashMap<>();
-			map.put(type, identity);
-			return getUserImports(userImportConfigs.configs, map);
-		}
-	}
-
-	public static List<UserImportSpec> getUserImports(Set<UserImportConfig> userImportConfigs,
-			Map<String, String> identitiesByType)
-	{
-		return userImportConfigs.stream()
-				.map(config -> new UserImportSpec(config.importer, identitiesByType.get(config.type), config.type))
-				.collect(Collectors.toList());
-	}
-
-	public static Optional<ActiveValueSelectionConfig> getActiveValueSelectionConfig(Set<ActiveValueClient> activeValueClients,
-			String client, Collection<DynamicAttribute> allAttributes)
-	{
-		Optional<String> key = getActiveValueSelectionConfigKey(activeValueClients, client);
-		return key.isPresent() ? getActiveValueSelectionConfigFromKey(activeValueClients, key.get(), allAttributes) : Optional.empty();
-	}
-
-	public static boolean isActiveValueSelectionConfiguredForClient(Set<ActiveValueClient> activeValueClients, String client)
-	{
-		return getActiveValueSelectionConfigKey(activeValueClients, client).isPresent();
-	}
-
-	private static Optional<String> getActiveValueSelectionConfigKey(Set<ActiveValueClient> activeValueClients, String client)
-	{
-		String defaultClientKey = null;
-		for (ActiveValueClient activeValueClient: activeValueClients)
-		{
-			if (activeValueClient.client == null)
-			{
-				defaultClientKey = activeValueClient.key;
-				continue;
-			}
-			if (activeValueClient.client.equals(client))
-			{
-				return Optional.of(activeValueClient.key);
-			}
-		}
-		return Optional.ofNullable(defaultClientKey);
-	}
-	
-	private static Optional<ActiveValueSelectionConfig> getActiveValueSelectionConfigFromKey(Set<ActiveValueClient> activeValueClients,
-			String key, Collection<DynamicAttribute> attributes)
-	{
-		Map<String, DynamicAttribute> attrsMap = attributes.stream()
-				.collect(Collectors.toMap(da -> da.getAttribute().getName(), da -> da));
-
-		List<String> singleValueAttributes = activeValueClients.stream()
-				.filter(client -> client.key.equals(key))
-				.flatMap(client -> client.singleValueAttributes.stream())
-				.collect(Collectors.toList());
-
-		List<String> multiValueAttributes = activeValueClients.stream()
-				.filter(client -> client.key.equals(key))
-				.flatMap(client -> client.multiValueAttributes.stream())
-				.collect(Collectors.toList());
-
-		List<DynamicAttribute> singleSelectable = getAttributeForSelection(singleValueAttributes, attrsMap);
-		List<DynamicAttribute> multiSelectable = getAttributeForSelection(multiValueAttributes, attrsMap);
-		if (singleSelectable.isEmpty() && multiSelectable.isEmpty())
-			return Optional.empty();
-		List<DynamicAttribute> remaining = new ArrayList<>(attributes);
-		remaining.removeAll(singleSelectable);
-		remaining.removeAll(multiSelectable);
-		return Optional.of(new ActiveValueSelectionConfig(multiSelectable, singleSelectable, remaining));
-	}
-	
-	private static List<DynamicAttribute> getAttributeForSelection(List<String> names,
-			Map<String, DynamicAttribute> attributes)
-	{
-		return names.stream()
-				.map(attr -> attributes.get(attr))
-				.filter(attr -> attr != null)
-				.collect(Collectors.toList());
-	}
-
 	public static IdpPolicyAgreementsConfiguration getPolicyAgreementsConfig(MessageSource msg, UnityPropertiesHelper cfg)
 	{
 		return IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, cfg);
-	}
-
-	public static boolean isIdpPolicyAgreementsConfigured(MessageSource msg, UnityPropertiesHelper cfg)
-	{
-		return !getPolicyAgreementsConfig(msg, cfg).agreements.isEmpty();
-	}
-	
-	public static class ActiveValueSelectionConfig
-	{
-		public final List<DynamicAttribute> multiSelectableAttributes;
-		public final List<DynamicAttribute> singleSelectableAttributes;
-		public final List<DynamicAttribute> remainingAttributes;
-		
-		public ActiveValueSelectionConfig(List<DynamicAttribute> multiSelectableAttributes,
-				List<DynamicAttribute> singleSelectableAttributes,
-				List<DynamicAttribute> remainingAttributes)
-		{
-			this.multiSelectableAttributes = multiSelectableAttributes;
-			this.singleSelectableAttributes = singleSelectableAttributes;
-			this.remainingAttributes = remainingAttributes;
-		}
 	}
 }

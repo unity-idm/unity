@@ -11,7 +11,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.metadata.cfg.MetadataVerificator.MetadataValidationException;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
-import pl.edu.icm.unity.saml.idp.TrustedServiceProviderConfiguration;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProvider;
 import pl.edu.icm.unity.saml.idp.TrustedServiceProviders;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
@@ -57,7 +57,7 @@ public class RemoteMetaManager
 		return configuration;
 	}
 
-	protected synchronized void setBaseConfiguration(SAMLIdPConfiguration configuration)
+	synchronized void setBaseConfiguration(SAMLIdPConfiguration configuration)
 	{
 		if (this.configuration == null)
 		{
@@ -106,7 +106,7 @@ public class RemoteMetaManager
 		registeredConsumers.clear();
 	}
 
-	private synchronized void assembleCombinedConfiguration(Set<TrustedServiceProviderConfiguration> trustedIdPs, String consumerId)
+	private synchronized void assembleCombinedConfiguration(Set<TrustedServiceProvider> trustedIdPs, String consumerId)
 	{
 		if (!registeredConsumers.containsKey(consumerId))
 			//not likely but can happen in case of race condition between
@@ -116,9 +116,9 @@ public class RemoteMetaManager
 		configuration.load();
 	}
 
-	private Set<TrustedServiceProviderConfiguration> parseMetadata(EntitiesDescriptorDocument metadata, RemoteMetadataSource metadataConfig)
+	private Set<TrustedServiceProvider> parseMetadata(EntitiesDescriptorDocument metadata, RemoteMetadataSource metadataConfig)
 	{
-		Set<TrustedServiceProviderConfiguration> trustedIdPs = converter.convertToTrustedSps(metadata, configuration);
+		Set<TrustedServiceProvider> trustedIdPs = converter.convertToTrustedSps(metadata, configuration);
 		log.trace("Converted metadata from {} to virtual configuration", metadataConfig.url);
 		return trustedIdPs;
 	}
@@ -157,7 +157,7 @@ public class RemoteMetaManager
 		{
 			if (!isMetadataValid(metadata, metadataConfig))
 				return;
-			Set<TrustedServiceProviderConfiguration> trustedIdPs = parseMetadata(metadata, metadataConfig);
+			Set<TrustedServiceProvider> trustedIdPs = parseMetadata(metadata, metadataConfig);
 			assembleCombinedConfiguration(trustedIdPs, consumerId);
 		}
 	}

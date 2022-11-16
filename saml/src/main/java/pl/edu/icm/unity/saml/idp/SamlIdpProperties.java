@@ -31,9 +31,6 @@ import java.util.Properties;
 public class SamlIdpProperties extends SamlProperties
 {
 	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SamlIdpProperties.class);
-	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict};
-	public enum ResponseSigningPolicy {always, never, asRequest};
-	public enum AssertionSigningPolicy {always, ifResponseUnsigned};
 	
 	public static final String LOG_PFX = Log.U_SERVER_CFG;
 	
@@ -108,13 +105,13 @@ public class SamlIdpProperties extends SamlProperties
 				setDescription("Defines maximum validity period (in seconds) of a SAML request. Requests older than this value are denied. It also controls the validity of an authentication assertion."));
 		defaults.put(AUTHENTICATION_TIMEOUT, new PropertyMD(String.valueOf(DEFAULT_AUTHENTICATION_TIMEOUT)).setPositive().setCategory(samlCat).
 				setDescription("Defines maximum time (in seconds) after which the authentication in progress is invalidated. This feature is used to clean up authentications started by users but not finished."));
-		defaults.put(SIGN_RESPONSE, new PropertyMD(ResponseSigningPolicy.asRequest).setCategory(samlCat).
+		defaults.put(SIGN_RESPONSE, new PropertyMD(SAMLIdPConfiguration.ResponseSigningPolicy.asRequest).setCategory(samlCat).
 				setDescription("Defines when SAML responses should be signed. "
 						+ "Note that it is not related to signing SAML assertions which "
 						+ "are included in response. "
 						+ "'asRequest' setting will result in signing only those responses "
 						+ "for which the corresponding request was signed."));
-		defaults.put(SIGN_ASSERTION, new PropertyMD(AssertionSigningPolicy.always).setCategory(samlCat).
+		defaults.put(SIGN_ASSERTION, new PropertyMD(SAMLIdPConfiguration.AssertionSigningPolicy.always).setCategory(samlCat).
 				setDescription("Defines when SAML assertions (contained in SAML response) "
 						+ "should be signed: either always or if signing may be skipped "
 						+ "if wrapping request will be anyway signed"));
@@ -125,7 +122,7 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.put(RETURN_SINGLE_ASSERTION, new PropertyMD("true").setCategory(samlCat).
 				setDescription("If true then a single SAML assertion is returned what provides a better interoperability with 3rd party solutions. If false then attributes are returned in a separate assertion, what is required by certain consumers as UNICORE."));
 		
-		defaults.put(SP_ACCEPT_POLICY, new PropertyMD(RequestAcceptancePolicy.validRequester).setCategory(samlCat).
+		defaults.put(SP_ACCEPT_POLICY, new PropertyMD(SAMLIdPConfiguration.RequestAcceptancePolicy.validRequester).setCategory(samlCat).
 				setDescription("Controls which requests are authorized. +all+ accepts all, +validSigner+ " +
 				"accepts all requests which are signed with a trusted certificate, " +
 				"+validRequester+ accepts all requests (even unsigned) which are issued by a known " +

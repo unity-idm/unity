@@ -6,8 +6,12 @@ package pl.edu.icm.unity.saml.metadata.cfg;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import eu.unicore.samly2.exceptions.SAMLValidationException;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.logging.log4j.Logger;
+import org.awaitility.Awaitility;
+import org.awaitility.Durations;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,17 +20,31 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
+import pl.edu.icm.unity.saml.idp.SamlEntityId;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProvider;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProviders;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
+import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.Properties;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
 
-import static pl.edu.icm.unity.saml.SamlProperties.*;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
+import static org.junit.Assert.*;
 
 public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 {
@@ -51,164 +69,168 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	@Test
 	public void testConfigureIdpFromMetadata() throws Exception
 	{
-		Properties p = new Properties();
-		p.setProperty(P+CREDENTIAL, "MAIN");
-		p.setProperty(P+PUBLISH_METADATA, "false");
-		p.setProperty(P+ISSUER_URI, "me");
-		p.setProperty(P+GROUP, "group");
-		p.setProperty(P+DEFAULT_GROUP,"group");
-
-		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/metadata.switchaai.xml");
-		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_SIGNATURE, "require");
-		X509Certificate cert = CertificateUtils.loadCertificate(new ByteArrayInputStream(CERT.getBytes()), 
+		X509Certificate cert = CertificateUtils.loadCertificate(new ByteArrayInputStream(CERT.getBytes()),
 				Encoding.PEM);
 		pkiManagement.addVolatileCertificate("issuerCert2", cert);
-		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_ISSUER_CERT, "issuerCert2");
 
-		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_ENTITY, "https://support.hes-so.ch/shibboleth");
-		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_RETURN_URL, "URL");
-		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_NAME, "Name");
-		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_LOGO, "http://example.com");
-		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_ENCRYPT, "true");
-		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_CERTIFICATE, "MAIN");
+		SAMLIdPConfiguration configuration = SAMLIdPConfiguration.builder()
+				.withCredentialName("MAIN")
+				.withPublishMetadata(false)
+				.withIssuerURI("me")
+				.withGroupChooser(Map.of("group", "group"),"group")
+				.withTrustedMetadataSources(List.of(
+						BaseSamlConfiguration.RemoteMetadataSource.builder()
+								.withUrl("file:src/test/resources/metadata.switchaai.xml")
+								.withSignatureValidation(SAMLSPProperties.MetadataSignatureValidation.require)
+								.withIssuerCertificate("issuerCert2")
+								.withTranslationProfile(new TranslationProfile("name", "description", ProfileType.INPUT, List.of()))
+								.withRefreshInterval(Duration.of(2, ChronoUnit.SECONDS))
+								.build()
+				))
+				.withTrustedServiceProviders(new TrustedServiceProviders(List.of(
+						TrustedServiceProvider.builder()
+								.withEntityId("https://support.hes-so.ch/shibboleth")
+								.withReturnUrl("URL")
+								.withName(new I18nString("Name"))
+								.withLogoUri(new I18nString("http://example.com"))
+								.withEncrypt(true)
+								.withCertificateName("MAIN")
+								.withCertificate(cert)
+								.build()
+				)))
+				.build();
 		
-		SamlIdpProperties configuration = new SamlIdpProperties(p);
-		
-		
-//		RemoteMetaManager manager = new RemoteMetaManager(configuration,
-//				pkiManagement,
-//				new MetaToIDPConfigConverter(pkiManagement, msg),
-//					metadataService, SamlIdpProperties.SPMETA_PREFIX);
-//
-//		Awaitility.await()
-//			.atMost(Durations.ONE_MINUTE)
-//			.untilAsserted(() -> assertRemoteMetadataLoaded(manager));
+		RemoteMetaManager manager = new RemoteMetaManager(configuration,
+				pkiManagement, metadataService,
+				new MetaToIDPConfigConverter(pkiManagement, msg));
+
+		Awaitility.await()
+				.timeout(Durations.ONE_MINUTE)
+				.pollDelay(Durations.TEN_SECONDS)
+				.untilAsserted(() -> assertRemoteMetadataLoaded(manager));
 	}
 	
 	private void assertRemoteMetadataLoaded(RemoteMetaManager manager) throws Exception
 	{
-//		try
-//		{
-//			SamlIdpProperties ret = (SamlIdpProperties) manager.getTrustedSps();
-//			String pfx = getPrefixOf("https://support.hes-so.ch/shibboleth", ret);
-//			assertEquals("URL", ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
-//			assertEquals("Name", ret.getValue(pfx + ALLOWED_SP_NAME));
-//			assertEquals("MAIN", ret.getValue(pfx + ALLOWED_SP_CERTIFICATE));
-//			assertEquals("http://example.com", ret.getValue(pfx + ALLOWED_SP_LOGO));
-//			assertEquals("true", ret.getValue(pfx + ALLOWED_SP_ENCRYPT));
-//
-//
-//			pfx = getPrefixOf("https://attribute-viewer.aai.switch.ch/interfederation-test/shibboleth", ret);
-//			assertEquals("https://aai-viewer.switch.ch/interfederation-test/Shibboleth.sso/SAML2/POST",
-//				ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
-//			String certName = ret.getValue(pfx + ALLOWED_SP_CERTIFICATES + "1");
-//			assertNotNull(pkiManagement.getCertificate(certName));
-//
-//			assertEquals(LOGO, ret.getValue(pfx + ALLOWED_SP_LOGO));
-//			assertEquals("AAI Viewer Interfederation Test", ret.getValue(pfx + ALLOWED_SP_NAME+".en"));
-//		} catch (Throwable e)
-//		{
-//			log.info("Condition not met, {}", e);
-//			throw e;
-//		}
+		try
+		{
+			SAMLIdPConfiguration configuration = manager.getSAMLIdPConfiguration();
+			TrustedServiceProvider spConfig = configuration.trustedServiceProviders.getSPConfig(new SamlEntityId("https://support.hes-so.ch/shibboleth", null));
+			assertEquals("URL", spConfig.returnUrl);
+			assertEquals("Name", spConfig.name.getDefaultLocaleValue(msg));
+			assertEquals("MAIN", spConfig.certificateName);
+			assertEquals("http://example.com", spConfig.logoUri.getDefaultLocaleValue(msg));
+			assertTrue(spConfig.encrypt);
+
+			TrustedServiceProvider spConfig2 = configuration.trustedServiceProviders.getSPConfig(new SamlEntityId("https://attribute-viewer.aai.switch.ch/interfederation-test/shibboleth", null));
+			assertEquals("https://aai-viewer.switch.ch/interfederation-test/Shibboleth.sso/SAML2/POST",
+					spConfig2.returnUrl);
+			String certName = spConfig2.certificateNames.iterator().next();
+			assertNotNull(pkiManagement.getCertificate(certName));
+
+			assertEquals(LOGO, spConfig2.logoUri.getDefaultLocaleValue(msg));
+			assertEquals("AAI Viewer Interfederation Test", spConfig2.name.getValue("en"));
+		} catch (Throwable e)
+		{
+			log.info("Condition not met, {}", e);
+			throw e;
+		}
 	}
 
 	@Test
 	public void testConfigureSLOFromSPsMetadata() throws Exception
 	{
-		SamlIdpProperties configuration = getDFNMetadataBasedConfig();
+		SAMLIdPConfiguration configuration = getDFNMetadataBasedConfig();
 		
-//		RemoteMetaManager manager = new RemoteMetaManager(configuration,
-//				pkiManagement,
-//				new MetaToIDPConfigConverter(pkiManagement, msg),
-//				metadataService, SamlIdpProperties.SPMETA_PREFIX);
-//
-//		Awaitility.await()
-//			.atMost(Durations.TEN_SECONDS)
-//			.untilAsserted(() -> assertSLOCfgLoaded(manager));
+		RemoteMetaManager manager = new RemoteMetaManager(configuration,
+				pkiManagement, metadataService,
+				new MetaToIDPConfigConverter(pkiManagement, msg));
+
+		Awaitility.await()
+				.timeout(Durations.ONE_MINUTE)
+				.pollDelay(Durations.TEN_SECONDS)
+				.untilAsserted(() -> assertSLOCfgLoaded(manager));
 	}
 
 	private void assertSLOCfgLoaded(RemoteMetaManager manager)
 	{
-//		SamlIdpProperties ret = (SamlIdpProperties) manager.getTrustedSps();
-//
-//		String pfx = getPrefixOf("http://shibboleth.metapress.com/shibboleth-sp", ret);
-//		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/POST",
-//				ret.getValue(pfx + POST_LOGOUT_URL));
-//		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect",
-//				ret.getValue(pfx + REDIRECT_LOGOUT_URL));
-//		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect-RESP",
-//				ret.getValue(pfx + REDIRECT_LOGOUT_RET_URL));
-//		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/SOAP",
-//				ret.getValue(pfx + SOAP_LOGOUT_URL));
-//
-//		Set<String> keys = ret.getStructuredListKeys(ALLOWED_SP_PREFIX);
-//		for (String key: keys)
-//		{
-//			if ("http://shibboleth.metapress.com/shibboleth-sp-hidden".
-//					equals(ret.getValue(key+ALLOWED_SP_ENTITY)))
-//				fail("Hidden service is available");
-//		}
+		SAMLIdPConfiguration configuration = manager.getSAMLIdPConfiguration();
+
+		TrustedServiceProvider spConfig = configuration.trustedServiceProviders.getSPConfig(new SamlEntityId("http://shibboleth.metapress.com/shibboleth-sp", null));
+		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/POST",
+				spConfig.postLogoutUrl);
+		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect",
+				spConfig.redirectLogoutUrl);
+		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect-RESP",
+				spConfig.redirectLogoutRetUrl);
+		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/SOAP",
+				spConfig.soapLogoutUrl);
+
+		TrustedServiceProvider spConfig1 = configuration.trustedServiceProviders.getSPConfig(new SamlEntityId("http://shibboleth.metapress.com/shibboleth-sp-hidden", null));
+		if (spConfig1 != null)
+			fail("Hidden service is available");
 	}
 	
 	@Test
 	public void shouldConfigureMultipleTrustedAssertionConsumers() throws Exception
 	{
-//		SamlIdpProperties configuration = getDFNMetadataBasedConfig();
-//
-//		RemoteMetaManager manager = new RemoteMetaManager(configuration,
-//				pkiManagement,
-//				new MetaToIDPConfigConverter(pkiManagement, msg),
-//				metadataService, SamlIdpProperties.SPMETA_PREFIX);
-//
-//		Awaitility.await()
-//			.atMost(Durations.TEN_SECONDS)
-//			.untilAsserted(() -> assertEndpointsCfgLoaded(manager));
+		SAMLIdPConfiguration configuration = getDFNMetadataBasedConfig();
+
+		RemoteMetaManager manager = new RemoteMetaManager(configuration,
+				pkiManagement, metadataService,
+				new MetaToIDPConfigConverter(pkiManagement, msg));
+
+		Awaitility.await()
+			.atMost(Durations.TEN_SECONDS)
+			.untilAsserted(() -> assertEndpointsCfgLoaded(manager));
 	}
 	
 	private void assertEndpointsCfgLoaded(RemoteMetaManager manager)
 	{
-//		assertEndpointCfgLoaded(manager, 8, "https:POST8");
-//		assertEndpointCfgLoaded(manager, 7, "https:POST7");
-//		assertEndpointCfgLoaded(manager, 1, "https://shibboleth.metapress.com/Shibboleth.sso/SAML2/POST");
-//
-//		SamlIdpProperties idpCfg = (SamlIdpProperties) manager.getTrustedSps();
-//		AuthnRequestType reqDef = AuthnRequestType.Factory.newInstance();
-//		reqDef.setIssuer(NameIDType.Factory.newInstance());
-//		reqDef.getIssuer().setStringValue("http://shibboleth.metapress.com/shibboleth-sp");
-//		assertThat(idpCfg.getReturnAddressForRequester(reqDef), is("https:POST7"));
+		assertEndpointCfgLoaded(manager, 8, "https:POST8");
+		assertEndpointCfgLoaded(manager, 7, "https:POST7");
+		assertEndpointCfgLoaded(manager, 1, "https://shibboleth.metapress.com/Shibboleth.sso/SAML2/POST");
+
+		SAMLIdPConfiguration idpCfg = manager.getSAMLIdPConfiguration();
+		AuthnRequestType reqDef = AuthnRequestType.Factory.newInstance();
+		reqDef.setIssuer(NameIDType.Factory.newInstance());
+		reqDef.getIssuer().setStringValue("http://shibboleth.metapress.com/shibboleth-sp");
+		assertThat(idpCfg.getReturnAddressForRequester(reqDef)).isEqualTo("https:POST7");
 	}
 	
 	private void assertEndpointCfgLoaded(RemoteMetaManager manager, Integer index, String expected)
 	{
-//		SamlIdpProperties idpCfg = (SamlIdpProperties) manager.getTrustedSps();
-//		AuthnRequestDocument reqDoc = AuthnRequestDocument.Factory.newInstance();
-//		AuthnRequestType req = reqDoc.addNewAuthnRequest();
-//		req.setAssertionConsumerServiceIndex(index);
-//		req.setIssuer(NameIDType.Factory.newInstance());
-//		req.getIssuer().setStringValue("http://shibboleth.metapress.com/shibboleth-sp");
-//		assertThat(idpCfg.getReturnAddressForRequester(req), is(expected));
-//		try
-//		{
-//			idpCfg.getAuthnTrustChecker().checkTrust(new XMLExpandedMessage(reqDoc, req), req);
-//		} catch (SAMLValidationException e)
-//		{
-//			fail("Endpoint is not accepted: " + expected);
-//		}
+		SAMLIdPConfiguration idpCfg = manager.getSAMLIdPConfiguration();
+		AuthnRequestDocument reqDoc = AuthnRequestDocument.Factory.newInstance();
+		AuthnRequestType req = reqDoc.addNewAuthnRequest();
+		req.setAssertionConsumerServiceIndex(index);
+		req.setIssuer(NameIDType.Factory.newInstance());
+		req.getIssuer().setStringValue("http://shibboleth.metapress.com/shibboleth-sp");
+		assertThat(idpCfg.getReturnAddressForRequester(req)).isEqualTo(expected);
+		try
+		{
+			idpCfg.getAuthnTrustChecker().checkTrust(new XMLExpandedMessage(reqDoc, req), req);
+		} catch (SAMLValidationException e)
+		{
+			fail("Endpoint is not accepted: " + expected);
+		}
 	}
 	
-	private SamlIdpProperties getDFNMetadataBasedConfig() throws ConfigurationException, IOException
+	private SAMLIdPConfiguration getDFNMetadataBasedConfig() throws ConfigurationException, IOException
 	{
-		Properties p = new Properties();
-		p.setProperty(P+CREDENTIAL, "MAIN");
-		p.setProperty(P+PUBLISH_METADATA, "false");
-		p.setProperty(P+ISSUER_URI, "me");
-		p.setProperty(P+GROUP, "group");
-		p.setProperty(P+DEFAULT_GROUP,"group");
-		
-		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/DFN-AAI-metadata-part.xml");
-		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_SIGNATURE, "ignore");
-		return new SamlIdpProperties(p);
+		return SAMLIdPConfiguration.builder()
+				.withCredentialName("MAIN")
+				.withPublishMetadata(false)
+				.withIssuerURI("me")
+				.withGroupChooser(Map.of("group", "group"),"group")
+				.withTrustedMetadataSources(List.of(
+						BaseSamlConfiguration.RemoteMetadataSource.builder()
+								.withTranslationProfile(new TranslationProfile("name", "description", ProfileType.INPUT, List.of()))
+								.withRefreshInterval(Duration.of(2, ChronoUnit.SECONDS))
+								.withUrl("file:src/test/resources/DFN-AAI-metadata-part.xml")
+								.withSignatureValidation(SAMLSPProperties.MetadataSignatureValidation.ignore)
+								.build()
+				)).build();
 	}
 
 	

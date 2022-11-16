@@ -184,16 +184,16 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 		public final ArrayList<String> authorizedRedirectsUri;
 
 		SAMLIndividualTrustedSPConfiguration(MessageSource msg, URIAccessService imageAccessService,
-		                                     TrustedServiceProviderConfiguration configuration)
+		                                     TrustedServiceProvider configuration)
 		{
-			if (configuration.entityId != null)
+			if (configuration.entityId.id != null)
 			{
 
-				id = configuration.entityId;
+				id = configuration.entityId.id;
 			} else
 			{
 
-				id = configuration.dnSamlId;
+				id = configuration.entityId.dnSamlId;
 			}
 
 			displayedName = configuration.name;

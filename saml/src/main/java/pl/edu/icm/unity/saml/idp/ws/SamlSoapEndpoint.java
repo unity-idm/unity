@@ -35,7 +35,6 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfigurationParser;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
@@ -70,7 +69,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	public static final String SERVLET_PATH = "/saml2idp-soap";
 	public static final String METADATA_SERVLET_PATH = "/metadata";
 	
-	protected SamlIdpProperties samlProperties;
+	protected SAMLIdPConfiguration samlIdPConfiguration;
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
 	protected PKIManagement pkiManagement;
@@ -122,7 +121,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		super.setSerializedConfiguration(config);
 		try
 		{
-			samlProperties = new SamlIdpProperties(properties);
+			samlIdPConfiguration = samlIdPConfigurationParser.parse(properties);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML SOAP" +
@@ -134,7 +133,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	public void startOverridable()
 	{
 		myMetadataManager = new RemoteMetaManager(
-				samlIdPConfigurationParser.parse(properties), pkiManagement,
+				samlIdPConfiguration, pkiManagement,
 				metadataService, new MetaToIDPConfigConverter(pkiManagement, msg)
 		);
 	}
@@ -152,8 +151,8 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		
 		String endpointURL = getServletUrl(servletPath);
 		Servlet metadataServlet = getMetadataServlet(endpointURL);
-		
-		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
+
+		if (samlIdPConfiguration.publishMetadata)
 		{
 			ServletHolder holder = new ServletHolder(metadataServlet);
 			context.addServlet(holder, METADATA_SERVLET_PATH + "/*");

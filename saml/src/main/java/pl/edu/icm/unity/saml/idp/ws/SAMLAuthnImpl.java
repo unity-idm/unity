@@ -139,7 +139,7 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 	protected void validate(SAMLAuthnContext context) throws SAMLServerException
 	{
 		UnityAuthnRequestValidator validator = new UnityAuthnRequestValidator(endpointAddress,
-				samlConfiguration.getSoapTrustChecker(), samlConfiguration.getRequestValidity(),
+				samlConfiguration.getSoapTrustChecker(), samlConfiguration.requestValidityPeriod,
 				samlConfiguration.getReplayChecker());
 		validator.validate(context.getRequestDocument(), context.getVerifiableElement());
 	}

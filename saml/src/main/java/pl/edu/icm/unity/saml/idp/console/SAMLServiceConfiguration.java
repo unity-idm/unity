@@ -24,10 +24,11 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.ResponseSigningPolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.RequestAcceptancePolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.ResponseSigningPolicy;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -57,8 +58,8 @@ public class SAMLServiceConfiguration
 	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLServiceConfiguration.class);
 
 	private String issuerURI;
-	private AssertionSigningPolicy signAssertionPolicy;
-	private ResponseSigningPolicy signResponcePolicy;
+	private SAMLIdPConfiguration.AssertionSigningPolicy signAssertionPolicy;
+	private SAMLIdPConfiguration.ResponseSigningPolicy signResponcePolicy;
 	private String signResponseCredential;
 	private String httpsTruststore;
 	private boolean skipConsentScreen;
@@ -94,7 +95,7 @@ public class SAMLServiceConfiguration
 		signAssertionPolicy = AssertionSigningPolicy.always;
 		skipConsentScreen = false;
 		editableConsentScreen = true;
-		requestAcceptancePolicy = RequestAcceptancePolicy.validRequester;
+		requestAcceptancePolicy = SAMLIdPConfiguration.RequestAcceptancePolicy.validRequester;
 		authenticationTimeout = SamlIdpProperties.DEFAULT_AUTHENTICATION_TIMEOUT;
 		requestValidity = SamlIdpProperties.DEFAULT_SAML_REQUEST_VALIDITY;
 		attrAssertionValidity = SamlIdpProperties.DEFAULT_ATTR_ASSERTION_VALIDITY;

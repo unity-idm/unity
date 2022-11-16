@@ -21,8 +21,9 @@ import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
-import pl.edu.icm.unity.saml.idp.TrustedServiceProviderConfiguration;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.RequestAcceptancePolicy;
+import pl.edu.icm.unity.saml.idp.SamlEntityId;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProvider;
 import pl.edu.icm.unity.saml.idp.TrustedServiceProviders;
 import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
@@ -51,10 +52,10 @@ public class MetaToIDPConfigConverter
 		this.pkiManagement = pkiManagement;
 		this.msg = msg;
 	}
-	protected Set<TrustedServiceProviderConfiguration> convertToTrustedSps(EntitiesDescriptorDocument metadata, SAMLIdPConfiguration samlIdPConfiguration)
+	protected Set<TrustedServiceProvider> convertToTrustedSps(EntitiesDescriptorDocument metadata, SAMLIdPConfiguration samlIdPConfiguration)
 	{
 		EntitiesDescriptorType meta = metadata.getEntitiesDescriptor();
-		Set<TrustedServiceProviderConfiguration> overrideConfigurations = new HashSet<>();
+		Set<TrustedServiceProvider> overrideConfigurations = new HashSet<>();
 		for (EntityDescriptorType descriptorType : meta.getEntityDescriptorArray())
 		{
 			SPSSODescriptorType[] spDefs = descriptorType.getSPSSODescriptorArray();
@@ -62,10 +63,10 @@ public class MetaToIDPConfigConverter
 			if (spDefs == null || spDefs.length == 0)
 				continue;
 
-			String entityId = descriptorType.getEntityID();
+			SamlEntityId entityId = new SamlEntityId(descriptorType.getEntityID(), null);
 			for (SPSSODescriptorType spDef: spDefs)
 			{
-				TrustedServiceProviderConfiguration spConfig = samlIdPConfiguration.trustedServiceProviders.getSPConfig(entityId);
+				TrustedServiceProvider spConfig = samlIdPConfiguration.trustedServiceProviders.getSPConfig(entityId);
 				if(spConfig != null && spConfig.allowedKey != null)
 				{
 					log.trace("SP of entity " + entityId +	" is configured in property, so cannot be overwrite.");
@@ -117,14 +118,14 @@ public class MetaToIDPConfigConverter
 				EndpointType soapSLOEndpoint = selectEndpointByBinding(spDef.getSingleLogoutServiceArray(),
 						SAMLConstants.BINDING_SOAP);
 
-				UIInfoType uiInfo = MetaToConfigConverterHelper.parseMDUIInfo(spDef.getExtensions(), entityId);
+				UIInfoType uiInfo = MetaToConfigConverterHelper.parseMDUIInfo(spDef.getExtensions(), entityId.id);
 				I18nString names = MetaToConfigConverterHelper.getLocalizedNamesAsI18nString(msg, uiInfo, spDef, descriptorType);
 				I18nString logos = MetaToConfigConverterHelper.getLocalizedLogosAsI18nString(uiInfo);
 
-				TrustedServiceProviderConfiguration trustedServiceProviderConfiguration = generateOverrodeSP(entityId, defaultEndpoint, endpointURLs,
+				TrustedServiceProvider trustedServiceProvider = generateOverrodeSP(entityId, defaultEndpoint, endpointURLs,
 						soapSLOEndpoint, postSLOEndpoint, redirectSLOEndpoint,
 						samlIdPConfiguration.trustedServiceProviders, certs, names, logos);
-				overrideConfigurations.add(trustedServiceProviderConfiguration);
+				overrideConfigurations.add(trustedServiceProvider);
 			}
 		}
 		return overrideConfigurations;
@@ -153,7 +154,7 @@ public class MetaToIDPConfigConverter
 		return false;
 	}
 
-	private EntityAttributesType parseMDAttributes(ExtensionsType extensions, String entityId)
+	private EntityAttributesType parseMDAttributes(ExtensionsType extensions, SamlEntityId entityId)
 	{
 		if (extensions == null)
 			return null;
@@ -179,7 +180,7 @@ public class MetaToIDPConfigConverter
 		return null;
 	}
 
-	private void updatePKICerts(List<X509Certificate> certs, String entityId, String prefix)
+	private void updatePKICerts(List<X509Certificate> certs, SamlEntityId entityId, String prefix)
 			throws EngineException
 	{
 		synchronized (pkiManagement)
@@ -208,7 +209,7 @@ public class MetaToIDPConfigConverter
 		}
 	}
 
-	private List<X509Certificate> getSigningCerts(KeyDescriptorType[] keys, String entityId)
+	private List<X509Certificate> getSigningCerts(KeyDescriptorType[] keys, SamlEntityId entityId)
 	{
 		List<X509Certificate> ret = new ArrayList<>();
 		for (KeyDescriptorType key: keys)
@@ -242,24 +243,24 @@ public class MetaToIDPConfigConverter
 		}
 		return ret;
 	}
-	private TrustedServiceProviderConfiguration generateOverrodeSP(String entityId, String defaultServiceEndpoint,
-	                                                               Map<Integer, String> indexedServiceEndpoints,
-	                                                               EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
-	                                                               TrustedServiceProviders providers,
-	                                                               List<X509Certificate> certs, I18nString names, I18nString logos)
+	private TrustedServiceProvider generateOverrodeSP(SamlEntityId entityId, String defaultServiceEndpoint,
+	                                                  Map<Integer, String> indexedServiceEndpoints,
+	                                                  EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
+	                                                  TrustedServiceProviders providers,
+	                                                  List<X509Certificate> certs, I18nString names, I18nString logos)
 	{
-		TrustedServiceProviderConfiguration got = providers.getSPConfig(entityId);
-		TrustedServiceProviderConfiguration.TrustedServiceProviderConfigurationBuilder builder;
+		TrustedServiceProvider got = providers.getSPConfig(entityId);
+		TrustedServiceProvider.TrustedServiceProviderConfigurationBuilder builder;
 
 		boolean noPerSpConfig = got == null;
 		if (got == null)
-			builder = TrustedServiceProviderConfiguration.builder();
+			builder = TrustedServiceProvider.builder();
 		else
 			builder = got.copyToBuilder();
 
 		if (noPerSpConfig)
 		{
-			builder.withEntityId(entityId);
+			builder.withEntityId(entityId.id);
 			builder.withReturnUrl(defaultServiceEndpoint);
 
 			Set<String> urls = indexedServiceEndpoints.entrySet().stream()
@@ -305,11 +306,11 @@ public class MetaToIDPConfigConverter
 		}
 	}
 
-	private static String getCertificateKey(X509Certificate cert, String entityId, String prefix)
+	private static String getCertificateKey(X509Certificate cert, SamlEntityId entityId, String prefix)
 	{
 		String dn = X500NameUtils.getComparableForm(cert.getSubjectX500Principal().getName());
 		String serial = cert.getSerialNumber().toString();
-		return prefix + DigestUtils.md5Hex(entityId) + "#" + DigestUtils.md5Hex(dn) + "#" + serial;
+		return prefix + DigestUtils.md5Hex(entityId.id) + "#" + DigestUtils.md5Hex(dn) + "#" + serial;
 	}
 
 	private EndpointType selectEndpointByBinding(EndpointType[] endpoints, String binding)

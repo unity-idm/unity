@@ -38,7 +38,7 @@ public class SamlETDParseServlet extends SamlParseServlet
 			throws SAMLProcessingException, IOException, EopException
 	{
 		WebAuthWithETDRequestValidator validator = new WebAuthWithETDRequestValidator(endpointAddress, 
-				samlConfig.getAuthnTrustChecker(), samlConfig.getRequestValidity(), 
+				samlConfig.getAuthnTrustChecker(), samlConfig.requestValidityPeriod,
 				samlConfig.getReplayChecker());
 		samlConfig.configureKnownRequesters(validator);
 

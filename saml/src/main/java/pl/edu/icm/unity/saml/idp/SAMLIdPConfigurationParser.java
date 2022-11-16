@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -101,16 +102,16 @@ public class SAMLIdPConfigurationParser
 				.withChainValidator(getX509CertChainValidator(samlProperties))
 
 				.withAuthenticationTimeout(samlProperties.getIntValue(SamlIdpProperties.AUTHENTICATION_TIMEOUT))
-				.withSignResponses(samlProperties.getEnumValue(SamlIdpProperties.SIGN_RESPONSE, SamlIdpProperties.ResponseSigningPolicy.class))
-				.withSignAssertion(samlProperties.getEnumValue(SamlIdpProperties.SIGN_ASSERTION, SamlIdpProperties.AssertionSigningPolicy.class))
+				.withSignResponses(samlProperties.getEnumValue(SamlIdpProperties.SIGN_RESPONSE, SAMLIdPConfiguration.ResponseSigningPolicy.class))
+				.withSignAssertion(samlProperties.getEnumValue(SamlIdpProperties.SIGN_ASSERTION, SAMLIdPConfiguration.AssertionSigningPolicy.class))
 				.withCredentialName(samlProperties.getValue(SamlIdpProperties.CREDENTIAL))
 				.withCredential(getSamlIssuerCredential(samlProperties.getValue(SamlIdpProperties.CREDENTIAL)))
 				.withTruststore(samlProperties.getValue(SamlIdpProperties.TRUSTSTORE))
-				.withValidityPeriod(samlProperties.getIntValue(SamlIdpProperties.DEF_ATTR_ASSERTION_VALIDITY))
-				.withRequestValidityPeriod(samlProperties.getIntValue(SamlIdpProperties.SAML_REQUEST_VALIDITY))
+				.withValidityPeriod(Duration.of(samlProperties.getIntValue(SamlIdpProperties.DEF_ATTR_ASSERTION_VALIDITY), ChronoUnit.SECONDS))
+				.withRequestValidityPeriod(Duration.of(samlProperties.getIntValue(SamlIdpProperties.SAML_REQUEST_VALIDITY), ChronoUnit.SECONDS))
 				.withIssuerURI(samlProperties.getValue(SamlIdpProperties.ISSUER_URI))
 				.withReturnSingleAssertion(samlProperties.getBooleanValue(SamlIdpProperties.RETURN_SINGLE_ASSERTION))
-				.withSpAcceptPolicy(samlProperties.getEnumValue(SP_ACCEPT_POLICY, SamlIdpProperties.RequestAcceptancePolicy.class))
+				.withSpAcceptPolicy(samlProperties.getEnumValue(SP_ACCEPT_POLICY, SAMLIdPConfiguration.RequestAcceptancePolicy.class))
 				.withGroupChooser(getGroups(samlProperties), samlProperties.getValue(SamlIdpProperties.DEFAULT_GROUP))
 				.withTrustedMetadataSources(getMetadataSources(samlProperties))
 				.withUserCanEditConsent(samlProperties.getBooleanValue(SamlIdpProperties.USER_EDIT_CONSENT))
@@ -125,8 +126,8 @@ public class SAMLIdPConfigurationParser
 	{
 		try
 		{
-			SamlIdpProperties.RequestAcceptancePolicy policy = samlProperties.getEnumValue(SP_ACCEPT_POLICY, SamlIdpProperties.RequestAcceptancePolicy.class);
-			if (policy == SamlIdpProperties.RequestAcceptancePolicy.validSigner)
+			SAMLIdPConfiguration.RequestAcceptancePolicy policy = samlProperties.getEnumValue(SP_ACCEPT_POLICY, SAMLIdPConfiguration.RequestAcceptancePolicy.class);
+			if (policy == SAMLIdPConfiguration.RequestAcceptancePolicy.validSigner)
 			{
 				String validator = samlProperties.getValue(TRUSTSTORE);
 				if (validator == null)
@@ -159,7 +160,7 @@ public class SAMLIdPConfigurationParser
 	private TrustedServiceProviders getTrustedServiceProviders(SamlIdpProperties samlProperties)
 	{
 		Set<String> idpKeys = samlProperties.getStructuredListKeys(SamlIdpProperties.ALLOWED_SP_PREFIX);
-		List<TrustedServiceProviderConfiguration> trustedIdPs = idpKeys.stream()
+		List<TrustedServiceProvider> trustedIdPs = idpKeys.stream()
 			.map(key -> getTrustedSP(samlProperties, key))
 			.collect(Collectors.toList());
 		return new TrustedServiceProviders(trustedIdPs);
@@ -213,9 +214,9 @@ public class SAMLIdPConfigurationParser
 				);
 	}
 
-	private TrustedServiceProviderConfiguration getTrustedSP(SamlIdpProperties samlProperties, String key)
+	private TrustedServiceProvider getTrustedSP(SamlIdpProperties samlProperties, String key)
 	{
-		return TrustedServiceProviderConfiguration.builder()
+		return TrustedServiceProvider.builder()
 				.withAllowedKey(key)
 				.withDnSamlId(samlProperties.getValue(key + SamlIdpProperties.ALLOWED_SP_DN))
 				.withEntityId(samlProperties.getValue(key + SamlIdpProperties.ALLOWED_SP_ENTITY))

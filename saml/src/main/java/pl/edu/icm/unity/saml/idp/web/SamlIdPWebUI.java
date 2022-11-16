@@ -24,8 +24,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -201,8 +201,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		}
 		Collection<DynamicAttribute> allAttributes = translationResult.getAttributes();
 		
-		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = 
-				CommonIdPProperties.getActiveValueSelectionConfig(samlIdPConfiguration.activeValueClient,
+		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig =
+				ActiveValueClientHelper.getActiveValueSelectionConfig(samlIdPConfiguration.activeValueClient,
 						samlProcessor.getRequestIssuer(), allAttributes);
 		
 		if (activeValueSelectionConfig.isPresent())

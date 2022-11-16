@@ -129,7 +129,7 @@ public class SAMLAssertionQueryImpl implements SAMLQueryInterface
 	protected void validate(SAMLAttributeQueryContext context) throws SAMLServerException
 	{
 		UnityAttributeQueryValidator validator = new UnityAttributeQueryValidator(endpointAddress, 
-				samlIdPConfiguration.getSoapTrustChecker(), samlIdPConfiguration.getRequestValidity(),
+				samlIdPConfiguration.getSoapTrustChecker(), samlIdPConfiguration.requestValidityPeriod.toMillis(),
 				samlIdPConfiguration.getReplayChecker());
 		
 		validator.validate(context.getRequestDocument());
