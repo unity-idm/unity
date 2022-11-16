@@ -110,6 +110,21 @@ public abstract class BaseSamlConfiguration
 					&& Objects.equals(excludedIdps, other.excludedIdps);
 		}
 
+		@Override
+		public String toString()
+		{
+			return "RemoteMetadataSource{" +
+					"url='" + url + '\'' +
+					", refreshInterval=" + refreshInterval +
+					", httpsTruststore='" + httpsTruststore + '\'' +
+					", signatureValidation=" + signatureValidation +
+					", issuerCertificate='" + issuerCertificate + '\'' +
+					", registrationForm='" + registrationForm + '\'' +
+					", translationProfile=" + translationProfile +
+					", excludedIdps=" + excludedIdps +
+					'}';
+		}
+
 		public static Builder builder()
 		{
 			return new Builder();

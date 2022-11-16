@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Chooses a correct group for the requester.
@@ -26,5 +27,29 @@ public class GroupChooser
 	{
 		String group = groupMappings.get(requester);
 		return group == null ? defaultGroup : group;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		GroupChooser that = (GroupChooser) o;
+		return Objects.equals(defaultGroup, that.defaultGroup) && Objects.equals(groupMappings, that.groupMappings);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(defaultGroup, groupMappings);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "GroupChooser{" +
+				"defaultGroup='" + defaultGroup + '\'' +
+				", groupMappings=" + groupMappings +
+				'}';
 	}
 }

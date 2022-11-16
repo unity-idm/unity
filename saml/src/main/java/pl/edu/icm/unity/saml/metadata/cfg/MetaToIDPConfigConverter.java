@@ -77,7 +77,7 @@ public class MetaToIDPConfigConverter
 					log.trace("SP of entity " + entityId +	" doesn't support SAML2 - ignoring.");
 					continue;
 				}
-				EntityAttributesType entityAttributes = parseMDAttributes(meta.getExtensions(), entityId);
+				EntityAttributesType entityAttributes = parseMDAttributes(descriptorType.getExtensions(), entityId);
 				if (isDisabled(entityAttributes))
 				{
 					log.trace("SP of entity " + entityId +	" is hidden from discovery - ignoring.");

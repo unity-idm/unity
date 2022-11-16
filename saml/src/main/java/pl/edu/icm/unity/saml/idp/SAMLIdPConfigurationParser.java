@@ -173,7 +173,7 @@ public class SAMLIdPConfigurationParser
 		if (structuredListKeys.isEmpty() || skip)
 			return new UserImportConfigs(skip, Set.of());
 		Set<UserImportConfig> configs = structuredListKeys.stream()
-				.map(key -> new UserImportConfig(key, samlProperties.getValue(USERIMPORT_IMPORTER), samlProperties.getValue(key + USERIMPORT_IDENTITY_TYPE)))
+				.map(key -> new UserImportConfig(key, samlProperties.getValue(key + USERIMPORT_IMPORTER), samlProperties.getValue(key + USERIMPORT_IDENTITY_TYPE)))
 				.collect(Collectors.toSet());
 		return new UserImportConfigs(skip, configs);
 	}
