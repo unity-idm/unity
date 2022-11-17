@@ -37,6 +37,7 @@ public class MetaToConfigConverterHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToConfigConverterHelper.class);
 
+	private static final String DEFAULT_LANG_KEY = "";
 	
 	public static boolean supportsSaml2(SSODescriptorType idpDef)
 	{
@@ -81,7 +82,7 @@ public class MetaToConfigConverterHelper
 		if(localizedNames.isEmpty())
 			return null;
 		ret.addAllValues(localizedNames);
-		ofNullable(localizedNames.get("")).ifPresent(ret::setDefaultValue);
+		ofNullable(localizedNames.get(DEFAULT_LANG_KEY)).ifPresent(ret::setDefaultValue);
 		return ret;
 	}
 	
@@ -116,7 +117,7 @@ public class MetaToConfigConverterHelper
 			return null;
 		ret.addAllValues(asMap.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getStringValue())));
-		ofNullable(asMap.get("")).map(XmlAnySimpleType::getStringValue).ifPresent(ret::setDefaultValue);
+		ofNullable(asMap.get(DEFAULT_LANG_KEY)).map(XmlAnySimpleType::getStringValue).ifPresent(ret::setDefaultValue);
 
 		return ret;
 	}
@@ -131,7 +132,7 @@ public class MetaToConfigConverterHelper
 				return ret;
 			for (LogoType logo : logos)
 			{
-				String key = logo.getLang() == null ? "" : logo.getLang();
+				String key = logo.getLang() == null ? DEFAULT_LANG_KEY : logo.getLang();
 				LogoType e = ret.get(key);
 				if (e == null)
 				{
@@ -169,7 +170,7 @@ public class MetaToConfigConverterHelper
 			{
 				ret.put(lang, name.getStringValue());
 				if (lang.equals(msg.getDefaultLocaleCode()))
-					ret.put("", name.getStringValue());
+					ret.put(DEFAULT_LANG_KEY, name.getStringValue());
 				if (lang.equals("en"))
 					enName = name.getStringValue();
 			} else

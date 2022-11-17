@@ -15,7 +15,6 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * SAML Context for authN request protocol.
@@ -25,7 +24,7 @@ import java.util.Date;
 public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestDocument, AuthnRequestType>
 {
 	private String relayState;
-	private Date creationTs;
+	private Instant creationTs;
 	private final SAMLVerifiableElement verifiableElement;
 	
 	public SAMLAuthnContext(AuthnRequestDocument reqDoc, SAMLIdPConfiguration samlConfiguration,
@@ -33,7 +32,7 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 	{
 		super(reqDoc, reqDoc.getAuthnRequest(), samlConfiguration);
 		this.verifiableElement = verifiableElement;
-		creationTs = new Date();
+		creationTs = Instant.now();
 	}
 
 	public String getRelayState()
@@ -46,15 +45,10 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 		this.relayState = relayState;
 	}
 
-	public Date getCreationTs()
-	{
-		return creationTs;
-	}
-
 	public boolean isExpired()
 	{
 		Duration timeout = samlConfiguration.getAuthenticationTimeoutDuration();
-		return creationTs.toInstant().plus(timeout).isAfter(Instant.now());
+		return creationTs.plus(timeout).isAfter(Instant.now());
 	}
 	
 	public String getResponseDestination()

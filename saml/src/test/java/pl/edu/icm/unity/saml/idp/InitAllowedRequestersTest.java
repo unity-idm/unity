@@ -5,13 +5,13 @@
 package pl.edu.icm.unity.saml.idp;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.fail;
 
 public class InitAllowedRequestersTest
 {
@@ -28,28 +28,15 @@ public class InitAllowedRequestersTest
 	@Test
 	public void shouldProtestOnInvalidSyntax()
 	{
-		try
-		{
-			SAMLIdPConfiguration.initAllowedRequesters(Set.of("[]http://url2"));
-			fail("should fail to parse");
-		} catch (ConfigurationException e)
-		{
-			//ok
-		}
+		Assertions.catchThrowable(() -> SAMLIdPConfiguration.initAllowedRequesters(Set.of("[]http://url2")))
+				.addSuppressed(new ConfigurationException());
 	}
 
 	@Test
 	public void shouldProtestOnInvalidSyntax2()
 	{
-		try
-		{
-			SAMLIdPConfiguration.initAllowedRequesters(Set.of("[sd]http://url2"));
-			fail("should fail to parse");
-		} catch (ConfigurationException e)
-		{
-			//ok
-		}
-		
+		Assertions.catchThrowable(() -> SAMLIdPConfiguration.initAllowedRequesters(Set.of("[sd]http://url2")))
+				.addSuppressed(new ConfigurationException());
 	}
 
 }
