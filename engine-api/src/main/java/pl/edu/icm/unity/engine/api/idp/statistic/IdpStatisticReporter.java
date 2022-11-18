@@ -14,7 +14,7 @@ import pl.edu.icm.unity.types.endpoint.Endpoint;
 public class IdpStatisticReporter
 {
 	private final ApplicationEventPublisher applicationEventPublisher;
-	private final MessageSource msg;
+	protected final MessageSource msg;
 	private final Endpoint endpoint;
 
 	public IdpStatisticReporter(ApplicationEventPublisher applicationEventPublisher, MessageSource msg,

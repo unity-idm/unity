@@ -4,11 +4,6 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-
-import org.junit.Test;
-
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLServerException;
@@ -16,7 +11,14 @@ import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.proto.AuthnRequest;
 import eu.unicore.samly2.trust.EnumeratedTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import org.junit.Test;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class AuthnRequestProcessingTest
 {
@@ -31,8 +33,8 @@ public class AuthnRequestProcessingTest
 				"https://unity-sp.example/return");
 		WebAuthRequestValidator validator = new WebAuthRequestValidator(
 				"https://unity-idp.example", 
-				authnTrustChecker, 
-				1000l, 
+				authnTrustChecker,
+				Duration.of(1000L, ChronoUnit.MILLIS),
 				new ReplayAttackChecker());
 		validator.addKnownRequester("https://unity-sp.example");
 		

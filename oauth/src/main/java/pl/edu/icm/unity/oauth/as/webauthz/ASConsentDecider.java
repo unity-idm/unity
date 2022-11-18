@@ -5,17 +5,14 @@
 
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.util.Arrays;
-
-import org.apache.logging.log4j.Logger;
-
 import com.nimbusds.oauth2.sdk.client.ClientType;
-
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -23,6 +20,8 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.types.basic.EntityParam;
+
+import java.util.Arrays;
 
 class ASConsentDecider
 {
@@ -60,7 +59,7 @@ class ASConsentDecider
 
 	private boolean isActiveValueSelectionRequired(OAuthAuthzContext oauthCtx)
 	{
-		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(oauthCtx.getConfig(),
+		return ActiveValueClientHelper.isActiveValueSelectionConfiguredForClient(oauthCtx.getConfig().getActiveValueClients(),
 				oauthCtx.getClientUsername());
 	}
 

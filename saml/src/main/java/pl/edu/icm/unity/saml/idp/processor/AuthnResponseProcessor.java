@@ -4,15 +4,6 @@
  */
 package pl.edu.icm.unity.saml.idp.processor;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.TimeZone;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
@@ -23,12 +14,11 @@ import eu.unicore.samly2.proto.AssertionResponse;
 import io.imunity.idp.AccessProtocol;
 import io.imunity.idp.ApplicationId;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -42,6 +32,11 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import java.time.Instant;
+import java.util.*;
+
+import static pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
 
 /**
  * Extends {@link StatusResponseProcessor} to produce SAML Response documents,
@@ -74,7 +69,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 			throws SAMLRequesterException
 	{
 		String samlFormat = getRequestedFormat();
-		String unityFormat = samlConfiguration.getIdTypeMapper().mapIdentity(samlFormat);
+		String unityFormat = samlConfiguration.idTypeMapper.mapIdentity(samlFormat);
 		List<IdentityParam> ret = new ArrayList<>();
 		for (IdentityParam identity : identities)
 		{
@@ -101,7 +96,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 			IdentityParam authenticatedIdentity, Collection<Attribute> attributes, String responseRelayState,
 			String responseDestination) throws SAMLRequesterException, SAMLProcessingException
 	{
-		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(SamlIdpProperties.RETURN_SINGLE_ASSERTION);
+		boolean returnSingleAssertion = samlConfiguration.returnSingleAssertion;
 		return processAuthnRequest(authenticatedIdentity, attributes, returnSingleAssertion, responseRelayState,
 				responseDestination);
 	}
@@ -172,7 +167,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		SubjectConfirmationDataType confData = subConf.addNewSubjectConfirmationData();
 		confData.setInResponseTo(context.getRequest().getID());
 		Calendar validity = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		validity.setTimeInMillis(getAuthnTime().getTimeInMillis() + samlConfiguration.getRequestValidity());
+		validity.setTimeInMillis(getAuthnTime().getTimeInMillis() + samlConfiguration.requestValidityPeriod.toMillis());
 		confData.setNotOnOrAfter(validity);
 		String consumerServiceURL = samlConfiguration.getReturnAddressForRequester(context.getRequest());
 		confData.setRecipient(consumerServiceURL);
@@ -186,7 +181,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		this.authenticatedSubject = authenticatedOne;
 		AuthnContextType authContext = setupAuthnContext();
 		Assertion assertion = new Assertion();
-		assertion.setIssuer(samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI), SAMLConstants.NFORMAT_ENTITY);
+		assertion.setIssuer(samlConfiguration.issuerURI, SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
 		this.sessionId = assertion.getXMLBean().getID();
 		assertion.addAuthStatement(getAuthnTime(), authContext, sessionId, null, null);
@@ -196,8 +191,7 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		if (attributes != null)
 			addAttributesToAssertion(assertion, attributes);
 
-		AssertionSigningPolicy assertionSigningPolicy = samlConfiguration.getEnumValue(SamlIdpProperties.SIGN_ASSERTION,
-				AssertionSigningPolicy.class);
+		AssertionSigningPolicy assertionSigningPolicy = samlConfiguration.signAssertion;
 		if (assertionSigningPolicy == AssertionSigningPolicy.always || !doSignResponse())
 			signAssertion(assertion);
 		return assertion;

@@ -16,6 +16,8 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
+import java.time.Duration;
+
 /**
  * Extension of the {@link WebAuthRequestValidator}. Requests for ETD generation
  * are required to have X.500 issuer and required user's identity type must be as well X.500.
@@ -28,7 +30,7 @@ public class WebAuthWithETDRequestValidator extends WebAuthRequestValidator
 {
 
 	public WebAuthWithETDRequestValidator(String consumerEndpointUri,
-			SamlTrustChecker trustChecker, long requestValidity,
+			SamlTrustChecker trustChecker, Duration requestValidity,
 			ReplayAttackChecker replayChecker)
 	{
 		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker);

@@ -5,26 +5,12 @@
 
 package pl.edu.icm.unity.saml.idp;
 
-import java.net.URI;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import io.imunity.idp.*;
+import io.imunity.idp.IdPClientData.AccessStatus;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import io.imunity.idp.AccessProtocol;
-import io.imunity.idp.ApplicationId;
-import io.imunity.idp.IdPClientData;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
-import io.imunity.idp.TrustedIdPClientsManagement;
-import io.imunity.idp.IdPClientData.AccessStatus;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -37,7 +23,6 @@ import pl.edu.icm.unity.engine.api.files.URIAccessException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
@@ -45,6 +30,14 @@ import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
+
+import java.net.URI;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
@@ -141,7 +134,7 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 				.collect(Collectors.toList()))
 		{
 			SamlAuthVaadinEndpoint samlEndpoint = (SamlAuthVaadinEndpoint) endpoint;
-			SAMLServiceConfiguration config = new SAMLServiceConfiguration(samlEndpoint.getVirtualConfiguration(), msg,
+			SAMLServiceConfiguration config = new SAMLServiceConfiguration(samlEndpoint.getSpsConfiguration(), msg,
 					uriAccessService);
 			ret.add(config);
 		}
@@ -170,16 +163,14 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 	{
 		public final List<SAMLIndividualTrustedSPConfiguration> individualTrustedSPs;
 
-		public SAMLServiceConfiguration(SamlProperties samlIdpProperties, MessageSource msg,
-				URIAccessService uriAccessService)
+		public SAMLServiceConfiguration(TrustedServiceProviders trustedServiceProviders, MessageSource msg,
+		                                URIAccessService uriAccessService)
 		{
-			Set<String> spKeys = samlIdpProperties.getStructuredListKeys(SamlIdpProperties.ALLOWED_SP_PREFIX);
 			individualTrustedSPs = new ArrayList<>();
-			spKeys.forEach(key ->
+			trustedServiceProviders.getSPConfigs().forEach(configuration ->
 			{
-				key = key.substring(SamlIdpProperties.ALLOWED_SP_PREFIX.length(), key.length() - 1);
 				SAMLIndividualTrustedSPConfiguration idp = new SAMLIndividualTrustedSPConfiguration(msg,
-						uriAccessService, samlIdpProperties, key);
+						uriAccessService, configuration);
 				individualTrustedSPs.add(idp);
 			});
 		}
@@ -193,26 +184,23 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 		public final ArrayList<String> authorizedRedirectsUri;
 
 		SAMLIndividualTrustedSPConfiguration(MessageSource msg, URIAccessService imageAccessService,
-				SamlProperties source, String name)
+		                                     TrustedServiceProvider configuration)
 		{
-			String prefix = SamlIdpProperties.ALLOWED_SP_PREFIX + name + ".";
-
-			if (source.isSet(prefix + SamlIdpProperties.ALLOWED_SP_ENTITY))
+			if (configuration.entityId.id != null)
 			{
 
-				id = source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_ENTITY);
+				id = configuration.entityId.id;
 			} else
 			{
 
-				id = source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_DN);
+				id = configuration.entityId.dnSamlId;
 			}
 
-			displayedName = source.getLocalizedStringWithoutFallbackToDefault(msg,
-					prefix + SamlIdpProperties.ALLOWED_SP_NAME);
+			displayedName = configuration.name;
 
-			if (source.isSet(prefix + SamlIdpProperties.ALLOWED_SP_LOGO))
+			if (configuration.logoUri != null)
 			{
-				String logoUri = source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_LOGO);
+				String logoUri = configuration.logoUri.getDefaultLocaleValue(msg);
 				logo = readLogo(imageAccessService, logoUri);
 			} else
 			{
@@ -220,16 +208,11 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 			}
 
 			authorizedRedirectsUri = new ArrayList<>();
-			if (source.isSet(prefix + SamlIdpProperties.ALLOWED_SP_RETURN_URL))
+			if (configuration.returnUrl != null)
 			{
-				authorizedRedirectsUri.add(source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_RETURN_URL));
+				authorizedRedirectsUri.add(configuration.returnUrl);
 			}
-
-			List<String> uris = source.getListOfValues(prefix + SamlIdpProperties.ALLOWED_SP_RETURN_URLS);
-			uris.forEach(c ->
-			{
-				authorizedRedirectsUri.add(c);
-			});
+			authorizedRedirectsUri.addAll(configuration.returnUrls);
 
 		}
 		

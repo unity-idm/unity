@@ -4,30 +4,22 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.web;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.apache.logging.log4j.Logger;
-
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-
 import eu.unicore.security.etd.DelegationRestrictions;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.ROExposedAttributesComponent;
-import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.idp.web.SamlConsentScreen;
+import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
@@ -43,6 +35,11 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 import pl.edu.icm.unity.webui.idpcommon.ExposedSelectableAttributesComponent;
 import pl.edu.icm.unity.webui.idpcommon.IdentitySelectorComponent;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -90,7 +87,7 @@ class UnicoreConsentScreen extends SamlConsentScreen
 		if (validIdentities.size() > 1)
 			eiLayout.addComponent(idSelector);
 		eiLayout.addComponent(HtmlTag.br());
-		boolean userCanEditConsent = samlCtx.getSamlConfiguration().getBooleanValue(SamlIdpProperties.USER_EDIT_CONSENT);
+		boolean userCanEditConsent = samlCtx.getSamlConfiguration().userCanEditConsent;
 		Optional<IdentityParam> selectedIdentity = Optional.ofNullable(validIdentities.size() == 1 ? validIdentities.get(0) : null); 
 		attrsPresenter = userCanEditConsent ? 
 				new ExposedSelectableAttributesComponent(msg, identityTypeSupport, handlersRegistry, 

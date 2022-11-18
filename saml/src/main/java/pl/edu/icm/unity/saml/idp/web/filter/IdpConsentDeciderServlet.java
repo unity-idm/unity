@@ -4,33 +4,16 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
-import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import eu.unicore.security.dsig.DSigException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.security.dsig.DSigException;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -39,7 +22,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -51,8 +34,9 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProvider;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -67,6 +51,15 @@ import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+
+import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
 
 /**
  * Invoked after authentication, main SAML web IdP servlet. It decides whether the request should be
@@ -218,8 +211,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	{
 		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-		SamlIdpProperties config = samlCtx.getSamlConfiguration();
-		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(config, 
+		SAMLIdPConfiguration config = samlCtx.getSamlConfiguration();
+		return ActiveValueClientHelper.isActiveValueSelectionConfiguredForClient(config.activeValueClient,
 						samlProcessor.getRequestIssuer());
 	}
 	
@@ -228,8 +221,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		if (preferences.isDoNotAsk())
 			return false;
 		
-		boolean skipConsent = samlCtx.getSamlConfiguration().getBooleanValue(
-				CommonIdPProperties.SKIP_CONSENT);
+		boolean skipConsent = samlCtx.getSamlConfiguration().skipConsent;
 		if (skipConsent)
 			return false;
 		
@@ -256,8 +248,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		{
 			return !policyAgreementsMan.filterAgreementToPresent(
 					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
-					CommonIdPProperties.getPolicyAgreementsConfig(msg,
-							samlCtx.getSamlConfiguration()).agreements)
+							samlCtx.getSamlConfiguration().policyAgreements.agreements)
 					.isEmpty();
 		} catch (EngineException e)
 		{
@@ -329,17 +320,17 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		}
 	}
 	
-	protected TranslationResult getUserInfo(SamlIdpProperties samlProperties, AuthnResponseProcessor processor,
-			String binding) 
+	protected TranslationResult getUserInfo(SAMLIdPConfiguration samlIdPConfiguration, AuthnResponseProcessor processor,
+	                                        String binding)
 			throws EngineException
 	{
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
 		
 		return idpEngine.obtainUserInformationWithEnrichingImport(new EntityParam(ae.getEntityId()), 
-				processor.getChosenGroup(), samlProperties.getOutputTranslationProfile(), 
+				processor.getChosenGroup(), samlIdPConfiguration.getOutputTranslationProfile(),
 				processor.getIdentityTarget(), Optional.empty(), "SAML2", binding,
 				processor.isIdentityCreationAllowed(),
-				samlProperties);
+				samlIdPConfiguration.userImportConfigs);
 	}
 
 	
@@ -355,14 +346,14 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			String sessionId, SessionManagement sessionMan)
 	{
 		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
-		SamlIdpProperties samlIdpProperties = samlCtx.getSamlConfiguration();
-		String credentialName = samlIdpProperties.getValue(SamlIdpProperties.CREDENTIAL);
-		String configKey = samlIdpProperties.getSPConfigKey(samlCtx.getRequest().getIssuer());
-		String localIdpSamlId = samlIdpProperties.getValue(SamlIdpProperties.ISSUER_URI);
-		Set<String> allowedCerts = samlIdpProperties.getAllowedSpCerts(configKey);
-		List<SAMLEndpointDefinition> logoutEndpoints = configKey == null ? 
+		SAMLIdPConfiguration samlConfiguration = samlCtx.getSamlConfiguration();
+		String credentialName = samlConfiguration.credentialName;
+		TrustedServiceProvider config = samlConfiguration.getSPConfig(samlCtx.getRequest().getIssuer());
+		String localIdpSamlId = samlConfiguration.issuerURI;
+		Set<String> allowedCerts = Optional.ofNullable(config).map(TrustedServiceProvider::getCertificateNames).orElseGet(Set::of);
+		List<SAMLEndpointDefinition> logoutEndpoints = config == null ?
 				new ArrayList<SAMLEndpointDefinition>(0) :
-				samlCtx.getSamlConfiguration().getLogoutEndpointsFromStructuredList(configKey);
+				config.getLogoutEndpoints();
 		sessionMan.addSessionParticipant(new SAMLSessionParticipant(participantId, 
 				returnedSubject, sessionId, logoutEndpoints, localIdpSamlId,
 				credentialName, allowedCerts));

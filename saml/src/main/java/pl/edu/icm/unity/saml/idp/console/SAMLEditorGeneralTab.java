@@ -5,47 +5,24 @@
 
 package pl.edu.icm.unity.saml.idp.console;
 
-import java.io.ByteArrayInputStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.vaadin.risto.stepper.IntStepper;
-
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.ui.*;
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import org.vaadin.risto.stepper.IntStepper;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.ResponseSigningPolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.RequestAcceptancePolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.ResponseSigningPolicy;
 import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.GridWithEditor;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.file.FileField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -54,6 +31,13 @@ import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
+
+import java.io.ByteArrayInputStream;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * SAML service editor general tab

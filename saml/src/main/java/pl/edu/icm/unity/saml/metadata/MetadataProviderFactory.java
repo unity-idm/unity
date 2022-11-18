@@ -10,8 +10,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -23,17 +22,17 @@ import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
  */
 public class MetadataProviderFactory
 {
-	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, URIAccessService uriAccessService,
+	public static MetadataProvider newIdpInstance(SAMLIdPConfiguration samlIdPConfiguration, URIAccessService uriAccessService,
 	                                              ExecutorsService executorsService, EndpointType[] ssoEndpoints,
 	                                              EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints,
 	                                              I18nString displayedName, MessageSource msg)
 	{
 		MetadataProvider metaProvider;		
-		String uri = samlProperties.getValue(SamlProperties.METADATA_SOURCE);
+		String uri = samlIdPConfiguration.ourMetadataFilePath;
 		
 		if (uri == null)
 		{
-			metaProvider = new IdpMetadataGenerator(samlProperties, ssoEndpoints, 
+			metaProvider = new IdpMetadataGenerator(samlIdPConfiguration, ssoEndpoints,
 					attributeQueryEndpoints, sloEndpoints, displayedName, msg);
 		} else
 		{
@@ -46,9 +45,9 @@ public class MetadataProviderFactory
 						"problem loading metadata", e);
 			}
 		}
-		boolean signMeta = samlProperties.getBooleanValue(SamlProperties.SIGN_METADATA);
+		boolean signMeta = samlIdPConfiguration.signMetadata;
 		return signMeta ? 
-				addSigner(metaProvider, samlProperties.getSamlIssuerCredential()) : 
+				addSigner(metaProvider, samlIdPConfiguration.getSamlIssuerCredential()) :
 				metaProvider;
 	}
 

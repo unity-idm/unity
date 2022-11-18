@@ -4,13 +4,10 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.web;
 
-import javax.servlet.Servlet;
-
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -21,6 +18,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfigurationParser;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -28,6 +26,8 @@ import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
+
+import javax.servlet.Servlet;
 
 
 /**
@@ -58,13 +58,15 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+			SAMLIdPConfigurationParser samlIdPConfigurationParser
 			)
 	{
 		super(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				SamlUnicoreIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory,
 				logoutProcessorFactory, sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
-				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory, lastAccessAttributeManagement);
+				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory, lastAccessAttributeManagement,
+				samlIdPConfigurationParser);
 	}
 
 	@Override
