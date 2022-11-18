@@ -72,7 +72,6 @@
 		<module>rest-admin</module>
 		<module>ws</module>
 		<module>saml</module>
-		<module>unicore</module>
 		<module>ldap</module>
 		<module>oauth</module>
 		<module>pam</module>
