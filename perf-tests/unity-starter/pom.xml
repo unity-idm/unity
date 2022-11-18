@@ -73,12 +73,6 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-unicore</artifactId>
-			<version>${unity.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-pam</artifactId>
 			<version>${unity.version}</version>
 		</dependency>

@@ -4,12 +4,8 @@
  */
 package pl.edu.icm.unity.engine.endpoint;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
@@ -18,6 +14,9 @@ import pl.edu.icm.unity.store.api.generic.RealmDB;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Loads a composite {@link EndpointInstance} out of an {@link Endpoint} object which is stored in database.
@@ -48,7 +47,7 @@ class EndpointInstanceLoader
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(src.getTypeId());
 		if (factory == null)
-			throw new IllegalStateException("Endpoint stored in DB has no matching implementation: " 
+			throw new IllegalEndpointException("Endpoint stored in DB has no matching implementation: "
 					+ src.getTypeId());
 		EndpointInstance instance = factory.newInstance();
 		List<String> authnOptions = src.getConfiguration().getAuthenticationOptions() != null
