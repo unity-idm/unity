@@ -4,28 +4,27 @@
  */
 package pl.edu.icm.unity.saml.idp.preferences;
 
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.ListSelect;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.ListSelect;
-
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-
 /**
  * Shows a single {@link SPSettings}.
  * 
  * @author K. Benedyczak
  */
-public class SamlSPSettingsViewer extends FormLayout
+class SamlSPSettingsViewer extends FormLayout
 {
 	protected MessageSource msg;
 	protected Label autoConfirm;

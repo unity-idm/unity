@@ -4,14 +4,9 @@
  */
 package pl.edu.icm.unity.saml.idp.preferences;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -31,11 +26,15 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Viewing and editing UI of {@link SamlPreferences}.
  * @author K. Benedyczak
  */
-public class SamlPreferencesEditor implements PreferencesEditor
+class SamlPreferencesEditor implements PreferencesEditor
 {
 	protected MessageSource msg;
 	protected SamlPreferences preferences;

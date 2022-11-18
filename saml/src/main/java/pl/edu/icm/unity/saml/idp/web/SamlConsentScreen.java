@@ -44,7 +44,7 @@ import java.util.Optional;
  *  
  * @author K. Benedyczak
  */
-public class SamlConsentScreen extends CustomComponent
+class SamlConsentScreen extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlConsentScreen.class);
 	protected final MessageSource msg;
