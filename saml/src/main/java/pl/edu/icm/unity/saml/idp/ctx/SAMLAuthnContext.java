@@ -8,12 +8,13 @@
 
 package pl.edu.icm.unity.saml.idp.ctx;
 
-import java.util.Date;
-
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
+
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * SAML Context for authN request protocol.
@@ -23,15 +24,15 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestDocument, AuthnRequestType>
 {
 	private String relayState;
-	private Date creationTs;
+	private Instant creationTs;
 	private final SAMLVerifiableElement verifiableElement;
 	
-	public SAMLAuthnContext(AuthnRequestDocument reqDoc, SamlIdpProperties samlConfiguration, 
+	public SAMLAuthnContext(AuthnRequestDocument reqDoc, SAMLIdPConfiguration samlConfiguration,
 			SAMLVerifiableElement verifiableElement)
 	{
 		super(reqDoc, reqDoc.getAuthnRequest(), samlConfiguration);
 		this.verifiableElement = verifiableElement;
-		creationTs = new Date();
+		creationTs = Instant.now();
 	}
 
 	public String getRelayState()
@@ -44,15 +45,10 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 		this.relayState = relayState;
 	}
 
-	public Date getCreationTs()
-	{
-		return creationTs;
-	}
-	
 	public boolean isExpired()
 	{
-		long timeout = 1000L*samlConfiguration.getIntValue(SamlIdpProperties.AUTHENTICATION_TIMEOUT);
-		return System.currentTimeMillis() > timeout+creationTs.getTime();
+		Duration timeout = samlConfiguration.getAuthenticationTimeoutDuration();
+		return creationTs.plus(timeout).isAfter(Instant.now());
 	}
 	
 	public String getResponseDestination()

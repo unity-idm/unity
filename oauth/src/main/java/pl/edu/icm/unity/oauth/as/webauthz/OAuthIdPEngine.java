@@ -4,15 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.util.Optional;
-
-import org.apache.logging.log4j.Logger;
-
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -29,6 +25,8 @@ import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import java.util.Optional;
 
 /**
  * Wraps {@link IdPEngine} with code used by OAuth AS. In the first place provides standard error handling.
@@ -113,7 +111,7 @@ public class OAuthIdPEngine
 		return idpEngine.obtainUserInformationWithEnrichingImport(
 				new EntityParam(entityId), userGroup, translationProfile, 
 				clientId, requesterEntity,
-				"OAuth2", flow, true, config);
+				"OAuth2", flow, true, config.getUserImportConfigs());
 	}
 	
 }

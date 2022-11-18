@@ -5,17 +5,8 @@
 
 package pl.edu.icm.unity.saml.idp.console;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.util.configuration.ConfigurationException;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.file.FileData;
@@ -33,10 +24,11 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.AssertionSigningPolicy;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.ResponseSigningPolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.RequestAcceptancePolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.ResponseSigningPolicy;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -46,6 +38,14 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.console.services.idp.ActiveValueConfig;
 import pl.edu.icm.unity.webui.console.services.idp.UserImportConfig;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Related to {@link SamlIdpProperties}. Contains whole SAML service configuration
@@ -58,8 +58,8 @@ public class SAMLServiceConfiguration
 	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLServiceConfiguration.class);
 
 	private String issuerURI;
-	private AssertionSigningPolicy signAssertionPolicy;
-	private ResponseSigningPolicy signResponcePolicy;
+	private SAMLIdPConfiguration.AssertionSigningPolicy signAssertionPolicy;
+	private SAMLIdPConfiguration.ResponseSigningPolicy signResponcePolicy;
 	private String signResponseCredential;
 	private String httpsTruststore;
 	private boolean skipConsentScreen;
@@ -95,7 +95,7 @@ public class SAMLServiceConfiguration
 		signAssertionPolicy = AssertionSigningPolicy.always;
 		skipConsentScreen = false;
 		editableConsentScreen = true;
-		requestAcceptancePolicy = RequestAcceptancePolicy.validRequester;
+		requestAcceptancePolicy = SAMLIdPConfiguration.RequestAcceptancePolicy.validRequester;
 		authenticationTimeout = SamlIdpProperties.DEFAULT_AUTHENTICATION_TIMEOUT;
 		requestValidity = SamlIdpProperties.DEFAULT_SAML_REQUEST_VALIDITY;
 		attrAssertionValidity = SamlIdpProperties.DEFAULT_ATTR_ASSERTION_VALIDITY;
@@ -265,7 +265,7 @@ public class SAMLServiceConfiguration
 			raw.putAll(IdpPolicyAgreementsConfigurationParser.toProperties(msg, policyAgreementConfig, SamlIdpProperties.P));
 		}
 
-		SamlIdpProperties samlProperties = new SamlIdpProperties(raw, pkiManagement);
+		SamlIdpProperties samlProperties = new SamlIdpProperties(raw);
 		return samlProperties.getAsString();
 	}
 
@@ -284,7 +284,7 @@ public class SAMLServiceConfiguration
 		}
 		VaadinEndpointProperties vProperties = new VaadinEndpointProperties(raw);
 		
-		SamlIdpProperties samlIdpProperties = new SamlIdpProperties(raw, pkiManagement);
+		SamlIdpProperties samlIdpProperties = new SamlIdpProperties(raw);
 		issuerURI = samlIdpProperties.getValue(SamlIdpProperties.ISSUER_URI);
 
 		signResponcePolicy = samlIdpProperties.getEnumValue(SamlIdpProperties.SIGN_RESPONSE,

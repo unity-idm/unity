@@ -4,25 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api.idp;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.google.common.collect.Lists;
-
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Contains settings which are common for all IdP endpoints
@@ -140,121 +128,8 @@ public class CommonIdPProperties
 		return defaults;
 	}
 
-	public static List<UserImportSpec> getUserImportsLegacy(PropertiesHelper cfg, 
-			String identity, String type)
-	{
-		Set<String> structuredListKeys = cfg.getStructuredListKeys(USERIMPORT_PFX);
-		Boolean skip = cfg.getBooleanValue(SKIP_USERIMPORT);
-		if (structuredListKeys.isEmpty())
-		{
-			return skip ? Collections.emptyList() 
-				: Lists.newArrayList(UserImportSpec.withAllImporters(identity, type));
-		} else
-		{
-			Map<String, String> map = new HashMap<>();
-			map.put(type, identity);
-			return getUserImports(cfg, map);
-		}
-	}
-
-	public static List<UserImportSpec> getUserImports(PropertiesHelper cfg, 
-			Map<String, String> identitiesByType)
-	{
-		Set<String> structuredListKeys = cfg.getStructuredListKeys(USERIMPORT_PFX);
-		if (structuredListKeys.isEmpty() || cfg.getBooleanValue(SKIP_USERIMPORT))
-			return Collections.emptyList();
-		List<UserImportSpec> ret = new ArrayList<>();
-		for (String key: structuredListKeys)
-		{
-			String importer = cfg.getValue(key + USERIMPORT_IMPORTER);
-			String type = cfg.getValue(key + USERIMPORT_IDENTITY_TYPE);
-			String identityValue = identitiesByType.get(type);
-			if (identityValue != null)
-				ret.add(new UserImportSpec(importer, identityValue, type));
-		}
-		return ret;
-	}
-
-	public static Optional<ActiveValueSelectionConfig> getActiveValueSelectionConfig(PropertiesHelper cfg, 
-			String client, Collection<DynamicAttribute> allAttributes)
-	{
-		Optional<String> key = getActiveValueSelectionConfigKey(cfg, client);
-		return key.isPresent() ? getActiveValueSelectionConfigFromKey(cfg, key.get(), allAttributes) : Optional.empty();
-	}
-
-	public static boolean isActiveValueSelectionConfiguredForClient(PropertiesHelper cfg, String client)
-	{
-		return getActiveValueSelectionConfigKey(cfg, client).isPresent();
-	}
-
-	private static Optional<String> getActiveValueSelectionConfigKey(PropertiesHelper cfg, String client)
-	{
-		Set<String> listKeys = cfg.getStructuredListKeys(ACTIVE_VALUE_SELECTION_PFX);
-		String defaultClientKey = null;
-		for (String key: listKeys)
-		{
-			String entryClient = cfg.getValue(key + ACTIVE_VALUE_CLIENT);
-			if (entryClient == null)
-			{
-				defaultClientKey = key;
-				continue;
-			}
-			if (entryClient.equals(client))
-			{
-				return Optional.of(key);
-			}
-		}
-		return Optional.ofNullable(defaultClientKey);
-	}
-	
-	private static Optional<ActiveValueSelectionConfig> getActiveValueSelectionConfigFromKey(PropertiesHelper cfg,
-			String key, Collection<DynamicAttribute> attributes)
-	{
-		Map<String, DynamicAttribute> attrsMap = attributes.stream()
-				.collect(Collectors.toMap(da -> da.getAttribute().getName(), da -> da));
-		List<DynamicAttribute> singleSelectable = getAttributeForSelection(cfg, attrsMap, key + ACTIVE_VALUE_SINGLE_SELECTABLE);
-		List<DynamicAttribute> multiSelectable = getAttributeForSelection(cfg, attrsMap, key + ACTIVE_VALUE_MULTI_SELECTABLE);
-		if (singleSelectable.isEmpty() && multiSelectable.isEmpty())
-			return Optional.empty();
-		List<DynamicAttribute> remaining = new ArrayList<>(attributes);
-		remaining.removeAll(singleSelectable);
-		remaining.removeAll(multiSelectable);
-		return Optional.of(new ActiveValueSelectionConfig(multiSelectable, singleSelectable, remaining));
-	}
-	
-	private static List<DynamicAttribute> getAttributeForSelection(PropertiesHelper cfg, 
-			Map<String, DynamicAttribute> attributes, String key)
-	{
-		List<String> names = cfg.getListOfValues(key);
-		return names.stream()
-				.map(attr -> attributes.get(attr))
-				.filter(attr -> attr != null)
-				.collect(Collectors.toList());
-	}
-
 	public static IdpPolicyAgreementsConfiguration getPolicyAgreementsConfig(MessageSource msg, UnityPropertiesHelper cfg)
 	{
 		return IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, cfg);
-	}
-
-	public static boolean isIdpPolicyAgreementsConfigured(MessageSource msg, UnityPropertiesHelper cfg)
-	{
-		return !getPolicyAgreementsConfig(msg, cfg).agreements.isEmpty();
-	}
-	
-	public static class ActiveValueSelectionConfig
-	{
-		public final List<DynamicAttribute> multiSelectableAttributes;
-		public final List<DynamicAttribute> singleSelectableAttributes;
-		public final List<DynamicAttribute> remainingAttributes;
-		
-		public ActiveValueSelectionConfig(List<DynamicAttribute> multiSelectableAttributes,
-				List<DynamicAttribute> singleSelectableAttributes,
-				List<DynamicAttribute> remainingAttributes)
-		{
-			this.multiSelectableAttributes = multiSelectableAttributes;
-			this.singleSelectableAttributes = singleSelectableAttributes;
-			this.remainingAttributes = remainingAttributes;
-		}
 	}
 }

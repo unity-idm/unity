@@ -4,34 +4,27 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
-
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -55,6 +48,8 @@ import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import pl.edu.icm.unity.webui.idpcommon.activesel.ActiveValueSelectionScreen;
+
+import java.util.*;
 
 /**
  * UI of the authorization endpoint. Presents active value selection for
@@ -183,8 +178,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult,
 				ctx.getEffectiveRequestedAttrs());
 
-		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = CommonIdPProperties
-				.getActiveValueSelectionConfig(config, ctx.getClientUsername(), allAttributes);
+		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = ActiveValueClientHelper
+				.getActiveValueSelectionConfig(config.getActiveValueClients(), ctx.getClientUsername(), allAttributes);
 
 		if (activeValueSelectionConfig.isPresent())
 			showActiveValueSelectionScreen(activeValueSelectionConfig.get());

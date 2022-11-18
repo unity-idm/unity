@@ -4,23 +4,8 @@
  */
 package pl.edu.icm.unity.saml.sp.console;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
-import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.META;
-import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.P;
-
-import java.security.cert.X509Certificate;
-import java.util.Optional;
-import java.util.Properties;
-
-import org.junit.Test;
-
 import com.google.common.collect.Lists;
-
+import org.junit.Test;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
@@ -35,6 +20,19 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+
+import java.security.cert.X509Certificate;
+import java.util.Optional;
+import java.util.Properties;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.META;
+import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.P;
 
 public class SAMLAuthenticatorConfigurationTest
 {
@@ -110,7 +108,7 @@ public class SAMLAuthenticatorConfigurationTest
 				.update("remoteIdp.1.signRequest", "false")
 				.update("metadataSource.1.perMetadataEmbeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("remoteIdp.1.embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
-				.update("metadataSource", "http:foo")
+				.update("metadataSource", "src/test/resources/metadata.switchaai.xml")
 				.get();
 		
 		SAMLAuthneticatorConfiguration processor = new SAMLAuthneticatorConfiguration();
@@ -124,7 +122,7 @@ public class SAMLAuthenticatorConfigurationTest
 			.withAlias("unity.saml.requester.remoteIdp.1.certificates.2", "unity.saml.requester.remoteIdp.1.certificates.1")
 			.withAlias("unity.saml.requester.remoteIdp.1.certificates.1", "unity.saml.requester.remoteIdp.1.certificate")
 			.ignoringMissing("metadataSource.1.perMetadataTranslationProfile",
-					"remoteIdp.1.translationProfile", "remoteIdp.1.samlFederationName", "remoteIdp.1.samlFederationId")
+					"remoteIdp.1.translationProfile", "remoteIdp.1.samlFederationName", "remoteIdp.1.samlFederationId", "metadataSource")
 			.checkMatching(result, sourceCfg);
 	}
 }

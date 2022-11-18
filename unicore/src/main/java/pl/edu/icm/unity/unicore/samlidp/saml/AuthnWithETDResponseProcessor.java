@@ -4,11 +4,6 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.saml;
 
-import java.util.Calendar;
-import java.util.Collection;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
@@ -22,6 +17,7 @@ import eu.unicore.security.etd.ETDApi;
 import eu.unicore.security.etd.ETDImpl;
 import eu.unicore.security.etd.TrustDelegation;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
@@ -34,6 +30,9 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import java.util.Calendar;
+import java.util.Collection;
 
 /**
  * Extension of the {@link AuthnResponseProcessor} which allows for adding a bootstrap ETD
@@ -66,7 +65,7 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 			String relayState) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
-		if (samlConfiguration.getBooleanValue(SamlIdpProperties.RETURN_SINGLE_ASSERTION))
+		if (samlConfiguration.returnSingleAssertion)
 			log.info("The " + SamlIdpProperties.RETURN_SINGLE_ASSERTION + 
 					" = true setting is ignored for UNICORE IdP. " +
 					"Set it to false to disable this message");
@@ -103,7 +102,7 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 	{
 		ETDApi etdEngine = new ETDImpl();
 		X509Credential issuerCredential = samlConfiguration.getSamlIssuerCredential(); 
-		String issuerName = samlConfiguration.getValue(SamlIdpProperties.ISSUER_URI); 
+		String issuerName = samlConfiguration.issuerURI;
 		String custodianDN = X500NameUtils.getPortableRFC2253Form(custodian);
 		NameIDType receiver = context.getRequest().getIssuer();
 		String receiverDN = X500NameUtils.getPortableRFC2253Form(receiver.getStringValue());
