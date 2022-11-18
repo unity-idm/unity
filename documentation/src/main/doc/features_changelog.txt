@@ -42,9 +42,7 @@
 |SAML 2, PAOS binding (for ECP) | icon:check[role="green"]		| 
 |Web Console interface			| icon:check[role="green"]		|
 |REST admin interface			| icon:check[role="green"]		| 
-|Web user profile management	| icon:check[role="green"]		| 
-|SAML 2, Web binding + UNICORE profile | icon:check[role="green"]	|
-|SAML 2, SOAP binding + UNICORE profile	| icon:check[role="green"]	|
+|Web user profile management	| icon:check[role="green"]		|
 |OpenID Connect					| icon:check[role="green"]		| 
 |OAuth 2						| icon:check[role="green"]		|
 |===

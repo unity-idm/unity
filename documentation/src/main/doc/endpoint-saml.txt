@@ -57,42 +57,6 @@ Attribute Query and Authentication SAML protocols over the SAML SOAP binding.
 The SAML options and metadata notes are the same as in the case of the <<endp-web-saml>>.
 
 
-[[endp-web-unicore]]
-=== UNICORE Web SAML SSO endpoint
-
-Endpoint type:: +SAMLUnicoreWebIdP+
-Binding:: Web (Vaadin)
-Exposed paths:: +/saml2unicoreIdp-web+, +metadata+, +/SLO-WEB+, +/SLO-SOAP+
-
-This endpoint is a slightly enhanced <<endp-web-saml>>, with the UNICORE 7 Grid middleware support.
-It is useful for UNICORE portal SAML authentication, so if you don't integrate UNICORE portal with Unity 
-don't use this endpoint.
-
-The endpoint is configured in the same way as the <<endp-web-saml>>, the only functional difference is  
-that it allow to generate and return UNICORE 7 trust delegations made for the relaying party.
-
-Only the users with the X.500 identity (among others identities) may use this endpoint. However neither 
-authentication with certificate nor possession of a X.509 certificate is required.
-
-
-[[endp-ws-unicore]]
-=== UNICORE Web Service SAML SOAP endpoint
-
-Endpoint type:: +SAMLUnicoreSoapIdP+
-Binding:: Web Service (CXF)
-Exposed paths:: +/saml2unicoreidp-soap+, +metadata+
-
-This endpoint is a slightly enhanced version of <<endp-ws-saml>>, with the UNICORE 7 Grid middleware support.
-It is useful for UNICORE standalone client (e.g. UCC) SAML authentication, if you don't integrate UNICORE with 
-Unity this endpoint is useless.
-
-The endpoint is configured in the same way as the <<endp-ws-saml>>, the only functional difference is  
-that it generates and return UNICORE 7 trust delegations made for the client.
-
-Only the users with the X.500 identity (among others identities) may use this endpoint. However neither 
-authentication with certificate nor possession of a X.509 certificate is required.
-
-
 [[endp-ecp]]
 === SAML PAOS Enhanced Client or Proxy (ECP) endpoint
 

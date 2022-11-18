@@ -45,7 +45,7 @@ import java.util.Optional;
  * 
  * @author K. Benedyczak
  */
-public class SAMLAuthnImpl implements SAMLAuthnInterface
+class SAMLAuthnImpl implements SAMLAuthnInterface
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLAuthnImpl.class);
 	protected SAMLIdPConfiguration samlConfiguration;

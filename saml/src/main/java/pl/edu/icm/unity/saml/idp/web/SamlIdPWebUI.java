@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 @Component("SamlIdPWebUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
+class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
 	protected MessageSource msg;
