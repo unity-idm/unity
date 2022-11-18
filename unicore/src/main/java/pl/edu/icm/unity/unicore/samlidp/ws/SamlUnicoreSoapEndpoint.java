@@ -4,19 +4,13 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.ws;
 
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import eu.unicore.samly2.webservice.SAMLAuthnInterface;
+import eu.unicore.samly2.webservice.SAMLQueryInterface;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import eu.unicore.samly2.webservice.SAMLAuthnInterface;
-import eu.unicore.samly2.webservice.SAMLQueryInterface;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -32,7 +26,8 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfigurationParser;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ws.SAMLAssertionQueryImpl;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
@@ -40,6 +35,11 @@ import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
+
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Endpoint exposing SAML SOAP binding. This version extends the {@link SamlSoapEndpoint}
@@ -71,11 +71,13 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement entityMan,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+			SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
 		super(msg, server, idpEngine, preferencesMan, pkiManagement, executorsService, sessionMan,
 				logoutProcessorFactory, authnProcessor, aTypeSupport, metadataService, uriAccessService,
-				advertisedAddrProvider, entityMan, idpStatisticReporterFactory, lastAccessAttributeManagement);
+				advertisedAddrProvider, entityMan, idpStatisticReporterFactory, lastAccessAttributeManagement,
+				samlIdPConfigurationParser);
 		this.servletPath = SERVLET_PATH;
 	}
 
@@ -84,11 +86,11 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	protected void configureServices()
 	{
 		String endpointURL = getServletUrl(servletPath);
-		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
-		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(aTypeSupport, virtualConf, 
+		SAMLIdPConfiguration configuration = myMetadataManager.getSAMLIdPConfiguration();
+		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(aTypeSupport, configuration,
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
-		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
+		SAMLETDAuthnImpl authnImpl = new SAMLETDAuthnImpl(aTypeSupport, configuration, endpointURL,
 				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()), lastAccessAttributeManagement);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 	}

@@ -4,15 +4,6 @@
  */
 package pl.edu.icm.unity.saml.slo;
 
-import java.io.IOException;
-import java.security.PublicKey;
-import java.util.Collection;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.SAMLConstants;
@@ -30,6 +21,7 @@ import eu.unicore.samly2.slo.LogoutRequestValidator;
 import eu.unicore.samly2.slo.ParsedLogoutRequest;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.security.dsig.DSigException;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -48,6 +40,13 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.security.PublicKey;
+import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Implements handling of logout requests received via SAML with any binding. Handling of async and sync bindings 
@@ -69,7 +68,7 @@ public class SAMLLogoutProcessor
 	private InternalLogoutProcessor internalProcessor;
 	private IdentityTypeMapper identityTypeMapper;
 	private String consumerEndpointUri;
-	private long requestValidity;
+	private Duration requestValidity;
 	private String localSamlId;
 	private X509Credential localSamlCredential;
 	private SamlTrustProvider trustProvider;
@@ -79,13 +78,13 @@ public class SAMLLogoutProcessor
 	 * Ouch ;-) Probably we should encapsulate non bean params into a config class. But we have a factory to help.
 	 */
 	public SAMLLogoutProcessor(SessionManagement sessionManagement, SessionParticipantTypesRegistry registry,
-			IdentityResolver idResolver, LogoutContextsStore contextsStore,
-			ReplayAttackChecker replayChecker, SLOAsyncMessageHandler responseHandler,
-			InternalLogoutProcessor internalProcessor,
-			IdentityTypeMapper identityTypeMapper, String consumerEndpointUri,
-			long requestValidity, String localSamlId,
-			X509Credential localSamlCredential, SamlTrustProvider trustProvider,
-			String realm, UnityServerConfiguration mainConfig)
+	                           IdentityResolver idResolver, LogoutContextsStore contextsStore,
+	                           ReplayAttackChecker replayChecker, SLOAsyncMessageHandler responseHandler,
+	                           InternalLogoutProcessor internalProcessor,
+	                           IdentityTypeMapper identityTypeMapper, String consumerEndpointUri,
+	                           Duration requestValidity, String localSamlId,
+	                           X509Credential localSamlCredential, SamlTrustProvider trustProvider,
+	                           String realm, UnityServerConfiguration mainConfig)
 	{
 		this.sessionManagement = sessionManagement;
 		this.registry = registry;
@@ -374,7 +373,7 @@ public class SAMLLogoutProcessor
 	private ParsedLogoutRequest parseRequest(SAMLMessage<LogoutRequestDocument> logoutRequest) throws SAMLRequesterException
 	{
 		LogoutRequestValidator validator = new LogoutRequestValidator(consumerEndpointUri, 
-				requestValidity, replayChecker, trustProvider::getTrustedKeys);
+				requestValidity.toMillis(), replayChecker, trustProvider::getTrustedKeys);
 		LogoutRequestParser parser = new LogoutRequestParser(validator, localSamlCredential.getKey());
 		try
 		{

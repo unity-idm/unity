@@ -24,7 +24,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
@@ -102,7 +102,7 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 			throws IOException, ServletException, EopException
 	{
 		log.trace("Starting SAML request processing");
-		SamlIdpProperties samlConfig = (SamlIdpProperties) samlConfigProvider.getVirtualConfiguration();
+		SAMLIdPConfiguration samlIdPConfiguration = samlConfigProvider.getSAMLIdPConfiguration();
 
 		String samlRequestStr = request.getParameter(SAMLConstants.REQ_SAML_REQUEST);
 		//do we have a new request?
@@ -126,8 +126,8 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 			AuthnRequestDocument samlRequest = parse(request);
 			if (log.isTraceEnabled())
 				log.trace("Parsed SAML request:\n" + samlRequest.xmlText());
-			context = createSamlContext(request, samlRequest, samlConfig, isHTTPGet);
-			validate(context, response, samlConfig);
+			context = createSamlContext(request, samlRequest, samlIdPConfiguration, isHTTPGet);
+			validate(context, response, samlIdPConfiguration);
 		} catch (SAMLProcessingException e)
 		{
 			if (log.isDebugEnabled())
@@ -165,12 +165,12 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 	}
 	
 	protected SAMLAuthnContext createSamlContext(HttpServletRequest httpReq, AuthnRequestDocument samlRequest,
-			SamlIdpProperties samlConfig, boolean isHTTPGet)
+		SAMLIdPConfiguration samlIdPConfiguration, boolean isHTTPGet)
 	{
 		SAMLVerifiableElement verifiableMessage = isHTTPGet ? 
 				new RedirectedMessage(httpReq.getQueryString()) 
 				: new XMLExpandedMessage(samlRequest, samlRequest.getAuthnRequest());
-		SAMLAuthnContext ret = new SAMLAuthnContext(samlRequest, samlConfig, verifiableMessage);
+		SAMLAuthnContext ret = new SAMLAuthnContext(samlRequest, samlIdPConfiguration, verifiableMessage);
 		String rs = httpReq.getParameter(SAMLConstants.RELAY_STATE);
 		if (rs != null)
 			ret.setRelayState(rs);
@@ -212,11 +212,11 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 	}
 
 	protected void validate(SAMLAuthnContext context, HttpServletResponse servletResponse,
-			SamlIdpProperties samlConfig) 
+			SAMLIdPConfiguration samlConfig)
 			throws SAMLProcessingException, IOException, EopException
 	{
 		WebAuthRequestValidator validator = new WebAuthRequestValidator(endpointAddress, 
-				samlConfig.getAuthnTrustChecker(), samlConfig.getRequestValidity(), 
+				samlConfig.getAuthnTrustChecker(), samlConfig.requestValidityPeriod,
 				samlConfig.getReplayChecker());
 		samlConfig.configureKnownRequesters(validator);
 		try

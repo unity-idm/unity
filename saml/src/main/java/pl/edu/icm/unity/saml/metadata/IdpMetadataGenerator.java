@@ -11,8 +11,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.metadata.*;
 import xmlbeans.org.w3.x2000.x09.xmldsig.KeyInfoType;
@@ -23,6 +22,7 @@ import java.util.Date;
 import java.util.Set;
 
 import static java.util.Optional.ofNullable;
+import static pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.*;
 
 /**
  * Automatically generates SAML metadata from IdP configuration.
@@ -33,7 +33,7 @@ import static java.util.Optional.ofNullable;
 public class IdpMetadataGenerator implements MetadataProvider
 {
 	private Date generationDate;
-	private SamlIdpProperties samlConfig;
+	private SAMLIdPConfiguration samlConfig;
 
 	private I18nString displayedName;
 
@@ -43,8 +43,8 @@ public class IdpMetadataGenerator implements MetadataProvider
 	private EndpointType[] attributeQueryEndpoints;
 	private EndpointType[] sloEndpoints;
 	
-	public IdpMetadataGenerator(SamlIdpProperties samlConfig, EndpointType[] ssoEndpoints, 
-			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints, I18nString displayedName, MessageSource msg)
+	public IdpMetadataGenerator(SAMLIdPConfiguration samlConfig, EndpointType[] ssoEndpoints,
+	                            EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints, I18nString displayedName, MessageSource msg)
 	{
 		this.samlConfig = samlConfig;
 		this.ssoEndpoints = ssoEndpoints;
@@ -74,7 +74,7 @@ public class IdpMetadataGenerator implements MetadataProvider
 		
 		EntityDescriptorType meta = document.addNewEntityDescriptor();
 		
-		meta.setEntityID(samlConfig.getValue(SamlIdpProperties.ISSUER_URI));
+		meta.setEntityID(samlConfig.issuerURI);
 
 		if (ssoEndpoints != null && ssoEndpoints.length > 0)
 			addIdpSSODescriptor(meta);
@@ -112,12 +112,11 @@ public class IdpMetadataGenerator implements MetadataProvider
 		IDPSSODescriptorType idpDesc = meta.addNewIDPSSODescriptor();
 		fillIdpGenericDescriptor(idpDesc);
 
-		Set<String> supportedIdTypes = samlConfig.getIdTypeMapper().getSupportedIdentityTypes();
+		Set<String> supportedIdTypes = samlConfig.idTypeMapper.getSupportedIdentityTypes();
 		for (String idType: supportedIdTypes)
 			idpDesc.addNameIDFormat(idType);
 		
-		RequestAcceptancePolicy acceptancePolicy = samlConfig.getEnumValue(SamlIdpProperties.SP_ACCEPT_POLICY, 
-				RequestAcceptancePolicy.class);
+		RequestAcceptancePolicy acceptancePolicy = samlConfig.spAcceptPolicy;
 		idpDesc.setWantAuthnRequestsSigned(acceptancePolicy == RequestAcceptancePolicy.strict ||
 				acceptancePolicy == RequestAcceptancePolicy.validSigner);
 		

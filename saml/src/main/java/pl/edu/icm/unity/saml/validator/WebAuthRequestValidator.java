@@ -13,6 +13,8 @@ import eu.unicore.samly2.validators.ReplayAttackChecker;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
+import java.time.Duration;
+
 /**
  * Adds Unity limitations to standard Web SSO validation:
  * only HTTP-POST responses and no support for passive authN.
@@ -22,7 +24,7 @@ public class WebAuthRequestValidator extends UnityAuthnRequestValidator
 {
 
 	public WebAuthRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
-			long requestValidity, ReplayAttackChecker replayChecker)
+	                               Duration requestValidity, ReplayAttackChecker replayChecker)
 	{
 		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker);
 	}

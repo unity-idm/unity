@@ -43,6 +43,8 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
 import java.net.URL;
 import java.security.PublicKey;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -59,6 +61,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	public static final String NAME = "saml2";
 	public static final String METADATA_SERVLET_PATH = "/saml-sp-metadata";
 	public static final String DESC = "Handles SAML assertions obtained from remote IdPs";
+	public static final Duration REQUEST_VALIDITY = Duration.of(600000, ChronoUnit.MILLIS);
 
 	private final pl.edu.icm.unity.saml.metadata.cfg.SPRemoteMetaManager.Factory remoteMetadataManagerFactory;
 	private MultiMetadataServlet metadataServlet;
@@ -197,8 +200,8 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		String samlId = spConfiguration.requesterSamlId;
 		X509Credential credential = spConfiguration.requesterCredential;
 		IdentityTypeMapper idMapper = new IdentityTypeMapper(spConfiguration.effectiveMappings);
-		sloManager.deployAsyncServlet(sloPath, idMapper, 600000, samlId, credential, samlTrustProvider, sloRealm);
-		sloManager.deploySyncServlet(sloPath, idMapper, 600000, samlId, credential, samlTrustProvider, sloRealm);
+		sloManager.deployAsyncServlet(sloPath, idMapper, REQUEST_VALIDITY, samlId, credential, samlTrustProvider, sloRealm);
+		sloManager.deploySyncServlet(sloPath, idMapper, REQUEST_VALIDITY, samlId, credential, samlTrustProvider, sloRealm);
 
 		sloReplyInstaller.enable();
 	}

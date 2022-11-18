@@ -4,17 +4,16 @@
  */
 package pl.edu.icm.unity.engine.api.idp;
 
-import java.util.List;
-import java.util.Optional;
-
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.util.configuration.PropertiesHelper;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface IdPEngine
 {
@@ -39,7 +38,7 @@ public interface IdPEngine
 	TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV entity, String group, TranslationProfile profile,
 			String requester, Optional<EntityInGroup> requesterEntity, 
 			String protocol, String protocolSubType,
-			boolean allowIdentityCreate, PropertiesHelper importsConfig) throws EngineException;
+			boolean allowIdentityCreate, UserImportConfigs userImportConfigs) throws EngineException;
 
 	/**
 	 * Obtains a complete and translated information about entity, authorized to be published.
@@ -60,7 +59,7 @@ public interface IdPEngine
 	 */
 	TranslationResult obtainUserInformationWithEnrichingImport(EntityParam entity, String group, TranslationProfile profile,
 			String requester, Optional<EntityInGroup> requesterEntity, String protocol, String protocolSubType,
-			boolean allowIdentityCreate, PropertiesHelper importsConfig) throws EngineException;
+			boolean allowIdentityCreate, UserImportConfigs userImportConfigs) throws EngineException;
 	
 	/**
 	 * Finds selected identity among validIdentities and returns it as IdentityParam. Argument must be given

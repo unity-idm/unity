@@ -31,9 +31,7 @@ import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.*;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.*;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServletFactory;
@@ -51,6 +49,8 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProviders;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
@@ -87,7 +87,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	public static final String SAML_SLO_SOAP_SERVLET_PATH = "/SLO-SOAP";
 	
 	protected String publicEntryPointPath;
-	protected SamlIdpProperties samlProperties;
+	protected SAMLIdPConfiguration samlConfiguration;
 	protected FreemarkerAppHandler freemarkerHandler;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
@@ -99,6 +99,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected AttributeTypeSupport aTypeSupport;
 	private RemoteMetadataService metadataService;
 	private URIAccessService uriAccessService;
+
+	protected SAMLIdPConfigurationParser samlIdPConfigurationParser;
 	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 
 	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
@@ -119,12 +121,13 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	                              AdvertisedAddressProvider advertisedAddrProvider,
 	                              RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 	                              SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-	                              LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
+	                              LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+	                              SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
 		this(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				SamlIdPWebUI.class, pkiManagement, executorsService, dispatcherServletFactory, logoutProcessorFactory,
 				sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
-				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory, lastAccessAttributeManagement);
+				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory, lastAccessAttributeManagement, samlIdPConfigurationParser);
 	}
 
 	protected SamlAuthVaadinEndpoint(String publicEntryServletPath,
@@ -144,7 +147,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			URIAccessService uriAccessService,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+			SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH,
 				remoteAuthnResponseProcessingFilter);
@@ -161,6 +165,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		this.uriAccessService = uriAccessService;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
+		this.samlIdPConfigurationParser = samlIdPConfigurationParser;
 	}
 	
 	@Override
@@ -169,7 +174,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		super.setSerializedConfiguration(properties);
 		try
 		{
-			samlProperties = new SamlIdpProperties(this.properties, pkiManagement);
+			samlConfiguration = samlIdPConfigurationParser.parse(this.properties);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML Web IdP endpoint's configuration", e);
@@ -179,9 +184,10 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	@Override
 	public void startOverridable()
 	{
-		myMetadataManager = new RemoteMetaManager(samlProperties, pkiManagement,
-					new MetaToIDPConfigConverter(pkiManagement, msg), 
-					metadataService, SamlIdpProperties.SPMETA_PREFIX);
+		myMetadataManager = new RemoteMetaManager(
+				samlConfiguration, pkiManagement,
+				metadataService, new MetaToIDPConfigConverter(pkiManagement, msg)
+		);
 		try
 		{
 			sloReplyInstaller.enable();
@@ -281,7 +287,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				getBootstrapHandler(SAML_ENTRY_SERVLET_PATH));
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 		
-		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
+		if (samlConfiguration.publishMetadata)
 		{
 			Servlet metadataServlet = getMetadataServlet(samlPublicEntryPointUrl, sloAsyncURL, sloSyncURL);
 			context.addServlet(createServletHolder(metadataServlet, true), SAML_META_SERVLET_PATH + "/*");
@@ -318,7 +324,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] sloEndpoints = new EndpointType[] {sloPost, sloRedirect, sloSoap};
 
-		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, uriAccessService, 
+		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(myMetadataManager.getSAMLIdPConfiguration(), uriAccessService,
 				executorsService, authnEndpoints, null, sloEndpoints,
 				description.getEndpoint().getConfiguration().getDisplayedName(), msg);
 		return new MetadataServlet(provider);
@@ -344,22 +350,23 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		return cxfServlet;
 	}
 	
-	public SamlProperties getVirtualConfiguration()
+	public TrustedServiceProviders getSpsConfiguration()
 	{
-		return myMetadataManager.getVirtualConfiguration();
+		return myMetadataManager.getTrustedSps();
 	}
 	
 	private SAMLLogoutProcessor createLogoutProcessor(String endpointURL)
 	{
 		SamlTrustProvider trustProvider = new IdpSamlTrustProvider(myMetadataManager);
-		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
+		SAMLIdPConfiguration configuration = myMetadataManager.getSAMLIdPConfiguration();
+		ResolvedEndpoint endpointDescription = getEndpointDescription();
 		return logoutProcessorFactory.getInstance(
-				virtualConf.getIdTypeMapper(), 
-				endpointURL, 
-				virtualConf.getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY) * 1000, 
-				virtualConf.getValue(SamlIdpProperties.ISSUER_URI), 
-				virtualConf.getSamlIssuerCredential(), 
+				configuration.idTypeMapper,
+				endpointURL,
+				configuration.requestValidityPeriod,
+				configuration.issuerURI,
+				configuration.getSamlIssuerCredential(),
 				trustProvider, 
-				getEndpointDescription().getRealm().getName());
+				endpointDescription.getRealm().getName());
 	}
 }

@@ -4,20 +4,11 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
-import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
-import pl.edu.icm.unity.stdext.identity.TransientIdentity;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.stdext.identity.*;
+
+import java.util.*;
 
 /**
  * Maps SAML identity to the Unity identity. In the first place the configuration is used, 
@@ -40,24 +31,6 @@ public class IdentityTypeMapper
 	{
 		effectiveSamlToUnityIdMappings = new HashMap<>(DEFAULTS);
 		effectiveSamlToUnityIdMappings.putAll(configuredMappings);
-	}
-
-	@Deprecated
-	//TODO this method should be dropped after refactoring of SAML IDP code to be based on non Properties config.
-	public IdentityTypeMapper(SamlProperties config)
-	{
-		Set<String> keys = config.getStructuredListKeys(SamlProperties.IDENTITY_MAPPING_PFX);
-		effectiveSamlToUnityIdMappings = new HashMap<>(keys.size());
-		effectiveSamlToUnityIdMappings.putAll(DEFAULTS);
-		for (String key: keys)
-		{
-			String localId = config.getValue(key+SamlProperties.IDENTITY_LOCAL);
-			String samlId = config.getValue(key+SamlProperties.IDENTITY_SAML);
-			if (localId.trim().equals(""))
-				effectiveSamlToUnityIdMappings.remove(samlId);
-			else
-				effectiveSamlToUnityIdMappings.put(samlId, localId);
-		}
 	}
 	
 	/**

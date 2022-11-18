@@ -33,7 +33,8 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfigurationParser;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
@@ -68,7 +69,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	public static final String SERVLET_PATH = "/saml2idp-soap";
 	public static final String METADATA_SERVLET_PATH = "/metadata";
 	
-	protected SamlIdpProperties samlProperties;
+	protected SAMLIdPConfiguration samlIdPConfiguration;
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
 	protected PKIManagement pkiManagement;
@@ -80,6 +81,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private URIAccessService uriAccessService;
 	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
+	protected final SAMLIdPConfigurationParser samlIdPConfigurationParser;
 	@Autowired
 	public SamlSoapEndpoint(MessageSource msg,
 			NetworkServer server,
@@ -96,7 +98,8 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			EntityManagement entityMan, 
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+			SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, SERVLET_PATH, entityMan);
 		this.idpEngine = idpEngine;
@@ -109,6 +112,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.uriAccessService = uriAccessService;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
+		this.samlIdPConfigurationParser = samlIdPConfigurationParser;
 	}
 
 	@Override
@@ -117,7 +121,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		super.setSerializedConfiguration(config);
 		try
 		{
-			samlProperties = new SamlIdpProperties(properties, pkiManagement);
+			samlIdPConfiguration = samlIdPConfigurationParser.parse(properties);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the SAML SOAP" +
@@ -128,10 +132,10 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	@Override
 	public void startOverridable()
 	{
-		myMetadataManager = new RemoteMetaManager(samlProperties, 
-				pkiManagement, 
-				new MetaToIDPConfigConverter(pkiManagement, msg), 
-				metadataService, SamlIdpProperties.SPMETA_PREFIX);
+		myMetadataManager = new RemoteMetaManager(
+				samlIdPConfiguration, pkiManagement,
+				metadataService, new MetaToIDPConfigConverter(pkiManagement, msg)
+		);
 	}
 	
 	@Override
@@ -147,8 +151,8 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		
 		String endpointURL = getServletUrl(servletPath);
 		Servlet metadataServlet = getMetadataServlet(endpointURL);
-		
-		if (samlProperties.getBooleanValue(SamlIdpProperties.PUBLISH_METADATA))
+
+		if (samlIdPConfiguration.publishMetadata)
 		{
 			ServletHolder holder = new ServletHolder(metadataServlet);
 			context.addServlet(holder, METADATA_SERVLET_PATH + "/*");
@@ -160,25 +164,25 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected void configureServices()
 	{
 		String endpointURL = getServletUrl(servletPath);
-		SamlIdpProperties virtualConf = (SamlIdpProperties) myMetadataManager.getVirtualConfiguration();
-		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(aTypeSupport, virtualConf, 
+		SAMLIdPConfiguration configuration = myMetadataManager.getSAMLIdPConfiguration();
+		SAMLAssertionQueryImpl assertionQueryImpl = new SAMLAssertionQueryImpl(aTypeSupport, configuration,
 				endpointURL, idpEngine, preferencesMan);
 		addWebservice(SAMLQueryInterface.class, assertionQueryImpl);
-		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(aTypeSupport, virtualConf, endpointURL, 
+		SAMLAuthnImpl authnImpl = new SAMLAuthnImpl(aTypeSupport, configuration, endpointURL,
 				idpEngine, preferencesMan, idpStatisticReporterFactory.getForEndpoint(description.getEndpoint()), lastAccessAttributeManagement);
 		addWebservice(SAMLAuthnInterface.class, authnImpl);
 		
-		configureSLOService(virtualConf, endpointURL);
+		configureSLOService(configuration, endpointURL);
 	}
 	
-	protected void configureSLOService(SamlIdpProperties virtualConf, String endpointURL)
+	protected void configureSLOService(SAMLIdPConfiguration configuration, String endpointURL)
 	{
 		SamlTrustProvider trustProvider = new IdpSamlTrustProvider(myMetadataManager);
-		SAMLLogoutProcessor logoutProcessor = logoutProcessorFactory.getInstance(virtualConf.getIdTypeMapper(), 
-				endpointURL + "/SingleLogoutService", 
-				virtualConf.getLongValue(SamlIdpProperties.SAML_REQUEST_VALIDITY), 
-				virtualConf.getValue(SamlIdpProperties.ISSUER_URI), 
-				virtualConf.getSamlIssuerCredential(), 
+		SAMLLogoutProcessor logoutProcessor = logoutProcessorFactory.getInstance(configuration.idTypeMapper,
+				endpointURL + "/SingleLogoutService",
+				configuration.requestValidityPeriod,
+				configuration.issuerURI,
+				configuration.getSamlIssuerCredential(),
 				trustProvider, 
 				getEndpointDescription().getRealm().getName());
 		SAMLSingleLogoutImpl logoutImpl = new SAMLSingleLogoutImpl(logoutProcessor);
@@ -202,7 +206,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] sloEndpoints = new EndpointType[] {sloSoap};
 
-		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, uriAccessService, 
+		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(myMetadataManager.getSAMLIdPConfiguration(), uriAccessService,
 				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints,
 				description.getEndpoint().getConfiguration().getDisplayedName(), msg);
 		return new MetadataServlet(provider);

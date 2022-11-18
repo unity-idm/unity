@@ -4,24 +4,25 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
+import pl.edu.icm.unity.engine.api.idp.*;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.*;
 
 /**
  * Configuration of the OAuth AS. Used for OpenID Connect mode too. Shared by web and rest endpoints (authz and token
@@ -282,7 +283,29 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		}
 		return false;
 	}
-	
+
+	public Set<ActiveValueClient> getActiveValueClients()
+	{
+		Set<String> structuredListKeys = this.getStructuredListKeys(ACTIVE_VALUE_SELECTION_PFX);
+		return structuredListKeys.stream()
+				.map(key -> new ActiveValueClient(key, this.getValue(key + ACTIVE_VALUE_CLIENT),
+						this.getListOfValues(key + ACTIVE_VALUE_SINGLE_SELECTABLE),
+						this.getListOfValues(key + ACTIVE_VALUE_MULTI_SELECTABLE))
+				).collect(Collectors.toSet());
+	}
+
+	public UserImportConfigs getUserImportConfigs()
+	{
+		Set<String> structuredListKeys = this.getStructuredListKeys(USERIMPORT_PFX);
+		boolean skip = this.getBooleanValue(SKIP_USERIMPORT);
+		if (structuredListKeys.isEmpty() || skip)
+			return new UserImportConfigs(skip, Set.of());
+		Set<UserImportConfig> configs = structuredListKeys.stream()
+				.map(key -> new UserImportConfig(key, this.getValue(USERIMPORT_IMPORTER), this.getValue(key + USERIMPORT_IDENTITY_TYPE)))
+				.collect(Collectors.toSet());
+		return new UserImportConfigs(skip, configs);
+	}
+
 	public TranslationProfile getOutputTranslationProfile()
 	{
 		return PropertiesTranslationProfileLoader.getTranslationProfile(this, CommonIdPProperties.TRANSLATION_PROFILE,

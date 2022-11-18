@@ -5,29 +5,27 @@
 
 package pl.edu.icm.unity.saml.metadata.cfg;
 
+import eu.unicore.samly2.SAMLConstants;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlException;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.types.I18nString;
+import xmlbeans.org.oasis.saml2.metadata.*;
+import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
+import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoDocument;
+import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import eu.unicore.samly2.SAMLConstants;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.types.I18nString;
-import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.ExtensionsType;
-import xmlbeans.org.oasis.saml2.metadata.LocalizedNameType;
-import xmlbeans.org.oasis.saml2.metadata.OrganizationType;
-import xmlbeans.org.oasis.saml2.metadata.SSODescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
-import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoDocument;
-import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
+import static java.util.Optional.ofNullable;
 
 /**
  * A collection of methods helpful in reading SAML metadata
@@ -39,6 +37,7 @@ public class MetaToConfigConverterHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetaToConfigConverterHelper.class);
 
+	private static final String DEFAULT_LANG_KEY = "";
 	
 	public static boolean supportsSaml2(SSODescriptorType idpDef)
 	{
@@ -79,14 +78,18 @@ public class MetaToConfigConverterHelper
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
 		I18nString ret = new I18nString();
-		ret.addAllValues(getLocalizedNames(msg, uiInfo, idpDesc, mainDescriptor));
+		Map<String, String> localizedNames = getLocalizedNames(msg, uiInfo, idpDesc, mainDescriptor);
+		if(localizedNames.isEmpty())
+			return null;
+		ret.addAllValues(localizedNames);
+		ofNullable(localizedNames.get(DEFAULT_LANG_KEY)).ifPresent(ret::setDefaultValue);
 		return ret;
 	}
 	
 	public static Map<String, String> getLocalizedNames(MessageSource msg, UIInfoType uiInfo,
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
-		Map<String, String> ret = new HashMap<String, String>();
+		Map<String, String> ret = new HashMap<>();
 		OrganizationType mainOrg = mainDescriptor.getOrganization();
 		if (mainOrg != null)
 		{
@@ -110,9 +113,12 @@ public class MetaToConfigConverterHelper
 	{
 		I18nString ret = new I18nString();
 		Map<String, LogoType> asMap = getLocalizedLogos(uiInfo);
+		if(asMap.isEmpty())
+			return null;
 		ret.addAllValues(asMap.entrySet().stream()
-				.collect(Collectors.toMap(entry -> entry.getKey(), 
-						entry -> entry.getValue().getStringValue())));
+				.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getStringValue())));
+		ofNullable(asMap.get(DEFAULT_LANG_KEY)).map(XmlAnySimpleType::getStringValue).ifPresent(ret::setDefaultValue);
+
 		return ret;
 	}
 	
@@ -126,7 +132,7 @@ public class MetaToConfigConverterHelper
 				return ret;
 			for (LogoType logo : logos)
 			{
-				String key = logo.getLang() == null ? "" : "." + logo.getLang();
+				String key = logo.getLang() == null ? DEFAULT_LANG_KEY : logo.getLang();
 				LogoType e = ret.get(key);
 				if (e == null)
 				{
@@ -142,8 +148,8 @@ public class MetaToConfigConverterHelper
 	}
 
 	/**
-	 * Converts SAML names to a language key->value map. All language keys
-	 * are prefixed with dot. The empty key is used to provide a default
+	 * Converts SAML names to a language key->value map.
+	 * The empty key is used to provide a default
 	 * value, for the default system locale. If such default was not found
 	 * in the SAML names, then the 'en' locale is tried. Not fully correct,
 	 * but this is de facto standard default locale for international
@@ -162,9 +168,9 @@ public class MetaToConfigConverterHelper
 			String lang = name.getLang();
 			if (lang != null)
 			{
-				ret.put("." + lang, name.getStringValue());
+				ret.put(lang, name.getStringValue());
 				if (lang.equals(msg.getDefaultLocaleCode()))
-					ret.put("", name.getStringValue());
+					ret.put(DEFAULT_LANG_KEY, name.getStringValue());
 				if (lang.equals("en"))
 					enName = name.getStringValue();
 			} else
