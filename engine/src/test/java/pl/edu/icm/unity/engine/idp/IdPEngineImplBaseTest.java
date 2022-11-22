@@ -24,6 +24,7 @@ import pl.edu.icm.unity.types.basic.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -43,7 +44,7 @@ public class IdPEngineImplBaseTest
 		EntityManagement identitiesMan = mock(EntityManagement.class);
 		UserImportSerivce userImportService = mock(UserImportSerivce.class);
 		OutputProfileExecutor outputProfileExecutor = mock(OutputProfileExecutor.class);
-		UserImportConfigs config = mock(UserImportConfigs.class);
+		UserImportConfigs config = new UserImportConfigs(false, Set.of());
 		
 		when(userImportService.importUser(any())).thenReturn(
 				Lists.newArrayList(
@@ -82,7 +83,7 @@ public class IdPEngineImplBaseTest
 		EntityManagement identitiesMan = mock(EntityManagement.class);
 		UserImportSerivce userImportService = mock(UserImportSerivce.class);
 		OutputProfileExecutor outputProfileExecutor = mock(OutputProfileExecutor.class);
-		UserImportConfigs config = mock(UserImportConfigs.class);
+		UserImportConfigs config = new UserImportConfigs(false, Set.of());
 		
 		when(identitiesMan.getEntity(any(), any(), eq(false), any())).thenReturn(
 				new Entity(Lists.newArrayList(new Identity("idType", "id", 1, "id")), null, null));
@@ -123,7 +124,7 @@ public class IdPEngineImplBaseTest
 		EntityManagement identitiesMan = mock(EntityManagement.class);
 		UserImportSerivce userImportService = mock(UserImportSerivce.class);
 		OutputProfileExecutor outputProfileExecutor = mock(OutputProfileExecutor.class);
-		UserImportConfigs config = mock(UserImportConfigs.class);
+		UserImportConfigs config = new UserImportConfigs(false, Set.of());
 		
 		EntityParam clientEntity = new EntityParam(1234l);
 		List<AttributeExt> clientAttributes = Lists.newArrayList(new AttributeExt(
