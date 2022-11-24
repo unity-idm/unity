@@ -87,6 +87,7 @@
         <module>unity-rest-api</module>
         <module>vaadin23-endpoint-common</module>
         <module>vaadin23-elements</module>
+        <module>vaadin23-shared-endpoint</module>
     </modules>
 
 	<developers>

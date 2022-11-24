@@ -13,6 +13,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 
 @Component
 class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, SessionInitListener
@@ -35,7 +36,8 @@ class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, Ses
 	@Override
 	public void sessionInit(SessionInitEvent event) {
 		WrappedSession wrappedSession = event.getSession().getSession();
-		wrappedSession.setMaxInactiveInterval(InvocationContext.getCurrent().getRealm().getMaxInactivity());
+		Optional.ofNullable(InvocationContext.getCurrent().getRealm())
+						.ifPresent(realm -> wrappedSession.setMaxInactiveInterval(realm.getMaxInactivity()));
 		LOG.debug("Session {} created, max inactivity set to {}",
 				wrappedSession.getId(),
 				wrappedSession.getMaxInactiveInterval());

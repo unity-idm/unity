@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class JarGetter {
+public class JarGetter {
 	static List<String> vaadinJars = List.of(
 		"flow-client",
 		"flow-data",
@@ -53,7 +53,7 @@ class JarGetter {
 		"vaadin-virtual-list-flow"
 	);
 
-	static String getJarsRegex(Set<String> classPathElements)
+	public static String getJarsRegex(Set<String> classPathElements)
 	{
 		return vaadinJars.stream().collect(Collectors.joining(".*|.*", "(.*", ".*|")) +
 			classPathElements.stream().collect(Collectors.joining("|", "", ")"));
