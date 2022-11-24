@@ -160,6 +160,12 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
+			<artifactId>vaadin23-shared-endpoint</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-otp</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
