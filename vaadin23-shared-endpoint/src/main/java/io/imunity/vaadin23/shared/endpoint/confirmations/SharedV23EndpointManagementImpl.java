@@ -56,7 +56,7 @@ public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
 		Vaadin823EndpointProperties vaadinEndpointProperties = new Vaadin823EndpointProperties(properties, config.getValue(DEFAULT_WEB_CONTENT_PATH));
 		WebAppContext context = new Vaadin23WebAppContext(properties, vaadinEndpointProperties, msg, null);
 		context.setResourceBase(getWebContentsDir(config));
-		context.setContextPath(CONTEXT_PATH + "2");
+		context.setContextPath(CONTEXT_PATH + "2"); //FIXME "2" - to remove after finished refactor of unitygw endpoint
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(sharedResourceProvider.getChosenClassPathElement()));
 		context.setConfigurationDiscovered(true);
 		context.getServletContext().setExtendedListenerTypes(true);

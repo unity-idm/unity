@@ -222,7 +222,7 @@ class EmailConfirmationManagerImpl implements EmailConfirmationManager
 							+ " are allowed");
 
 		String link = advertisedAddress.toExternalForm()
-				+ SharedEndpointManagementImpl.CONTEXT_PATH + "2"
+				+ SharedEndpointManagementImpl.CONTEXT_PATH + "2" //FIXME "2" - to remove after finished refactor of unitygw endpoint
 				+ EmailConfirmationServletProvider.SERVLET_PATH;
 		HashMap<String, String> params = new HashMap<>();
 		params.put(EmailConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
