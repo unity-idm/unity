@@ -4,28 +4,11 @@
  */
 package pl.edu.icm.unity.engine.confirmation;
 
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.base.token.Token;
@@ -60,6 +43,11 @@ import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
+
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.*;
 
 /**
  * Email confirmation manager, send or process confirmation request
@@ -234,7 +222,7 @@ class EmailConfirmationManagerImpl implements EmailConfirmationManager
 							+ " are allowed");
 
 		String link = advertisedAddress.toExternalForm()
-				+ SharedEndpointManagementImpl.CONTEXT_PATH
+				+ SharedEndpointManagementImpl.CONTEXT_PATH_2
 				+ EmailConfirmationServletProvider.SERVLET_PATH;
 		HashMap<String, String> params = new HashMap<>();
 		params.put(EmailConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
