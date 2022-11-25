@@ -66,10 +66,10 @@ public class InternalEndpointManagement
 			}
 			catch (Exception e)
 			{
-				if(e instanceof IllegalEndpointException)
-					throw e;
 				log.error("Can't load endpoint " + endpoint.getName() +
 						" of type " + endpoint.getTypeId(), e);
+				if(e instanceof IllegalEndpointException)
+					throw e;
 			}
 		}
 	}	
