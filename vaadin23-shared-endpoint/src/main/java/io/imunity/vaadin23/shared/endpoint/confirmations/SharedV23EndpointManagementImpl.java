@@ -41,6 +41,7 @@ import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAUL
 public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, SharedV23EndpointManagementImpl.class);
+	private static final String ENDPOINT_ID = "sys:sharedV23";
 	private final ServletContextHandler sharedHandler;
 	private final URL advertisedAddress;
 	private final Set<String> usedPaths;
@@ -56,7 +57,7 @@ public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
 		Vaadin823EndpointProperties vaadinEndpointProperties = new Vaadin823EndpointProperties(properties, config.getValue(DEFAULT_WEB_CONTENT_PATH));
 		WebAppContext context = new Vaadin23WebAppContext(properties, vaadinEndpointProperties, msg, null);
 		context.setResourceBase(getWebContentsDir(config));
-		context.setContextPath(CONTEXT_PATH + "2"); //FIXME "2" - to remove after finished refactor of unitygw endpoint
+		context.setContextPath(CONTEXT_PATH_2);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(sharedResourceProvider.getChosenClassPathElement()));
 		context.setConfigurationDiscovered(true);
 		context.getServletContext().setExtendedListenerTypes(true);
@@ -69,7 +70,7 @@ public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
 
-		httpServer.deployHandler(context, "sys:shared2");
+		httpServer.deployHandler(context, ENDPOINT_ID);
 
 		sharedHandler = context;
 		usedPaths = new HashSet<>();
