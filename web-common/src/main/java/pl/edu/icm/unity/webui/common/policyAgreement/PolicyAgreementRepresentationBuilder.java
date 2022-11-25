@@ -5,13 +5,8 @@
 
 package pl.edu.icm.unity.webui.common.policyAgreement;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -19,11 +14,16 @@ import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextPars
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser.DocPlaceholder;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
-import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.CONTEXT_PATH_2;
 
 /**
  * Builds single policy agreement configuration representation.
@@ -102,14 +102,11 @@ public class PolicyAgreementRepresentationBuilder
 	private String getPolicyDocumentPublicLink(PolicyDocumentWithRevision doc)
 	{
 		return doc != null
-				? doc.contentType.equals(PolicyDocumentContentType.LINK) ? doc.content.getValue(msg)
-						: sharedEndpointManagement.getServletUrl(
-								PublicWellKnownURLServletProvider.SERVLET_PATH) + "?"
-								+ PublicPolicyDocumentView.POLICY_DOC_PARAM + "="
-								+ doc.id + "#!"
-								+ PublicPolicyDocumentView.POLICY_DOC_VIEW
-				: sharedEndpointManagement.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH)
-						+ "?" + PublicPolicyDocumentView.POLICY_DOC_PARAM + "=UNKNOWN" + "#!"
-						+ PublicPolicyDocumentView.POLICY_DOC_VIEW;
+				? doc.contentType.equals(PolicyDocumentContentType.LINK)
+					? doc.content.getValue(msg) :
+						sharedEndpointManagement.getServerAddress() + sharedEndpointManagement.getBaseContextPath() +
+						CONTEXT_PATH_2 + "/pub/policyDocuments/" + doc.id
+				: sharedEndpointManagement.getServerAddress() + sharedEndpointManagement.getBaseContextPath() +
+					CONTEXT_PATH_2 + "/pub/policyDocuments/" + "UNKNOWN";
 	}
 }
