@@ -27,7 +27,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 
-@Route(value = "/pub/policyDocuments/:" + PublicPolicyDocumentView.POLICY_DOC_PARAM)
+import java.util.Optional;
+
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.POLICY_DOCUMENTS_PATH;
+
+@Route(value = POLICY_DOCUMENTS_PATH + ":" + PublicPolicyDocumentView.POLICY_DOC_PARAM)
 public class PublicPolicyDocumentView extends Composite<Div> implements BeforeEnterObserver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PublicPolicyDocumentView.class);
@@ -82,19 +86,19 @@ public class PublicPolicyDocumentView extends Composite<Div> implements BeforeEn
 	public void beforeEnter(BeforeEnterEvent event)
 	{
 		event.getRouteParameters().get(POLICY_DOC_PARAM)
-				.map(this::getDocument)
+				.flatMap(this::getDocument)
 				.ifPresentOrElse(this::init, this::initError);
 	}
 
-	private PolicyDocumentWithRevision getDocument(String docId)
+	private Optional<PolicyDocumentWithRevision> getDocument(String docId)
 	{
 		try
 		{
-			return policyDocMan.getPolicyDocument(Long.parseLong(docId));
+			return Optional.of(policyDocMan.getPolicyDocument(Long.parseLong(docId)));
 		} catch (Exception e)
 		{
 			log.error("Unknown policy document id", e);
-			return null;
+			return Optional.empty();
 		}
 	}
 }
