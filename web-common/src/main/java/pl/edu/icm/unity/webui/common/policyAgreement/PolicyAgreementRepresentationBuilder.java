@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.CONTEXT_PATH_2;
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.POLICY_DOCUMENTS_PATH;
 
 /**
  * Builds single policy agreement configuration representation.
@@ -105,8 +106,8 @@ public class PolicyAgreementRepresentationBuilder
 				? doc.contentType.equals(PolicyDocumentContentType.LINK)
 					? doc.content.getValue(msg) :
 						sharedEndpointManagement.getServerAddress() + sharedEndpointManagement.getBaseContextPath() +
-						CONTEXT_PATH_2 + "/pub/policyDocuments/" + doc.id
+						CONTEXT_PATH_2 + POLICY_DOCUMENTS_PATH + doc.id
 				: sharedEndpointManagement.getServerAddress() + sharedEndpointManagement.getBaseContextPath() +
-					CONTEXT_PATH_2 + "/pub/policyDocuments/" + "UNKNOWN";
+					CONTEXT_PATH_2 + POLICY_DOCUMENTS_PATH + "UNKNOWN";
 	}
 }
