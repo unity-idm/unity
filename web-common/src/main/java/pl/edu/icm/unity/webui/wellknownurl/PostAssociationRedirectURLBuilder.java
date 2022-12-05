@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.wellknownurl;
 
 import java.net.URISyntaxException;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 
 /**
  * Builds URL to be used for redirection after account association.

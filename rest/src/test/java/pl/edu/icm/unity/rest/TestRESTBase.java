@@ -11,16 +11,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.hc.client5.http.ContextBuilder;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpHost;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
@@ -57,19 +52,9 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 		
 	protected HttpClientContext getClientContext(HttpHost host, String user, String pass)
 	{
-		CredentialsProvider credsProvider = new BasicCredentialsProvider();
-		credsProvider.setCredentials(
-				new AuthScope(host.getHostName(), host.getPort()),
-				new UsernamePasswordCredentials(user, pass));
-
-		AuthCache authCache = new BasicAuthCache();
-		BasicScheme basicAuth = new BasicScheme();
-		authCache.put(host, basicAuth);
-
-		HttpClientContext context = HttpClientContext.create();
-		context.setCredentialsProvider(credsProvider);
-		context.setAuthCache(authCache);
-		return context;
+		ContextBuilder cb = ContextBuilder.create();
+		cb.preemptiveBasicAuth(host, new UsernamePasswordCredentials(user, pass.toCharArray()));
+		return cb.build();
 	}
 	
 	protected HttpClient getClient() throws Exception
