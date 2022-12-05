@@ -22,7 +22,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.MultiMap;

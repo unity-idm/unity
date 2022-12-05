@@ -5,16 +5,11 @@
 package pl.edu.icm.unity.restadm;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import javax.ws.rs.core.Response.Status;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,11 +59,8 @@ public class TestRegRequests extends RESTAdminTestBase
 		regMan.submitRegistrationRequest(request, context);
 		
 		HttpGet get = new HttpGet("/restadm/v1/registrationRequests");
-		HttpResponse responseGet = client.execute(host, get, localcontext);
-
-		String contents = EntityUtils.toString(responseGet.getEntity());
+		String contents = executeQuery(get);
 		System.out.println("Response:\n" + contents);
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
 
 		List<RegistrationRequestState> returnedL = m.readValue(contents, 
 				new TypeReference<List<RegistrationRequestState>>() {});
@@ -85,11 +77,8 @@ public class TestRegRequests extends RESTAdminTestBase
 		String id = regMan.submitRegistrationRequest(request, context);
 		
 		HttpGet get = new HttpGet("/restadm/v1/registrationRequest/" + id);
-		HttpResponse responseGet = client.execute(host, get, localcontext);
-
-		String contents = EntityUtils.toString(responseGet.getEntity());
+		String contents = executeQuery(get);
 		System.out.println("Response:\n" + contents);
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
 
 		RegistrationRequestState returned = m.readValue(contents, RegistrationRequestState.class);
 		assertEqual(request, returned);

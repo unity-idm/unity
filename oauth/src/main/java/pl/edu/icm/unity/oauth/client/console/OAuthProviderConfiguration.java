@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.apache.http.NameValuePair;
+import org.apache.hc.core5.http.NameValuePair;
 
 import com.google.common.base.Strings;
 

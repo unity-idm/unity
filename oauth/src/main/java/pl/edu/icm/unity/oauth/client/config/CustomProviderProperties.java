@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;

@@ -16,8 +16,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;

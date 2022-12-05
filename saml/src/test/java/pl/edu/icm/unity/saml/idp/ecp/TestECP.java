@@ -6,32 +6,25 @@ package pl.edu.icm.unity.saml.idp.ecp;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.ContextBuilder;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -140,7 +133,7 @@ public class TestECP extends AbstractTestIdpBase
 		env2.addNewHeader().set(rs);
 		
 		env2.setBody(samlRespDoc.getEnvelope().getBody());
-		System.out.println("\n\nSending modified reesponse back to SP\n\n");
+		System.out.println("\n\nSending modified response back to SP\n\n");
 		System.out.println(envDoc2.xmlText(new XmlOptions().setSavePrettyPrint()));
 		
 		String ecpUrl = "https://localhost:52443/ecp" + ECPEndpointFactory.SERVLET_PATH;
@@ -151,19 +144,21 @@ public class TestECP extends AbstractTestIdpBase
 		httpPost.setEntity(new StringEntity(envDoc2.xmlText(), ContentType.APPLICATION_XML));
 		
 		HttpClient httpclient = HttpUtils.createClient(ecpUrl, clientCfg);
-		HttpResponse response = httpclient.execute(httpPost);
-		Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatusLine().getStatusCode());
-		Assert.assertTrue(response.getFirstHeader("Content-Type").getValue().startsWith("application/jwt"));
-		HttpEntity entity = response.getEntity();
-		if (entity != null) 
-		{
-			String resp = EntityUtils.toString(entity);
-			System.out.println(resp);
-			JWTClaimsSet claims = JWTUtils.parseAndValidate(resp, pkiMan.getCredential("MAIN"));
-			System.out.println("GOT:\n" + claims.toString());
-			Assert.assertTrue(claims.getIssuer().contains("https://localhost:52443"));
-		} else
-			Assert.fail("No HTTP response");
+		try(ClassicHttpResponse response = httpclient.executeOpen(null, httpPost, HttpClientContext.create())){
+			Assert.assertEquals(HttpServletResponse.SC_OK, response.getCode());
+			Assert.assertTrue(response.getFirstHeader("Content-Type").getValue().startsWith("application/jwt"));
+			HttpEntity entity = response.getEntity();
+			if (entity != null)
+			{
+				String resp = EntityUtils.toString(entity);
+				System.out.println(resp);
+				JWTClaimsSet claims = JWTUtils.parseAndValidate(resp, pkiMan.getCredential("MAIN"));
+				System.out.println("GOT:\n" + claims.toString());
+				Assert.assertTrue(claims.getIssuer().contains("https://localhost:52443"));
+				response.close();
+			} else
+				Assert.fail("No HTTP response");
+		}
 	}
 	
 	private EnvelopeDocument sendToIdP(EnvelopeDocument envDoc) throws Exception
@@ -178,17 +173,10 @@ public class TestECP extends AbstractTestIdpBase
 
 		HttpClient httpclient = HttpUtils.createClient(authnWSUrl, clientCfg);
 		
-		HttpHost targetHost = new HttpHost("localhost", 52443, "https");
-		CredentialsProvider credsProvider = new BasicCredentialsProvider();
-		credsProvider.setCredentials(
-				new AuthScope(targetHost.getHostName(), targetHost.getPort()),
-				new UsernamePasswordCredentials("user1", "mockPassword1"));
-		AuthCache authCache = new BasicAuthCache();
-		BasicScheme basicAuth = new BasicScheme();
-		authCache.put(targetHost, basicAuth);
-		HttpClientContext context = HttpClientContext.create();
-		context.setCredentialsProvider(credsProvider);
-		context.setAuthCache(authCache);
+		HttpHost targetHost = new HttpHost("https", "localhost", 52443);
+		ContextBuilder cb = ContextBuilder.create();
+		cb.preemptiveBasicAuth(targetHost, new UsernamePasswordCredentials("user1", "mockPassword1".toCharArray()));
+		HttpClientContext context = cb.build();
 
 		HttpPost httpPost = new HttpPost(authnWSUrl);
 		
@@ -201,23 +189,13 @@ public class TestECP extends AbstractTestIdpBase
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		log.info("Deployed endpoints: {}", endpoints);
 		
-		HttpResponse response = httpclient.execute(targetHost, httpPost, context);
-		HttpEntity entity = response.getEntity();
-		if (entity != null) 
-		{
-			String xml = EntityUtils.toString(entity);
-			log.info("Response: {}", xml);
-			EnvelopeDocument envDocRet = EnvelopeDocument.Factory.parse(xml);
-			return envDocRet;
-		} else
-		{
-			Assert.fail("No HTTP response");
-			return null;
-		}
+		String xml = httpclient.execute(targetHost, httpPost, context, new BasicHttpClientResponseHandler());
+		log.info("Response: {}", xml);
+		EnvelopeDocument envDocRet = EnvelopeDocument.Factory.parse(xml);
+		return envDocRet;
 	}
 	
-	private EnvelopeDocument getSamlRequest() throws ClientProtocolException, IOException, XmlException
-	{
+	private EnvelopeDocument getSamlRequest() throws Exception	{
 		String ecpUrl = "https://localhost:52443/ecp" + ECPEndpointFactory.SERVLET_PATH;
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setValidator(new BinaryCertChainValidator(true));
@@ -231,17 +209,10 @@ public class TestECP extends AbstractTestIdpBase
 				"\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp:2.0:cb\"," +
 				"\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp:2.0:hok\"");
 		System.out.println("\n\nSending GET request to ECP enabled SP\n\n");
-		HttpResponse response = httpclient.execute(httpget);
-		HttpEntity entity = response.getEntity();
-		if (entity != null) 
-		{
-			String xml = EntityUtils.toString(entity);
-			EnvelopeDocument envDoc = EnvelopeDocument.Factory.parse(xml);
-			System.out.println(envDoc.xmlText(new XmlOptions().setSavePrettyPrint()));
-			return envDoc;
-		}
-		Assert.fail("No HTTP response");
-		return null;
+		String xml = httpclient.execute(httpget, new BasicHttpClientResponseHandler());
+		EnvelopeDocument envDoc = EnvelopeDocument.Factory.parse(xml);
+		System.out.println(envDoc.xmlText(new XmlOptions().setSavePrettyPrint()));
+		return envDoc;
 	}
 
 }

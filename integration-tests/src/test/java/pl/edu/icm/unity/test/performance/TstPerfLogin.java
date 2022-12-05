@@ -8,11 +8,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpHost;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -56,18 +56,16 @@ public class TstPerfLogin extends PerformanceTestBase
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(1, endpoints.size());
 		httpServer.start();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
+		HttpHost host = new HttpHost("https", "localhost", 53456);
 
 		// warn-up ...login user
 		for (int i = 0; i < WARM_SIZE; i++)
 		{
 			HttpClient client = getClient();
-			HttpContext localcontext = getClientContext(host, "user" + i,
+			HttpClientContext localcontext = getClientContext(host, "user" + i,
 					"PassWord8743#%$^&*");
 			HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
-			HttpResponse response = client.execute(host, get, localcontext);
-			assertEquals(response.getStatusLine().toString(), 200, response
-					.getStatusLine().getStatusCode());
+			client.execute(host, get, localcontext, new BasicHttpClientResponseHandler());
 		}
 
 		int jump = USERS / TEST_REPETITIONS;
@@ -80,13 +78,11 @@ public class TstPerfLogin extends PerformanceTestBase
 			{
 				
 				HttpClient client = getClient();
-				HttpContext localcontext = getClientContext(host,
+				HttpClientContext localcontext = getClientContext(host,
 						"user" + index, "PassWord8743#%$^&*");
 				index++;
 				HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
-				HttpResponse response = client.execute(host, get, localcontext);
-				assertEquals(response.getStatusLine().toString(), 200, response
-						.getStatusLine().getStatusCode());
+				client.execute(host, get, localcontext, new BasicHttpClientResponseHandler());
 			}
 			timer.stopTimer(jump, "Login user");
 		}

@@ -4,14 +4,22 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
+
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.RedirectedMessage;
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
@@ -24,12 +32,6 @@ import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 /**
  * Low level servlet performing the initial SAML handling. Supports both POST and HTTP-Redirect (GET) 

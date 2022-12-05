@@ -15,17 +15,16 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -64,13 +63,9 @@ public class TestAttributeTypes extends TestRESTBase
 		createTestContents();
 		
 		HttpClient client = getClient();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(host);
-
+		HttpHost host = new HttpHost("https", "localhost", 53456);
 		HttpGet resolve = new HttpGet("/restadm/v1/attributeTypes");
-		HttpResponse response = client.execute(host, resolve, localcontext);
-		String contents = EntityUtils.toString(response.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
+		String contents = client.execute(host, resolve, getClientContext(host), new BasicHttpClientResponseHandler());
 		System.out.println("Attribute types:\n" + formatJson(contents));
 	}
 
@@ -83,9 +78,7 @@ public class TestAttributeTypes extends TestRESTBase
 				"restAdmin", "/restadm");
 		
 		HttpClient client = getClient();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(host);
-
+		HttpHost host = new HttpHost("https", "localhost", 53456);
 		
 		HttpPost addAT = new HttpPost("/restadm/v1/attributeType");
 		
@@ -97,9 +90,9 @@ public class TestAttributeTypes extends TestRESTBase
 		sAttributeType.setMinElements(1);
 		
 		addAT.setEntity(new StringEntity(JsonUtil.toJsonString(sAttributeType), ContentType.APPLICATION_JSON));
-		HttpResponse response = client.execute(host, addAT, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
-		assertNull(response.getEntity());
+		try(ClassicHttpResponse response = client.executeOpen(host, addAT, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		assertNotNull(aTypeMan.getAttributeTypesAsMap().get("stringA"));
 
 		sAttributeType.setMetadata(new HashMap<>());
@@ -107,9 +100,9 @@ public class TestAttributeTypes extends TestRESTBase
 		HttpPut updateAT = new HttpPut("/restadm/v1/attributeType");
 		updateAT.setEntity(new StringEntity(JsonUtil.toJsonString(sAttributeType), 
 				ContentType.APPLICATION_JSON));
-		response = client.execute(host, updateAT, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
-		assertNull(response.getEntity());
+		try(ClassicHttpResponse response = client.executeOpen(host, updateAT, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		AttributeType updated = aTypeMan.getAttributeTypesAsMap().get("stringA");
 		assertNotNull(updated);
 		assertEquals(10, updated.getMaxElements());
@@ -117,7 +110,7 @@ public class TestAttributeTypes extends TestRESTBase
 
 		
 		HttpDelete remove = new HttpDelete("/restadm/v1/attributeType/stringA?withInstances=true");
-		client.execute(host, remove, localcontext);
+		client.execute(host, remove, getClientContext(host), new BasicHttpClientResponseHandler());
 		assertNull(aTypeMan.getAttributeTypesAsMap().get("stringA"));
 	}
 	
