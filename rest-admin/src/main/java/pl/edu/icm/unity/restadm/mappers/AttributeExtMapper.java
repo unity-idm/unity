@@ -6,11 +6,13 @@
 package pl.edu.icm.unity.restadm.mappers;
 
 import io.imunity.rest.api.types.basic.RestAttributeExt;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 
 public class AttributeExtMapper
 {
-	static RestAttributeExt map(AttributeExt attributeExt) {
+	static RestAttributeExt map(AttributeExt attributeExt)
+	{
 		return RestAttributeExt.builder()
 				.withDirect(attributeExt.isDirect())
 				.withCreationTs(attributeExt.getCreationTs())
@@ -22,5 +24,15 @@ public class AttributeExtMapper
 				.withTranslationProfile(attributeExt.getTranslationProfile())
 				.withRemoteIdp(attributeExt.getRemoteIdp())
 				.build();
+	}
+
+	static AttributeExt map(RestAttributeExt restAttributeExt)
+	{
+
+		return new AttributeExt(
+				new Attribute(restAttributeExt.name, restAttributeExt.valueSyntax, restAttributeExt.groupPath,
+						restAttributeExt.values, restAttributeExt.remoteIdp, restAttributeExt.translationProfile),
+				restAttributeExt.direct, restAttributeExt.creationTs, restAttributeExt.updateTs);
+
 	}
 }

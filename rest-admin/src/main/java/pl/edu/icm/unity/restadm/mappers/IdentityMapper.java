@@ -27,4 +27,19 @@ public class IdentityMapper
 				.withTranslationProfile(identity.getTranslationProfile())
 				.build();
 	}
+
+	static Identity map(RestIdentity restIdentity)
+	{
+		Identity identity = new Identity(restIdentity.typeId, restIdentity.value, restIdentity.entityId, restIdentity.comparableValue);
+		identity.setConfirmationInfo(ConfirmationInfoMapper.map(restIdentity.confirmationInfo));
+		identity.setCreationTs(restIdentity.creationTs);
+		identity.setMetadata(restIdentity.metadata);
+		identity.setRealm(restIdentity.realm);
+		identity.setTarget(restIdentity.target);
+		identity.setRemoteIdp(restIdentity.remoteIdp);
+		identity.setTranslationProfile(restIdentity.translationProfile);
+		identity.setUpdateTs(restIdentity.updateTs);
+		return identity;
+	}
+
 }

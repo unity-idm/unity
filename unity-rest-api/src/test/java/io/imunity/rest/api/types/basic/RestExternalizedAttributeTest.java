@@ -8,20 +8,19 @@ package io.imunity.rest.api.types.basic;
 import java.util.Date;
 import java.util.List;
 
-public class RestAttributeExtTest extends RestTypeBase<RestAttributeExt>
+public class RestExternalizedAttributeTest extends RestTypeBase<RestExternalizedAttribute>
 {
 
 	@Override
 	protected String getJson()
 	{
-		return "{\"remoteIdp\":\"remoteIdp\",\"translationProfile\":\"translationProfile\",\"values\":[\"v1\",\"v2\"],\"creationTs\":100,\"updateTs\":1000,\"direct\":true,\"name\":\"attr\",\"groupPath\":\"/A\",\"valueSyntax\":\"syntax\"}\n";
-
+		return "{\"remoteIdp\":\"remoteIdp\",\"translationProfile\":\"translationProfile\",\"values\":[\"v1\",\"v2\"],\"creationTs\":100,\"updateTs\":1000,\"direct\":true,\"name\":\"attr\",\"groupPath\":\"/A\",\"valueSyntax\":\"syntax\",\"simpleValues\":[\"v1s\",\"v2s\"]}";
 	}
 
 	@Override
-	protected RestAttributeExt getObject()
+	protected RestExternalizedAttribute getObject()
 	{
-		return RestAttributeExt.builder()
+		return RestExternalizedAttribute.builder()
 				.withRemoteIdp("remoteIdp")
 				.withTranslationProfile("translationProfile")
 				.withGroupPath("/A")
@@ -31,6 +30,8 @@ public class RestAttributeExtTest extends RestTypeBase<RestAttributeExt>
 				.withCreationTs(new Date(100L))
 				.withUpdateTs(new Date(1000L))
 				.withDirect(true)
+				.withSimpleValues(List.of("v1s", "v2s"))
 				.build();
 	}
+
 }

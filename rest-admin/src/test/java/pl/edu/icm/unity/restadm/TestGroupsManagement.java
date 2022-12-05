@@ -9,7 +9,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -30,17 +29,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import io.imunity.rest.api.types.basic.RestAttributeStatement;
+import io.imunity.rest.api.types.basic.RestGroup;
+import io.imunity.rest.api.types.basic.RestGroupContents;
+import io.imunity.rest.api.types.basic.RestGroupProperty;
+import io.imunity.rest.api.types.basic.RestI18nString;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMember;
-import pl.edu.icm.unity.types.basic.GroupProperty;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -62,8 +62,8 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		response = client.execute(host, getGroupContents, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
-		assertThat(groupContent.getSubGroups().contains("/subgroup"), is(true));
+		RestGroupContents groupContent = JsonUtil.parse(contents, RestGroupContents.class);
+		assertThat(groupContent.subGroups.contains("/subgroup"), is(true));
 	}
 	
 	@Test
@@ -83,22 +83,30 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		HttpResponse response = client.execute(host, getGroupContents, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
-		assertThat(groupContent.getSubGroups().contains("/g1"), is(true));
+		RestGroupContents groupContent = JsonUtil.parse(contents, RestGroupContents.class);
+		assertThat(groupContent.subGroups.contains("/g1"), is(true));
 		
 		getGroupContents = new HttpGet("/restadm/v1/group/%2Fg1");
 		response = client.execute(host, getGroupContents, localcontext);
 		String contents2 = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		groupContent = JsonUtil.parse(contents2, GroupContents.class);
-		assertThat(groupContent.getSubGroups().contains("/g1/g2"), is(true));
+		groupContent = JsonUtil.parse(contents2, RestGroupContents.class);
+		assertThat(groupContent.subGroups.contains("/g1/g2"), is(true));
 	}
 	
 	@Test
 	public void addedGroupsWithPropertiesAreReturned() throws Exception
 	{
-		Group groupToAdd1 = new Group("/g1");
-		groupToAdd1.setProperties(Arrays.asList(new GroupProperty("k1", "v1")));
+		RestGroup groupToAdd1 = RestGroup.builder()
+				.withPath("/g1")
+				.withDisplayedName(RestI18nString.builder()
+						.withDefaultValue("/g1")
+						.build())
+				.withProperties(List.of(RestGroupProperty.builder()
+						.withKey("k1")
+						.withValue("v1")
+						.build()))
+				.build();
 
 		HttpPost addGroups = new HttpPost("/restadm/v1/groups");
 		String jsonString = JsonUtil.toJsonString(Lists.newArrayList(groupToAdd1));
@@ -111,8 +119,10 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		HttpResponse response = client.execute(host, getGroupContents, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		Group group = JsonUtil.parse(contents, Group.class);
-		assertThat(group.getProperties().get("k1").value, is("v1"));
+		RestGroup group = JsonUtil.parse(contents, RestGroup.class);
+		assertThat(group.properties.get(0).value, is("v1"));
+		assertThat(group.properties.get(0).key, is("k1"));
+
 	}
 
 
@@ -131,8 +141,8 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		response = client.execute(host, getGroupContents, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
-		assertThat(groupContent.getSubGroups().contains("/subgroup1/subgroup2/subgroup3"), is(true));
+		RestGroupContents groupContent = JsonUtil.parse(contents, RestGroupContents.class);
+		assertThat(groupContent.subGroups.contains("/subgroup1/subgroup2/subgroup3"), is(true));
 	}
 
 	@Test
@@ -150,8 +160,8 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		HttpResponse getResponse = client.execute(host, getGroupContents, localcontext);
 		String contents = EntityUtils.toString(getResponse.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
-		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
-		assertThat(groupContent.getSubGroups().contains("/subgroup"), is(false));
+		RestGroupContents groupContent = JsonUtil.parse(contents, RestGroupContents.class);
+		assertThat(groupContent.subGroups.contains("/subgroup"), is(false));
 	}
 	
 	@Test
@@ -160,10 +170,14 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		HttpPost add = new HttpPost("/restadm/v1/group/subgroup");
 		HttpResponse addResponse = client.execute(host, add, localcontext);
 		assertEquals(Status.NO_CONTENT.getStatusCode(), addResponse.getStatusLine().getStatusCode());
-
 		
-		AttributeStatement statement = new AttributeStatement("true", "/", ConflictResolution.skip, 
-				"sys:AuthorizationRole", "eattr['name']");
+		RestAttributeStatement statement = RestAttributeStatement.builder()
+				.withCondition("true")
+				.withResolution("skip")
+				.withExtraGroupName("/")
+				.withDynamicAttributeName("sys:AuthorizationRole")
+				.withDynamicAttributeExpression("eattr['name']")
+				.build();
 		HttpPut addStmt = new HttpPut("/restadm/v1/group/subgroup/statements");
 		String jsonString = JsonUtil.toJsonString(Lists.newArrayList(statement));
 		log.info("Statements:\n" + jsonString);
@@ -176,8 +190,8 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		String contents = EntityUtils.toString(getResponse.getEntity());
 		log.info("Statements:\n" + contents);
 		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
-		List<AttributeStatement> groupStatements = Constants.MAPPER.readValue(contents, 
-				new TypeReference<List<AttributeStatement>>(){});
+		List<RestAttributeStatement> groupStatements = Constants.MAPPER.readValue(contents, 
+				new TypeReference<List<RestAttributeStatement>>(){});
 		assertThat(groupStatements.size(), is(1));
 	}
 	

@@ -36,12 +36,34 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
 import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
+import io.imunity.rest.api.types.basic.RestEntityWithAttributes;
+import io.imunity.rest.api.types.basic.RestExternalizedAttribute;
+import io.imunity.rest.api.types.basic.RestAttribute;
+import io.imunity.rest.api.types.basic.RestAttributeStatement;
+import io.imunity.rest.api.types.basic.RestGroup;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
+import pl.edu.icm.unity.restadm.mappers.AttributeMapper;
+import pl.edu.icm.unity.restadm.mappers.AttributeStatementMapper;
 import pl.edu.icm.unity.restadm.mappers.EntityMapper;
+import pl.edu.icm.unity.restadm.mappers.GroupContentsMapper;
+import pl.edu.icm.unity.restadm.mappers.GroupMapper;
 import pl.edu.icm.unity.restadm.mappers.GroupMemberWithAttributesMapper;
+import pl.edu.icm.unity.restadm.mappers.GroupMembershipMapper;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.types.basic.*;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -64,6 +86,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * RESTful API implementation.
@@ -281,7 +304,7 @@ public class RESTAdmin implements RESTAdminHandler
 			effective = true;
 		includeSimpleValues = includeSimpleValues == null ? false : includeSimpleValues;
 		
-		List<ExternalizedAttribute> attributes = attributesService.getAttributes(
+		List<RestExternalizedAttribute> attributes = attributesService.getAttributes(
 				getEP(entityId, idType), group, effective, idType, includeSimpleValues);
 		return mapper.writeValueAsString(attributes);
 	}
@@ -292,7 +315,7 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("identityType") String idType)
 			throws EngineException, JsonProcessingException
 	{
-		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService.getAllDirectAttributes(
+		Map<String, List<RestExternalizedAttribute>> attributesInGroups = attributesService.getAllDirectAttributes(
 				getEP(entityId, idType));
 		return mapper.writeValueAsString(attributesInGroups);
 	}
@@ -360,10 +383,13 @@ public class RESTAdmin implements RESTAdminHandler
 
 		EntityParam entityParam = getEP(entityId, idType);
 		Entity entity = identitiesMan.getEntity(entityParam);
-		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService
+		Map<String, List<RestExternalizedAttribute>> attributesInGroups = attributesService
 				.getAttributesInGroups(getEP(entityId, idType), effective, groupsPatterns);
 		Map<String, GroupMembership> groups = identitiesMan.getGroups(getEP(entityId, idType));
-		return mapper.writeValueAsString(new EntityWithAttributes(entity, groups, attributesInGroups));
+		return mapper.writeValueAsString(new RestEntityWithAttributes(EntityMapper.map(entity), groups.entrySet()
+				.stream()
+				.collect(Collectors.toMap(e -> e.getKey(), e -> GroupMembershipMapper.map(e.getValue()))),
+				attributesInGroups));
 	}
 	
 	@Path("/entity/{entityId}/groups/attributes")
@@ -376,7 +402,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (effective == null)
 			effective = true;
-		Map<String, List<ExternalizedAttribute>> attributesInGroups = attributesService.getAttributesInGroups(
+		Map<String, List<RestExternalizedAttribute>> attributesInGroups = attributesService.getAttributesInGroups(
 			getEP(entityId, idType), effective, groupsPatterns);
 		return mapper.writeValueAsString(attributesInGroups);
 	}
@@ -402,15 +428,15 @@ public class RESTAdmin implements RESTAdminHandler
 			throws EngineException, JsonProcessingException
 	{
 		log.info("setAttribute for " + entityId);
-		Attribute attributeParam;
+		RestAttribute attributeParam;
 		try
 		{
-			attributeParam = mapper.readValue(attribute, Attribute.class);
+			attributeParam = mapper.readValue(attribute, RestAttribute.class);
 		} catch (IOException e)
 		{
 			throw new JSONParsingException("Can't parse the attribute input", e);
 		}
-		attributesService.setAttribute(attributeParam, getEP(entityId, idType));
+		attributesService.setAttribute(AttributeMapper.map(attributeParam), getEP(entityId, idType));
 	}
 
 	@Path("/entity/{entityId}/attributes")
@@ -535,7 +561,7 @@ public class RESTAdmin implements RESTAdminHandler
 		if (!group.startsWith("/"))
 			group = "/" + group;
 		GroupContents contents = groupsMan.getContents(group, GroupContents.METADATA);
-		return mapper.writeValueAsString(contents.getGroup());
+		return mapper.writeValueAsString(GroupMapper.map(contents.getGroup()));
 	}
 	
 	@Path("/group/{groupPath}")
@@ -547,7 +573,7 @@ public class RESTAdmin implements RESTAdminHandler
 		if (!group.startsWith("/"))
 			group = "/" + group;
 		GroupContents contents = groupsMan.getContents(group, GroupContents.GROUPS | GroupContents.MEMBERS);
-		return mapper.writeValueAsString(contents);
+		return mapper.writeValueAsString(GroupContentsMapper.map(contents));
 	}
 	
 	@Path("/group/{groupPath}")
@@ -568,8 +594,8 @@ public class RESTAdmin implements RESTAdminHandler
 	public void addInitializedGroup(String groupJson) throws EngineException, JsonProcessingException
 	{
 		log.info("addInitializedGroup {}", groupJson);
-		Group parsedGroup = JsonUtil.parse(groupJson, Group.class);
-		groupsMan.addGroup(parsedGroup);
+		RestGroup parsedGroup = JsonUtil.parse(groupJson, RestGroup.class);
+		groupsMan.addGroup(GroupMapper.map(parsedGroup));
 	}
 
 	@Path("/group")
@@ -577,8 +603,8 @@ public class RESTAdmin implements RESTAdminHandler
 	public void updateGroup(String groupJson) throws EngineException, JsonProcessingException
 	{
 		log.info("updateGroup {}", groupJson);
-		Group parsedGroup = JsonUtil.parse(groupJson, Group.class);
-		groupsMan.updateGroup(parsedGroup.getName(), parsedGroup);
+		RestGroup parsedGroup = JsonUtil.parse(groupJson, RestGroup.class);
+		groupsMan.updateGroup(parsedGroup.path,GroupMapper.map(parsedGroup));
 	}
 	
 	@Path("/group/{groupPath}")
@@ -598,17 +624,17 @@ public class RESTAdmin implements RESTAdminHandler
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void addGroups(String groups) throws EngineException, JsonProcessingException
 	{
-		Set<Group> groupsToAdd;
+		Set<RestGroup> groupsToAdd;
 		try
 		{
 			groupsToAdd = Constants.MAPPER.readValue(groups, 
-					new TypeReference<Set<Group>>() {});
+					new TypeReference<Set<RestGroup>>() {});
 		} catch (IOException e)
 		{
 			throw new WrongArgumentException("Can not parse request body as a list of groups", e);
 		}
 		
-		groupsMan.addGroups(groupsToAdd);	
+		groupsMan.addGroups(groupsToAdd.stream().map(GroupMapper::map).collect(Collectors.toSet()));	
 	}
 
 	@Path("/group/{groupPath}/statements")
@@ -620,7 +646,11 @@ public class RESTAdmin implements RESTAdminHandler
 			group = "/" + group;
 		log.debug("getGroupStatements query for " + group);
 		GroupContents contents = groupsMan.getContents(group, GroupContents.METADATA);
-		return mapper.writeValueAsString(contents.getGroup().getAttributeStatements());
+		return mapper.writeValueAsString(Stream.of(contents.getGroup()
+				.getAttributeStatements())
+				.map(AttributeStatementMapper::map)
+				.collect(Collectors.toList()).toArray(new RestAttributeStatement[contents.getGroup()
+				                                             				.getAttributeStatements().length]));
 	}
 
 	@Path("/group/{groupPath}/statements")
@@ -633,19 +663,19 @@ public class RESTAdmin implements RESTAdminHandler
 			group = "/" + group;
 		log.info("updateGroup statements " + group);
 		
-		List<AttributeStatement> statements;
+		List<RestAttributeStatement> statements;
 		try
 		{
 			statements = Constants.MAPPER.readValue(statementsJson, 
-					new TypeReference<List<AttributeStatement>>() {});
+					new TypeReference<List<RestAttributeStatement>>() {});
 		} catch (IOException e)
 		{
 			throw new WrongArgumentException("Can not parse input as list of attribute statements", e);
 		}
 		
 		Group contents = groupsMan.getContents(group, GroupContents.METADATA).getGroup();
-		contents.setAttributeStatements(statements.toArray(new AttributeStatement[statements.size()]));
-		groupsMan.updateGroup(group, contents, "set group statement", statements.toString());
+		contents.setAttributeStatements(statements.stream().map(s -> AttributeStatementMapper.map(s)).collect(Collectors.toList()).toArray(new AttributeStatement[statements.size()]));
+		groupsMan.updateGroup(group, contents, "set group statement", contents.getAttributeStatements().toString());
 	}
 
 	

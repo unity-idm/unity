@@ -20,7 +20,10 @@ public class RestConfirmationInfoTest extends RestTypeBase<RestConfirmationInfo>
 	@Override
 	protected RestConfirmationInfo getObject()
 	{
-		return RestConfirmationInfo.builder().withSentRequestAmount(1).withConfirmed(true)
-				.withConfirmationDate(1667464511776L).build();
+		return RestConfirmationInfo.builder()
+				.withSentRequestAmount(1)
+				.withConfirmed(true)
+				.withConfirmationDate(1667464511776L)
+				.build();
 	}
 }

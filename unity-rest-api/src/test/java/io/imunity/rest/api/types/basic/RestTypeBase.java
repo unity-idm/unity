@@ -5,8 +5,7 @@
 
 package io.imunity.rest.api.types.basic;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.ParameterizedType;
 
@@ -16,36 +15,36 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public abstract  class RestTypeBase<T>
+public abstract class RestTypeBase<T>
 {
 	protected final ObjectMapper MAPPER = new ObjectMapper().findAndRegisterModules();
-	
+
 	private final Class<T> type;
-	
+
 	@SuppressWarnings("unchecked")
 	public RestTypeBase()
 	{
-		this.type = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass())
-                .getActualTypeArguments()[0];
+		this.type = (Class<T>) ((ParameterizedType) this.getClass()
+				.getGenericSuperclass()).getActualTypeArguments()[0];
 	}
 
 	@Test
 	public void shouldDeserializeFullObject() throws JsonMappingException, JsonProcessingException
 	{
-		assertThat(MAPPER.readValue(getJson(), type), is(getObject()));
+		T fromJson = MAPPER.readValue(getJson(), type);
+		assertThat(fromJson).isEqualTo(getObject());
 	}
 
 	@Test
 	public void serializationIsIdempotent() throws JsonMappingException, JsonProcessingException
 	{
-		assertThat(getObject(),
-				is(MAPPER.readValue(MAPPER.writeValueAsString(getObject()), type)));
+		String json = MAPPER.writeValueAsString(getObject());
+		T fromJson = MAPPER.readValue(json, type);
+		assertThat(getObject()).isEqualTo(fromJson);
 	}
-	
-	
+
 	protected abstract String getJson();
 
 	protected abstract T getObject();
 
-	
 }

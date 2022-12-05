@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import io.imunity.rest.api.types.authn.RestCredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 public class CredentialPublicInformationMapper
 {
@@ -16,9 +17,18 @@ public class CredentialPublicInformationMapper
 	{
 		return RestCredentialPublicInformation.builder()
 				.withExtraInformation(credentialPublicInformation.getExtraInformation())
-				.withState(Optional.ofNullable(credentialPublicInformation.getState()).map(s -> s.name()).orElse(null))
+				.withState(Optional.ofNullable(credentialPublicInformation.getState())
+						.map(s -> s.name())
+						.orElse(null))
 				.withStateDetail(credentialPublicInformation.getStateDetail())
 				.build();
+
+	}
+
+	static CredentialPublicInformation map(RestCredentialPublicInformation restCredentialPublicInformation)
+	{
+		return new CredentialPublicInformation(LocalCredentialState.valueOf(restCredentialPublicInformation.state),
+				restCredentialPublicInformation.stateDetail, restCredentialPublicInformation.extraInformation);
 
 	}
 }

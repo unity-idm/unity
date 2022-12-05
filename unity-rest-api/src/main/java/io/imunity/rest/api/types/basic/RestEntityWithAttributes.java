@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.types.basic;
+package io.imunity.rest.api.types.basic;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,16 +13,17 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EntityWithAttributes
+
+
+public class RestEntityWithAttributes
 {
+	public final RestEntity entity;
+	public final Map<String, RestGroupMembership> groups;
+	public final Map<String, List<RestExternalizedAttribute>> attributesInGroups;
 
-	public final Entity entity;
-	public final Map<String, GroupMembership> groups;
-	public final Map<String, List<ExternalizedAttribute>> attributesInGroups;
-
-	public EntityWithAttributes(@JsonProperty("entity") Entity entity,
-			@JsonProperty("groups") Map<String, GroupMembership> groups,
-			@JsonProperty("attributesInGroups") Map<String, List<ExternalizedAttribute>> attributesInGroups)
+	public RestEntityWithAttributes(@JsonProperty("entity") RestEntity entity,
+			@JsonProperty("groups") Map<String, RestGroupMembership> groups,
+			@JsonProperty("attributesInGroups") Map<String, List<RestExternalizedAttribute>> attributesInGroups)
 	{
 		this.entity = entity;
 		this.attributesInGroups = Collections
@@ -45,8 +46,9 @@ public class EntityWithAttributes
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		EntityWithAttributes other = (EntityWithAttributes) obj;
+		RestEntityWithAttributes other = (RestEntityWithAttributes) obj;
 		return Objects.equals(attributesInGroups, other.attributesInGroups)
-				&& Objects.equals(groups, other.groups) && Objects.equals(entity, other.entity);
+				&& Objects.equals(groups, other.groups)
+				&& Objects.equals(entity, other.entity);
 	}
 }

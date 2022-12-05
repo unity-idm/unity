@@ -19,8 +19,12 @@ public class RestEntityInformationTest extends RestTypeBase<RestEntityInformatio
 	@Override
 	protected RestEntityInformation getObject()
 	{
-		return RestEntityInformation.builder().withEntityId(1L).withState("valid")
-				.withRemovalByUserTime(new Date(1666788129805L)).withScheduledOperationTime(new Date(1666788129805L))
-				.withScheduledOperation("DISABLE").build();
+		return RestEntityInformation.builder()
+				.withEntityId(1L)
+				.withState("valid")
+				.withRemovalByUserTime(new Date(1666788129805L))
+				.withScheduledOperationTime(new Date(1666788129805L))
+				.withScheduledOperation("DISABLE")
+				.build();
 	}
 }

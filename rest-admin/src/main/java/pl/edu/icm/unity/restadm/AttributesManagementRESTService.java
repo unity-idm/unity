@@ -4,22 +4,28 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AttributeValueConverter;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import io.imunity.rest.api.types.basic.RestExternalizedAttribute;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributeValueConverter;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.GroupPattern;
 
 @Component
 class AttributesManagementRESTService
@@ -36,7 +42,7 @@ class AttributesManagementRESTService
 		this.valueConverter = valueConverter;
 	}
 
-	List<ExternalizedAttribute> getAttributes(EntityParam entity,
+	List<RestExternalizedAttribute> getAttributes(EntityParam entity,
 			String group,
 			boolean effective,
 			String idType,
@@ -54,11 +60,11 @@ class AttributesManagementRESTService
 		}
 
 		return attributes.stream()
-				.map(ExternalizedAttribute::new)
+				.map(this::create)
 				.collect(Collectors.toList());
 	}
 
-	Map<String, List<ExternalizedAttribute>> getAttributesInGroups(EntityParam entity, boolean effective,
+	Map<String, List<RestExternalizedAttribute>> getAttributesInGroups(EntityParam entity, boolean effective,
 			List<String> groupsPattern) throws EngineException
 	{
 		LOG.debug("getAttributes query for " + entity + " in " + groupsPattern);
@@ -70,25 +76,50 @@ class AttributesManagementRESTService
 			entity, effective, groupsPathsPatterns, null, true);
 
 		return attributes.stream()
-			.map(ExternalizedAttribute::new)
-			.collect(groupingBy(Attribute::getGroupPath, toList()));
+			.map(this::create)
+			.collect(groupingBy(a -> a.groupPath, toList()));
 	}
 
-	Map<String, List<ExternalizedAttribute>> getAllDirectAttributes(EntityParam entity)
+	Map<String, List<RestExternalizedAttribute>> getAllDirectAttributes(EntityParam entity)
 	{
 		LOG.debug("getAllDirectAttributes query for " + entity);
 
 		Collection<AttributeExt> attributes = attributesMan.getAllDirectAttributes(entity);
 
 		return attributes.stream()
-				.map(ExternalizedAttribute::new)
-				.collect(groupingBy(Attribute::getGroupPath, toList()));
+				.map(this::create)
+				.collect(groupingBy(a -> a.groupPath, toList()));
 	}
 
-	private ExternalizedAttribute createWithSimpleValues(AttributeExt attribute)
+	private RestExternalizedAttribute createWithSimpleValues(AttributeExt attribute)
 	{
 		List<String> simpleValues = valueConverter.internalValuesToExternal(attribute.getName(), attribute.getValues());
-		return new ExternalizedAttribute(attribute, simpleValues);
+		return RestExternalizedAttribute.builder()
+				.withDirect(attribute.isDirect())
+				.withCreationTs(attribute.getCreationTs())
+				.withUpdateTs(attribute.getUpdateTs())
+				.withName(attribute.getName())
+				.withValueSyntax(attribute.getValueSyntax())
+				.withGroupPath(attribute.getGroupPath())
+				.withValues(attribute.getValues())
+				.withTranslationProfile(attribute.getTranslationProfile())
+				.withRemoteIdp(attribute.getRemoteIdp())
+				.withSimpleValues(simpleValues)
+				.build();
+	}
+	
+	private RestExternalizedAttribute create(AttributeExt attribute) {
+		return RestExternalizedAttribute.builder()
+				.withDirect(attribute.isDirect())
+				.withCreationTs(attribute.getCreationTs())
+				.withUpdateTs(attribute.getUpdateTs())
+				.withName(attribute.getName())
+				.withValueSyntax(attribute.getValueSyntax())
+				.withGroupPath(attribute.getGroupPath())
+				.withValues(attribute.getValues())
+				.withTranslationProfile(attribute.getTranslationProfile())
+				.withRemoteIdp(attribute.getRemoteIdp())
+				.build();
 	}
 
 	Collection<AttributeExt> getAttributes(EntityParam entityParam, String group, String attribute)

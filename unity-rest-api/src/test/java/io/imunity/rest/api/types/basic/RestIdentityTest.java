@@ -26,11 +26,23 @@ public class RestIdentityTest extends RestTypeBase<RestIdentity>
 	{
 		ObjectNode meta = MAPPER.createObjectNode();
 		meta.put("1", "v");
-		return RestIdentity.builder().withCreationTs(new Date(1667463083208L)).withUpdateTs(new Date(1667463083208L))
-				.withComparableValue("test@wp.pl").withValue("test@wp.pl").withEntityId(1L).withTypeId("email")
-				.withRealm("realm").withRemoteIdp("remoteIdp").withTarget("target").withMetadata(meta)
-				.withTranslationProfile("Profile").withConfirmationInfo(RestConfirmationInfo.builder()
-						.withSentRequestAmount(1).withConfirmed(true).withConfirmationDate(1667463083208L).build())
+		return RestIdentity.builder()
+				.withCreationTs(new Date(1667463083208L))
+				.withUpdateTs(new Date(1667463083208L))
+				.withComparableValue("test@wp.pl")
+				.withValue("test@wp.pl")
+				.withEntityId(1L)
+				.withTypeId("email")
+				.withRealm("realm")
+				.withRemoteIdp("remoteIdp")
+				.withTarget("target")
+				.withMetadata(meta)
+				.withTranslationProfile("Profile")
+				.withConfirmationInfo(RestConfirmationInfo.builder()
+						.withSentRequestAmount(1)
+						.withConfirmed(true)
+						.withConfirmationDate(1667463083208L)
+						.build())
 				.build();
 	}
 }

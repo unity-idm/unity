@@ -16,10 +16,27 @@ public class GroupMemberWithAttributesMapper
 	{
 		return RestGroupMemberWithAttributes.builder()
 				.withEntityInformation(EntityInformationMapper.map(groupMemberWithAttributes.getEntityInformation()))
-				.withAttributes(groupMemberWithAttributes.getAttributes().stream().map(AttributeExtMapper::map)
+				.withAttributes(groupMemberWithAttributes.getAttributes()
+						.stream()
+						.map(AttributeExtMapper::map)
 						.collect(Collectors.toList()))
-				.withIdentities(groupMemberWithAttributes.getIdentities().stream().map(i -> IdentityMapper.map(i))
+				.withIdentities(groupMemberWithAttributes.getIdentities()
+						.stream()
+						.map(i -> IdentityMapper.map(i))
 						.collect(Collectors.toList()))
 				.build();
+	}
+
+	public static GroupMemberWithAttributes map(RestGroupMemberWithAttributes restGroupMemberWithAttributes)
+	{
+		return new GroupMemberWithAttributes(
+				EntityInformationMapper.map(restGroupMemberWithAttributes.entityInformation),
+				restGroupMemberWithAttributes.identities.stream()
+						.map(IdentityMapper::map)
+						.collect(Collectors.toList()),
+				restGroupMemberWithAttributes.attributes.stream()
+						.map(AttributeExtMapper::map)
+						.collect(Collectors.toList()));
+
 	}
 }
