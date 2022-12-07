@@ -387,3 +387,19 @@ UI customization methods will be unified.
 Also note that the changes introduced in this version affect only the UpMan main UI. The authentication screen shown to sign-in 
 to UpMan is unaffected, and so the old styling and templates will still work intact.
 
+
+
+==== From 3.LATEST to 4.0
+
+===== UNICORE IdP endpoints dropped
+
+UNICORE IdP endpoints (variants of the SAML IdP endpoints, with UNIOCRE specific enhancements) were dropped. UNICORE since version 9
+can use the plain SAML IdP endpoint of Unity. Make sure to drop all UNICORE specific endpoint from your configuration before upgrading:
+
+* If using file configuration remove the endpoints definitions in there and restart the server
+* If using Console managed configuration of endpoints, remove those IdP endpoints in console
+
+Most likely those endpoints should be replaced with regular SAML IdP endpoints (SOAP/Web as appropriate).  
+
+Unity v4.0+ won't start if any UNICORE endpoint is still present in configuration or database. 
+
