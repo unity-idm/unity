@@ -13,7 +13,7 @@ import java.util.Date;
  *
  * @author R. Ledzinski
  */
-class FidoCredentialInfoWrapper
+public class FidoCredentialInfoWrapper
 {
 	private CredentialState state;
 
@@ -57,7 +57,7 @@ class FidoCredentialInfoWrapper
 		return CredentialState.DELETED == state;
 	}
 
-	enum CredentialState
+	public enum CredentialState
 	{
 		STORED,
 		NEW,

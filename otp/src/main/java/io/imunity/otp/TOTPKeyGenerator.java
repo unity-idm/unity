@@ -17,12 +17,12 @@
  */
 package io.imunity.otp;
 
+import org.apache.commons.codec.binary.Base32;
+import org.apache.http.client.utils.URIBuilder;
+
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.util.Optional;
-
-import org.apache.commons.codec.binary.Base32;
-import org.apache.http.client.utils.URIBuilder;
 
 public class TOTPKeyGenerator
 {
@@ -59,7 +59,7 @@ public class TOTPKeyGenerator
 		}
 	}
 	
-	static String generateRandomBase32EncodedKey(HashFunction hashFunction)
+	public static String generateRandomBase32EncodedKey(HashFunction hashFunction)
 	{
 		int bytes = hashFunction.bitLength / 8;
 		byte[] key = new byte[bytes];

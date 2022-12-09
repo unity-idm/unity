@@ -5,17 +5,17 @@
 
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import java.util.Objects;
-
 import pl.edu.icm.unity.types.registration.BaseForm;
 
-class RewriteComboToEnquiryRequest
+import java.util.Objects;
+
+public class RewriteComboToEnquiryRequest
 {
 	public final String invitationCode;
 	public final Long entity;
 	public final BaseForm form;
 	
-	RewriteComboToEnquiryRequest(String invitationCode, Long entity, BaseForm form)
+	public RewriteComboToEnquiryRequest(String invitationCode, Long entity, BaseForm form)
 	{
 		this.invitationCode = invitationCode;
 		this.entity = entity;

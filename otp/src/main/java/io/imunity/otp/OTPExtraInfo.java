@@ -4,17 +4,17 @@
  */
 package io.imunity.otp;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
+import java.util.Date;
 
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-class OTPExtraInfo
+public class OTPExtraInfo
 {
-	final Date lastModification;
+	public final Date lastModification;
 
 	@JsonCreator
 	OTPExtraInfo(@JsonProperty("lastModification") Date lastModification)

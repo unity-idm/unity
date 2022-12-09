@@ -5,24 +5,13 @@
 
 package io.imunity.otp;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static io.imunity.tooltip.TooltipExtension.tooltip;
-
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.risto.stepper.IntStepper;
-
 import com.vaadin.data.Binder;
 import com.vaadin.data.Validator;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
-
+import com.vaadin.ui.*;
 import io.imunity.otp.OTPResetSettings.ConfirmationMode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.risto.stepper.IntStepper;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
@@ -40,8 +29,13 @@ import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.file.ImageField;
 
+import java.util.Optional;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static io.imunity.tooltip.TooltipExtension.tooltip;
+
 @PrototypeComponent
-class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
+public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 {
 	private final int WIDE_FIELD_SIZE_EM = 20;
 	private MessageSource msg;

@@ -5,15 +5,9 @@
 
 package pl.edu.icm.unity.webui.forms.reg;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.stereotype.Component;
-
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
-
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
@@ -21,8 +15,12 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 @Component
-class SwitchToEnquiryComponentProvider
+public class SwitchToEnquiryComponentProvider
 {
 	private final MessageSource msg;
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;

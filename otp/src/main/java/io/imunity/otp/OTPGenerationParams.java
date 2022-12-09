@@ -4,12 +4,12 @@
  */
 package io.imunity.otp;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
+import java.util.Objects;
 
 /**
  * THose parameters are required to generate OTP. Changing them requires update of the user credentials.
@@ -17,9 +17,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
 public class OTPGenerationParams
 {
-	final int codeLength;
-	final HashFunction hashFunction;
-	final int timeStepSeconds;
+	public final int codeLength;
+	public final HashFunction hashFunction;
+	public final int timeStepSeconds;
 
 	@JsonCreator
 	public OTPGenerationParams(

@@ -5,6 +5,11 @@
 
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -12,23 +17,18 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
-
-class EnquiryInvitationEntityRepresentationProvider
+public class EnquiryInvitationEntityRepresentationProvider
 {
 	private final Function<Long, Optional<String>> entityDisplayedNameProvider;
 	private final MessageSource msg;
 
-	EnquiryInvitationEntityRepresentationProvider(Function<Long, Optional<String>> displayedNameProvider, MessageSource msg)
+	public EnquiryInvitationEntityRepresentationProvider(Function<Long, Optional<String>> displayedNameProvider, MessageSource msg)
 	{
 		this.entityDisplayedNameProvider = displayedNameProvider;
 		this.msg = msg;
 	}
 
-	String getEntityRepresentation(Entity entity)
+	public String getEntityRepresentation(Entity entity)
 	{
 
 		StringBuilder entityRep = new StringBuilder();

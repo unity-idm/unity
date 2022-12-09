@@ -4,18 +4,10 @@
  */
 package io.imunity.fido.web;
 
-import static io.imunity.tooltip.TooltipExtension.tooltip;
-import static java.util.Objects.isNull;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.*;
 import com.yubico.webauthn.data.AttestationConveyancePreference;
 import com.yubico.webauthn.data.UserVerificationRequirement;
-
 import io.imunity.fido.credential.FidoCredential;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
@@ -23,12 +15,15 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 
+import static io.imunity.tooltip.TooltipExtension.tooltip;
+import static java.util.Objects.isNull;
+
 /**
  * Basic Fido credential definition editor. Requires configuration to be added.
  *
  * @author R. Ledzinski
  */
-class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
+public class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
 {
 	private MessageSource msg;
 

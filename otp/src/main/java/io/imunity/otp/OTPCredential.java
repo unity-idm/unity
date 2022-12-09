@@ -10,13 +10,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-class OTPCredential
+public class OTPCredential
 {
-	final String secret;
-	final OTPGenerationParams otpParams;
+	public final String secret;
+	public final OTPGenerationParams otpParams;
 
 	@JsonCreator
-	OTPCredential(
+	public OTPCredential(
 			@JsonProperty("secret") String secret, 
 			@JsonProperty("otpParams") OTPGenerationParams otpParams)
 	{
