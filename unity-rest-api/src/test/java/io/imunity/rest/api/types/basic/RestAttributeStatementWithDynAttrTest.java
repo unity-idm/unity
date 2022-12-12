@@ -11,7 +11,8 @@ public class RestAttributeStatementWithDynAttrTest extends RestTypeBase<RestAttr
 	@Override
 	protected String getJson()
 	{
-		return "{\"resolution\":\"merge\",\"condition\":\"true\",\"extraGroupName\":\"/A\",\"dynamicAttributeExpression\":\"exp\",\"dynamicAttributeName\":\"string\"}";
+		return "{\"resolution\":\"merge\",\"condition\":\"true\",\"extraGroupName\":\"/A\",\"dynamicAttributeExpression\":\"exp\",\"dynamicAttributeName\":"
+				+ "\"string\"}";
 	}
 
 	@Override

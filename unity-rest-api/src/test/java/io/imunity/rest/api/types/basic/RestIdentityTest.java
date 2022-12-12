@@ -17,7 +17,10 @@ public class RestIdentityTest extends RestTypeBase<RestIdentity>
 	@Override
 	protected String getJson()
 	{
-		return "{\"value\":\"test@wp.pl\",\"realm\":\"realm\",\"target\":\"target\",\"translationProfile\":\"Profile\",\"remoteIdp\":\"remoteIdp\",\"confirmationInfo\":{\"confirmed\":true,\"confirmationDate\":1667463083208,\"sentRequestAmount\":1},\"metadata\":{\"1\":\"v\"},\"comparableValue\":\"test@wp.pl\",\"creationTs\":1667463083208,\"updateTs\":1667463083208,\"typeId\":\"email\",\"entityId\":1}\n";
+		return "{\"value\":\"test@wp.pl\",\"realm\":\"realm\",\"target\":\"target\",\"translationProfile\":\"Profile\","
+				+ "\"remoteIdp\":\"remoteIdp\",\"confirmationInfo\":{\"confirmed\":true,\"confirmationDate\":1667463083208,\"sentRequestAmount\":1},"
+				+ "\"metadata\":{\"1\":\"v\"},\"comparableValue\":\"test@wp.pl\",\"creationTs\":1667463083208,\"updateTs\":1667463083208,\"typeId\":\"email\","
+				+ "\"entityId\":1}\n";
 
 	}
 

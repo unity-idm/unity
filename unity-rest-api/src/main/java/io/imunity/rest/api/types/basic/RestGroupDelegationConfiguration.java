@@ -7,6 +7,7 @@ package io.imunity.rest.api.types.basic;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -28,7 +29,9 @@ public class RestGroupDelegationConfiguration
 		this.registrationForm = builder.registrationForm;
 		this.signupEnquiryForm = builder.signupEnquiryForm;
 		this.membershipUpdateEnquiryForm = builder.membershipUpdateEnquiryForm;
-		this.attributes = builder.attributes;
+		this.attributes = Optional.ofNullable(builder.attributes)
+				.map(List::copyOf)
+				.orElse(null);
 		this.enableSubprojects = builder.enableSubprojects;
 	}
 
@@ -107,7 +110,9 @@ public class RestGroupDelegationConfiguration
 
 		public Builder withAttributes(List<String> attributes)
 		{
-			this.attributes = attributes;
+			this.attributes = Optional.ofNullable(attributes)
+					.map(List::copyOf)
+					.orElse(null);
 			return this;
 		}
 

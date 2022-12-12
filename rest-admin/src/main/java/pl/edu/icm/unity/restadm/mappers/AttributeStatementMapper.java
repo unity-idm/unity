@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.restadm.mappers;
 
+import java.util.Optional;
+
 import io.imunity.rest.api.types.basic.RestAttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
@@ -13,9 +15,6 @@ public class AttributeStatementMapper
 {
 	public static RestAttributeStatement map(AttributeStatement attributeStatement)
 	{
-		if (attributeStatement == null)
-			return null;
-
 		return RestAttributeStatement.builder()
 				.withCondition(attributeStatement.getCondition())
 				.withResolution(attributeStatement.getConflictResolution()
@@ -23,17 +22,14 @@ public class AttributeStatementMapper
 				.withDynamicAttributeExpression(attributeStatement.getDynamicAttributeExpression())
 				.withDynamicAttributeName(attributeStatement.getDynamicAttributeType())
 				.withExtraGroupName(attributeStatement.getExtraAttributesGroup())
-				.withFixedAttribute(attributeStatement.getFixedAttribute() != null
-						? AttributeMapper.map(attributeStatement.getFixedAttribute())
-						: null)
+				.withFixedAttribute(Optional.ofNullable(attributeStatement.getFixedAttribute())
+						.map(AttributeMapper::map)
+						.orElse(null))
 				.build();
 	}
 
 	public static AttributeStatement map(RestAttributeStatement attributeStatement)
 	{
-		if (attributeStatement == null)
-			return null;
-
 		if (attributeStatement.fixedAttribute != null)
 		{
 			return new AttributeStatement(attributeStatement.condition, attributeStatement.extraGroupName,

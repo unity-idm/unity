@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -35,10 +36,14 @@ public class RestExternalizedAttribute
 		this.name = builder.name;
 		this.valueSyntax = builder.valueSyntax;
 		this.groupPath = builder.groupPath;
-		this.values = builder.values;
+		this.values = Optional.ofNullable(builder.values)
+				.map(List::copyOf)
+				.orElse(null);
 		this.translationProfile = builder.translationProfile;
 		this.remoteIdp = builder.remoteIdp;
-		this.simpleValues = builder.simpleValues;
+		this.simpleValues = Optional.ofNullable(builder.simpleValues)
+				.map(List::copyOf)
+				.orElse(null);
 	}
 
 	@Override
@@ -126,7 +131,9 @@ public class RestExternalizedAttribute
 
 		public Builder withValues(List<String> values)
 		{
-			this.values = values;
+			this.values = Optional.ofNullable(values)
+					.map(List::copyOf)
+					.orElse(null);
 			return this;
 		}
 
@@ -144,7 +151,9 @@ public class RestExternalizedAttribute
 
 		public Builder withSimpleValues(List<String> simpleValues)
 		{
-			this.simpleValues = simpleValues;
+			this.simpleValues = Optional.ofNullable(simpleValues)
+					.map(List::copyOf)
+					.orElse(null);
 			return this;
 		}
 

@@ -12,9 +12,6 @@ public class I18nStringMapper
 {
 	static RestI18nString map(I18nString source)
 	{
-		if (source == null)
-			return null;
-
 		return RestI18nString.builder()
 				.withDefaultValue(source.getDefaultValue())
 				.withValues(source.getMap())
@@ -23,9 +20,6 @@ public class I18nStringMapper
 
 	public static I18nString map(RestI18nString restI18nString)
 	{
-		if (restI18nString == null)
-			return null;
-
 		I18nString ret = new I18nString(restI18nString.defaultValue);
 		ret.addAllValues(restI18nString.values);
 		return ret;

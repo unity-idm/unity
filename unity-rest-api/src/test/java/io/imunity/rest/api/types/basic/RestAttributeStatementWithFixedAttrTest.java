@@ -13,7 +13,8 @@ public class RestAttributeStatementWithFixedAttrTest extends RestTypeBase<RestAt
 	@Override
 	protected String getJson()
 	{
-		return "{\"resolution\":\"merge\",\"condition\":\"true\",\"extraGroupName\":\"/A\",\"fixedAttribute\":{\"remoteIdp\":\"remIdP\",\"translationProfile\":\"profile\",\"values\":[\"v1\",\"v2\"],\"name\":\"attr\",\"groupPath\":\"/\",\"valueSyntax\":\"string\"}}";
+		return "{\"resolution\":\"merge\",\"condition\":\"true\",\"extraGroupName\":\"/A\",\"fixedAttribute\":{\"remoteIdp\":\"remIdP\","
+				+ "\"translationProfile\":\"profile\",\"values\":[\"v1\",\"v2\"],\"name\":\"attr\",\"groupPath\":\"/\",\"valueSyntax\":\"string\"}}";
 	}
 
 	@Override

@@ -14,7 +14,8 @@ public class RestAttributeExtTest extends RestTypeBase<RestAttributeExt>
 	@Override
 	protected String getJson()
 	{
-		return "{\"remoteIdp\":\"remoteIdp\",\"translationProfile\":\"translationProfile\",\"values\":[\"v1\",\"v2\"],\"creationTs\":100,\"updateTs\":1000,\"direct\":true,\"name\":\"attr\",\"groupPath\":\"/A\",\"valueSyntax\":\"syntax\"}\n";
+		return "{\"remoteIdp\":\"remoteIdp\",\"translationProfile\":\"translationProfile\",\"values\":[\"v1\",\"v2\"],\"creationTs\":100,\"updateTs\":"
+				+ "1000,\"direct\":true,\"name\":\"attr\",\"groupPath\":\"/A\",\"valueSyntax\":\"syntax\"}\n";
 
 	}
 

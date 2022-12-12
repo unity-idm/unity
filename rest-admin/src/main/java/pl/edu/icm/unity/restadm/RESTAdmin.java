@@ -452,20 +452,20 @@ public class RESTAdmin implements RESTAdminHandler
 		if (!root.isArray())
 			throw new JSONParsingException("Can't parse the attributes input: root is not an array");
 		ArrayNode rootA = (ArrayNode) root;
-		List<Attribute> parsedParams = new ArrayList<>(rootA.size());
+		List<RestAttribute> parsedParams = new ArrayList<>(rootA.size());
 		for (JsonNode node: rootA)
 		{
 			try
 			{
 				parsedParams.add(mapper.readValue(mapper.writeValueAsString(node), 
-						Attribute.class));
+						RestAttribute.class));
 			} catch (IOException e)
 			{
 				throw new JSONParsingException("Can't parse the attribute input", e);
 			}
 		}
 		EntityParam ep = getEP(entityId, idType);
-		for (Attribute ap: parsedParams)
+		for (Attribute ap: parsedParams.stream().map(AttributeMapper::map).collect(Collectors.toList()))
 			attributesService.setAttribute(ap, ep);
 	}
 
@@ -648,7 +648,7 @@ public class RESTAdmin implements RESTAdminHandler
 		GroupContents contents = groupsMan.getContents(group, GroupContents.METADATA);
 		return mapper.writeValueAsString(Stream.of(contents.getGroup()
 				.getAttributeStatements())
-				.map(AttributeStatementMapper::map)
+				.map(as -> Optional.ofNullable(as).map(AttributeStatementMapper::map).orElse(null))
 				.collect(Collectors.toList()).toArray(new RestAttributeStatement[contents.getGroup()
 				                                             				.getAttributeStatements().length]));
 	}
@@ -674,7 +674,12 @@ public class RESTAdmin implements RESTAdminHandler
 		}
 		
 		Group contents = groupsMan.getContents(group, GroupContents.METADATA).getGroup();
-		contents.setAttributeStatements(statements.stream().map(s -> AttributeStatementMapper.map(s)).collect(Collectors.toList()).toArray(new AttributeStatement[statements.size()]));
+		contents.setAttributeStatements(statements.stream()
+				.map(as -> Optional.ofNullable(as)
+						.map(AttributeStatementMapper::map)
+						.orElse(null))
+				.collect(Collectors.toList())
+				.toArray(new AttributeStatement[statements.size()]));
 		groupsMan.updateGroup(group, contents, "set group statement", contents.getAttributeStatements().toString());
 	}
 

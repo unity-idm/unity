@@ -12,7 +12,8 @@ public class RestEntityInformationTest extends RestTypeBase<RestEntityInformatio
 	@Override
 	protected String getJson()
 	{
-		return "{\"state\":\"valid\",\"ScheduledOperationTime\":1666788129805,\"ScheduledOperation\":\"DISABLE\",\"RemovalByUserTime\":1666788129805,\"entityId\":1}";
+		return "{\"state\":\"valid\",\"ScheduledOperationTime\":1666788129805,\"ScheduledOperation\":\"DISABLE\",\"RemovalByUserTime\":1666788129805,"
+				+ "\"entityId\":1}";
 
 	}
 

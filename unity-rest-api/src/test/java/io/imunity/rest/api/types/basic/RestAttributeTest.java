@@ -13,7 +13,8 @@ public class RestAttributeTest extends RestTypeBase<RestAttribute>
 	@Override
 	protected String getJson()
 	{
-		return "{\"remoteIdp\":\"remIdP\",\"translationProfile\":\"profile\",\"values\":[\"v1\",\"v2\"],\"name\":\"attr\",\"groupPath\":\"/\",\"valueSyntax\":\"string\"}";
+		return "{\"remoteIdp\":\"remIdP\",\"translationProfile\":\"profile\",\"values\":[\"v1\",\"v2\"],\"name\":\"attr\",\"groupPath\":\"/\","
+				+ "\"valueSyntax\":\"string\"}";
 	}
 
 	@Override

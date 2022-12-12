@@ -15,7 +15,13 @@ public class RestGroupContentsTest extends RestTypeBase<RestGroupContents>
 	@Override
 	protected String getJson()
 	{
-		return "{\"group\":{\"i18nDescription\":{\"DefaultValue\":\"desc\",\"Map\":{}},\"displayedName\":{\"DefaultValue\":\"groupDisp\",\"Map\":{}},\"attributeStatements\":[{\"resolution\":\"merge\",\"condition\":\"cond\",\"extraGroupName\":\"/extra\",\"fixedAttribute\":{\"values\":[\"v1\"],\"name\":\"attr\",\"groupPath\":\"/\",\"valueSyntax\":\"string\"}}],\"attributesClasses\":[\"attrClass2\",\"attrClass1\"],\"delegationConfiguration\":{\"enabled\":false,\"enableSubprojects\":false,\"logoUrl\":null,\"registrationForm\":null,\"signupEnquiryForm\":null,\"membershipUpdateEnquiryForm\":null,\"attributes\":null},\"properties\":[{\"key\":\"key\",\"value\":\"value\"}],\"publicGroup\":false,\"path\":\"/A/B/C\"},\"subGroups\":[\"/A\",\"/B\"],\"members\":[{\"remoteIdp\":\"remoteIdp\",\"translationProfile\":\"profile\",\"creationTs\":1,\"group\":\"/\",\"entityId\":1}]}";
+		return "{\"group\":{\"i18nDescription\":{\"DefaultValue\":\"desc\",\"Map\":{}},\"displayedName\":{\"DefaultValue\":\"groupDisp\",\"Map\":{}},"
+				+ "\"attributeStatements\":[{\"resolution\":\"merge\",\"condition\":\"cond\",\"extraGroupName\":\"/extra\",\"fixedAttribute\":{\"values\":[\"v1\"],"
+				+ "\"name\":\"attr\",\"groupPath\":\"/\",\"valueSyntax\":\"string\"}}],\"attributesClasses\":[\"attrClass2\",\"attrClass1\"],"
+				+ "\"delegationConfiguration\":{\"enabled\":false,\"enableSubprojects\":false,\"logoUrl\":null,\"registrationForm\":null,\"signupEnquiryForm\":null,"
+				+ "\"membershipUpdateEnquiryForm\":null,\"attributes\":null},\"properties\":[{\"key\":\"key\",\"value\":\"value\"}],\"publicGroup\":false,\"path\":\"/"
+				+ "A/B/C\"},\"subGroups\":[\"/A\",\"/B\"],\"members\":[{\"remoteIdp\":\"remoteIdp\",\"translationProfile\":\"profile\",\"creationTs\":1,\"group\":\"/"
+				+ "\",\"entityId\":1}]}";
 	}
 
 	@Override

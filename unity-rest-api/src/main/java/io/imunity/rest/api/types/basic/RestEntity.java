@@ -8,6 +8,7 @@ package io.imunity.rest.api.types.basic;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -23,7 +24,9 @@ public class RestEntity
 	private RestEntity(Builder builder)
 	{
 		this.entityInformation = builder.entityInformation;
-		this.identities = List.copyOf(builder.identities);
+		this.identities = Optional.ofNullable(builder.identities)
+				.map(List::copyOf)
+				.orElse(null);
 		this.credentialInfo = builder.credentialInfo;
 	}
 
@@ -71,7 +74,9 @@ public class RestEntity
 
 		public Builder withIdentities(List<RestIdentity> identities)
 		{
-			this.identities = identities;
+			this.identities = Optional.ofNullable(identities)
+					.map(List::copyOf)
+					.orElse(null);
 			return this;
 		}
 

@@ -19,17 +19,22 @@ public class GroupMapper
 {
 	public static RestGroup map(Group group)
 	{
-		if (group == null)
-			return null;
-
 		return RestGroup.builder()
 				.withPublicGroup(group.isPublic())
-				.withI18nDescription(I18nStringMapper.map(group.getDescription()))
-				.withDisplayedName(I18nStringMapper.map(group.getDisplayedName()))
+				.withI18nDescription(Optional.ofNullable(group.getDescription())
+						.map(I18nStringMapper::map)
+						.orElse(null))
+				.withDisplayedName(Optional.ofNullable(group.getDisplayedName())
+						.map(I18nStringMapper::map)
+						.orElse(null))
 				.withAttributeStatements(Arrays.stream(group.getAttributeStatements())
-						.map(s -> AttributeStatementMapper.map(s))
+						.map(as -> Optional.ofNullable(as)
+								.map(AttributeStatementMapper::map)
+								.orElse(null))
 						.toArray(RestAttributeStatement[]::new))
-				.withDelegationConfiguration(GroupDelegationConfigurationMapper.map(group.getDelegationConfiguration()))
+				.withDelegationConfiguration(Optional.ofNullable(group.getDelegationConfiguration())
+						.map(GroupDelegationConfigurationMapper::map)
+						.orElse(null))
 				.withAttributesClasses(group.getAttributesClasses())
 				.withPath(group.getPathEncoded())
 				.withProperties(group.getProperties()
@@ -42,21 +47,26 @@ public class GroupMapper
 
 	public static Group map(RestGroup rgroup)
 	{
-		if (rgroup == null)
-			return null;
-
 		Group group = new Group(rgroup.path);
 		group.setAttributesClasses(Optional.ofNullable(rgroup.attributesClasses)
 				.orElse(null));
 		group.setAttributeStatements(Optional.ofNullable(rgroup.attributeStatements)
 				.map(as -> Stream.of(as)
-						.map(s -> AttributeStatementMapper.map(s))
+						.map(a -> Optional.ofNullable(a)
+								.map(AttributeStatementMapper::map)
+								.orElse(null))
 						.collect(Collectors.toList())
 						.toArray(new AttributeStatement[rgroup.attributeStatements.length]))
 				.orElse(null));
-		group.setDelegationConfiguration(GroupDelegationConfigurationMapper.map(rgroup.delegationConfiguration));
-		group.setDescription(I18nStringMapper.map(rgroup.i18nDescription));
-		group.setDisplayedName(I18nStringMapper.map(rgroup.displayedName));
+		group.setDelegationConfiguration(Optional.ofNullable(rgroup.delegationConfiguration)
+				.map(GroupDelegationConfigurationMapper::map)
+				.orElse(null));
+		group.setDescription(Optional.ofNullable(rgroup.i18nDescription)
+				.map(I18nStringMapper::map)
+				.orElse(null));
+		group.setDisplayedName(Optional.ofNullable(rgroup.displayedName)
+				.map(I18nStringMapper::map)
+				.orElse(null));
 		group.setPublic(rgroup.publicGroup);
 		group.setProperties(Optional.ofNullable(rgroup.properties)
 				.map(gp -> gp.stream()

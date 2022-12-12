@@ -7,13 +7,13 @@ package io.imunity.rest.api.types.basic;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Collections;
-
 
 @JsonDeserialize(builder = RestGroupContents.Builder.class)
 @JsonInclude(Include.NON_NULL)
@@ -26,8 +26,12 @@ public class RestGroupContents
 	private RestGroupContents(Builder builder)
 	{
 		this.group = builder.group;
-		this.subGroups = builder.subGroups;
-		this.members = builder.members;
+		this.subGroups = Optional.ofNullable(builder.subGroups)
+				.map(List::copyOf)
+				.orElse(null);
+		this.members = Optional.ofNullable(builder.members)
+				.map(List::copyOf)
+				.orElse(null);
 	}
 
 	@Override
@@ -73,13 +77,17 @@ public class RestGroupContents
 
 		public Builder withSubGroups(List<String> subGroups)
 		{
-			this.subGroups = subGroups;
+			this.subGroups = Optional.ofNullable(subGroups)
+					.map(List::copyOf)
+					.orElse(null);
 			return this;
 		}
 
 		public Builder withMembers(List<RestGroupMembership> members)
 		{
-			this.members = members;
+			this.members = Optional.ofNullable(members)
+					.map(List::copyOf)
+					.orElse(null);
 			return this;
 		}
 

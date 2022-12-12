@@ -12,9 +12,6 @@ public class GroupDelegationConfigurationMapper
 {
 	static RestGroupDelegationConfiguration map(GroupDelegationConfiguration groupDelegationConfiguration)
 	{
-		if (groupDelegationConfiguration == null)
-			return null;
-
 		return RestGroupDelegationConfiguration.builder()
 				.withAttributes(groupDelegationConfiguration.attributes)
 				.withEnabled(groupDelegationConfiguration.enabled)
@@ -28,9 +25,6 @@ public class GroupDelegationConfigurationMapper
 
 	static GroupDelegationConfiguration map(RestGroupDelegationConfiguration restGroupDelegationConfiguration)
 	{
-		if (restGroupDelegationConfiguration == null)
-			return null;
-
 		return new GroupDelegationConfiguration(restGroupDelegationConfiguration.enabled,
 				restGroupDelegationConfiguration.enableSubprojects, restGroupDelegationConfiguration.logoUrl,
 				restGroupDelegationConfiguration.registrationForm, restGroupDelegationConfiguration.signupEnquiryForm,

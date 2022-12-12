@@ -19,7 +19,12 @@ public class RestEntityTest extends RestTypeBase<RestEntity>
 {
 	protected String getJson()
 	{
-		return "{\"entityInformation\":{\"state\":\"valid\",\"ScheduledOperationTime\":1666788129805,\"ScheduledOperation\":\"DISABLE\",\"RemovalByUserTime\":1666788129805,\"entityId\":1},\"identities\":[{\"value\":\"test@wp.pl\",\"realm\":\"realm\",\"target\":\"target\",\"translationProfile\":\"Profile\",\"remoteIdp\":\"remoteIdp\",\"confirmationInfo\":{\"confirmed\":true,\"confirmationDate\":1666788129804,\"sentRequestAmount\":1},\"comparableValue\":\"test@wp.pl\",\"creationTs\":1666788129804,\"updateTs\":1666788129804,\"typeId\":\"email\",\"entityId\":1, \"metadata\":{\"1\":\"v\"}}],\"credentialInfo\":{\"credentialRequirementId\":\"credreq1\",\"credentialsState\":{\"test\":{\"state\":\"correct\",\"stateDetail\":\"state\",\"extraInformation\":\"state\"}}}}\n";
+		return "{\"entityInformation\":{\"state\":\"valid\",\"ScheduledOperationTime\":1666788129805,\"ScheduledOperation\":\"DISABLE\","
+				+ "\"RemovalByUserTime\":1666788129805,\"entityId\":1},\"identities\":[{\"value\":\"test@wp.pl\",\"realm\":\"realm\",\"target\":\"target\","
+				+ "\"translationProfile\":\"Profile\",\"remoteIdp\":\"remoteIdp\",\"confirmationInfo\":{\"confirmed\":true,\"confirmationDate\":1666788129804,"
+				+ "\"sentRequestAmount\":1},\"comparableValue\":\"test@wp.pl\",\"creationTs\":1666788129804,\"updateTs\":1666788129804,\"typeId\":\"email\","
+				+ "\"entityId\":1, \"metadata\":{\"1\":\"v\"}}],\"credentialInfo\":{\"credentialRequirementId\":\"credreq1\","
+				+ "\"credentialsState\":{\"test\":{\"state\":\"correct\",\"stateDetail\":\"state\",\"extraInformation\":\"state\"}}}}\n";
 
 	}
 

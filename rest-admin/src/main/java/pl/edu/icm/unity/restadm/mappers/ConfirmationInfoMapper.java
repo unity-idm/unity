@@ -13,9 +13,6 @@ public class ConfirmationInfoMapper
 {
 	static RestConfirmationInfo map(ConfirmationInfo confirmationInfo)
 	{
-		if (confirmationInfo == null)
-			return null;
-		
 		return RestConfirmationInfo.builder()
 				.withConfirmationDate(confirmationInfo.getConfirmationDate())
 				.withConfirmed(confirmationInfo.isConfirmed())
@@ -26,9 +23,6 @@ public class ConfirmationInfoMapper
 
 	static ConfirmationInfo map(RestConfirmationInfo restConfirmationInfo)
 	{
-		if (restConfirmationInfo == null)
-			return null;
-		
 		ConfirmationInfo confirmationInfo = new ConfirmationInfo(restConfirmationInfo.confirmed);
 		confirmationInfo.setConfirmationDate(restConfirmationInfo.confirmationDate);
 		confirmationInfo.setSentRequestAmount(restConfirmationInfo.sentRequestAmount);

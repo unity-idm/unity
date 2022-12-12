@@ -21,7 +21,16 @@ public class RestEntityWithAttributesTest extends RestTypeBase<RestEntityWithAtt
 	@Override
 	protected String getJson()
 	{
-		return "{\"entity\":{\"entityInformation\":{\"state\":\"valid\",\"ScheduledOperationTime\":1670235756509,\"ScheduledOperation\":\"DISABLE\",\"RemovalByUserTime\":1670235756509,\"entityId\":1},\"identities\":[{\"value\":\"test@wp.pl\",\"realm\":\"real\",\"target\":\"target\",\"translationProfile\":\"Profile\",\"remoteIdp\":\"remoteIdp\",\"confirmationInfo\":{\"confirmed\":true,\"confirmationDate\":1670235756247,\"sentRequestAmount\":1},\"metadata\":{\"1\":\"v\"},\"comparableValue\":\"test@wp.pl\",\"creationTs\":1670235756247,\"updateTs\":1670235756247,\"typeId\":\"email\",\"entityId\":1}],\"credentialInfo\":{\"credentialRequirementId\":\"credreq1\",\"credentialsState\":{\"test\":{\"state\":\"correct\",\"stateDetail\":\"state\",\"extraInformation\":\"state\"}}}},\"groups\":{\"/\":{\"remoteIdp\":\"remoteIdp\",\"translationProfile\":\"profile\",\"creationTs\":1,\"group\":\"/\",\"entityId\":1}},\"attributesInGroups\":{\"/\":[{\"remoteIdp\":\"remoteIdp\",\"translationProfile\":\"translationProfile\",\"values\":[\"v1\",\"v2\"],\"creationTs\":100,\"updateTs\":1000,\"direct\":true,\"name\":\"attr\",\"groupPath\":\"/A\",\"valueSyntax\":\"syntax\",\"simpleValues\":[\"v1s\",\"v2s\"]}]}}";
+		return "{\"entity\":{\"entityInformation\":{\"state\":\"valid\",\"ScheduledOperationTime\":1670235756509,\"ScheduledOperation\":\"DISABLE\","
+				+ "\"RemovalByUserTime\":1670235756509,\"entityId\":1},\"identities\":[{\"value\":\"test@wp.pl\",\"realm\":\"real\",\"target\":\"target\","
+				+ "\"translationProfile\":\"Profile\",\"remoteIdp\":\"remoteIdp\",\"confirmationInfo\":{\"confirmed\":true,\"confirmationDate\":1670235756247,"
+				+ "\"sentRequestAmount\":1},\"metadata\":{\"1\":\"v\"},\"comparableValue\":\"test@wp.pl\",\"creationTs\":1670235756247,\"updateTs\":1670235756247,"
+				+ "\"typeId\":\"email\",\"entityId\":1}],\"credentialInfo\":{\"credentialRequirementId\":\"credreq1\","
+				+ "\"credentialsState\":{\"test\":{\"state\":\"correct\",\"stateDetail\":\"state\","
+				+ "\"extraInformation\":\"state\"}}}},\"groups\":{\"/\":{\"remoteIdp\":\"remoteIdp\",\"translationProfile\":\"profile\","
+				+ "\"creationTs\":1,\"group\":\"/\",\"entityId\":1}},\"attributesInGroups\":{\"/\":[{\"remoteIdp\":\"remoteIdp\","
+				+ "\"translationProfile\":\"translationProfile\",\"values\":[\"v1\",\"v2\"],\"creationTs\":100,\"updateTs\":1000,\"direct\":true,"
+				+ "\"name\":\"attr\",\"groupPath\":\"/A\",\"valueSyntax\":\"syntax\",\"simpleValues\":[\"v1s\",\"v2s\"]}]}}";
 	}
 
 	@Override

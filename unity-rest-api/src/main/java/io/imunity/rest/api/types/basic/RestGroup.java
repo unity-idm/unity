@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -32,10 +33,14 @@ public class RestGroup
 		this.displayedName = builder.displayedName;
 		this.i18nDescription = builder.i18nDescription;
 		this.attributeStatements = builder.attributeStatements;
-		this.attributesClasses = builder.attributesClasses;
+		this.attributesClasses = Optional.ofNullable(builder.attributesClasses)
+				.map(Set::copyOf)
+				.orElse(null);
 		this.delegationConfiguration = builder.delegationConfiguration;
 		this.publicGroup = builder.publicGroup;
-		this.properties = builder.properties;
+		this.properties = Optional.ofNullable(builder.properties)
+				.map(List::copyOf)
+				.orElse(null);
 	}
 
 	@Override
@@ -113,7 +118,9 @@ public class RestGroup
 
 		public Builder withAttributesClasses(Set<String> attributesClasses)
 		{
-			this.attributesClasses = attributesClasses;
+			this.attributesClasses = Optional.ofNullable(attributesClasses)
+					.map(Set::copyOf)
+					.orElse(null);
 			return this;
 		}
 
@@ -131,20 +138,21 @@ public class RestGroup
 
 		public Builder withProperties(List<RestGroupProperty> properties)
 		{
-			this.properties = properties;
+			this.properties = Optional.ofNullable(properties)
+					.map(List::copyOf)
+					.orElse(null);
 			return this;
 		}
 
 		public RestGroup build()
 		{
-			if(Objects.isNull(displayedName))
+			if (Objects.isNull(displayedName))
 			{
 				throw new IllegalArgumentException("Displayed name cannot be null");
 			}
-			
+
 			return new RestGroup(this);
 		}
 	}
 
-	
 }

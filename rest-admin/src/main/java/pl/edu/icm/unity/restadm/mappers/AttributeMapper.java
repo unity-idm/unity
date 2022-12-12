@@ -12,9 +12,6 @@ public class AttributeMapper
 {
 	public static RestAttribute map(Attribute attribute)
 	{
-		if (attribute == null)
-			return null;
-
 		return RestAttribute.builder()
 				.withName(attribute.getName())
 				.withValueSyntax(attribute.getValueSyntax())
@@ -27,9 +24,6 @@ public class AttributeMapper
 
 	public static Attribute map(RestAttribute restAttribute)
 	{
-		if (restAttribute == null)
-			return null;
-	
 		return new Attribute(restAttribute.name, restAttribute.valueSyntax, restAttribute.groupPath,
 				restAttribute.values, restAttribute.remoteIdp, restAttribute.translationProfile);
 

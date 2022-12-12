@@ -5,13 +5,13 @@
 
 package io.imunity.rest.api.types.basic;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.Collections;
 
 @JsonDeserialize(builder = RestI18nString.Builder.class)
 public class RestI18nString
@@ -23,7 +23,9 @@ public class RestI18nString
 
 	private RestI18nString(Builder builder)
 	{
-		this.values = builder.values;
+		this.values = Optional.ofNullable(builder.values)
+				.map(Map::copyOf)
+				.orElse(null);
 		this.defaultValue = builder.defaultValue;
 	}
 
@@ -64,7 +66,9 @@ public class RestI18nString
 
 		public Builder withValues(Map<String, String> values)
 		{
-			this.values = values;
+			this.values = Optional.ofNullable(values)
+					.map(Map::copyOf)
+					.orElse(null);
 			return this;
 		}
 

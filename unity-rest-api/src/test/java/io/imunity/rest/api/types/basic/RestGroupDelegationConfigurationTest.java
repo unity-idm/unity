@@ -13,7 +13,8 @@ public class RestGroupDelegationConfigurationTest extends RestTypeBase<RestGroup
 	@Override
 	protected String getJson()
 	{
-		return "{\"enabled\":true,\"enableSubprojects\":true,\"logoUrl\":\"logoUrl\",\"registrationForm\":\"reg\",\"signupEnquiryForm\":\"enq\",\"membershipUpdateEnquiryForm\":\"menq\",\"attributes\":[\"attr1\",\"attr2\"]}";
+		return "{\"enabled\":true,\"enableSubprojects\":true,\"logoUrl\":\"logoUrl\",\"registrationForm\":\"reg\",\"signupEnquiryForm\":\"enq\","
+				+ "\"membershipUpdateEnquiryForm\":\"menq\",\"attributes\":[\"attr1\",\"attr2\"]}";
 	}
 
 	@Override

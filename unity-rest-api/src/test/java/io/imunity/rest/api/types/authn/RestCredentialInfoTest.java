@@ -14,7 +14,8 @@ public class RestCredentialInfoTest extends RestTypeBase<RestCredentialInfo>
 	@Override
 	protected String getJson()
 	{
-		return "{\"credentialRequirementId\":\"credreq1\",\"credentialsState\":{\"test\":{\"state\":\"correct\",\"stateDetail\":\"state\",\"extraInformation\":\"state\"}}}\n";
+		return "{\"credentialRequirementId\":\"credreq1\",\"credentialsState\":{\"test\":{\"state\":\"correct\",\"stateDetail\":\"state\","
+				+ "\"extraInformation\":\"state\"}}}\n";
 
 	}
 
@@ -22,9 +23,13 @@ public class RestCredentialInfoTest extends RestTypeBase<RestCredentialInfo>
 	protected RestCredentialInfo getObject()
 	{
 
-		return RestCredentialInfo.builder().withCredentialRequirementId("credreq1")
-				.withCredentialsState(Map.of("test", RestCredentialPublicInformation.builder().withState("correct")
-						.withStateDetail("state").withExtraInformation("state").build()))
+		return RestCredentialInfo.builder()
+				.withCredentialRequirementId("credreq1")
+				.withCredentialsState(Map.of("test", RestCredentialPublicInformation.builder()
+						.withState("correct")
+						.withStateDetail("state")
+						.withExtraInformation("state")
+						.build()))
 				.build();
 	}
 }

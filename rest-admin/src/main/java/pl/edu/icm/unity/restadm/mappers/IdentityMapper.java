@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.restadm.mappers;
 
+import java.util.Optional;
+
 import io.imunity.rest.api.types.basic.RestIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
 
@@ -22,7 +24,9 @@ public class IdentityMapper
 				.withTarget(identity.getTarget())
 				.withRealm(identity.getRealm())
 				.withRemoteIdp(identity.getRemoteIdp())
-				.withConfirmationInfo(ConfirmationInfoMapper.map(identity.getConfirmationInfo()))
+				.withConfirmationInfo(Optional.ofNullable(identity.getConfirmationInfo())
+						.map(ConfirmationInfoMapper::map)
+						.orElse(null))
 				.withMetadata(identity.getMetadata())
 				.withTranslationProfile(identity.getTranslationProfile())
 				.build();
@@ -30,8 +34,11 @@ public class IdentityMapper
 
 	static Identity map(RestIdentity restIdentity)
 	{
-		Identity identity = new Identity(restIdentity.typeId, restIdentity.value, restIdentity.entityId, restIdentity.comparableValue);
-		identity.setConfirmationInfo(ConfirmationInfoMapper.map(restIdentity.confirmationInfo));
+		Identity identity = new Identity(restIdentity.typeId, restIdentity.value, restIdentity.entityId,
+				restIdentity.comparableValue);
+		identity.setConfirmationInfo(Optional.ofNullable(restIdentity.confirmationInfo)
+				.map(ConfirmationInfoMapper::map)
+				.orElse(null));
 		identity.setCreationTs(restIdentity.creationTs);
 		identity.setMetadata(restIdentity.metadata);
 		identity.setRealm(restIdentity.realm);

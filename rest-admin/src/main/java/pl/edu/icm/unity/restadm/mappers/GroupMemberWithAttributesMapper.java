@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.restadm.mappers;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
@@ -18,7 +19,7 @@ public class GroupMemberWithAttributesMapper
 				.withEntityInformation(EntityInformationMapper.map(groupMemberWithAttributes.getEntityInformation()))
 				.withAttributes(groupMemberWithAttributes.getAttributes()
 						.stream()
-						.map(AttributeExtMapper::map)
+						.map(a -> Optional.ofNullable(a).map(AttributeExtMapper::map).orElse(null))
 						.collect(Collectors.toList()))
 				.withIdentities(groupMemberWithAttributes.getIdentities()
 						.stream()
@@ -35,7 +36,7 @@ public class GroupMemberWithAttributesMapper
 						.map(IdentityMapper::map)
 						.collect(Collectors.toList()),
 				restGroupMemberWithAttributes.attributes.stream()
-						.map(AttributeExtMapper::map)
+						.map(a -> Optional.ofNullable(a).map(AttributeExtMapper::map).orElse(null))
 						.collect(Collectors.toList()));
 
 	}
