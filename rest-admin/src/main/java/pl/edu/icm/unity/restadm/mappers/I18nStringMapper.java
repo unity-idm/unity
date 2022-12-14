@@ -10,7 +10,7 @@ import pl.edu.icm.unity.types.I18nString;
 
 public class I18nStringMapper
 {
-	static RestI18nString map(I18nString source)
+	public static RestI18nString map(I18nString source)
 	{
 		return RestI18nString.builder()
 				.withDefaultValue(source.getDefaultValue())

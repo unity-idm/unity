@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.utils.json.TokenWithJsonContentsSerializer;
 
+
 /**
  * Map access token contents to JsonNode
  * @author P.Piernik

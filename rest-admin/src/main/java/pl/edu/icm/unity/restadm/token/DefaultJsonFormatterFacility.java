@@ -2,13 +2,14 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.utils.json;
+package pl.edu.icm.unity.restadm.token;
 
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.utils.json.TokenContentsJsonSerializer;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**

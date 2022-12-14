@@ -28,9 +28,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import io.imunity.rest.api.types.basic.RestI18nString;
+import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
+import io.imunity.rest.api.types.endpoint.RestResolvedEndpoint;
 
 /**
  * Endpoints management test
@@ -46,20 +46,20 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		String contents = EntityUtils.toString(response.getEntity());
 		System.out.println(contents);
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		List<ResolvedEndpoint> returnedL = m.readValue(contents,
-				new TypeReference<List<ResolvedEndpoint>>() {});
+		List<RestResolvedEndpoint> returnedL = m.readValue(contents,
+				new TypeReference<List<RestResolvedEndpoint>>() {});
 
 		assertThat(returnedL.size(), is(1));
-		ResolvedEndpoint returned = returnedL.get(0);
-		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(),
+		RestResolvedEndpoint returned = returnedL.get(0);
+		assertThat(returned.endpoint.configuration.authenticationOptions,
 			is(Lists.newArrayList(AUTHENTICATION_FLOW_PASS)));
-		assertThat(returned.getEndpoint().getContextAddress(), is("/restadm"));
-		assertThat(returned.getEndpoint().getConfiguration().getDescription(), is("desc"));
-		assertThat(returned.getEndpoint().getConfiguration().getDisplayedName(), 
-				is(new I18nString("restAdmin")));
-		assertThat(returned.getName(), is("restAdmin"));
-		assertThat(returned.getRealm().getName(), is("testr"));
-		assertThat(returned.getType().getName(), is(RESTAdminEndpoint.NAME));
+		assertThat(returned.endpoint.contextAddress, is("/restadm"));
+		assertThat(returned.endpoint.configuration.description, is("desc"));
+		assertThat(returned.endpoint.configuration.displayedName, 
+				is(RestI18nString.builder().withDefaultValue(("restAdmin")).build()));
+		assertThat(returned.endpoint.name, is("restAdmin"));
+		assertThat(returned.realm.name, is("testr"));
+		assertThat(returned.type.name, is(RESTAdminEndpoint.NAME));
 	}
 
 	@Test
@@ -70,17 +70,17 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		HttpResponse response = client.execute(host, deploy, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		ResolvedEndpoint returned = m.readValue(contents, ResolvedEndpoint.class);
+		RestResolvedEndpoint returned = m.readValue(contents, RestResolvedEndpoint.class);
 
-		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(), is(
+		assertThat(returned.endpoint.configuration.authenticationOptions, is(
 				Lists.newArrayList("ApassRESTFlow")));
-		assertThat(returned.getEndpoint().getContextAddress(), is("/contextA"));
-		assertThat(returned.getEndpoint().getConfiguration().getDescription(), is("desc"));
-		assertThat(returned.getEndpoint().getConfiguration().getDisplayedName(), 
-				is(new I18nString("endpoint")));
-		assertThat(returned.getName(), is("newEndpoint"));
-		assertThat(returned.getRealm().getName(), is("testr"));
-		assertThat(returned.getType().getName(), is(RESTAdminEndpoint.NAME));
+		assertThat(returned.endpoint.contextAddress, is("/contextA"));
+		assertThat(returned.endpoint.configuration.description, is("desc"));
+		assertThat(returned.endpoint.configuration.displayedName, 
+				is(RestI18nString.builder().withDefaultValue(("endpoint")).build()));
+		assertThat(returned.endpoint.name, is("newEndpoint"));
+		assertThat(returned.realm.name, is("testr"));
+		assertThat(returned.type.name, is(RESTAdminEndpoint.NAME));
 	}
 
 	@Test
@@ -96,8 +96,8 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		HttpResponse response = client.execute(host, get, localcontext);
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		List<ResolvedEndpoint> returnedL = m.readValue(contents,
-				new TypeReference<List<ResolvedEndpoint>>() {});
+		List<RestResolvedEndpoint> returnedL = m.readValue(contents,
+				new TypeReference<List<RestResolvedEndpoint>>() {});
 
 		assertThat(returnedL.size(), is(1));
 	}
@@ -117,22 +117,22 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		HttpResponse response3 = client.execute(host, get, localcontext);
 		String contents3 = EntityUtils.toString(response3.getEntity());
 		assertEquals(contents3, Status.OK.getStatusCode(), response3.getStatusLine().getStatusCode());
-		List<ResolvedEndpoint> returnedL = m.readValue(contents3,
-				new TypeReference<List<ResolvedEndpoint>>() {});
+		List<RestResolvedEndpoint> returnedL = m.readValue(contents3,
+				new TypeReference<List<RestResolvedEndpoint>>() {});
 
 		assertThat(returnedL.size(), is(2));
 
-		ResolvedEndpoint returned = getEndpointById(returnedL, "newEndpoint");
+		RestResolvedEndpoint returned = getEndpointById(returnedL, "newEndpoint");
 		
-		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(), is(
+		assertThat(returned.endpoint.configuration.authenticationOptions, is(
 				Lists.newArrayList("ApassRESTFlow")));
-		assertThat(returned.getEndpoint().getContextAddress(), is("/contextA"));
-		assertThat(returned.getEndpoint().getConfiguration().getDescription(), is("desc2"));
-		assertThat(returned.getEndpoint().getConfiguration().getDisplayedName(), 
-				is(new I18nString("endpoint2")));
-		assertThat(returned.getName(), is("newEndpoint"));
-		assertThat(returned.getRealm().getName(), is("testr"));
-		assertThat(returned.getType().getName(), is(RESTAdminEndpoint.NAME));
+		assertThat(returned.endpoint.contextAddress, is("/contextA"));
+		assertThat(returned.endpoint.configuration.description, is("desc2"));
+		assertThat(returned.endpoint.configuration.displayedName, 
+				is(RestI18nString.builder().withDefaultValue(("endpoint2")).build()));
+		assertThat(returned.endpoint.name, is("newEndpoint"));
+		assertThat(returned.realm.name, is("testr"));
+		assertThat(returned.type.name, is(RESTAdminEndpoint.NAME));
 	}
 
 
@@ -151,27 +151,27 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		HttpResponse response3 = client.execute(host, get, localcontext);
 		String contents3 = EntityUtils.toString(response3.getEntity());
 		assertEquals(contents3, Status.OK.getStatusCode(), response3.getStatusLine().getStatusCode());
-		List<ResolvedEndpoint> returnedL = m.readValue(contents3,
-				new TypeReference<List<ResolvedEndpoint>>() {});
+		List<RestResolvedEndpoint> returnedL = m.readValue(contents3,
+				new TypeReference<List<RestResolvedEndpoint>>() {});
 
 		assertThat(returnedL.size(), is(2));
 
-		ResolvedEndpoint returned = getEndpointById(returnedL, "newEndpoint");
-		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(), is(
+		RestResolvedEndpoint returned = getEndpointById(returnedL, "newEndpoint");
+		assertThat(returned.endpoint.configuration.authenticationOptions, is(
 				Lists.newArrayList("ApassRESTFlow")));
-		assertThat(returned.getEndpoint().getContextAddress(), is("/contextA"));
-		assertThat(returned.getEndpoint().getConfiguration().getDescription(), is("desc"));
-		assertThat(returned.getEndpoint().getConfiguration().getDisplayedName(), 
-				is(new I18nString("endpoint")));
-		assertThat(returned.getName(), is("newEndpoint"));
-		assertThat(returned.getRealm().getName(), is("testr"));
-		assertThat(returned.getType().getName(), is(RESTAdminEndpoint.NAME));
+		assertThat(returned.endpoint.contextAddress, is("/contextA"));
+		assertThat(returned.endpoint.configuration.description, is("desc"));
+		assertThat(returned.endpoint.configuration.displayedName, 
+				is(RestI18nString.builder().withDefaultValue(("endpoint")).build()));
+		assertThat(returned.endpoint.name, is("newEndpoint"));
+		assertThat(returned.realm.name, is("testr"));
+		assertThat(returned.type.name, is(RESTAdminEndpoint.NAME));
 	}
 
-	private ResolvedEndpoint getEndpointById(List<ResolvedEndpoint> returnedL, String id)
+	private RestResolvedEndpoint getEndpointById(List<RestResolvedEndpoint> returnedL, String id)
 	{
-		for (ResolvedEndpoint e: returnedL)
-			if (e.getName().equals(id))
+		for (RestResolvedEndpoint e: returnedL)
+			if (e.endpoint.name.equals(id))
 				return e;
 		fail("No endpoint with a given id " + id);
 		throw new IllegalStateException();
@@ -200,11 +200,14 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		HttpPost deploy = new HttpPost("/restadm/v1/endpoint/newEndpoint?typeId=" + RESTAdminEndpoint.NAME
 				+ "&address=/contextA");
 		List<String> authn = Lists.newArrayList(authnFlow);
-		EndpointConfiguration config = new EndpointConfiguration(new I18nString("endpoint"),
-				"desc",
-				authn,
-				"",
-				"testr");
+		RestEndpointConfiguration config = RestEndpointConfiguration.builder()
+				.withDisplayedName(RestI18nString.builder().withDefaultValue("endpoint").build())
+				.withDescription("desc")
+				.withAuthenticationOptions(authn)
+				.withRealm("testr")
+				.withConfiguration("")
+				.build();
+		
 		String jsonconfig = m.writeValueAsString(config);
 		System.out.println(jsonconfig);
 		deploy.setEntity(new StringEntity(jsonconfig, ContentType.APPLICATION_JSON));
@@ -215,11 +218,14 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	{
 		HttpPut update = new HttpPut("/restadm/v1/endpoint/newEndpoint");
 		List<String> authn = Lists.newArrayList(AUTHENTICATION_FLOW_PASS);
-		EndpointConfiguration config = new EndpointConfiguration(new I18nString("endpoint2"),
-				"desc2",
-				authn,
-				"",
-				"testr");
+		RestEndpointConfiguration config = RestEndpointConfiguration.builder()
+				.withDisplayedName(RestI18nString.builder().withDefaultValue("endpoint2").build())
+				.withDescription("desc2")
+				.withAuthenticationOptions(authn)
+				.withRealm("testr")
+				.withConfiguration("")
+				.build();
+		
 		update.setEntity(new StringEntity(m.writeValueAsString(config), ContentType.APPLICATION_JSON));
 		return update;
 	}

@@ -141,7 +141,7 @@ public class RestIdentity
 
 		public Builder withMetadata(JsonNode metadata)
 		{
-			this.metadata = metadata;
+			this.metadata = metadata == null || metadata.isNull() ? null : metadata;
 			return this;
 		}
 

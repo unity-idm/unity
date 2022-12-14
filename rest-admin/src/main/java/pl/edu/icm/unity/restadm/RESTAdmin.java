@@ -4,6 +4,39 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,16 +46,34 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import io.imunity.rest.api.RestGroupMemberWithAttributes;
+import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
+import io.imunity.rest.api.types.basic.RestAttribute;
+import io.imunity.rest.api.types.basic.RestAttributeStatement;
+import io.imunity.rest.api.types.basic.RestAttributeType;
+import io.imunity.rest.api.types.basic.RestEntityWithAttributes;
+import io.imunity.rest.api.types.basic.RestExternalizedAttribute;
+import io.imunity.rest.api.types.basic.RestGroup;
+import io.imunity.rest.api.types.basic.RestToken;
+import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.*;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.IdpStatisticManagement;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
 import pl.edu.icm.unity.engine.api.groupMember.GroupMembersService;
@@ -31,24 +82,21 @@ import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.engine.api.utils.json.Token2JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import io.imunity.rest.api.RestGroupMemberWithAttributes;
-import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
-import io.imunity.rest.api.types.basic.RestEntityWithAttributes;
-import io.imunity.rest.api.types.basic.RestExternalizedAttribute;
-import io.imunity.rest.api.types.basic.RestAttribute;
-import io.imunity.rest.api.types.basic.RestAttributeStatement;
-import io.imunity.rest.api.types.basic.RestGroup;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.restadm.mappers.AttributeMapper;
 import pl.edu.icm.unity.restadm.mappers.AttributeStatementMapper;
+import pl.edu.icm.unity.restadm.mappers.AttributeTypeMapper;
 import pl.edu.icm.unity.restadm.mappers.EntityMapper;
 import pl.edu.icm.unity.restadm.mappers.GroupContentsMapper;
 import pl.edu.icm.unity.restadm.mappers.GroupMapper;
 import pl.edu.icm.unity.restadm.mappers.GroupMemberWithAttributesMapper;
 import pl.edu.icm.unity.restadm.mappers.GroupMembershipMapper;
+import pl.edu.icm.unity.restadm.mappers.TokenMapper;
+import pl.edu.icm.unity.restadm.mappers.endpoint.EndpointConfigurationMapper;
+import pl.edu.icm.unity.restadm.mappers.endpoint.ResolvedEndpointMapper;
+import pl.edu.icm.unity.restadm.token.Token2JsonFormatter;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -64,7 +112,6 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -74,19 +121,6 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.types.translation.TranslationRule;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * RESTful API implementation.
@@ -727,7 +761,9 @@ public class RESTAdmin implements RESTAdminHandler
 	public String getAttributeTypes() throws EngineException, JsonProcessingException
 	{
 		Collection<AttributeType> attributeTypes = attributeTypeMan.getAttributeTypes();
-		return mapper.writeValueAsString(attributeTypes);
+		return mapper.writeValueAsString(attributeTypes.stream()
+				.map(AttributeTypeMapper::map)
+				.collect(Collectors.toList()));
 	}
 	
 	@Path("/attributeType")
@@ -736,9 +772,9 @@ public class RESTAdmin implements RESTAdminHandler
 	public void addAttributeType(String jsonRaw) throws EngineException
 	{
 		log.debug("addAttributeType " + jsonRaw);
-		AttributeType at = JsonUtil.parse(jsonRaw, AttributeType.class);
-		log.info("addAttributeType " + at.getName());
-		attributeTypeMan.addAttributeType(at);
+		RestAttributeType at = JsonUtil.parse(jsonRaw, RestAttributeType.class);
+		log.info("addAttributeType " + at.name);
+		attributeTypeMan.addAttributeType(AttributeTypeMapper.map(at));
 	}
 
 	@Path("/attributeType")
@@ -747,9 +783,9 @@ public class RESTAdmin implements RESTAdminHandler
 	public void updateAttributeType(String jsonRaw) throws EngineException
 	{
 		log.debug("updateAttributeType " + jsonRaw);
-		AttributeType at = JsonUtil.parse(jsonRaw, AttributeType.class);
-		log.info("updateAttributeType " + at.getName());
-		attributeTypeMan.updateAttributeType(at);
+		RestAttributeType at = JsonUtil.parse(jsonRaw, RestAttributeType.class);
+		log.info("updateAttributeType " + at.name);
+		attributeTypeMan.updateAttributeType(AttributeTypeMapper.map(at));
 	}
 	
 	@Path("/attributeType/{toRemove}")
@@ -832,7 +868,7 @@ public class RESTAdmin implements RESTAdminHandler
 	public String getEndpoints() throws EngineException, JsonProcessingException
 	{
 		List<ResolvedEndpoint> endpoints = endpointManagement.getDeployedEndpoints();
-		return mapper.writeValueAsString(endpoints);
+		return mapper.writeValueAsString(endpoints.stream().map(ResolvedEndpointMapper::map).collect(Collectors.toList()));
 	}
 	
 	@Path("/endpoint/{id}")
@@ -850,8 +886,8 @@ public class RESTAdmin implements RESTAdminHandler
 			@QueryParam("address") String address, 
 			String configurationJson) throws EngineException, IOException
 	{
-		EndpointConfiguration configuration = new EndpointConfiguration(JsonUtil.parse(configurationJson));
-		ResolvedEndpoint deployed = endpointManagement.deploy(typeId, id, address, configuration);
+		RestEndpointConfiguration configuration = JsonUtil.parse(configurationJson, RestEndpointConfiguration.class);
+		ResolvedEndpoint deployed = endpointManagement.deploy(typeId, id, address, EndpointConfigurationMapper.map(configuration));
 		return mapper.writeValueAsString(deployed);
 	}
 
@@ -861,8 +897,8 @@ public class RESTAdmin implements RESTAdminHandler
 	public void updateEndpoint(@PathParam("id") String id, 
 			String configurationJson) throws EngineException, IOException
 	{
-		EndpointConfiguration configuration = new EndpointConfiguration(JsonUtil.parse(configurationJson));
-		endpointManagement.updateEndpoint(id, configuration);
+		RestEndpointConfiguration configuration = JsonUtil.parse(configurationJson, RestEndpointConfiguration.class);
+		endpointManagement.updateEndpoint(id, EndpointConfigurationMapper.map(configuration));
 	}
 	
 	
@@ -1089,8 +1125,10 @@ public class RESTAdmin implements RESTAdminHandler
 		}
 		
 		ArrayNode jsonArray = mapper.createArrayNode();
-		for (Token t : tokens)
+		for (RestToken t : tokens.stream().map(TokenMapper::map).collect(Collectors.toList()))
 			jsonArray.add(jsonFormatter.toJson(t));
+		
+		
 		return mapper.writeValueAsString(jsonArray);
 	}
 	

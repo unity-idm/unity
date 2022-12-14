@@ -3,13 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.restadm.mappers;
+package pl.edu.icm.unity.restadm.mappers.authn;
 
 import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.authn.RestCredentialPublicInformation;
+import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 

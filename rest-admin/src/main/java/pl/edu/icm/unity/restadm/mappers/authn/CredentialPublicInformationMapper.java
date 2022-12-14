@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.restadm.mappers;
+package pl.edu.icm.unity.restadm.mappers.authn;
 
 import java.util.Optional;
 
@@ -13,7 +13,7 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 public class CredentialPublicInformationMapper
 {
-	static RestCredentialPublicInformation map(CredentialPublicInformation credentialPublicInformation)
+	public static RestCredentialPublicInformation map(CredentialPublicInformation credentialPublicInformation)
 	{
 		return RestCredentialPublicInformation.builder()
 				.withExtraInformation(credentialPublicInformation.getExtraInformation())
@@ -25,7 +25,7 @@ public class CredentialPublicInformationMapper
 
 	}
 
-	static CredentialPublicInformation map(RestCredentialPublicInformation restCredentialPublicInformation)
+	public static CredentialPublicInformation map(RestCredentialPublicInformation restCredentialPublicInformation)
 	{
 		return new CredentialPublicInformation(LocalCredentialState.valueOf(restCredentialPublicInformation.state),
 				restCredentialPublicInformation.stateDetail, restCredentialPublicInformation.extraInformation);
