@@ -21,7 +21,8 @@ public class WorkflowCompletedComponent extends VerticalLayout
 	{
 		setMargin(true);
 		setSpacing(true);
-		add(logo);
+		if(logo != null)
+			add(logo);
 
 		Label infoL = new Label(config.mainInformation);
 		infoL.addClassName(Styles.vLabelH1.toString());
@@ -33,6 +34,7 @@ public class WorkflowCompletedComponent extends VerticalLayout
 			Label extraInfoL = new Label(config.extraInformation);
 			extraInfoL.addClassName(config.success ? "u-final-ext-info" : "u-final-ext-error");
 			extraInfoL.getStyle().set("word-break", "word-break");
+			extraInfoL.getStyle().set("font-size", "initial");
 			add(extraInfoL);
 		}
 
