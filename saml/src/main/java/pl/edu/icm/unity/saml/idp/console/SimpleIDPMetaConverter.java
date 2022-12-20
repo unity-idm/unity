@@ -15,11 +15,10 @@ import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.SPSSODescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.extui.LogoType;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
 
 /**
- * Converts SAML IDP metadata to list of {@link SAMLEntityWithLogo} It is
+ * Converts SAML IDP metadata to list of {@link SAMLEntity} It is
  * convenient to simple read metadata - without additional checks
  * 
  * @author P.Piernik
@@ -34,10 +33,10 @@ class SimpleIDPMetaConverter
 		this.msg = msg;
 	}
 
-	List<SAMLEntityWithLogo> getEntries(EntitiesDescriptorType meta)
+	List<SAMLEntity> getEntries(EntitiesDescriptorType meta)
 	{
 
-		List<SAMLEntityWithLogo> ret = new ArrayList<>();
+		List<SAMLEntity> ret = new ArrayList<>();
 		EntitiesDescriptorType[] nested = meta.getEntitiesDescriptorArray();
 		if (nested != null)
 		{
@@ -56,9 +55,9 @@ class SimpleIDPMetaConverter
 		return ret;
 	}
 
-	private List<SAMLEntityWithLogo> getEntries(EntityDescriptorType meta)
+	private List<SAMLEntity> getEntries(EntityDescriptorType meta)
 	{
-		List<SAMLEntityWithLogo> ret = new ArrayList<>();
+		List<SAMLEntity> ret = new ArrayList<>();
 
 		SPSSODescriptorType[] spDefs = meta.getSPSSODescriptorArray();
 		for (SPSSODescriptorType spDef : spDefs)
@@ -72,7 +71,6 @@ class SimpleIDPMetaConverter
 					meta.getEntityID());
 			Map<String, String> names = MetaToConfigConverterHelper.getLocalizedNames(msg, uiInfo, spDef,
 					meta);
-			Map<String, LogoType> logos = MetaToConfigConverterHelper.getLocalizedLogos(uiInfo);
 
 			String name = null;
 			if (!names.isEmpty())
@@ -88,42 +86,22 @@ class SimpleIDPMetaConverter
 					name = names.values().iterator().next();
 				}
 			}
-			String logo = null;
-			if (!logos.isEmpty())
-			{
-				logo = logos.get(msg.getLocaleCode()) != null
-						? logos.get(msg.getLocaleCode()).getStringValue()
-						: null;
-				if (logo == null)
-				{
-					logo = logos.get(msg.getDefaultLocaleCode()) != null
-							? logos.get(msg.getDefaultLocaleCode()).getStringValue()
-							: null;
-				}
-
-				if (logo == null)
-				{
-					logo = logos.values().iterator().next().getStringValue();
-				}
-			}
-			ret.add(new SAMLEntityWithLogo(meta.getEntityID(), name, logo));
+			ret.add(new SAMLEntity(meta.getEntityID(), name));
 		}
 
 		return ret;
 
 	}
 
-	public static class SAMLEntityWithLogo implements FilterableEntry
+	public static class SAMLEntity implements FilterableEntry
 	{
 		public final String id;
 		public final String name;
-		public final String logo;
 
-		SAMLEntityWithLogo(String id, String name, String logo)
+		SAMLEntity(String id, String name)
 		{
 			this.id = id;
 			this.name = name;
-			this.logo = logo;
 		}
 
 		@Override
