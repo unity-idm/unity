@@ -4,20 +4,19 @@
  */
 package io.imunity.fido.web.v23;
 
-import com.vaadin.flow.component.dependency.JavaScript;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import elemental.json.JsonObject;
+import com.vaadin.flow.component.Component;
 import io.imunity.fido.FidoExchange;
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredentialInfo;
 import io.imunity.fido.service.FidoException;
 import io.imunity.fido.service.NoEntityException;
+import io.imunity.vaadin23.elements.NotificationPresenter;
+import io.imunity.vaadin23.shared.endpoint.fido.FidoV23Component;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import java.util.AbstractMap;
 import java.util.function.Consumer;
@@ -25,8 +24,7 @@ import java.util.function.Consumer;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-@JavaScript("./fido.js")
-public class FidoComponent extends VerticalLayout
+public class FidoComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_FIDO, FidoComponent.class);
 
@@ -40,6 +38,8 @@ public class FidoComponent extends VerticalLayout
 	private final boolean showSuccessNotification;
 	private final Consumer<FidoCredentialInfo> newCredentialListener;
 	private Consumer<AuthenticationResult> authenticationResultListener;
+	private final NotificationPresenter notificationPresenter;
+	private final FidoV23Component fidoV23Component;
 
 	private FidoComponent(final FidoRegistration fidoRegistration,
 	                      final FidoExchange fidoExchange,
@@ -50,7 +50,8 @@ public class FidoComponent extends VerticalLayout
 	                      final boolean showSuccessNotification,
 	                      final Consumer<FidoCredentialInfo> newCredentialListener,
 	                      final Consumer<AuthenticationResult> authenticationResultListener,
-	                      final boolean allowAuthenticatorReUsage)
+	                      final boolean allowAuthenticatorReUsage,
+	                      NotificationPresenter notificationPresenter)
 	{
 		this.fidoRegistration = fidoRegistration;
 		this.fidoExchange = fidoExchange;
@@ -61,12 +62,8 @@ public class FidoComponent extends VerticalLayout
 		this.showSuccessNotification = showSuccessNotification;
 		this.newCredentialListener = newCredentialListener;
 		this.authenticationResultListener = authenticationResultListener;
-
-		addFinalizeRegistrationJSFunction();
-		addFinalizeAuthenticationJSFunction();
-		addShowErrorJSFunctions();
-		if (allowAuthenticatorReUsage)
-			getElement().addEventListener("clearExcludedCredentials", arguments -> {});
+		this.notificationPresenter = notificationPresenter;
+		this.fidoV23Component = new FidoV23Component(msg, notificationPresenter, this::finalizeRegistration, this::finalizeAuthentication, this::invokeRegistration, this::invokeAuthentication);
 	}
 
 	public Long getEntityId()
@@ -74,89 +71,62 @@ public class FidoComponent extends VerticalLayout
 		return entityId;
 	}
 
-	private void addFinalizeRegistrationJSFunction()
+	public Component getComponent()
 	{
-		getElement().addEventListener("finalizeRegistration", arguments ->
-			{
-				JsonObject eventData = arguments.getEventData();
-				log.info("Invoke finalize registration for reqId={}", eventData.getString("0"));
-				try
-				{
-					FidoCredentialInfo newCred = fidoRegistration.createFidoCredentials(
-							credentialName, credentialConfiguration,
-							eventData.getString("0"), eventData.getString("1"));
-					if (newCredentialListener != null)
-					{
-						newCredentialListener.accept(newCred);
-					}
-					if (showSuccessNotification)
-					{
-						NotificationPopup.showSuccess(msg.getMessage("Fido.registration"), 
-								msg.getMessage("Fido.newCredential"));
-					}
-				} catch (FidoException e)
-				{
-					NotificationPopup.showError(msg.getMessage("Fido.registrationFail"), e.getLocalizedMessage());
-				}
-			});
+		return fidoV23Component;
 	}
 
-	private void addFinalizeAuthenticationJSFunction()
-	{
-		getElement().addEventListener("finalizeAuthentication", arguments ->
+
+	void finalizeRegistration(String reqId, String json) {
+		log.info("Invoke finalize registration for reqId={}", reqId);
+		try
+		{
+			FidoCredentialInfo newCred = fidoRegistration.createFidoCredentials(
+					credentialName, credentialConfiguration, reqId, json
+			);
+			if (newCredentialListener != null)
 			{
-				JsonObject eventData = arguments.getEventData();
-				log.info("Invoke finalize authentication for reqId={}", eventData.getString("0"));
-				try
-				{
-					AuthenticationResult result = fidoExchange.verifyAuthentication(eventData.getString("0"),
-							eventData.getString("1"));
-
-					if (nonNull(authenticationResultListener))
-						authenticationResultListener.accept(result);
-
-					if (showSuccessNotification)
-					{
-						NotificationPopup.showSuccess(msg.getMessage("Fido.authentication"), 
-								msg.getMessage("Fido.successfulAuth"));
-					}
-				} catch (FidoException e)
-				{
-					if (nonNull(authenticationResultListener))
-						authenticationResultListener.accept(LocalAuthenticationResult.failed(e));
-					else
-						showError(msg.getMessage("Fido.authenticationFail"), e.getLocalizedMessage());
-				}
-			});
+				newCredentialListener.accept(newCred);
+			}
+			if (showSuccessNotification)
+			{
+				notificationPresenter.showSuccess(msg.getMessage("Fido.newCredential"));
+			}
+		} catch (FidoException e)
+		{
+			notificationPresenter.showError(msg.getMessage("Fido.registrationFail"), e.getLocalizedMessage());
+		}
 	}
 
-	private void addShowErrorJSFunctions()
-	{
-		// Show error notification function
-		getElement().addEventListener("showError", arguments ->
-			{
-				{
-					JsonObject eventData = arguments.getEventData();
-					log.debug("Showing error {}: {}", eventData.getString("0"), eventData.getString("1"));
-					showError(eventData.getString("0"), eventData.getString("1"));
-				}
-			});
+	void finalizeAuthentication(String reqId, String jsonBody) {
+		log.info("Invoke finalize authentication for reqId={}", reqId);
+		try
+		{
+			AuthenticationResult result = fidoExchange.verifyAuthentication(reqId, jsonBody);
 
-		// Show internal error notification
-		getElement().addEventListener("showInternalError", arguments ->
+			if (nonNull(authenticationResultListener))
+				authenticationResultListener.accept(result);
+
+			if (showSuccessNotification)
 			{
-				{
-					JsonObject eventData = arguments.getEventData();
-					log.error("Showing internal error caused by {}: {}",
-							eventData.getString("0"), eventData.getString("1"));
-					showError(msg.getMessage("Fido.internalError"), msg.getMessage("FidoExc.internalErrorMsg"));
-				}
-			});
+				notificationPresenter.showSuccess(msg.getMessage("Fido.successfulAuth"));
+			}
+		} catch (FidoException e)
+		{
+			if (nonNull(authenticationResultListener))
+				authenticationResultListener.accept(LocalAuthenticationResult.failed(e));
+			else
+				showError(msg.getMessage("Fido.authenticationFail"), e.getLocalizedMessage());
+		}
+	}
+	void showError(String caused, String error) {
+		log.debug("Showing error {}: {}", caused, error);
+		showErrorNotification(caused, error);
 	}
 
-	public void showError(final String title, final String errorMsg)
+	public void showErrorNotification(final String title, final String errorMsg)
 	{
-		NotificationPopup.showError(title, errorMsg);
+		notificationPresenter.showError(title, errorMsg);
 	}
 
 	public void invokeRegistration(final String username, final boolean useResidentKey)
@@ -166,7 +136,7 @@ public class FidoComponent extends VerticalLayout
 			AbstractMap.SimpleEntry<String, String> options = fidoRegistration.getRegistrationOptions(
 					credentialName, credentialConfiguration, entityId, username, useResidentKey);
 			log.debug("reqId={}", options.getKey());
-			getElement().callJsFunction("createCredentials", options.getKey(), options.getValue());
+			fidoV23Component.getElement().executeJs("createCredentials('" + options.getKey() + "','" + options.getValue() + "',this)");
 		} catch (FidoException e)
 		{
 			showError(msg.getMessage("Fido.registration"), e.getLocalizedMessage());
@@ -184,7 +154,7 @@ public class FidoComponent extends VerticalLayout
 			AbstractMap.SimpleEntry<String, String> options = fidoExchange.getAuthenticationOptions(
 					nonNull(entityId) ? entityId : this.entityId, username);
 			log.debug("reqId={}", options.getKey());
-			getElement().callJsFunction("getCredentials", options.getKey(), options.getValue());
+			fidoV23Component.getElement().executeJs("getCredentials('" + options.getKey() + "','" + options.getValue() + "',this)");
 		} catch (NoEntityException e)
 		{
 			if (nonNull(authenticationResultListener))
@@ -221,6 +191,7 @@ public class FidoComponent extends VerticalLayout
 		private Consumer<FidoCredentialInfo> newCredentialListener;
 		private Consumer<AuthenticationResult> authenticationResultListener;
 		private boolean allowAuthenticatorReUsage = false;
+		private NotificationPresenter notificationPresenter;
 
 		private FidoComponentBuilder(final MessageSource msg)
 		{
@@ -275,6 +246,12 @@ public class FidoComponent extends VerticalLayout
 			return this;
 		}
 
+		public FidoComponentBuilder notificationPresenter(NotificationPresenter notificationPresenter)
+		{
+			this.notificationPresenter = notificationPresenter;
+			return this;
+		}
+
 		public FidoComponentBuilder authenticationResultListener(Consumer<AuthenticationResult> authenticationResultListener)
 		{
 			this.authenticationResultListener = authenticationResultListener;
@@ -296,7 +273,8 @@ public class FidoComponent extends VerticalLayout
 					showSuccessNotification,
 					newCredentialListener,
 					authenticationResultListener,
-					allowAuthenticatorReUsage);
+					allowAuthenticatorReUsage,
+					notificationPresenter);
 		}
 	}
 }

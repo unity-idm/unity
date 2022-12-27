@@ -7,6 +7,7 @@ package io.imunity.fido.web.v23;
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.service.FidoCredentialVerificator;
 import io.imunity.fido.web.FidoCredentialDefinitionEditor;
+import io.imunity.vaadin23.elements.NotificationPresenter;
 import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,15 @@ public class FidoCredentialEditorFactoryV23 implements CredentialEditorFactory
 {
 	private MessageSource msg;
 	private FidoRegistration fidoRegistration;
+	private NotificationPresenter notificationPresenter;
 
 	@Autowired
-	public FidoCredentialEditorFactoryV23(final MessageSource msg, final FidoRegistration fidoRegistration)
+	public FidoCredentialEditorFactoryV23(final MessageSource msg, final FidoRegistration fidoRegistration,
+	                                      NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.fidoRegistration = fidoRegistration;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
@@ -37,7 +41,7 @@ public class FidoCredentialEditorFactoryV23 implements CredentialEditorFactory
 	@Override
 	public CredentialEditor createCredentialEditor()
 	{
-		return new FidoCredentialEditor(msg, fidoRegistration);
+		return new FidoCredentialEditor(msg, fidoRegistration, notificationPresenter);
 	}
 
 	@Override

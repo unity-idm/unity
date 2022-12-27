@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredentialInfo;
+import io.imunity.vaadin23.elements.NotificationPresenter;
 import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorContext;
 import io.imunity.vaadin23.shared.endpoint.components.ComponentsContainer;
@@ -28,17 +29,21 @@ class FidoCredentialEditor implements CredentialEditor
 	private FidoEditorComponent editorComponent;
 	private MessageSource msg;
 
-	public FidoCredentialEditor(final MessageSource msg, final FidoRegistration fidoRegistration)
+	private NotificationPresenter notificationPresenter;
+
+
+	public FidoCredentialEditor(final MessageSource msg, final FidoRegistration fidoRegistration, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.fidoRegistration = fidoRegistration;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
 	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
 		if (isNull(editorComponent))
-			editorComponent = new FidoEditorComponent(fidoRegistration, context, msg);
+			editorComponent = new FidoEditorComponent(fidoRegistration, context, msg, notificationPresenter);
 
 		return new ComponentsContainer(editorComponent);
 	}

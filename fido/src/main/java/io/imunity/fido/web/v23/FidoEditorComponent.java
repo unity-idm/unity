@@ -9,7 +9,8 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.server.VaadinService;
@@ -17,6 +18,7 @@ import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredential;
 import io.imunity.fido.credential.FidoCredentialInfo;
 import io.imunity.fido.web.FidoCredentialInfoWrapper;
+import io.imunity.vaadin23.elements.NotificationPresenter;
 import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -28,11 +30,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.vaadin.flow.component.Unit.PIXELS;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-class FidoEditorComponent extends HorizontalLayout
+class FidoEditorComponent extends VerticalLayout
 {
 	private MessageSource msg;
 	private final List<FidoCredentialInfoWrapper> credentials = new ArrayList<>();
@@ -40,14 +41,14 @@ class FidoEditorComponent extends HorizontalLayout
 	private final VerticalLayout credentialsLayout;
 	private Button addButton;
 	private TextField username;
-	private Button advancedOptionsButton;
+	private Div advancedOptionsButton;
 	private boolean loginLessSupported;
 	private VerticalLayout buttons;
 	private VerticalLayout advancedOptions;
 	private Checkbox loginLessAllowed;
 
 	public FidoEditorComponent(FidoRegistration fidoRegistration, CredentialEditorContext context,
-	                           MessageSource msg)
+	                           MessageSource msg, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 
@@ -59,8 +60,8 @@ class FidoEditorComponent extends HorizontalLayout
 				.credentialConfiguration(context.getCredentialConfiguration())
 				.newCredentialListener(this::addNewCredential)
 				.allowAuthenticatorReUsage(isInDevelopmentMode())
+				.notificationPresenter(notificationPresenter)
 				.build();
-		fidoComponent.setHeight(0, PIXELS);
 
 		Optional<FidoCredential> credential = Optional.ofNullable(context.getCredentialConfiguration())
 				.map(s -> FidoCredential.deserialize(context.getCredentialConfiguration()));
@@ -71,16 +72,21 @@ class FidoEditorComponent extends HorizontalLayout
 		username.setWidth(100, Unit.PERCENTAGE);
 
 		credentialsLayout = new VerticalLayout();
+		credentialsLayout.setPadding(false);
 		credentialsLayout.setMargin(false);
 		credentialsLayout.setSpacing(false);
 
 		addButton = new Button();
 		addButton.getElement().setProperty("title", msg.getMessage("Fido.newRegistration"));
 		addButton.setText(msg.getMessage("Fido.register"));
-		addButton.setWidth("100%");
+		addButton.setWidthFull();
 		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue(), loginLessAllowed.getValue()));
 
-		advancedOptionsButton = new Button(msg.getMessage("Fido.advancedOptions"));
+		Label advancedOptionsLabel = new Label(msg.getMessage("Fido.advancedOptions"));
+		advancedOptionsButton = new Div(advancedOptionsLabel);
+		advancedOptionsButton.getStyle().set("text-decoration", "underline");
+		advancedOptionsButton.getStyle().set("cursor", "pointer");
+
 		advancedOptionsButton.addClickListener(e -> {
 			advancedOptions.setVisible(!advancedOptions.isVisible());
 			reloadAdvancedOptions();
@@ -93,17 +99,20 @@ class FidoEditorComponent extends HorizontalLayout
 		buttons = new VerticalLayout(addButton, advancedOptionsButton);
 		buttons.setSpacing(false);
 		buttons.setMargin(false);
+		buttons.setPadding(false);
 
 		advancedOptions = new VerticalLayout(username, loginLessAllowed);
 		advancedOptions.setMargin(false);
 		advancedOptions.setVisible(false);
+		advancedOptions.setPadding(false);
 
-		VerticalLayout root = new VerticalLayout();
-		root.setMargin(false);
-		root.setSpacing(true);
-		root.addClassName("u-fidoEditorLayout");
+		setMargin(false);
+		setSpacing(false);
+		setPadding(false);
+		addClassName("u-fidoEditorLayout");
+		setWidthFull();
 		
-		root.add(fidoComponent, credentialsLayout, buttons, advancedOptions);
+		add(fidoComponent.getComponent(), credentialsLayout, buttons, advancedOptions);
 
 		initUI(context.getExtraInformation());
 	}
@@ -208,6 +217,6 @@ class FidoEditorComponent extends HorizontalLayout
 	public void setCredentialError(EngineException error)
 	{
 		if (nonNull(error))
-			fidoComponent.showError("Error", error.getLocalizedMessage());
+			fidoComponent.showErrorNotification("Error", error.getLocalizedMessage());
 	}
 }
