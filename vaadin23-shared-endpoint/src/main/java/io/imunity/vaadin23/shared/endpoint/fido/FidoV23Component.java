@@ -24,22 +24,16 @@ public class FidoV23Component extends Component
 	private final NotificationPresenter notificationPresenter;
 	private final BiConsumer<String, String> finalizeRegistration;
 	private final BiConsumer<String, String> finalizeAuthentication;
-	private final BiConsumer<String, Boolean> invokeRegistration;
-	private final BiConsumer<Long, String> invokeAuthentication;
 
 	public FidoV23Component(MessageSource msg,
 	                         NotificationPresenter notificationPresenter,
 	                         BiConsumer<String, String> finalizeRegistration,
-	                         BiConsumer<String, String> finalizeAuthentication,
-	                         BiConsumer<String, Boolean> invokeRegistration,
-	                         BiConsumer<Long, String> invokeAuthentication)
+	                         BiConsumer<String, String> finalizeAuthentication)
 	{
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
 		this.finalizeRegistration = finalizeRegistration;
 		this.finalizeAuthentication = finalizeAuthentication;
-		this.invokeRegistration = invokeRegistration;
-		this.invokeAuthentication = invokeAuthentication;
 	}
 
 	@ClientCallable
@@ -71,15 +65,5 @@ public class FidoV23Component extends Component
 	public void showErrorNotification(final String title, final String errorMsg)
 	{
 		notificationPresenter.showError(title, errorMsg);
-	}
-
-	public void invokeRegistration(String username, boolean useResidentKey)
-	{
-		invokeRegistration.accept(username, useResidentKey);
-	}
-
-	public void invokeAuthentication(Long entityId, String username)
-	{
-		invokeAuthentication.accept(entityId, username);
 	}
 }

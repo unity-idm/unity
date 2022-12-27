@@ -63,7 +63,7 @@ public class FidoComponent
 		this.newCredentialListener = newCredentialListener;
 		this.authenticationResultListener = authenticationResultListener;
 		this.notificationPresenter = notificationPresenter;
-		this.fidoV23Component = new FidoV23Component(msg, notificationPresenter, this::finalizeRegistration, this::finalizeAuthentication, this::invokeRegistration, this::invokeAuthentication);
+		this.fidoV23Component = new FidoV23Component(msg, notificationPresenter, this::finalizeRegistration, this::finalizeAuthentication);
 	}
 
 	public Long getEntityId()
