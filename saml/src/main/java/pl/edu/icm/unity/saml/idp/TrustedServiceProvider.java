@@ -32,7 +32,7 @@ public class TrustedServiceProvider
 	public final X509Certificate certificate;
 	public final Set<X509Certificate> certificates;
 
-	TrustedServiceProvider(String allowedKey, SamlEntityId entityId, boolean encrypt, String returnUrl,
+	private TrustedServiceProvider(String allowedKey, SamlEntityId entityId, boolean encrypt, String returnUrl,
 	                       Set<String> returnUrls, String soapLogoutUrl, String redirectLogoutUrl,
 	                       String postLogoutUrl, String redirectLogoutRetUrl, String postLogoutRetUrl,
 	                       I18nString name, I18nString logoUri, X509Certificate certificate,

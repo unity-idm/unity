@@ -35,13 +35,11 @@ public class I18nString
 
 	public I18nString(String defaultValue)
 	{
-		this();
 		this.defaultValue = defaultValue;
 	}
 
 	public I18nString(String locale, String value)
 	{
-		this();
 		if (locale == null)
 			this.defaultValue = value;
 		else
@@ -54,7 +52,6 @@ public class I18nString
 	 */
 	public I18nString(String key, MessageSource msg, Object... args)
 	{
-		this();
 		Map<String, Locale> allLocales = msg.getSupportedLocales();
 		
 		String defaultMessage;
@@ -124,7 +121,7 @@ public class I18nString
 	
 	public Map<String, String> getMap()
 	{
-		return new HashMap<String, String>(values);
+		return new HashMap<>(values);
 	}
 
 	public String getDefaultLocaleValue(MessageSource msg)
