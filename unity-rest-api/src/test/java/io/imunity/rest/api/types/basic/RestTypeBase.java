@@ -32,13 +32,15 @@ public abstract class RestTypeBase<T>
 	public void shouldDeserializeFullObject() throws JsonMappingException, JsonProcessingException
 	{
 		T fromJson = MAPPER.readValue(getJson(), type);
-		assertThat(fromJson).isEqualTo(getObject());
+		T object = getObject();
+		assertThat(fromJson).isEqualTo(object);
 	}
 
 	@Test
 	public void serializationIsIdempotent() throws JsonMappingException, JsonProcessingException
 	{
-		String json = MAPPER.writeValueAsString(getObject());
+		T object = getObject();
+		String json = MAPPER.writeValueAsString(object);
 		T fromJson = MAPPER.readValue(json, type);
 		assertThat(getObject()).isEqualTo(fromJson);
 	}

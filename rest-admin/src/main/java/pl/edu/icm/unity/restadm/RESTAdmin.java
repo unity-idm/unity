@@ -57,6 +57,8 @@ import io.imunity.rest.api.types.basic.RestExternalizedAttribute;
 import io.imunity.rest.api.types.basic.RestGroup;
 import io.imunity.rest.api.types.basic.RestToken;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
+import io.imunity.rest.api.types.registration.RestRegistrationForm;
+import io.imunity.rest.api.types.translation.RestTranslationRule;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.PersistableEvent;
@@ -96,6 +98,8 @@ import pl.edu.icm.unity.restadm.mappers.GroupMembershipMapper;
 import pl.edu.icm.unity.restadm.mappers.TokenMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.EndpointConfigurationMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.ResolvedEndpointMapper;
+import pl.edu.icm.unity.restadm.mappers.registration.RegistrationFormMapper;
+import pl.edu.icm.unity.restadm.mappers.translation.TranslationRuleMapper;
 import pl.edu.icm.unity.restadm.token.Token2JsonFormatter;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -120,7 +124,6 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * RESTful API implementation.
@@ -907,7 +910,9 @@ public class RESTAdmin implements RESTAdminHandler
 	public String getRegistrationForms() throws EngineException, JsonProcessingException
 	{
 		List<RegistrationForm> forms = registrationManagement.getForms();
-		return mapper.writeValueAsString(forms);
+		return mapper.writeValueAsString(forms.stream()
+				.map(RegistrationFormMapper::map)
+				.collect(Collectors.toList()));
 	}
 	
 	@Path("/registrationForm/{formId}")
@@ -925,8 +930,8 @@ public class RESTAdmin implements RESTAdminHandler
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void addForm(String json) throws EngineException, IOException
 	{
-		RegistrationForm form = new RegistrationForm(JsonUtil.parse(json));
-		registrationManagement.addForm(form);
+		RestRegistrationForm form = JsonUtil.parse(json, RestRegistrationForm.class);
+		registrationManagement.addForm(RegistrationFormMapper.map(form));
 	}
 	
 	@Path("/registrationForm")
@@ -938,8 +943,8 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (ignoreRequestsAndInvitations == null)
 			ignoreRequestsAndInvitations = false;
-		RegistrationForm form = new RegistrationForm(JsonUtil.parse(json));
-		registrationManagement.updateForm(form, ignoreRequestsAndInvitations);
+		RestRegistrationForm form = JsonUtil.parse(json, RestRegistrationForm.class);
+		registrationManagement.updateForm(RegistrationFormMapper.map(form), ignoreRequestsAndInvitations);
 	}
 	
 	@Path("/registrationRequests")
@@ -1043,20 +1048,20 @@ public class RESTAdmin implements RESTAdminHandler
 	public String applyBulkProcessingRule(@QueryParam("timeout") Long timeout, String jsonProcessingRule) 
 			throws EngineException
 	{
-		TranslationRule rule = JsonUtil.parse(jsonProcessingRule, TranslationRule.class); 
+		RestTranslationRule rule = JsonUtil.parse(jsonProcessingRule, RestTranslationRule.class); 
 		
 		if (timeout == null)
 			timeout = -1l;
 		
 		if (timeout < 0)
 		{
-			bulkProcessingManagement.applyRule(rule);
+			bulkProcessingManagement.applyRule(TranslationRuleMapper.map(rule));
 			return "async";
 		} else
 		{
 			try
 			{
-				bulkProcessingManagement.applyRuleSync(rule, timeout);
+				bulkProcessingManagement.applyRuleSync(TranslationRuleMapper.map(rule), timeout);
 				return "sync";
 			} catch (TimeoutException e)
 			{

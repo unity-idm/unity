@@ -33,6 +33,7 @@ public abstract class MapperTestBase<S, T>
 	{
 		S mapped = getMapper().getRight()
 				.apply(getRestObject());
-		assertThat(mapped).isEqualTo(getAPIObject());
+		S apiObject = getAPIObject();
+		assertThat(mapped).isEqualTo(apiObject);
 	}
 }
