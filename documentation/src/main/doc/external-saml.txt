@@ -7,7 +7,7 @@ Compatible credentials:: +SAML tokens+
 [NOTE]
 ======
 The SAML integration can be very challenging, as the protocol is enormously complex. We advise to read the
-<<saml-howto.txt#,SAML HOWTO>>
+<<saml-howto#,SAML HOWTO>>
 ======
 
 External SAML authentication module allows for authenticating the Unity's client with the external
@@ -24,7 +24,7 @@ nearly all settings are specified per provider.
 [NOTE]
 ======
 You can alternatively configure the trusted IdPs with your federation's metadata. Consult the reference table
-below for the list of the settings or the SAML Howto for examples.
+below for the list of the settings or the <<saml-howto#,SAML HOWTO>> for examples.
 ====== 
 
 Let's consider an example with two remote IdPs:

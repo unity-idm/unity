@@ -121,6 +121,6 @@ In this case a more complicated authenticator configuration is required.
 === What to read next
 
 If you want to learn more about integration with external identity systems, the separate 
-SAML HowTo is the best starting point.
+<<saml-howto#,SAML HOWTO>> is the best starting point.
 
 It is also good to play with the Admin Console to get familiar with the features offered there.
