@@ -18,6 +18,7 @@ public class RegistrationLayoutsContainer
 		this.registrationFormLayout = new VerticalLayout();
 		this.registrationFormLayout.setWidth(formLayoutWidth, formLayoutWidthUnit);
 		this.registrationFormLayout.setMargin(false);
+		this.registrationFormLayout.setPadding(false);
 	}
 
 	public void addFormLayoutToRootLayout(VerticalLayout main)

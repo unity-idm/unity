@@ -13,6 +13,6 @@ public class SharedResourceProvider extends CustomResourceProvider
 {
 	public SharedResourceProvider()
 	{
-		super("vaadin23-endpoint-common");
+		super("vaadin23-endpoint-common", "otp");
 	}
 }

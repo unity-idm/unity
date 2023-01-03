@@ -11,14 +11,16 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import pl.edu.icm.unity.MessageSource;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-class GroupMultiComboBox extends MultiSelectComboBox<GroupTreeNode>
+public class GroupMultiComboBox extends MultiSelectComboBox<GroupTreeNode>
 {
 	private final MessageSource msg;
 
-	GroupMultiComboBox(MessageSource msg)
+	public GroupMultiComboBox(MessageSource msg)
 	{
 		this.msg = msg;
 		setRenderer(new ComponentRenderer<>(this::renderGroupWithIndent));
@@ -38,6 +40,23 @@ class GroupMultiComboBox extends MultiSelectComboBox<GroupTreeNode>
 
 			setValue(selectedGroups);
 		});
+	}
+
+	public List<String> getSelectedGroupsWithoutParents()
+	{
+		List<String> paths = new ArrayList<>();
+		Set<GroupTreeNode> values = getValue();
+		for (GroupTreeNode value : values)
+		{
+			boolean match = values.stream()
+					.filter(node -> !node.equals(value))
+					.anyMatch(node -> value.parent.map(parent -> parent.equals(node)).orElse(false));
+			if(match)
+			{
+				paths.add(value.getPath());
+			}
+		}
+		return paths;
 	}
 
 	private void removeAllOffspringsIfParentWasRemoved(Set<GroupTreeNode> newSet, Set<GroupTreeNode> oldSet)

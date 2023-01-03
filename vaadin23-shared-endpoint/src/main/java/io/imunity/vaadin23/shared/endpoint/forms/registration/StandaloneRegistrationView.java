@@ -98,6 +98,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		main = new VerticalLayout();
 		main.addClassName("u-standalone-public-form");
 		main.setWidthFull();
+		main.getStyle().set("gap", "0");
 		getContent().add(main);
 	}
 
@@ -246,7 +247,6 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 			formButtons.setWidth(editor.formWidth(), editor.formWidthUnit());
 			formButtons.add(okButton);
 			formButtons.setMargin(false);
-			formButtons.getStyle().set("margin-left", "2.5em");
 			main.add(formButtons);
 		} else
 		{

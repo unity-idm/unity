@@ -124,13 +124,19 @@ public class CaptchaComponent
 
 	public Component getAsComponent()
 	{
-		return getAsComponent(FlexComponent.Alignment.CENTER);
+		return getAsComponent(FlexComponent.Alignment.START);
+	}
+
+	public void setInvalid()
+	{
+		answer.setInvalid(true);
 	}
 
 	public Component getAsComponent(FlexComponent.Alignment answerAlignment)
 	{
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
+		ret.setPadding(false);
 		HorizontalLayout capchaLine = createCapchaLine();
 		ret.add(capchaLine, answer);
 		ret.setAlignItems(answerAlignment);

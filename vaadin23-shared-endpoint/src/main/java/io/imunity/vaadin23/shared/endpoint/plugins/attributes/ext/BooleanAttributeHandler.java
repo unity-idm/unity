@@ -109,13 +109,11 @@ public class BooleanAttributeHandler implements WebAttributeHandler
 		}
 	}
 
-
 	@Override
 	public String getValueAsString(String value)
 	{
 		return value;
 	}
-
 
 
 	@Override

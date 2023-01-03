@@ -33,7 +33,7 @@ public class PasswordQualityComponent extends VerticalLayout
 	private void initComponent(CredentialEditorContext context)
 	{
 		qualityMeter = new PasswordProgressBar(config.getMinLength() > 1, config.getMinClassesNum() > 1, config.isDenySequences());
-		qualityMeter.setTitle(msg.getMessage("PasswordCredentialEditor.qualityMeter"));
+		qualityMeter.setTitle(" " + msg.getMessage("PasswordCredentialEditor.qualityMeter"));
 		qualityMeter.setWidth(15, Unit.EM);
 		qualityMeter.addClassName("u-password-quality");
 			
@@ -80,17 +80,17 @@ public class PasswordQualityComponent extends VerticalLayout
 			qualityMeter.setHint("");
 		}
 
-		qualityMeter.setMinLengthStatus(
+		qualityMeter.setMinLengthStatus(" " +
 				msg.getMessage("PasswordCredentialEditor.minLengthStatus", length, config.getMinLength()),
 				length >= config.getMinLength()
 		);
 
-		qualityMeter.setMinClassesStatus(
+		qualityMeter.setMinClassesStatus(" " +
 				msg.getMessage("PasswordCredentialEditor.minClassesStatus", classes, config.getMinClassesNum()),
 				classes >= config.getMinClassesNum()
 		);
 
-		qualityMeter.setSequencesStatus(msg.getMessage("PasswordCredentialEditor.trivialSequences"), trivialSequences);
+		qualityMeter.setSequencesStatus(" " + msg.getMessage("PasswordCredentialEditor.trivialSequences"), trivialSequences);
 	}
 
 }

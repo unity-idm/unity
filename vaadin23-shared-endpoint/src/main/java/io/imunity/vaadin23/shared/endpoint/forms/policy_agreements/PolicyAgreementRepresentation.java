@@ -6,9 +6,7 @@
 package io.imunity.vaadin23.shared.endpoint.forms.policy_agreements;
 
 import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin23.shared.endpoint.components.CheckboxWithError;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
@@ -17,7 +15,7 @@ import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import java.util.List;
 
 
-public class PolicyAgreementRepresentation extends VerticalLayout
+public class PolicyAgreementRepresentation extends HorizontalLayout
 {
 	private final List<Long> documentsIdsToAccept;
 	private final CheckboxWithError decisionCheckBox;
@@ -38,11 +36,7 @@ public class PolicyAgreementRepresentation extends VerticalLayout
 
 	private void initUI()
 	{
-		HorizontalLayout main = new HorizontalLayout();
-		main.setWidth(100, Unit.PERCENTAGE);
-		main.setSpacing(false);
-
-		Html caption = new Html(representation);
+		Html caption = new Html("<div style='margin-top:auto;margin-bottom:auto;'>" + representation + "</dvi>");
 
 		if (presentationType == PolicyAgreementPresentationType.INFORMATIVE_ONLY)
 		{
@@ -54,11 +48,10 @@ public class PolicyAgreementRepresentation extends VerticalLayout
 			decisionCheckBox.setValue(true);
 		}
 		
-		main.add(decisionCheckBox);
-		main.add(caption);
-		
-		setWidth(100, Unit.PERCENTAGE);
-		add(main);
+		setWidthFull();
+		setMargin(false);
+		setPadding(false);
+		add(decisionCheckBox, caption);
 	}
 
 	public PolicyAgreementDecision getDecision()
@@ -81,6 +74,7 @@ public class PolicyAgreementRepresentation extends VerticalLayout
 
 	public void setErrorMessage(String message)
 	{
+		decisionCheckBox.setInvalid(message != null);
 		decisionCheckBox.setErrorMessage(message);
 	}
 }

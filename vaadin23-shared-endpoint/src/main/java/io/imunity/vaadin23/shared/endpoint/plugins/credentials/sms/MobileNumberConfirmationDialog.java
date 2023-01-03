@@ -42,8 +42,6 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 	private Component captchaComponent;
 	private Component confirmCodeComponent;
 	private boolean capchaVerified = false;
-	private Label errorLabel;
-	
 	
 	public MobileNumberConfirmationDialog(String mobileToConfirm, ConfirmationInfo confirmatioInfo,
 	                                      MessageSource msg,
@@ -51,7 +49,7 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 	                                      MobileNumberConfirmationConfiguration confirmationConfiguration,
 	                                      Callback callback, NotificationPresenter notificationPresenter)
 	{
-		setText(msg.getMessage("MobileNumberConfirmationDialog.caption"));
+		setHeader(msg.getMessage("MobileNumberConfirmationDialog.caption"));
 		this.msg = msg;
 		this.callback = callback;
 		this.mobileConfirmationMan = mobileConfirmationMan;
@@ -72,7 +70,6 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 		setConfirmText("OK");
 		add(getContents());
 	}
-
 	
 	
 	private Component getCapchaComponent()
@@ -94,13 +91,9 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 		Label infoLabel = new Label(msg.getMessage("MobileNumberConfirmationDialog.confirmInfo",
 				mobileToConfirm));
 		infoLabel.setSizeFull();
-	
-		errorLabel = new Label();
-		errorLabel.setSizeFull();
-		errorLabel.setVisible(false);
 
 		FormLayout mainForm = new FormLayout();
-		mainForm.add(field, errorLabel);
+		mainForm.add(field);
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setAlignItems(FlexComponent.Alignment.START);
 		wrapper.setMargin(false);
@@ -155,9 +148,12 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 				sendVerificationCode();
 				captchaComponent.setVisible(false);
 				confirmCodeComponent.setVisible(true);
+				open();
 				return;
 			} catch (WrongArgumentException e)
 			{
+				open();
+				captcha.setInvalid();
 				return;
 			}
 		}
@@ -167,35 +163,23 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 		{
 			if (System.currentTimeMillis() > code.getValidTo())
 			{
-				setError((msg.getMessage(
-						"MobileNumberConfirmationDialog.invalidCode")));
+				open();
+				setError((msg.getMessage("MobileNumberConfirmationDialog.invalidCode")));
 				return;
 			}
-			close();
 			confirmationInfo.confirm();
 			callback.onConfirm();
 		} else
 		{
-			setError(msg.getMessage(
-					"MobileNumberConfirmationDialog.incorrectCode"));
+			open();
+			setError(msg.getMessage("MobileNumberConfirmationDialog.incorrectCode"));
 		}
 	}
 
 	private void setError(String msg)
 	{
-		if (msg != null)
-		{
-			errorLabel.setVisible(true);
-			errorLabel.setText(msg);
-			field.setErrorMessage(msg);
-
-		} else
-		{
-			errorLabel.setText("");
-			errorLabel.setVisible(false);
-			field.setErrorMessage(null);
-		}
-
+		field.setErrorMessage(msg);
+		field.setInvalid(true);
 	}
 
 	public interface Callback

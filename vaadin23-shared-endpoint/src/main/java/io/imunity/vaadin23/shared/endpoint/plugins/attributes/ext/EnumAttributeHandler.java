@@ -94,9 +94,10 @@ public class EnumAttributeHandler implements WebAttributeHandler
 			try
 			{
 				syntax.validate(cur);
-				field.setErrorMessage(null);
+				field.setInvalid(false);
 			} catch (IllegalAttributeValueException e)
 			{
+				field.setInvalid(true);
 				field.setErrorMessage(e.getMessage());
 				throw e;
 			}

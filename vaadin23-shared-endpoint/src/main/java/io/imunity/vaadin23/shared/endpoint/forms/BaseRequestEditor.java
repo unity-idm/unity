@@ -20,8 +20,8 @@ import io.imunity.vaadin23.shared.endpoint.components.CheckboxWithError;
 import io.imunity.vaadin23.shared.endpoint.components.ComponentsContainer;
 import io.imunity.vaadin23.shared.endpoint.components.ReadOnlyField;
 import io.imunity.vaadin23.shared.endpoint.components.RegistrationLayoutsContainer;
-import io.imunity.vaadin23.shared.endpoint.forms.groups.GroupsSelection;
-import io.imunity.vaadin23.shared.endpoint.forms.groups.MandatoryGroupSelection;
+import io.imunity.vaadin23.shared.endpoint.forms.groups.GroupMultiComboBox;
+import io.imunity.vaadin23.shared.endpoint.forms.groups.GroupTreeNode;
 import io.imunity.vaadin23.shared.endpoint.forms.policy_agreements.PolicyAgreementRepresentation;
 import io.imunity.vaadin23.shared.endpoint.forms.policy_agreements.PolicyAgreementRepresentationBuilderV23;
 import io.imunity.vaadin23.shared.endpoint.plugins.attributes.*;
@@ -63,6 +63,8 @@ import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin23.shared.endpoint.forms.FormParser.isGroupParamUsedAsMandatoryAttributeGroup;
+
 
 public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends VerticalLayout
 {
@@ -84,7 +86,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private Map<Integer, IdentityEditor> identityParamEditors;
 	private List<CredentialEditor> credentialParamEditors;
 	private Map<Integer, FixedAttributeEditor> attributeEditor;
-	private Map<Integer, GroupsSelection> groupSelectors;
+	private Map<Integer, GroupMultiComboBox> groupSelectors;
 	private List<CheckboxWithError> agreementSelectors;
 	private List<PolicyAgreementRepresentation> policyAgreementSelectors;
 	private TextArea comment;
@@ -319,7 +321,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				boolean hasRemoteGroup = !remotelySelected.isEmpty();
 				if (gp.getRetrievalSettings().isInteractivelyEntered(hasRemoteGroup))
 				{
-					GroupsSelection selector = groupSelectors.get(i);
+					GroupMultiComboBox selector = groupSelectors.get(i);
 					if (selector == null)	//ok, group specified by invitation
 						g.add(null);
 					else
@@ -566,24 +568,28 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	
 	protected boolean createAgreementControl(VerticalLayout layout, FormParameterElement element)
 	{
-		AgreementRegistrationParam aParam = form.getAgreements().get(element.getIndex());
+		VerticalLayout container = new VerticalLayout();
+		container.setPadding(false);
+		container.setMargin(false);
+		container.getStyle().set("gap", "0");
 
+		AgreementRegistrationParam aParam = form.getAgreements().get(element.getIndex());
 		Html aText = new Html("<div>" + aParam.getText().getValue(msg) + "</div>");
 		aText.getElement().getStyle().set("width", formWidth() + formWidthUnit().getSymbol());
 		CheckboxWithError cb = new CheckboxWithError(msg.getMessage("RegistrationRequest.agree"));
 		agreementSelectors.add(cb);
-		layout.add(aText);
-		layout.add(cb);
+		container.add(aText);
+		container.add(cb);
 		if (aParam.isManatory())
 		{
 			Label mandatory = new Label(msg.getMessage("RegistrationRequest.mandatoryAgreement"));
-			layout.add(mandatory);
+			container.add(mandatory);
 		}
+		layout.add(container);
 		return true;
 	}
 	
-	private boolean createPolicyAgreementControl(VerticalLayout layout,
-			FormParameterElement element)
+	private boolean createPolicyAgreementControl(VerticalLayout layout, FormParameterElement element)
 	{
 		PolicyAgreementConfiguration aParam = form.getPolicyAgreements().get(element.getIndex());
 		if (isPolicyAgreementsIsFiltered(aParam))
@@ -773,13 +779,14 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		boolean hasAutomaticRO = groupParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible() 
 				&& hasRemoteGroup;
 
-		MandatoryGroupSelection selection = new MandatoryGroupSelection(msg);
-		selection.setLabel(isEmpty(groupParam.getLabel()) ? "" : groupParam.getLabel());
-		selection.setWidth(formWidth(), formWidthUnit());
-	
+		GroupMultiComboBox groupMultiComboBox = new GroupMultiComboBox(msg);
+		groupMultiComboBox.setWidthFull();
+		groupMultiComboBox.setLabel(groupParam.getLabel());
+		groupMultiComboBox.setRequired(isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
+
 		if (hasPrefilledROSelected)
 		{
-			selection.setReadOnly(true);
+			groupMultiComboBox.setReadOnly(true);
 			List<Group> prefilled = GroupPatternMatcher.filterByIncludeGroupsMode(
 					GroupPatternMatcher.filterMatching(allMatchingGroups,
 							prefilledEntry.getEntry().getSelectedGroups()),
@@ -787,9 +794,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 
 			if (!prefilled.isEmpty())
 			{
-				selection.setItems(prefilled);
-				selection.setSelectedItems(prefilled);
-				layout.add(selection);
+				List<GroupTreeNode> groupTreeNodes = getGroupTreeNode(prefilled).getAllOffspring();
+				groupMultiComboBox.setItems(groupTreeNodes);
+				groupMultiComboBox.select(groupTreeNodes);
+				layout.add(groupMultiComboBox);
 			}
 		} else if (hasAutomaticRO)
 		{
@@ -797,18 +805,18 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.filterByIncludeGroupsMode(remotelySelected, groupParam.getIncludeGroupsMode());
 			if (!remotelySelectedFiltered.isEmpty())
 			{
-				selection.setReadOnly(true);
-				selection.setItems(remotelySelectedFiltered);
-				selection.setSelectedItems(remotelySelectedFiltered);
-				layout.add(selection);
+				groupMultiComboBox.setReadOnly(true);
+				List<GroupTreeNode> allOffspring = getGroupTreeNode(remotelySelectedFiltered).getAllOffspring();
+				groupMultiComboBox.setItems(allOffspring);
+				groupMultiComboBox.select(allOffspring);
+				layout.add(groupMultiComboBox);
 			}
 
 		} else
 		{
 			if (groupParam.getDescription() != null)
 			{
-				selection.setDescription(
-						HtmlConfigurableLabel.conditionallyEscape(groupParam.getDescription()));
+				groupMultiComboBox.getElement().setProperty("title", HtmlConfigurableLabel.conditionallyEscape(groupParam.getDescription()));
 			}
 
 			GroupSelection allowedGroupSel = allowedFromInvitation.get(index);
@@ -820,44 +828,46 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			}
 			
 			List<Group> allowedFilteredByMode = GroupPatternMatcher.filterByIncludeGroupsMode(allowedGroup, groupParam.getIncludeGroupsMode());
-			selection.setItems(allowedFilteredByMode);
-
-//			FIXME Ii should be imporved
-//			GroupTreeNode groupTreeNode = new GroupTreeNode(new Group("/"), 0, msg);
-//			allowedFilteredByMode
-//					.stream()
-//					.sorted(Comparator.comparing(Group::getPathEncoded))
-//					.forEach(groupTreeNode::addChild);
-//			GroupMultiComboBox groupMultiComboBox = new GroupMultiComboBox(msg);
-//			groupMultiComboBox.setItems(groupTreeNode.getAllOffspring());
+			GroupTreeNode groupTreeNode = getGroupTreeNode(allowedFilteredByMode);
+			groupMultiComboBox.setItems(groupTreeNode.getAllOffspring());
 
 			if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
 					&& hasRemoteGroup)
 			{
 				List<Group> remotelySelectedLimited = GroupPatternMatcher.filterMatching(allowedFilteredByMode,
 						remotelySelected.stream().map(Group::getName).collect(Collectors.toList()));
-				selection.setSelectedItems(remotelySelectedLimited);
+				List<GroupTreeNode> allOffspring = getGroupTreeNode(remotelySelectedLimited).getAllOffspring();
+				groupMultiComboBox.select(allOffspring);
 			}
 			
 			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
 			{
-
-				selection.setSelectedItems(GroupPatternMatcher.filterMatching(allowedFilteredByMode,
-						prefilledEntry.getEntry().getSelectedGroups()));
-
+				List<GroupTreeNode> allOffspring = getGroupTreeNode(GroupPatternMatcher.filterMatching(allowedFilteredByMode,
+						prefilledEntry.getEntry().getSelectedGroups())).getAllOffspring();
+				groupMultiComboBox.select(allOffspring);
 			}
 			
-			groupSelectors.put(index, selection);
+			groupSelectors.put(index, groupMultiComboBox);
 			if (!allowedFilteredByMode.isEmpty())
 			{
-				layout.add(selection);
+				layout.add(groupMultiComboBox);
 				return false;
 			}
 		}
 		
 		return true;
 	}
-	
+
+	private GroupTreeNode getGroupTreeNode(List<Group> allowedFilteredByMode)
+	{
+		GroupTreeNode groupTreeNode = new GroupTreeNode(new Group("/"), 0, msg);
+		allowedFilteredByMode
+				.stream()
+				.sorted(Comparator.comparing(Group::getPathEncoded))
+				.forEach(groupTreeNode::addChild);
+		return groupTreeNode;
+	}
+
 	protected boolean createCredentialControl(VerticalLayout layout, FormParameterElement element)
 	{
 		int index = element.getIndex();
@@ -904,7 +914,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		return !identityParamEditors.isEmpty()
 				|| !attributeEditor.isEmpty()
-				|| !(groupSelectors.values().stream().filter(a -> a != null && !a.getItems().isEmpty())
+				|| !(groupSelectors.values().stream().filter(a -> a != null && !a.getValue().isEmpty())
 				.count() == 0)
 				|| !agreementSelectors.isEmpty()
 				|| !credentialParamEditors.isEmpty()

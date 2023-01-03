@@ -12,7 +12,6 @@ import com.vaadin.flow.dom.Style;
 
 public class CheckboxWithError extends CustomField<Boolean> implements HasStyle
 {
-
 	private final Checkbox checkbox;
 
 	public CheckboxWithError() {
@@ -22,6 +21,7 @@ public class CheckboxWithError extends CustomField<Boolean> implements HasStyle
 
 	public CheckboxWithError(String labelText) {
 		checkbox = new Checkbox(labelText);
+		add(checkbox);
 	}
 
 	@Override
@@ -45,7 +45,6 @@ public class CheckboxWithError extends CustomField<Boolean> implements HasStyle
 	}
 
 	public void setLabel(String newLabelText) {
-		// super.setLabel(newLabelText);
 		checkbox.setLabel(newLabelText);
 	}
 

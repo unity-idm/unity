@@ -6,7 +6,6 @@
 package io.imunity.vaadin23.shared.endpoint.components;
 
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.html.Div;
@@ -21,10 +20,10 @@ import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 public class TextFieldWithVerifyButton extends CustomField<String>
 {
 	private Checkbox adminConfirmCheckBox;
-	private Button verifyButton;
 	private TextField editor;
 	private HorizontalLayout fieldLayout;
 	private VerticalLayout main;
+	private Div verifyButtonIcon;
 	private Div confirmationStatusIcon;
 	private boolean showLabelInline;
 	
@@ -33,9 +32,9 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	                                 String adminConfirmCheckBoxLabel, boolean showLabelInline)
 	{
 		this.showLabelInline = showLabelInline;
-		verifyButton = new Button();
-		verifyButton.setIcon(verifyButtonIcon);
-		verifyButton.getElement().setProperty("title", verifyButtonDesc);
+		this.verifyButtonIcon = new Div(verifyButtonIcon);
+		verifyButtonIcon.getElement().setProperty("title", verifyButtonDesc);
+		verifyButtonIcon.getStyle().set("cursor", "pointer");
 		editor = new TextField();
 		adminConfirmCheckBox = new Checkbox(adminConfirmCheckBoxLabel);
 		fieldLayout = new HorizontalLayout();
@@ -44,7 +43,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 
 		confirmationStatusIcon = new Div();
 
-		fieldLayout.add(editor, confirmationStatusIcon, verifyButton);
+		fieldLayout.add(editor, confirmationStatusIcon, this.verifyButtonIcon);
 		fieldLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		main = new VerticalLayout();
@@ -64,9 +63,14 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		editor.setRequiredIndicatorVisible(visible);
 	}
 
+	public void setRequired(boolean visible)
+	{
+		editor.setRequired(visible);
+	}
 
 	public void setComponentError(String error)
 	{
+		editor.setInvalid(error != null);
 		editor.setErrorMessage(error);
 	}
 
@@ -108,11 +112,6 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		return "";
 	}
-	
-	protected Component initContent()
-	{
-		return main;
-	}
 
 	@Override
 	public void setValue(String value)
@@ -144,9 +143,9 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		editor.addValueChangeListener(listener);
 	}
 
-	public void addVerifyButtonClickListener(ComponentEventListener<ClickEvent<Button>> listener)
+	public void addVerifyButtonClickListener(ComponentEventListener<ClickEvent<Div>> listener)
 	{
-		verifyButton.addClickListener(listener);
+		verifyButtonIcon.addClickListener(listener);
 	}
 
 	public void addAdminConfirmCheckBoxValueChangeListener(HasValue.ValueChangeListener<? super ComponentValueChangeEvent<Checkbox, Boolean>> listener)
@@ -156,7 +155,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	
 	public void setVerifyButtonVisible(boolean visible)
 	{
-		verifyButton.setVisible(visible);
+		verifyButtonIcon.setVisible(visible);
 	}
 
 	public void setAdminCheckBoxValue(boolean value)
@@ -171,7 +170,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 
 	public void removeVerifyButton()
 	{
-		fieldLayout.remove(verifyButton);
+		fieldLayout.remove(verifyButtonIcon);
 	}
 
 	public void setTextFieldId(String id)

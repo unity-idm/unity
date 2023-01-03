@@ -8,6 +8,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
@@ -46,12 +47,13 @@ class FidoEditorComponent extends VerticalLayout
 	private VerticalLayout buttons;
 	private VerticalLayout advancedOptions;
 	private Checkbox loginLessAllowed;
+	private boolean required;
 
 	public FidoEditorComponent(FidoRegistration fidoRegistration, CredentialEditorContext context,
 	                           MessageSource msg, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
-
+		required = context.isRequired();
 		fidoComponent = FidoComponent.builder(msg)
 				.fidoRegistration(fidoRegistration)
 				.showSuccessNotification(false)
@@ -201,8 +203,14 @@ class FidoEditorComponent extends VerticalLayout
 	public String getValue() throws IllegalCredentialException
 	{
 		if (credentials.stream().noneMatch(c -> c.getState() != FidoCredentialInfoWrapper.CredentialState.DELETED))
-			throw new MissingCredentialException(msg.getMessage("FidoExc.noKeysToStore"));
+		{
+			if(required)
+				setButtonToErrorMode();
 
+			throw new MissingCredentialException(msg.getMessage("FidoExc.noKeysToStore"));
+		}
+
+		setButtonToNormalMode();
 		return FidoCredentialInfo.serializeList(credentials.stream()
 				.filter(info -> info.getState() != FidoCredentialInfoWrapper.CredentialState.DELETED)
 				.map(FidoCredentialInfoWrapper::getCredential)
@@ -212,6 +220,16 @@ class FidoEditorComponent extends VerticalLayout
 	long getNonDeletedKeysNumber()
 	{
 		return credentials.stream().filter(c -> c.getState() != FidoCredentialInfoWrapper.CredentialState.DELETED).count();
+	}
+
+	public void setButtonToErrorMode()
+	{
+		addButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+	}
+
+	public void setButtonToNormalMode()
+	{
+		addButton.removeThemeVariants(ButtonVariant.LUMO_ERROR);
 	}
 
 	public void setCredentialError(EngineException error)

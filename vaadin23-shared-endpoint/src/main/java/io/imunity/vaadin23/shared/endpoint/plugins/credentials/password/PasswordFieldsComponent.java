@@ -141,11 +141,12 @@ public class PasswordFieldsComponent extends VerticalLayout implements Focusable
 		if (context.isRequired() && password1.getValue().isEmpty())
 		{
 			password1.setErrorMessage(msg.getMessage("PasswordCredentialEditor.newPasswordRequired"));
+			password1.setInvalid(true);
 			throw new MissingCredentialException(msg.getMessage("PasswordCredentialEditor.newPasswordRequired"));
 		}
 		
-		password1.setErrorMessage(null);
-		
+		password1.setInvalid(false);
+
 		if (!isValid())
 		{
 			password1.clear();

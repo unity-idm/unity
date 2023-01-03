@@ -118,14 +118,16 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 			{
 				LocalDateTime cur = datetime.getValue();
 				syntax.validate(cur);
-				datetime.setErrorMessage(null);
+				datetime.setInvalid(false);
 				return syntax.convertToString(cur);
 			} catch (IllegalAttributeValueException e)
 			{
+				datetime.setInvalid(true);
 				datetime.setErrorMessage(e.getMessage());
 				throw e;
 			} catch (Exception e)
 			{
+				datetime.setInvalid(true);
 				datetime.setErrorMessage(e.getMessage());
 				throw new IllegalAttributeValueException(e.getMessage(), e);
 			}

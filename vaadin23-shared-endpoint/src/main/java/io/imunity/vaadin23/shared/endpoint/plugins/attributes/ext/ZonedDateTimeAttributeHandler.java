@@ -139,14 +139,16 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 					zoned = ZonedDateTime.of(cur,
 							ZoneId.of(zone.getValue()));
 				syntax.validate(zoned);
-				datetime.setErrorMessage(null);
+				datetime.setInvalid(false);
 				return syntax.convertToString(zoned);
 			} catch (IllegalAttributeValueException e)
 			{
+				datetime.setInvalid(true);
 				datetime.setErrorMessage(e.getMessage());
 				throw e;
 			} catch (Exception e)
 			{
+				datetime.setInvalid(true);
 				datetime.setErrorMessage(e.getMessage());
 				throw new IllegalAttributeValueException(e.getMessage(), e);
 			}

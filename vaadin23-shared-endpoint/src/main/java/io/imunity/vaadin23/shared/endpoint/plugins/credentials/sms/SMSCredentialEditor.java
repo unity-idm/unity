@@ -340,6 +340,6 @@ public class SMSCredentialEditor implements CredentialEditor
 		String message = error.getMessage();
 		editor.setComponentError(message);
 		currentMobileAttr.setErrorMessage(message);
-
+		currentMobileAttr.setInvalid(true);
 	}
 }

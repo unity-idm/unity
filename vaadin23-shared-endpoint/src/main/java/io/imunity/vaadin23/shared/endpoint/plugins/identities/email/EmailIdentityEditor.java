@@ -123,7 +123,7 @@ public class EmailIdentityEditor implements IdentityEditor
 			editor.setRequiredIndicatorVisible(true);
 
 		binder.forField(editor, context.isRequired())
-			.withValidator(this::validate)
+			.withValidator((value1, context1) -> validate(value1, context1, context.isRequired()))
 			.bind("value");
 		binder.setBean(new StringBindingValue(""));
 		
@@ -165,10 +165,12 @@ public class EmailIdentityEditor implements IdentityEditor
 		skipUpdate = false;
 	}
 	
-	private ValidationResult validate(String value, ValueContext context)
+	private ValidationResult validate(String value, ValueContext context, boolean required)
 	{
-		if (value.isEmpty())
-			return ValidationResult.ok(); //fall back
+		if (value.isEmpty() && !required)
+			return ValidationResult.ok();
+		else if (value.isEmpty())
+			return ValidationResult.error(msg.getMessage("fieldRequired"));
 		try
 		{
 			new EmailIdentity().validate(value);
