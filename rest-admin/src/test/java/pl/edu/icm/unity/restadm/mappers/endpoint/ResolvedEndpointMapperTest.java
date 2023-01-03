@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.restadm.mappers;
+package pl.edu.icm.unity.restadm.mappers.endpoint;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ import io.imunity.rest.api.types.endpoint.RestEndpoint;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
 import io.imunity.rest.api.types.endpoint.RestEndpointTypeDescription;
 import io.imunity.rest.api.types.endpoint.RestResolvedEndpoint;
-import pl.edu.icm.unity.restadm.mappers.endpoint.ResolvedEndpointMapper;
+import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
