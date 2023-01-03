@@ -5,6 +5,7 @@
 
 package io.imunity.rest.api.types.endpoint;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public class RestEndpointTypeDescription
 		private String description;
 		private String supportedBinding;
 		private Map<String, String> paths;
-		private Map<String, String> features;
+		private Map<String, String> features = new HashMap<>();
 
 		private Builder()
 		{

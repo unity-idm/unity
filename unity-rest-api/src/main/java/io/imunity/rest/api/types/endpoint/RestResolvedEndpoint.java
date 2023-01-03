@@ -41,7 +41,8 @@ public class RestResolvedEndpoint
 		if (getClass() != obj.getClass())
 			return false;
 		RestResolvedEndpoint other = (RestResolvedEndpoint) obj;
-		return Objects.equals(endpoint, other.endpoint) && Objects.equals(realm, other.realm)
+		return Objects.equals(endpoint, other.endpoint)
+				&& Objects.equals(realm, other.realm)
 				&& Objects.equals(type, other.type);
 	}
 
