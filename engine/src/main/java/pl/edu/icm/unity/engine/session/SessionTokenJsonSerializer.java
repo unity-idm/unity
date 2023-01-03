@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.utils.json.TokenWithJsonContentsSerializer;
 
 
+
 /**
  * Map session token contents to JsonNode
  * @author P.Piernik

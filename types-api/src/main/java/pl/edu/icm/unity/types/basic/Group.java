@@ -53,7 +53,7 @@ public class Group extends I18nDescribedObject implements NamedObject, Comparabl
 	private String[] path;
 
 	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
-	private Set<String> attributesClasses = new HashSet<String>();
+	private Set<String> attributesClasses = new HashSet<>();
 	private GroupDelegationConfiguration delegationConfiguration;
 	private boolean publicGroup = false;
 	private Map<String, GroupProperty> properties = new HashMap<>();

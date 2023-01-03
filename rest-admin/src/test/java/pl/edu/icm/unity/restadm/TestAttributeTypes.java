@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import io.imunity.rest.api.types.basic.RestAttributeType;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
@@ -82,21 +83,31 @@ public class TestAttributeTypes extends TestRESTBase
 		
 		HttpPost addAT = new HttpPost("/restadm/v1/attributeType");
 		
-		AttributeType sAttributeType = new AttributeType("stringA", StringAttributeSyntax.ID);
 		Map<String, String> meta = new HashMap<>();
 		meta.put(EntityNameMetadataProvider.NAME, "");
-		sAttributeType.setMetadata(meta);
-		sAttributeType.setMaxElements(1);
-		sAttributeType.setMinElements(1);
+		
+		RestAttributeType sAttributeType= RestAttributeType.builder()
+				.withName("stringA")
+				.withSyntaxId(StringAttributeSyntax.ID)
+				.withMetadata(meta)
+				.withMaxElements(1)
+				.withMinElements(1)
+				.build();
 		
 		addAT.setEntity(new StringEntity(JsonUtil.toJsonString(sAttributeType), ContentType.APPLICATION_JSON));
 		try(ClassicHttpResponse response = client.executeOpen(host, addAT, getClientContext(host))){
 			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		}
 		assertNotNull(aTypeMan.getAttributeTypesAsMap().get("stringA"));
-
-		sAttributeType.setMetadata(new HashMap<>());
-		sAttributeType.setMaxElements(10);
+		
+		sAttributeType= RestAttributeType.builder()
+				.withName("stringA")
+				.withSyntaxId(StringAttributeSyntax.ID)
+				.withMetadata(new HashMap<>())
+				.withMaxElements(10)
+				.withMinElements(1)
+				.build();
+		
 		HttpPut updateAT = new HttpPut("/restadm/v1/attributeType");
 		updateAT.setEntity(new StringEntity(JsonUtil.toJsonString(sAttributeType), 
 				ContentType.APPLICATION_JSON));

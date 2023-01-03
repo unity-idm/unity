@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.imunity.rest.api.types.basic.RestEntity;
+import io.imunity.rest.api.types.basic.RestEntityWithAttributes;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.attr.ImageType;
 import pl.edu.icm.unity.attr.UnityImage;
@@ -51,7 +53,6 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.EntityWithAttributes;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -115,8 +116,8 @@ public class TestQuery extends RESTAdminTestBase
 		HttpGet getEntity = new HttpGet("/restadm/v1/entity/"+e);
 		String contents = executeQuery(getEntity);
 		log.info("User's info:\n" + formatJson(contents));
-		Entity parsed = m.readValue(contents, Entity.class);
-		assertThat(parsed.getId(), is(e));
+		RestEntity parsed = m.readValue(contents, RestEntity.class);
+		assertThat(parsed.entityInformation.entityId, is(e));
 	}
 	
 	@Test
@@ -128,13 +129,13 @@ public class TestQuery extends RESTAdminTestBase
 		String contents = executeQuery(getEntity);
 		log.info("User's info:\n" + formatJson(contents));
 
-		EntityWithAttributes parsed = m.readValue(contents, EntityWithAttributes.class);
-		assertThat(parsed.entity.getId(), is(e));
+		RestEntityWithAttributes parsed = m.readValue(contents, RestEntityWithAttributes.class);
+		assertThat(parsed.entity.entityInformation.entityId, is(e));
 		assertThat(parsed.attributesInGroups.keySet().size(), is(2));
 		assertThat(parsed.attributesInGroups.get("/").size(), is(2));
-		assertThat(parsed.attributesInGroups.get("/").stream().map(a -> a.getName())
+		assertThat(parsed.attributesInGroups.get("/").stream().map(a -> a.name)
 				.collect(Collectors.toSet()), hasItems("emailA", "sys:CredentialRequirements"));
-		assertThat(parsed.attributesInGroups.get("/example").stream().map(a -> a.getName()).collect(
+		assertThat(parsed.attributesInGroups.get("/example").stream().map(a -> a.name).collect(
 				Collectors.toSet()), hasItems("floatA", "emailA", "intA", "jpegA", "enumA", "stringA"));
 		assertThat(parsed.groups.keySet(), hasItems("/", "/example", "/example/sub"));
 	}
