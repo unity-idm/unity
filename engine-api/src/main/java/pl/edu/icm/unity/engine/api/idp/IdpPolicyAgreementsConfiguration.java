@@ -5,14 +5,14 @@
 
 package pl.edu.icm.unity.engine.api.idp;
 
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 
 public class IdpPolicyAgreementsConfiguration
 {
@@ -26,11 +26,6 @@ public class IdpPolicyAgreementsConfiguration
 	{
 		this(msg.getI18nMessage("PolicyAgreementsConfiguration.defaultTitle"), null, 40, "em",
 				new ArrayList<>());
-	}
-
-	public IdpPolicyAgreementsConfiguration()
-	{
-		this(null, null, 40, "em", new ArrayList<>());
 	}
 
 	public IdpPolicyAgreementsConfiguration(I18nString title, I18nString information, int width, String widthUnit,
@@ -63,4 +58,15 @@ public class IdpPolicyAgreementsConfiguration
 		return Objects.hash(title, information, width, widthUnit, agreements);
 	}
 
+	@Override
+	public String toString()
+	{
+		return "IdpPolicyAgreementsConfiguration{" +
+				"title=" + title +
+				", information=" + information +
+				", width=" + width +
+				", widthUnit='" + widthUnit + '\'' +
+				", agreements=" + agreements +
+				'}';
+	}
 }

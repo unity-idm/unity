@@ -4,29 +4,17 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
+import com.vaadin.annotations.Theme;
+import com.vaadin.server.Page;
+import com.vaadin.server.VaadinRequest;
+import eu.unicore.samly2.SAMLConstants;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.vaadin.annotations.Theme;
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
-
-import eu.unicore.samly2.SAMLConstants;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -36,25 +24,21 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ActiveValueSelectionConfig;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
@@ -68,6 +52,10 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 import pl.edu.icm.unity.webui.idpcommon.activesel.ActiveValueSelectionScreen;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The main UI of the SAML web IdP. Fairly simple: shows who asks, what is going to be sent,
@@ -144,32 +132,32 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 				samlProcessor.getIdentityTarget(), Optional.empty(), 
 				"SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
 				processor.isIdentityCreationAllowed(),
-				samlCtx.getSamlConfiguration());
+				samlCtx.getSamlConfiguration().userImportConfigs);
 	}
 
 	@Override
 	protected void enter(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
-		SamlIdpProperties samlConfiguration = samlCtx.getSamlConfiguration();
-		List<PolicyAgreementConfiguration> filteredAgreementToPresent = filterAgreementsToPresents(samlConfiguration);
+		SAMLIdPConfiguration samlIdPConfiguration = samlCtx.getSamlConfiguration();
+		List<PolicyAgreementConfiguration> filteredAgreementToPresent = filterAgreementsToPresents(samlIdPConfiguration);
 		if (!filteredAgreementToPresent.isEmpty())
 		{
-			policyAgreementsStage(samlCtx, samlConfiguration, filteredAgreementToPresent);
+			policyAgreementsStage(samlCtx, samlIdPConfiguration, filteredAgreementToPresent);
 		} else
 		{
-			activeValueSelectionAndConsentStage(samlCtx, samlConfiguration);
+			activeValueSelectionAndConsentStage(samlCtx, samlIdPConfiguration);
 		}
 	}
 	
-	private List<PolicyAgreementConfiguration> filterAgreementsToPresents(SamlIdpProperties config)
+	private List<PolicyAgreementConfiguration> filterAgreementsToPresents(SAMLIdPConfiguration config)
 	{
 		List<PolicyAgreementConfiguration> filterAgreementToPresent = new ArrayList<>();
 		try
 		{
 			filterAgreementToPresent.addAll(policyAgreementsMan.filterAgreementToPresent(
 					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
-					CommonIdPProperties.getPolicyAgreementsConfig(msg, config).agreements));
+					config.policyAgreements.agreements));
 		} catch (EngineException e)
 		{
 			log.error("Unable to determine policy agreements to accept");
@@ -177,21 +165,18 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		return filterAgreementToPresent;
 	}
 
-	private void policyAgreementsStage(SAMLAuthnContext ctx, SamlIdpProperties config,
+	private void policyAgreementsStage(SAMLAuthnContext ctx, SAMLIdPConfiguration config,
 			List<PolicyAgreementConfiguration> filterAgreementToPresent)
 	{
 		setContent(policyAgreementScreenObjectFactory.getObject()
-				.withTitle(config.getLocalizedStringWithoutFallbackToDefault(msg,
-						CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
-				.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
-						CommonIdPProperties.POLICY_AGREEMENTS_INFO))
-				.withWidht(config.getLongValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH),
-						config.getValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH_UNIT))
+				.withTitle(config.policyAgreements.title)
+				.withInfo(config.policyAgreements.information)
+				.withWidht(config.policyAgreements.width, config.policyAgreements.widthUnit)
 				.withAgreements(filterAgreementToPresent)
 				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
 	}
 	
-	private void activeValueSelectionAndConsentStage(SAMLAuthnContext samlCtx, SamlIdpProperties samlConfiguration)
+	private void activeValueSelectionAndConsentStage(SAMLAuthnContext samlCtx, SAMLIdPConfiguration samlIdPConfiguration)
 	{
 		samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
@@ -216,8 +201,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		}
 		Collection<DynamicAttribute> allAttributes = translationResult.getAttributes();
 		
-		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = 
-				CommonIdPProperties.getActiveValueSelectionConfig(samlConfiguration, 
+		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig =
+				ActiveValueClientHelper.getActiveValueSelectionConfig(samlIdPConfiguration.activeValueClient,
 						samlProcessor.getRequestIssuer(), allAttributes);
 		
 		if (activeValueSelectionConfig.isPresent())
@@ -228,7 +213,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 
 	protected void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
-		if (SamlSessionService.getVaadinContext().getSamlConfiguration().getBooleanValue(CommonIdPProperties.SKIP_CONSENT))
+		if (SamlSessionService.getVaadinContext().getSamlConfiguration().skipConsent)
 		{
 			onAccepted(validIdentities.get(0), attributes.stream()
 					.map(da -> da.getAttribute())

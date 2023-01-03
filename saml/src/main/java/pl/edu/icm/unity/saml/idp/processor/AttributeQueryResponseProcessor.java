@@ -4,20 +4,11 @@
  */
 package pl.edu.icm.unity.saml.idp.processor;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
-import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.XmlObject;
-
 import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlObject;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
@@ -30,6 +21,8 @@ import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AttributeQueryType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import java.util.*;
 
 /**
  * Extends {@link StatusResponseProcessor} to produce SAML Response documents, 
@@ -55,7 +48,7 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 		String target = getIdentityTarget();
 		String nFormat = subject.getFormat();
 		String nContents = subject.getStringValue();
-		String unityFormat = samlConfiguration.getIdTypeMapper().mapIdentity(nFormat);
+		String unityFormat = samlConfiguration.idTypeMapper.mapIdentity(nFormat);
 		return new IdentityTaV(unityFormat, nContents, target, 
 				InvocationContext.safeGetRealm());
 	}

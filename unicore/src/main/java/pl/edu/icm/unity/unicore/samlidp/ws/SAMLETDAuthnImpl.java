@@ -4,23 +4,19 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.ws;
 
-import java.util.Collection;
-import java.util.Date;
-
-import org.apache.cxf.interceptor.Fault;
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
 import eu.unicore.security.etd.DelegationRestrictions;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
@@ -36,6 +32,9 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
+import java.util.Collection;
+import java.util.Date;
+
 /**
  * Implementation of the SAML authentication protocol over SOAP.
  * <p>
@@ -49,18 +48,18 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLETDAuthnImpl.class);
 
 	public SAMLETDAuthnImpl(AttributeTypeSupport aTypeSupport,
-			SamlIdpProperties samlProperties, String endpointAddress,
-			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan, SamlIdpStatisticReporter idpStatisticReporter,
-			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
+	                        SAMLIdPConfiguration samlIdPConfiguration, String endpointAddress,
+	                        IdPEngine idpEngine,
+	                        PreferencesManagement preferencesMan, SamlIdpStatisticReporter idpStatisticReporter,
+	                        LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
-		super(aTypeSupport, samlProperties, endpointAddress, idpEngine, preferencesMan, idpStatisticReporter, lastAccessAttributeManagement);
+		super(aTypeSupport, samlIdPConfiguration, endpointAddress, idpEngine, preferencesMan, idpStatisticReporter, lastAccessAttributeManagement);
 	}
 
 	@Override
 	public ResponseDocument authnRequest(AuthnRequestDocument reqDoc)
 	{
-		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlProperties, 
+		SAMLAuthnContext context = new SAMLAuthnContext(reqDoc, samlConfiguration,
 				new XMLExpandedMessage(reqDoc, reqDoc.getAuthnRequest()));
 		try
 		{
@@ -115,8 +114,8 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 	protected void validate(SAMLAuthnContext context) throws SAMLServerException
 	{
 		SoapAuthWithETDRequestValidator validator = new SoapAuthWithETDRequestValidator(endpointAddress, 
-				samlProperties.getSoapTrustChecker(), samlProperties.getRequestValidity(), 
-				samlProperties.getReplayChecker());
+				samlConfiguration.getSoapTrustChecker(), samlConfiguration.requestValidityPeriod,
+				samlConfiguration.getReplayChecker());
 		
 		validator.validate(context.getRequestDocument(), context.getVerifiableElement());
 	}

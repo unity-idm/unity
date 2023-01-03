@@ -61,7 +61,7 @@ public class AsyncExternalLogoFileDownloader
 	                                       ExecutorsService executorsService, MetadataToSPConfigConverter converter)
 	{
 		workspaceDir = LogoFilenameUtils.getLogosWorkspace(conf);
-		executorService = executorsService.getService();
+		executorService = executorsService.getExecutionService();
 		defaultLocale = msg.getLocale().toString();
 		this.uriAccessService = uriAccessService;
 		this.converter = converter;
@@ -69,11 +69,15 @@ public class AsyncExternalLogoFileDownloader
 		this.connectionTimeout = Duration.ofMillis(conf.getIntValue(UnityServerConfiguration.BULK_FILES_CONNECTION_TIMEOUT));
 	}
 
+	@SuppressWarnings("unchecked")
 	public void downloadLogoFilesAsync(EntitiesDescriptorDocument entitiesDescriptorDocument, String httpsTruststore)
 	{
 		String federationId = entitiesDescriptorDocument.getEntitiesDescriptor().getID();
-		if(!currentlyDownloadingFederation.add(federationId))
+		if (!currentlyDownloadingFederation.add(federationId))
+		{
+			log.info("Logos of federation {} are being downloaded, won't start a new downloading process", federationId);
 			return;
+		}
 		CompletableFuture<Set<String>>[] savedFilesNamesFutures;
 		try
 		{
@@ -83,7 +87,7 @@ public class AsyncExternalLogoFileDownloader
 					.withRefreshInterval(Duration.ZERO)
 					.build();
 			TrustedIdPs trustedIdPs = converter.convertToTrustedIdPs(entitiesDescriptorDocument, metadataSource);
-			log.debug("Will download logos for {} IdPs of federation {}", trustedIdPs.getKeys().size(),
+			log.info("Will download logos for {} IdPs of federation {}", trustedIdPs.getKeys().size(),
 					entitiesDescriptorDocument.getEntitiesDescriptor().getName());
 			savedFilesNamesFutures = trustedIdPs.getEntrySet().stream()
 					.map(entry -> CompletableFuture.supplyAsync(() -> downloadFiles(entry, httpsTruststore), executorService))
@@ -95,10 +99,12 @@ public class AsyncExternalLogoFileDownloader
 			log.error("This exception occurred when metadata has been converted to TrustedIdPs", e);
 			return;
 		}
-		CompletableFuture.allOf(savedFilesNamesFutures).thenRunAsync(
+		CompletableFuture.allOf(savedFilesNamesFutures)
+			.thenRunAsync(
 				() -> cleanUp(entitiesDescriptorDocument, savedFilesNamesFutures),
-				executorService
-		).whenComplete((ignore, ignore1) -> currentlyDownloadingFederation.remove(federationId));
+				executorService)
+			.whenComplete((result, error) -> currentlyDownloadingFederation.remove(federationId))
+			.whenComplete((result, error) -> log.info("Prefetched logos of federation {}", federationId));
 	}
 
 	private void cleanUp(EntitiesDescriptorDocument entitiesDescriptorDocument, CompletableFuture<Set<String>>[] savedFilesNamesFutures)
@@ -131,7 +137,7 @@ public class AsyncExternalLogoFileDownloader
 			if(!finalDir.toFile().exists())
 				return;
 			removeFilesFromFinalDestinationWhichAreNotReplacedByNewOne(downloadedFilesName, finalDir);
-			log.info("Not used logos from federation id {} has been clean from {}", federationId, finalDir);
+			log.debug("Not used logos from federation id {} has been cleaned from {}", federationId, finalDir);
 		}
 		catch (IOException e)
 		{

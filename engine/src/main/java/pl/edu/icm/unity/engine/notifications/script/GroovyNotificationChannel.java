@@ -67,7 +67,7 @@ class GroovyNotificationChannel implements NotificationChannelInstance
 	private Future<NotificationStatus> asyncInvokeScript(Binding context)
 	{
 		NotificationStatus retStatus = new NotificationStatus();
-		return executorsService.getService().submit(() -> 
+		return executorsService.getExecutionService().submit(() -> 
 		{
 			try
 			{

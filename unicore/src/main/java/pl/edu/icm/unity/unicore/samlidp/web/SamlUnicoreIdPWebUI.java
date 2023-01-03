@@ -4,27 +4,20 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.web;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.stream.Collectors;
-
+import com.vaadin.annotations.Theme;
+import com.vaadin.server.VaadinRequest;
+import eu.unicore.security.etd.DelegationRestrictions;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.vaadin.annotations.Theme;
-import com.vaadin.server.VaadinRequest;
-
-import eu.unicore.security.etd.DelegationRestrictions;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -47,6 +40,10 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 
 /**
@@ -90,7 +87,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 	@Override
 	protected void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
-		if (SamlSessionService.getVaadinContext().getSamlConfiguration().getBooleanValue(CommonIdPProperties.SKIP_CONSENT))
+		if (SamlSessionService.getVaadinContext().getSamlConfiguration().skipConsent)
 		{
 			onAccepted(validIdentities.get(0), attributes.stream()
 					.map(da -> da.getAttribute())

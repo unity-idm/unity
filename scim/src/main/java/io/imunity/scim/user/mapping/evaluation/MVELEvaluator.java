@@ -12,12 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -28,6 +30,8 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Component
 class MVELEvaluator
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SCIM, MVELEvaluator.class);
+	
 	public final int COMPILED_MVEL_CACHE_TTL_IN_HOURS = 1;
 
 	private final AttributeValueConverter attrValueConverter;
@@ -84,6 +88,7 @@ class MVELEvaluator
 			ret.put(SCIMMvelContextKey.arrayObj.toString(), context.arrayObj);
 		}
 
+		log.info("MVEL evaluation context: {}", ret);
 		return ret;
 	}
 

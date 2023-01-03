@@ -124,7 +124,7 @@ public class I18nString
 	
 	public Map<String, String> getMap()
 	{
-		return new HashMap<String, String>(values);
+		return new HashMap<>(values);
 	}
 
 	public String getDefaultLocaleValue(MessageSource msg)

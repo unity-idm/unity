@@ -79,7 +79,7 @@ public class AccessBlockedDialog extends Window
 		ui.addWindow(this);
 		
 		ui.setPollInterval(1000);
-		execService.getService().submit(new WaiterThread(initial, progress, ip, counter, ui));
+		execService.getScheduledService().submit(new WaiterThread(initial, progress, ip, counter, ui));
 	}
 	
 	private int getRemainingBlockedTime(UnsuccessfulAuthenticationCounter counter, String ip)

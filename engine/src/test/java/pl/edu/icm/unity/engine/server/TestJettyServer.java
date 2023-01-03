@@ -9,9 +9,10 @@ import static org.junit.Assert.assertThat;
 
 import java.net.URL;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
@@ -113,13 +114,14 @@ public class TestJettyServer
 	private boolean makeRequest(HttpClient client, String url) throws Exception
 	{
 		HttpGet get = new HttpGet(url);
-		HttpResponse response = client.execute(get);
-		if (response.getStatusLine().getStatusCode() == 429)
-		{
-			System.out.println("Our request was denied");
-			return true;
+		try(ClassicHttpResponse response = client.executeOpen(null, get, HttpClientContext.create())){
+			if (response.getCode() == 429)
+			{
+				System.out.println("Our request was denied");
+				return true;
+			}
+			return false;
 		}
-		return false;
 	}
 	
 	private class DOSser extends Thread

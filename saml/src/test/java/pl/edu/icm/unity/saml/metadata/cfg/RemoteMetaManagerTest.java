@@ -4,39 +4,34 @@
  */
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static pl.edu.icm.unity.saml.SamlProperties.METADATA_REFRESH;
-import static pl.edu.icm.unity.saml.SamlProperties.METADATA_URL;
-import static pl.edu.icm.unity.saml.SamlProperties.PUBLISH_METADATA;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.CREDENTIAL;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.DEFAULT_GROUP;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ISSUER_URI;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SPMETA_PREFIX;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.Properties;
-import java.util.function.BiConsumer;
-
 import org.apache.commons.io.FileUtils;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
+import pl.edu.icm.unity.saml.idp.SamlEntityId;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProvider;
+import pl.edu.icm.unity.saml.idp.TrustedServiceProviders;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
+import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RemoteMetaManagerTest extends DBIntegrationTestBase
 {
@@ -50,83 +45,103 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 	private MessageSource msg;
 
 	@Test
-	public void shouldUpdateStaticConfigurationAfterReload() throws Exception
+	public void shouldUpdateStaticConfigurationAfterReload()
 	{
-		Properties p = new Properties();
-		p.setProperty(P + CREDENTIAL, "MAIN");
-		p.setProperty(P + ISSUER_URI, "me");
-		p.setProperty(P + GROUP, "group");
-		p.setProperty(P + DEFAULT_GROUP, "group");
-		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
+		SAMLIdPConfiguration samlIdPConfiguration = SAMLIdPConfiguration.builder()
+				.withCredentialName("MAIN")
+				.withIssuerURI("me")
+				.withGroupChooser(Map.of("group", "group"), "group").
+				build();
 
-		RemoteMetaManager manager = new RemoteMetaManager(configuration,
-					pkiManagement,
-					new MetaToIDPConfigConverter(pkiManagement, msg),
-					metadataService, SamlIdpProperties.SPMETA_PREFIX);
+		RemoteMetaManager manager = new RemoteMetaManager(samlIdPConfiguration,
+					pkiManagement, metadataService,
+					new MetaToIDPConfigConverter(pkiManagement, msg));
 
-		p.setProperty(P + GROUP, "UPDATED");
-		manager.setBaseConfiguration(new SamlIdpProperties(p, pkiManagement));
-		
-		assertThat(manager.getVirtualConfiguration().getValue(GROUP), is("UPDATED"));
+		SAMLIdPConfiguration updatedSamlIdPConfiguration = SAMLIdPConfiguration.builder()
+				.withCredentialName("MAIN")
+				.withIssuerURI("me")
+				.withGroupChooser(Map.of("group", "UPDATED"), "group").
+				build();
+
+		manager.setBaseConfiguration(updatedSamlIdPConfiguration);
+
+		assertThat(manager.getSAMLIdPConfiguration().getGroupChooser().chooseGroup("group")).isEqualTo("UPDATED");
 	}
 
 	@Test
 	public void shouldRefreshMetadataOriginatingConfigurationAfterReload() throws Exception
 	{
-		Properties p = new Properties();
-		p.setProperty(P + CREDENTIAL, "MAIN");
-		p.setProperty(P + ISSUER_URI, "me");
-		p.setProperty(P + GROUP, "group");
-		p.setProperty(P + DEFAULT_GROUP, "group");
-		p.setProperty(P + SPMETA_PREFIX + "1." + METADATA_URL,
-				new String("foo"));
-		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
+		SAMLIdPConfiguration samlIdPConfiguration = SAMLIdPConfiguration.builder()
+				.withCredentialName("MAIN")
+				.withIssuerURI("me")
+				.withGroupChooser(Map.of("group", "group"), "group")
+				.withTrustedMetadataSources(List.of(
+						BaseSamlConfiguration.RemoteMetadataSource.builder()
+								.withUrl("foo")
+								.withTranslationProfile(new TranslationProfile("name", "description", ProfileType.INPUT, List.of()))
+								.withRefreshInterval(Duration.of(10, ChronoUnit.SECONDS))
+								.build()
+				))
+				.build();
+
 		MockMetadataService mockMetaService = new MockMetadataService();
 		
 		
-		RemoteMetaManager manager = new RemoteMetaManager(configuration,
-					pkiManagement,
-					new MetaToIDPConfigConverter(pkiManagement, msg),
-					mockMetaService, SamlIdpProperties.SPMETA_PREFIX);
+		RemoteMetaManager manager = new RemoteMetaManager(samlIdPConfiguration,
+					pkiManagement, mockMetaService,
+					new MetaToIDPConfigConverter(pkiManagement, msg));
 
 		EntitiesDescriptorDocument meta = EntitiesDescriptorDocument.Factory.parse(
 				new File("src/test/resources/unity-as-sp-meta.xml"));
 		mockMetaService.publishMetadata(meta);
 		
 		//when
-		p.setProperty(P + GROUP, "UPDATED");
-		manager.setBaseConfiguration(new SamlIdpProperties(p, pkiManagement));
-		
-		assertThat(manager.getVirtualConfiguration()
-				.getStructuredListKeys(SamlIdpProperties.ALLOWED_SP_PREFIX).size(), is(0));
+		SAMLIdPConfiguration samlIdPConfiguration2 = SAMLIdPConfiguration.builder()
+				.withCredentialName("MAIN")
+				.withIssuerURI("me")
+				.withGroupChooser(Map.of("group", "UPDATED"), "group")
+				.withTrustedMetadataSources(List.of(
+						BaseSamlConfiguration.RemoteMetadataSource.builder()
+								.withUrl("foo")
+								.withTranslationProfile(new TranslationProfile("name", "description", ProfileType.INPUT, List.of()))
+								.withRefreshInterval(Duration.of(10, ChronoUnit.SECONDS))
+								.build()
+				))
+				.build();
+		manager.setBaseConfiguration(samlIdPConfiguration2);
+
+		assertThat(manager.getTrustedSps().getSPConfigs().size()).isEqualTo(0);
 	}
 	
 	@Test
 	public void shouldInsertPublishedMetadataAfterInit() throws Exception
 	{
-		Properties p = new Properties();
-		p.setProperty(P + CREDENTIAL, "MAIN");
-		p.setProperty(P + ISSUER_URI, "me");
-		p.setProperty(P + GROUP, "group");
-		p.setProperty(P + DEFAULT_GROUP, "group");
-		p.setProperty(P + SPMETA_PREFIX + "1." + METADATA_URL,
-				new String("foo"));
-		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
+		SAMLIdPConfiguration samlIdPConfiguration = SAMLIdPConfiguration.builder()
+				.withCredentialName("MAIN")
+				.withIssuerURI("me")
+				.withGroupChooser(Map.of("group", "group"), "group")
+				.withTrustedMetadataSources(List.of(
+						BaseSamlConfiguration.RemoteMetadataSource.builder()
+								.withUrl("foo")
+								.withTranslationProfile(new TranslationProfile("name", "description", ProfileType.INPUT, List.of()))
+								.withRefreshInterval(Duration.of(10, ChronoUnit.SECONDS))
+								.build()
+				))
+				.build();
 		MockMetadataService mockMetaService = new MockMetadataService();
 		
-		RemoteMetaManager manager = new RemoteMetaManager(configuration,
-					pkiManagement,
-					new MetaToIDPConfigConverter(pkiManagement, msg),
-					mockMetaService, SamlIdpProperties.SPMETA_PREFIX);
+		RemoteMetaManager manager = new RemoteMetaManager(samlIdPConfiguration,
+					pkiManagement, mockMetaService,
+					new MetaToIDPConfigConverter(pkiManagement, msg));
 
 		//when
 		EntitiesDescriptorDocument meta = EntitiesDescriptorDocument.Factory.parse(
 				new File("src/test/resources/unity-as-sp-meta.xml"));
 		mockMetaService.publishMetadata(meta);
-		
+
 		//expect
-		assertThat(manager.getVirtualConfiguration()
-				.getStructuredListKeys(SamlIdpProperties.ALLOWED_SP_PREFIX).size(), is(1));
+		assertThat(manager.getTrustedSps().getSPConfigs().size()).isEqualTo(1);
+
 	}
 	
 	private static class MockMetadataService implements RemoteMetadataService
@@ -165,31 +180,31 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 	
 	@Ignore
 	@Test
-	public void testDownloadFromHttps() throws IOException, EngineException, InterruptedException
+	public void testDownloadFromHttps() throws IOException
 	{
 		FileUtils.deleteDirectory(new File("target/workspace/downloadedMetadata"));
-		Properties p = new Properties();
-		p.setProperty(P + CREDENTIAL, "MAIN");
-		p.setProperty(P + PUBLISH_METADATA, "false");
-		p.setProperty(P + ISSUER_URI, "me");
-		p.setProperty(P + GROUP, "group");
-		p.setProperty(P + DEFAULT_GROUP, "group");
-		p.setProperty(P + METADATA_REFRESH, "100");
-		//p.setProperty(P + SPMETA_PREFIX + "1." + SamlProperties.METADATA_HTTPS_TRUSTSTORE, "EGI");
-		p.setProperty(P + SPMETA_PREFIX + "1." + METADATA_URL,
-				new String("https://www.aai.dfn.de/fileadmin/metadata/DFN-AAI-metadata.xml"));
-		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
+		SAMLIdPConfiguration samlIdPConfiguration = SAMLIdPConfiguration.builder()
+				.withCredentialName("MAIN")
+				.withIssuerURI("me")
+				.withGroupChooser(Map.of("group", "group"), "group")
+				.withTrustedMetadataSources(List.of(
+						BaseSamlConfiguration.RemoteMetadataSource.builder()
+								.withUrl("https://www.aai.dfn.de/fileadmin/metadata/DFN-AAI-metadata.xml")
+								.withRefreshInterval(Duration.of(100, ChronoUnit.MILLIS))
+								.withHttpsTruststore("EGI")
+								.build()
+				))
+				.build();
 
-		RemoteMetaManager manager = new RemoteMetaManager(configuration,
-					pkiManagement,
-					new MetaToIDPConfigConverter(pkiManagement, msg),
-					metadataService, SamlIdpProperties.SPMETA_PREFIX);
-		
-		Awaitility.await().atMost(Durations.TEN_SECONDS).untilAsserted(() -> 
+		RemoteMetaManager manager = new RemoteMetaManager(samlIdPConfiguration,
+					pkiManagement, metadataService,
+					new MetaToIDPConfigConverter(pkiManagement, msg));
+
+		Awaitility.await().atMost(Durations.TEN_SECONDS).untilAsserted(() ->
 		{
-			SamlIdpProperties config = (SamlIdpProperties) manager.getVirtualConfiguration();
-			String ret = config.getPrefixOfSP("https://eu01.alma.exlibrisgroup.com/mng/login");
-			assertThat(ret, is(notNullValue()));
+			TrustedServiceProviders providers = manager.getTrustedSps();
+			TrustedServiceProvider spConfig = providers.getSPConfig(new SamlEntityId("https://eu01.alma.exlibrisgroup.com/mng/login", null));
+			assertThat(spConfig).isNotNull();
 		});
 	}
 }

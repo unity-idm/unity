@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.confirmation;
 
 import java.net.URISyntaxException;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 
 /**
  * Creates redirect URL which shall be used in certain situations after confirmation of email.   

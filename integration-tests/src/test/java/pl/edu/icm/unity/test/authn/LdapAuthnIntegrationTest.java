@@ -7,11 +7,11 @@ package pl.edu.icm.unity.test.authn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static pl.edu.icm.unity.ldap.client.config.LdapProperties.BIND_ONLY;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.PORTS;
 import static pl.edu.icm.unity.ldap.client.config.LdapProperties.PREFIX;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.SERVERS;
+import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.PORTS;
+import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SERVERS;
+import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.USER_DN_TEMPLATE;
 import static pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties.TRANSLATION_PROFILE;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.USER_DN_TEMPLATE;
 
 import java.io.IOException;
 import java.io.StringWriter;

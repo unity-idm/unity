@@ -7,13 +7,16 @@ package pl.edu.icm.unity.engine.notifications.sms;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -68,7 +71,7 @@ public class ClickatellChannel implements NotificationChannelInstance
 	public Future<NotificationStatus> sendNotification(String recipientAddress, Message message)
 	{
 		NotificationStatus retStatus = new NotificationStatus();
-		return execService.getService().submit(() ->
+		return execService.getExecutionService().submit(() ->
 		{
 			try
 			{
@@ -81,7 +84,7 @@ public class ClickatellChannel implements NotificationChannelInstance
 		}, retStatus);
 	}
 	
-	private void sendSMS(String recipientAddress, Message message) throws IOException
+	private void sendSMS(String recipientAddress, Message message) throws IOException, ParseException
 	{
 		if (message.getType() != MessageType.PLAIN)
 			throw new ConfigurationException("Refusing to send non-PLAN message over SMS channel");
@@ -91,7 +94,7 @@ public class ClickatellChannel implements NotificationChannelInstance
 		sendMessage(requestEntity);
 	}
 	
-	private void sendMessage(String body) throws IOException
+	private void sendMessage(String body) throws IOException, ParseException
 	{
 		CloseableHttpClient client = HttpClients.createDefault();
 		HttpPost httpPost = new HttpPost("https://platform.clickatell.com/messages");
@@ -102,15 +105,15 @@ public class ClickatellChannel implements NotificationChannelInstance
 		httpPost.setHeader("Accept", ContentType.APPLICATION_JSON.getMimeType());
 
 		log.debug("Will send SMS over Clickatell service, request:\n {}", body);
-		CloseableHttpResponse response = client.execute(httpPost);
-		if (response.getStatusLine().getStatusCode() >= 300)
-		{
-			throw new IOException("Communication with Clickatell service failed, error: " + 
-					response.getStatusLine() + ", received contents: " +
-					EntityUtils.toString(response.getEntity()));
+		try(ClassicHttpResponse response = client.executeOpen(null, httpPost, HttpClientContext.create())){
+			if (response.getCode() >= 300)
+			{
+				throw new IOException("Communication with Clickatell service failed, error: " +
+						new StatusLine(response).toString() + ", received contents: " +
+						EntityUtils.toString(response.getEntity()));
+			}
 		}
 		log.info("SMS to {} sent successfully");
-		client.close();
 	}
 	
 	private ObjectNode createRequest(String recipientAddress, Message message)

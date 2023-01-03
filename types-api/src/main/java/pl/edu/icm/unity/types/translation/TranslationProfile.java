@@ -4,17 +4,16 @@
  */
 package pl.edu.icm.unity.types.translation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Definition of a translation profile.
@@ -169,12 +168,17 @@ public class TranslationProfile extends DescribedObjectImpl
 			parameters[j] = jsonAParams.get(j).isNull() ? null : jsonAParams.get(j).asText();
 		return parameters;
 	}
-	
+
 	@Override
 	public String toString()
 	{
-		return "TranslationProfile [profileType=" + profileType + ", name=" + name
-				+ ", profileMode=" + profileMode + "]";
+		return "TranslationProfile{" +
+				"profileType=" + profileType +
+				", rules=" + rules +
+				", profileMode=" + profileMode +
+				", name='" + name + '\'' +
+				", description='" + description + '\'' +
+				'}';
 	}
 
 	@Override

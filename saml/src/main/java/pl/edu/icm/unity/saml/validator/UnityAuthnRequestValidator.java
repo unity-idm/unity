@@ -4,9 +4,6 @@
  */
 package pl.edu.icm.unity.saml.validator;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
 import eu.unicore.samly2.exceptions.SAMLServerException;
@@ -17,6 +14,10 @@ import eu.unicore.samly2.validators.SSOAuthnRequestValidator;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
+
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Validates SAML Authentication Request. Extends {@link SSOAuthnRequestValidator}
@@ -38,9 +39,9 @@ public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 	protected Set<String> knownRequesters;
 	
 	public UnityAuthnRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
-			long requestValidity, ReplayAttackChecker replayChecker)
+	                                  Duration requestValidity, ReplayAttackChecker replayChecker)
 	{
-		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker);
+		super(consumerEndpointUri, trustChecker, requestValidity.toMillis(), replayChecker);
 		knownRequesters = new HashSet<>();
 	}
 

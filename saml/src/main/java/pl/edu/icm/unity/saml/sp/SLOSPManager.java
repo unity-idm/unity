@@ -4,11 +4,8 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.Servlet;
-
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
@@ -17,9 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -31,6 +25,11 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
 import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
+
+import javax.servlet.Servlet;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Keeps track of SLO servlet installation under the /unitygw. Installs the servlet only if it was not yet 
@@ -58,10 +57,10 @@ public class SLOSPManager
 		this.sharedEndpointManagement = sharedEndpointManagement;
 	}
 	
-	public synchronized void deployAsyncServlet(String pathSuffix, IdentityTypeMapper identityTypeMapper, 
-			long requestValidity, String localSamlId,
-			X509Credential localSamlCredential, SamlTrustProvider samlTrustProvider,
-			String realm) throws EngineException
+	public synchronized void deployAsyncServlet(String pathSuffix, IdentityTypeMapper identityTypeMapper,
+	                                            Duration requestValidity, String localSamlId,
+	                                            X509Credential localSamlCredential, SamlTrustProvider samlTrustProvider,
+	                                            String realm) throws EngineException
 	{
 		if (deployedAsyncServlets.containsKey(pathSuffix))
 			return;
@@ -84,8 +83,8 @@ public class SLOSPManager
 		return sharedEndpointManagement.getServletUrl(HTTP_PATH + suffix);
 	}
 	
-	public synchronized void deploySyncServlet(String pathSuffix, IdentityTypeMapper identityTypeMapper, 
-			long requestValidity, String localSamlId,
+	public synchronized void deploySyncServlet(String pathSuffix, IdentityTypeMapper identityTypeMapper,
+	                                           Duration requestValidity, String localSamlId,
 			X509Credential localSamlCredential, SamlTrustProvider samlTrustProvider,
 			String realm) throws EngineException
 	{

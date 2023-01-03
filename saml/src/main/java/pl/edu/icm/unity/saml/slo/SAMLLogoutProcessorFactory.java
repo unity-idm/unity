@@ -19,6 +19,8 @@ import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 
+import java.time.Duration;
+
 /**
  * Simplifies creation of {@link SAMLLogoutProcessor}.
  * 
@@ -55,9 +57,9 @@ public class SAMLLogoutProcessorFactory
 
 
 	public SAMLLogoutProcessor getInstance(IdentityTypeMapper identityTypeMapper, String consumerEndpointUri,
-			long requestValidity, String localSamlId,
-			X509Credential localSamlCredential, SamlTrustProvider samlTrustProvider,
-			String realm)
+	                                       Duration requestValidity, String localSamlId,
+	                                       X509Credential localSamlCredential, SamlTrustProvider samlTrustProvider,
+	                                       String realm)
 	{
 		InternalLogoutProcessor internalProcessor = getInternalProcessorInstance(consumerEndpointUri);
 		return new SAMLLogoutProcessor(sessionManagement, registry, idResolver, contextsStore, replayChecker, 
