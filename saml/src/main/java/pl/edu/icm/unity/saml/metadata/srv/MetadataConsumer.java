@@ -19,12 +19,14 @@ class MetadataConsumer
 	final Duration refreshInterval;
 	final BiConsumer<EntitiesDescriptorDocument, String> consumer;
 	final String id;
+	final boolean logoDownload;
 
 	public MetadataConsumer(Duration refreshInterval,
-			BiConsumer<EntitiesDescriptorDocument, String> consumer, String id)
+			BiConsumer<EntitiesDescriptorDocument, String> consumer, String id, boolean logoDownload)
 	{
 		this.refreshInterval = refreshInterval;
 		this.consumer = consumer;
 		this.id = id;
+		this.logoDownload = logoDownload;
 	}
 }

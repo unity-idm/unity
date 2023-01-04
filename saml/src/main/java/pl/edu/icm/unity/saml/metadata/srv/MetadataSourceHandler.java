@@ -6,11 +6,13 @@ package pl.edu.icm.unity.saml.metadata.srv;
 
 import com.google.common.base.Stopwatch;
 import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -69,12 +71,23 @@ class MetadataSourceHandler
 	
 	synchronized void addConsumer(MetadataConsumer consumer)
 	{
+		boolean logoDownloadDisabled = consumersById.values().stream().noneMatch(con -> con.logoDownload);
 		consumersById.put(consumer.id, consumer);
 		refreshInterval = getNewRefreshInterval();
 		boolean addedFirstConsumer = consumersById.size() == 1;
 		feedWithCached(consumer);
 		if (addedFirstConsumer)
 			startRefresh();
+		else if(logoDownloadDisabled && consumer.logoDownload)
+		{
+			Optional<EntitiesDescriptorDocument> cached;
+			try {
+				cached = downloader.getCached(source.url);
+			} catch (XmlException | IOException | InterruptedException e) {
+				cached = Optional.empty();
+			}
+			cached.ifPresent(matadata -> asyncExternalLogoFileDownloader.downloadLogoFilesAsync(matadata, source.truststore));
+		}
 	}
 
 	/**
@@ -170,7 +183,8 @@ class MetadataSourceHandler
 			log.error("Error downloading fresh metadata from " + source.url, e);
 			return;
 		}
-		asyncExternalLogoFileDownloader.downloadLogoFilesAsync(metadata, source.truststore);
+		if(consumersById.values().stream().anyMatch(consumer -> consumer.logoDownload))
+			asyncExternalLogoFileDownloader.downloadLogoFilesAsync(metadata, source.truststore);
 		notifyConsumers(metadata);
 		log.info("Metadata refresh for {} done in {}", source.url, watch);
 	}

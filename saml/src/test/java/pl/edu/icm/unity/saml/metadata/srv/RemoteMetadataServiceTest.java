@@ -55,7 +55,7 @@ public class RemoteMetadataServiceTest
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		String key = service.preregisterConsumer("url");
-		service.registerConsumer(key, ofMillis(100), null, (m,id) -> gotEvent.set(true));
+		service.registerConsumer(key, ofMillis(100), null, (m,id) -> gotEvent.set(true), false);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
@@ -67,11 +67,11 @@ public class RemoteMetadataServiceTest
 		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService, downloader, asyncExternalLogoFileDownloader);
 		
 		String key = service.preregisterConsumer("url");
-		service.registerConsumer(key, ofMillis(100), null, (m,id) -> {});
+		service.registerConsumer(key, ofMillis(100), null, (m,id) -> {}, false);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		String key2 = service.preregisterConsumer("url2");
-		service.registerConsumer(key2, ofMillis(100), null, (m,id) -> gotEvent.set(true));
+		service.registerConsumer(key2, ofMillis(100), null, (m,id) -> gotEvent.set(true), false);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
@@ -89,11 +89,11 @@ public class RemoteMetadataServiceTest
 		});
 		
 		String key = service.preregisterConsumer("url");
-		service.registerConsumer(key, ofMillis(200), null, (m,id) -> {});
+		service.registerConsumer(key, ofMillis(200), null, (m,id) -> {}, false);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		String key2 = service.preregisterConsumer("url");
-		service.registerConsumer(key2, ofMillis(200), null, (m,id) -> gotEvent.set(true));
+		service.registerConsumer(key2, ofMillis(200), null, (m,id) -> gotEvent.set(true), false);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
@@ -107,7 +107,7 @@ public class RemoteMetadataServiceTest
 		
 		AtomicInteger gotEvent = new AtomicInteger(0);
 		String id = service.preregisterConsumer("url");
-		service.registerConsumer(id, ofMillis(25), null, (m,cid) -> gotEvent.incrementAndGet());
+		service.registerConsumer(id, ofMillis(25), null, (m,cid) -> gotEvent.incrementAndGet(), false);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get()>0);

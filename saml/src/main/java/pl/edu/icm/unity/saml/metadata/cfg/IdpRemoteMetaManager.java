@@ -27,9 +27,9 @@ import static pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetada
 /**
  * Manages the retrieval, loading and update of runtime configuration based on the remote SAML metadata.
  */
-public class RemoteMetaManager
+public class IdpRemoteMetaManager
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RemoteMetaManager.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, IdpRemoteMetaManager.class);
 	private final PKIManagement pkiManagement;
 	private final MetaToIDPConfigConverter converter;
 	private final MetadataVerificator verificator;
@@ -37,8 +37,8 @@ public class RemoteMetaManager
 	private final Map<String, MetadataConsumer> registeredConsumers = new HashMap<>();
 	private SAMLIdPConfiguration configuration;
 	
-	public RemoteMetaManager(SAMLIdPConfiguration configuration, PKIManagement pkiManagement,
-			RemoteMetadataService metadataService, MetaToIDPConfigConverter converter)
+	public IdpRemoteMetaManager(SAMLIdPConfiguration configuration, PKIManagement pkiManagement,
+	                            RemoteMetadataService metadataService, MetaToIDPConfigConverter converter)
 	{
 		this.metadataService = metadataService;
 		this.verificator = new MetadataVerificator();
@@ -95,7 +95,7 @@ public class RemoteMetaManager
 			String consumerId = metadataService.preregisterConsumer(url);
 			registeredConsumers.put(consumerId, consumer);
 			metadataService.registerConsumer(consumerId, refreshInterval, customTruststore,
-					consumer::updateMetadata);
+					consumer::updateMetadata, false);
 		}
 	}
 
