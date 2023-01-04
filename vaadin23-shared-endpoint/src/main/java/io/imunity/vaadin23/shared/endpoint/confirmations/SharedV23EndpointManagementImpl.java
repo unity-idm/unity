@@ -17,12 +17,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -31,14 +29,18 @@ import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 import javax.servlet.DispatcherType;
 import java.net.URL;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 import static java.util.Collections.emptyList;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.CONTEXT_PATH;
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.CONTEXT_PATH_2;
 
-@Primary
 @Component
-public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
+public class SharedV23EndpointManagementImpl
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, SharedV23EndpointManagementImpl.class);
 	private static final String ENDPOINT_ID = "sys:sharedV23";
@@ -77,13 +79,12 @@ public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
 		this.advertisedAddress = advertisedAddrProvider.get();
 	}
 
-	@Override
+
 	public String getServerAddress()
 	{
 		return advertisedAddress.toExternalForm();
 	}
 	
-	@Override
 	public void deployInternalEndpointServlet(String contextPath, ServletHolder servlet, boolean mapVaadinResource)
 			throws EngineException
 	{
@@ -95,7 +96,7 @@ public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
 				CONTEXT_PATH + contextPath);
 	}
 
-	@Override
+
 	public void deployInternalEndpointFilter(String contextPath, FilterHolder filter)
 			throws EngineException
 	{
@@ -104,13 +105,11 @@ public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
 				CONTEXT_PATH + contextPath);
 	}
 	
-	@Override
 	public String getBaseContextPath()
 	{
 		return CONTEXT_PATH;
 	}
 	
-	@Override
 	public String getServletUrl(String servletPath)
 	{
 		return advertisedAddress.toExternalForm() +
