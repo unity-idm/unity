@@ -473,7 +473,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		}
 		return ret;
 	}
-		
+
 	private Set<String> getApplicableEnquiries(Entity entity, List<EnquiryForm> allForms) throws EngineException
 	{
 		Set<String> forms = new HashSet<>();

@@ -129,8 +129,7 @@ public class OAuthRequestValidator
 				.collect(Collectors.toSet());
 		if (!notAllowedByClient.isEmpty())
 		{
-			log.info(
-					"Requested scopes not allowed for the client and ignored: " + String.join(",", notAllowedByClient));
+			log.info("Requested scopes not allowed for the client and ignored: %", String.join(",", notAllowedByClient));
 		}
 
 		Set<String> notDefinedOnServer = requestedScopes.stream().map(s -> s.getValue())
