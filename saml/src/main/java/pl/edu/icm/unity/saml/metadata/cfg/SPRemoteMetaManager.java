@@ -92,7 +92,7 @@ public class SPRemoteMetaManager
 			String consumerId = metadataService.preregisterConsumer(url);
 			registeredConsumers.put(consumerId, consumer);
 			metadataService.registerConsumer(consumerId, refreshInterval, customTruststore, 
-					consumer::onUpdatedMetadata);
+					consumer::onUpdatedMetadata, true);
 		}
 	}
 

@@ -42,7 +42,7 @@ import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
@@ -91,7 +91,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	protected FreemarkerAppHandler freemarkerHandler;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
-	protected RemoteMetaManager myMetadataManager;
+	protected IdpRemoteMetaManager myMetadataManager;
 	protected IdpConsentDeciderServletFactory dispatcherServletFactory;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	private SLOReplyInstaller sloReplyInstaller;
@@ -184,7 +184,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	@Override
 	public void startOverridable()
 	{
-		myMetadataManager = new RemoteMetaManager(
+		myMetadataManager = new IdpRemoteMetaManager(
 				samlConfiguration, pkiManagement,
 				metadataService, new MetaToIDPConfigConverter(pkiManagement, msg)
 		);

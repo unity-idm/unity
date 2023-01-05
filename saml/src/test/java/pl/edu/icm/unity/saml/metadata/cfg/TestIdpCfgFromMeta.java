@@ -100,7 +100,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				)))
 				.build();
 		
-		RemoteMetaManager manager = new RemoteMetaManager(configuration,
+		IdpRemoteMetaManager manager = new IdpRemoteMetaManager(configuration,
 				pkiManagement, metadataService,
 				new MetaToIDPConfigConverter(pkiManagement, msg));
 
@@ -110,7 +110,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				.untilAsserted(() -> assertRemoteMetadataLoaded(manager));
 	}
 	
-	private void assertRemoteMetadataLoaded(RemoteMetaManager manager) throws Exception
+	private void assertRemoteMetadataLoaded(IdpRemoteMetaManager manager) throws Exception
 	{
 		try
 		{
@@ -142,7 +142,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	{
 		SAMLIdPConfiguration configuration = getDFNMetadataBasedConfig();
 		
-		RemoteMetaManager manager = new RemoteMetaManager(configuration,
+		IdpRemoteMetaManager manager = new IdpRemoteMetaManager(configuration,
 				pkiManagement, metadataService,
 				new MetaToIDPConfigConverter(pkiManagement, msg));
 
@@ -152,7 +152,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				.untilAsserted(() -> assertSLOCfgLoaded(manager));
 	}
 
-	private void assertSLOCfgLoaded(RemoteMetaManager manager)
+	private void assertSLOCfgLoaded(IdpRemoteMetaManager manager)
 	{
 		SAMLIdPConfiguration configuration = manager.getSAMLIdPConfiguration();
 
@@ -176,7 +176,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	{
 		SAMLIdPConfiguration configuration = getDFNMetadataBasedConfig();
 
-		RemoteMetaManager manager = new RemoteMetaManager(configuration,
+		IdpRemoteMetaManager manager = new IdpRemoteMetaManager(configuration,
 				pkiManagement, metadataService,
 				new MetaToIDPConfigConverter(pkiManagement, msg));
 
@@ -185,7 +185,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 			.untilAsserted(() -> assertEndpointsCfgLoaded(manager));
 	}
 	
-	private void assertEndpointsCfgLoaded(RemoteMetaManager manager)
+	private void assertEndpointsCfgLoaded(IdpRemoteMetaManager manager)
 	{
 		assertEndpointCfgLoaded(manager, 8, "https:POST8");
 		assertEndpointCfgLoaded(manager, 7, "https:POST7");
@@ -198,7 +198,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		assertThat(idpCfg.getReturnAddressForRequester(reqDef)).isEqualTo("https:POST7");
 	}
 	
-	private void assertEndpointCfgLoaded(RemoteMetaManager manager, Integer index, String expected)
+	private void assertEndpointCfgLoaded(IdpRemoteMetaManager manager, Integer index, String expected)
 	{
 		SAMLIdPConfiguration idpCfg = manager.getSAMLIdPConfiguration();
 		AuthnRequestDocument reqDoc = AuthnRequestDocument.Factory.newInstance();

@@ -33,7 +33,7 @@ import java.util.function.BiConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RemoteMetaManagerTest extends DBIntegrationTestBase
+public class IdpRemoteMetaManagerTest extends DBIntegrationTestBase
 {
 	@Autowired
 	private RemoteMetadataService metadataService;
@@ -53,7 +53,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 				.withGroupChooser(Map.of("group", "group"), "group").
 				build();
 
-		RemoteMetaManager manager = new RemoteMetaManager(samlIdPConfiguration,
+		IdpRemoteMetaManager manager = new IdpRemoteMetaManager(samlIdPConfiguration,
 					pkiManagement, metadataService,
 					new MetaToIDPConfigConverter(pkiManagement, msg));
 
@@ -87,7 +87,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 		MockMetadataService mockMetaService = new MockMetadataService();
 		
 		
-		RemoteMetaManager manager = new RemoteMetaManager(samlIdPConfiguration,
+		IdpRemoteMetaManager manager = new IdpRemoteMetaManager(samlIdPConfiguration,
 					pkiManagement, mockMetaService,
 					new MetaToIDPConfigConverter(pkiManagement, msg));
 
@@ -130,7 +130,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 				.build();
 		MockMetadataService mockMetaService = new MockMetadataService();
 		
-		RemoteMetaManager manager = new RemoteMetaManager(samlIdPConfiguration,
+		IdpRemoteMetaManager manager = new IdpRemoteMetaManager(samlIdPConfiguration,
 					pkiManagement, mockMetaService,
 					new MetaToIDPConfigConverter(pkiManagement, msg));
 
@@ -151,7 +151,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 		@Override
 		public void registerConsumer(String key, Duration refreshInterval,
 				String customTruststore,
-				BiConsumer<EntitiesDescriptorDocument, String> consumer)
+				BiConsumer<EntitiesDescriptorDocument, String> consumer, boolean logoDownload)
 		{
 			this.consumer = consumer;
 		}
@@ -196,7 +196,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 				))
 				.build();
 
-		RemoteMetaManager manager = new RemoteMetaManager(samlIdPConfiguration,
+		IdpRemoteMetaManager manager = new IdpRemoteMetaManager(samlIdPConfiguration,
 					pkiManagement, metadataService,
 					new MetaToIDPConfigConverter(pkiManagement, msg));
 

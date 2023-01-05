@@ -27,7 +27,7 @@ import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
 import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
@@ -47,13 +47,13 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlParseServlet.class);
 	
-	protected RemoteMetaManager samlConfigProvider;
+	protected IdpRemoteMetaManager samlConfigProvider;
 	protected String endpointAddress;
 	protected String samlDispatcherServletPath;
 	protected ErrorHandler errorHandler;
 
-	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
-			String samlDispatcherServletPath, ErrorHandler errorHandler)
+	public SamlParseServlet(IdpRemoteMetaManager samlConfigProvider, String endpointAddress,
+	                        String samlDispatcherServletPath, ErrorHandler errorHandler)
 	{
 		super(false);
 		this.samlConfigProvider = samlConfigProvider;
