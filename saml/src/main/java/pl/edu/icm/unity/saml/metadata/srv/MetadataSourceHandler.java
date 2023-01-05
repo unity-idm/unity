@@ -71,23 +71,29 @@ class MetadataSourceHandler
 	
 	synchronized void addConsumer(MetadataConsumer consumer)
 	{
-		boolean logoDownloadDisabled = consumersById.values().stream().noneMatch(con -> con.logoDownload);
+		boolean runFirstLogoDownload = isLogoDownloadDisabled() && consumer.logoDownload;
 		consumersById.put(consumer.id, consumer);
 		refreshInterval = getNewRefreshInterval();
 		boolean addedFirstConsumer = consumersById.size() == 1;
 		feedWithCached(consumer);
 		if (addedFirstConsumer)
 			startRefresh();
-		else if(logoDownloadDisabled && consumer.logoDownload)
-		{
-			Optional<EntitiesDescriptorDocument> cached;
-			try {
-				cached = downloader.getCached(source.url);
-			} catch (XmlException | IOException | InterruptedException e) {
-				cached = Optional.empty();
-			}
-			cached.ifPresent(matadata -> asyncExternalLogoFileDownloader.downloadLogoFilesAsync(matadata, source.truststore));
+		else if(runFirstLogoDownload)
+			runLogoDownloadFromCachedMetadata();
+	}
+
+	private boolean isLogoDownloadDisabled() {
+		return consumersById.values().stream().noneMatch(con -> con.logoDownload);
+	}
+
+	private void runLogoDownloadFromCachedMetadata() {
+		Optional<EntitiesDescriptorDocument> cached;
+		try {
+			cached = downloader.getCached(source.url);
+		} catch (XmlException | IOException | InterruptedException e) {
+			cached = Optional.empty();
 		}
+		cached.ifPresent(matadata -> asyncExternalLogoFileDownloader.downloadLogoFilesAsync(matadata, source.truststore));
 	}
 
 	/**
@@ -183,7 +189,7 @@ class MetadataSourceHandler
 			log.error("Error downloading fresh metadata from " + source.url, e);
 			return;
 		}
-		if(consumersById.values().stream().anyMatch(consumer -> consumer.logoDownload))
+		if(!isLogoDownloadDisabled())
 			asyncExternalLogoFileDownloader.downloadLogoFilesAsync(metadata, source.truststore);
 		notifyConsumers(metadata);
 		log.info("Metadata refresh for {} done in {}", source.url, watch);
