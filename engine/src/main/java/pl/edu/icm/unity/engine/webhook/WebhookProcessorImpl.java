@@ -35,6 +35,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.integration.Webhook;
 import pl.edu.icm.unity.engine.api.integration.Webhook.WebhookHttpMethod;
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 import pl.edu.icm.unity.engine.api.webhook.WebhookProcessor;
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -70,7 +71,7 @@ public class WebhookProcessorImpl implements WebhookProcessor
 	private  ClassicHttpResponse doGet(Webhook webhook, Map<String, String> params)
 			throws ClientProtocolException, IOException, EngineException, ParseException, URISyntaxException
 	{
-		URIBuilder urlBuilder = new URIBuilder(webhook.url);
+		URIBuilder urlBuilder = URIBuilderFixer.newInstance(webhook.url);
 		params.forEach((k, v) -> {
 				urlBuilder.addParameter(k, v);	
 		});

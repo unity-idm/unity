@@ -24,6 +24,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
@@ -50,7 +51,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 	{
 
 		Map<String, List<String>> queryParams = new HashMap<>();
-		URIBuilder uri = new URIBuilder(userInfoEndpoint);
+		URIBuilder uri = URIBuilderFixer.newInstance(userInfoEndpoint);
 		queryParams.putAll(uri.getQueryParams()
 				.stream().collect(Collectors.toMap(NameValuePair::getName,
 						nvp -> Lists.newArrayList(nvp.getValue()))));	

@@ -17,7 +17,6 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +42,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.LdapAuthenticationException;
 import pl.edu.icm.unity.ldap.client.LdapClient;
@@ -175,7 +175,7 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 		Map<String, String> queryParams = null;
 		try
 		{
-			queryParams = new URIBuilder(secretURIOpt.get()).getQueryParams().stream()
+			queryParams = URIBuilderFixer.newInstance(secretURIOpt.get()).getQueryParams().stream()
 					.collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
 		} catch (URISyntaxException e)
 		{

@@ -18,6 +18,8 @@
 package io.imunity.otp;
 
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Optional;
 
@@ -44,7 +46,9 @@ public class TOTPKeyGenerator
 			throw new IllegalArgumentException("Label can not contain colon");
 		try
 		{
-			URIBuilder uriBuilder = new URIBuilder("otpauth://totp/"+issuer+":"+label);
+			URIBuilder uriBuilder = new URIBuilder("otpauth://totp/" 
+					+ URLEncoder.encode(issuer, StandardCharsets.UTF_8).replace("+", "%20") + ":" 
+					+ URLEncoder.encode(label, StandardCharsets.UTF_8).replace("+", "%20"));
 			uriBuilder.addParameter(SECRET_URI_PARAM, secretBase32); 
 			uriBuilder.addParameter(ISSUER_URI_PARAM, issuer); 
 			uriBuilder.addParameter(ALGORITHM_URI_PARAM, otpParams.hashFunction.toString()); 

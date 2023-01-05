@@ -8,6 +8,8 @@ import java.net.URISyntaxException;
 
 import org.apache.hc.core5.net.URIBuilder;
 
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
+
 /**
  * Builds URL to be used for redirection after account association.
  * @author K. Benedyczak
@@ -28,7 +30,7 @@ public class PostAssociationRedirectURLBuilder
 	{
 		try
 		{
-			uriBuilder = new URIBuilder(baseURL);
+			uriBuilder = URIBuilderFixer.newInstance(baseURL);
 		} catch (URISyntaxException e)
 		{
 			throw new IllegalStateException("Illegal redirect URI, shouldn't happen", e);
