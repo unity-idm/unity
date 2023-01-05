@@ -20,7 +20,7 @@ public interface RemoteMetadataService
 	String preregisterConsumer(String url);
 	
 	void registerConsumer(String key, Duration refreshInterval,
-			String customTruststore, BiConsumer<EntitiesDescriptorDocument, String> consumer);
+			String customTruststore, BiConsumer<EntitiesDescriptorDocument, String> consumer, boolean logoDownload);
 	
 	void unregisterConsumer(String id);
 	

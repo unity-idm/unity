@@ -8,6 +8,7 @@ package pl.edu.icm.unity.saml.idp.console;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -16,7 +17,6 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -25,7 +25,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
@@ -34,17 +33,14 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.saml.idp.console.SimpleIDPMetaConverter.SAMLEntityWithLogo;
+import pl.edu.icm.unity.saml.idp.console.SimpleIDPMetaConverter.SAMLEntity;
 import pl.edu.icm.unity.saml.metadata.srv.CachedMetadataLoader;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
@@ -90,8 +86,8 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		editMode = toEdit != null;
 		binder = new Binder<>(SAMLServiceTrustedFederationConfiguration.class);
 		FormLayout header = buildHeaderSection();
-		CollapsibleLayout fetchMeta = buildFederationFetchSection();
 		binder.setBean(editMode ? toEdit.clone() : new SAMLServiceTrustedFederationConfiguration());
+		CollapsibleLayout fetchMeta = buildFederationFetchSection();
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(header);
@@ -153,11 +149,6 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		ComboBox<String> signatureVerificationCertificate = new ComboBox<>(
 				msg.getMessage("EditTrustedFederationSubView.signatureVerificationCertificate"));
 		signatureVerificationCertificate.setItems(certificates);
-		binder.forField(signatureVerificationCertificate).asRequired(
-				(v, c) -> ((v == null || v.isEmpty()) && !ignoreSignatureVerification.getValue())
-						? ValidationResult.error(msg.getMessage("fieldRequired"))
-						: ValidationResult.ok())
-				.bind("signatureVerificationCertificate");
 		header.addComponent(signatureVerificationCertificate);
 
 		TextField refreshInterval = new TextField();
@@ -179,18 +170,16 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		spinner.setIndeterminate(true);
 		spinner.setVisible(false);
 		federationListLayout.addComponent(spinner);
-		GridWithActionColumn<SAMLEntityWithLogo> samlEntities = new GridWithActionColumn<>(msg,
+		GridWithActionColumn<SAMLEntity> samlEntities = new GridWithActionColumn<>(msg,
 				Collections.emptyList());
 		samlEntities.setActionColumnHidden(true);
 		samlEntities.setHeightByRows(false);
 		samlEntities.setHeightByRows(14);
-		samlEntities.addComponentColumn(v -> getLogo(v), msg.getMessage("EditTrustedFederationSubView.logo"),
-				3);
 		samlEntities.addColumn(v -> v.name, msg.getMessage("EditTrustedFederationSubView.name"), 40);
 		samlEntities.addColumn(v -> v.id, msg.getMessage("EditTrustedFederationSubView.entityIdentifier"), 40);
 
 		SearchField search = FilterableGridHelper.generateSearchField(samlEntities, msg);
-		Toolbar<SAMLEntityWithLogo> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		Toolbar<SAMLEntity> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addSearch(search, Alignment.MIDDLE_RIGHT);
 		ComponentWithToolbar samlEntitiesListWithToolbar = new ComponentWithToolbar(samlEntities, toolbar,
@@ -200,6 +189,29 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		samlEntitiesListWithToolbar.setVisible(false);
 		Button fetch = new Button(msg.getMessage("EditTrustedFederationSubView.fetch"));
 		UI ui = UI.getCurrent();
+
+		CachedMetadataLoader metaDownloader = new CachedMetadataLoader(uriAccessService,
+			fileStorageService);
+		SimpleIDPMetaConverter convert = new SimpleIDPMetaConverter(msg);
+
+		try
+		{
+			Optional<EntitiesDescriptorDocument> cached = metaDownloader.getCached(url.getValue());
+			if(cached.isPresent())
+			{
+				List<SAMLEntity> entries = convert
+					.getEntries(cached.get().getEntitiesDescriptor());
+				samlEntities.setItems(entries);
+				samlEntitiesListWithToolbar.setVisible(true);
+			}
+		}
+		catch (Exception e)
+		{
+			ui.access(() -> {
+				NotificationPopup.showError(msg, "", e);
+			});
+		}
+
 		fetch.addClickListener(e -> {
 			ui.setPollInterval(500);
 			spinner.setVisible(true);
@@ -207,9 +219,6 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 
 				try
 				{
-					CachedMetadataLoader metaDownloader = new CachedMetadataLoader(uriAccessService,
-							fileStorageService);
-
 					EntitiesDescriptorDocument entDoc = metaDownloader.getCached(url.getValue())
 							.orElse(null);
 					if (entDoc == null)
@@ -217,15 +226,18 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 						entDoc = metaDownloader.getFresh(url.getValue(),
 								httpsTruststore.getValue());
 					}
-					SimpleIDPMetaConverter convert = new SimpleIDPMetaConverter(msg);
-					List<SAMLEntityWithLogo> entries = convert
+					List<SAMLEntity> entries = convert
 							.getEntries(entDoc.getEntitiesDescriptor());
 					samlEntities.setItems(entries);
 					samlEntitiesListWithToolbar.setVisible(true);
 
 				} catch (Exception e1)
 				{
-					ui.access(() -> NotificationPopup.showError(msg, "", e1));
+					ui.access(() -> {
+						NotificationPopup.showError(msg, "", e1);
+						ui.setPollInterval(-1);
+						spinner.setVisible(false);
+					});
 					samlEntities.setItems(Collections.emptyList());
 					samlEntitiesListWithToolbar.setVisible(false);
 				}
@@ -256,25 +268,6 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		federationListLayout.addComponent(samlEntitiesListWithToolbar);
 		return new CollapsibleLayout(msg.getMessage("EditTrustedFederationSubView.serviceProviders"),
 				federationListLayout);
-	}
-
-	private Image getLogo(SAMLEntityWithLogo item)
-	{
-		Resource logo;
-		try
-		{
-			logo = item.logo == null ? Images.empty.getResource()
-					: new FileStreamResource(
-							uriAccessService.readImageURI(URIHelper.parseURI(item.logo),
-									UI.getCurrent().getTheme()).getContents())
-											.getResource();
-		} catch (Exception e)
-		{
-			logo = Images.error.getResource();
-		}
-		Image img = new Image("", logo);
-		img.setHeight(25, Unit.PIXELS);
-		return img;
 	}
 
 	@Override

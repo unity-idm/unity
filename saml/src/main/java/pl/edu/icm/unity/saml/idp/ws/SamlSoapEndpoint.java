@@ -40,7 +40,7 @@ import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
@@ -74,7 +74,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	protected IdPEngine idpEngine;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
-	protected RemoteMetaManager myMetadataManager;
+	protected IdpRemoteMetaManager myMetadataManager;
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	protected AttributeTypeSupport aTypeSupport;
 	private RemoteMetadataService metadataService;
@@ -132,7 +132,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	@Override
 	public void startOverridable()
 	{
-		myMetadataManager = new RemoteMetaManager(
+		myMetadataManager = new IdpRemoteMetaManager(
 				samlIdPConfiguration, pkiManagement,
 				metadataService, new MetaToIDPConfigConverter(pkiManagement, msg)
 		);

@@ -11,7 +11,7 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.idp.web.filter.SamlParseServlet;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
 import pl.edu.icm.unity.unicore.samlidp.saml.WebAuthWithETDRequestValidator;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
@@ -26,8 +26,8 @@ import java.io.IOException;
  */
 public class SamlETDParseServlet extends SamlParseServlet
 {
-	public SamlETDParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
-			String samlUiServletPath, ErrorHandler errorHandler)
+	public SamlETDParseServlet(IdpRemoteMetaManager samlConfigProvider, String endpointAddress,
+	                           String samlUiServletPath, ErrorHandler errorHandler)
 	{
 		super(samlConfigProvider, endpointAddress, samlUiServletPath, errorHandler);
 	}
