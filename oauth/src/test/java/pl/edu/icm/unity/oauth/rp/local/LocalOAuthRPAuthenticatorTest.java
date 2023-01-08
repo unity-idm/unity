@@ -2,7 +2,6 @@
 package pl.edu.icm.unity.oauth.rp.local;
 
 import static org.junit.Assert.assertEquals;
-import static pl.edu.icm.unity.oauth.client.HttpRequestConfigurer.secureRequest;
 
 import java.net.URL;
 import java.util.List;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -125,7 +125,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
 		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50QTpwYXNzd29yZA==");
 
-		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
+		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		Assert.assertEquals(200, response.getStatusCode());
@@ -141,7 +141,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
 		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
 
-		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
+		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		Assert.assertEquals(500, response.getStatusCode());
@@ -153,7 +153,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
 		httpReqRaw.setAuthorization("Basic Y2xpZW50QTpwYXNzd29yZA==");
 
-		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
+		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		Assert.assertEquals(500, response.getStatusCode());
@@ -171,7 +171,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
 		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50MjpjbGllbnQy");
 
-		HTTPRequest httpReq = secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
+		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		Assert.assertEquals(500, response.getStatusCode());

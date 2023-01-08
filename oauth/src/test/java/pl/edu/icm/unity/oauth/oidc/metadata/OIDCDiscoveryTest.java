@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.client;
+package pl.edu.icm.unity.oauth.oidc.metadata;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -20,6 +20,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
 public class OIDCDiscoveryTest
@@ -36,7 +37,7 @@ public class OIDCDiscoveryTest
 		props.setProperty("openIdConnect", "true");
 		props.setProperty("openIdConnectDiscoveryEndpoint", "https://accounts.google.com/.well-known/openid-configuration");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
-		OIDCProviderMetadata meta = tested.getMetadata("https://accounts.google.com/.well-known/openid-configuration", def);
+		OIDCProviderMetadata meta = tested.getMetadata(def.generateMetadataRequest());
 		Assert.assertEquals("https://accounts.google.com", meta.getIssuer().getValue());
 	}
 
@@ -52,16 +53,23 @@ public class OIDCDiscoveryTest
 	public void shouldDiscoverMetadataWithoutCacheHeaders() throws ParseException, IOException
 	{
 		HttpRequestConfigurer reqFactory = mock(HttpRequestConfigurer.class);
-		CustomProviderProperties def = mock(CustomProviderProperties.class);
+		Properties props = new Properties();
+		props.setProperty("translationProfile", "");
+		props.setProperty("clientSecret", "");
+		props.setProperty("clientId", "");
+		props.setProperty("name", "");
+		props.setProperty("openIdConnect", "true");
+		props.setProperty("openIdConnectDiscoveryEndpoint", "https://accounts.google.com/.well-known/openid-configuration");
+		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
 		HTTPRequest wrapped =  mock(HTTPRequest.class);
 		HTTPResponse response = mock(HTTPResponse.class);
-		when(reqFactory.secureRequest(any(), any())).thenReturn(wrapped);
+		when(reqFactory.secureRequest(any(),any(),any())).thenReturn(wrapped);
 		when(wrapped.send()).thenReturn(response);
 		when(response.getCacheControl()).thenReturn(null);
 		when(response.getContent()).thenReturn(META);
 		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery(reqFactory);
 		
-		OIDCProviderMetadata meta = tested.getMetadata("https://test.org", def);
+		OIDCProviderMetadata meta = tested.getMetadata(def.generateMetadataRequest());
 		
 		Assert.assertEquals("https://mock-issuer", meta.getIssuer().getValue());
 	}

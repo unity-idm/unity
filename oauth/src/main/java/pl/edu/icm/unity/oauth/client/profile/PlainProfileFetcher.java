@@ -64,7 +64,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 				BaseRemoteASProperties.CLIENT_HOSTNAME_CHECKING,
 				ServerHostnameCheckingMode.class);
 
-		HttpRequestConfigurer.secureRequest(httpReq, providerConfig.getValidator(), checkingMode);
+		new HttpRequestConfigurer().secureRequest(httpReq, providerConfig.getValidator(), checkingMode);
 		
 		
 		if (providerConfig.getClientAuthModeForProfileAccess() == ClientAuthnMode.secretPost)

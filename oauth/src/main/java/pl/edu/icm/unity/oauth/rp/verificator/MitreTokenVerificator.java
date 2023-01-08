@@ -85,7 +85,7 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 		
 		ServerHostnameCheckingMode checkingMode = config.getEnumValue(
 				OAuthRPProperties.CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
-		HttpRequestConfigurer.secureRequest(httpReq, config.getValidator(), checkingMode);
+		new HttpRequestConfigurer().secureRequest(httpReq, config.getValidator(), checkingMode);
 
 		HTTPResponse resp = httpReq.send();
 		

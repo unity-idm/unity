@@ -7,9 +7,7 @@ package pl.edu.icm.unity.oauth.as.token.access;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-
 import static org.junit.Assert.assertThat;
-import static pl.edu.icm.unity.oauth.client.HttpRequestConfigurer.secureRequest;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -40,6 +38,7 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -152,7 +151,7 @@ public class RefreshTokenTest extends TokenTestBase
 				new RefreshTokenGrant(refreshToken), new Scope("openid"));
 
 		HTTPRequest bare = refreshRequest.toHTTPRequest();
-		HTTPRequest wrapped = secureRequest(bare,
+		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare,
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 		HTTPResponse refreshResp = wrapped.send();
 		AccessTokenResponse refreshParsedResp = AccessTokenResponse.parse(refreshResp);
@@ -176,7 +175,7 @@ public class RefreshTokenTest extends TokenTestBase
 				new RefreshTokenGrant(refreshToken), new Scope("xx"));
 
 		HTTPRequest bare = refreshRequest.toHTTPRequest();
-		HTTPRequest wrapped = secureRequest(bare,
+		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare,
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 
 		HTTPResponse errorResp = wrapped.send();
@@ -199,7 +198,7 @@ public class RefreshTokenTest extends TokenTestBase
 				new RefreshTokenGrant(refreshToken), new Scope("foo"));
 
 		HTTPRequest bare = refreshRequest.toHTTPRequest();
-		HTTPRequest wrapped = secureRequest(bare,
+		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare,
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 
 		HTTPResponse errorResp = wrapped.send();
@@ -237,7 +236,7 @@ public class RefreshTokenTest extends TokenTestBase
 				new RefreshTokenGrant(token), new Scope(scopes));
 
 		HTTPRequest bare = refreshRequest.toHTTPRequest();
-		HTTPRequest wrapped = secureRequest(bare,
+		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare,
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 		HTTPResponse refreshResp = wrapped.send();
 		return AccessTokenResponse.parse(refreshResp);
@@ -258,7 +257,7 @@ public class RefreshTokenTest extends TokenTestBase
 				new URI("https://localhost:52443/oauth/userinfo"),
 				(BearerAccessToken) accessToken);
 		HTTPRequest bare2 = uiRequest.toHTTPRequest();
-		HTTPRequest wrapped2 = secureRequest(bare2, pkiMan.getValidator("MAIN"),
+		HTTPRequest wrapped2 = new HttpRequestConfigurer().secureRequest(bare2, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse uiHttpResponse = wrapped2.send();
 		UserInfoResponse uiResponse = UserInfoResponse.parse(uiHttpResponse);

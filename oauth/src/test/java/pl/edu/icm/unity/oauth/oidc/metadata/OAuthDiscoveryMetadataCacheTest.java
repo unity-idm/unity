@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.client;
+package pl.edu.icm.unity.oauth.oidc.metadata;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -34,7 +34,7 @@ public class OAuthDiscoveryMetadataCacheTest
 	public void shouldCacheMeta() throws ParseException, IOException, URISyntaxException
 	{
 		OpenIdConnectDiscovery mockDownloader = mock(OpenIdConnectDiscovery.class);
-		when(mockDownloader.getMetadata(any(), any())).thenReturn(mock(OIDCProviderMetadata.class));
+		when(mockDownloader.getMetadata(any())).thenReturn(mock(OIDCProviderMetadata.class));
 		
 		OAuthDiscoveryMetadataCache cache = new OAuthDiscoveryMetadataCache(mockDownloader,
 				Duration.ofMinutes(1));
@@ -49,18 +49,18 @@ public class OAuthDiscoveryMetadataCacheTest
 		props.setProperty(CustomProviderProperties.PROVIDER_NAME, "");
 		props.setProperty(CustomProviderProperties.OPENID_CONNECT, "true");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
-		cache.getMetadata(def);
-		cache.getMetadata(def);
+		cache.getMetadata(def.generateMetadataRequest());
+		cache.getMetadata(def.generateMetadataRequest());
 
-		verify(mockDownloader, times(1)).getMetadata(eq("https://accounts.google.com/.well-known/openid-configuration"),
-				eq(def));
+		verify(mockDownloader, times(1)).getMetadata(
+				eq(def.generateMetadataRequest()));
 	}
 
 	@Test
 	public void shouldCacheAccordingToTtl() throws ParseException, IOException, URISyntaxException, InterruptedException
 	{
 		OpenIdConnectDiscovery mockDownloader = mock(OpenIdConnectDiscovery.class);
-		when(mockDownloader.getMetadata(any(), any())).thenReturn(mock(OIDCProviderMetadata.class));
+		when(mockDownloader.getMetadata(any())).thenReturn(mock(OIDCProviderMetadata.class));
 		OAuthDiscoveryMetadataCache cache = new OAuthDiscoveryMetadataCache(mockDownloader,
 				Duration.ofMillis(20));
 		cache.clear();	
@@ -74,11 +74,11 @@ public class OAuthDiscoveryMetadataCacheTest
 		props.setProperty(CustomProviderProperties.PROVIDER_NAME, "");
 		props.setProperty(CustomProviderProperties.OPENID_CONNECT, "true");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
-		cache.getMetadata(def);
+		cache.getMetadata(def.generateMetadataRequest());
 		Thread.sleep(21);
-		cache.getMetadata(def);
+		cache.getMetadata(def.generateMetadataRequest());
 
-		verify(mockDownloader, times(2)).getMetadata(eq("https://accounts.google.com/.well-known/openid-configuration"),
-				eq(def));
+		verify(mockDownloader, times(2)).getMetadata(
+				eq(def.generateMetadataRequest()));
 	}
 }
