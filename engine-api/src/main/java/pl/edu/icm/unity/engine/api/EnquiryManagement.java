@@ -155,4 +155,12 @@ public interface EnquiryManagement
 	 */
 	void removeEnquiryWithoutDependencyChecking(String formId) throws EngineException;
 
+	/**
+	 * Get all not filled or ignored enquires for entity
+	 * @param entityParam
+	 * @return
+	 * @throws EngineException
+	 */
+	List<EnquiryForm> getAvailableEnquires(EntityParam entityParam) throws EngineException;
+
 }

@@ -233,11 +233,31 @@ public class EnquiryResponseEditorController
 		return prefilledAttributes;
 	}
 	
-	public boolean isFormApplicable(String formName)
+	public boolean isFormApplicable(String formName, boolean fromInvitation)
 	{
-		return isFormApplicable(formName,  getFormsToFill());
+		EntityParam entity = getLoggedEntity();
+
+		try
+		{
+			List<EnquiryForm> toCheck = new ArrayList<>();
+			if (fromInvitation)
+			{
+				toCheck.addAll(enquiryManagement.getAvailableEnquires(entity));
+			} else
+			{
+				toCheck.addAll(getFormsToFill());
+				toCheck.addAll(getStickyForms());
+			}
+
+			return isFormApplicable(formName, toCheck);
+		} catch (EngineException e)
+		{
+			log.error("Can't load pending enquiry forms", e);
+		}
+
+		return false;
 	}
-	
+
 	public boolean isStickyFormApplicable(String formName)
 	{
 		return isFormApplicable(formName,  getStickyForms());
