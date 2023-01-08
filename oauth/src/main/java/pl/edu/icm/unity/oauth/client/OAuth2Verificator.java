@@ -92,6 +92,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessToken
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
+import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.types.authn.IdPInfo;
@@ -200,7 +201,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			if (Strings.isNullOrEmpty(authzEndpoint))
 			{	
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg);
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg.generateMetadataRequest());
 				if (providerMeta.getAuthorizationEndpointURI() == null)
 					throw new ConfigurationException("The authorization endpoint address is not set and"
 							+ " it is not available in the discovered OpenID Provider metadata.");
@@ -365,8 +366,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				new URI(tokenEndpoint),
 				clientAuthn,
 				authzCodeGrant);
+		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
+		
 		HTTPRequest httpRequest = new HttpRequestConfigurer()
-				.secureRequest(request.toHTTPRequest(), context, config); 
+				.secureRequest(request.toHTTPRequest(), providerCfg.getValidator(), providerCfg.getHostNameCheckingMode()); 
 		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
 			httpRequest.setAccept(MediaType.APPLICATION_JSON);
 		
@@ -407,7 +410,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private AttributeFetchResult getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
 	{
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
-		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg);
+		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg.generateMetadataRequest());
 		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
 		if (tokenEndpoint == null)
 		{
@@ -589,7 +592,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			try
 			{
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(provCfg);
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(provCfg.generateMetadataRequest());
 				tokenEndpoint = providerMeta.getTokenEndpointURI().toString();
 			} catch (Exception e)
 			{
@@ -653,7 +656,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		OIDCProviderMetadata metadata;
 		try
 		{
-			metadata = metadataManager.getMetadata(providerProps);
+			metadata = metadataManager.getMetadata(providerProps.generateMetadataRequest());
 		} catch (Exception e)
 		{
 			log.warn("Can't obtain OIDC metadata", e);

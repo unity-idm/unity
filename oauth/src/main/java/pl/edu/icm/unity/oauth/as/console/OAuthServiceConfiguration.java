@@ -14,8 +14,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Strings;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
@@ -70,6 +72,7 @@ public class OAuthServiceConfiguration
 	private boolean supportExtendTokenValidity;
 	private AccessTokenFormat accessTokenFormat;
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
+	private List<TrustedUpstreamASBean> trustedUpstreamAS;
 
 	public OAuthServiceConfiguration()
 	{
@@ -104,6 +107,7 @@ public class OAuthServiceConfiguration
 		policyAgreementConfig = new IdpPolicyAgreementsConfiguration(msg);
 		refreshTokenIssuePolicy = RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED;
 		setRefreshTokenRotationForPublicClients(false);
+		trustedUpstreamAS = new ArrayList<>();
 	}
 
 	public String toProperties(MessageSource msg)
@@ -224,6 +228,52 @@ public class OAuthServiceConfiguration
 			}
 		}
 
+		if (trustedUpstreamAS != null)
+		{
+			for (TrustedUpstreamASBean trustedAS : trustedUpstreamAS)
+			{
+				String key = OAuthASProperties.TRUSTED_UPSTREAM_AS + (trustedUpstreamAS.indexOf(trustedAS) + 1) + ".";
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.TRUSTED_UPSTREAM_AS_CLIENT_ID,
+						trustedAS.getClientId());
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.TRUSTED_UPSTREAM_AS_CLIENT_SECRET,
+						trustedAS.getClientSecret());
+
+				if (!Strings.isNullOrEmpty(trustedAS.getMetadataURL()))
+				{
+					raw.put(OAuthASProperties.P + key + OAuthASProperties.TRUSTED_UPSTREAM_AS_METADATA_URL,
+							trustedAS.getMetadataURL());
+				}
+				
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.TRUSTED_UPSTREAM_AS_CLIENT_HOSTNAME_CHECKING,
+							trustedAS.getClientHostnameChecking().name());
+				
+				if (!Strings.isNullOrEmpty(trustedAS.getClientTrustStore()))
+				{
+					raw.put(OAuthASProperties.P + key + OAuthASProperties.TRUSTED_UPSTREAM_AS_CLIENT_TRUSTSTORE,
+							trustedAS.getClientTrustStore());
+				}
+
+				if (!Strings.isNullOrEmpty(trustedAS.getIntrospectionEndpointURL()))
+				{
+					raw.put(OAuthASProperties.P + key
+							+ OAuthASProperties.TRUSTED_UPSTREAM_AS_INTROSPECTION_ENDPOINT_URL,
+							trustedAS.getIntrospectionEndpointURL());
+				}
+				if (!Strings.isNullOrEmpty(trustedAS.getIssuerURI()))
+				{
+					raw.put(OAuthASProperties.P + key + OAuthASProperties.TRUSTED_UPSTREAM_AS_ISSUER_URI,
+							trustedAS.getIssuerURI());
+				}
+				if (!Strings.isNullOrEmpty(trustedAS.getCertificate()))
+				{
+					raw.put(OAuthASProperties.P + key + OAuthASProperties.TRUSTED_UPSTREAM_AS_CERTIFICATE,
+							trustedAS.getCertificate());
+				}
+
+			}
+		}
+		
+		
 		try
 		{
 			raw.put(OAuthASProperties.P + CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE,
@@ -296,7 +346,34 @@ public class OAuthServiceConfiguration
 			oauthScope.setEnabled(s.enabled);
 			scopes.add(oauthScope);
 		});
-	
+		
+		trustedUpstreamAS.clear();
+		Set<String> trustedUpstreamASKeys = oauthProperties
+				.getStructuredListKeys(OAuthASProperties.TRUSTED_UPSTREAM_AS);
+		for (String trustedUpstreamKey : trustedUpstreamASKeys)
+		{
+
+			TrustedUpstreamASBean trustedUpstreamASBean = new TrustedUpstreamASBean();
+			trustedUpstreamASBean.setClientId(
+					oauthProperties.getValue(trustedUpstreamKey + OAuthASProperties.TRUSTED_UPSTREAM_AS_CLIENT_ID));
+			trustedUpstreamASBean.setClientSecret(
+					oauthProperties.getValue(trustedUpstreamKey + OAuthASProperties.TRUSTED_UPSTREAM_AS_CLIENT_SECRET));
+			trustedUpstreamASBean.setCertificate(
+					oauthProperties.getValue(trustedUpstreamKey + OAuthASProperties.TRUSTED_UPSTREAM_AS_CERTIFICATE));
+			trustedUpstreamASBean.setIntrospectionEndpointURL(oauthProperties
+					.getValue(trustedUpstreamKey + OAuthASProperties.TRUSTED_UPSTREAM_AS_INTROSPECTION_ENDPOINT_URL));
+			trustedUpstreamASBean.setIssuerURI(
+					oauthProperties.getValue(trustedUpstreamKey + OAuthASProperties.TRUSTED_UPSTREAM_AS_ISSUER_URI));
+			trustedUpstreamASBean.setMetadataURL(
+					oauthProperties.getValue(trustedUpstreamKey + OAuthASProperties.TRUSTED_UPSTREAM_AS_METADATA_URL));
+			trustedUpstreamASBean.setClientHostnameChecking(
+					oauthProperties.getEnumValue(trustedUpstreamKey + OAuthASProperties.TRUSTED_UPSTREAM_AS_CLIENT_HOSTNAME_CHECKING,
+							ServerHostnameCheckingMode.class));
+			trustedUpstreamASBean.setClientTrustStore(
+					oauthProperties.getValue(trustedUpstreamKey + OAuthASProperties.TRUSTED_UPSTREAM_AS_CLIENT_TRUSTSTORE));
+			trustedUpstreamAS.add(trustedUpstreamASBean);
+		}
+		
 		Optional<OAuthScopeBean> openIdScope = scopes.stream()
 				.filter(s -> s.getName().equals(OIDCScopeValue.OPENID.getValue())).findFirst();
 		openIDConnect = openIdScope.isPresent() && openIdScope.get().isEnabled();
@@ -632,5 +709,15 @@ public class OAuthServiceConfiguration
 	public void setRefreshTokenRotationForPublicClients(boolean refreshTokenRotationForPublicClients)
 	{
 		this.refreshTokenRotationForPublicClients = refreshTokenRotationForPublicClients;
+	}
+
+	public List<TrustedUpstreamASBean> getTrustedUpstreamAS()
+	{
+		return trustedUpstreamAS;
+	}
+
+	public void setTrustedUpstreamAS(List<TrustedUpstreamASBean> trustedUpstreamAS)
+	{
+		this.trustedUpstreamAS = trustedUpstreamAS;
 	}	
 }

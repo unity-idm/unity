@@ -12,15 +12,13 @@ import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 
 /**
  * Setups TLS handling for nimbus {@link HTTPRequest} aligned with unity configs
  */
 public class HttpRequestConfigurer
 {
-	public static HTTPRequest secureRequest(HTTPRequest request, X509CertChainValidator validator, ServerHostnameCheckingMode mode)
+	public  HTTPRequest secureRequest(HTTPRequest request, X509CertChainValidator validator, ServerHostnameCheckingMode mode)
 	{
 		if (validator != null)
 		{
@@ -29,20 +27,5 @@ public class HttpRequestConfigurer
 			request.setSSLSocketFactory(factory);
 		}
 		return request;
-	}
-	
-	
-	public HTTPRequest secureRequest(HTTPRequest httpRequest, OAuthContext context, 
-			OAuthClientProperties config)
-	{
-		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
-		return secureRequest(httpRequest, providerCfg);
-	}
-	
-	public HTTPRequest secureRequest(HTTPRequest httpRequest, CustomProviderProperties providerCfg)
-	{
-		ServerHostnameCheckingMode checkingMode = providerCfg.getEnumValue(
-				CustomProviderProperties.CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
-		return secureRequest(httpRequest, providerCfg.getValidator(), checkingMode);
 	}
 }

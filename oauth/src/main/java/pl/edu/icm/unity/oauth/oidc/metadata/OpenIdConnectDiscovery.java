@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.client;
+package pl.edu.icm.unity.oauth.oidc.metadata;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,20 +16,20 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 
 /**
  * Retrieves information about OpenID Connect provider.
  * 
  * @author K. Benedyczak
  */
-public class OpenIdConnectDiscovery
+class OpenIdConnectDiscovery
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OpenIdConnectDiscovery.class);
 
 	private HttpRequestConfigurer requestFactory;
 
-	public OpenIdConnectDiscovery()
+	OpenIdConnectDiscovery()
 	{
 		requestFactory = new HttpRequestConfigurer();
 	}
@@ -40,12 +40,13 @@ public class OpenIdConnectDiscovery
 		this.requestFactory = requestFactory;
 	}
 
-	public OIDCProviderMetadata getMetadata(String url, CustomProviderProperties config)
+	OIDCProviderMetadata getMetadata(OIDCMetadataRequest oidcMetadataRequest)
 			throws IOException, ParseException
 	{
-		URL providerMetadataEndpoint = new URL(url);
+		URL providerMetadataEndpoint = new URL(oidcMetadataRequest.url);
 		log.debug("Download metadata from " + providerMetadataEndpoint);
-		HTTPRequest request = wrapRequest(new HTTPRequest(Method.GET, providerMetadataEndpoint), config);
+		HTTPRequest request = requestFactory.secureRequest(new HTTPRequest(Method.GET, providerMetadataEndpoint),
+				oidcMetadataRequest.validator, oidcMetadataRequest.hostnameChecking);
 		HTTPResponse response = request.send();
 		String content = response.getContent();
 		final String MS_ENDPOINT = "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration";
@@ -55,8 +56,5 @@ public class OpenIdConnectDiscovery
 		return OIDCProviderMetadata.parse(content);
 	}
 
-	private HTTPRequest wrapRequest(HTTPRequest httpRequest, CustomProviderProperties config)
-	{
-		return requestFactory.secureRequest(httpRequest, config);
-	}
+	
 }

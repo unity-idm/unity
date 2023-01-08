@@ -82,7 +82,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		URI tokenEndpoint = new URI(accessTokenEndpoint);
 		TokenRequest request = new TokenRequest(tokenEndpoint, clientAuth, clientGrant, scope);
 
-		HTTPRequest httpRequest = HttpRequestConfigurer.secureRequest(request.toHTTPRequest(), 
+		HTTPRequest httpRequest = new HttpRequestConfigurer().secureRequest(request.toHTTPRequest(), 
 				providerConfig.getValidator(), checkingMode);
 
 		HTTPResponse httpResponse = httpRequest.send();
@@ -115,7 +115,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		
 		String userBioEndpoint = bioEndpointBase + userid;
 		HTTPRequest httpReq = new HTTPRequest(Method.GET, new URL(userBioEndpoint));
-		HttpRequestConfigurer.secureRequest(httpReq, providerConfig.getValidator(), checkingMode);
+		new HttpRequestConfigurer().secureRequest(httpReq, providerConfig.getValidator(), checkingMode);
 		httpReq.setAuthorization(clientAccessToken.toAuthorizationHeader());
 		httpReq.setAccept(org.apache.hc.core5.http.ContentType.APPLICATION_JSON.getMimeType());
 		HTTPResponse resp = httpReq.send();

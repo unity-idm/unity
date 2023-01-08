@@ -53,7 +53,7 @@ public class UnityTokenVerificator implements TokenVerificatorProtocol
 		
 		ServerHostnameCheckingMode checkingMode = config.getEnumValue(
 				OAuthRPProperties.CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
-		HttpRequestConfigurer.secureRequest(httpReq, config.getValidator(), checkingMode);
+		new HttpRequestConfigurer().secureRequest(httpReq, config.getValidator(), checkingMode);
 		httpReq.setAuthorization(token.toAuthorizationHeader());
 		
 		HTTPResponse resp = httpReq.send();
