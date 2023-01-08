@@ -83,7 +83,7 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_ID = "clientId";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_SECRET = "clientSecret";
 	public static final String TRUSTED_UPSTREAM_AS_METADATA_URL = "metadataUrl";
-	public static final String TRUSTED_UPSTREAM_AS_ISSUER_URI = "issuerUri";
+	public static final String TRUSTED_UPSTREAM_AS_ISSUER_URI = "trustedIssuerUri";
 	public static final String TRUSTED_UPSTREAM_AS_INTROSPECTION_ENDPOINT_URL = "introspectionEndpointUrl";
 	public static final String TRUSTED_UPSTREAM_AS_CERTIFICATE = "certificate";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_TRUSTSTORE = "httpClientTruststore";
