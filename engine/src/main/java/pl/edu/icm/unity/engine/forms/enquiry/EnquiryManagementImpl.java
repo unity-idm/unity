@@ -426,6 +426,36 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
+	public List<EnquiryForm> getAvailableEnquires(EntityParam entityParam) throws EngineException
+	{
+		Entity entity = entityManagement.getEntity(entityParam);
+		authz.checkAuthorization(authz.isSelf(entity.getId()), AuthzCapability.readInfo);
+		
+		List<EnquiryForm> allForms = enquiryFormDB.getAll();
+		
+		if (allForms.isEmpty())
+			return Collections.emptyList();
+		
+		Set<String> ignored = getEnquiresFromAttribute(entity.getId(), 
+				EnquiryAttributeTypesProvider.FILLED_ENQUIRES);
+		ignored.addAll(getEnquiresFromAttribute(entity.getId(), EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
+	
+		Set<String> relevantEnquiryForms = getApplicableEnquiries(entity, allForms, true);
+	
+		List<EnquiryForm> ret = new ArrayList<>();
+		for (EnquiryForm form : allForms)
+		{
+			if (ignored.contains(form.getName()) && !form.getType()
+					.equals(EnquiryType.STICKY))
+				continue;
+			if (relevantEnquiryForms.contains(form.getName()))
+				ret.add(form);
+		}
+		return ret;
+	}
+	
+	@Transactional
+	@Override
 	public List<EnquiryForm> getPendingEnquires(EntityParam entityParam) throws EngineException
 	{
 		Entity entity = entityManagement.getEntity(entityParam);
@@ -443,7 +473,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				EnquiryAttributeTypesProvider.FILLED_ENQUIRES);
 		ignored.addAll(getEnquiresFromAttribute(entity.getId(), EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
 	
-		Set<String> relevantEnquiryForms = getApplicableEnquiries(entity, allForms);
+		Set<String> relevantEnquiryForms = getApplicableEnquiries(entity, allForms, false);
 	
 		List<EnquiryForm> ret = new ArrayList<>();
 		for (EnquiryForm form : allForms)
@@ -463,7 +493,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		Entity entity = entityManagement.getEntity(entityParam);
 		authz.checkAuthorization(authz.isSelf(entity.getId()), AuthzCapability.readInfo);
 		List<EnquiryForm> allForms = enquiryFormDB.getAll();
-		Set<String> relevantEnquiryForms = getApplicableEnquiries(entity, allForms);
+		Set<String> relevantEnquiryForms = getApplicableEnquiries(entity, allForms, false);
 		List<EnquiryForm> ret = new ArrayList<>();
 		for (EnquiryForm form : allForms)
 		{
@@ -474,7 +504,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		return ret;
 	}
 
-	private Set<String> getApplicableEnquiries(Entity entity, List<EnquiryForm> allForms) throws EngineException
+	private Set<String> getApplicableEnquiries(Entity entity, List<EnquiryForm> allForms, boolean ignoreInvitationIndicator) throws EngineException
 	{
 		Set<String> forms = new HashSet<>();
 		Set<String> entityGroups = entityManagement.getGroups(new EntityParam(entity.getId())).keySet();
@@ -482,7 +512,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				entity.getId(), "/").values();
 		for (EnquiryForm enqForm : allForms)
 		{
-			if (enqForm.isByInvitationOnly())
+			if (enqForm.isByInvitationOnly() && !ignoreInvitationIndicator)
 				continue;
 			if (EnquiryTargetCondEvaluator.evaluateTargetCondition(enqForm,
 							entity.getIdentities(),

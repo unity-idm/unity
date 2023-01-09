@@ -293,6 +293,34 @@ public class TestEnquiries extends DBIntegrationTestBase
 		assertThat(pendingEnquires.size(), is(1));
 		assertThat(pendingEnquires.get(0), is(form2));
 	}
+	
+	@Test
+	public void byInvitationOrStickyEnquiryIsAlsoReturned() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid);
+		EntityParam entityParam = new EntityParam(identity);
+		groupsMan.addMemberFromParent("/A", entityParam);
+		EnquiryForm form = new EnquiryFormBuilder()
+			.withTargetGroups(new String[] {"/A"})
+			.withType(EnquiryType.REQUESTED_OPTIONAL)
+			.withName("invenquiry")
+			.withByInvitationOnly(true)
+			.build();
+		enquiryManagement.addEnquiry(form);
+		
+		EnquiryForm form2 = new EnquiryFormBuilder()
+				.withTargetGroups(new String[] {"/A"})
+				.withType(EnquiryType.STICKY)
+				.withName("nenquiry")
+				.withByInvitationOnly(false)
+				.build();
+			enquiryManagement.addEnquiry(form2);
+		
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam);
+		
+		assertThat(pendingEnquires.size(), is(2));
+	}
 
 	@Test
 	public void enquiryForDifferentGroupIsNotPending() throws Exception
