@@ -68,16 +68,13 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 
 		log.debug("Token introspection enquiry for token {}", tokenToLog(token));
 
-		Optional<SignedJWTWithIssuer> signedJWT = parseAndValidateSignedJWTForProxy(token);
-		if (signedJWT.isPresent() && !signedJWT.get().issuer.equals(localIssuer))
-		{
-			return remoteTokenIntrospectionService.processRemoteIntrospection(signedJWT.get());
-		}
-
-		return localTokenIntrospectionService.processLocalIntrospection(token);
+		Optional<SignedJWTWithIssuer> signedJWT = tryParseAsSignedJWTToken(token);
+		boolean proxyToRemoteService = signedJWT.isPresent() && !signedJWT.get().issuer.equals(localIssuer);
+		return proxyToRemoteService ? remoteTokenIntrospectionService.processRemoteIntrospection(signedJWT.get())
+				: localTokenIntrospectionService.processLocalIntrospection(token);
 	}
 
-	private Optional<SignedJWTWithIssuer> parseAndValidateSignedJWTForProxy(String token)
+	private Optional<SignedJWTWithIssuer> tryParseAsSignedJWTToken(String token)
 	{
 		SignedJWT signedJWT = null;
 		try
@@ -93,7 +90,7 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 			return Optional.of(new SignedJWTWithIssuer(signedJWT));
 		} catch (ParseException e)
 		{
-			log.trace("Unknown issuer of token {}",tokenToLog(signedJWT.serialize()));
+			log.trace("Unknown issuer of token {}", tokenToLog(signedJWT.serialize()));
 			return Optional.empty();
 		}
 	}

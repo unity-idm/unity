@@ -41,7 +41,7 @@ public class OAuthDiscoveryMetadataCacheTest
 		cache.clear();
 		Properties props = new Properties();
 		props.setProperty(CustomProviderProperties.OPENID_DISCOVERY,
-				"https://accounts.google.com/.well-known/openid-configuration");
+				"https://mock");
 		props.setProperty(CustomProviderProperties.CLIENT_HOSTNAME_CHECKING, "warn");
 		props.setProperty(CommonIdPProperties.TRANSLATION_PROFILE, "");
 		props.setProperty(CustomProviderProperties.CLIENT_SECRET, "");
@@ -66,7 +66,7 @@ public class OAuthDiscoveryMetadataCacheTest
 		cache.clear();	
 		Properties props = new Properties();
 		props.setProperty(CustomProviderProperties.OPENID_DISCOVERY,
-				"https://accounts.google.com/.well-known/openid-configuration");
+				"https://mock");
 		props.setProperty(CustomProviderProperties.CLIENT_HOSTNAME_CHECKING, "warn");
 		props.setProperty(CommonIdPProperties.TRANSLATION_PROFILE, "");
 		props.setProperty(CustomProviderProperties.CLIENT_SECRET, "");

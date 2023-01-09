@@ -35,7 +35,7 @@ public class OAuthJWKSetCacheTest
 		cache.clear();
 		JWKSetRequest request = JWKSetRequest.builder()
 				.withHostnameChecking(ServerHostnameCheckingMode.NONE)
-				.withUrl("https://www.googleapis.com/oauth2/v3/certs")
+				.withUrl("https://mock")
 				.build();
 
 		cache.getMetadata(request);
