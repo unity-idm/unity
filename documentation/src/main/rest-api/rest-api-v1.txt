@@ -1457,3 +1457,134 @@ Example output without any grouping applied:
    }
 ]
 ----
+
+
+=== Get policy
+
++@Path("/policy-documents/{document-id}")+ +
++@GET+ +
+
+Returns the given policy.
+
+Example output:
+
+----
+{
+      "id": 1,
+      "name": "string",
+      "displayedName": [
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      ],
+      "mandatory": true,
+      "contentType": "enumeration"
+      "revision": "1"
+}
+----
+
+
+
+=== Get all policies
+
++@Path("/policy-documents")+ +
++@GET+ +
+
+Returns all policies.
+
+Example output:
+
+----
+[
+	{
+	      "id": 1,
+	      "name": "string",
+	      "displayedName": [
+	            "en": "displayedName",
+	            "fr": "nomAffiche"
+	      ],
+	      "mandatory": true,
+	      "contentType": "enumeration"
+	      "revision": "1"
+	}
+]
+----
+
+
+=== Remove policy
+
++@Path("/policy-documents/{document-id}")+ +
++@DELETE+ +
+
+Removes the given policy.
+
+
+=== Add policy
+
++@Path("/policy-documents")+ +
++@POST+ +
+
+Adds a new policy.
+
+Example input:
+
+----
+{
+      "name": "string",
+      "displayedName": [
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      ],
+      "mandatory": true,
+      "contentType": "enumeration"
+      "content": [
+            "en": "content",
+            "fr": "contenu"
+      ]
+}
+----
+
+
+Example output:
+
+----
+{
+      "id": 1
+}
+----
+
+
+=== Update policy
+
++@Path("/policy-documents/{document-id}")+ +
++@QueryParam("revision")+ +
++@PUT+ +
+
+Updates the given policy. If query parameter "revision" is set to true, update increment revision, and reacceptance will be needed.
+
+Example input:
+
+----
+{
+      "name": "string",
+      "displayedName": [
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      ],
+      "mandatory": true,
+      "contentType": "enumeration"
+      "content": [
+            "en": "content",
+            "fr": "contenu"
+      ]
+}
+----
+
+
+=== Get policy's content
+
++@Path("/policy-documents/{document-id}/content")+ +
++@GET+ +
+
+Returns the given policy's content.
+If policy content type is "EMBEDDED", http Content-Type will be text/html.
+If policy content type is "LINK", http Content-Type will be text/plain.
