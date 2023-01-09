@@ -154,7 +154,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			authenticateButton.addStyleName(Styles.signInButton.toString());
 			authenticateButton.addStyleName("u-passwordSignInButton");
-			authenticateButton.addClickListener(event -> { authenticateButton.removeClickShortcut(); triggerAuthentication(); });
+			authenticateButton.addClickListener(event -> triggerAuthentication());
 			ret.addComponent(authenticateButton);
 
 			passwordField.addFocusListener(e -> authenticateButton.setClickShortcut(KeyCode.ENTER));
