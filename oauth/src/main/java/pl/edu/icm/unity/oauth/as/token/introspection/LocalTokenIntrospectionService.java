@@ -25,20 +25,20 @@ import pl.edu.icm.unity.oauth.as.token.BaseTokenResource.TokensPair;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 
-public class LocalTokenIntrospectionService
+class LocalTokenIntrospectionService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, LocalTokenIntrospectionService.class);
 	private final OAuthAccessTokenRepository accessTokenRespository;
 	private final OAuthRefreshTokenRepository refreshTokenRepository;
 
-	public LocalTokenIntrospectionService(OAuthAccessTokenRepository accessTokenRespository,
+	LocalTokenIntrospectionService(OAuthAccessTokenRepository accessTokenRespository,
 			OAuthRefreshTokenRepository refreshTokenRepository)
 	{
 		this.accessTokenRespository = accessTokenRespository;
 		this.refreshTokenRepository = refreshTokenRepository;
 	}
 
-	public Response processLocalIntrospection(String token)
+	Response processLocalIntrospection(String token)
 	{
 		log.debug("Localy token introspection, token {}", BaseOAuthResource.tokenToLog(token));
 		Optional<TokensPair> tokensOpt = loadToken(token);
