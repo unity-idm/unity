@@ -1,0 +1,86 @@
+RESTful Administration API
+==========================
+Unity Team <unity-idm-discuss@lists.sourceforge.net>
+//Set to override automated version, which is the project version
+//:revnumber: 9.9.9-FIXED
+:numbered:
+:toc: left
+:linkcss:
+:iconsdir: ./icons
+:icons: font
+
+
+The Unity REST API may be exposed (or disabled) as a regular Unity endpoint. See the
+<<manual.txt#endp-rest-admin,main Unity documentation>> for endpoints configuration details.
+
+All paths must be naturally prefixed with the server's base URL, endpoint deployment's path
+(as configured) and API version (currently there is only one). Example query path can be similar to:
+
+   https://unity.example.com/rest-admin/v1/entity/1
+
+
+NOTE: All operations which are operating on a single entity allow since version 1.9.4 to use
+three different types of entity selectors. Entity can be specified as an integer number being the internal
+database identifier of entity in Unity --- this is the only option available in older versions. Alternatively
+entity's persistentId can be used. Finally any other identity can be used to select identity, however then
+a query parameter +identityType+ must be used to provide the intended identity type.
+
+
+== API reference
+
+
+=== Resolve identity
+
++@Path("/resolve/{identityType}/{identityValue}")+ +
++@GET+ +
+
+Resolves a provided identity of a given type. The returned information is the same as in case of the +/entity+
+operation.
+
+Example output:
+----
+{
+    "entityInformation": {
+        "state": "valid",
+        "entityId": 1
+    },
+    "identities": [
+        {
+            "value": "a",
+            "confirmationInfo": {
+                "confirmed": false,
+                "confirmationDate": 0,
+                "sentRequestAmount": 0
+            },
+            "comparableValue": "a",
+            "creationTs": 1491257134658,
+            "updateTs": 1491257134658,
+            "typeId": "userName",
+            "entityId": 1
+        },
+        {
+            "value": "90bba4c5-adbe-4829-8215-e23960c52c33",
+            "realm": "main",
+            "confirmationInfo": {
+                "confirmed": false,
+                "confirmationDate": 0,
+                "sentRequestAmount": 0
+            },
+            "comparableValue": "90bba4c5-adbe-4829-8215-e23960c52c33",
+            "creationTs": 1491257533387,
+            "updateTs": 1491257533387,
+            "typeId": "persistent",
+            "entityId": 1
+        }
+    ],
+    "credentialInfo": {
+        "credentialRequirementId": "Password requirement",
+        "credentialsState": {
+            "Password credential": {
+                "state": "correct",
+                "extraInformation": "{\"lastChange\":1491257134733}"
+            }
+        }
+    }
+}
+----
