@@ -80,7 +80,7 @@ public class InDBUpdateFromSchema17 implements InDBContentsUpdater
 		{
 			if ("sys:AuthorizationRole".equals(atType.getName()))
 			{
-				log.info("UUpdating attribute type {} adding new value \"Policy documents manager\"", atType.getName());
+				log.info("Updating attribute type {} adding new value \"Policy documents manager\"", atType.getName());
 				AttributeType at = new AttributeType();
 				at.setName(atType.getName());
 				at.setValueSyntax(atType.getValueSyntaxId());
