@@ -38,6 +38,7 @@ public class InternalAuthorizationManagerImpl implements InternalAuthorizationMa
 	public static final String PRIVILEGED_INSPECTOR_ROLE = "Privileged Inspector";
 	public static final String INSPECTOR_ROLE = "Inspector";
 	public static final String USER_ROLE = "Regular User";
+	public static final String POLICY_DOCUMENTS_MANAGER = "Policy documents manager";
 	public static final String ANONYMOUS_ROLE = "Anonymous User";
 
 	private Map<String, AuthzRole> roles = new LinkedHashMap<>(); 
@@ -67,7 +68,9 @@ public class InternalAuthorizationManagerImpl implements InternalAuthorizationMa
 					AuthzCapability.credentialModify,
 					AuthzCapability.readHidden,
 					AuthzCapability.read,
-					AuthzCapability.readInfo
+					AuthzCapability.readInfo,
+					AuthzCapability.policyDocumentsModify,
+					AuthzCapability.policyDocumentsRead
 				}));
 
 		setupRole(new RoleImpl(CONTENTS_MANAGER_ROLE, "Allows for performing all management operations related" +
@@ -80,7 +83,8 @@ public class InternalAuthorizationManagerImpl implements InternalAuthorizationMa
 					AuthzCapability.credentialModify,
 					AuthzCapability.readHidden,
 					AuthzCapability.read,
-					AuthzCapability.readInfo
+					AuthzCapability.readInfo,
+					AuthzCapability.policyDocumentsRead
 				}));
 
 		setupRole(new RoleImpl(PRIVILEGED_INSPECTOR_ROLE, "Allows for reading entities, groups and attributes,"
@@ -89,7 +93,9 @@ public class InternalAuthorizationManagerImpl implements InternalAuthorizationMa
 				new AuthzCapability[] {
 					AuthzCapability.readHidden,
 					AuthzCapability.read,
-					AuthzCapability.readInfo
+					AuthzCapability.readInfo,
+					AuthzCapability.policyDocumentsRead
+
 				},
 				new AuthzCapability[] {
 					AuthzCapability.credentialModify,
@@ -102,7 +108,9 @@ public class InternalAuthorizationManagerImpl implements InternalAuthorizationMa
 				"No modifications are possible", 
 				new AuthzCapability[] {
 					AuthzCapability.read,
-					AuthzCapability.readInfo
+					AuthzCapability.readInfo,
+					AuthzCapability.policyDocumentsRead
+
 				},
 				new AuthzCapability[] {
 					AuthzCapability.credentialModify,
@@ -115,7 +123,8 @@ public class InternalAuthorizationManagerImpl implements InternalAuthorizationMa
 				" retrieval of information about themselves and also for changing " +
 				"self managed attributes, identities and passwords", 
 				new AuthzCapability[] {
-					AuthzCapability.readInfo
+					AuthzCapability.readInfo,
+					AuthzCapability.policyDocumentsRead
 				},
 				new AuthzCapability[] {
 					AuthzCapability.credentialModify,
@@ -127,10 +136,25 @@ public class InternalAuthorizationManagerImpl implements InternalAuthorizationMa
 		setupRole(new RoleImpl(ANONYMOUS_ROLE, "Allows for minimal access to the system: " +
 				"owners can get basic system information and retrieve information about themselves", 
 				new AuthzCapability[] {
-					AuthzCapability.readInfo
+					AuthzCapability.readInfo,
+					AuthzCapability.policyDocumentsRead
 				}, 
 				new AuthzCapability[] {
 					AuthzCapability.read
+				}));
+		
+		setupRole(new RoleImpl(POLICY_DOCUMENTS_MANAGER,
+				"Extends Regular User role with ability to manage policy documents",
+				new AuthzCapability[] {
+					AuthzCapability.readInfo,
+					AuthzCapability.policyDocumentsRead,
+					AuthzCapability.policyDocumentsModify
+				},
+				new AuthzCapability[] { 
+					AuthzCapability.credentialModify,
+					AuthzCapability.attributeModify,
+					AuthzCapability.identityModify,
+					AuthzCapability.read 
 				}));
 	}
 
