@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.List;
 
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -87,15 +88,6 @@ public interface EnquiryManagement
 	EnquiryForm getEnquiry(String id) throws EngineException;
 	
 	/**
-	 * 
-	 * @param entity
-	 * @return list of enquires which are supposed to be filled by a given user. Only active enquires,
-	 * which were not yet filled nor ignored by the user are returned.
-	 * @throws EngineException
-	 */
-	List<EnquiryForm> getPendingEnquires(EntityParam entity) throws EngineException;
-	
-	/**
 	 * Marks an enquiry as ignored for the given user. This is only possible for enquires 
 	 * which are not mandatory to be filled.
 	 * 
@@ -134,14 +126,6 @@ public interface EnquiryManagement
 
 	/**
 	 * 
-	 * @param entity
-	 * @return
-	 * @throws EngineException
-	 */
-	List<EnquiryForm> getAvailableStickyEnquires(EntityParam entity) throws EngineException;
-
-	/**
-	 * 
 	 * @param form
 	 * @param entity
 	 * @throws EngineException 
@@ -156,11 +140,12 @@ public interface EnquiryManagement
 	void removeEnquiryWithoutDependencyChecking(String formId) throws EngineException;
 
 	/**
-	 * Get all not filled or ignored enquires for entity
+	 * Allows to get enquiries according to the given filter. 
 	 * @param entityParam
+	 * @param selector filter what should be retrieved
 	 * @return
 	 * @throws EngineException
 	 */
-	List<EnquiryForm> getAvailableEnquires(EntityParam entityParam) throws EngineException;
+	List<EnquiryForm> getAvailableEnquires(EntityParam entityParam, EnquirySelector selector) throws EngineException;
 
 }

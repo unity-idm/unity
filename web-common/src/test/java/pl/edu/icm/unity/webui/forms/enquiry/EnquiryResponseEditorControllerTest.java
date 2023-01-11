@@ -99,8 +99,8 @@ public class EnquiryResponseEditorControllerTest
 		EnquiryResponseEditorController controller = new EnquiryResponseEditorController(null, mockEnquiryMan,
 				null, null, null, null, null, null, null, null, null, null, null, null, null);
 		initContext();
-		controller.getStickyForms();
-		verify(mockEnquiryMan).getAvailableStickyEnquires(any());
+		controller.isStickyFormApplicable("test");
+		verify(mockEnquiryMan).getAvailableEnquires(any(), any());
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class EnquiryResponseEditorControllerTest
 		EnquiryResponseEditorController controller = new EnquiryResponseEditorController(null, mockEnquiryMan,
 				null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-		when(mockEnquiryMan.getAvailableStickyEnquires(any())).thenReturn(Arrays.asList(getForm()));
+		when(mockEnquiryMan.getAvailableEnquires(any(), any())).thenReturn(Arrays.asList(getForm()));
 		initContext();
 		assertThat(controller.isStickyFormApplicable("sticky"), is(true));
 	}
