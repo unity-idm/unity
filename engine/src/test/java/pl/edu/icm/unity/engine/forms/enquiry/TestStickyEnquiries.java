@@ -28,6 +28,9 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.AccessMode;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.Type;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
@@ -144,7 +147,10 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 				.build();
 			enquiryManagement.addEnquiry(form2);
 		
-		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableStickyEnquires(entityParam);
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
+				.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+				.withType(Type.STICKY)
+				.build());
 		
 		assertThat(pendingEnquires.size(), is(1));
 		assertThat(pendingEnquires.get(0), is(form2));

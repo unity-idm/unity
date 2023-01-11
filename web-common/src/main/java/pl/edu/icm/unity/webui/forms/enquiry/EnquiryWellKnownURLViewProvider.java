@@ -91,7 +91,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		String registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
 		
 		EnquiryForm form = editorController.getForm(formName);
-		if (!editorController.isFormApplicable(formName, registrationCode != null))
+		if (!editorController.isFormApplicableForLoggedEntity(formName, registrationCode == null))
 		{
 			log.debug("Enquiry form {} is not applicable", formName);
 			return new ErrorView(form, TriggeringState.NOT_APPLICABLE_ENQUIRY);
