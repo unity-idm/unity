@@ -50,5 +50,15 @@ public enum AuthzCapability {
 	 * Reading of system information, not related to the actual contents: endpoints, authenticators, 
 	 * credential definitions, available attribute syntaxes and identity types.
 	 */
-	readInfo
+	readInfo,
+	
+	/**
+	 * Modification of policy documents
+	 */
+	policyDocumentsModify,
+	
+	/**
+	 * Reading of policy documents
+	 */
+	policyDocumentsRead
 }

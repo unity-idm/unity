@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.export.JsonDumpUpdate;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 
 @Component
 public class JsonDumpUpdateFromV17 implements JsonDumpUpdate
@@ -42,6 +44,7 @@ public class JsonDumpUpdateFromV17 implements JsonDumpUpdate
 		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
 		JsonNode contents = root.get("contents");
 		udpateOAuthTokens(contents.withArray("tokens"));
+		udpateRoleAttributeType(contents.withArray("attributeTypes"));
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
@@ -61,6 +64,31 @@ public class JsonDumpUpdateFromV17 implements JsonDumpUpdate
 				tokenObj.put("contents", JsonUtil.serialize2Bytes(fixed.get()));
 			}
 			log.info("Updated OAuth token audience {}", objContent);
+		}
+	}
+	
+	private void udpateRoleAttributeType(JsonNode attributeTypesArray)
+	{
+		for (JsonNode attrTypeNode : attributeTypesArray)
+		{
+			ObjectNode attrTypeObj = (ObjectNode) attrTypeNode;
+			String name = attrTypeObj.get("name")
+					.asText();
+
+			if (name.equals("sys:AuthorizationRole"))
+			{
+				log.info("Updating attribute type {} adding new value \"Policy documents manager\"", attrTypeObj.get("name")
+						.asText());
+				attrTypeObj.set("syntaxState", UpdateHelperTo17.getRoleAttributeSyntaxConfig());
+
+				I18nString descFromJson = I18nStringJsonUtil.fromJson(attrTypeObj.get("i18nDescription"));
+				String orgEnDesc = UpdateHelperTo17.getOrgEnRoleDescription();
+				if (orgEnDesc.equals(descFromJson != null ? descFromJson.getValue("en") : null))
+				{
+					descFromJson.addValue("en", UpdateHelperTo17.getEnRoleDescription());
+					attrTypeObj.set("i18nDescription", I18nStringJsonUtil.toJson(descFromJson));
+				}
+			}
 		}
 	}
 
