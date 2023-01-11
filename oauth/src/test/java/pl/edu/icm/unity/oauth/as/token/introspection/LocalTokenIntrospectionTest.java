@@ -48,8 +48,9 @@ public class LocalTokenIntrospectionTest
 		setupInvocationContext(111);
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowHybrid(config, 
 				OAuthTestUtils.getOAuthProcessor(tokensManagement));
-		
+	
 		Response r = tested.processLocalIntrospection(step1Resp.getAccessToken().getValue());
+		
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
 		JSONObject parsed = (JSONObject) JSONValue.parse((r.getEntity().toString()));
 		log.info("{}", parsed);
@@ -74,6 +75,7 @@ public class LocalTokenIntrospectionTest
 		
 		Response r = tested.processLocalIntrospection("UNKNOWN-TOKEN");
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
+		
 		JSONObject parsed = (JSONObject) JSONValue.parse((r.getEntity().toString()));
 		log.info("{}", parsed);
 		assertThat(parsed.getAsString("active")).isEqualTo("false");

@@ -54,9 +54,14 @@ public class RemoteTokenIntrospectionTest
 				JWTUtils.generate(new MockPKIMan().getCredential("MAIN"), new JWTClaimsSet.Builder().issuer("issuer")
 						.build()));
 		SignedJWTWithIssuer signedJWTWithIssuer = new SignedJWTWithIssuer(jwts);
+		
+		
 		Response r = remoteTokenIntrospectionService.processRemoteIntrospection(signedJWTWithIssuer);
 		JSONObject parsed = (JSONObject) JSONValue.parse((r.getEntity()
 				.toString()));
+	
+		
+		
 		assertThat(parsed.getAsString("active")).isEqualTo("false");
 		assertThat(parsed.size()).isEqualTo(1);
 	}
@@ -70,7 +75,6 @@ public class RemoteTokenIntrospectionTest
 		HttpRequestConfigurer httpRequestConfigurer = mock(HttpRequestConfigurer.class);
 		HTTPRequest mockRequest = mock(HTTPRequest.class);
 		JWSVerifier jwsVerifier = mock(JWSVerifier.class);
-
 		RemoteTokenIntrospectionService remoteTokenIntrospectionService = new RemoteTokenIntrospectionService(
 				introspectionServiceContextProvider, httpRequestConfigurer);
 		when(introspectionServiceContextProvider.getRemoteServiceContext("issuer"))
@@ -80,10 +84,8 @@ public class RemoteTokenIntrospectionTest
 						.withClientSecret("secret")
 						.withVerifier(jwsVerifier)
 						.build()));
-
 		when(httpRequestConfigurer.secureRequest(any(), any(), any())).thenReturn(mockRequest);
 		when(jwsVerifier.verify(any(), any(), any())).thenReturn(true);
-
 		HTTPResponse httpResponse = new HTTPResponse(HTTPResponse.SC_OK);
 		TokenIntrospectionResponse resp = new TokenIntrospectionSuccessResponse(new JSONObject(Map.of("active", true)));
 		httpResponse.setContent(resp.toSuccessResponse()
@@ -91,15 +93,17 @@ public class RemoteTokenIntrospectionTest
 				.toJSONString());
 		httpResponse.setContentType(ContentType.APPLICATION_JSON.toString());
 		when(mockRequest.send()).thenReturn(httpResponse);
-
 		SignedJWT jwts = SignedJWT.parse(JWTUtils.generate(new MockPKIMan().getCredential("MAIN"),
 				new JWTClaimsSet.Builder().issuer("issuer")
 						.expirationTime(Date.from(Instant.now()
 								.plusSeconds(100)))
 						.build()));
 		SignedJWTWithIssuer signedJWTWithIssuer = new SignedJWTWithIssuer(jwts);
+	
+		
 		Response r = remoteTokenIntrospectionService.processRemoteIntrospection(signedJWTWithIssuer);
 
+		
 		JSONObject parsed = (JSONObject) JSONValue.parse((r.getEntity()
 				.toString()));
 		assertThat(parsed.getAsString("active")).isEqualTo("true");

@@ -62,25 +62,27 @@ class RemoteTokenIntrospectionService
 		log.debug("Remote token introspection, token {}",
 				BaseOAuthResource.tokenToLog(signedJWTWithIssuer.signedJWT.toString()));
 		Optional<TokenIntrospectionResponse> remoteResponse = proxyRequestToRemoteService(signedJWTWithIssuer);
-		if (remoteResponse.isEmpty())
-		{
-			return Response.ok(TokenIntrospectionResource.getInactiveResponse()
-					.toJSONString())
-					.build();
-		} else
-		{
-			log.debug("Remote token instrospection response {}", remoteResponse.get().toHTTPResponse().getContent());
 
-			return Response.ok(remoteResponse.get()
-					.indicatesSuccess()
-							? remoteResponse.get()
-									.toSuccessResponse()
-									.toJSONObject()
-									.toJSONString()
-							: TokenIntrospectionResource.getInactiveResponse()
-									.toJSONString())
-					.build();
-		}
+		return remoteResponse.map(response -> mapRemoteResponse(response))
+				.orElse(Response.ok(TokenIntrospectionResource.getInactiveResponse()
+						.toJSONString())
+						.build());
+		
+		
+	}
+	
+	private Response mapRemoteResponse(TokenIntrospectionResponse response)
+	{
+		log.debug("Remote token instrospection response {}", response.toHTTPResponse().getContent());
+		return Response.ok(response
+				.indicatesSuccess()
+						? response
+								.toSuccessResponse()
+								.toJSONObject()
+								.toJSONString()
+						: TokenIntrospectionResource.getInactiveResponse()
+								.toJSONString())
+				.build();
 	}
 
 	private Optional<TokenIntrospectionResponse> proxyRequestToRemoteService(SignedJWTWithIssuer signedJWT)
