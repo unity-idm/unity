@@ -82,6 +82,7 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 			signedJWT = SignedJWT.parse(token);
 		} catch (ParseException e)
 		{
+			log.trace("Can not parse token {} as signed JWT token", tokenToLog(token));
 			return Optional.empty();
 		}
 

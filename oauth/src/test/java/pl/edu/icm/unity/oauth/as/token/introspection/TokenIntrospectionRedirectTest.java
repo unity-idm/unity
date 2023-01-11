@@ -29,7 +29,9 @@ public class TokenIntrospectionRedirectTest
 		SignedJWT jwts = SignedJWT.parse(
 				JWTUtils.generate(new MockPKIMan().getCredential("MAIN"), new JWTClaimsSet.Builder().issuer("rem")
 						.build()));
+	
 		res.introspectToken(jwts.serialize());
+		
 		verify(remoteTokenIntrospectionService).processRemoteIntrospection(any());
 	}
 	
@@ -42,7 +44,9 @@ public class TokenIntrospectionRedirectTest
 		SignedJWT jwts = SignedJWT.parse(
 				JWTUtils.generate(new MockPKIMan().getCredential("MAIN"), new JWTClaimsSet.Builder().issuer(OAuthTestUtils.ISSUER)
 						.build()));
+		
 		res.introspectToken(jwts.serialize());
+	
 		verify(localTokenIntrospectionService).processLocalIntrospection(any());
 	}
 }

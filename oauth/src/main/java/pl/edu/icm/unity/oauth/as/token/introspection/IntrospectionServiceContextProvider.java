@@ -48,8 +48,8 @@ class IntrospectionServiceContextProvider
 	private final OAuthJWKSetCache keyResourceCache;
 	private final PKIManagement pkiManagement;
 
-	final Map<String, RemoteIntrospectionServiceContext> byMetadataServices = new HashMap<>();
-	final Map<String, RemoteIntrospectionServiceContext> manualyConfiguredServices = new HashMap<>();
+	final Map<String, RemoteIntrospectionServiceContext> remoteConfiguredSerivceContextByIssuer = new HashMap<>();
+	final Map<String, RemoteIntrospectionServiceContext> manualyConfiguredServiceContextByIssuer = new HashMap<>();
 	final List<TrustedUpstreamConfiguration> config;
 
 	IntrospectionServiceContextProvider(OAuthDiscoveryMetadataCache oAuthDiscoveryMetadataCache,
@@ -67,26 +67,26 @@ class IntrospectionServiceContextProvider
 	Optional<RemoteIntrospectionServiceContext> getRemoteServiceContext(String issuer)
 	{
 		initServicesConfiguredByMetadata(config);
-		if (manualyConfiguredServices.get(issuer) != null)
-			return Optional.of(manualyConfiguredServices.get(issuer));
-		else if (byMetadataServices.get(issuer) != null)
+		if (manualyConfiguredServiceContextByIssuer.get(issuer) != null)
+			return Optional.of(manualyConfiguredServiceContextByIssuer.get(issuer));
+		else if (remoteConfiguredSerivceContextByIssuer.get(issuer) != null)
 		{
-			return Optional.of(byMetadataServices.get(issuer));
+			return Optional.of(remoteConfiguredSerivceContextByIssuer.get(issuer));
 		}
 		return Optional.empty();
 	}
 
 	private void initManualConfiguredIntrospectionServices(List<TrustedUpstreamConfiguration> trus)
 	{
-		manualyConfiguredServices.clear();
+		manualyConfiguredServiceContextByIssuer.clear();
 		for (TrustedUpstreamConfiguration trustedUpstreamConfiguration : trus)
 		{
 			if (!trustedUpstreamConfiguration.isMetadata())
 			{
 				try
 				{
-					getManualInstrospectionConfig(trustedUpstreamConfiguration)
-							.ifPresent(s -> manualyConfiguredServices.put(s.issuer, s));
+					RemoteIntrospectionServiceContext manualIntrospectionConfig = getManualIntrospectionConfig(trustedUpstreamConfiguration);
+					manualyConfiguredServiceContextByIssuer.put(manualIntrospectionConfig.issuer, manualIntrospectionConfig);
 
 				} catch (Exception e)
 				{
@@ -98,7 +98,7 @@ class IntrospectionServiceContextProvider
 
 	private void initServicesConfiguredByMetadata(List<TrustedUpstreamConfiguration> trus)
 	{
-		byMetadataServices.clear();
+		remoteConfiguredSerivceContextByIssuer.clear();
 		for (TrustedUpstreamConfiguration trustedUpstreamConfiguration : trus)
 		{
 			if (trustedUpstreamConfiguration.isMetadata())
@@ -106,7 +106,7 @@ class IntrospectionServiceContextProvider
 				try
 				{
 					getByMetadataIntrospectionConfig(trustedUpstreamConfiguration)
-							.ifPresent(s -> byMetadataServices.put(s.issuer, s));
+							.ifPresent(s -> remoteConfiguredSerivceContextByIssuer.put(s.issuer, s));
 				} catch (Exception e)
 				{
 					log.error("Invalid remote introspection service configuration", e);
@@ -115,14 +115,14 @@ class IntrospectionServiceContextProvider
 		}
 	}
 
-	private Optional<RemoteIntrospectionServiceContext> getManualInstrospectionConfig(
+	private RemoteIntrospectionServiceContext getManualIntrospectionConfig(
 			TrustedUpstreamConfiguration trustedUpstreamConfiguration) throws MalformedURLException, JOSEException
 	{
 
 		JWSVerifier verifier = getJWSVerifier(getCertificate(trustedUpstreamConfiguration.certificate));
 		X509CertChainValidatorExt validator = getValidator(trustedUpstreamConfiguration.clientTrustStore);
 
-		return Optional.of(RemoteIntrospectionServiceContext.builder()
+		return RemoteIntrospectionServiceContext.builder()
 				.withClientId(trustedUpstreamConfiguration.clientId)
 				.withClientSecret(trustedUpstreamConfiguration.clientSecret)
 				.withIssuer(trustedUpstreamConfiguration.issuerURI)
@@ -130,7 +130,7 @@ class IntrospectionServiceContextProvider
 				.withUrl(new URL(trustedUpstreamConfiguration.introspectionEndpointURL))
 				.withValidator(validator)
 				.withHostnameCheckingMode(trustedUpstreamConfiguration.clientHostnameChecking)
-				.build());
+				.build();
 	}
 
 	private Optional<RemoteIntrospectionServiceContext> getByMetadataIntrospectionConfig(
