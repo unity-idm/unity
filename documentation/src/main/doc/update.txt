@@ -105,5 +105,10 @@ can use the plain SAML IdP endpoint of Unity. Make sure to drop all UNICORE spec
 
 Most likely those endpoints should be replaced with regular SAML IdP endpoints (SOAP/Web as appropriate).  
 
-Unity v4.0+ won't start if any UNICORE endpoint is still present in configuration or database. 
+Unity v4.0+ won't start if any UNICORE endpoint is still present in configuration or database.
+
+Unity v4.0+ change api available under unitygw endpoint. Below list shows changes:
+
+OLD: https://<UNITY>/unitygw/pub?id={policyId}#!policyDoc
+NEW: https://<UNITY>/unitygw/pub/policyDocuments/{policyId}
 
