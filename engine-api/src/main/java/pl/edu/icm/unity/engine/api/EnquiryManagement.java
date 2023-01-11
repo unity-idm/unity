@@ -74,42 +74,28 @@ public interface EnquiryManagement
 			String privateComment) throws EngineException;
 	
 	/**
-	 * 
 	 * @return all available enquires.
-	 * @throws EngineException
 	 */
 	List<EnquiryForm> getEnquires() throws EngineException;
 	
 	/**
-	 * 
 	 * @return enquiry form with given id.
-	 * @throws EngineException
 	 */
 	EnquiryForm getEnquiry(String id) throws EngineException;
 	
 	/**
 	 * Marks an enquiry as ignored for the given user. This is only possible for enquires 
 	 * which are not mandatory to be filled.
-	 * 
-	 * @param enquiryId
-	 * @param entity
-	 * @throws EngineException
 	 */
 	void ignoreEnquiry(String enquiryId, EntityParam entity) throws EngineException;
 	
 	/**
 	 * Submits an enquiry response.
-	 * @param response
-	 * @param context submission context
-	 * @return id of the recorder response
-	 * @throws EngineException
 	 */
 	String submitEnquiryResponse(EnquiryResponse response, RegistrationContext context) throws EngineException;
 
 	/**
 	 * Lists all responses
-	 * @return
-	 * @throws EngineException
 	 */
 	List<EnquiryResponseState> getEnquiryResponses() throws EngineException;
 
@@ -124,27 +110,17 @@ public interface EnquiryManagement
 	 */
 	FormAutomationSupport getFormAutomationSupport(EnquiryForm form);
 
-	/**
-	 * 
-	 * @param form
-	 * @param entity
-	 * @throws EngineException 
-	 */
+	
 	void removePendingStickyRequest(String form, EntityParam entity) throws EngineException;
 
 	/**
 	 * Remove an existing enquiry form with no dependency checking
-	 * @param formId
-	 * @throws EngineException
 	 */
 	void removeEnquiryWithoutDependencyChecking(String formId) throws EngineException;
 
 	/**
 	 * Allows to get enquiries according to the given filter. 
-	 * @param entityParam
 	 * @param selector filter what should be retrieved
-	 * @return
-	 * @throws EngineException
 	 */
 	List<EnquiryForm> getAvailableEnquires(EntityParam entityParam, EnquirySelector selector) throws EngineException;
 

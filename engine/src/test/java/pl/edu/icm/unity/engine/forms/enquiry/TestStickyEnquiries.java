@@ -148,7 +148,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 			enquiryManagement.addEnquiry(form2);
 		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
-				.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 				.withType(Type.STICKY)
 				.build());
 		

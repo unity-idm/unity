@@ -230,7 +230,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		setupUserContext(DEF_USER, null);
 		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
-				.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 				.withType(Type.REGULAR)
 				.build());
 		
@@ -250,7 +250,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		
 		setupUserContext(DEF_USER, null);
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
-				.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 				.withType(Type.REGULAR)
 				.build());
 
@@ -271,7 +271,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	
 		setupUserContext(DEF_USER, null);
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
-				.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 				.withType(Type.REGULAR)
 				.build());
 		assertThat(pendingEnquires.size(), is(0));	
@@ -301,7 +301,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 			enquiryManagement.addEnquiry(form2);
 		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
-				.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 				.withType(Type.REGULAR)
 				.build());
 		
@@ -353,7 +353,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		enquiryManagement.addEnquiry(form);
 		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
-				.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 				.withType(Type.REGULAR)
 				.build());
 		
@@ -382,7 +382,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		setupAdmin();
 		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
-				.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 				.withType(Type.REGULAR)
 				.build());
 		
@@ -404,7 +404,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		enquiryManagement.ignoreEnquiry("e1", entityParam);
 		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
-				.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 				.withType(Type.REGULAR)
 				.build());
 		
