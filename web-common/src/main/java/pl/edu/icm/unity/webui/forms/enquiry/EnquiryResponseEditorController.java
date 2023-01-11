@@ -257,7 +257,7 @@ public class EnquiryResponseEditorController
 		EntityParam entity = getLoggedEntity();
 		try
 		{
-			enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
+			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
 					.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
 					.withType(Type.STICKY)
 					.build()).stream().filter(f -> f.getName().equals(formName)).findAny().isPresent();
