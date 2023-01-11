@@ -75,24 +75,6 @@ Please check documentation of the 3.y version. Below we are only focused on Unit
 The minimum Java version required to run Unity 4.0.0 is Java 17.
 
 
-
-
-==== From 3.LATEST to 4.0
-
-===== UNICORE IdP endpoints dropped
-
-UNICORE IdP endpoints (variants of the SAML IdP endpoints, with UNIOCRE specific enhancements) were dropped. UNICORE since version 9
-can use the plain SAML IdP endpoint of Unity. Make sure to drop all UNICORE specific endpoint from your configuration before upgrading:
-
-* If using file configuration remove the endpoints definitions in there and restart the server
-* If using Console managed configuration of endpoints, remove those IdP endpoints in console
-
-Most likely those endpoints should be replaced with regular SAML IdP endpoints (SOAP/Web as appropriate).  
-
-Unity v4.0+ won't start if any UNICORE endpoint is still present in configuration or database. 
-
-
-
 ==== From 3.LATEST to 4.0
 
 ===== UNICORE IdP endpoints dropped
@@ -106,6 +88,8 @@ can use the plain SAML IdP endpoint of Unity. Make sure to drop all UNICORE spec
 Most likely those endpoints should be replaced with regular SAML IdP endpoints (SOAP/Web as appropriate).  
 
 Unity v4.0+ won't start if any UNICORE endpoint is still present in configuration or database.
+
+===== Unitygw endpoint paths changed
 
 Unity v4.0+ change api available under unitygw endpoint. Below list shows changes:
 
