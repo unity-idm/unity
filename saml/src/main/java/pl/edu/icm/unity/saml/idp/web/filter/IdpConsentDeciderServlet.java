@@ -242,7 +242,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		try
 		{
 			return !enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
-					.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+					.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 					.withType(Type.REGULAR)
 					.build()).isEmpty();
 		} catch (EngineException e)

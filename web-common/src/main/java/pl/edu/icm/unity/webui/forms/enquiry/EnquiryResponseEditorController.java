@@ -242,7 +242,7 @@ public class EnquiryResponseEditorController
 		{
 			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
 					.withType(Type.ALL)
-					.withAccessMode(ignoreByIvitationForms ? AccessMode.NON_BY_INVITATION_ONLY : AccessMode.ANY)
+					.withAccessMode(ignoreByIvitationForms ? AccessMode.NOT_BY_INVITATION_ONLY : AccessMode.ANY)
 					.build()).stream().filter(f -> f.getName().equals(formName)).findAny().isPresent();
 		} catch (EngineException e)
 		{
@@ -258,7 +258,7 @@ public class EnquiryResponseEditorController
 		try
 		{
 			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
-					.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+					.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 					.withType(Type.STICKY)
 					.build()).stream().filter(f -> f.getName().equals(formName)).findAny().isPresent();
 		} catch (EngineException e)
@@ -279,7 +279,7 @@ public class EnquiryResponseEditorController
 		try
 		{
 			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
-					.withAccessMode(AccessMode.NON_BY_INVITATION_ONLY)
+					.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 					.withType(Type.REGULAR)
 					.build());
 		} catch (EngineException e)

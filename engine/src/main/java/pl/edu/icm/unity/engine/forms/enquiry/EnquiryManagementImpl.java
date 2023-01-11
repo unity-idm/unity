@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -432,8 +431,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		authz.checkAuthorization(authz.isSelf(entity.getId()), AuthzCapability.readInfo);
 		List<EnquiryForm> allForms = enquiryFormDB.getAll()
 				.stream()
-				.filter(filterByType(selector))
-				.filter(filterByAccessMode(selector))
+				.filter(selector.type.filter)
+				.filter(selector.accessMode.filter)
 				.collect(Collectors.toList());
 
 		if (allForms.isEmpty())
@@ -446,39 +445,22 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			return relevantEnquiryForms;
 		} else
 		{
-			Set<String> ignoredOrFilledEqnuiries = getEnquiresFromAttribute(entity.getId(), 
-					EnquiryAttributeTypesProvider.FILLED_ENQUIRES);
-			ignoredOrFilledEqnuiries.addAll(getEnquiresFromAttribute(entity.getId(), EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
-			
-			return relevantEnquiryForms.stream()
-					.filter(f -> f.getType()
-							.equals(EnquiryType.STICKY) || !ignoredOrFilledEqnuiries.contains(f.getName()))
-					.collect(Collectors.toList());			
+			return filterIgnoredOrFilledFromRegularEnquires(entity, relevantEnquiryForms);		
 		}
 	}
-
-	Predicate<EnquiryForm> filterByAccessMode(EnquirySelector selector)
+	
+	private List<EnquiryForm> filterIgnoredOrFilledFromRegularEnquires(Entity entity,
+			List<EnquiryForm> relevantEnquiryForms) throws EngineException
 	{
-		return f -> selector.accessMode.equals(EnquirySelector.AccessMode.ANY) || !f.isByInvitationOnly();
-	}
+		Set<String> ignoredOrFilledEqnuiries = getEnquiresFromAttribute(entity.getId(),
+				EnquiryAttributeTypesProvider.FILLED_ENQUIRES);
+		ignoredOrFilledEqnuiries
+				.addAll(getEnquiresFromAttribute(entity.getId(), EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
 
-	Predicate<EnquiryForm> filterByType(EnquirySelector selector)
-	{
-		switch (selector.type)
-		{
-		case STICKY:
-			return f -> f.getType()
-					.equals(EnquiryType.STICKY);
-
-		case REGULAR:
-			return f -> f.getType()
-					.equals(EnquiryType.REQUESTED_MANDATORY)
-					|| f.getType()
-							.equals(EnquiryType.REQUESTED_OPTIONAL);
-		default:
-			return f -> true;
-
-		}
+		return relevantEnquiryForms.stream()
+				.filter(f -> f.getType()
+						.equals(EnquiryType.STICKY) || !ignoredOrFilledEqnuiries.contains(f.getName()))
+				.collect(Collectors.toList());
 	}
 
 	private List<EnquiryForm> getApplicableEnquiries(Entity entity, List<EnquiryForm> allForms) throws EngineException

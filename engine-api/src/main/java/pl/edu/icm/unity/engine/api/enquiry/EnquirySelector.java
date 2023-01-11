@@ -6,17 +6,41 @@
 package pl.edu.icm.unity.engine.api.enquiry;
 
 import java.util.Objects;
+import java.util.function.Predicate;
+
+import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 
 public class EnquirySelector
 {
 	public enum Type
 	{
-		STICKY, REGULAR, ALL
+		STICKY(f -> f.getType()
+				.equals(EnquiryType.STICKY)),
+		REGULAR(f -> f.getType()
+				.equals(EnquiryType.REQUESTED_MANDATORY)
+				|| f.getType()
+						.equals(EnquiryType.REQUESTED_OPTIONAL)),
+		ALL(f -> true);
+
+		public final Predicate<EnquiryForm> filter;
+
+		Type(Predicate<EnquiryForm> filter)
+		{
+			this.filter = filter;
+		}
 	}
 
 	public enum AccessMode
 	{
-		NON_BY_INVITATION_ONLY, ANY
+		NOT_BY_INVITATION_ONLY(f -> !f.isByInvitationOnly()), ANY(f -> true);
+
+		public final Predicate<EnquiryForm> filter;
+
+		AccessMode(Predicate<EnquiryForm> filter)
+		{
+			this.filter = filter;
+		}
 	}
 
 	public final Type type;
