@@ -26,10 +26,10 @@ public class PolicyDocumentCreateRequest
 	{
 
 		this.name = name;
-		this.displayedName = displayedName;
+		this.displayedName = displayedName.clone();
 		this.mandatory = mandatory;
 		this.contentType = contentType;
-		this.content = content;
+		this.content = content.clone();
 	}
 
 	@Override
@@ -58,11 +58,11 @@ public class PolicyDocumentCreateRequest
 
 	public static final class PolicyDocumentCreateRequestBuilder
 	{
-		public String name;
-		public I18nString displayedName;
-		public boolean mandatory;
-		public PolicyDocumentContentType contentType;
-		public I18nString content;
+		private String name;
+		private I18nString displayedName;
+		private boolean mandatory;
+		private PolicyDocumentContentType contentType;
+		private I18nString content;
 
 		private PolicyDocumentCreateRequestBuilder()
 		{

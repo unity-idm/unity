@@ -51,12 +51,12 @@ public class PolicyDocumentUpdateRequest extends PolicyDocumentCreateRequest
 
 	public static final class PolicyDocumentUpdateRequestBuilder
 	{
-		public Long id;
-		public String name;
-		public I18nString displayedName;
-		public boolean mandatory;
-		public PolicyDocumentContentType contentType;
-		public I18nString content;
+		private Long id;
+		private String name;
+		private I18nString displayedName;
+		private boolean mandatory;
+		private PolicyDocumentContentType contentType;
+		private I18nString content;
 
 		private PolicyDocumentUpdateRequestBuilder()
 		{

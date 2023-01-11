@@ -1465,6 +1465,7 @@ Example output without any grouping applied:
 +@GET+ +
 
 Returns the given policy.
+ContentType e can be one of "LINK" or "EMBEDDED"
 
 Example output:
 
@@ -1477,7 +1478,7 @@ Example output:
             "fr": "nomAffiche"
       ],
       "mandatory": true,
-      "contentType": "enumeration"
+      "contentType": "EMBEDDED"
       "revision": "1"
 }
 ----
@@ -1490,6 +1491,7 @@ Example output:
 +@GET+ +
 
 Returns all policies.
+ContentType e can be one of "LINK" or "EMBEDDED"
 
 Example output:
 
@@ -1503,7 +1505,7 @@ Example output:
 	            "fr": "nomAffiche"
 	      ],
 	      "mandatory": true,
-	      "contentType": "enumeration"
+	      "contentType": "LINK"
 	      "revision": "1"
 	}
 ]
@@ -1524,6 +1526,7 @@ Removes the given policy.
 +@POST+ +
 
 Adds a new policy.
+ContentType e can be one of "LINK" or "EMBEDDED"
 
 Example input:
 
@@ -1535,7 +1538,7 @@ Example input:
             "fr": "nomAffiche"
       ],
       "mandatory": true,
-      "contentType": "enumeration"
+      "contentType": "LINK"
       "content": [
             "en": "content",
             "fr": "contenu"
@@ -1560,6 +1563,7 @@ Example output:
 +@PUT+ +
 
 Updates the given policy. If query parameter "revision" is set to true, update increment revision, and reacceptance will be needed.
+ContentType e can be one of "LINK" or "EMBEDDED"
 
 Example input:
 
@@ -1571,7 +1575,7 @@ Example input:
             "fr": "nomAffiche"
       ],
       "mandatory": true,
-      "contentType": "enumeration"
+      "contentType": "EMBEDDED"
       "content": [
             "en": "content",
             "fr": "contenu"

@@ -23,9 +23,6 @@ import io.imunity.rest.api.types.basic.RestExternalizedAttribute;
 import io.imunity.rest.api.types.basic.RestGroup;
 import io.imunity.rest.api.types.basic.RestToken;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
-import io.imunity.rest.api.types.policy.RestPolicyDocument;
-import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
-import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
 import io.imunity.rest.api.types.translation.RestTranslationRule;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +31,6 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -52,7 +48,6 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
 import pl.edu.icm.unity.engine.api.groupMember.GroupMembersService;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
@@ -72,7 +67,6 @@ import pl.edu.icm.unity.restadm.mappers.GroupMembershipMapper;
 import pl.edu.icm.unity.restadm.mappers.TokenMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.EndpointConfigurationMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.ResolvedEndpointMapper;
-import pl.edu.icm.unity.restadm.mappers.policy.PolicyDocumentMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.RegistrationFormMapper;
 import pl.edu.icm.unity.restadm.mappers.translation.TranslationRuleMapper;
 import pl.edu.icm.unity.restadm.token.Token2JsonFormatter;
@@ -100,7 +94,6 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -112,7 +105,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.time.Instant;
@@ -130,8 +122,6 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.lang.Long.parseLong;
 
 /**
  * RESTful API implementation.
@@ -986,76 +976,6 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		List<InvitationWithCode> invitations = invitationMan.getInvitations();
 		return mapper.writeValueAsString(invitations);
-	}
-
-	@Path("/policy-documents")
-	@GET
-	public String getPolicyDocuments() throws EngineException, JsonProcessingException
-	{
-		Collection<PolicyDocumentWithRevision> policyDocuments = policyDocumentManagement.getPolicyDocuments();
-		List<RestPolicyDocument> restPolicyDocuments = policyDocuments.stream()
-			.map(PolicyDocumentMapper::map)
-			.collect(Collectors.toList());
-		return mapper.writeValueAsString(restPolicyDocuments);
-	}
-
-	@Path("/policy-documents/{document-id}")
-	@GET
-	public String getPolicyDocument(@PathParam("document-id") String documentId) throws EngineException,
-		JsonProcessingException
-	{
-		PolicyDocumentWithRevision policyDocument =
-			policyDocumentManagement.getPolicyDocument(parseLong(documentId));
-		return mapper.writeValueAsString(PolicyDocumentMapper.map(policyDocument));
-	}
-
-	@Path("/policy-documents")
-	@POST
-	public String addPolicyDocuments(String policyDocumentJson) throws EngineException, JsonProcessingException
-	{
-		RestPolicyDocumentRequest parsedDocument = JsonUtil.parse(policyDocumentJson,
-			RestPolicyDocumentRequest.class);
-		long id = policyDocumentManagement.addPolicyDocument(PolicyDocumentMapper.map(parsedDocument));
-		return mapper.writeValueAsString(new RestPolicyDocumentId(id));
-	}
-
-	@Path("/policy-documents/{document-id}")
-	@PUT
-	public void updatePolicyDocument(@PathParam("document-id") String documentId,
-	                                 @QueryParam("revision") boolean revision, String policyDocumentJson) throws EngineException
-	{
-		RestPolicyDocumentRequest parsedDocument = JsonUtil.parse(policyDocumentJson,
-			RestPolicyDocumentRequest.class);
-		if(revision)
-			policyDocumentManagement.updatePolicyDocumentWithRevision(PolicyDocumentMapper.map(parseLong(documentId),
-				parsedDocument));
-		else
-			policyDocumentManagement.updatePolicyDocument(PolicyDocumentMapper.map(parseLong(documentId), parsedDocument));
-	}
-
-	@Path("/policy-documents/{document-id}")
-	@DELETE
-	public void deletePolicyDocument(@PathParam("document-id") String documentId) throws EngineException
-	{
-		policyDocumentManagement.removePolicyDocument(parseLong(documentId));
-	}
-
-	@Path("/policy-documents/{document-id}/content")
-	@GET
-	public Response getPolicyDocumentContent(@PathParam("document-id") String documentId, @Context HttpServletRequest request) throws EngineException
-	{
-		String language = request.getLocale().getLanguage();
-
-		PolicyDocumentWithRevision policyDocument =
-			policyDocumentManagement.getPolicyDocument(parseLong(documentId));
-
-		String content = Optional.ofNullable(policyDocument.content.getValue(language))
-			.orElse(policyDocument.content.getDefaultValue());
-
-		if(policyDocument.contentType.equals(PolicyDocumentContentType.EMBEDDED))
-			return Response.ok(content, MediaType.TEXT_HTML).build();
-		else
-			return Response.ok(content, MediaType.TEXT_PLAIN).build();
 	}
 
 	@Path("/invitation/{code}")

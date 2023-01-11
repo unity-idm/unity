@@ -24,10 +24,10 @@ public class RestPolicyDocumentRequest
 	{
 
 		this.name = name;
-		this.displayedName = displayedName;
+		this.displayedName = Map.copyOf(displayedName);
 		this.mandatory = mandatory;
 		this.contentType = contentType;
-		this.content = content;
+		this.content = Map.copyOf(content);
 	}
 
 	@Override
@@ -65,11 +65,11 @@ public class RestPolicyDocumentRequest
 
 	public static final class RestPolicyDocumentCreateRequestBuilder
 	{
-		public String name;
-		public Map<String, String> displayedName;
-		public boolean mandatory;
-		public String contentType;
-		public Map<String, String> content;
+		private String name;
+		private Map<String, String> displayedName;
+		private boolean mandatory;
+		private String contentType;
+		private Map<String, String> content;
 
 		private RestPolicyDocumentCreateRequestBuilder()
 		{
