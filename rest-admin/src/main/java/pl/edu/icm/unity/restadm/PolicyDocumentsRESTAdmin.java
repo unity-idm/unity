@@ -9,12 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -45,9 +43,8 @@ import static java.lang.Long.parseLong;
 @PrototypeComponent
 public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, PolicyDocumentsRESTAdmin.class);
-	private ObjectMapper mapper = Constants.MAPPER;
-	private PolicyDocumentManagement policyDocumentManagement;
+	private final ObjectMapper mapper = Constants.MAPPER;
+	private final PolicyDocumentManagement policyDocumentManagement;
 
 	@Autowired
 	PolicyDocumentsRESTAdmin(PolicyDocumentManagement policyDocumentManagement)

@@ -1465,7 +1465,7 @@ Example output without any grouping applied:
 +@GET+ +
 
 Returns the given policy.
-ContentType e can be one of "LINK" or "EMBEDDED"
+ContentType can be one of "LINK" or "EMBEDDED"
 
 Example output:
 
@@ -1491,7 +1491,7 @@ Example output:
 +@GET+ +
 
 Returns all policies.
-ContentType e can be one of "LINK" or "EMBEDDED"
+ContentType can be one of "LINK" or "EMBEDDED"
 
 Example output:
 
@@ -1526,7 +1526,7 @@ Removes the given policy.
 +@POST+ +
 
 Adds a new policy.
-ContentType e can be one of "LINK" or "EMBEDDED"
+ContentType can be one of "LINK" or "EMBEDDED"
 
 Example input:
 
@@ -1563,7 +1563,7 @@ Example output:
 +@PUT+ +
 
 Updates the given policy. If query parameter "revision" is set to true, update increment revision, and reacceptance will be needed.
-ContentType e can be one of "LINK" or "EMBEDDED"
+ContentType can be one of "LINK" or "EMBEDDED"
 
 Example input:
 
