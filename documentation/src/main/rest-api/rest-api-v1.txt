@@ -1457,3 +1457,138 @@ Example output without any grouping applied:
    }
 ]
 ----
+
+
+=== Get policy
+
++@Path("/policy-documents/{document-id}")+ +
++@GET+ +
+
+Returns the given policy.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example output:
+
+----
+{
+      "id": 1,
+      "name": "string",
+      "displayedName": [
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      ],
+      "mandatory": true,
+      "contentType": "EMBEDDED"
+      "revision": "1"
+}
+----
+
+
+
+=== Get all policies
+
++@Path("/policy-documents")+ +
++@GET+ +
+
+Returns all policies.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example output:
+
+----
+[
+	{
+	      "id": 1,
+	      "name": "string",
+	      "displayedName": [
+	            "en": "displayedName",
+	            "fr": "nomAffiche"
+	      ],
+	      "mandatory": true,
+	      "contentType": "LINK"
+	      "revision": "1"
+	}
+]
+----
+
+
+=== Remove policy
+
++@Path("/policy-documents/{document-id}")+ +
++@DELETE+ +
+
+Removes the given policy.
+
+
+=== Add policy
+
++@Path("/policy-documents")+ +
++@POST+ +
+
+Adds a new policy.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example input:
+
+----
+{
+      "name": "string",
+      "displayedName": [
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      ],
+      "mandatory": true,
+      "contentType": "LINK"
+      "content": [
+            "en": "content",
+            "fr": "contenu"
+      ]
+}
+----
+
+
+Example output:
+
+----
+{
+      "id": 1
+}
+----
+
+
+=== Update policy
+
++@Path("/policy-documents/{document-id}")+ +
++@QueryParam("revision")+ +
++@PUT+ +
+
+Updates the given policy. If query parameter "revision" is set to true, update increment revision, and reacceptance will be needed.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example input:
+
+----
+{
+      "name": "string",
+      "displayedName": [
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      ],
+      "mandatory": true,
+      "contentType": "EMBEDDED"
+      "content": [
+            "en": "content",
+            "fr": "contenu"
+      ]
+}
+----
+
+
+=== Get policy's content
+
++@Path("/policy-documents/{document-id}/content")+ +
++@GET+ +
+
+Returns the given policy's content.
+If policy content type is "EMBEDDED", http Content-Type will be text/html.
+If policy content type is "LINK", http Content-Type will be text/plain.

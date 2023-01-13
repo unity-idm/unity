@@ -4,39 +4,6 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
 import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
 import io.imunity.rest.api.types.basic.RestAttribute;
@@ -59,6 +25,8 @@ import io.imunity.rest.api.types.basic.RestToken;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
 import io.imunity.rest.api.types.translation.RestTranslationRule;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.PersistableEvent;
@@ -79,6 +47,7 @@ import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisherWithAuthz;
 import pl.edu.icm.unity.engine.api.groupMember.GroupMembersService;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
@@ -125,6 +94,35 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * RESTful API implementation.
  * 
@@ -150,6 +148,7 @@ public class RESTAdmin implements RESTAdminHandler
 	private EntityCredentialManagement entityCredMan;
 	private AttributeTypeManagement attributeTypeMan;
 	private InvitationManagement invitationMan;
+	private PolicyDocumentManagement policyDocumentManagement;
 	private EventPublisherWithAuthz eventPublisher;
 	private SecuredTokensManagement securedTokenMan;
 	private Token2JsonFormatter jsonFormatter;
@@ -176,7 +175,8 @@ public class RESTAdmin implements RESTAdminHandler
 			UserNotificationTriggerer userNotificationTriggerer,
 			ExternalDataParser dataParser,
 			IdpStatisticManagement idpStatisticManagement,
-			GroupMembersService groupMembersService)
+			GroupMembersService groupMembersService,
+			PolicyDocumentManagement policyDocumentManagement)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -196,6 +196,7 @@ public class RESTAdmin implements RESTAdminHandler
 		this.dataParser = dataParser;
 		this.idpStatisticManagement = idpStatisticManagement;
 		this.groupMembersService = groupMembersService;
+		this.policyDocumentManagement = policyDocumentManagement;
 	}
 
 	
