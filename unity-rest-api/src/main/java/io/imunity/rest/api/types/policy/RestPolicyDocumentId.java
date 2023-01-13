@@ -26,7 +26,7 @@ public class RestPolicyDocumentId
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		RestPolicyDocumentId that = (RestPolicyDocumentId) o;
-		return Objects.equals(id, that.id);
+return (id == that.id);
 	}
 
 	@Override
