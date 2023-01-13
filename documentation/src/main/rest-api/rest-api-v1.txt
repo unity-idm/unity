@@ -1459,38 +1459,12 @@ Example output without any grouping applied:
 ----
 
 
-=== Get policy
-
-+@Path("/policy-documents/{document-id}")+ +
-+@GET+ +
-
-Returns the given policy.
-ContentType can be one of "LINK" or "EMBEDDED"
-
-Example output:
-
-----
-{
-      "id": 1,
-      "name": "string",
-      "displayedName": [
-            "en": "displayedName",
-            "fr": "nomAffiche"
-      ],
-      "mandatory": true,
-      "contentType": "EMBEDDED"
-      "revision": "1"
-}
-----
-
-
-
-=== Get all policies
+=== Get all policy documents
 
 +@Path("/policy-documents")+ +
 +@GET+ +
 
-Returns all policies.
+Returns all policy documents.
 ContentType can be one of "LINK" or "EMBEDDED"
 
 Example output:
@@ -1512,20 +1486,36 @@ Example output:
 ----
 
 
-=== Remove policy
+=== Get policy document
 
 +@Path("/policy-documents/{document-id}")+ +
-+@DELETE+ +
++@GET+ +
 
-Removes the given policy.
+Returns the given policy document.
+ContentType can be one of "LINK" or "EMBEDDED"
 
+Example output:
 
-=== Add policy
+----
+{
+      "id": 1,
+      "name": "string",
+      "displayedName": {
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      },
+      "mandatory": true,
+      "contentType": "EMBEDDED",
+      "revision": "1"
+}
+----
+
+=== Add policy document
 
 +@Path("/policy-documents")+ +
 +@POST+ +
 
-Adds a new policy.
+Adds a new policy document.
 ContentType can be one of "LINK" or "EMBEDDED"
 
 Example input:
@@ -1533,16 +1523,16 @@ Example input:
 ----
 {
       "name": "string",
-      "displayedName": [
+      "displayedName": {
             "en": "displayedName",
             "fr": "nomAffiche"
-      ],
+      },
       "mandatory": true,
-      "contentType": "LINK"
-      "content": [
-            "en": "content",
-            "fr": "contenu"
-      ]
+      "contentType": "LINK",
+      "content": {
+            "en": "https://example.com/some/url/en",
+            "fr": "https://example.com/some/url/fr"
+      }
 }
 ----
 
@@ -1555,14 +1545,21 @@ Example output:
 }
 ----
 
+=== Remove policy document
 
-=== Update policy
++@Path("/policy-documents/{document-id}")+ +
++@DELETE+ +
+
+Removes the given policy document.
+
+
+=== Update policy document
 
 +@Path("/policy-documents/{document-id}")+ +
 +@QueryParam("revision")+ +
 +@PUT+ +
 
-Updates the given policy. If query parameter "revision" is set to true, update increment revision, and reacceptance will be needed.
+Updates the given policy document. If query parameter "revision" is set to true, update increment revision, and re-acceptance will be needed.
 ContentType can be one of "LINK" or "EMBEDDED"
 
 Example input:
@@ -1570,25 +1567,25 @@ Example input:
 ----
 {
       "name": "string",
-      "displayedName": [
+      "displayedName": {
             "en": "displayedName",
             "fr": "nomAffiche"
-      ],
+      },
       "mandatory": true,
-      "contentType": "EMBEDDED"
-      "content": [
+      "contentType": "EMBEDDED",
+      "content": {
             "en": "content",
             "fr": "contenu"
-      ]
+      }
 }
 ----
 
 
-=== Get policy's content
+=== Get policy document's content
 
 +@Path("/policy-documents/{document-id}/content")+ +
 +@GET+ +
 
-Returns the given policy's content.
-If policy content type is "EMBEDDED", http Content-Type will be text/html.
-If policy content type is "LINK", http Content-Type will be text/plain.
+Returns the given policy document's content.
+If document content type is "EMBEDDED", http Content-Type will be text/html.
+If document content type is "LINK", http Content-Type will be text/plain.
