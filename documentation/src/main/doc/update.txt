@@ -89,9 +89,9 @@ Most likely those endpoints should be replaced with regular SAML IdP endpoints (
 
 Unity v4.0+ won't start if any UNICORE endpoint is still present in configuration or database.
 
-===== Unitygw endpoint paths changed
+===== Changed policy documents URLs
 
-Unity v4.0+ change api available under unitygw endpoint. Below list shows changes:
+Public links to exposed policy documents has been changed as follows:
 
 OLD: https://<UNITY>/unitygw/pub?id={policyId}#!policyDoc
 NEW: https://<UNITY>/unitygw/pub/policyDocuments/{policyId}
