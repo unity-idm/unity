@@ -1,4 +1,4 @@
-RESTful Administration API
+RESTful Upman API
 ==========================
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
 //Set to override automated version, which is the project version
@@ -10,77 +10,237 @@ Unity Team <unity-idm-discuss@lists.sourceforge.net>
 :icons: font
 
 
-The Unity REST API may be exposed (or disabled) as a regular Unity endpoint. See the
-<<manual.txt#endp-rest-admin,main Unity documentation>> for endpoints configuration details.
+The Unity Upman REST API may be exposed (or disabled) as a regular Unity endpoint. See the
+<<manual.txt#endp-rest-upman,main Unity documentation>> for endpoints configuration details.
 
 All paths must be naturally prefixed with the server's base URL, endpoint deployment's path
 (as configured) and API version (currently there is only one). Example query path can be similar to:
 
-   https://unity.example.com/rest-admin/v1/entity/1
-
-
-NOTE: All operations which are operating on a single entity allow since version 1.9.4 to use
-three different types of entity selectors. Entity can be specified as an integer number being the internal
-database identifier of entity in Unity --- this is the only option available in older versions. Alternatively
-entity's persistentId can be used. Finally any other identity can be used to select identity, however then
-a query parameter +identityType+ must be used to provide the intended identity type.
-
+   https://unity.example.com/rest-upman/v1/entity/1
 
 == API reference
 
 
-=== Resolve identity
+=== Create project
 
-+@Path("/resolve/{identityType}/{identityValue}")+ +
++@Path("/projects")+ +
++@POST+ +
+
+Adds a new group with delegation under root group.
+Property "groupName" can start with "/" or without.
+If "registrationFormAutogenerate" is set to true, "registrationForm" should be null(if not will be ignored), because it will be auto generated.
+If "signUpEnquiryAutogenerate" is set to true, "signUpEnquiry" should be null(if not will be ignored), because it will be auto generated.
+If "membershipUpdateEnquiryAutogenerate" is set to true, "membershipUpdateEnquiry" should be null(if not will be ignored), because it will be auto generated.
+
+Example input:
+----
+{
+    "groupName": "/A",
+    "isPublic": false,
+    "displayedName": {
+        "en": "displayedName"
+    },
+    "description": {
+        "en": "description"
+    },
+    "enableDelegation": true,
+    "logoUrl": "https://www.myservice.org/logo",
+    "enableSubprojects": true,
+    "readOnlyAttributes": [],
+    "registrationFormAutogenerate": false,
+    "registrationForm": "registrationFormName",
+    "signUpEnquiryAutogenerate": false,
+    "signUpEnquiry": "signUpEnquiryName",
+    "membershipUpdateEnquiryAutogenerate": false,
+    "membershipUpdateEnquiry": "membershipUpdateEnquiryName"
+}
+----
+
+
+=== Update project
+
++@Path("/projects/{groupName}")+ +
++@PUT+ +
+
+Updates the group with given group name under root group.
+Parameter "groupName" can start with "/" or without.
+If "registrationFormAutogenerate" is set to true, "registrationForm" should be null(if not will be ignored), because it will be auto generated.
+If "signUpEnquiryAutogenerate" is set to true, "signUpEnquiry" should be null(if not will be ignored), because it will be auto generated.
+If "membershipUpdateEnquiryAutogenerate" is set to true, "membershipUpdateEnquiry" should be null(if not will be ignored), because it will be auto generated.
+
+Example input:
+----
+{
+    "isPublic": false,
+    "displayedName": {
+        "en": "displayedName"
+    },
+    "description": {
+        "en": "description"
+    },
+    "enableDelegation": true,
+    "logoUrl": "https://www.myservice.org/logo",
+    "enableSubprojects": true,
+    "readOnlyAttributes": [],
+    "registrationFormAutogenerate": false,
+    "registrationForm": "registrationFormName",
+    "signUpEnquiryAutogenerate": false,
+    "signUpEnquiry": "signUpEnquiryName",
+    "membershipUpdateEnquiryAutogenerate": false,
+    "membershipUpdateEnquiry": "membershipUpdateEnquiryName"
+}
+----
+
+
+=== Remove project
+
++@Path("/projects/{groupName}")+ +
++@DELETE+ +
+
+Removes the group with given group name under root group.
+Parameter "groupName" can start with "/" or without.
+
+
+=== Get project
+
++@Path("/projects/{groupName}")+ +
 +@GET+ +
 
-Resolves a provided identity of a given type. The returned information is the same as in case of the +/entity+
-operation.
+Receives the group with given group name under root group.
+Parameter "groupName" can start with "/" or without.
 
 Example output:
 ----
 {
-    "entityInformation": {
-        "state": "valid",
-        "entityId": 1
+    "groupName": "fullGroupName",
+    "isPublic": false,
+    "displayedName": {
+        "en": "displayedName"
     },
-    "identities": [
-        {
-            "value": "a",
-            "confirmationInfo": {
-                "confirmed": false,
-                "confirmationDate": 0,
-                "sentRequestAmount": 0
-            },
-            "comparableValue": "a",
-            "creationTs": 1491257134658,
-            "updateTs": 1491257134658,
-            "typeId": "userName",
-            "entityId": 1
-        },
-        {
-            "value": "90bba4c5-adbe-4829-8215-e23960c52c33",
-            "realm": "main",
-            "confirmationInfo": {
-                "confirmed": false,
-                "confirmationDate": 0,
-                "sentRequestAmount": 0
-            },
-            "comparableValue": "90bba4c5-adbe-4829-8215-e23960c52c33",
-            "creationTs": 1491257533387,
-            "updateTs": 1491257533387,
-            "typeId": "persistent",
-            "entityId": 1
-        }
-    ],
-    "credentialInfo": {
-        "credentialRequirementId": "Password requirement",
-        "credentialsState": {
-            "Password credential": {
-                "state": "correct",
-                "extraInformation": "{\"lastChange\":1491257134733}"
-            }
-        }
-    }
+    "description": {
+        "en": "description"
+    },
+    "enableDelegation": true,
+    "logoUrl": "https://www.myservice.org/logo",
+    "enableSubprojects": true,
+    "readOnlyAttributes": [],
+    "registrationForm": "registrationFormName",
+    "signUpEnquiry": "signUpEnquiryName",
+    "membershipUpdateEnquiry": "membershipUpdateEnquiryName"
+}
+----
+
+
+=== Get projects
+
++@Path("/projects")+ +
++@GET+ +
+
+Receives all groups under root group.
+
+Example output:
+----
+[
+	{
+	    "groupName": "fullGroupName",
+	    "isPublic": false,
+	    "displayedName": {
+	        "en": "displayedName"
+	    },
+	    "description": {
+	        "en": "description"
+	    },
+	    "enableDelegation": true,
+	    "logoUrl": "https://www.myservice.org/logo",
+	    "enableSubprojects": true,
+	    "readOnlyAttributes": [],
+	    "registrationForm": "registrationFormName",
+	    "signUpEnquiry": "signUpEnquiryName",
+	    "membershipUpdateEnquiry": "membershipUpdateEnquiryName"
+	}
+]
+----
+
+
+=== Add member
+
++@Path("/projects/{groupName}/members/{userId}")+ +
++@POST+ +
+
+Adds a user with given id to given group.
+
+
+=== Remove member
+
++@Path("/projects/{groupName}/members/{userId}")+ +
++@DELETE+ +
+
+Removes a user with given id from given group.
+
+
+=== Get member
+
++@Path("/projects/{groupName}/members/{userId}")+ +
++@GET+ +
+
+Receives a membership of user with given id from given group.
+Example output:
+----
+{
+    "group": "fullGroupName",
+    "entityId": 1,
+    "creationTs": 1502713067.720000000,
+    "translationProfile": "translationProfile",
+    "remoteIdp": "remoteIdp"
+}
+----
+
+
+=== Get members
+
++@Path("/projects/{groupName}/members")+ +
++@GET+ +
+
+Receives memberships of users from given group.
+Example output:
+----
+[
+	{
+	    "group": "fullGroupName",
+	    "entityId": 1,
+	    "creationTs": 1502713067.720000000,
+	    "translationProfile": "translationProfile",
+	    "remoteIdp": "remoteIdp"
+	}
+]
+----
+
+
+=== Get member authorization role
+
++@Path("/projects/{groupName}/members/{userId}/role")+ +
++@GET+ +
+
+Receives a user membership authorization's role from given group.
+Example output:
+----
+{
+    "role": "role"
+}
+----
+
+
+=== Set member authorization role
+
++@Path("/projects/{groupName}/members/{userId}/role")+ +
++@PUT+ +
+
+Updates a user membership authorization's role from given group.
+Property "role" can be one of ("manager", "projectsAdmin", "regular")
+Example output:
+To add:
+----
+{
+    "role": "manager"
 }
 ----

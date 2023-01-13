@@ -6,16 +6,16 @@
 package io.imunity.upman.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -29,23 +29,16 @@ public class UpmanRestAuthorizationManager
 	private final AttributesManagement attrDao;
 
 	@Autowired
-	public UpmanRestAuthorizationManager(AttributesManagement attrDao)
+	public UpmanRestAuthorizationManager(@Qualifier("insecure") AttributesManagement attrDao)
 	{
 		this.attrDao = attrDao;
 	}
 
 	@Transactional
-	public void assertManagerAuthorization(String projectPath, String groupPath, String authorizationGroupPath) throws AuthorizationException
+	public void assertManagerAuthorization(String authorizationGroupPath) throws AuthorizationException
 	{
-		assertGroupIsUnderProject(projectPath, groupPath);
 		LoginSession client = getClient();
 		assertClientIsProjectManager(authorizationGroupPath, client.getEntityId());
-	}
-
-	private void assertGroupIsUnderProject(String projectPath, String childPath) throws AuthorizationException
-	{
-		if (!Group.isChildOrSame(childPath, projectPath))
-			throw new AuthorizationException("Access is denied. Group doesn't belong to project.");
 	}
 
 	private LoginSession getClient() throws AuthorizationException
@@ -65,20 +58,20 @@ public class UpmanRestAuthorizationManager
 		return client;
 	}
 
-	private void assertClientIsProjectManager(String projectPath, long clientId) throws AuthorizationException
+	private void assertClientIsProjectManager(String authorizationPath, long clientId) throws AuthorizationException
 	{
-		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);
+		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(authorizationPath, clientId);
 
 		if (!(roles.contains(GroupAuthorizationRole.manager)
 				|| roles.contains(GroupAuthorizationRole.projectsAdmin)))
 		{
 			throw new AuthorizationException(
-					"Access is denied. The operation requires manager capability in " + projectPath
+					"Access is denied. The operation requires unity rest manager capability in " + authorizationPath
 							+ " group");
 		}
 	}
 
-	private Set<GroupAuthorizationRole> getAuthManagerAttribute(String projectPath, long entity)
+	private Set<GroupAuthorizationRole> getAuthManagerAttribute(String authorizationPath, long entity) throws AuthorizationException
 	{
 		List<AttributeExt> attributes;
 		try
@@ -86,13 +79,15 @@ public class UpmanRestAuthorizationManager
 			attributes = new ArrayList<>(
 				attrDao.getAttributes(
 					new EntityParam(entity),
-					projectPath,
+					authorizationPath,
 				"sys:ProjectManagementRESTAPIRole")
 			);
 
-		} catch (Exception e)
+		} catch (EngineException e)
 		{
-			throw new InternalException("Can not get group authorization attribute of entity " + entity);
+			throw new AuthorizationException(
+				"Access is denied. The operation requires user " + entity + " belongs to " + authorizationPath
+					+ " group");
 		}
 
 		Set<GroupAuthorizationRole> roles = new HashSet<>();

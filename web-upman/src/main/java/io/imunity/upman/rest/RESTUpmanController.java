@@ -7,10 +7,18 @@ package io.imunity.upman.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
+import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -27,26 +35,25 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Path(RESTUpmanEndpoint.V1_PATH)
 @PrototypeComponent
-public class RESTUpman
+public class RESTUpmanController
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTUpman.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTUpmanController.class);
 	private final ObjectMapper mapper = Constants.MAPPER;
-	private final String rootGroup;
-	private final RestGroupService restGroupService;
+	private RestProjectService restProjectService;
+	private String rootGroup;
 
-
-	@Autowired
-	public RESTUpman()
+	private void init(RestProjectService restProjectService, String rootGroup)
 	{
+		this.restProjectService = restProjectService;
+		this.rootGroup = rootGroup;
 	}
 
-	
 	@Path("/projects")
 	@GET
 	public String getProjects() throws EngineException, JsonProcessingException
 	{
 		log.debug("getProjects query for " + rootGroup);
-		List<RestProject> projects = restGroupService.getProjects(rootGroup);
+		List<RestProject> projects = restProjectService.getProjects();
 		return mapper.writeValueAsString(projects);
 	}
 
@@ -56,7 +63,7 @@ public class RESTUpman
 		throws EngineException, JsonProcessingException
 	{
 		log.debug("getProject query for " + groupName);
-		RestProject project = restGroupService.getProject(rootGroup, groupName);
+		RestProject project = restProjectService.getProject(groupName);
 		return mapper.writeValueAsString(project);
 	}
 
@@ -67,7 +74,7 @@ public class RESTUpman
 	{
 		log.info("addProject {}", projectJson);
 		RestProjectCreateRequest project = JsonUtil.parse(projectJson, RestProjectCreateRequest.class);
-		restGroupService.addProject(rootGroup, project);
+		restProjectService.addProject(project);
 	}
 
 	@Path("/projects/{groupName}")
@@ -77,7 +84,7 @@ public class RESTUpman
 	{
 		log.info("updateProject {}", projectJson);
 		RestProjectUpdateRequest project = JsonUtil.parse(projectJson, RestProjectUpdateRequest.class);
-		restGroupService.updateProject(rootGroup, groupName, project);
+		restProjectService.updateProject(groupName, project);
 	}
 
 	@Path("/projects/{groupName}")
@@ -86,7 +93,7 @@ public class RESTUpman
 		throws EngineException, JsonProcessingException
 	{
 		log.info("removeProject {}", groupName);
-		restGroupService.removeProject(rootGroup, groupName);
+		restProjectService.removeProject(groupName);
 	}
 
 	@Path("/projects/{groupName}/members")
@@ -95,7 +102,7 @@ public class RESTUpman
 		throws EngineException, JsonProcessingException
 	{
 		log.debug("getProjectMember {}", groupName);
-		List<RestProjectMembership> members = restGroupService.getProjectMembers(rootGroup, groupName);
+		List<RestProjectMembership> members = restProjectService.getProjectMembers(groupName);
 		return mapper.writeValueAsString(members);
 	}
 
@@ -105,7 +112,7 @@ public class RESTUpman
 		throws EngineException, JsonProcessingException
 	{
 		log.debug("getProjectMember {}, {}", groupName, userId);
-		RestProjectMembership member = restGroupService.getProjectMember(rootGroup, groupName, Long.parseLong(userId));
+		RestProjectMembership member = restProjectService.getProjectMember(groupName, Long.parseLong(userId));
 		return mapper.writeValueAsString(member);
 	}
 
@@ -115,7 +122,7 @@ public class RESTUpman
 		throws EngineException
 	{
 		log.info("removeProjectMember {}, {}", groupName, userId);
-		restGroupService.removeProjectMember(rootGroup, groupName, Long.parseLong(userId));
+		restProjectService.removeProjectMember(groupName, Long.parseLong(userId));
 	}
 
 	@Path("/projects/{groupName}/members/{userId}")
@@ -124,7 +131,7 @@ public class RESTUpman
 		throws EngineException
 	{
 		log.info("removeProjectMember {}, {}", groupName, userId);
-		restGroupService.addProjectMember(rootGroup, groupName, Long.parseLong(userId));
+		restProjectService.addProjectMember(groupName, Long.parseLong(userId));
 	}
 
 	@Path("/projects/{groupName}/members/{userId}/role")
@@ -134,7 +141,7 @@ public class RESTUpman
 		throws EngineException, JsonProcessingException
 	{
 		log.debug("getProjectMemberAuthorizationRole {}, {}", groupName, userId);
-		RestAuthorizationRole role = restGroupService.getProjectAuthorizationRole(rootGroup,
+		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole(
 			groupName, Long.parseLong(userId));
 		return mapper.writeValueAsString(role);
 	}
@@ -147,9 +154,50 @@ public class RESTUpman
 	{
 		log.info("addProjectMemberAuthorizationRole {}, {}", groupName, userId);
 		RestAuthorizationRole role = JsonUtil.parse(roleJson, RestAuthorizationRole.class);
-		restGroupService.setProjectAuthorizationRole(rootGroup,
+		restProjectService.setProjectAuthorizationRole(
 			groupName, Long.parseLong(userId), role);
 	}
+
+	@Component
+	public static class RESTUpmanControllerFactory
+	{
+		private final ObjectFactory<RESTUpmanController> factory;
+		private final DelegatedGroupManagement delGroupMan;
+		private final GroupsManagement groupMan;
+		private final GroupDelegationConfigGenerator groupDelegationConfigGenerator;
+		private final UpmanRestAuthorizationManager authz;
+		private final RegistrationsManagement registrationsManagement;
+		private final EnquiryManagement enquiryManagement;
+
+		@Autowired
+		RESTUpmanControllerFactory(ObjectFactory<RESTUpmanController> factory,
+		                           @Qualifier("insecure") DelegatedGroupManagement delGroupMan,
+		                           @Qualifier("insecure") GroupsManagement groupMan,
+		                           @Qualifier("insecure") GroupDelegationConfigGenerator groupDelegationConfigGenerator,
+		                           UpmanRestAuthorizationManager authz,
+		                           @Qualifier("insecure") RegistrationsManagement registrationsManagement,
+		                           @Qualifier("insecure") EnquiryManagement enquiryManagement)
+		{
+			this.factory = factory;
+			this.delGroupMan = delGroupMan;
+			this.groupMan = groupMan;
+			this.groupDelegationConfigGenerator = groupDelegationConfigGenerator;
+			this.authz = authz;
+			this.registrationsManagement = registrationsManagement;
+			this.enquiryManagement = enquiryManagement;
+		}
+
+		public RESTUpmanController newInstance(String rootGroup, String authorizeGroup)
+		{
+			RESTUpmanController object = factory.getObject();
+			object.init(new RestProjectService(
+				delGroupMan, groupMan, groupDelegationConfigGenerator, registrationsManagement, enquiryManagement,
+				authz, rootGroup, authorizeGroup
+			), rootGroup);
+			return object;
+		}
+	}
+
 }
 
 

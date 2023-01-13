@@ -14,20 +14,20 @@ import java.util.Objects;
 @JsonDeserialize(builder = RestProjectCreateRequest.RestProjectBuilder.class)
 class RestProjectCreateRequest
 {
-	final String groupName;
-	final boolean isPublic;
-	final Map<String, String> displayedName;
-	final Map<String, String> description;
-	final boolean enableDelegation;
-	final String logoUrl;
-	final boolean enableSubprojects;
-	final List<String> readOnlyAttributes;
-	final String registrationForm;
-	final boolean registrationFormAutogenerate;
-	final String signUpEnquiry;
-	final boolean signUpEnquiryAutogenerate;
-	final String membershipUpdateEnquiry;
-	final boolean membershipUpdateEnquiryAutogenerate;
+	public final String groupName;
+	public final boolean isPublic;
+	public final Map<String, String> displayedName;
+	public final Map<String, String> description;
+	public final boolean enableDelegation;
+	public final String logoUrl;
+	public final boolean enableSubprojects;
+	public final List<String> readOnlyAttributes;
+	public final String registrationForm;
+	public final boolean registrationFormAutogenerate;
+	public final String signUpEnquiry;
+	public final boolean signUpEnquiryAutogenerate;
+	public final String membershipUpdateEnquiry;
+	public final boolean membershipUpdateEnquiryAutogenerate;
 
 	RestProjectCreateRequest(String groupName, boolean isPublic, Map<String, String> displayedName,
 	                         Map<String, String> description, boolean enableDelegation,

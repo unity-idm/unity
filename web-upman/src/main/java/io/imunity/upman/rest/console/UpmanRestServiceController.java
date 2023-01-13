@@ -12,6 +12,7 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -26,22 +27,25 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Component
-class RestAdminServiceController extends DefaultServicesControllerBase implements ServiceController
+class UpmanRestServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 	private final RealmsManagement realmsMan;
 	private final AuthenticationFlowManagement flowsMan;
 	private final AuthenticatorManagement authMan;
 	private final NetworkServer networkServer;
+	private final BulkGroupQueryService bulkService;
 
-	RestAdminServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
-			EndpointFileConfigurationManagement serviceFileConfigController)
+
+	UpmanRestServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
+	                           AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
+	                           EndpointFileConfigurationManagement serviceFileConfigController,  BulkGroupQueryService bulkService)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;
 		this.networkServer = networkServer;
+		this.bulkService = bulkService;
 	}
 
 	@Override
@@ -53,12 +57,14 @@ class RestAdminServiceController extends DefaultServicesControllerBase implement
 	@Override
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
-		return new RestAdminServiceEditor(msg,
+		return new UpmanRestServiceEditor(msg,
 			realmsMan.getRealms().stream().map(DescribedObjectROImpl::getName).collect(Collectors.toList()),
 			new ArrayList<>(flowsMan.getAuthenticationFlows()),
 			new ArrayList<>(authMan.getAuthenticators(null)),
 			endpointMan.getEndpoints().stream().map(Endpoint::getContextAddress).collect(Collectors.toList()),
-			networkServer.getUsedContextPaths()
+			networkServer.getUsedContextPaths(),
+			bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream()
+				.map(g -> g.getGroup()).collect(Collectors.toList())
 		);
 	}
 }

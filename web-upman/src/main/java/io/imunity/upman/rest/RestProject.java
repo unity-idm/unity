@@ -11,20 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+
 @JsonDeserialize(builder = RestProject.RestProjectBuilder.class)
 class RestProject
 {
-	final String groupName;
-	final boolean isPublic;
-	final Map<String, String> displayedName;
-	final Map<String, String> description;
-	final boolean enableDelegation;
-	final String logoUrl;
-	final boolean enableSubprojects;
-	final List<String> readOnlyAttributes;
-	final String registrationForm;
-	final String signUpEnquiry;
-	final String membershipUpdateEnquiry;
+	public final String groupName;
+	public final boolean isPublic;
+	public final Map<String, String> displayedName;
+	public final Map<String, String> description;
+	public final boolean enableDelegation;
+	public final String logoUrl;
+	public final boolean enableSubprojects;
+	public final List<String> readOnlyAttributes;
+	public final String registrationForm;
+	public final String signUpEnquiry;
+	public final String membershipUpdateEnquiry;
 
 	RestProject(String groupName, boolean isPublic, Map<String, String> displayedName,
 	            Map<String, String> description, boolean enableDelegation,

@@ -5,10 +5,6 @@
 
 package io.imunity.upman.rest;
 
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -26,16 +22,14 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
-class RestGroupService
+class RestProjectService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, RestGroupService.class);
-
 	private final DelegatedGroupManagement delGroupMan;
 	private final GroupsManagement groupMan;
 	private final GroupDelegationConfigGenerator groupDelegationConfigGenerator;
@@ -43,15 +37,18 @@ class RestGroupService
 	private final RegistrationsManagement registrationsManagement;
 	private final EnquiryManagement enquiryManagement;
 
+	private final String rootGroup;
 	private final String authorizationGroup;
 
 
-	public RestGroupService(@Qualifier("insecure") DelegatedGroupManagement delGroupMan,
-	                        @Qualifier("insecure") GroupsManagement groupMan,
-	                        @Qualifier("insecure") GroupDelegationConfigGenerator groupDelegationConfigGenerator,
-	                        @Qualifier("insecure") RegistrationsManagement registrationsManagement,
-	                        @Qualifier("insecure") EnquiryManagement enquiryManagement,
-	                        UpmanRestAuthorizationManager authz)
+	public RestProjectService(DelegatedGroupManagement delGroupMan,
+	                          GroupsManagement groupMan,
+	                          GroupDelegationConfigGenerator groupDelegationConfigGenerator,
+	                          RegistrationsManagement registrationsManagement,
+	                          EnquiryManagement enquiryManagement,
+	                          UpmanRestAuthorizationManager authz,
+	                          String rootGroup,
+	                          String authorizationGroup)
 	{
 		this.delGroupMan = delGroupMan;
 		this.groupMan = groupMan;
@@ -59,112 +56,113 @@ class RestGroupService
 		this.registrationsManagement = registrationsManagement;
 		this.enquiryManagement = enquiryManagement;
 		this.authz = authz;
+		this.rootGroup = rootGroup;
+		this.authorizationGroup = authorizationGroup;
 	}
 
-	public void addProject(String rootGroup, RestProjectCreateRequest project) throws EngineException
+	@Transactional
+	public void addProject(RestProjectCreateRequest project) throws EngineException
 	{
-		assertAuthorization(rootGroup, project);
+		assertAuthorization();
 
-		GroupContents groupContent = groupMan.getContents(rootGroup, GroupContents.GROUPS);
-		List<String> subGroups = groupContent.getSubGroups();
+		String groupName;
+		if(project.groupName == null)
+		{
+			GroupContents groupContent = groupMan.getContents(rootGroup, GroupContents.GROUPS);
+			List<String> subGroups = groupContent.getSubGroups();
+			groupName = "/" + generateName(subGroups);
+		}
+		else
+			groupName = getFullGroupName(project.groupName);
 
 		if (project.displayedName == null || project.displayedName.isEmpty())
 			throw new IllegalArgumentException();
 
-		String name = generateName(subGroups);
-
-
-		Group toAdd = new Group(new Group(project.groupName), name);
+		Group toAdd = new Group(groupName);
 		toAdd.setPublic(project.isPublic);
 		toAdd.setDisplayedName(convertToI18nString(project.displayedName));
 		toAdd.setDescription(convertToI18nString(project.description));
 
+		groupMan.addGroup(toAdd);
+
 		setDelegation(project.registrationForm, project.signUpEnquiry, project.membershipUpdateEnquiry,
-			project.enableDelegation, project.registrationFormAutogenerate, rootGroup, project.groupName,
+			project.enableDelegation, project.registrationFormAutogenerate, groupName,
 			project.logoUrl, project.signUpEnquiryAutogenerate, project.membershipUpdateEnquiryAutogenerate, toAdd,
 			project.enableSubprojects, project.readOnlyAttributes);
 
-
-		groupMan.addGroup(toAdd);
+		groupMan.updateGroup(groupName, toAdd);
 	}
 
-	private void assertAuthorization(String rootGroup, RestProjectCreateRequest project) throws AuthorizationException
+	@Transactional
+	public void updateProject(String groupName, RestProjectUpdateRequest project) throws EngineException
 	{
-		authz.assertManagerAuthorization(rootGroup, project.groupName, authorizationGroup);
-	}
-
-	public void updateProject(String rootGroup, String groupName, RestProjectUpdateRequest project) throws EngineException
-	{
-		authz.assertManagerAuthorization(authorizationGroup);
-
-		GroupContents groupContent = groupMan.getContents(rootGroup, GroupContents.GROUPS);
-		List<String> subGroups = groupContent.getSubGroups();
+		assertAuthorization();
 
 		if (project.displayedName == null || project.displayedName.isEmpty())
 			throw new IllegalArgumentException();
 
-		String name = generateName(subGroups);
-
-
-		Group toUpdate = new Group(new Group(groupName), name);
+		String fullGroupName = getFullGroupName(groupName);
+		Group toUpdate = new Group(fullGroupName);
 		toUpdate.setPublic(project.isPublic);
 		toUpdate.setDisplayedName(convertToI18nString(project.displayedName));
 		toUpdate.setDescription(convertToI18nString(project.description));
 
 		setDelegation(project.registrationForm, project.signUpEnquiry, project.membershipUpdateEnquiry,
-			project.enableDelegation, project.registrationFormAutogenerate, rootGroup, groupName, project.logoUrl,
+			project.enableDelegation, project.registrationFormAutogenerate, fullGroupName, project.logoUrl,
 			project.signUpEnquiryAutogenerate, project.membershipUpdateEnquiryAutogenerate, toUpdate,
 			project.enableSubprojects, project.readOnlyAttributes);
 
-
-		groupMan.updateGroup(groupName, toUpdate);
+		groupMan.updateGroup(fullGroupName, toUpdate);
 	}
 
-	private void setDelegation(String project, String project1, String project2, boolean project3, boolean project4,
-	                           String rootGroup, String groupName, String project5, boolean project6, boolean project7, Group toAdd, boolean project8, List<String> project9) throws EngineException
+	private void setDelegation(String registrationForm, String signUpEnquiry, String membershipUpdateEnquiry,
+	                           boolean enableDelegation, boolean registrationFormAutogenerate,
+	                           String fullGroupName, String logoUrl, boolean signUpEnquiryAutogenerate,
+	                           boolean membershipUpdateEnquiryAutogenerate, Group toAdd, boolean enableSubprojects,
+	                           List<String> readOnlyAttributes) throws EngineException
 	{
-		String registrationFormName = project;
-		String joinEnquiryName = project1;
-		String updateEnquiryName = project2;
+		String registrationFormName = registrationForm;
+		String joinEnquiryName = signUpEnquiry;
+		String updateEnquiryName = membershipUpdateEnquiry;
 
-		if (project3)
+		if (enableDelegation)
 		{
-			if (project4)
+			if (registrationFormAutogenerate)
 			{
 				RegistrationForm regForm = groupDelegationConfigGenerator
-					.generateSubprojectRegistrationForm(project,
-						rootGroup, groupName, project5);
+					.generateProjectRegistrationForm(
+						fullGroupName, logoUrl, readOnlyAttributes);
 				registrationsManagement.addForm(regForm);
 				registrationFormName = regForm.getName();
 			}
 
-			if (project6)
+			if (signUpEnquiryAutogenerate)
 			{
 				EnquiryForm joinEnquiryForm = groupDelegationConfigGenerator
-					.generateSubprojectJoinEnquiryForm(project1,
-						rootGroup, groupName,
-						project5);
+					.generateProjectJoinEnquiryForm(
+						fullGroupName,
+						logoUrl);
 				enquiryManagement.addEnquiry(joinEnquiryForm);
 				joinEnquiryName = joinEnquiryForm.getName();
 
 			}
-			if (project7)
+			if (membershipUpdateEnquiryAutogenerate)
 			{
 				EnquiryForm updateEnquiryForm = groupDelegationConfigGenerator
-					.generateSubprojectUpdateEnquiryForm(
-						project2,
-						rootGroup, groupName,
-						project5);
+					.generateProjectUpdateEnquiryForm(
+						fullGroupName,
+						logoUrl);
 				enquiryManagement.addEnquiry(updateEnquiryForm);
 				updateEnquiryName = updateEnquiryForm.getName();
 			}
 		}
 
-		toAdd.setDelegationConfiguration(new GroupDelegationConfiguration(project3,
-			project8,
-			project5,
+		toAdd.setDelegationConfiguration(new GroupDelegationConfiguration(enableDelegation,
+			enableSubprojects,
+			logoUrl,
 			registrationFormName, joinEnquiryName, updateEnquiryName,
-			project9));
+			readOnlyAttributes)
+		);
 	}
 
 	private I18nString convertToI18nString(Map<String, String> map)
@@ -185,76 +183,107 @@ class RestGroupService
 		return name;
 	}
 
-	public void removeProject(String rootPath, String groupName) throws EngineException
+	@Transactional
+	public void removeProject(String groupName) throws EngineException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
-		delGroupMan.removeGroup(rootPath, groupName);
+		assertAuthorization();
+		try
+		{
+			delGroupMan.removeGroup(rootGroup, getFullGroupName(groupName));
+		} catch (Exception e)
+		{
+			throw new IllegalArgumentException(e);
+		}
 	}
 
-	public RestProject getProject(String rootPath, String groupName) throws EngineException
+	@Transactional
+	public RestProject getProject(String groupName) throws EngineException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
-		GroupContents orgGroupContents = groupMan.getContents(rootPath + groupName,
+		assertAuthorization();
+		GroupContents contents = groupMan.getContents(getFullGroupName(groupName),
 			GroupContents.GROUPS | GroupContents.METADATA);
-		Group orgGroup = orgGroupContents.getGroup();
-		return map(orgGroup);
+		Group group = contents.getGroup();
+		return map(group);
 	}
 
-	public List<RestProject> getProjects(String rootPath) throws EngineException
+	@Transactional
+	public List<RestProject> getProjects() throws EngineException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
-		List<Group> groups = groupMan.getGroupsByWildcard(rootPath + "*");
+		assertAuthorization();
+		List<Group> groups = groupMan.getGroupsByWildcard(rootGroup + "/**");
 		return groups.stream()
-			.map(RestGroupService::map)
+			.map(RestProjectService::map)
 			.collect(Collectors.toList());
 	}
 
-	public void addProjectMember(String rootPath, String groupName, long entityId) throws EngineException
+	@Transactional
+	public void addProjectMember(String groupName, long entityId) throws EngineException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
-		delGroupMan.addMemberToGroup(rootPath, groupName, entityId);
+		assertAuthorization();
+		delGroupMan.addMemberToGroup(rootGroup, getFullGroupName(groupName), entityId);
 	}
 
-	public void removeProjectMember(String rootPath, String groupName, long entityId) throws EngineException
+	@Transactional
+	public void removeProjectMember(String groupName, long entityId) throws EngineException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
-		delGroupMan.removeMemberFromGroup(rootPath, groupName, entityId);
+		assertAuthorization();
+		delGroupMan.removeMemberFromGroup(rootGroup, getFullGroupName(groupName), entityId);
 	}
 
-	public List<RestProjectMembership> getProjectMembers(String rootPath, String groupName) throws EngineException
+	@Transactional
+	public List<RestProjectMembership> getProjectMembers(String groupName) throws EngineException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
-		GroupContents orgGroupContents = groupMan.getContents(rootPath + groupName,
-			GroupContents.GROUPS | GroupContents.METADATA);
-		return orgGroupContents.getMembers().stream()
-			.map(RestGroupService::map)
+		assertAuthorization();
+		GroupContents contents = groupMan.getContents(getFullGroupName(groupName),
+			GroupContents.MEMBERS);
+		return contents.getMembers().stream()
+			.map(RestProjectService::map)
 			.collect(Collectors.toList());
 	}
 
-	public RestProjectMembership getProjectMember(String rootPath, String groupName, long entityId) throws EngineException
+	@Transactional
+	public RestProjectMembership getProjectMember(String groupName, long entityId) throws EngineException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
-		GroupContents orgGroupContents = groupMan.getContents(rootPath + groupName,
-			GroupContents.GROUPS | GroupContents.METADATA);
-		return orgGroupContents.getMembers().stream()
+		assertAuthorization();
+		GroupContents contents = groupMan.getContents(getFullGroupName(groupName),
+			GroupContents.MEMBERS);
+		return contents.getMembers().stream()
 			.filter(member -> member.getEntityId() == entityId)
-			.map(RestGroupService::map)
+			.map(RestProjectService::map)
 			.findFirst()
 			.orElseThrow(IllegalArgumentException::new);
 	}
 
-	public RestAuthorizationRole getProjectAuthorizationRole(String rootPath, String groupName, long entityId) throws EngineException
+	@Transactional
+	public RestAuthorizationRole getProjectAuthorizationRole(String groupName, long entityId) throws EngineException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
-		GroupAuthorizationRole groupAuthorizationRole = delGroupMan.getGroupAuthorizationRole(rootPath + groupName, entityId);
+		assertAuthorization();
+		GroupAuthorizationRole groupAuthorizationRole = delGroupMan.getGroupAuthorizationRole(getFullGroupName(groupName), entityId);
 		return new RestAuthorizationRole(groupAuthorizationRole.name());
 	}
 
-	public void setProjectAuthorizationRole(String rootPath, String groupName, long entityId,
+	@Transactional
+	public void setProjectAuthorizationRole(String groupName, long entityId,
 	                                                         RestAuthorizationRole role) throws EngineException
 	{
+		assertAuthorization();
+		delGroupMan.setGroupAuthorizationRole(rootGroup, getFullGroupName(groupName), entityId, GroupAuthorizationRole.valueOf(role.role));
+	}
+
+	private String getFullGroupName(String groupName)
+	{
+		if(rootGroup.equals("/") && groupName.startsWith("/"))
+			return groupName;
+		else if (!rootGroup.equals("/") && !groupName.startsWith("/"))
+			return rootGroup + "/" + groupName;
+		else if (groupName.equals("/"))
+			return rootGroup;
+		return rootGroup + groupName;
+	}
+
+	private void assertAuthorization() throws AuthorizationException
+	{
 		authz.assertManagerAuthorization(authorizationGroup);
-		delGroupMan.setGroupAuthorizationRole(rootPath, groupName, entityId, GroupAuthorizationRole.valueOf(role.role));
 	}
 
 	private static RestProject map(Group orgGroup)
@@ -269,7 +298,7 @@ class RestGroupService
 			.withEnableSubprojects(orgGroup.getDelegationConfiguration().enableSubprojects)
 			.withReadOnlyAttributes(orgGroup.getDelegationConfiguration().attributes)
 			.withRegistrationForm(orgGroup.getDelegationConfiguration().registrationForm)
-			.withSignUpEnquiry(orgGroup.getDelegationConfiguration().membershipUpdateEnquiryForm)
+			.withSignUpEnquiry(orgGroup.getDelegationConfiguration().signupEnquiryForm)
 			.withMembershipUpdateEnquiry(orgGroup.getDelegationConfiguration().membershipUpdateEnquiryForm)
 			.build();
 	}

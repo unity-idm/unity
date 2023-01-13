@@ -14,19 +14,14 @@ import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
 import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
-/**
- * Rest admin service editor component
- * 
- * @author P.Piernik
- *
- */
-class RestAdminServiceEditorComponent extends ServiceEditorBase
+
+class UpmanRestServiceEditorComponent extends ServiceEditorBase
 {
 	private final Binder<UpmanRestServiceConfiguration> restBinder;
 	private final Binder<DefaultServiceDefinition> serviceBinder;
 
-	public RestAdminServiceEditorComponent(MessageSource msg, UpmanRestServiceEditorGeneralTab generalTab,
-			AuthenticationTab authTab, DefaultServiceDefinition toEdit)
+	public UpmanRestServiceEditorComponent(MessageSource msg, UpmanRestServiceEditorGeneralTab generalTab,
+	                                       AuthenticationTab authTab, DefaultServiceDefinition toEdit)
 	{
 		super(msg);
 		boolean editMode = toEdit != null;

@@ -24,6 +24,8 @@ public class UpmanRestEndpointProperties extends UnityPropertiesHelper
 
 	public static final String ROOT_GROUP = "rootGroup";
 	public static final String AUTHORIZATION_GROUP = "authorizationGroup";
+	public static final String ENABLED_CORS_ORIGINS = "allowedCorsOrigins.";
+	public static final String ENABLED_CORS_HEADERS = "allowedCorsHeaders.";
 
 	static
 	{
@@ -31,6 +33,12 @@ public class UpmanRestEndpointProperties extends UnityPropertiesHelper
 				.setDescription("Root group."));
 		META.put(AUTHORIZATION_GROUP, new PropertyMD().setDescription(
 				"Group where ProjectManagementRESTAPIRole will be check."));
+		META.put(ENABLED_CORS_ORIGINS, new PropertyMD().setList(false).setDescription(
+			"List of origins allowed for the CORS requests. "
+				+ "The complete set of HTTP methods is enabled for the enumerated resources. "
+				+ "If the list is undefined then CORS support is turned off."));
+		META.put(ENABLED_CORS_HEADERS, new PropertyMD().setList(false).setDescription(
+			"List of headers allowed for the CORS requests. If undefined then all are enabled by defult."));
 	}
 
 	public UpmanRestEndpointProperties(Properties properties) throws ConfigurationException

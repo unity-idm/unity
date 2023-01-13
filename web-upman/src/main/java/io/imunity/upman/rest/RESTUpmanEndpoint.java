@@ -4,7 +4,6 @@
  */
 package io.imunity.upman.rest;
 
-import com.google.common.collect.Sets;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -40,36 +39,43 @@ public class RESTUpmanEndpoint extends RESTEndpoint
 			Collections.singletonMap(V1_PATH, "The REST management base path")
 		);
 
-	private final ObjectFactory<List<RESTUpman>> factories;
+	private final RESTUpmanController.RESTUpmanControllerFactory factory;
 
 	@Autowired
 	public RESTUpmanEndpoint(MessageSource msg,
 	                         SessionManagement sessionMan,
 	                         NetworkServer server,
 	                         AuthenticationProcessor authnProcessor,
-	                         ObjectFactory<List<RESTUpman>> factories,
+	                         RESTUpmanController.RESTUpmanControllerFactory factory,
 	                         AdvertisedAddressProvider advertisedAddrProvider,
 	                         EntityManagement entityMan)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, "", entityMan);
-		this.factories = factories;
+		this.factory = factory;
 	}
 
 	@Override
 	protected Application getApplication()
 	{
-		return new RESTAdminJAXRSApp();
+		return new UpmanRESTJAXRSApp();
 	}
 
 	@ApplicationPath("/")
-	public class RESTAdminJAXRSApp extends Application
+	public class UpmanRESTJAXRSApp extends Application
 	{
 		@Override 
 		public Set<Object> getSingletons() 
 		{
-			Set<Object> ret = Sets.newHashSet(factories.getObject());
-			RestEndpointHelper.installExceptionHandlers(ret);
-			return ret;
+			Set<Object> objects = new HashSet<>();
+			UpmanRestEndpointProperties upmanRestEndpointProperties = new UpmanRestEndpointProperties(properties);
+			RESTUpmanController ret =
+				factory.newInstance(
+					upmanRestEndpointProperties.getValue(UpmanRestEndpointProperties.ROOT_GROUP),
+					upmanRestEndpointProperties.getValue(UpmanRestEndpointProperties.AUTHORIZATION_GROUP)
+				);
+			objects.add(ret);
+			RestEndpointHelper.installExceptionHandlers(objects);
+			return objects;
 		}
 	}
 	

@@ -62,6 +62,23 @@
 		    <artifactId>unity-server-rest</artifactId>
 		    <version>${project.version}</version>
 	    </dependency>
+	    <dependency>
+		    <groupId>io.imunity</groupId>
+		    <artifactId>unity-server-engine</artifactId>
+		    <version>${project.version}</version>
+		    <scope>test</scope>
+	    </dependency>
+	    <dependency>
+		    <groupId>io.imunity</groupId>
+		    <artifactId>unity-server-storage</artifactId>
+		    <version>${project.version}</version>
+		    <scope>test</scope>
+	    </dependency>
+	    <dependency>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-test</artifactId>
+		    <scope>test</scope>
+	    </dependency>
 
 		<dependency>
 			<groupId>com.vaadin</groupId>

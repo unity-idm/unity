@@ -10,6 +10,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
@@ -20,7 +21,7 @@ import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 import java.util.List;
 import java.util.Set;
 
-class RestAdminServiceEditor implements ServiceEditor
+class UpmanRestServiceEditor implements ServiceEditor
 {
 	private final MessageSource msg;
 	private final List<String> allRealms;
@@ -28,10 +29,12 @@ class RestAdminServiceEditor implements ServiceEditor
 	private final List<AuthenticatorInfo> authenticators;
 	private final List<String> usedPaths;
 	private final Set<String> serverContextPaths;
-	private RestAdminServiceEditorComponent editor;
+	private final List<Group> groups;
+	private UpmanRestServiceEditorComponent editor;
 
-	RestAdminServiceEditor(MessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<String> usedPaths, Set<String> serverContextPaths)
+	UpmanRestServiceEditor(MessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
+	                       List<AuthenticatorInfo> authenticators, List<String> usedPaths,
+	                       Set<String> serverContextPaths, List<Group> groups)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
@@ -39,6 +42,7 @@ class RestAdminServiceEditor implements ServiceEditor
 		this.flows = flows;
 		this.usedPaths = usedPaths;
 		this.serverContextPaths = serverContextPaths;
+		this.groups = groups;
 	}
 
 	@Override
@@ -46,12 +50,12 @@ class RestAdminServiceEditor implements ServiceEditor
 	{
 
 		UpmanRestServiceEditorGeneralTab upmanRestServiceEditorGeneralTab = new UpmanRestServiceEditorGeneralTab(
-				msg, RESTUpmanEndpoint.TYPE, usedPaths, serverContextPaths);
+				msg, RESTUpmanEndpoint.TYPE, usedPaths, serverContextPaths, groups);
 
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding());
 
-		editor = new RestAdminServiceEditorComponent(msg, upmanRestServiceEditorGeneralTab, authenticationTab,
+		editor = new UpmanRestServiceEditorComponent(msg, upmanRestServiceEditorGeneralTab, authenticationTab,
 				(DefaultServiceDefinition) endpoint);
 		return editor;
 	}

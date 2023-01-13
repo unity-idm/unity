@@ -5,16 +5,19 @@
 
 package io.imunity.upman.rest;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.time.Instant;
 import java.util.Objects;
 
+@JsonDeserialize(builder = RestProjectMembership.RestProjectMembershipBuilder.class)
 class RestProjectMembership
 {
-	private final String group;
-	private final long entityId;
-	private final Instant creationTs;
-	private final String translationProfile;
-	private final String remoteIdp;
+	public final String group;
+	public final long entityId;
+	public final Instant creationTs;
+	public final String translationProfile;
+	public final String remoteIdp;
 
 	RestProjectMembership(String group, long entityId, Instant creationTs, String translationProfile, String remoteIdp)
 	{

@@ -1,0 +1,18 @@
+[[endp-rest-upman]]
+=== RESTful Upman API endpoint
+
+Endpoint type:: +RESTUpman+
+Binding:: RESTful
+Exposed paths:: +/v1/*+
+
+This endpoint exposes a RESTful API to Upman features.
+The endpoint does require to specialized two configuration property:
+- Root group, under which the projects shall be created and managed
+- Authorization group - All users who should have access to this API must be members of the group set as “authorization group”.
+
+Example:
+unity.upman.rest.rootGroup=/A
+unity.upman.rest.authorizationGroup=/A
+
+The documentation of the REST API is available on a separate page
+link:upman-rest-api-v1.html[REST API]
