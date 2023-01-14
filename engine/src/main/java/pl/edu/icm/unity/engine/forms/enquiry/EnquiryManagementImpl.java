@@ -429,35 +429,35 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		Entity entity = entityManagement.getEntity(entityParam);
 		authz.checkAuthorization(authz.isSelf(entity.getId()), AuthzCapability.readInfo);
-		List<EnquiryForm> allForms = enquiryFormDB.getAll()
+		List<EnquiryForm> filteredEnquiryForms = enquiryFormDB.getAll()
 				.stream()
 				.filter(selector.type.filter)
 				.filter(selector.accessMode.filter)
 				.collect(Collectors.toList());
 
-		if (allForms.isEmpty())
+		if (filteredEnquiryForms.isEmpty())
 			return Collections.emptyList();
 
-		List<EnquiryForm> relevantEnquiryForms = getApplicableEnquiries(entity, allForms);
+		List<EnquiryForm> relevantEnquiryForms = getApplicableEnquiries(entity, filteredEnquiryForms);
 		
 		if (selector.type.equals(EnquirySelector.Type.STICKY))
 		{
 			return relevantEnquiryForms;
-		} else
-		{
-			return filterIgnoredOrFilledFromRegularEnquires(entity, relevantEnquiryForms);		
 		}
+		
+		return filterIgnoredOrFilledFromRegularEnquires(entity, relevantEnquiryForms);		
+		
 	}
 	
 	private List<EnquiryForm> filterIgnoredOrFilledFromRegularEnquires(Entity entity,
-			List<EnquiryForm> relevantEnquiryForms) throws EngineException
+			List<EnquiryForm> userApplicableEnquiries) throws EngineException
 	{
 		Set<String> ignoredOrFilledEqnuiries = getEnquiresFromAttribute(entity.getId(),
 				EnquiryAttributeTypesProvider.FILLED_ENQUIRES);
 		ignoredOrFilledEqnuiries
 				.addAll(getEnquiresFromAttribute(entity.getId(), EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
 
-		return relevantEnquiryForms.stream()
+		return userApplicableEnquiries.stream()
 				.filter(f -> f.getType()
 						.equals(EnquiryType.STICKY) || !ignoredOrFilledEqnuiries.contains(f.getName()))
 				.collect(Collectors.toList());
