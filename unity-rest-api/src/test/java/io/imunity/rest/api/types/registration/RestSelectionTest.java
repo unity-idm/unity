@@ -21,7 +21,7 @@ public class RestSelectionTest extends RestTypeBase<RestSelection>
 	{
 		return RestSelection.builder()
 				.withExternalIdp("externalIdp")
-				.withTranslationProfile("Profiles")
+				.withTranslationProfile("Profile")
 				.withSelected(true)
 				.build();
 	}
