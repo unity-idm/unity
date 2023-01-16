@@ -21,13 +21,16 @@ public class RestPolicyDocumentMapperTest extends OneWayMapperTestBase<PolicyDoc
 	{
 		I18nString displayedName = new I18nString();
 		displayedName.addAllValues(Map.of("en", "Ola"));
+
+		I18nString description = new I18nString();
+		description.addAllValues(Map.of("en", "description"));
 		return new PolicyDocumentWithRevision(
 			1L,
 			"Ala",
 			displayedName,
 			true,
 			PolicyDocumentContentType.EMBEDDED,
-			new I18nString(),
+			description,
 			1
 		);
 	}
@@ -42,6 +45,7 @@ public class RestPolicyDocumentMapperTest extends OneWayMapperTestBase<PolicyDoc
 			.withMandatory(true)
 			.withContentType(PolicyDocumentContentType.EMBEDDED.name())
 			.withRevision(1)
+			.withContent(Map.of("en", "description"))
 			.build();
 	}
 

@@ -1481,6 +1481,10 @@ Example output:
 	      "mandatory": true,
 	      "contentType": "LINK"
 	      "revision": "1"
+          "content": {
+                "en": "content",
+                "fr": "contenu"
+          }
 	}
 ]
 ----
@@ -1506,7 +1510,11 @@ Example output:
       },
       "mandatory": true,
       "contentType": "EMBEDDED",
-      "revision": "1"
+      "revision": "1",
+      "content": {
+            "en": "content",
+            "fr": "contenu"
+      }
 }
 ----
 
@@ -1556,10 +1564,10 @@ Removes the given policy document.
 === Update policy document
 
 +@Path("/policy-documents/{document-id}")+ +
-+@QueryParam("revision")+ +
++@QueryParam("incrementRevision")+ +
 +@PUT+ +
 
-Updates the given policy document. If query parameter "revision" is set to true, update increment revision, and re-acceptance will be needed.
+Updates the given policy document. If query parameter "incrementRevision" is set to true, update increment revision, and re-acceptance will be needed.
 ContentType can be one of "LINK" or "EMBEDDED"
 
 Example input:
@@ -1579,13 +1587,3 @@ Example input:
       }
 }
 ----
-
-
-=== Get policy document's content
-
-+@Path("/policy-documents/{document-id}/content")+ +
-+@GET+ +
-
-Returns the given policy document's content.
-If document content type is "EMBEDDED", http Content-Type will be text/html.
-If document content type is "LINK", http Content-Type will be text/plain.

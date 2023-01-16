@@ -35,6 +35,7 @@ public class RestEndpointHelper
 		ret.add(new JSONParseExceptionMapper());
 		ret.add(new JSONParsingExceptionMapper());
 		ret.add(new JSONExceptionMapper());
+		ret.add(new NotFoundExceptionMapper());
 	}
 
 	public static Endpoint createCxfEndpoint(Application application, Bus bus)
