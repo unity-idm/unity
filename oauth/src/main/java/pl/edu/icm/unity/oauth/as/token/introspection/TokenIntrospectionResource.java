@@ -26,7 +26,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
-import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.token.TokenInfoResource;
 import pl.edu.icm.unity.oauth.as.token.introspection.LocalTokenIntrospectionService.LocalTokenIntrospectionServiceFactory;
@@ -63,8 +62,7 @@ public class TokenIntrospectionResource extends BaseOAuthResource
 	public Response introspectToken(@FormParam("token") String token) throws EngineException, JsonProcessingException
 	{
 		if (token == null)
-			throw new OAuthErrorException(
-					makeError(OAuth2Error.INVALID_REQUEST, "Token for introspection was not provided"));
+			return makeError(OAuth2Error.INVALID_REQUEST, "Token for introspection was not provided");
 
 		log.debug("Token introspection enquiry for token {}", tokenToLog(token));
 
