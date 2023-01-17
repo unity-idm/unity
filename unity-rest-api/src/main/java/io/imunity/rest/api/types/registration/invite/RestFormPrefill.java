@@ -6,9 +6,10 @@
 package io.imunity.rest.api.types.registration.invite;
 
 import java.util.Collections;
-
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -29,11 +30,21 @@ public class RestFormPrefill
 	private RestFormPrefill(Builder builder)
 	{
 		this.formId = builder.formId;
-		this.identities = builder.identities;
-		this.groupSelections = builder.groupSelections;
-		this.allowedGroups = builder.allowedGroups;
-		this.attributes = builder.attributes;
-		this.messageParams = builder.messageParams;
+		this.identities = Optional.ofNullable(builder.identities)
+				.map(Map::copyOf)
+				.orElse(null);
+		this.groupSelections = Optional.ofNullable(builder.groupSelections)
+				.map(Map::copyOf)
+				.orElse(null);
+		this.allowedGroups = Optional.ofNullable(builder.allowedGroups)
+				.map(Map::copyOf)
+				.orElse(null);
+		this.attributes = Optional.ofNullable(builder.attributes)
+				.map(Map::copyOf)
+				.orElse(null);
+		this.messageParams = Optional.ofNullable(builder.messageParams)
+				.map(Map::copyOf)
+				.orElse(null);
 	}
 
 	@Override
@@ -53,8 +64,7 @@ public class RestFormPrefill
 			return false;
 		RestFormPrefill other = (RestFormPrefill) obj;
 		return Objects.equals(allowedGroups, other.allowedGroups) && Objects.equals(attributes, other.attributes)
-				&& Objects.equals(formId, other.formId)
-				&& Objects.equals(groupSelections, other.groupSelections)
+				&& Objects.equals(formId, other.formId) && Objects.equals(groupSelections, other.groupSelections)
 				&& Objects.equals(identities, other.identities) && Objects.equals(messageParams, other.messageParams);
 	}
 
@@ -82,9 +92,48 @@ public class RestFormPrefill
 			return this;
 		}
 
+		public Builder withIdentity(Map<Integer, RestPrefilledEntry<RestIdentityParam>> identities)
+		{
+			this.identities = identities;
+			return this;
+		}
+
+		public Builder withIdentity(RestIdentityParam identityParam, String mode)
+		{
+			int idx = identities.size();
+			identities.put(idx, new RestPrefilledEntry.Builder<RestIdentityParam>().withEntry(identityParam)
+					.withMode(mode)
+					.build());
+			return this;
+		}
+
 		public Builder withIdentities(Map<Integer, RestPrefilledEntry<RestIdentityParam>> identities)
 		{
 			this.identities = identities;
+			return this;
+		}
+
+		public Builder withGroup(String group, String mode)
+		{
+			int idx = groupSelections.size();
+			groupSelections.put(idx,
+					new RestPrefilledEntry.Builder<RestGroupSelection>().withEntry(RestGroupSelection.builder()
+							.withSelectedGroups(List.of(group))
+							.build())
+							.withMode(mode)
+							.build());
+			return this;
+		}
+
+		public Builder withGroup(List<String> groups, String mode)
+		{
+			int idx = groupSelections.size();
+			groupSelections.put(idx,
+					new RestPrefilledEntry.Builder<RestGroupSelection>().withEntry(RestGroupSelection.builder()
+							.withSelectedGroups(groups)
+							.build())
+							.withMode(mode)
+							.build());
 			return this;
 		}
 
@@ -97,6 +146,15 @@ public class RestFormPrefill
 		public Builder withAllowedGroups(Map<Integer, RestGroupSelection> allowedGroups)
 		{
 			this.allowedGroups = allowedGroups;
+			return this;
+		}
+
+		public Builder withAttribute(RestAttribute attribute, String mode)
+		{
+			int idx = attributes.size();
+			attributes.put(idx, new RestPrefilledEntry.Builder<RestAttribute>().withEntry(attribute)
+					.withMode(mode)
+					.build());
 			return this;
 		}
 
