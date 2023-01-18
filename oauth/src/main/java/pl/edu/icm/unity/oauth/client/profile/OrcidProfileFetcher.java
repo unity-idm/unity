@@ -117,7 +117,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		HTTPRequest httpReq = new HTTPRequest(Method.GET, new URL(userBioEndpoint));
 		HttpRequestConfigurer.secureRequest(httpReq, providerConfig.getValidator(), checkingMode);
 		httpReq.setAuthorization(clientAccessToken.toAuthorizationHeader());
-		httpReq.setAccept(org.apache.http.entity.ContentType.APPLICATION_JSON.getMimeType());
+		httpReq.setAccept(org.apache.hc.core5.http.ContentType.APPLICATION_JSON.getMimeType());
 		HTTPResponse resp = httpReq.send();
 		
 		if (resp.getStatusCode() != 200)

@@ -74,7 +74,7 @@ public class MetaToConfigConverterHelper
 		return null;
 	}
 	
-	public static I18nString getLocalizedNamesAsI18nString(MessageSource msg, UIInfoType uiInfo,
+	static I18nString getLocalizedNamesAsI18nString(MessageSource msg, UIInfoType uiInfo,
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
 		I18nString ret = new I18nString();
@@ -124,7 +124,7 @@ public class MetaToConfigConverterHelper
 	
 	public static Map<String, LogoType> getLocalizedLogos(UIInfoType uiInfo)
 	{
-		Map<String, LogoType> ret = new HashMap<String, LogoType>();
+		Map<String, LogoType> ret = new HashMap<>();
 		if (uiInfo != null)
 		{
 			LogoType[] logos = uiInfo.getLogoArray();
@@ -154,11 +154,8 @@ public class MetaToConfigConverterHelper
 	 * in the SAML names, then the 'en' locale is tried. Not fully correct,
 	 * but this is de facto standard default locale for international
 	 * federations.
-	 * 
-	 * @param names
-	 * @param ret
 	 */
-	public static void addLocalizedNames(MessageSource msg, LocalizedNameType[] names, Map<String, String> ret)
+	private static void addLocalizedNames(MessageSource msg, LocalizedNameType[] names, Map<String, String> ret)
 	{
 		if (names == null)
 			return;

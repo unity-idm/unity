@@ -6,13 +6,14 @@ package io.imunity.webconsole.translationProfile.dryrun;
 
 import java.net.URISyntaxException;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.vaadin.teemu.wizards.Wizard;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.sandbox.TranslationProfileSandboxUI;
 import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
@@ -41,7 +42,7 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 		URIBuilder builder;
 		try
 		{
-			builder = new URIBuilder(baseSandboxURL);
+			builder = URIBuilderFixer.newInstance(baseSandboxURL);
 		} catch (URISyntaxException e)
 		{
 			throw new IllegalArgumentException("Sandbox URL is invalid: " + baseSandboxURL, e);

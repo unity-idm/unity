@@ -17,12 +17,14 @@
  */
 package io.imunity.otp;
 
-import org.apache.commons.codec.binary.Base32;
-import org.apache.http.client.utils.URIBuilder;
-
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Optional;
+
+import org.apache.commons.codec.binary.Base32;
+import org.apache.hc.core5.net.URIBuilder;
 
 public class TOTPKeyGenerator
 {
@@ -44,8 +46,9 @@ public class TOTPKeyGenerator
 			throw new IllegalArgumentException("Label can not contain colon");
 		try
 		{
-			URIBuilder uriBuilder = new URIBuilder("otpauth://totp/");
-			uriBuilder.setPath(issuer + ":" + label);
+			URIBuilder uriBuilder = new URIBuilder("otpauth://totp/"
+					+ URLEncoder.encode(issuer, StandardCharsets.UTF_8).replace("+", "%20") + ":"
+					+ URLEncoder.encode(label, StandardCharsets.UTF_8).replace("+", "%20"));
 			uriBuilder.addParameter(SECRET_URI_PARAM, secretBase32); 
 			uriBuilder.addParameter(ISSUER_URI_PARAM, issuer); 
 			uriBuilder.addParameter(ALGORITHM_URI_PARAM, otpParams.hashFunction.toString()); 
@@ -59,7 +62,7 @@ public class TOTPKeyGenerator
 		}
 	}
 	
-	public static String generateRandomBase32EncodedKey(HashFunction hashFunction)
+	static String generateRandomBase32EncodedKey(HashFunction hashFunction)
 	{
 		int bytes = hashFunction.bitLength / 8;
 		byte[] key = new byte[bytes];

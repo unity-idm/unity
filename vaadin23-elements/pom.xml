@@ -8,8 +8,6 @@
     <artifactId>vaadin23-elements</artifactId>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <vaadin.productionMode>true</vaadin.productionMode>
     </properties>
 

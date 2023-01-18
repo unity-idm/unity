@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
@@ -24,6 +24,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
@@ -50,7 +51,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 	{
 
 		Map<String, List<String>> queryParams = new HashMap<>();
-		URIBuilder uri = new URIBuilder(userInfoEndpoint);
+		URIBuilder uri = URIBuilderFixer.newInstance(userInfoEndpoint);
 		queryParams.putAll(uri.getQueryParams()
 				.stream().collect(Collectors.toMap(NameValuePair::getName,
 						nvp -> Lists.newArrayList(nvp.getValue()))));	

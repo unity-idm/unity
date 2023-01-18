@@ -12,17 +12,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.integration.Webhook;
 import pl.edu.icm.unity.engine.api.integration.Webhook.WebhookHttpMethod;
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 import pl.edu.icm.unity.engine.api.webhook.WebhookProcessor;
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -52,7 +55,7 @@ public class WebhookProcessorImpl implements WebhookProcessor
 	}
 
 	@Override
-	public HttpResponse trigger(Webhook webhook, Map<String, String> params) throws EngineException
+	public ClassicHttpResponse trigger(Webhook webhook, Map<String, String> params) throws EngineException
 	{
 		try
 		{
@@ -65,10 +68,10 @@ public class WebhookProcessorImpl implements WebhookProcessor
 		}
 	}
 
-	private HttpResponse doGet(Webhook webhook, Map<String, String> params)
-			throws ClientProtocolException, IOException, EngineException, URISyntaxException
+	private  ClassicHttpResponse doGet(Webhook webhook, Map<String, String> params)
+			throws ClientProtocolException, IOException, EngineException, ParseException, URISyntaxException
 	{
-		URIBuilder urlBuilder = new URIBuilder(webhook.url);
+		URIBuilder urlBuilder = URIBuilderFixer.newInstance(webhook.url);
 		params.forEach((k, v) -> {
 				urlBuilder.addParameter(k, v);	
 		});
@@ -81,12 +84,11 @@ public class WebhookProcessorImpl implements WebhookProcessor
 		}
 		
 		log.info("Request GET to " + url.toString());
-		HttpResponse response = httpClient.execute(request);
-		return response;
+		return httpClient.executeOpen(null, request, HttpClientContext.create());
 	}
 
-	private HttpResponse sendPost(Webhook webhook, Map<String, String> params)
-			throws ClientProtocolException, IOException, EngineException
+	private ClassicHttpResponse sendPost(Webhook webhook, Map<String, String> params)
+			throws ClientProtocolException, IOException, EngineException, ParseException
 	{
 		HttpPost post = new HttpPost(webhook.url);
 		List<NameValuePair> postParameters = new ArrayList<>();
@@ -100,8 +102,7 @@ public class WebhookProcessorImpl implements WebhookProcessor
 		}
 		HttpClient httpClient = getSSLClient(webhook.url, webhook.truststore);
 		log.info("Request POST to " + webhook.url + " with entity: " + EntityUtils.toString(post.getEntity()));
-		HttpResponse response = httpClient.execute(post);
-		return response;
+		return httpClient.executeOpen(null, post, HttpClientContext.create());
 	}
 
 	private HttpClient getSSLClient(String url, String customTruststore) throws EngineException

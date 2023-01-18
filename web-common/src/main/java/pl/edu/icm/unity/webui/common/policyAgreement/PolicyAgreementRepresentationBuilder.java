@@ -105,9 +105,9 @@ public class PolicyAgreementRepresentationBuilder
 		return doc != null
 				? doc.contentType.equals(PolicyDocumentContentType.LINK)
 					? doc.content.getValue(msg) :
-						sharedEndpointManagement.getServerAddress() + sharedEndpointManagement.getBaseContextPath() +
+						sharedEndpointManagement.getServerAddress() +
 						CONTEXT_PATH_2 + POLICY_DOCUMENTS_PATH + doc.id
-				: sharedEndpointManagement.getServerAddress() + sharedEndpointManagement.getBaseContextPath() +
+				: sharedEndpointManagement.getServerAddress() +
 					CONTEXT_PATH_2 + POLICY_DOCUMENTS_PATH + "UNKNOWN";
 	}
 }

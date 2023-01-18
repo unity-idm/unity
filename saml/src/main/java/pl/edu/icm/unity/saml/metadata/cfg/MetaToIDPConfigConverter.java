@@ -119,12 +119,12 @@ public class MetaToIDPConfigConverter
 						SAMLConstants.BINDING_SOAP);
 
 				UIInfoType uiInfo = MetaToConfigConverterHelper.parseMDUIInfo(spDef.getExtensions(), entityId.id);
-				I18nString names = MetaToConfigConverterHelper.getLocalizedNamesAsI18nString(msg, uiInfo, spDef, descriptorType);
-				I18nString logos = MetaToConfigConverterHelper.getLocalizedLogosAsI18nString(uiInfo);
+				I18nString name = MetaToConfigConverterHelper.getLocalizedNamesAsI18nString(msg, uiInfo, spDef, descriptorType);
+				I18nString logo = MetaToConfigConverterHelper.getLocalizedLogosAsI18nString(uiInfo);
 
-				TrustedServiceProvider trustedServiceProvider = generateOverrodeSP(entityId, defaultEndpoint, endpointURLs,
+				TrustedServiceProvider trustedServiceProvider = generateOverriddenSP(entityId, defaultEndpoint, endpointURLs,
 						soapSLOEndpoint, postSLOEndpoint, redirectSLOEndpoint,
-						samlIdPConfiguration.trustedServiceProviders, certs, names, logos);
+						samlIdPConfiguration.trustedServiceProviders, certs, name, logo);
 				overrideConfigurations.add(trustedServiceProvider);
 			}
 		}
@@ -243,7 +243,8 @@ public class MetaToIDPConfigConverter
 		}
 		return ret;
 	}
-	private TrustedServiceProvider generateOverrodeSP(SamlEntityId entityId, String defaultServiceEndpoint,
+	
+	private TrustedServiceProvider generateOverriddenSP(SamlEntityId entityId, String defaultServiceEndpoint,
 	                                                  Map<Integer, String> indexedServiceEndpoints,
 	                                                  EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
 	                                                  TrustedServiceProviders providers,

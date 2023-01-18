@@ -22,7 +22,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.MultiMap;
@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Strings;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -83,6 +84,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContex
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
@@ -229,7 +231,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			
 		}
 		
-		URIBuilder uriBuilder = new URIBuilder(req.toURI());
+		URIBuilder uriBuilder = URIBuilderFixer.newInstance(req.toURI());
 		uriBuilder.addParameters(providerCfg.getAdditionalAuthzParams());
 		context.setRequest(req, uriBuilder.build(), providerKey);
 		contextManagement.addAuthnContext(context);
@@ -422,7 +424,10 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		OIDCTokenResponse acResponse = OIDCTokenResponse.parse(response);
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
 		
-		JWTClaimsSet accessTokenClaimsSet = acResponse.getOIDCTokens().getIDToken().getJWTClaimsSet();
+		JWT idToken = acResponse.getOIDCTokens().getIDToken();
+		if (idToken == null)
+			throw new AuthenticationException("Id token was not returned by the authorization server");
+		JWTClaimsSet accessTokenClaimsSet = idToken.getJWTClaimsSet();
 		Map<String, List<String>> accessTokenAttributes = ProfileFetcherUtils.convertToAttributes(
 				new JSONObject(accessTokenClaimsSet.getClaims()));
 		

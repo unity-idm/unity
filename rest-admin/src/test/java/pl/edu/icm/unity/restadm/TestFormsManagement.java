@@ -13,26 +13,26 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import io.imunity.rest.api.types.registration.RestIdentityRegistrationParam;
+import io.imunity.rest.api.types.registration.RestRegistrationForm;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 
 /**
  * Registration forms management test
@@ -44,17 +44,15 @@ public class TestFormsManagement extends RESTAdminTestBase
 	public void addedFormIsReturned() throws Exception
 	{
 		HttpPost add = getAddRequest();
-		HttpResponse response = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
-
+		try(ClassicHttpResponse response = client.executeOpen(host, add, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		HttpResponse responseGet = client.execute(host, get, localcontext);
-
-		String contents = EntityUtils.toString(responseGet.getEntity());
+		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		System.out.println("Response:\n" + contents);
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
-		List<RegistrationForm> returnedL = m.readValue(contents, 
-				new TypeReference<List<RegistrationForm>>() {});
+
+		List<RestRegistrationForm> returnedL = m.readValue(contents, 
+				new TypeReference<List<RestRegistrationForm>>() {});
 		assertThat(returnedL.size(), is(1));
 		assertThat(returnedL.get(0), is(getRegistrationForm()));
 	}
@@ -63,20 +61,18 @@ public class TestFormsManagement extends RESTAdminTestBase
 	public void removedFormIsNotReturned() throws Exception
 	{
 		HttpPost add = getAddRequest();
-		HttpResponse response = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
-		
+		try(ClassicHttpResponse response = client.executeOpen(host, add, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		HttpDelete delete = new HttpDelete("/restadm/v1/registrationForm/exForm");
-		HttpResponse deleteResponse =client.execute(host, delete, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getStatusLine().getStatusCode());
-		
+		try(ClassicHttpResponse deleteResponse =client.executeOpen(host, delete, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), deleteResponse.getCode());
+		}
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		HttpResponse responseGet = client.execute(host, get, localcontext);
 
-		String contents = EntityUtils.toString(responseGet.getEntity());
-		assertEquals(contents, Status.OK.getStatusCode(), responseGet.getStatusLine().getStatusCode());
-		List<RegistrationForm> returnedL = m.readValue(contents, 
-				new TypeReference<List<RegistrationForm>>() {});
+		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
+		List<RestRegistrationForm> returnedL = m.readValue(contents, 
+				new TypeReference<List<RestRegistrationForm>>() {});
 		assertThat(returnedL.isEmpty(), is(true));
 	}
 
@@ -84,54 +80,58 @@ public class TestFormsManagement extends RESTAdminTestBase
 	public void updatedFormIsReturned() throws Exception
 	{
 		HttpPost add = getAddRequest();
-		HttpResponse response = client.execute(host, add, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatusLine().getStatusCode());
-
+		try(ClassicHttpResponse response = client.executeOpen(host, add, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		HttpPut update = getUpdateRequest();
-		HttpResponse response2 = client.execute(host, update, localcontext);
-		assertEquals(Status.NO_CONTENT.getStatusCode(), response2.getStatusLine().getStatusCode());
-
+		try(ClassicHttpResponse response = client.executeOpen(host, update, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
 		HttpGet get = new HttpGet("/restadm/v1/registrationForms");
-		HttpResponse getResponse = client.execute(host, get, localcontext);
 
-		String contents = EntityUtils.toString(getResponse.getEntity());
+		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		System.out.println(contents);
-		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
-		List<RegistrationForm> returnedL = m.readValue(contents, 
-				new TypeReference<List<RegistrationForm>>() {});
+
+		List<RestRegistrationForm> returnedL = m.readValue(contents, 
+				new TypeReference<List<RestRegistrationForm>>() {});
 		assertThat(returnedL.size(), is(1));
 		assertThat(returnedL.get(0), is(getUpdatedRegistrationForm()));
 	}
 
-	private RegistrationForm getRegistrationForm()
+	private RestRegistrationForm getRegistrationForm()
 	{
-		IdentityRegistrationParam idParam = new IdentityRegistrationParam();
-		idParam.setIdentityType(UsernameIdentity.ID);
-		idParam.setRetrievalSettings(ParameterRetrievalSettings.interactive);
-		return new RegistrationFormBuilder()
+		RestIdentityRegistrationParam idParam = RestIdentityRegistrationParam.builder()
+				.withIdentityType(UsernameIdentity.ID)
+				.withConfirmationMode(ConfirmationMode.ON_SUBMIT.name())
+				.withRetrievalSettings(ParameterRetrievalSettings.interactive.name())
+				.build();
+		return  RestRegistrationForm.builder()
 			.withName("exForm")
-			.withAddedIdentityParam(idParam)
+			.withIdentityParams(List.of(idParam))
 			.withPubliclyAvailable(true)
 			.withCollectComments(true)
 			.withDefaultCredentialRequirement(CRED_REQ_PASS)
 			.build();
 	}
 
-	private RegistrationForm getUpdatedRegistrationForm()
+	private RestRegistrationForm getUpdatedRegistrationForm()
 	{
-		IdentityRegistrationParam idParam = new IdentityRegistrationParam();
-		idParam.setIdentityType(X500Identity.ID);
-		idParam.setRetrievalSettings(ParameterRetrievalSettings.interactive);
-		return new RegistrationFormBuilder()
+		RestIdentityRegistrationParam idParam = RestIdentityRegistrationParam.builder()
+				.withIdentityType(X500Identity.ID)
+				.withConfirmationMode(ConfirmationMode.ON_SUBMIT.name())
+				.withRetrievalSettings(ParameterRetrievalSettings.interactive.name())
+				.build();
+		return RestRegistrationForm.builder()
 			.withName("exForm")
-			.withAddedIdentityParam(idParam)
+			.withIdentityParams(List.of(idParam))
 			.withPubliclyAvailable(false)
 			.withCollectComments(true)
 			.withDefaultCredentialRequirement(CRED_REQ_PASS)
 			.build();
 	}
 	
-	private void configureRequest(HttpEntityEnclosingRequestBase request, RegistrationForm form)
+
+	private void configureRequest(HttpUriRequestBase request, RestRegistrationForm form)
 			throws UnsupportedEncodingException, JsonProcessingException
 	{
 		String jsonform = m.writeValueAsString(form);

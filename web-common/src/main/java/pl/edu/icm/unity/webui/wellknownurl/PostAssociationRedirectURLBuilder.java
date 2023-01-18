@@ -6,7 +6,9 @@ package pl.edu.icm.unity.webui.wellknownurl;
 
 import java.net.URISyntaxException;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
+
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 
 /**
  * Builds URL to be used for redirection after account association.
@@ -28,7 +30,7 @@ public class PostAssociationRedirectURLBuilder
 	{
 		try
 		{
-			uriBuilder = new URIBuilder(baseURL);
+			uriBuilder = URIBuilderFixer.newInstance(baseURL);
 		} catch (URISyntaxException e)
 		{
 			throw new IllegalStateException("Illegal redirect URI, shouldn't happen", e);

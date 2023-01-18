@@ -9,9 +9,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -187,15 +188,15 @@ public class WebhookEditor extends CustomField<IntegrationEventConfiguration>
 			return null;
 		Webhook webhook = (Webhook) getValue();
 		VerticalLayout mainLayout = new VerticalLayout();
-		HttpResponse resp = webhookProcessor.trigger(webhook, params);
+		ClassicHttpResponse resp = webhookProcessor.trigger(webhook, params);
 		Label statusCode = new Label();
 		statusCode.setCaption(msg.getMessage("WebhookEditor.statusCode"));
-		statusCode.setValue(String.valueOf(resp.getStatusLine().getStatusCode()));
+		statusCode.setValue(String.valueOf(resp.getCode()));
 		mainLayout.addComponent(statusCode);
 		
 		Label statusLine = new Label();
 		statusLine.setCaption(msg.getMessage("WebhookEditor.statusLine"));
-		statusLine.setValue(resp.getStatusLine().toString());
+		statusLine.setValue(new StatusLine(resp).toString());
 		mainLayout.addComponent(statusLine);
 		
 		Label body = new Label();

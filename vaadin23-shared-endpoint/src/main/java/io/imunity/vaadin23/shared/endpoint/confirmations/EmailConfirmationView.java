@@ -65,9 +65,10 @@ public class EmailConfirmationView extends Composite<Div> implements HasUrlParam
 		wrapper.getStyle().set("font-size", "1.5em");
 		getContent().setSizeFull();
 
-		Component image;
+		Component image = null;
 		if(status.logoURL == null || status.logoURL.isBlank())
-			image =  status.success ? VaadinIcon.CHECK_CIRCLE_O.create() : VaadinIcon.EXCLAMATION_CIRCLE.create();
+			if(!status.success)
+				image = VaadinIcon.EXCLAMATION_CIRCLE.create();
 		else
 		{
 			image = new Image(status.logoURL, "");

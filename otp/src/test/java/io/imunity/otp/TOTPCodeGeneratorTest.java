@@ -106,7 +106,7 @@ public class TOTPCodeGeneratorTest
 				"john.doe@email.com", "ACME&Sons", 
 				new OTPGenerationParams(6, HashFunction.SHA1, 30), Optional.of("https://host.com/image.jpg"));
                 
-                assertThat(url).isEqualTo("otpauth://totp/ACME&Sons:john.doe@email.com?"
+                assertThat(url).isEqualTo("otpauth://totp/ACME%26Sons:john.doe%40email.com?"
                 		+ "secret=JBSWY3DPEHPK3PXP&"
                 		+ "issuer=ACME%26Sons&"
                 		+ "algorithm=SHA1&"

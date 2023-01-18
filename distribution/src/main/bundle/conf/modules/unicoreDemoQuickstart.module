@@ -1,8 +1,0 @@
-# This configuration module enables demo UNICORE server. Should not be used for production,
-# but allows for quick testing against quickstart UNICORE distribution
-
-
-# initialization script: creates groups structure and UNICORE attribute types 
-unityServer.core.script.9001.file=${CONF}/scripts/unicoreDemoContentInitializer.groovy
-unityServer.core.script.9001.trigger=pre-init
-

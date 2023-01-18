@@ -7,12 +7,12 @@ package pl.edu.icm.unity.engine.api.webhook;
 
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 
 import pl.edu.icm.unity.engine.api.integration.Webhook;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 public interface WebhookProcessor
 {
-	HttpResponse trigger(Webhook webhook, Map<String, String> params) throws EngineException;
+	ClassicHttpResponse trigger(Webhook webhook, Map<String, String> params) throws EngineException;
 }

@@ -17,9 +17,6 @@
     <artifactId>vaadin23-shared-endpoint</artifactId>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <vaadin.productionMode>true</vaadin.productionMode>
     </properties>
 

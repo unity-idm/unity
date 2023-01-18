@@ -7,12 +7,15 @@ package pl.edu.icm.unity.saml.metadata.srv;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.StatusLine;
 
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
@@ -22,7 +25,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 /**
  * Wraps configuration of HTTP client which can use custom truststore 
  * and makes GET connection, returning the stream with HTTP entity.
- * 
+ *
  * @author K. Benedyczak
  */
 public class NetworkClient
@@ -41,16 +44,18 @@ public class NetworkClient
 		HttpClient client = url.startsWith("https:") ? getSSLClient(url, customTruststore)
 				: HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet(url);
-		HttpResponse response = client.execute(request);
-		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
+		ClassicHttpResponse response = client.executeOpen(null, request, HttpClientContext.create());
+		if (response.getCode() != HttpStatus.SC_OK)
 		{
-			String body = response.getEntity().getContentLength() < 10240 ? EntityUtils
+			String body = "";
+			try {
+				body = response.getEntity().getContentLength() < 10240 ? EntityUtils
 					.toString(response.getEntity()) : "";
-
+				response.close();
+			}catch(ParseException pe) {}
 			throw new IOException("Metadata download from " + url + " error: "
-					+ response.getStatusLine().toString() + "; " + body);
+					+ new StatusLine(response).toString() + "; " + body);
 		}
-
 		return response.getEntity().getContent();
 	}
 	
@@ -68,4 +73,5 @@ public class NetworkClient
 			return HttpClientBuilder.create().build();
 		}
 	}
+
 }

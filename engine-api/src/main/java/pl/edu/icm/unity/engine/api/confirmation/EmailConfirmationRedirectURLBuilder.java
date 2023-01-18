@@ -6,7 +6,9 @@ package pl.edu.icm.unity.engine.api.confirmation;
 
 import java.net.URISyntaxException;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
+
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 
 /**
  * Creates redirect URL which shall be used in certain situations after confirmation of email.   
@@ -40,7 +42,7 @@ public class EmailConfirmationRedirectURLBuilder
 		}
 		try
 		{
-			uriBuilder = new URIBuilder(baseUrl);
+			uriBuilder = URIBuilderFixer.newInstance(baseUrl);
 		} catch (URISyntaxException e)
 		{
 			throw new IllegalStateException("Form has illegal redirect URI, shouldn't happen", e);

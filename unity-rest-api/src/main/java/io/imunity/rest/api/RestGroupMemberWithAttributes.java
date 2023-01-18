@@ -4,69 +4,91 @@
  */
 package io.imunity.rest.api;
 
-
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import io.imunity.rest.api.types.basic.RestAttributeExt;
+import io.imunity.rest.api.types.basic.RestEntityInformation;
+import io.imunity.rest.api.types.basic.RestIdentity;
+
+@JsonDeserialize(builder = RestGroupMemberWithAttributes.Builder.class)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RestGroupMemberWithAttributes
 {
-	private RestEntityInformation entityInformation;
-	private List<RestIdentity> identities;
-	private Collection<RestAttributeExt> attributes;
+	public final RestEntityInformation entityInformation;
+	public final List<RestIdentity> identities;
+	public final Collection<RestAttributeExt> attributes;
 
-	public RestGroupMemberWithAttributes(RestEntityInformation entityInformation, List<RestIdentity> identities, Collection<RestAttributeExt> attributes)
+	private RestGroupMemberWithAttributes(Builder builder)
 	{
-		this.entityInformation = entityInformation;
-		this.identities = List.copyOf(identities);
-		this.attributes = List.copyOf(attributes);
-	}
-
-	//for Jackson
-	protected RestGroupMemberWithAttributes()
-	{
-	}
-
-	public RestEntityInformation getEntityInformation()
-	{
-		return entityInformation;
-	}
-
-	public List<RestIdentity> getIdentities()
-	{
-		return identities;
-	}
-
-	public Collection<RestAttributeExt> getAttributes()
-	{
-		return new ArrayList<>(attributes);
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		RestGroupMemberWithAttributes that = (RestGroupMemberWithAttributes) o;
-		return Objects.equals(entityInformation, that.entityInformation) &&
-				Objects.equals(identities, that.identities) &&
-				Objects.equals(attributes, that.attributes);
+		this.entityInformation = builder.entityInformation;
+		this.identities = List.copyOf(builder.identities);
+		this.attributes = List.copyOf(builder.attributes);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(entityInformation, identities, attributes);
+		return Objects.hash(attributes, entityInformation, identities);
 	}
 
 	@Override
-	public String toString()
+	public boolean equals(Object obj)
 	{
-		return "SimpleGroupMember{" +
-				"entityInformation=" + entityInformation +
-				", identities=" + identities +
-				", attributes=" + attributes +
-				'}';
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RestGroupMemberWithAttributes other = (RestGroupMemberWithAttributes) obj;
+		return Objects.equals(attributes, other.attributes)
+				&& Objects.equals(entityInformation, other.entityInformation)
+				&& Objects.equals(identities, other.identities);
 	}
+
+	public static Builder builder()
+	{
+		return new Builder();
+	}
+
+	public static final class Builder
+	{
+		private RestEntityInformation entityInformation;
+		private List<RestIdentity> identities = Collections.emptyList();
+		private Collection<RestAttributeExt> attributes = Collections.emptyList();
+
+		private Builder()
+		{
+		}
+
+		public Builder withEntityInformation(RestEntityInformation entityInformation)
+		{
+			this.entityInformation = entityInformation;
+			return this;
+		}
+
+		public Builder withIdentities(List<RestIdentity> identities)
+		{
+			this.identities = identities;
+			return this;
+		}
+
+		public Builder withAttributes(Collection<RestAttributeExt> attributes)
+		{
+			this.attributes = attributes;
+			return this;
+		}
+
+		public RestGroupMemberWithAttributes build()
+		{
+			return new RestGroupMemberWithAttributes(this);
+		}
+	}
+
 }
