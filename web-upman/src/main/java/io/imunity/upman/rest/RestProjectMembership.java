@@ -7,25 +7,21 @@ package io.imunity.upman.rest;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 @JsonDeserialize(builder = RestProjectMembership.RestProjectMembershipBuilder.class)
 class RestProjectMembership
 {
-	public final String group;
-	public final long entityId;
-	public final Instant creationTs;
-	public final String translationProfile;
-	public final String remoteIdp;
+	public final String email;
+	public final String role;
+	public final List<RestAttribute> attributes;
 
-	RestProjectMembership(String group, long entityId, Instant creationTs, String translationProfile, String remoteIdp)
+	RestProjectMembership(String email, String role, List<RestAttribute> attributes)
 	{
-		this.group = group;
-		this.entityId = entityId;
-		this.creationTs = creationTs;
-		this.translationProfile = translationProfile;
-		this.remoteIdp = remoteIdp;
+		this.email = email;
+		this.role = role;
+		this.attributes = attributes;
 	}
 
 	@Override
@@ -34,26 +30,23 @@ class RestProjectMembership
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		RestProjectMembership that = (RestProjectMembership) o;
-		return entityId == that.entityId && Objects.equals(group, that.group) && Objects.equals(creationTs,
-			that.creationTs) && Objects.equals(translationProfile, that.translationProfile) &&
-			Objects.equals(remoteIdp, that.remoteIdp);
+		return Objects.equals(email, that.email) && Objects.equals(role, that.role) && Objects.equals(attributes,
+			that.attributes);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(group, entityId, creationTs, translationProfile, remoteIdp);
+		return Objects.hash(email, role, attributes);
 	}
 
 	@Override
 	public String toString()
 	{
 		return "RestProjectMembership{" +
-			"group='" + group + '\'' +
-			", entityId=" + entityId +
-			", creationTs=" + creationTs +
-			", translationProfile='" + translationProfile + '\'' +
-			", remoteIdp='" + remoteIdp + '\'' +
+			"email='" + email + '\'' +
+			", role='" + role + '\'' +
+			", attributes=" + attributes +
 			'}';
 	}
 
@@ -64,49 +57,35 @@ class RestProjectMembership
 
 	public static final class RestProjectMembershipBuilder
 	{
-		private String group;
-		private long entityId;
-		private Instant creationTs;
-		private String translationProfile;
-		private String remoteIdp;
+		public String email;
+		public String role;
+		public List<RestAttribute> attributes;
 
 		private RestProjectMembershipBuilder()
 		{
 		}
 
-		public RestProjectMembershipBuilder withGroup(String group)
+		public RestProjectMembershipBuilder withEmail(String email)
 		{
-			this.group = group;
+			this.email = email;
 			return this;
 		}
 
-		public RestProjectMembershipBuilder withEntityId(long entityId)
+		public RestProjectMembershipBuilder withRole(String role)
 		{
-			this.entityId = entityId;
+			this.role = role;
 			return this;
 		}
 
-		public RestProjectMembershipBuilder withCreationTs(Instant creationTs)
+		public RestProjectMembershipBuilder withAttributes(List<RestAttribute> attributes)
 		{
-			this.creationTs = creationTs;
-			return this;
-		}
-
-		public RestProjectMembershipBuilder withTranslationProfile(String translationProfile)
-		{
-			this.translationProfile = translationProfile;
-			return this;
-		}
-
-		public RestProjectMembershipBuilder withRemoteIdp(String remoteIdp)
-		{
-			this.remoteIdp = remoteIdp;
+			this.attributes = attributes;
 			return this;
 		}
 
 		public RestProjectMembership build()
 		{
-			return new RestProjectMembership(group, entityId, creationTs, translationProfile, remoteIdp);
+			return new RestProjectMembership(email, role, attributes);
 		}
 	}
 }

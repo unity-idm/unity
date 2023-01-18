@@ -1,0 +1,376 @@
+/*
+ * Copyright (c) 2015, Jirav All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package io.imunity.upman.rest;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.junit.Test;
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
+
+import javax.ws.rs.core.Response.Status;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+
+public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
+{
+	private final ObjectMapper mapper = Constants.MAPPER;
+
+	@Test
+	public void addedProjectIsReturned() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id);
+
+		String contents = client.execute(host, getProject, getClientContext(host),
+			new BasicHttpClientResponseHandler());
+		RestProject project = JsonUtil.parse(contents, RestProject.class);
+
+		assertThat(project.projectId).isEqualTo("A");
+		assertThat(project.isPublic).isEqualTo(false);
+		assertThat(project.displayedName).isEqualTo(Map.of("en", "superGroup"));
+		assertThat(project.description).isEqualTo(Map.of("en", "description"));
+		assertThat(project.enableDelegation).isEqualTo(true);
+		assertThat(project.logoUrl).isEqualTo("/image.png");
+		assertThat(project.enableSubprojects).isEqualTo(true);
+		assertThat(project.readOnlyAttributes).isEqualTo(List.of());
+		assertThat(project.registrationForm).isEqualTo("superGroupRegistration");
+		assertThat(project.signUpEnquiry).isEqualTo("superGroupJoinEnquiry");
+		assertThat(project.membershipUpdateEnquiry).isEqualTo("superGroupUpdateEnquiry");
+	}
+
+	@Test
+	public void removedProjectIsNotReturned() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, false))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, false))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, false))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpDelete removeProject = new HttpDelete("/restupm/v1/projects/" + projectId.id);
+		try(ClassicHttpResponse response = client.executeOpen(host, removeProject, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id);
+		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
+		{
+			assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getCode());
+		}
+	}
+
+
+	@Test
+	public void addedProjectsAreReturned() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpPost add2 = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build2 = RestProjectCreateRequest.builder()
+			.withProjectId("B")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add2.setEntity(new StringEntity(mapper.writeValueAsString(build2)));
+		String jsonProjectId2 = client.execute(host, add2, getClientContext(host),
+			new BasicHttpClientResponseHandler());
+		RestProjectId projectId2 = JsonUtil.parse(jsonProjectId2, RestProjectId.class);
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects");
+
+		String contents = client.execute(host, getProject, getClientContext(host),
+			new BasicHttpClientResponseHandler());
+		List<RestProject> projects = JsonUtil.parseToList(contents, RestProject.class);
+
+		assertThat(projects.size()).isEqualTo(2);
+		assertThat(projects.stream().map(p -> p.projectId).collect(Collectors.toSet()))
+			.isEqualTo(Set.of(projectId.id, projectId2.id));
+	}
+
+	@Test
+	public void updatedProjectIsReturned() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpPut update = new HttpPut("/restupm/v1/projects/" + projectId.id);
+		RestProjectUpdateRequest updateBuild = RestProjectUpdateRequest.builder()
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup2"))
+			.withDescription(Map.of("en", "description2"))
+			.withEnableDelegation(true)
+			.withLogoUrl("/image2.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		update.setEntity(new StringEntity(mapper.writeValueAsString(updateBuild)));
+
+		try(ClassicHttpResponse response = client.executeOpen(host, update, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id);
+
+		String contents = client.execute(host, getProject, getClientContext(host),
+			new BasicHttpClientResponseHandler());
+		RestProject project = JsonUtil.parse(contents, RestProject.class);
+
+		assertThat(project.projectId).isEqualTo("A");
+		assertThat(project.isPublic).isEqualTo(false);
+		assertThat(project.displayedName).isEqualTo(Map.of("en", "superGroup2"));
+		assertThat(project.description).isEqualTo(Map.of("en", "description2"));
+		assertThat(project.enableDelegation).isEqualTo(true);
+		assertThat(project.logoUrl).isEqualTo("/image2.png");
+		assertThat(project.enableSubprojects).isEqualTo(true);
+		assertThat(project.readOnlyAttributes).isEqualTo(List.of());
+		assertThat(project.registrationForm).isEqualTo("superGroupRegistration1");
+		assertThat(project.signUpEnquiry).isEqualTo("superGroupJoinEnquiry1");
+		assertThat(project.membershipUpdateEnquiry).isEqualTo("superGroupUpdateEnquiry1");
+	}
+
+	@Test
+	public void addedMembershipIsReturned() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		String contents = client.execute(host, getProject, getClientContext(host),
+			new BasicHttpClientResponseHandler());
+		RestProjectMembership member = JsonUtil.parse(contents, RestProjectMembership.class);
+
+		assertThat(member.email).isEqualTo(entityEmail);
+	}
+
+	@Test
+	public void removedMembershipIsNotReturned() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpDelete removeMembership = new HttpDelete("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		try(ClassicHttpResponse response = client.executeOpen(host, removeMembership, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
+		{
+			assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getCode());
+		}
+	}
+
+	@Test
+	public void addedMembershipRoleIsReturned() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpPut addMembershipRole = new HttpPut("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		addMembershipRole.setEntity(new StringEntity(mapper.writeValueAsString(new RestAuthorizationRole("manager"))));
+		try(ClassicHttpResponse response = client.executeOpen(host, addMembershipRole, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		String contents = client.execute(host, getProject, getClientContext(host),
+			new BasicHttpClientResponseHandler());
+		RestAuthorizationRole role = JsonUtil.parse(contents, RestAuthorizationRole.class);
+
+		assertThat(role.role).isEqualTo("manager");
+	}
+
+	@Test
+	public void updatedMembershipRoleIsReturned() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpPut addMembershipRole = new HttpPut("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		addMembershipRole.setEntity(new StringEntity(mapper.writeValueAsString(new RestAuthorizationRole("manager"))));
+		try(ClassicHttpResponse response = client.executeOpen(host, addMembershipRole, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpPut addMembershipRoleUpdate = new HttpPut("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		addMembershipRoleUpdate.setEntity(new StringEntity(mapper.writeValueAsString(new RestAuthorizationRole("projectsAdmin"))));
+		try(ClassicHttpResponse response = client.executeOpen(host, addMembershipRoleUpdate, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		String contents = client.execute(host, getProject, getClientContext(host),
+			new BasicHttpClientResponseHandler());
+		RestAuthorizationRole role = JsonUtil.parse(contents, RestAuthorizationRole.class);
+
+		assertThat(role.role).isEqualTo("projectsAdmin");
+	}
+
+}

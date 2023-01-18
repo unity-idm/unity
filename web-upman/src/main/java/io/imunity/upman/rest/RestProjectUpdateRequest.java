@@ -5,6 +5,7 @@
 
 package io.imunity.upman.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Objects;
 @JsonDeserialize(builder = RestProjectUpdateRequest.RestProjectBuilder.class)
 class RestProjectUpdateRequest
 {
+	@JsonProperty("public")
 	public final boolean isPublic;
 	public final Map<String, String> displayedName;
 	public final Map<String, String> description;
@@ -21,18 +23,14 @@ class RestProjectUpdateRequest
 	public final String logoUrl;
 	public final boolean enableSubprojects;
 	public final List<String> readOnlyAttributes;
-	public final String registrationForm;
-	public final boolean registrationFormAutogenerate;
-	public final String signUpEnquiry;
-	public final boolean signUpEnquiryAutogenerate;
-	public final String membershipUpdateEnquiry;
-	public final boolean membershipUpdateEnquiryAutogenerate;
+	public final RestRegistrationForm registrationForm;
+	public final RestSignUpEnquiry signUpEnquiry;
+	public final RestMembershipEnquiry membershipUpdateEnquiry;
 
 	RestProjectUpdateRequest(boolean isPublic, Map<String, String> displayedName,
 	                         Map<String, String> description, boolean enableDelegation,
-	                         String logoUrl, boolean enableSubprojects, List<String> readOnlyAttributes, String registrationForm,
-	                         boolean registrationFormAutogenerate, String signUpEnquiry, boolean signUpEnquiryAutogenerate,
-	                         String membershipUpdateEnquiry, boolean membershipUpdateEnquiryAutogenerate)
+	                         String logoUrl, boolean enableSubprojects, List<String> readOnlyAttributes,
+	                         RestRegistrationForm registrationForm, RestSignUpEnquiry signUpEnquiry, RestMembershipEnquiry membershipUpdateEnquiry)
 	{
 		this.isPublic = isPublic;
 		this.displayedName = displayedName;
@@ -42,11 +40,8 @@ class RestProjectUpdateRequest
 		this.enableSubprojects = enableSubprojects;
 		this.readOnlyAttributes = readOnlyAttributes;
 		this.registrationForm = registrationForm;
-		this.registrationFormAutogenerate = registrationFormAutogenerate;
 		this.signUpEnquiry = signUpEnquiry;
-		this.signUpEnquiryAutogenerate = signUpEnquiryAutogenerate;
 		this.membershipUpdateEnquiry = membershipUpdateEnquiry;
-		this.membershipUpdateEnquiryAutogenerate = membershipUpdateEnquiryAutogenerate;
 	}
 
 	@Override
@@ -57,9 +52,6 @@ class RestProjectUpdateRequest
 		RestProjectUpdateRequest that = (RestProjectUpdateRequest) o;
 		return isPublic == that.isPublic && enableDelegation == that.enableDelegation &&
 			enableSubprojects == that.enableSubprojects &&
-			registrationFormAutogenerate == that.registrationFormAutogenerate &&
-			signUpEnquiryAutogenerate == that.signUpEnquiryAutogenerate &&
-			membershipUpdateEnquiryAutogenerate == that.membershipUpdateEnquiryAutogenerate &&
 			Objects.equals(displayedName, that.displayedName) &&
 			Objects.equals(description, that.description) &&
 			Objects.equals(logoUrl, that.logoUrl) &&
@@ -73,8 +65,7 @@ class RestProjectUpdateRequest
 	public int hashCode()
 	{
 		return Objects.hash(isPublic, displayedName, description, enableDelegation, logoUrl,
-			enableSubprojects, readOnlyAttributes, registrationForm, registrationFormAutogenerate, signUpEnquiry,
-			signUpEnquiryAutogenerate, membershipUpdateEnquiry, membershipUpdateEnquiryAutogenerate);
+			enableSubprojects, readOnlyAttributes, registrationForm, signUpEnquiry, membershipUpdateEnquiry);
 	}
 
 	@Override
@@ -89,11 +80,8 @@ class RestProjectUpdateRequest
 			", enableSubprojects=" + enableSubprojects +
 			", readOnlyAttributes='" + readOnlyAttributes + '\'' +
 			", registrationForm='" + registrationForm + '\'' +
-			", registrationFormAutogenerate=" + registrationFormAutogenerate +
 			", signUpEnquiry='" + signUpEnquiry + '\'' +
-			", signUpEnquiryAutogenerate=" + signUpEnquiryAutogenerate +
 			", membershipUpdateEnquiry='" + membershipUpdateEnquiry + '\'' +
-			", membershipUpdateEnquiryAutogenerate=" + membershipUpdateEnquiryAutogenerate +
 			'}';
 	}
 
@@ -111,18 +99,15 @@ class RestProjectUpdateRequest
 		private String logoUrl;
 		private boolean enableSubprojects;
 		private List<String> readOnlyAttributes;
-		private String registrationForm;
-		private boolean registrationFormAutogenerate;
-		private String signUpEnquiry;
-		private boolean signUpEnquiryAutogenerate;
-		private String membershipUpdateEnquiry;
-		private boolean membershipUpdateEnquiryAutogenerate;
+		private RestRegistrationForm registrationForm;
+		private RestSignUpEnquiry signUpEnquiry;
+		private RestMembershipEnquiry membershipUpdateEnquiry;
 
 		private RestProjectBuilder()
 		{
 		}
 
-		public RestProjectBuilder withIsPublic(boolean isPublic)
+		public RestProjectBuilder withPublic(boolean isPublic)
 		{
 			this.isPublic = isPublic;
 			return this;
@@ -164,46 +149,28 @@ class RestProjectUpdateRequest
 			return this;
 		}
 
-		public RestProjectBuilder withRegistrationForm(String registrationForm)
+		public RestProjectBuilder withRegistrationForm(RestRegistrationForm registrationForm)
 		{
 			this.registrationForm = registrationForm;
 			return this;
 		}
 
-		public RestProjectBuilder withRegistrationFormAutogenerate(boolean registrationFormAutogenerate)
-		{
-			this.registrationFormAutogenerate = registrationFormAutogenerate;
-			return this;
-		}
-
-		public RestProjectBuilder withSignUpEnquiry(String signUpEnquiry)
+		public RestProjectBuilder withSignUpEnquiry(RestSignUpEnquiry signUpEnquiry)
 		{
 			this.signUpEnquiry = signUpEnquiry;
 			return this;
 		}
 
-		public RestProjectBuilder withSignUpEnquiryAutogenerate(boolean signUpEnquiryAutogenerate)
-		{
-			this.signUpEnquiryAutogenerate = signUpEnquiryAutogenerate;
-			return this;
-		}
-
-		public RestProjectBuilder withMembershipUpdateEnquiry(String membershipUpdateEnquiry)
+		public RestProjectBuilder withMembershipUpdateEnquiry(RestMembershipEnquiry membershipUpdateEnquiry)
 		{
 			this.membershipUpdateEnquiry = membershipUpdateEnquiry;
-			return this;
-		}
-
-		public RestProjectBuilder withMembershipUpdateEnquiryAutogenerate(boolean membershipUpdateEnquiryAutogenerate)
-		{
-			this.membershipUpdateEnquiryAutogenerate = membershipUpdateEnquiryAutogenerate;
 			return this;
 		}
 
 		public RestProjectUpdateRequest build()
 		{
 			return new RestProjectUpdateRequest(isPublic, displayedName, description, enableDelegation, logoUrl,
-				enableSubprojects, readOnlyAttributes, registrationForm, registrationFormAutogenerate, signUpEnquiry, signUpEnquiryAutogenerate, membershipUpdateEnquiry, membershipUpdateEnquiryAutogenerate);
+				enableSubprojects, readOnlyAttributes, registrationForm, signUpEnquiry, membershipUpdateEnquiry);
 		}
 	}
 }

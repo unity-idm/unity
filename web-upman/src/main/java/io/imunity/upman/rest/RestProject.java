@@ -5,6 +5,7 @@
 
 package io.imunity.upman.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.List;
@@ -15,7 +16,8 @@ import java.util.Objects;
 @JsonDeserialize(builder = RestProject.RestProjectBuilder.class)
 class RestProject
 {
-	public final String groupName;
+	public final String projectId;
+	@JsonProperty("public")
 	public final boolean isPublic;
 	public final Map<String, String> displayedName;
 	public final Map<String, String> description;
@@ -27,12 +29,12 @@ class RestProject
 	public final String signUpEnquiry;
 	public final String membershipUpdateEnquiry;
 
-	RestProject(String groupName, boolean isPublic, Map<String, String> displayedName,
+	RestProject(String projectId, boolean isPublic, Map<String, String> displayedName,
 	            Map<String, String> description, boolean enableDelegation,
 	            String logoUrl, boolean enableSubprojects, List<String> readOnlyAttributes, String registrationForm,
 	            String signUpEnquiry, String membershipUpdateEnquiry)
 	{
-		this.groupName = groupName;
+		this.projectId = projectId;
 		this.isPublic = isPublic;
 		this.displayedName = displayedName;
 		this.description = description;
@@ -53,7 +55,7 @@ class RestProject
 		RestProject that = (RestProject) o;
 		return isPublic == that.isPublic && enableDelegation == that.enableDelegation &&
 			enableSubprojects == that.enableSubprojects &&
-			Objects.equals(groupName, that.groupName) &&
+			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(displayedName, that.displayedName) &&
 			Objects.equals(description, that.description) &&
 			Objects.equals(logoUrl, that.logoUrl) &&
@@ -66,7 +68,7 @@ class RestProject
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(groupName, isPublic, displayedName, description, enableDelegation, logoUrl,
+		return Objects.hash(projectId, isPublic, displayedName, description, enableDelegation, logoUrl,
 			enableSubprojects, readOnlyAttributes, registrationForm, signUpEnquiry, membershipUpdateEnquiry);
 	}
 
@@ -74,7 +76,7 @@ class RestProject
 	public String toString()
 	{
 		return "RestProject{" +
-			"groupName='" + groupName + '\'' +
+			"groupName='" + projectId + '\'' +
 			", isPublic=" + isPublic +
 			", displayedName=" + displayedName +
 			", description=" + description +
@@ -95,7 +97,7 @@ class RestProject
 
 	public static final class RestProjectBuilder
 	{
-		private String groupName;
+		private String projectId;
 		private boolean isPublic;
 		private Map<String, String> displayedName;
 		private Map<String, String> description;
@@ -110,13 +112,13 @@ class RestProject
 		{
 		}
 
-		public RestProjectBuilder withGroupName(String groupName)
+		public RestProjectBuilder withProjectId(String groupName)
 		{
-			this.groupName = groupName;
+			this.projectId = groupName;
 			return this;
 		}
 
-		public RestProjectBuilder withIsPublic(boolean isPublic)
+		public RestProjectBuilder withPublic(boolean isPublic)
 		{
 			this.isPublic = isPublic;
 			return this;
@@ -178,7 +180,7 @@ class RestProject
 
 		public RestProject build()
 		{
-			return new RestProject(groupName, isPublic, displayedName, description, enableDelegation, logoUrl,
+			return new RestProject(projectId, isPublic, displayedName, description, enableDelegation, logoUrl,
 				enableSubprojects, readOnlyAttributes, registrationForm, signUpEnquiry, membershipUpdateEnquiry);
 		}
 	}

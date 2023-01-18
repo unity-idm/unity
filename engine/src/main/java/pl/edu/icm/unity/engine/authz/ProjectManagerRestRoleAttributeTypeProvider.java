@@ -32,7 +32,7 @@ public class ProjectManagerRestRoleAttributeTypeProvider extends AbstractAttribu
 				msg, AUTHORIZATION_ROLE, new Object[] {authz.getRolesDescription()});
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		authorizationAt.setMinElements(1);
-		authorizationAt.setMaxElements(10);
+		authorizationAt.setMaxElements(1);
 		authorizationAt.setUniqueValues(true);
 		authorizationAt.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 		return authorizationAt;

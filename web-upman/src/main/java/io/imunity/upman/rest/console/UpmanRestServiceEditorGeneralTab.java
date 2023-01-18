@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 import java.util.List;
 import java.util.Set;
 
-public class UpmanRestServiceEditorGeneralTab extends GeneralTab
+class UpmanRestServiceEditorGeneralTab extends GeneralTab
 {
 
 	private Binder<UpmanRestServiceConfiguration> restBinder;

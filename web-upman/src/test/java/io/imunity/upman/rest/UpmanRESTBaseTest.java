@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
@@ -38,7 +40,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-class TestUpmanRESTBase extends DBIntegrationTestBase
+class UpmanRESTBaseTest extends DBIntegrationTestBase
 {
 	public static final String AUTHENTICATOR_REST_PASS = "ApassREST";
 	public static final String CONFIGURATION = "#\n" +
@@ -46,6 +48,7 @@ class TestUpmanRESTBase extends DBIntegrationTestBase
 		"unity.upman.rest.authorizationGroup=/A\n";
 	public static final String AUTHENTICATION_FLOW_PASS = "ApassRESTFlow";
 	protected long entityId;
+	protected String entityEmail;
 
 	@Autowired
 	protected AuthenticatorManagement authnMan;
@@ -67,6 +70,8 @@ class TestUpmanRESTBase extends DBIntegrationTestBase
 
 		Identity system_manager = createUsernameUserWithRole("System Manager");
 		entityId = system_manager.getEntityId();
+		entityEmail = "email@email.com";
+		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, entityEmail), new EntityParam(system_manager));
 		EntityParam entity = new EntityParam(entityId);
 		String group = "/A";
 		groupsMan.addGroup(new Group("/A"));

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
@@ -57,105 +58,106 @@ public class RESTUpmanController
 		return mapper.writeValueAsString(projects);
 	}
 
-	@Path("/projects/{groupName}")
+	@Path("/projects/{project-id}")
 	@GET
-	public String getProject(@PathParam("groupName") String groupName)
+	public String getProject(@PathParam("project-id") String projectId)
 		throws EngineException, JsonProcessingException
 	{
-		log.debug("getProject query for " + groupName);
-		RestProject project = restProjectService.getProject(groupName);
+		log.debug("getProject query for " + projectId);
+		RestProject project = restProjectService.getProject(projectId);
 		return mapper.writeValueAsString(project);
 	}
 
 	@Path("/projects")
 	@POST
-	public void addProject(String projectJson)
-			throws EngineException
+	public String addProject(String projectJson)
+		throws EngineException, JsonProcessingException
 	{
 		log.info("addProject {}", projectJson);
 		RestProjectCreateRequest project = JsonUtil.parse(projectJson, RestProjectCreateRequest.class);
-		restProjectService.addProject(project);
+		RestProjectId restProjectId = restProjectService.addProject(project);
+		return mapper.writeValueAsString(restProjectId);
 	}
 
-	@Path("/projects/{groupName}")
+	@Path("/projects/{project-id}")
 	@PUT
-	public void updateProject(@PathParam("groupName") String groupName, String projectJson)
+	public void updateProject(@PathParam("project-id") String projectId, String projectJson)
 		throws EngineException
 	{
 		log.info("updateProject {}", projectJson);
 		RestProjectUpdateRequest project = JsonUtil.parse(projectJson, RestProjectUpdateRequest.class);
-		restProjectService.updateProject(groupName, project);
+		restProjectService.updateProject(projectId, project);
 	}
 
-	@Path("/projects/{groupName}")
+	@Path("/projects/{project-id}")
 	@DELETE
-	public void removeProject(@PathParam("groupName") String groupName)
+	public void removeProject(@PathParam("project-id") String projectId)
 		throws EngineException, JsonProcessingException
 	{
-		log.info("removeProject {}", groupName);
-		restProjectService.removeProject(groupName);
+		log.info("removeProject {}", projectId);
+		restProjectService.removeProject(projectId);
 	}
 
-	@Path("/projects/{groupName}/members")
+	@Path("/projects/{project-id}/members")
 	@GET
-	public String getProjectMembers(@PathParam("groupName") String groupName)
+	public String getProjectMembers(@PathParam("project-id") String projectId)
 		throws EngineException, JsonProcessingException
 	{
-		log.debug("getProjectMember {}", groupName);
-		List<RestProjectMembership> members = restProjectService.getProjectMembers(groupName);
+		log.debug("getProjectMember {}", projectId);
+		List<RestProjectMembership> members = restProjectService.getProjectMembers(projectId);
 		return mapper.writeValueAsString(members);
 	}
 
-	@Path("/projects/{groupName}/members/{userId}")
+	@Path("/projects/{project-id}/members/{userId}")
 	@GET
-	public String getProjectMember(@PathParam("groupName") String groupName, @PathParam("userId") String userId)
+	public String getProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String email)
 		throws EngineException, JsonProcessingException
 	{
-		log.debug("getProjectMember {}, {}", groupName, userId);
-		RestProjectMembership member = restProjectService.getProjectMember(groupName, Long.parseLong(userId));
+		log.debug("getProjectMember {}, {}", projectId, email);
+		RestProjectMembership member = restProjectService.getProjectMember(projectId, email);
 		return mapper.writeValueAsString(member);
 	}
 
-	@Path("/projects/{groupName}/members/{userId}")
+	@Path("/projects/{project-id}/members/{userId}")
 	@DELETE
-	public void removeProjectMember(@PathParam("groupName") String groupName, @PathParam("userId") String userId)
+	public void removeProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String userId)
 		throws EngineException
 	{
-		log.info("removeProjectMember {}, {}", groupName, userId);
-		restProjectService.removeProjectMember(groupName, Long.parseLong(userId));
+		log.info("removeProjectMember {}, {}", projectId, userId);
+		restProjectService.removeProjectMember(projectId, userId);
 	}
 
-	@Path("/projects/{groupName}/members/{userId}")
+	@Path("/projects/{project-id}/members/{userId}")
 	@POST
-	public void addProjectMember(@PathParam("groupName") String groupName, @PathParam("userId") String userId)
+	public void addProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String userId)
 		throws EngineException
 	{
-		log.info("removeProjectMember {}, {}", groupName, userId);
-		restProjectService.addProjectMember(groupName, Long.parseLong(userId));
+		log.info("removeProjectMember {}, {}", projectId, userId);
+		restProjectService.addProjectMember(projectId, userId);
 	}
 
-	@Path("/projects/{groupName}/members/{userId}/role")
+	@Path("/projects/{project-id}/members/{userId}/role")
 	@GET
-	public String getProjectMemberAuthorizationRole(@PathParam("groupName") String groupName,
+	public String getProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
 	                                           @PathParam("userId") String userId)
 		throws EngineException, JsonProcessingException
 	{
-		log.debug("getProjectMemberAuthorizationRole {}, {}", groupName, userId);
+		log.debug("getProjectMemberAuthorizationRole {}, {}", projectId, userId);
 		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole(
-			groupName, Long.parseLong(userId));
+			projectId, userId);
 		return mapper.writeValueAsString(role);
 	}
 
-	@Path("/projects/{groupName}/members/{userId}/role")
+	@Path("/projects/{project-id}/members/{userId}/role")
 	@PUT
-	public void addProjectMemberAuthorizationRole(@PathParam("groupName") String groupName,
+	public void addProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
 	                                            @PathParam("userId") String userId, String roleJson)
 		throws EngineException
 	{
-		log.info("addProjectMemberAuthorizationRole {}, {}", groupName, userId);
+		log.info("addProjectMemberAuthorizationRole {}, {}", projectId, userId);
 		RestAuthorizationRole role = JsonUtil.parse(roleJson, RestAuthorizationRole.class);
 		restProjectService.setProjectAuthorizationRole(
-			groupName, Long.parseLong(userId), role);
+			projectId, userId, role);
 	}
 
 	@Component
@@ -168,6 +170,7 @@ public class RESTUpmanController
 		private final UpmanRestAuthorizationManager authz;
 		private final RegistrationsManagement registrationsManagement;
 		private final EnquiryManagement enquiryManagement;
+		private final EntityManagement idsMan;
 
 		@Autowired
 		RESTUpmanControllerFactory(ObjectFactory<RESTUpmanController> factory,
@@ -176,7 +179,8 @@ public class RESTUpmanController
 		                           @Qualifier("insecure") GroupDelegationConfigGenerator groupDelegationConfigGenerator,
 		                           UpmanRestAuthorizationManager authz,
 		                           @Qualifier("insecure") RegistrationsManagement registrationsManagement,
-		                           @Qualifier("insecure") EnquiryManagement enquiryManagement)
+		                           @Qualifier("insecure") EnquiryManagement enquiryManagement,
+		                           @Qualifier("insecure") EntityManagement idsMan)
 		{
 			this.factory = factory;
 			this.delGroupMan = delGroupMan;
@@ -185,6 +189,7 @@ public class RESTUpmanController
 			this.authz = authz;
 			this.registrationsManagement = registrationsManagement;
 			this.enquiryManagement = enquiryManagement;
+			this.idsMan = idsMan;
 		}
 
 		public RESTUpmanController newInstance(String rootGroup, String authorizeGroup)
@@ -192,7 +197,7 @@ public class RESTUpmanController
 			RESTUpmanController object = factory.getObject();
 			object.init(new RestProjectService(
 				delGroupMan, groupMan, groupDelegationConfigGenerator, registrationsManagement, enquiryManagement,
-				authz, rootGroup, authorizeGroup
+				authz, idsMan, rootGroup, authorizeGroup
 			), rootGroup);
 			return object;
 		}

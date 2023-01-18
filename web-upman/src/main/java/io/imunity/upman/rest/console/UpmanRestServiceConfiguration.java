@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class UpmanRestServiceConfiguration
+class UpmanRestServiceConfiguration
 {
 	private GroupWithIndentIndicator rootGroup;
 	private GroupWithIndentIndicator authorizationGroup;
@@ -81,13 +81,13 @@ public class UpmanRestServiceConfiguration
 		allowedCORSheaders.forEach(cors -> {
 
 			int i = allowedCORSheaders.indexOf(cors) + 1;
-			raw.put(RESTEndpointProperties.PREFIX + UpmanRestEndpointProperties.ENABLED_CORS_HEADERS + i, cors);
+			raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.ENABLED_CORS_HEADERS + i, cors);
 		});
 
 		allowedCORSorigins.forEach(cors -> {
 
 			int i = allowedCORSorigins.indexOf(cors) + 1;
-			raw.put(RESTEndpointProperties.PREFIX + RESTEndpointProperties.ENABLED_CORS_ORIGINS + i, cors);
+			raw.put(UpmanRestEndpointProperties.PREFIX + RESTEndpointProperties.ENABLED_CORS_ORIGINS + i, cors);
 		});
 
 		UpmanRestEndpointProperties prop = new UpmanRestEndpointProperties(raw);

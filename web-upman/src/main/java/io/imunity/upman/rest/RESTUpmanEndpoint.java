@@ -34,7 +34,7 @@ public class RESTUpmanEndpoint extends RESTEndpoint
 	public static final String NAME = "RESTUpman";
 	public static final String V1_PATH = "/v1";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
-			NAME, "A RESTful endpoint exposing Unity management API.",
+			NAME, "A RESTful endpoint exposing Upman management API.",
 			JAXRSAuthentication.NAME,
 			Collections.singletonMap(V1_PATH, "The REST management base path")
 		);

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class UpmanRestAuthorizationManager
+class UpmanRestAuthorizationManager
 {
 	private final AttributesManagement attrDao;
 
