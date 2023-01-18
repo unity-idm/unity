@@ -20,9 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import io.imunity.rest.api.types.idp.statistic.RestGroupedIdpStatistic;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
-import pl.edu.icm.unity.engine.api.idp.statistic.GroupedIdpStatistic;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
 
 public class TestIdpStatistics extends RESTAdminTestBase
@@ -48,7 +48,7 @@ public class TestIdpStatistics extends RESTAdminTestBase
 						+ "&groupBy=" + GroupBy.total.toString());
 		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		System.out.println("Response:\n" + contents);
-		List<GroupedIdpStatistic> returnedL = m.readValue(contents, new TypeReference<List<GroupedIdpStatistic>>()
+		List<RestGroupedIdpStatistic> returnedL = m.readValue(contents, new TypeReference<List<RestGroupedIdpStatistic>>()
 		{
 		});
 		assertThat(returnedL.size(), is(1));

@@ -33,6 +33,7 @@ import com.google.common.collect.Sets;
 import io.imunity.rest.api.types.basic.RestAttributeStatement;
 import io.imunity.rest.api.types.basic.RestGroup;
 import io.imunity.rest.api.types.basic.RestGroupContents;
+import io.imunity.rest.api.types.basic.RestGroupMember;
 import io.imunity.rest.api.types.basic.RestGroupProperty;
 import io.imunity.rest.api.types.basic.RestI18nString;
 import pl.edu.icm.unity.Constants;
@@ -41,7 +42,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -237,8 +237,8 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		
 		// when // then
 		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
-		List<GroupMember> groupContent = Constants.MAPPER.readValue(contents, 
-				new TypeReference<List<GroupMember>>(){});
+		List<RestGroupMember> groupContent = Constants.MAPPER.readValue(contents, 
+				new TypeReference<List<RestGroupMember>>(){});
 		assertThat(groupContent.size(), is(2));
 	}
 }

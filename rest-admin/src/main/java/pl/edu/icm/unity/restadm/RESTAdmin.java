@@ -102,6 +102,7 @@ import pl.edu.icm.unity.restadm.mappers.GroupMembershipMapper;
 import pl.edu.icm.unity.restadm.mappers.TokenMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.EndpointConfigurationMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.ResolvedEndpointMapper;
+import pl.edu.icm.unity.restadm.mappers.idp.statistic.GroupedIdpStatisticMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.RegistrationFormMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.RegistrationRequestStateMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.invite.InvitationParamMapper;
@@ -1153,8 +1154,12 @@ public class RESTAdmin implements RESTAdminHandler
 		GroupBy groupByFallbackToTotal = groupBy != null ? GroupBy.valueOf(groupBy) : GroupBy.none;
 		if (skipZeroRecords == null)
 			skipZeroRecords = true;
-		return mapper.writeValueAsString(idpStatisticManagement.getIdpStatisticsSinceGroupBy(sinceDate,
-				groupByFallbackToTotal, IdpStatisticManagement.DEFAULT_SIG_IN_RECORD_LIMIT, skipZeroRecords));
+		return mapper.writeValueAsString(idpStatisticManagement
+				.getIdpStatisticsSinceGroupBy(sinceDate, groupByFallbackToTotal,
+						IdpStatisticManagement.DEFAULT_SIG_IN_RECORD_LIMIT, skipZeroRecords)
+				.stream()
+				.map(GroupedIdpStatisticMapper::map)
+				.collect(Collectors.toList()));
 	}
 
 	/**
