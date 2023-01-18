@@ -5,17 +5,17 @@
 
 package pl.edu.icm.unity.store.impl.idpStatistics;
 
+import org.springframework.stereotype.Repository;
+import pl.edu.icm.unity.store.api.IdpStatisticDAO;
+import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
+import pl.edu.icm.unity.store.rdbms.RDBMSDAO;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
+
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Repository;
-
-import pl.edu.icm.unity.store.api.IdpStatisticDAO;
-import pl.edu.icm.unity.store.rdbms.RDBMSDAO;
-import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
 
 @Repository(IdpStatisticsRDBMSStore.BEAN)
 public class IdpStatisticsRDBMSStore implements IdpStatisticDAO, RDBMSDAO
@@ -75,7 +75,7 @@ public class IdpStatisticsRDBMSStore implements IdpStatisticDAO, RDBMSDAO
 		IdpStatisticMapper mapper = SQLTransactionTL.getSql().getMapper(IdpStatisticMapper.class);
 		IdpStatisticBean toRemove = mapper.getByKey(id);
 		if (toRemove == null)
-			throw new IllegalArgumentException(NAME + " with key [" + id + "] does not exist");
+			throw new EntityNotFoundException(NAME + " with key [" + id + "] does not exist");
 		mapper.deleteByKey(id);
 	}
 
@@ -92,7 +92,7 @@ public class IdpStatisticsRDBMSStore implements IdpStatisticDAO, RDBMSDAO
 		IdpStatisticMapper mapper = SQLTransactionTL.getSql().getMapper(IdpStatisticMapper.class);
 		IdpStatisticBean byName = mapper.getByKey(id);
 		if (byName == null)
-			throw new IllegalArgumentException(NAME + " with key [" + id + "] does not exist");
+			throw new EntityNotFoundException(NAME + " with key [" + id + "] does not exist");
 		return jsonSerializer.fromDB(byName);
 	}
 

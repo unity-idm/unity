@@ -1481,10 +1481,10 @@ Example output:
 	      "mandatory": true,
 	      "contentType": "LINK"
 	      "revision": "1"
-          "content": {
-                "en": "content",
-                "fr": "contenu"
-          }
+	      "content": {
+	            "en": "content",
+	            "fr": "contenu"
+	      }
 	}
 ]
 ----

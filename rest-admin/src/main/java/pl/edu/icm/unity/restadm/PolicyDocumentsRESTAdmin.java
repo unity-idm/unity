@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentNotFoundException;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -70,7 +71,7 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 		{
 			policyDocument = policyDocumentManagement.getPolicyDocument(parseLong(documentId));
 		}
-		catch (IllegalArgumentException e)
+		catch (PolicyDocumentNotFoundException e)
 		{
 			throw new NotFoundException(e);
 		}
@@ -109,7 +110,7 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 		{
 			policyDocumentManagement.removePolicyDocument(parseLong(documentId));
 		}
-		catch (IllegalArgumentException e)
+		catch (PolicyDocumentNotFoundException e)
 		{
 			throw new NotFoundException(e);
 		}
