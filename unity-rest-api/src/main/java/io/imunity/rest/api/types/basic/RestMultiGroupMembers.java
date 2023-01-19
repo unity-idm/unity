@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -23,7 +24,7 @@ public class RestMultiGroupMembers
 	private RestMultiGroupMembers(Builder builder)
 	{
 		this.entities = builder.entities;
-		this.members = builder.members;
+		this.members = Optional.ofNullable(builder.members).map(Map::copyOf).orElse(null);
 	}
 
 	@Override
@@ -67,7 +68,7 @@ public class RestMultiGroupMembers
 
 		public Builder withMembers(Map<String, List<RestEntityGroupAttributes>> members)
 		{
-			this.members = members;
+			this.members = Optional.ofNullable(members).map(Map::copyOf).orElse(null);;
 			return this;
 		}
 
