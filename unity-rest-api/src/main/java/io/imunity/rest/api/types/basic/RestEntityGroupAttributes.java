@@ -7,7 +7,9 @@ package io.imunity.rest.api.types.basic;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -20,7 +22,7 @@ public class RestEntityGroupAttributes
 	private RestEntityGroupAttributes(Builder builder)
 	{
 		this.entityId = builder.entityId;
-		this.attributes = builder.attributes;
+		this.attributes = Optional.ofNullable(builder.attributes).map(List::copyOf).orElse(null);
 	}
 
 	@Override
@@ -64,7 +66,7 @@ public class RestEntityGroupAttributes
 
 		public Builder withAttributes(Collection<RestAttributeExt> attributes)
 		{
-			this.attributes = attributes;
+			this.attributes = Optional.ofNullable(attributes).map(List::copyOf).orElse(null);
 			return this;
 		}
 
