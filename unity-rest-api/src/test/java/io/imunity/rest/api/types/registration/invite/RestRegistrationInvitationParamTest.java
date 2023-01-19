@@ -21,15 +21,15 @@ public class RestRegistrationInvitationParamTest extends RestTypeBase<RestRegist
 	@Override
 	protected String getJson()
 	{
-		return "{\"type\":\"REGISTRATION\",\"expiration\":1,\"contactAddress\":\"contactAddress\",\"inviter\":1,"
-				+ "\"expectedIdentity\":{\"identity\":\"identity\",\"expectation\":\"MANDATORY\"},\"formId\":\"formId\""
-				+ "\"identities\":{\"1\":{\"entry\":{\"value\":\"test@wp.pl\",\"realm\":\"realm\",\"target\":\"target\","
-				+ "\"translationProfile\":\"Profile\",\"remoteIdp\":\"remoteIdp\","
+		return "{\"type\":\"REGISTRATION\",\"expiration\":1,\"contactAddress\":\"contactAddress\","
+				+ "\"inviter\":1,\"expectedIdentity\":{\"identity\":\"identity\",\"expectation\":\"MANDATORY\"},"
+				+ "\"formId\":\"formId\",\"identities\":{\"1\":{\"entry\":{\"value\":\"test@wp.pl\",\"realm\":\"realm\","
+				+ "\"target\":\"target\",\"translationProfile\":\"Profile\",\"remoteIdp\":\"remoteIdp\","
 				+ "\"confirmationInfo\":{\"confirmed\":true,\"confirmationDate\":1,\"sentRequestAmount\":1},"
 				+ "\"metadata\":{\"1\":\"v\"},\"typeId\":\"email\"},\"mode\":\"HIDDEN\"}},"
-				+ "\"groupSelections\":{\"1\":{\"entry\":{\"selectedGroups\":[\"/g1\",\"/g2\"],\"externalIdp\":\"externalIdp\","
-				+ "\"translationProfile\":\"Profile\"},\"mode\":\"READ_ONLY\"}},\"allowedGroups\""
-				+ ":{\"1\":{\"selectedGroups\":[\"/g1\",\"/g2\"],\"externalIdp\":\"externalIdp\","
+				+ "\"groupSelections\":{\"1\":{\"entry\":{\"selectedGroups\":[\"/g1\",\"/g2\"],"
+				+ "\"externalIdp\":\"externalIdp\",\"translationProfile\":\"Profile\"},\"mode\":\"READ_ONLY\"}},"
+				+ "\"allowedGroups\":{\"1\":{\"selectedGroups\":[\"/g1\",\"/g2\"],\"externalIdp\":\"externalIdp\","
 				+ "\"translationProfile\":\"Profile\"}},\"attributes\":{\"1\":{\"entry\":{\"remoteIdp\":\"remoteIdp\","
 				+ "\"translationProfile\":\"translationProfile\",\"values\":[\"v1\",\"v2\"],\"name\":\"attr\","
 				+ "\"groupPath\":\"/A\",\"valueSyntax\":\"syntax\"},\"mode\":\"READ_ONLY\"}},"
