@@ -23,7 +23,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("GET", HttpURI.build("/console"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin8HeartbeatRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
 	}
 
@@ -33,7 +33,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("GET", HttpURI.build("/HEARTBEAT/"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin8HeartbeatRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isTrue();
 	}
 
@@ -43,7 +43,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("POST", HttpURI.build("/?v-r=heartbeat"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin23HeartbeatRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isTrue();
 	}
 
@@ -53,7 +53,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("GET", HttpURI.build("/?v-r=heartbeat"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin23HeartbeatRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
 	}
 
@@ -63,7 +63,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("POST", HttpURI.build("/?v-r=uidl"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin23HeartbeatRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
 	}
 
@@ -73,7 +73,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("POST", HttpURI.build("/ala/?v-r=heartbeat"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin23HeartbeatRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
 	}
 
@@ -83,7 +83,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("GET", HttpURI.build("/?v-r=push"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin23PushRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isTrue();
 	}
 
@@ -93,7 +93,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("POST", HttpURI.build("/?v-r=push"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin23PushRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
 	}
 
@@ -103,7 +103,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("GET", HttpURI.build("/?v-r=uidl"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin23PushRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
 	}
 
@@ -113,7 +113,7 @@ public class VaadinRequestTypeMatcherTest
 		Request request = new Request(null, null);
 		request.setMetaData(new MetaData.Request("GET", HttpURI.build("/ala/?v-r=push"), HTTP_1_1, EMPTY));
 
-		boolean result = VaadinRequestTypeMatcher.isVaadin23PushRequest(request);
+		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
 	}
 }

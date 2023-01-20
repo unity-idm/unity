@@ -1,30 +1,17 @@
 /*
- * Original work:
- * 
- * Copyright (c) 2011 IETF Trust and the persons identified as
- * authors of the code. All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, is permitted pursuant to, and subject to the license
- * terms contained in, the Simplified BSD License set forth in Section
- * 4.c of the IETF Trust's Legal Provisions Relating to IETF Documents
- * (http://trustee.ietf.org/license-info).
- * 
- * Adaptation to Unity:
- * 
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.otp;
+
+import org.apache.commons.codec.binary.Base32;
+import org.apache.hc.core5.net.URIBuilder;
 
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Optional;
-
-import org.apache.commons.codec.binary.Base32;
-import org.apache.hc.core5.net.URIBuilder;
 
 public class TOTPKeyGenerator
 {
@@ -46,8 +33,8 @@ public class TOTPKeyGenerator
 			throw new IllegalArgumentException("Label can not contain colon");
 		try
 		{
-			URIBuilder uriBuilder = new URIBuilder("otpauth://totp/" 
-					+ URLEncoder.encode(issuer, StandardCharsets.UTF_8).replace("+", "%20") + ":" 
+			URIBuilder uriBuilder = new URIBuilder("otpauth://totp/"
+					+ URLEncoder.encode(issuer, StandardCharsets.UTF_8).replace("+", "%20") + ":"
 					+ URLEncoder.encode(label, StandardCharsets.UTF_8).replace("+", "%20"));
 			uriBuilder.addParameter(SECRET_URI_PARAM, secretBase32); 
 			uriBuilder.addParameter(ISSUER_URI_PARAM, issuer); 
@@ -62,7 +49,7 @@ public class TOTPKeyGenerator
 		}
 	}
 	
-	static String generateRandomBase32EncodedKey(HashFunction hashFunction)
+	public static String generateRandomBase32EncodedKey(HashFunction hashFunction)
 	{
 		int bytes = hashFunction.bitLength / 8;
 		byte[] key = new byte[bytes];

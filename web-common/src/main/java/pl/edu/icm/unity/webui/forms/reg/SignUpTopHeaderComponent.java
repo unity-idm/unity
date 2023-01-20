@@ -4,23 +4,17 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import java.util.Optional;
-
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.common.Styles;
 
-/**
- * Wraps the top locale and remote authN progress component into one. Possibly also the go to sign in link.
- *
- * @author Roman Krysinski (roman@unity-idm.eu)
- */
+import java.util.Optional;
+
 public class SignUpTopHeaderComponent extends CustomComponent
 {
 	private Button gotoSignIn;

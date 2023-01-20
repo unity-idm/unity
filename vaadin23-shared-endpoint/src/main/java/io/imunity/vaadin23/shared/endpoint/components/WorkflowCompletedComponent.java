@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.components;
@@ -16,7 +16,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 
 public class WorkflowCompletedComponent extends VerticalLayout
 {
-
+	private final Label infoL;
 	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Component logo)
 	{
 		setMargin(true);
@@ -24,7 +24,7 @@ public class WorkflowCompletedComponent extends VerticalLayout
 		if(logo != null)
 			add(logo);
 
-		Label infoL = new Label(config.mainInformation);
+		infoL = new Label(config.mainInformation);
 		infoL.addClassName(Styles.vLabelH1.toString());
 		infoL.addClassName(config.success ? "u-final-info" : "u-final-error");
 		add(infoL);
@@ -56,5 +56,10 @@ public class WorkflowCompletedComponent extends VerticalLayout
 		}
 
 		setAlignItems(Alignment.CENTER);
+	}
+
+	public void setFontSize(String size)
+	{
+		infoL.getStyle().set("font-size", size);
 	}
 }

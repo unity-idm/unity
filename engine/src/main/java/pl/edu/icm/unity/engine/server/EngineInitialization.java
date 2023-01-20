@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
 import pl.edu.icm.unity.engine.api.endpoint.ServletProvider;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
@@ -40,7 +41,6 @@ import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.credential.SystemAllCredentialRequirements;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
-import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.group.AttributeStatementsCleaner;
 import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
@@ -173,7 +173,7 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private TranslationProfileManagement profilesManagement;
 	@Autowired
-	private SharedEndpointManagementImpl sharedEndpointManagement;
+	private SharedEndpointManagement sharedEndpointManagement;
 	@Autowired(required = false)
 	private EmailConfirmationServletProvider confirmationServletFactory;
 	@Autowired
@@ -223,7 +223,6 @@ public class EngineInitialization extends LifecycleBase
 				log.info("Unity is configured to SKIP DATABASE LOADING FROM CONFIGURATION");
 			initializeBackgroundTasks();
 			deployAttributeContentPublicServlet();
-			deployPublicWellKnownURLServlet();
 			super.start();
 		} catch (Exception e)
 		{
@@ -431,13 +430,6 @@ public class EngineInitialization extends LifecycleBase
 		eventsProcessor.addEventListener(scriptEventsConsumer);
 		eventsProcessor.addEventListener(auditEventListener);
 	}
-
-	private void deployPublicWellKnownURLServlet()
-	{
-		deploySharedEndpointServletWithVaadinSupport(publicWellKnownURLServlet, 
-				PublicWellKnownURLServletProvider.SERVLET_PATH,
-				"public well-known URL");
-	}
 	
 	private void deployAttributeContentPublicServlet()
 	{
@@ -446,18 +438,12 @@ public class EngineInitialization extends LifecycleBase
 				"public attribute exposure");
 	}
 
-	private void deploySharedEndpointServletWithVaadinSupport(ServletProvider servletProvider, String path, String name)
-	{
-		deploySharedEndpointServlet(servletProvider, path, name, true);
-	}
-
 	private void deploySharedEndpointServletWithoutVaadinSupport(ServletProvider servletProvider, String path, String name)
 	{
-		deploySharedEndpointServlet(servletProvider, path, name, false);
+		deploySharedEndpointServlet(servletProvider, path, name);
 	}
 	
-	private void deploySharedEndpointServlet(ServletProvider servletProvider, String path, String name, 
-			boolean mapVaadinResource)
+	private void deploySharedEndpointServlet(ServletProvider servletProvider, String path, String name)
 	{
 		if (servletProvider == null)
 		{
@@ -470,7 +456,7 @@ public class EngineInitialization extends LifecycleBase
 		List<FilterHolder> filterHolders = servletProvider.getServiceFilters();
 		try
 		{
-			sharedEndpointManagement.deployInternalEndpointServlet(path, holder, mapVaadinResource);
+			sharedEndpointManagement.deployInternalEndpointServlet(path, holder, false);
 			for (FilterHolder filter: filterHolders)
 				sharedEndpointManagement.deployInternalEndpointFilter(path, filter);
 		} catch (EngineException e)

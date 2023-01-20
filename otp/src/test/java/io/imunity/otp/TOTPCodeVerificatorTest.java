@@ -7,6 +7,7 @@ package io.imunity.otp;
 import static io.imunity.otp.TOTPCodeGeneratorTest.hexToBase32;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.imunity.otp.v8.TOTPCodeVerificator;
 import org.junit.jupiter.api.Test;
 
 import io.imunity.otp.TOTPCodeGeneratorTest.TestCaseSpec;
@@ -20,7 +21,7 @@ public class TOTPCodeVerificatorTest
 	{
 		String seed = hexToBase32("3132333435363738393031323334353637383930");
 		
-                boolean verification = TOTPCodeVerificator.verifyCode(CASE.code, seed, CASE.time * 1000 - 30001, 
+                boolean verification = TOTPCodeVerificator.verifyCode(CASE.code, seed, CASE.time * 1000 - 30001,
                 		new OTPGenerationParams(8, HashFunction.SHA1, 30), 1);
                 
                 assertThat(verification).isTrue();

@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Component;
 
-import io.imunity.otp.OTPCredentialReset;
+import io.imunity.otp.v8.OTPCredentialReset;
 import io.imunity.otp.OTPResetSettings;
 import io.imunity.otp.OTPResetSettings.ConfirmationMode;
 import pl.edu.icm.unity.MessageSource;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -13,6 +13,6 @@ public class SharedResourceProvider extends CustomResourceProvider
 {
 	public SharedResourceProvider()
 	{
-		super("vaadin23-endpoint-common");
+		super("vaadin23-endpoint-common", "otp");
 	}
 }

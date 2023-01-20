@@ -13,6 +13,7 @@
 	
 	<properties>
 		<m.name>fido</m.name>
+		<vaadin.productionMode>true</vaadin.productionMode>
 	</properties>
 
 	<scm>
@@ -41,6 +42,11 @@
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>vaadin23-shared-endpoint</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

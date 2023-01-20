@@ -5,6 +5,32 @@
 
 package io.imunity.otp.ldap;
 
+import com.unboundid.ldap.sdk.LDAPException;
+import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.otp.HashFunction;
+import io.imunity.otp.OTPGenerationParams;
+import io.imunity.otp.TOTPKeyGenerator;
+import io.imunity.otp.v8.OTPCredentialReset;
+import io.imunity.otp.v8.OTPExchange;
+import io.imunity.otp.v8.TOTPCodeVerificator;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.*;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.ldap.client.LdapAuthenticationException;
+import pl.edu.icm.unity.ldap.client.LdapClient;
+import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.Identity;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -15,40 +41,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.unboundid.ldap.sdk.LDAPException;
-
-import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.otp.HashFunction;
-import io.imunity.otp.OTPCredentialReset;
-import io.imunity.otp.OTPExchange;
-import io.imunity.otp.OTPGenerationParams;
-import io.imunity.otp.TOTPCodeVerificator;
-import io.imunity.otp.TOTPKeyGenerator;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
-import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.ldap.client.LdapAuthenticationException;
-import pl.edu.icm.unity.ldap.client.LdapClient;
-import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Identity;
 
 @PrototypeComponent
 class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange

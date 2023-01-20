@@ -1,27 +1,25 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
 package io.imunity.otp;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.base.Strings;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Label;
+import io.imunity.vaadin23.elements.NotificationPresenter;
+import io.imunity.vaadin23.shared.endpoint.components.ComponentsContainer;
+import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditor;
+import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
+
+import java.util.Optional;
 
 @PrototypeComponent
 class OTPCredentialEditor implements CredentialEditor
@@ -29,15 +27,17 @@ class OTPCredentialEditor implements CredentialEditor
 	private MessageSource msg;
 	private OTPEditorComponent editor;
 	private OTPCredentialDefinition config;
-	
+	private NotificationPresenter notificationPresenter;
+
 	@Autowired
-	OTPCredentialEditor(MessageSource msg)
+	OTPCredentialEditor(MessageSource msg, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
-	public ComponentsContainer getEditor(CredentialEditorContext context) 
+	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
 		config = JsonUtil.parse(context.getCredentialConfiguration(), 
 				OTPCredentialDefinition.class); 
@@ -51,7 +51,7 @@ class OTPCredentialEditor implements CredentialEditor
 		if (Strings.isNullOrEmpty(credentialInfo))
 			return Optional.empty();
 		OTPExtraInfo extraInfo = JsonUtil.parse(credentialInfo, OTPExtraInfo.class);
-		Label lastChange = new Label(msg.getMessage("OTPCredentialEditor.lastModification", 
+		Label lastChange = new Label(msg.getMessage("OTPCredentialEditor.lastModification",
 				extraInfo.lastModification));
 		return Optional.of(lastChange);
 	}
@@ -66,8 +66,8 @@ class OTPCredentialEditor implements CredentialEditor
 	public void setCredentialError(EngineException error)
 	{
 		if (error != null)
-			NotificationPopup.showError(msg, 
+			notificationPresenter.showError(
 				msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
-				error);
+				error.getMessage());
 	}
 }

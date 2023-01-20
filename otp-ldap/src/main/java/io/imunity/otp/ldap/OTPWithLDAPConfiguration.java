@@ -5,18 +5,11 @@
 
 package io.imunity.otp.ldap;
 
-import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Properties;
-
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.otp.HashFunction;
-import io.imunity.otp.OTPRetrievalProperties;
+import io.imunity.otp.v8.OTPRetrievalProperties;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -27,6 +20,12 @@ import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Properties;
+
+import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
 
 /**
  * OTP-LDAP configuration. Used by {@link AuthenticatorEditor} binder.

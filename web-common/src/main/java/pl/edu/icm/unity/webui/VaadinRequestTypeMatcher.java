@@ -25,24 +25,24 @@ public class VaadinRequestTypeMatcher
 		return isVaadin8HeartbeatRequest(request) || isVaadin23PushRequest(request) || isVaadin23HeartbeatRequest(request);
 	}
 
-	static boolean isVaadin8HeartbeatRequest(HttpServletRequest request)
+	private static boolean isVaadin8HeartbeatRequest(HttpServletRequest request)
 	{
 		String pathInfo = request.getPathInfo();
 		return pathInfo.startsWith('/' + HEARTBEAT_PATH + '/');
 	}
 
 
-	static boolean isVaadin23PushRequest(HttpServletRequest request)
+	private static boolean isVaadin23PushRequest(HttpServletRequest request)
 	{
 		return request.getMethod().equalsIgnoreCase(GET_METHOD) &&
 				ofNullable(request.getParameter("v-r")).orElse("").equalsIgnoreCase(PUSH_PARAMETER) &&
 				request.getPathInfo().equals("/");
 	}
 
-	static boolean isVaadin23HeartbeatRequest(HttpServletRequest request)
+	private static boolean isVaadin23HeartbeatRequest(HttpServletRequest request)
 	{
 		return request.getMethod().equalsIgnoreCase(POST_METHOD) &&
-				ofNullable(request.getParameter("v-r")).orElse("").equalsIgnoreCase(HEARTBEAT_PARAMETER) &&
+				HEARTBEAT_PARAMETER.equalsIgnoreCase(request.getParameter("v-r")) &&
 				request.getPathInfo().equals("/");
 	}
 }

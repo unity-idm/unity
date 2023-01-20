@@ -29,7 +29,7 @@ import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.otp.HashFunction;
 import io.imunity.otp.OTPGenerationParams;
-import io.imunity.otp.TOTPCodeGenerator;
+import io.imunity.otp.v8.TOTPCodeGenerator;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
