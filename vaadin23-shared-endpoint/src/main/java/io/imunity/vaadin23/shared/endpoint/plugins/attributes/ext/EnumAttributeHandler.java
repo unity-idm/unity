@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.attributes.ext;
@@ -27,8 +27,8 @@ import java.util.*;
 
 public class EnumAttributeHandler implements WebAttributeHandler
 {
-	private MessageSource msg;
-	private EnumAttributeSyntax syntax;
+	private final MessageSource msg;
+	private final EnumAttributeSyntax syntax;
 	
 	public EnumAttributeHandler(MessageSource msg, EnumAttributeSyntax syntax)
 	{

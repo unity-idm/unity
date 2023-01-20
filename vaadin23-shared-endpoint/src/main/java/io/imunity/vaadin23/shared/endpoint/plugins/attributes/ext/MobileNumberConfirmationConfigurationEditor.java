@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -19,15 +19,12 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 
 public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 {
-	private MessageSource msg;
-	private MessageTemplateManagement msgTemplateMan;
+	private final MessageSource msg;
+	private final MessageTemplateManagement msgTemplateMan;
 	private Binder<MobileNumberConfirmationConfiguration> binder;
-	private MobileNumberConfirmationConfiguration initial;
-	private CompatibleTemplatesComboBox msgTemplate;
-	private IntegerField validityTime;
-	private IntegerField codeLength;
-	private String msgPrefix;
-	private int defaultValidity;
+	private final MobileNumberConfirmationConfiguration initial;
+	private final String msgPrefix;
+	private final int defaultValidity;
 
 	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
 	                                                   MessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix)
@@ -56,20 +53,20 @@ public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 	private void initUI()
 	{
 		binder = new Binder<>(MobileNumberConfirmationConfiguration.class);
-		
-		msgTemplate = new CompatibleTemplatesComboBox(MobileNumberConfirmationTemplateDef.NAME, msgTemplateMan);
+
+		CompatibleTemplatesComboBox msgTemplate = new CompatibleTemplatesComboBox(MobileNumberConfirmationTemplateDef.NAME, msgTemplateMan);
 		msgTemplate.setLabel(msg.getMessage(
 				msgPrefix + "confirmationMsgTemplate"));
 		msgTemplate.setRequired(true);
 		msgTemplate.setDefaultValue();
 
-		validityTime = new IntegerField(msg.getMessage(msgPrefix + "validityTime"));
+		IntegerField validityTime = new IntegerField(msg.getMessage(msgPrefix + "validityTime"));
 		validityTime.setMin(1);
 		validityTime.setMax(60 * 24 * 365);
 		validityTime.setStep(1);
 		validityTime.setWidth(4, Unit.EM);
-		
-		codeLength = new IntegerField(msg.getMessage(msgPrefix + "codeLength"));
+
+		IntegerField codeLength = new IntegerField(msg.getMessage(msgPrefix + "codeLength"));
 		codeLength.setMin(1);
 		codeLength.setMax(50);
 		codeLength.setStep(1);

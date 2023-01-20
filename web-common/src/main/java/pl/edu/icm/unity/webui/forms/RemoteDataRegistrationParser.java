@@ -24,7 +24,7 @@ import java.util.Map;
  *  
  * @author K. Benedyczak
  */
-public class RemoteDataRegistrationParser
+class RemoteDataRegistrationParser
 {
 	static Map<String, IdentityTaV> parseRemoteIdentities(BaseForm form,
 			RemotelyAuthenticatedPrincipal remotelyAuthenticated)
@@ -111,7 +111,7 @@ public class RemoteDataRegistrationParser
 		}
 	}
 	
-	public static String getAttributeKey(AttributeRegistrationParam aParam)
+	static String getAttributeKey(AttributeRegistrationParam aParam)
 	{
 		return aParam.getGroup() + "//" + aParam.getAttributeType();
 	}

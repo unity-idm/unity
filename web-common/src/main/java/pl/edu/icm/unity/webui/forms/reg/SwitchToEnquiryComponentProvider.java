@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-public class SwitchToEnquiryComponentProvider
+class SwitchToEnquiryComponentProvider
 {
 	private final MessageSource msg;
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;

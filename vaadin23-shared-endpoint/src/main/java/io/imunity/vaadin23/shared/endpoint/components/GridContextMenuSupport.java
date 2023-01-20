@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class GridContextMenuSupport<T>
 {
-	private List<SingleActionHandler<T>> actionHandlers = new ArrayList<>();
+	private final List<SingleActionHandler<T>> actionHandlers = new ArrayList<>();
 	
 	public GridContextMenuSupport(Grid<T> grid)
 	{

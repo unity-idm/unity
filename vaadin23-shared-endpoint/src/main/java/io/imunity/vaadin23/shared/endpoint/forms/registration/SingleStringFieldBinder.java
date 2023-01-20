@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 public class SingleStringFieldBinder extends Binder<StringBindingValue>
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 
 	public SingleStringFieldBinder(MessageSource msg)
 	{
@@ -28,15 +28,6 @@ public class SingleStringFieldBinder extends Binder<StringBindingValue>
 		if (required)
 			bindingBuilder.asRequired(msg.getMessage("fieldRequired"));
 		return bindingBuilder;
-	}
-	
-	public void ensureValidity(Supplier<RuntimeException> errorProvider)
-	{
-		if (!isValid())
-		{	
-			validate();
-			throw errorProvider.get();
-		}
 	}
 
 	public <T extends Exception> void ensureValidityCatched(Supplier<T> errorProvider) throws T

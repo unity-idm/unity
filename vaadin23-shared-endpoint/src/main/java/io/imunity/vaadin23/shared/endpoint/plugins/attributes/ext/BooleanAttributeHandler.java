@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.attributes.ext;
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 
 public class BooleanAttributeHandler implements WebAttributeHandler
 {
-	private BooleanAttributeSyntax syntax;
+	private final BooleanAttributeSyntax syntax;
 
 	public BooleanAttributeHandler(BooleanAttributeSyntax syntax)
 	{

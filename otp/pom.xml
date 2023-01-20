@@ -12,7 +12,6 @@
 	<description>One-time-password credential</description>
 	<properties>
 		<m.name>otp</m.name>
-		<vaadin.productionMode>true</vaadin.productionMode>
 	</properties>
 
 	<scm>
@@ -92,19 +91,6 @@
 								<descriptor>src/main/assembly/assembly-i18n.xml</descriptor>
 							</descriptors>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-maven-plugin</artifactId>
-				<version>${vaadin.version.new}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>prepare-frontend</goal>
-							<goal>build-frontend</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>

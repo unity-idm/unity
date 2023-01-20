@@ -16,12 +16,11 @@ import pl.edu.icm.unity.MessageSource;
 
 public class GetRegistrationCodeDialog extends ConfirmDialog
 {
-	private MessageSource msg;
-	private TextField codeTextField;
-	private Callback callback;
+	private final MessageSource msg;
+	private final Callback callback;
 	private Binder<CodeBean> binder;
-	private String information;
-	private String codeCaption;
+	private final String information;
+	private final String codeCaption;
 
 	public GetRegistrationCodeDialog(MessageSource msg, Callback callback,
 	                                 String title, String information, String codeCaption)
@@ -43,8 +42,8 @@ public class GetRegistrationCodeDialog extends ConfirmDialog
 		main.setMargin(false);
 		main.add(new Label(information));
 		FormLayout sub = new FormLayout();
-		
-		codeTextField = new TextField(codeCaption);
+
+		TextField codeTextField = new TextField(codeCaption);
 		codeTextField.setWidth("70%");
 		binder = new Binder<>(CodeBean.class);
 		binder.forField(codeTextField)

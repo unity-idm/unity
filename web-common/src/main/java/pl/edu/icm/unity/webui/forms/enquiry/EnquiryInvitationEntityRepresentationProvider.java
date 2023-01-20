@@ -17,12 +17,12 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class EnquiryInvitationEntityRepresentationProvider
+class EnquiryInvitationEntityRepresentationProvider
 {
 	private final Function<Long, Optional<String>> entityDisplayedNameProvider;
 	private final MessageSource msg;
 
-	public EnquiryInvitationEntityRepresentationProvider(Function<Long, Optional<String>> displayedNameProvider, MessageSource msg)
+	EnquiryInvitationEntityRepresentationProvider(Function<Long, Optional<String>> displayedNameProvider, MessageSource msg)
 	{
 		this.entityDisplayedNameProvider = displayedNameProvider;
 		this.msg = msg;

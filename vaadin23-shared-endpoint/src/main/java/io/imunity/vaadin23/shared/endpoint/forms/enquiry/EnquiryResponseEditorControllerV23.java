@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.forms.enquiry;
 
 import io.imunity.vaadin23.elements.NotificationPresenter;
 import io.imunity.vaadin23.shared.endpoint.WebSession;
+import io.imunity.vaadin23.shared.endpoint.forms.policy_agreements.PolicyAgreementRepresentationBuilderV23;
 import io.imunity.vaadin23.shared.endpoint.plugins.attributes.AttributeHandlerRegistryV23;
 import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorRegistryV23;
-import io.imunity.vaadin23.shared.endpoint.forms.policy_agreements.PolicyAgreementRepresentationBuilderV23;
 import io.imunity.vaadin23.shared.endpoint.plugins.identities.IdentityEditorRegistryV23;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,6 @@ import pl.edu.icm.unity.types.registration.invite.*;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
-import pl.edu.icm.unity.webui.forms.enquiry.RewriteComboToEnquiryRequest;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -141,8 +140,8 @@ public class EnquiryResponseEditorControllerV23
 			List<Group> filterMatching = GroupPatternMatcher.filterByIncludeGroupsMode(GroupPatternMatcher.filterMatching(allMatchingGroups,
 					allGroups.keySet().stream().sorted().collect(Collectors.toList())), groupParam.getIncludeGroupsMode());
 
-			PrefilledEntry<GroupSelection> pe = new PrefilledEntry<GroupSelection>(new GroupSelection(
-					filterMatching.stream().map(g -> g.getName()).collect(Collectors.toList())),
+			PrefilledEntry<GroupSelection> pe = new PrefilledEntry<>(new GroupSelection(
+					filterMatching.stream().map(Group::getName).collect(Collectors.toList())),
 					PrefilledEntryMode.DEFAULT);
 
 			prefilledGroupSelections.put(i, pe);
@@ -162,8 +161,7 @@ public class EnquiryResponseEditorControllerV23
 			AttributeRegistrationParam attrParam = form.getAttributeParams().get(i);
 			Collection<AttributeExt> attributes = allAttributes.stream()
 					.filter(a -> a.getGroupPath().equals(attrParam.getGroup())
-							&& a.getName().equals(attrParam.getAttributeType()))
-					.collect(Collectors.toList());
+							&& a.getName().equals(attrParam.getAttributeType())).toList();
 
 			prefilledAttributes.put(i, !attributes.isEmpty() ? (new PrefilledEntry<>(
 					  attributes.iterator().next(),
@@ -172,51 +170,6 @@ public class EnquiryResponseEditorControllerV23
 		}
 
 		return prefilledAttributes;
-	}
-	
-	private boolean isFormApplicable(String formName,
-		List<EnquiryForm> formsToFill)
-	{
-		Optional<String> found = formsToFill.stream()
-				.map(form -> form.getName())
-				.filter(name -> name.equals(formName))
-				.findAny();
-		return found.isPresent();
-	}
-	
-	private EntityParam getLoggedEntity()
-	{
-		return  new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());
-	}
-	
-	public List<EnquiryForm> getFormsToFill()
-	{
-		EntityParam entity = getLoggedEntity();
-		List<EnquiryForm> ret = new ArrayList<>();
-
-		try
-		{
-			ret.addAll(enquiryManagement.getPendingEnquires(entity));
-		} catch (EngineException e)
-		{
-			log.error("Can't load pending enquiry forms", e);
-		}
-		return ret;
-
-	}
-	
-	public List<EnquiryForm> getStickyForms()
-	{
-		EntityParam entity = getLoggedEntity();
-		List<EnquiryForm> ret = new ArrayList<>();
-		try
-		{
-			ret.addAll(enquiryManagement.getAvailableStickyEnquires(entity));
-		} catch (EngineException e)
-		{
-			log.error("Can't load sticky enquiry forms", e);
-		}
-		return ret;
 	}
 	
 	public void markFormAsIgnored(String formId)
@@ -309,26 +262,5 @@ public class EnquiryResponseEditorControllerV23
 		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
 		return new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
 				pageTitle, form.getLayoutSettings().getLogoURL(), false);
-	}
-
-	
-	public boolean checkIfRequestExistsForLoggedUser(String formName) throws EngineException
-	{
-		long entityId = getLoggedEntity().getEntityId();	
-		return checkIfRequestExists(formName, entityId);
-	}
-	
-	boolean checkIfRequestExists(String formName, long entity) throws EngineException
-	{
-		return !enquiryManagement.getEnquiryResponses().stream()
-				.filter(r -> r.getRequest().getFormId().equals(formName)
-						&& r.getEntityId() == entity
-						&& r.getStatus().equals(RegistrationRequestStatus.pending))
-				.collect(Collectors.toList()).isEmpty();
-	}
-	
-	public void removePendingRequest(String form) throws EngineException
-	{
-		enquiryManagement.removePendingStickyRequest(form, getLoggedEntity());	
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.components;
@@ -18,13 +18,12 @@ import java.util.Set;
 public class GenericElementsTable<T> extends Grid<T>
 {
 	protected List<T> contents;
-	private ListDataProvider<T> dataProvider;
-	private Column<T> col1;
-	private GridContextMenuSupport<T> contextMenuSupp;
-	private boolean sortable;
-	private Collection<SerializablePredicate<T>> filters;
-	private ValueProvider<T, String> nameProvider;
-	
+	private final ListDataProvider<T> dataProvider = new  ListDataProvider<>(List.of());
+	private final Column<T> col1;
+	private final GridContextMenuSupport<T> contextMenuSupp;
+	private final boolean sortable;
+	private final Collection<SerializablePredicate<T>> filters;
+
 	public GenericElementsTable(String columnHeader)
 	{
 		this(columnHeader, new DefaultNameProvider<T>());
@@ -38,7 +37,6 @@ public class GenericElementsTable<T> extends Grid<T>
 	public GenericElementsTable(String columnHeader, ValueProvider<T, String> nameProvider, boolean sortable)
 	{
 		this.sortable = sortable;
-		this.nameProvider = nameProvider;
 		contents = new ArrayList<>();
 		setItems(contents);
 		setSizeFull();
@@ -60,11 +58,6 @@ public class GenericElementsTable<T> extends Grid<T>
 	public void addActionHandler(SingleActionHandler<T> actionHandler)
 	{
 		contextMenuSupp.addActionHandler(actionHandler);
-	}
-
-	public List<SingleActionHandler<T>> getActionHandlers()
-	{
-		return contextMenuSupp.getActionHandlers();
 	}
 	
 	public void setInput(Collection<? extends T> elements)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.components;
@@ -56,11 +56,10 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 	
 	private class StringValueEditor implements AttributeValueEditor
 	{
-		private String value;
-		private String label;
-		private AttributeValueSyntax<?> syntax;
+		private final String value;
+		private final String label;
+		private final AttributeValueSyntax<?> syntax;
 		private AbstractSinglePropertyField<?, String> field;
-		private boolean required;
 		private AttributeEditContext context;
 		private SingleStringFieldBinder binder;
 		
@@ -75,15 +74,14 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
 			binder =  new SingleStringFieldBinder(msg);
-			
-			this.required = context.isRequired();
+
+			boolean required = context.isRequired();
 			this.context = context;
 			boolean editWithTextArea = false;
-			if (syntax instanceof StringAttributeSyntax)
+			if (syntax instanceof StringAttributeSyntax sas)
 			{
-				StringAttributeSyntax sas = (StringAttributeSyntax) syntax;
 				editWithTextArea = sas.isEditWithTextArea();
-				this.required = required && sas.getMinLength() > 0;
+				required = required && sas.getMinLength() > 0;
 			}
 			
 			field = editWithTextArea ? new TextArea() : new TextField();
@@ -118,9 +116,6 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			{
 				syntax.validateStringValue(val);
 				return ValidationResult.ok();
-			} catch (IllegalAttributeValueException e)
-			{
-				return ValidationResult.error(e.getMessage());
 			} catch (Exception e)
 			{
 				return ValidationResult.error(e.getMessage());

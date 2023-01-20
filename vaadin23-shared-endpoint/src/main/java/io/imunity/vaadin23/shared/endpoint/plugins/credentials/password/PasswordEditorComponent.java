@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.credentials.password;
@@ -34,8 +34,6 @@ public class PasswordEditorComponent extends VerticalLayout implements Focusable
 		root.add(fieldsComponent, qualityComponent);
 		add(root);
 		setPadding(false);
-		getStyle().set("margin-bottom", "-5em");
-		getStyle().set("height", "15em");
 	}
 
 	@Override

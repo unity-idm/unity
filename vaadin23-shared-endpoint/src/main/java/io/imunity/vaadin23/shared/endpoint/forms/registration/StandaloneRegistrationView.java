@@ -1,21 +1,27 @@
 /*
- * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.forms.registration;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
+import io.imunity.vaadin23.elements.LinkButton;
 import io.imunity.vaadin23.elements.NotificationPresenter;
 import io.imunity.vaadin23.shared.endpoint.components.WorkflowCompletedComponent;
 import org.apache.logging.log4j.Logger;
@@ -64,16 +70,9 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	private final RequestEditorCreatorV23 editorCreator;
 	private final AutoLoginAfterSignUpProcessorV23 autoLoginProcessor;
 	private final NotificationPresenter notificationPresenter;
-
-
 	private RegistrationForm form;
-	private String registrationCode;
-
 	private PostFillingHandler postFillHandler;
-	private VerticalLayout main;
-	private SignUpTopHeaderComponent header;
-	private HorizontalLayout formButtons;
-	private RegistrationRequestEditor currentRegistrationFormEditor;
+	private final VerticalLayout main;
 	private Runnable customCancelHandler;
 	private Runnable completedRegistrationHandler;
 	private Runnable gotoSignInRedirector;
@@ -124,7 +123,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		postFillHandler = new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
 				pageTitle, form.getLayoutSettings().getLogoURL(), true);
 
-		registrationCode = event.getLocation().getQueryParameters()
+		String registrationCode = event.getLocation().getQueryParameters()
 				.getParameters()
 				.getOrDefault(REG_CODE_PARAM, List.of())
 				.stream().findFirst().orElse(null);
@@ -166,22 +165,15 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		PostAuthenticationStepDecision postAuthnStepDecision = postAuthnStepDecisionWithContext.decision;
 		switch (postAuthnStepDecision.getDecision())
 		{
-		case COMPLETED:
-			onUserExists();
-			return;
-		case ERROR:
-			onAuthnError(postAuthnStepDecision.getErrorDetail().error.resovle(msg), mode);
-			return;
-		case GO_TO_2ND_FACTOR:
-			throw new IllegalStateException("2nd factor authN makes no sense upon registration");
-		case UNKNOWN_REMOTE_USER:
-			showSecondStage(postAuthnStepDecision.getUnknownRemoteUserDetail().unknownRemotePrincipal.remotePrincipal, 
+			case COMPLETED -> onUserExists();
+			case ERROR -> onAuthnError(postAuthnStepDecision.getErrorDetail().error.resovle(msg), mode);
+			case GO_TO_2ND_FACTOR ->
+					throw new IllegalStateException("2nd factor authN makes no sense upon registration");
+			case UNKNOWN_REMOTE_USER -> showSecondStage(postAuthnStepDecision.getUnknownRemoteUserDetail().unknownRemotePrincipal.remotePrincipal,
 					TriggeringMode.afterRemoteLoginFromRegistrationForm, false,
 					postAuthnStepDecisionWithContext.triggeringContext.invitationCode,
 					postAuthnStepDecisionWithContext.triggeringContext.authenticationOptionKey);
-			return;
-		default:
-			throw new IllegalStateException("Unsupported post-authn decission for registration view: " 
+			default -> throw new IllegalStateException("Unsupported post-authn decission for registration view: "
 					+ postAuthnStepDecision.getDecision());
 		}
 	}
@@ -206,7 +198,6 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	
 	private void editorCreated(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		this.currentRegistrationFormEditor = editor;
 		if (isAutoSubmitPossible(editor, mode))
 		{
 			onSubmit(editor, mode);
@@ -218,7 +209,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	
 	private void showEditorContent(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		header = new SignUpTopHeaderComponent(cfg, msg, getGoToSignInRedirector(editor));
+		SignUpTopHeaderComponent header = new SignUpTopHeaderComponent(cfg, msg, getGoToSignInRedirector(editor));
 		main.add(header);
 
 		main.add(editor);
@@ -226,7 +217,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		main.setAlignItems(FlexComponent.Alignment.CENTER);
 		
 		Button okButton = null;
-		Button cancelButton = null;
+		Component cancelButton = null;
 		if (editor.isSubmissionPossible())
 		{
 			okButton = createOKButton(editor, mode);
@@ -240,7 +231,8 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		{
 			cancelButton = createCancelButton();
 		}
-		
+
+		HorizontalLayout formButtons;
 		if (okButton != null)
 		{
 			formButtons = new HorizontalLayout();
@@ -261,14 +253,16 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	
 	private Button createOKButton(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		return new Button(
+		Button button = new Button(
 				msg.getMessage("RegistrationRequestEditorDialog.submitRequest"),
 				event -> onSubmit(editor, mode));
+		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		return button;
 	}
 
-	private Button createCancelButton()
+	private Component createCancelButton()
 	{
-		return new Button(msg.getMessage("cancel"), event -> onCancel());
+		return new LinkButton(msg.getMessage("cancel"), event -> onCancel());
 	}
 	
 	private Optional<Runnable> getGoToSignInRedirector(RegistrationRequestEditor editor)
@@ -342,12 +336,8 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	
 	private boolean isCustomCancelHandlerEnabled()
 	{
-		if (isStanaloneModeFromAuthNScreen()
-				&& !postFillHandler.hasConfiguredFinalizationFor(TriggeringState.CANCELLED))
-		{
-			return true;
-		}
-		return false;
+		return isStanaloneModeFromAuthNScreen()
+				&& !postFillHandler.hasConfiguredFinalizationFor(TriggeringState.CANCELLED);
 	}
 	
 	private boolean isStanaloneModeFromAuthNScreen()
@@ -385,7 +375,6 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		} catch (WrongArgumentException e)
 		{
 			handleFormSubmissionError(e, msg, editor);
-			return;
 		} catch (Exception e)
 		{
 			log.warn("Registration request submision failed", e);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.credentials;
@@ -18,8 +18,8 @@ public class CredentialEditorContext
 	private final String extraInformation;
 	private final boolean adminMode;
 	private final boolean showLabelInline;
-	private Float customWidth = null;
-	private Unit customWidthUnit = null;
+	private final Float customWidth;
+	private final Unit customWidthUnit;
 
 	CredentialEditorContext(String credentialConfiguration, String credentialName, boolean required,
 	                        Long entityId, String extraInformation,

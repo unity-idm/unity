@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -19,13 +19,12 @@ import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 
 public class TextFieldWithVerifyButton extends CustomField<String>
 {
-	private Checkbox adminConfirmCheckBox;
-	private TextField editor;
-	private HorizontalLayout fieldLayout;
-	private VerticalLayout main;
-	private Div verifyButtonIcon;
-	private Div confirmationStatusIcon;
-	private boolean showLabelInline;
+	private final Checkbox adminConfirmCheckBox;
+	private final TextField editor;
+	private final HorizontalLayout fieldLayout;
+	private final Div verifyButtonIcon;
+	private final Div confirmationStatusIcon;
+	private final boolean showLabelInline;
 	
 	public TextFieldWithVerifyButton(boolean addConfirmCheckbox,
 	                                 String verifyButtonDesc, Icon verifyButtonIcon,
@@ -46,7 +45,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		fieldLayout.add(editor, confirmationStatusIcon, this.verifyButtonIcon);
 		fieldLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-		main = new VerticalLayout();
+		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.setPadding(false);
 		main.add(fieldLayout);
@@ -161,11 +160,6 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	public void setAdminCheckBoxValue(boolean value)
 	{
 		adminConfirmCheckBox.setValue(value);
-	}
-
-	public boolean getAdminCheckBoxValue()
-	{
-		return adminConfirmCheckBox.getValue();
 	}
 
 	public void removeVerifyButton()

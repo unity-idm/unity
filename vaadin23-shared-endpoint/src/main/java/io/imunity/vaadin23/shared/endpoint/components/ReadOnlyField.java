@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.components;
@@ -14,12 +14,6 @@ public class ReadOnlyField extends TextField
 	{
 		setValue(value);
 		setWidth(width, widthUnit);
-		setReadOnly(true);
-	}
-	
-	public ReadOnlyField(String value)
-	{
-		setValue(value);
 		setReadOnly(true);
 	}
 }

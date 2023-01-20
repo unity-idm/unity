@@ -1,20 +1,21 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.fido.web;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredentialInfo;
+import io.imunity.vaadin23.elements.NotificationPresenter;
+import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditor;
+import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorContext;
+import io.imunity.vaadin23.shared.endpoint.components.ComponentsContainer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,28 +23,27 @@ import java.util.Optional;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-/**
- * Allows to edit single Fido credential (with multiple keys).
- *
- * @author R. Ledzinski
- */
 class FidoCredentialEditor implements CredentialEditor
 {
 	private FidoRegistration fidoRegistration;
 	private FidoEditorComponent editorComponent;
 	private MessageSource msg;
 
-	public FidoCredentialEditor(final MessageSource msg, final FidoRegistration fidoRegistration)
+	private NotificationPresenter notificationPresenter;
+
+
+	public FidoCredentialEditor(final MessageSource msg, final FidoRegistration fidoRegistration, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.fidoRegistration = fidoRegistration;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
 	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
 		if (isNull(editorComponent))
-			editorComponent = new FidoEditorComponent(fidoRegistration, context, msg);
+			editorComponent = new FidoEditorComponent(fidoRegistration, context, msg, notificationPresenter);
 
 		return new ComponentsContainer(editorComponent);
 	}
@@ -79,7 +79,7 @@ class FidoCredentialEditor implements CredentialEditor
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
 
-		ret.addComponent(new Label(msg.getMessage("Fido.viewerInfo",
+		ret.add(new Label(msg.getMessage("Fido.viewerInfo",
 				keys.size())));
 		return Optional.of(ret);
 	}

@@ -1,22 +1,22 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.otp;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-public class OTPCredential
+class OTPCredential
 {
-	public final String secret;
-	public final OTPGenerationParams otpParams;
+	final String secret;
+	final OTPGenerationParams otpParams;
 
 	@JsonCreator
-	public OTPCredential(
+	OTPCredential(
 			@JsonProperty("secret") String secret, 
 			@JsonProperty("otpParams") OTPGenerationParams otpParams)
 	{

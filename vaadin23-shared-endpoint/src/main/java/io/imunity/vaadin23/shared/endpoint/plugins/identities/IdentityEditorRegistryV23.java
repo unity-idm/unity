@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.identities;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class IdentityEditorRegistryV23
@@ -31,10 +30,5 @@ public class IdentityEditorRegistryV23
 		if (factory == null)
 			throw new IllegalArgumentException("Identity type " + type + " has no editor factory registered");
 		return factory.createInstance();
-	}
-	
-	public Set<String> getSupportedTypes()
-	{
-		return factoriesByType.keySet();
 	}
 }

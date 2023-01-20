@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.attributes.ext;
@@ -39,11 +39,11 @@ import java.util.Optional;
 
 public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 {
-	private MessageSource msg;
-	private ConfirmationInfoFormatter formatter;
-	private VerifiableEmailAttributeSyntax syntax;
-	private EmailConfirmationManager emailConfirmationMan;
-	private NotificationPresenter notificationPresenter;
+	private final MessageSource msg;
+	private final ConfirmationInfoFormatter formatter;
+	private final VerifiableEmailAttributeSyntax syntax;
+	private final EmailConfirmationManager emailConfirmationMan;
+	private final NotificationPresenter notificationPresenter;
 
 	public VerifiableEmailAttributeHandler(MessageSource msg, ConfirmationInfoFormatter formatter, 
 			AttributeValueSyntax<?> syntax, EmailConfirmationManager emailConfirmationMan, NotificationPresenter notificationPresenter)

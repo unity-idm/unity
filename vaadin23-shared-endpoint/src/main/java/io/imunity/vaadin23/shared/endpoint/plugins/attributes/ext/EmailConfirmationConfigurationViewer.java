@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -12,9 +12,9 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 public class EmailConfirmationConfigurationViewer extends VerticalLayout
 {
-	private MessageSource msg;
-	private Label msgTemplate;
-	private Label validityTime;
+	private final MessageSource msg;
+	private final Label msgTemplate;
+	private final Label validityTime;
 
 	public EmailConfirmationConfigurationViewer(MessageSource msg)
 	{

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.confirmations;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -34,16 +35,16 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import static io.imunity.vaadin23.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
 import static java.util.Collections.emptyList;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
-import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.CONTEXT_PATH;
-import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.CONTEXT_PATH_2;
 
 @Component
-public class SharedV23EndpointManagementImpl
+public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, SharedV23EndpointManagementImpl.class);
 	private static final String ENDPOINT_ID = "sys:sharedV23";
+	private static final int SESSION_TIMEOUT_VALUE = 60 * 60;
 	private final ServletContextHandler sharedHandler;
 	private final URL advertisedAddress;
 	private final Set<String> usedPaths;
@@ -59,7 +60,7 @@ public class SharedV23EndpointManagementImpl
 		Vaadin823EndpointProperties vaadinEndpointProperties = new Vaadin823EndpointProperties(properties, config.getValue(DEFAULT_WEB_CONTENT_PATH));
 		WebAppContext context = new Vaadin23WebAppContext(properties, vaadinEndpointProperties, msg, null);
 		context.setResourceBase(getWebContentsDir(config));
-		context.setContextPath(CONTEXT_PATH_2);
+		context.setContextPath(CONTEXT_PATH);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(sharedResourceProvider.getChosenClassPathElement()));
 		context.setConfigurationDiscovered(true);
 		context.getServletContext().setExtendedListenerTypes(true);
@@ -71,6 +72,7 @@ public class SharedV23EndpointManagementImpl
 		ServletHolder servletHolder = context.addServlet(SimpleVaadin23Servlet.class, "/*");
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
+		servletHolder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(SESSION_TIMEOUT_VALUE));
 
 		httpServer.deployHandler(context, ENDPOINT_ID);
 
@@ -98,7 +100,6 @@ public class SharedV23EndpointManagementImpl
 
 
 	public void deployInternalEndpointFilter(String contextPath, FilterHolder filter)
-			throws EngineException
 	{
 		sharedHandler.addFilter(filter, contextPath + "/*", EnumSet.of(DispatcherType.REQUEST));
 		log.debug("Deployed internal servlet filter" + filter.getClassName() + " at: " +

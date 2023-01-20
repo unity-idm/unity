@@ -1,37 +1,33 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.otp;
 
-import java.util.Map;
-
 import com.google.common.collect.ImmutableMap;
-import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
-import fi.jasoft.qrcode.QRCode;
+import com.vaadin.flow.component.Focusable;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import io.imunity.otp.v8.*;
+import io.imunity.vaadin23.elements.QRBarcode;
+import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorContext;
+import org.vaadin.barcodes.Barcode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ComponentWithLabel;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 
-class OTPEditorComponent extends CustomComponent implements Component.Focusable, ComponentWithLabel
+import java.util.Map;
+
+class OTPEditorComponent extends VerticalLayout
 {
-	private static final Map<HashFunction, Integer> QR_BASE_SIZES = ImmutableMap.of(HashFunction.SHA1, 41, 
+	private static final Map<HashFunction, Integer> QR_BASE_SIZES = ImmutableMap.of(HashFunction.SHA1, 41,
 			HashFunction.SHA256, 49, HashFunction.SHA512, 53);
 	
 	private final MessageSource msg;
@@ -39,13 +35,12 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 	private final CredentialEditorContext context;
 	
 	private String secret;
-	private int tabIndex;
-	
+
 	private Label credentialName;
 	private QRCodeComponent qrCodeComponent;
 	private TextCodeComponent textCodeComponent;
 	private VerificationComponent verificationComponent;
-	private Button switchCodeComponent;
+	private Div switchCodeComponent;
 	
 	
 	OTPEditorComponent(MessageSource msg, CredentialEditorContext context, OTPCredentialDefinition config)
@@ -62,22 +57,25 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		
 		textCodeComponent = new TextCodeComponent();
 		textCodeComponent.setVisible(false);
-		
-		switchCodeComponent = new Button(msg.getMessage("OTPEditorComponent.switchModeToText"));
-		switchCodeComponent.addStyleName(Styles.vButtonLink.toString());
-		switchCodeComponent.addStyleName("u-highlightedLink");
+
+		Label switchCodeLabel = new Label(msg.getMessage("OTPEditorComponent.switchModeToText"));
+		switchCodeLabel.getStyle().set("cursor", "pointer");
+		switchCodeComponent = new Div(switchCodeLabel);
+		switchCodeComponent.getStyle().set("text-decoration", "underline");
 		switchCodeComponent.addClickListener(e -> switchCodeComponent());
 		
 		verificationComponent = new VerificationComponent();
 		
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
+		main.setPadding(false);
 		main.setSpacing(false);
-		main.addComponents(qrCodeComponent, textCodeComponent, switchCodeComponent, verificationComponent);
-		VerticalLayout mainWithSpacing = new VerticalLayout(credentialName, main);
-		mainWithSpacing.setSpacing(true);
-		mainWithSpacing.setMargin(false);
-		setCompositionRoot(mainWithSpacing);
+		main.add(qrCodeComponent, textCodeComponent, switchCodeComponent, verificationComponent);
+
+		setSpacing(true);
+		setMargin(false);
+		setPadding(false);
+		add(credentialName, main);
 		
 		if (context.isCustomWidth())
 		{
@@ -94,7 +92,10 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		textCodeComponent.setVisible(!state);
 		qrCodeComponent.setVisible(state);
 		String messageKey = state ? "OTPEditorComponent.switchModeToText" : "OTPEditorComponent.switchModeToQR";
-		switchCodeComponent.setCaption(msg.getMessage(messageKey));
+		switchCodeComponent.removeAll();
+		Label label = new Label(msg.getMessage(messageKey));
+		label.getStyle().set("cursor", "pointer");
+		switchCodeComponent.add(label);
 	}
 	
 	String getValue() throws MissingCredentialException
@@ -105,74 +106,67 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		if (context.isRequired() && !verificationComponent.getVerificationStatus())
 			throw new MissingCredentialException(msg.getMessage("OTPEditorComponent.verificationRequired"));
 		
-		verificationComponent.setComponentError(null);
+		verificationComponent.setError(null);
 		OTPCredential credential = new OTPCredential(secret, config.otpParams);
 		return JsonUtil.toJsonString(credential);
 	}
 
-	@Override
 	public void setLabel(String label)
 	{
-		credentialName.setValue(label);
+		credentialName.setText(label);
 		credentialName.setVisible(!label.isEmpty());
 	}
-
-	@Override
-	public int getTabIndex()
-	{
-		return tabIndex;
-	}
-
-	@Override
-	public void setTabIndex(int tabIndex)
-	{
-		this.tabIndex = tabIndex;
-	}
 	
-	@Override
 	public void focus()
 	{
 		verificationComponent.focus();
 	}
 	
 	
-	private class QRCodeComponent extends CustomComponent
+	private class QRCodeComponent extends VerticalLayout
 	{
 		private static final int BASE_SIZE_ZOOM = 3;
-		private QRCode qr;
+		private QRBarcode qr;
 		private TextField user;
 		
 		QRCodeComponent()
 		{
-			VerticalLayout main  = new VerticalLayout();
-			main.setMargin(false);
-			main.setSpacing(true);
+			setMargin(false);
+			setPadding(false);
+
 			Label info = new Label(msg.getMessage("OTPEditorComponent.qrCodeInfo"));
 			user = new TextField(msg.getMessage("OTPEditorComponent.user"));
 			user.setValue(config.issuerName + " user");
 			user.setVisible(false);
-			
-			Button customizeUser = new Button(msg.getMessage("OTPEditorComponent.customizeUser"));
-			customizeUser.addStyleName(Styles.vButtonLink.toString());
-			customizeUser.addStyleName("u-highlightedLink");
+			user.getStyle().set("padding", "0");
+
+			Label customUserLabel = new Label(msg.getMessage("OTPEditorComponent.customizeUser"));
+			customUserLabel.getStyle().set("cursor", "pointer");
+			Div customizeUser = new Div(customUserLabel);
+			customizeUser.getStyle().set("text-decoration", "underline");
 			customizeUser.addClickListener(e -> {customizeUser.setVisible(false); user.setVisible(true);});
 			
-			qr = new QRCode();
 			int size = (QR_BASE_SIZES.get(config.otpParams.hashFunction) + 8) * BASE_SIZE_ZOOM;
-			qr.setWidth(size, Unit.PIXELS);
-			qr.setHeight(size, Unit.PIXELS);			
+			qr = new QRBarcode("", Barcode.Type.qrcode, size+"px", size+"px");
+			qr.getStyle().set("align-self", "center");
 			updateQR();
-			user.addValueChangeListener(v -> updateQR());
-			main.addComponents(user, info, qr, customizeUser);
-			main.setComponentAlignment(qr, Alignment.MIDDLE_CENTER);
-			setCompositionRoot(main);
+			user.addValueChangeListener(v ->
+			{
+				if(qr != null)
+					remove(qr);
+				updateQR();
+				addComponentAtIndex(3, qr);
+			});
+			add(user, info, qr, customizeUser);
 		}
 		
 		private void updateQR()
 		{
-			String uri = TOTPKeyGenerator.generateTOTPURI(secret, user.getValue(), 
+			int size = (QR_BASE_SIZES.get(config.otpParams.hashFunction) + 8) * BASE_SIZE_ZOOM;
+			String uri = TOTPKeyGenerator.generateTOTPURI(secret, user.getValue(),
 					config.issuerName, config.otpParams, config.logoURI);
-			qr.setValue(uri);
+			qr = new QRBarcode(uri, Barcode.Type.qrcode, size+"px", size+"px");
+			qr.getStyle().set("align-self", "center");
 		}
 		
 		void setReadOnly()
@@ -189,28 +183,28 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		}
 	}
 	
-	private class TextCodeComponent extends CustomComponent
+	private class TextCodeComponent extends VerticalLayout
 	{
 		TextCodeComponent()
 		{
 			Label info = new Label(msg.getMessage("OTPEditorComponent.textCodeInfo"));
 			Label code = new Label(formatSecret(secret));
-			code.addStyleName("u-textMonospace");
-			code.setCaption(msg.getMessage("OTPEditorComponent.textCode"));
-			code.setWidth(100, Unit.PERCENTAGE);
+			code.addClassName("u-textMonospace");
+			code.setWidthFull();
+
 			Label type = new Label(msg.getMessage("OTPEditorComponent.textCodeType"));
-			type.setCaption(msg.getMessage("OTPEditorComponent.textCodeTypeCaption"));
 			Label length = new Label(String.valueOf(config.otpParams.codeLength));
-			length.setCaption(msg.getMessage("OTPEditorComponent.textCodeLength"));
 			Label algorithm = new Label(config.otpParams.hashFunction.toString());
-			algorithm.setCaption(msg.getMessage("OTPEditorComponent.textCodeAlgorithm"));
-			FormLayout codeInfoLayout  = new CompactFormLayout();
-			codeInfoLayout.setMargin(new MarginInfo(false, false, false, false));
-			codeInfoLayout.addComponents(code, type, length, algorithm);
-			
-			VerticalLayout main = new VerticalLayout(info, codeInfoLayout);
-			main.setMargin(false);
-			setCompositionRoot(main);
+
+			FormLayout codeInfoLayout  = new FormLayout();
+			codeInfoLayout.addFormItem(code, msg.getMessage("OTPEditorComponent.textCode"));
+			codeInfoLayout.addFormItem(type, msg.getMessage("OTPEditorComponent.textCodeTypeCaption"));
+			codeInfoLayout.addFormItem(length, msg.getMessage("OTPEditorComponent.textCodeLength"));
+			codeInfoLayout.addFormItem(algorithm, msg.getMessage("OTPEditorComponent.textCodeAlgorithm"));
+
+			setMargin(false);
+			setPadding(false);
+			add(info, codeInfoLayout);
 		}
 		
 		private String formatSecret(String secret)
@@ -227,52 +221,46 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		}
 	}
 	
-	private class VerificationComponent extends CustomComponent
+	private class VerificationComponent extends VerticalLayout implements Focusable<VerificationComponent>
 	{
-		private TextField code;
+		private final TextField code;
 		private boolean validated;
-		private HorizontalLayout validationLayout;
-		private Label confirmed;
-		private VerticalLayout main;
-		
+		private final HorizontalLayout validationLayout;
+		private final Label confirmed;
 		public VerificationComponent()
 		{
 			code = new TextField(); 
 			code.setPlaceholder(msg.getMessage("OTPRetrieval.code", 
 					config.otpParams.codeLength));
-			code.addValueChangeListener(v -> code.setComponentError(null));
-			code.addStyleName("u-otp-verification-code");
+			code.addValueChangeListener(v -> code.setErrorMessage(null));
+			code.addClassName("u-otp-verification-code");
 			code.setWidthFull();
 			Button verify = new Button();
-			verify.setIcon(Images.check.getResource());
-			verify.setDescription(msg.getMessage("OTPEditorComponent.verifyButton"));
+			verify.setIcon(VaadinIcon.CHECK.create());
+			verify.getElement().setProperty("title" ,msg.getMessage("OTPEditorComponent.verifyButton"));
 			verify.addClickListener(e -> this.verify());
-			verify.addStyleName("u-otp-verification-button");
-			verify.setWidthUndefined();
+			verify.addClassName("u-otp-verification-button");
 			validationLayout = new HorizontalLayout();
-			validationLayout.addComponents(code, verify);
-			validationLayout.setExpandRatio(code, 1.0f);
-			
+			validationLayout.setMargin(false);
+			validationLayout.setPadding(false);
+			validationLayout.setSpacing(false);
+			validationLayout.add(code, verify);
+
 			confirmed = new Label(msg.getMessage("OTPEditorComponent.codeVerified"));
-			confirmed.addStyleName(Styles.success.name());
 			confirmed.setVisible(false);
-			main = new VerticalLayout(validationLayout, confirmed);
-			main.setMargin(new MarginInfo(true, false, false, false));
-			main.setSpacing(false);
-			setCompositionRoot(main);
+
+			setMargin(false);
+			setPadding(false);
+			setSpacing(false);
+			add(validationLayout, confirmed);
 		}
 		
 		@Override
 		public void setWidth(float width, Unit unit)
 		{
 			super.setWidth(width, unit);
-			if (main != null)
-				main.setWidth(width, unit);
-			if (validationLayout != null)
-				validationLayout.setWidth(width, unit);
-			if (confirmed != null)
-				confirmed.setWidth(100, Unit.PERCENTAGE);
-
+			validationLayout.setWidth(width, unit);
+			confirmed.setWidth(100, Unit.PERCENTAGE);
 		}
 		
 		@Override
@@ -280,20 +268,28 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		{
 			code.focus();
 		}
-		
+
+		public void setError(String error)
+		{
+			code.setInvalid(error != null);
+			code.setErrorMessage(error);
+		}
+
 		private void verify()
 		{
-			validated = TOTPCodeVerificator.verifyCode(code.getValue(), secret, config.otpParams, 
+			validated = TOTPCodeVerificator.verifyCode(code.getValue(), secret, config.otpParams,
 					config.allowedTimeDriftSteps);
 			if (validated)
 			{
 				validationLayout.setVisible(false);
 				confirmed.setVisible(true);
 				qrCodeComponent.setReadOnly();
-				code.setComponentError(null);
+				code.setInvalid(false);
+				code.setErrorMessage(null);
 			} else
 			{
-				code.setComponentError(new UserError(msg.getMessage("OTPEditorComponent.invalidCode")));
+				code.setInvalid(true);
+				code.setErrorMessage(msg.getMessage("OTPEditorComponent.invalidCode"));
 			}
 		}
 		

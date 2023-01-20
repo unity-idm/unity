@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.attributes.ext;
@@ -21,7 +21,7 @@ public class CompatibleTemplatesComboBox extends ComboBox<String>
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, CompatibleTemplatesComboBox.class);
 	
 	private Collection<String> values; 
-	private MessageTemplateManagement msgTplMan;
+	private final MessageTemplateManagement msgTplMan;
 	 
 	public CompatibleTemplatesComboBox(String definitionName, MessageTemplateManagement msgTplMan) 
 	{

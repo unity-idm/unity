@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.identities;
@@ -13,8 +13,8 @@ public class IdentityEditorContext
 	private final boolean required;
 	private final boolean adminMode;
 	private final boolean showLabelInline;
-	private Float customWidth = null;
-	private Unit customWidthUnit = null;
+	private final Float customWidth;
+	private final Unit customWidthUnit;
 
 	IdentityEditorContext(boolean required, boolean adminMode, boolean showLabelInline, Float customWidth,
 	                      Unit customWidthUnit, ConfirmationEditMode confirmationEditMode)

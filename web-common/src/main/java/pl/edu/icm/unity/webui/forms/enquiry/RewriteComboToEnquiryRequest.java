@@ -9,13 +9,13 @@ import pl.edu.icm.unity.types.registration.BaseForm;
 
 import java.util.Objects;
 
-public class RewriteComboToEnquiryRequest
+class RewriteComboToEnquiryRequest
 {
 	public final String invitationCode;
 	public final Long entity;
 	public final BaseForm form;
 	
-	public RewriteComboToEnquiryRequest(String invitationCode, Long entity, BaseForm form)
+	RewriteComboToEnquiryRequest(String invitationCode, Long entity, BaseForm form)
 	{
 		this.invitationCode = invitationCode;
 		this.entity = entity;

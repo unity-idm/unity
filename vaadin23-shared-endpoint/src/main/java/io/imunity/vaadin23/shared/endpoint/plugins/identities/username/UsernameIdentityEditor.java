@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.identities.username;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  */
 public class UsernameIdentityEditor implements IdentityEditor
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	private TextField field;
 	private IdentityEditorContext context;
 	private SingleStringFieldBinder binder;

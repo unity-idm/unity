@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.attributes.ext;
@@ -20,8 +20,8 @@ import java.time.LocalDate;
 public class DateAttributeHandler implements WebAttributeHandler
 {
 
-	private MessageSource msg;
-	private DateAttributeSyntax syntax;
+	private final MessageSource msg;
+	private final DateAttributeSyntax syntax;
 
 	public DateAttributeHandler(AttributeValueSyntax<?> syntax, MessageSource msg)
 	{

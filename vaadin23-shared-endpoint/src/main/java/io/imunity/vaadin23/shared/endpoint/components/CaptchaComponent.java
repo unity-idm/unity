@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.components;
@@ -44,26 +44,19 @@ public class CaptchaComponent
 		'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
 		'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 	private static final Random random = new Random();
-	private MessageSource msg;
+	private final MessageSource msg;
 	private Captcha engine;
 	
 	private Image challenge;
 	private TextField answer;
 	private Button resetChallenge;
 
-	private int length;
-	private boolean showLabelInline;
-	
-	public CaptchaComponent(MessageSource msg, boolean showLabelInline)
-	{
-		this(msg, 6, showLabelInline);
-	}
+	private final int length;
 
 	public CaptchaComponent(MessageSource msg, int length, boolean showLabelInline)
 	{
 		this.msg = msg;
 		this.length = length;
-		this.showLabelInline = showLabelInline;
 		initEngine();
 		initUI();
 	}
@@ -107,12 +100,6 @@ public class CaptchaComponent
 		answer.setValue("");
 	}
 	
-	public void resetFull()
-	{
-		reset();
-		answer.setErrorMessage(null);
-	}
-	
 	private HorizontalLayout createCapchaLine()
 	{
 		HorizontalLayout captchaLine = new HorizontalLayout();
@@ -141,24 +128,6 @@ public class CaptchaComponent
 		ret.add(capchaLine, answer);
 		ret.setAlignItems(answerAlignment);
 		return ret;
-	}
-
-	public Component getAsFullWidthComponent()
-	{
-		VerticalLayout ret = new VerticalLayout();
-		ret.setMargin(false);
-		ret.setWidthFull();
-		HorizontalLayout capchaLine = createCapchaLine();
-		ret.add(capchaLine, answer);
-		capchaLine.setWidthFull();
-		answer.setWidthFull();
-		return ret;
-	}
-	
-
-	public void addToFormLayout(FormLayout parent)
-	{
-		parent.add(createCapchaLine(), answer);
 	}
 
 	public void verify() throws WrongArgumentException

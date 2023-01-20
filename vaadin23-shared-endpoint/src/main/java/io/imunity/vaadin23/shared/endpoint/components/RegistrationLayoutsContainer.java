@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.components;
@@ -19,6 +19,7 @@ public class RegistrationLayoutsContainer
 		this.registrationFormLayout.setWidth(formLayoutWidth, formLayoutWidthUnit);
 		this.registrationFormLayout.setMargin(false);
 		this.registrationFormLayout.setPadding(false);
+		this.registrationFormLayout.getStyle().set("gap", "0");
 	}
 
 	public void addFormLayoutToRootLayout(VerticalLayout main)

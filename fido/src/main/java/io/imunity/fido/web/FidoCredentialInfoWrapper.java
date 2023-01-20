@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.fido.web;
@@ -13,7 +13,7 @@ import java.util.Date;
  *
  * @author R. Ledzinski
  */
-public class FidoCredentialInfoWrapper
+class FidoCredentialInfoWrapper
 {
 	private CredentialState state;
 
@@ -57,7 +57,7 @@ public class FidoCredentialInfoWrapper
 		return CredentialState.DELETED == state;
 	}
 
-	public enum CredentialState
+	enum CredentialState
 	{
 		STORED,
 		NEW,

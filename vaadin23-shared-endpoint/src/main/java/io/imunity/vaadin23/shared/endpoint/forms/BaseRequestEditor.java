@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.forms;
@@ -71,18 +71,18 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
 	protected MessageSource msg;
 	protected NotificationPresenter notificationPresenter;
-	private BaseForm form;
+	private final BaseForm form;
 	protected RemotelyAuthenticatedPrincipal remotelyAuthenticated;
-	private IdentityEditorRegistryV23 identityEditorRegistry;
-	private CredentialEditorRegistryV23 credentialEditorRegistry;
-	private AttributeHandlerRegistryV23 attributeHandlerRegistry;
-	private AttributeTypeManagement aTypeMan;
-	private GroupsManagement groupsMan;
-	private CredentialManagement credMan;
-	private PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder;
+	private final IdentityEditorRegistryV23 identityEditorRegistry;
+	private final CredentialEditorRegistryV23 credentialEditorRegistry;
+	private final AttributeHandlerRegistryV23 attributeHandlerRegistry;
+	private final AttributeTypeManagement aTypeMan;
+	private final GroupsManagement groupsMan;
+	private final CredentialManagement credMan;
+	private final PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder;
 	
-	private Map<String, IdentityTaV> remoteIdentitiesByType;
-	private Map<String, Attribute> remoteAttributes;
+	private final Map<String, IdentityTaV> remoteIdentitiesByType;
+	private final Map<String, Attribute> remoteAttributes;
 	private Map<Integer, IdentityEditor> identityParamEditors;
 	private List<CredentialEditor> credentialParamEditors;
 	private Map<Integer, FixedAttributeEditor> attributeEditor;
@@ -165,7 +165,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 	
-	protected void fillRequest(BaseRegistrationInput ret, FormErrorStatus status, boolean withCredentials) throws FormValidationException
+	protected void fillRequest(BaseRegistrationInput ret, FormErrorStatus status, boolean withCredentials)
 	{
 		ret.setFormId(form.getName());
 
@@ -244,12 +244,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				} catch (MissingCredentialException e)
 				{
 					status.hasFormException = true;
-					continue;
 				} catch (IllegalCredentialException e)
 				{
 					status.hasFormException = true;
 					status.errorMsg = e.getMessage();
-					continue;
 				}
 			}
 			ret.setCredentials(credentials);
@@ -329,7 +327,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				} else
 				{
 					List<String> remotelySelectedPaths = remotelySelected.stream()
-							.map(grp -> grp.toString()).collect(Collectors.toList());
+							.map(Group::toString).collect(Collectors.toList());
 					g.add(new GroupSelection(remotelySelectedPaths,
 							remotelyAuthenticated.getRemoteIdPName(),
 							remotelyAuthenticated.getInputTranslationProfile()));
@@ -370,11 +368,11 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					continue;
 				}
 
-
 				if (!ar.isValid())
 				{
 					ar.setErrorMessage(msg.getMessage("selectionRequired"));
-				}else
+				}
+				else
 				{
 					ar.setErrorMessage(null);
 				}
@@ -914,8 +912,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		return !identityParamEditors.isEmpty()
 				|| !attributeEditor.isEmpty()
-				|| !(groupSelectors.values().stream().filter(a -> a != null && !a.getValue().isEmpty())
-				.count() == 0)
+				|| groupSelectors.values().stream().anyMatch(group -> group != null && !group.getValue().isEmpty())
 				|| !agreementSelectors.isEmpty()
 				|| !credentialParamEditors.isEmpty()
 				|| form.isCollectComments();

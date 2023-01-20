@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.credentials.password;
@@ -38,10 +38,9 @@ public class PasswordFieldsComponent extends VerticalLayout implements Focusable
 	private ComboBox<String> questionSelection;
 	private TextField answer;
 	private boolean requireQA;
-	private CredentialEditorContext context;
-	private Consumer<String> onPasswordChangeListener;
-	private SingleStringFieldBinder binder;
-	private NotificationPresenter notificationPresenter;
+	private final CredentialEditorContext context;
+	private final Consumer<String> onPasswordChangeListener;
+	private final NotificationPresenter notificationPresenter;
 
 	public PasswordFieldsComponent(MessageSource msg, CredentialEditorContext context,
 	                               PasswordCredential config, Consumer<String> onPasswordChangeListener,
@@ -65,7 +64,7 @@ public class PasswordFieldsComponent extends VerticalLayout implements Focusable
 	private void initUI()
 	{
 		setPadding(false);
-		binder =  new SingleStringFieldBinder(msg);
+		SingleStringFieldBinder binder = new SingleStringFieldBinder(msg);
 		VerticalLayout root = new VerticalLayout();
 		root.setSpacing(false);
 		root.setMargin(false);

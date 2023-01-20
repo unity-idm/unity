@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
 package io.imunity.vaadin23.shared.endpoint.plugins.credentials.password;
 
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.progressbar.ProgressBarVariant;
@@ -22,16 +22,18 @@ class PasswordProgressBar extends VerticalLayout
 	private final LabelWithIcon minLengthStatus = new LabelWithIcon();
 	private final LabelWithIcon minClassesStatus = new LabelWithIcon();
 	private final LabelWithIcon sequencesStatus = new LabelWithIcon();
-	private final Text hint = new Text("");
+	private final Label hint = new Label();
 
 	public PasswordProgressBar(boolean minLengthStatus, boolean minClassesStatus, boolean sequencesStatus)
 	{
 		this.minLengthStatus.setVisible(minLengthStatus);
 		this.minClassesStatus.setVisible(minClassesStatus);
 		this.sequencesStatus.setVisible(sequencesStatus);
+		getStyle().set("gap", "0");
+		hint.getStyle().set("font-style", "italic");
+
 		add(title, progressBar, this.minLengthStatus, this.minClassesStatus, this.sequencesStatus, hint);
 	}
-
 
 	public void setValue(double value)
 	{
@@ -92,19 +94,21 @@ class PasswordProgressBar extends VerticalLayout
 		}
 		else
 		{
-			icon = VaadinIcon.CHECK_CIRCLE_O.create();
+			icon = VaadinIcon.EXCLAMATION_CIRCLE_O.create();
 			icon.getStyle().set("color", "red");
 		}
+		icon.setSize("var(--lumo-icon-size-s)");
 		return icon;
 	}
 
-	static class LabelWithIcon extends Div
+	static class LabelWithIcon extends HorizontalLayout
 	{
 		private final Div iconDiv = new Div();
 		private final Label label = new Label();
 
 		public LabelWithIcon()
 		{
+			getStyle().set("gap", "0.3em");
 			iconDiv.getStyle().set("display", "inline");
 			add(iconDiv, label);
 		}

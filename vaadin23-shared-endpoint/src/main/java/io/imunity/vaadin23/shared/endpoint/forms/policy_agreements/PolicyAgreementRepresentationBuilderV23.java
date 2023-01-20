@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -21,17 +21,17 @@ import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.CONTEXT_PATH_2;
-import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.POLICY_DOCUMENTS_PATH;
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.*;
 
 @Component
 public class PolicyAgreementRepresentationBuilderV23
 {
-	private PolicyDocumentManagement policyDocMan;
-	private SharedEndpointManagement sharedEndpointManagement;
-	private MessageSource msg;
+	private final PolicyDocumentManagement policyDocMan;
+	private final SharedEndpointManagement sharedEndpointManagement;
+	private final MessageSource msg;
 
 	public PolicyAgreementRepresentationBuilderV23(MessageSource msg,
 	                                               SharedEndpointManagement sharedEndpointManagement,
@@ -49,13 +49,7 @@ public class PolicyAgreementRepresentationBuilderV23
 		return new PolicyAgreementRepresentation(agreementConfig.documentsIdsToAccept,
 				getAgreementTextRepresentation(agreementConfig.text, resolvedDocs),
 				agreementConfig.presentationType,
-				resolvedDocs.stream().filter(d -> d.mandatory).findFirst().isPresent());
-	}
-	
-	public String getAgreementRepresentationText(PolicyAgreementConfiguration agreementConfig)
-	{
-		List<PolicyDocumentWithRevision> resolvedDocs = resolvePolicyDoc(agreementConfig.documentsIdsToAccept);
-		return getAgreementTextRepresentation(agreementConfig.text, resolvedDocs);
+				resolvedDocs.stream().anyMatch(d -> d.mandatory));
 	}
 
 	private List<PolicyDocumentWithRevision> resolvePolicyDoc(List<Long> docs)
@@ -78,11 +72,11 @@ public class PolicyAgreementRepresentationBuilderV23
 			return "";
 		Map<Long, DocPlaceholder> allDocsPlaceholdersInConfigText = PolicyAgreementConfigTextParser
 				.getAllDocsPlaceholdersInConfigText(text);
-		String ret = new String(text);
+		String ret = text;
 		for (DocPlaceholder dp : allDocsPlaceholdersInConfigText.values())
 		{
 			ret = ret.replaceAll(dp.toPatternString(),
-					getLink(docs.stream().filter(d -> d.id == dp.docId).findFirst().orElse(null),
+					getLink(docs.stream().filter(d -> Objects.equals(d.id, dp.docId)).findFirst().orElse(null),
 							dp.displayedText));
 		}
 
@@ -98,10 +92,7 @@ public class PolicyAgreementRepresentationBuilderV23
 	{
 		return doc != null
 				? doc.contentType.equals(PolicyDocumentContentType.LINK)
-					? doc.content.getValue(msg) :
-						sharedEndpointManagement.getServerAddress() + sharedEndpointManagement.getBaseContextPath() +
-						CONTEXT_PATH_2 + POLICY_DOCUMENTS_PATH + doc.id
-				: sharedEndpointManagement.getServerAddress() + sharedEndpointManagement.getBaseContextPath() +
-					CONTEXT_PATH_2 + POLICY_DOCUMENTS_PATH + "UNKNOWN";
+				? doc.content.getValue(msg) : sharedEndpointManagement.getServletUrl(POLICY_DOCUMENTS_PATH) + doc.id
+				: sharedEndpointManagement.getServletUrl(POLICY_DOCUMENTS_PATH) + "UNKNOWN";
 	}
 }

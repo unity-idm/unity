@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.identities.email;
@@ -31,17 +31,17 @@ import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 public class EmailIdentityEditor implements IdentityEditor
 {
-	private Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailIdentityEditor.class);
-	private MessageSource msg;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailIdentityEditor.class);
+	private final MessageSource msg;
 	private ConfirmationInfo confirmationInfo;
 	private TextFieldWithVerifyButton editor;
 	private boolean skipUpdate = false;
 	private IdentityParam value;
-	private EmailConfirmationManager emailConfirmationMan;
-	private EntityResolver idResolver;
-	private ConfirmationInfoFormatter formatter;
+	private final EmailConfirmationManager emailConfirmationMan;
+	private final EntityResolver idResolver;
+	private final ConfirmationInfoFormatter formatter;
 	private SingleStringFieldBinder binder;
-	private NotificationPresenter notificationPresenter;
+	private final NotificationPresenter notificationPresenter;
 
 	public EmailIdentityEditor(MessageSource msg, EmailConfirmationManager emailConfirmationMan,
 	                           EntityResolver idResolver, ConfirmationInfoFormatter formatter, NotificationPresenter notificationPresenter)

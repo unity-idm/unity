@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.otp;
@@ -12,9 +12,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-public class OTPExtraInfo
+class OTPExtraInfo
 {
-	public final Date lastModification;
+	final Date lastModification;
 
 	@JsonCreator
 	OTPExtraInfo(@JsonProperty("lastModification") Date lastModification)

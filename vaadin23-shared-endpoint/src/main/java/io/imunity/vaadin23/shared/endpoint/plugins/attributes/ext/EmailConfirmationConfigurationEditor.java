@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -19,12 +19,10 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 
 public class EmailConfirmationConfigurationEditor extends FormLayout
 {
-	private MessageSource msg;
-	private MessageTemplateManagement msgTemplateMan;
+	private final MessageSource msg;
+	private final MessageTemplateManagement msgTemplateMan;
 	private Binder<EmailConfirmationConfiguration> binder;
-	private EmailConfirmationConfiguration initial;
-	private CompatibleTemplatesComboBox msgTemplate;
-	private TextField validityTime;
+	private final EmailConfirmationConfiguration initial;
 
 	public EmailConfirmationConfigurationEditor(EmailConfirmationConfiguration initial,
 	                                            MessageSource msg, MessageTemplateManagement msgTemplateMan)
@@ -38,15 +36,15 @@ public class EmailConfirmationConfigurationEditor extends FormLayout
 	private void initUI()
 	{
 		binder = new Binder<>(EmailConfirmationConfiguration.class);
-		
-		msgTemplate = new CompatibleTemplatesComboBox(EmailConfirmationTemplateDef.NAME, msgTemplateMan);
+
+		CompatibleTemplatesComboBox msgTemplate = new CompatibleTemplatesComboBox(EmailConfirmationTemplateDef.NAME, msgTemplateMan);
 		msgTemplate.setLabel(msg.getMessage(
 				"EmailConfirmationConfiguration.confirmationMsgTemplate"));
 		msgTemplate.getElement().setProperty("title", msg.getMessage(
 				"EmailConfirmationConfiguration.confirmationMsgTemplateDesc"));
 		msgTemplate.setRequired(false);
 
-		validityTime = new TextField(
+		TextField validityTime = new TextField(
 				msg.getMessage("EmailConfirmationConfiguration.validityTime"));
 
 		add(msgTemplate);

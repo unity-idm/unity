@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.forms;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RemoteDataRegistrationParser
+class RemoteDataRegistrationParser
 {
 	static Map<String, IdentityTaV> parseRemoteIdentities(BaseForm form,
 			RemotelyAuthenticatedPrincipal remotelyAuthenticated)
@@ -106,7 +106,7 @@ public class RemoteDataRegistrationParser
 		}
 	}
 	
-	public static String getAttributeKey(AttributeRegistrationParam aParam)
+	static String getAttributeKey(AttributeRegistrationParam aParam)
 	{
 		return aParam.getGroup() + "//" + aParam.getAttributeType();
 	}

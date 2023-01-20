@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.credentials.password;
@@ -23,8 +23,8 @@ import java.util.Optional;
 
 public class PasswordCredentialEditor implements CredentialEditor
 {
-	private MessageSource msg;
-	private NotificationPresenter notificationPresenter;
+	private final MessageSource msg;
+	private final NotificationPresenter notificationPresenter;
 	private PasswordCredential config;
 	private PasswordEditorComponent editor;
 

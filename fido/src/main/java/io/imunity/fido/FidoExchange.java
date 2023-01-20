@@ -5,7 +5,7 @@
 package io.imunity.fido;
 
 import io.imunity.fido.service.FidoException;
-import io.imunity.fido.web.FidoRetrieval;
+import io.imunity.fido.web.v8.FidoRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 

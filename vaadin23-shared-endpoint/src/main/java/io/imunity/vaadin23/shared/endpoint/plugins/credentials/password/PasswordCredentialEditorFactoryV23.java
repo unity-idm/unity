@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.credentials.password;
@@ -20,10 +20,10 @@ import pl.edu.icm.unity.webui.common.credentials.pass.PasswordCredentialDefiniti
 @Component
 public class PasswordCredentialEditorFactoryV23 implements CredentialEditorFactory
 {
-	private MessageSource msg;
-	private MessageTemplateManagement msgTplMan;
-	private PasswordEncodingPoolProvider poolProvider;
-	private NotificationPresenter notificationPresenter;
+	private final MessageSource msg;
+	private final MessageTemplateManagement msgTplMan;
+	private final PasswordEncodingPoolProvider poolProvider;
+	private final NotificationPresenter notificationPresenter;
 	
 	@Autowired
 	public PasswordCredentialEditorFactoryV23(MessageSource msg, MessageTemplateManagement msgTplMan,

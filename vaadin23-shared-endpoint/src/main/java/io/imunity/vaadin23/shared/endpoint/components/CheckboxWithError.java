@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -14,47 +14,56 @@ public class CheckboxWithError extends CustomField<Boolean> implements HasStyle
 {
 	private final Checkbox checkbox;
 
-	public CheckboxWithError() {
+	public CheckboxWithError()
+	{
 		checkbox = new Checkbox();
 		add(checkbox);
 	}
 
-	public CheckboxWithError(String labelText) {
+	public CheckboxWithError(String labelText)
+	{
 		checkbox = new Checkbox(labelText);
 		add(checkbox);
 	}
 
 	@Override
-	protected Boolean generateModelValue() {
+	protected Boolean generateModelValue()
+	{
 		return checkbox.getValue();
 	}
 
 	@Override
-	protected void setPresentationValue(Boolean newPresentationValue) {
+	protected void setPresentationValue(Boolean newPresentationValue)
+	{
 		checkbox.setValue(newPresentationValue);
 	}
 
 	@Override
-	public void addClassNames(String... classNames) {
+	public void addClassNames(String... classNames)
+	{
 		checkbox.addClassNames(classNames);
 	}
 
 	@Override
-	public Style getStyle() {
+	public Style getStyle()
+	{
 		return checkbox.getStyle();
 	}
 
-	public void setLabel(String newLabelText) {
+	public void setLabel(String newLabelText)
+	{
 		checkbox.setLabel(newLabelText);
 	}
 
 	@Override
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(boolean enabled)
+	{
 		checkbox.setEnabled(enabled);
 	}
 
 	@Override
-	public boolean isEnabled() {
+	public boolean isEnabled()
+	{
 		return checkbox.isEnabled();
 	}
 

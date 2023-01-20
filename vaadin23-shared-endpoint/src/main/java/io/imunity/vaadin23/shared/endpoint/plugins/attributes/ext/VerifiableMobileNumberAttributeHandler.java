@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.attributes.ext;
@@ -36,11 +36,11 @@ import java.util.Optional;
 
 public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 {	
-	private MessageSource msg;
-	private ConfirmationInfoFormatter formatter;
-	private VerifiableMobileNumberAttributeSyntax syntax;
-	private MobileNumberConfirmationManager  mobileConfirmationMan;
-	private NotificationPresenter  notificationPresenter;
+	private final MessageSource msg;
+	private final ConfirmationInfoFormatter formatter;
+	private final VerifiableMobileNumberAttributeSyntax syntax;
+	private final MobileNumberConfirmationManager  mobileConfirmationMan;
+	private final NotificationPresenter  notificationPresenter;
 
 	public VerifiableMobileNumberAttributeHandler(MessageSource msg,
 			ConfirmationInfoFormatter formatter, AttributeValueSyntax<?> syntax,

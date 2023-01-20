@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.credentials.certificate;
@@ -17,7 +17,7 @@ import pl.edu.icm.unity.webui.common.credentials.cert.CertificateCredentialDefin
 @Component
 public class CertificateCredentialEditorFactoryV23 implements CredentialEditorFactory
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	@Autowired
 	public CertificateCredentialEditorFactoryV23(MessageSource msg)

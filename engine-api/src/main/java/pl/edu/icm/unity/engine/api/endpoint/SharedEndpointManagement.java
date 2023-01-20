@@ -19,8 +19,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  */
 public interface SharedEndpointManagement
 {
-	public static final String CONTEXT_PATH = "/unitygw";
-	String CONTEXT_PATH_2 = "/unitygw2";
+	String CONTEXT_PATH = "/unitygw";
 	String POLICY_DOCUMENTS_PATH = "/pub/policyDocuments/";
 	String REGISTRATION_PATH = "/pub/registration/";
 	String ENQUIRY_PATH = "/pub/enquiry/";

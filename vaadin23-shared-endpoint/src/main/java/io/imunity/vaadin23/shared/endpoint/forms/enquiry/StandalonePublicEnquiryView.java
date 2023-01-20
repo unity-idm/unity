@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -9,13 +9,17 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Route;
 import io.imunity.vaadin23.elements.NotificationPresenter;
 import io.imunity.vaadin23.shared.endpoint.components.WorkflowCompletedComponent;
 import io.imunity.vaadin23.shared.endpoint.forms.registration.GetRegistrationCodeDialog;
@@ -46,11 +50,9 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.*;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
-import pl.edu.icm.unity.webui.forms.enquiry.RewriteComboToEnquiryRequest;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER;
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
@@ -64,10 +66,10 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandalonePublicEnquiryView.class);
 
-	MessageSource msg;
+	private final MessageSource msg;
 	private String registrationCode;
-	private EnquiryResponseEditorControllerV23 editorController;
-	private InvitationResolver invitationResolver;
+	private final EnquiryResponseEditorControllerV23 editorController;
+	private final InvitationResolver invitationResolver;
 	private PostFillingHandler postFillHandler;
 
 	private EnquiryForm form;
@@ -75,8 +77,8 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 	private ResolvedInvitationParam invitation;
 	private Long selectedEntity;
 
-	private EnquiryManagement enqMan;
-	private NotificationPresenter notificationPresenter;
+	private final EnquiryManagement enqMan;
+	private final NotificationPresenter notificationPresenter;
 
 
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
@@ -148,7 +150,7 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 	{
 		if (registrationCode == null)
 		{
-			askForCode(() -> doShowEditorOrSkipToFinalStep());
+			askForCode(this::doShowEditorOrSkipToFinalStep);
 		} else
 		{
 			doShowEditorOrSkipToFinalStep();
@@ -291,7 +293,7 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 				mergedSet.addAll(entryFromUser.getValue().getEntry().getSelectedGroups());
 				mergedGroups.put(entryFromUser.getKey(),
 						new PrefilledEntry<>(
-								new GroupSelection(mergedSet.stream().collect(Collectors.toList())),
+								new GroupSelection(new ArrayList<>(mergedSet)),
 								entryFromUser.getValue().getMode()));
 			} else
 			{
@@ -353,11 +355,13 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 		buttons.setWidth(editor.formWidth(), editor.formWidthUnit());
 
 		Button okButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"),
-				event ->
-				{
-					WorkflowFinalizationConfiguration config = submit(form, editor);
-					gotoFinalStep(config);
-				});
+			event ->
+			{
+				WorkflowFinalizationConfiguration config = submit(form, editor);
+				gotoFinalStep(config);
+			}
+		);
+		okButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 		Button cancelButton = new Button(msg.getMessage("cancel"), event ->
 		{

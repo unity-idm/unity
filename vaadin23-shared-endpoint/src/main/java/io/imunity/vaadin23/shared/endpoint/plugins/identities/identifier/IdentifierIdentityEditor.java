@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.identities.identifier;
@@ -20,7 +20,6 @@ public class IdentifierIdentityEditor implements IdentityEditor
 {
 	private final MessageSource msg;
 	private TextField field;
-	private IdentityEditorContext context;
 	private SingleStringFieldBinder binder;
 	
 	public IdentifierIdentityEditor(MessageSource msg)
@@ -32,7 +31,6 @@ public class IdentifierIdentityEditor implements IdentityEditor
 	public ComponentsContainer getEditor(IdentityEditorContext context)
 	{
 		binder = new SingleStringFieldBinder(msg);
-		this.context = context;
 		field = new TextField();
 		setLabel(new IdentifierIdentity().getHumanFriendlyName(msg));
 		if (context.isCustomWidth())

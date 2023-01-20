@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint;
@@ -9,7 +9,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 
 public class WebSession
 {
-	private EventsBus eventBus;
+	private final EventsBus eventBus;
 	
 	public static WebSession getCurrent()
 	{

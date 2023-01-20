@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -29,18 +29,18 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, MobileNumberConfirmationDialog.class);
 
-	private MessageSource msg;
-	private Callback callback;
+	private final MessageSource msg;
+	private final Callback callback;
 	private TextField field;
 	private CaptchaComponent captcha;
-	private MobileNumberConfirmationManager mobileConfirmationMan;
-	private NotificationPresenter notificationPresenter;
-	private MobileNumberConfirmationConfiguration confirmationConfiguration;
+	private final MobileNumberConfirmationManager mobileConfirmationMan;
+	private final NotificationPresenter notificationPresenter;
+	private final MobileNumberConfirmationConfiguration confirmationConfiguration;
 	private SMSCode code;
-	private String mobileToConfirm;
-	private ConfirmationInfo confirmationInfo;
-	private Component captchaComponent;
-	private Component confirmCodeComponent;
+	private final String mobileToConfirm;
+	private final ConfirmationInfo confirmationInfo;
+	private final Component captchaComponent;
+	private final Component confirmCodeComponent;
 	private boolean capchaVerified = false;
 	
 	public MobileNumberConfirmationDialog(String mobileToConfirm, ConfirmationInfo confirmatioInfo,
@@ -189,10 +189,7 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 
 	private boolean isCapchaNeeded()
 	{
-		if (InvocationContext.getCurrent() != null)
-			return InvocationContext.getCurrent().getLoginSession() == null;
-
-		return true;
+		return InvocationContext.getCurrent().getLoginSession() == null;
 	}
 
 }

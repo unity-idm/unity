@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationStat
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -222,7 +222,7 @@ class EmailConfirmationManagerImpl implements EmailConfirmationManager
 							+ " are allowed");
 
 		String link = advertisedAddress.toExternalForm()
-				+ SharedEndpointManagementImpl.CONTEXT_PATH_2
+				+ SharedEndpointManagement.CONTEXT_PATH
 				+ EmailConfirmationServletProvider.SERVLET_PATH;
 		HashMap<String, String> params = new HashMap<>();
 		params.put(EmailConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"

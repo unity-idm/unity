@@ -6,14 +6,18 @@
 package io.imunity.vaadin23.endpoint.common;
 
 import com.vaadin.flow.server.*;
+import io.imunity.vaadin23.elements.VaadinInitParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @Component
 class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, SessionInitListener
@@ -36,8 +40,11 @@ class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, Ses
 	@Override
 	public void sessionInit(SessionInitEvent event) {
 		WrappedSession wrappedSession = event.getSession().getSession();
-		Optional.ofNullable(InvocationContext.getCurrent().getRealm())
-						.ifPresent(realm -> wrappedSession.setMaxInactiveInterval(realm.getMaxInactivity()));
+
+		ofNullable(InvocationContext.getCurrent().getRealm())
+				.map(AuthenticationRealm::getMaxInactivity)
+				.or(() -> getMaxInactivityFormServletConfig(event))
+				.ifPresent(wrappedSession::setMaxInactiveInterval);
 		LOG.debug("Session {} created, max inactivity set to {}",
 				wrappedSession.getId(),
 				wrappedSession.getMaxInactiveInterval());
@@ -52,5 +59,14 @@ class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, Ses
 
 			return messages;
 		});
+	}
+
+	private static Optional<Integer> getMaxInactivityFormServletConfig(SessionInitEvent event)
+	{
+		return ofNullable(event.getService()
+				.getDeploymentConfiguration()
+				.getInitParameters()
+				.getProperty(VaadinInitParameters.SESSION_TIMEOUT_PARAM)
+		).map(Integer::parseInt);
 	}
 }

@@ -24,7 +24,6 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryInvitationEntityRepresentationProvider;
 
 import java.util.Optional;
 import java.util.function.Consumer;

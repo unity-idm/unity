@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.credentials;
@@ -16,7 +16,7 @@ import java.util.Set;
 @Component
 public class CredentialEditorRegistryV23
 {
-	private Map<String, CredentialEditorFactory> factoriesByType = new HashMap<>();
+	private final Map<String, CredentialEditorFactory> factoriesByType = new HashMap<>();
 
 	@Autowired
 	public CredentialEditorRegistryV23(List<CredentialEditorFactory> factories)

@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.plugins.credentials.password;
 
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.MessageSource;
@@ -33,18 +32,14 @@ public class PasswordQualityComponent extends VerticalLayout
 	private void initComponent(CredentialEditorContext context)
 	{
 		qualityMeter = new PasswordProgressBar(config.getMinLength() > 1, config.getMinClassesNum() > 1, config.isDenySequences());
-		qualityMeter.setTitle(" " + msg.getMessage("PasswordCredentialEditor.qualityMeter"));
-		qualityMeter.setWidth(15, Unit.EM);
+		qualityMeter.setTitle(msg.getMessage("PasswordCredentialEditor.qualityMeter"));
+		qualityMeter.setWidth("15em");
 		qualityMeter.addClassName("u-password-quality");
-			
-		VerticalLayout root = new VerticalLayout();
-		root.setSpacing(false);
-		root.setMargin(false);
 
-		root.add(qualityMeter);
-		root.setWidth(16, Unit.EM);
+		add(qualityMeter);
+		getStyle().set("position", "absolute");
+		getStyle().set("margin-left", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
 
-		add(root);
 		if (!context.isShowLabelInline())
 			addClassName(Styles.nonCompactTopMargin.toString());
 		
@@ -80,17 +75,17 @@ public class PasswordQualityComponent extends VerticalLayout
 			qualityMeter.setHint("");
 		}
 
-		qualityMeter.setMinLengthStatus(" " +
+		qualityMeter.setMinLengthStatus(
 				msg.getMessage("PasswordCredentialEditor.minLengthStatus", length, config.getMinLength()),
 				length >= config.getMinLength()
 		);
 
-		qualityMeter.setMinClassesStatus(" " +
+		qualityMeter.setMinClassesStatus(
 				msg.getMessage("PasswordCredentialEditor.minClassesStatus", classes, config.getMinClassesNum()),
 				classes >= config.getMinClassesNum()
 		);
 
-		qualityMeter.setSequencesStatus(" " + msg.getMessage("PasswordCredentialEditor.trivialSequences"), trivialSequences);
+		qualityMeter.setSequencesStatus(msg.getMessage("PasswordCredentialEditor.trivialSequences"), trivialSequences);
 	}
 
 }

@@ -16,7 +16,6 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.VaadinSession;
 import io.imunity.vaadin23.elements.FlagIcon;
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.LanguageCookie;
@@ -29,16 +28,15 @@ import java.util.stream.Collectors;
 
 public class LocaleChoiceComponent extends Div
 {
-	public LocaleChoiceComponent(UnityServerConfiguration cfg, MessageSource msg)
+	public LocaleChoiceComponent(UnityServerConfiguration cfg)
 	{
 		Map<String, Locale> selectableLocales = cfg.getEnabledLocales();
 		if (selectableLocales.size() >= 2)
 		{
 			Locale selected = InvocationContext.getCurrent().getLocale();
-			Map<Locale, String> collect = selectableLocales.entrySet().stream().collect(Collectors.toMap(x -> x.getValue(), x -> x.getKey()));
+			Map<Locale, String> collect = selectableLocales.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 
 			ComboBox<Locale> chooser = new ComboBox<>();
-			chooser.setLabel(msg.getMessage("LanguageChoiceComponent.language"));
 			chooser.addClassName("u-authn-languageSelector");
 
 			chooser.addValueChangeListener(event ->

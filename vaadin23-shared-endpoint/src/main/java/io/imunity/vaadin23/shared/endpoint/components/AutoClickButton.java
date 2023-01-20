@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -14,13 +14,13 @@ import java.util.TimerTask;
 
 public class AutoClickButton extends Button
 {
-	private static int COUNTDOWN_PROGRESS = 1000;
-	private static int UI_POOL_INTERVAL = 100;
+	private static final int COUNTDOWN_PROGRESS = 1000;
+	private static final int UI_POOL_INTERVAL = 100;
 	
 	private long seconds;
 	private Timer timer;
-	private UI currentUI;
-	private String caption;
+	private final UI currentUI;
+	private final String caption;
 
 	public AutoClickButton(String caption, UI ui, long seconds)
 	{

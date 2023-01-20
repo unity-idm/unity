@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.vaadin23.shared.endpoint.forms.registration;
@@ -13,17 +13,15 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin23.elements.NotificationPresenter;
-import io.imunity.vaadin23.shared.endpoint.forms.BaseRequestEditor;
-import io.imunity.vaadin23.shared.endpoint.plugins.attributes.AttributeHandlerRegistryV23;
 import io.imunity.vaadin23.shared.endpoint.components.CaptchaComponent;
-import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorRegistryV23;
-import io.imunity.vaadin23.shared.endpoint.forms.policy_agreements.PolicyAgreementRepresentationBuilderV23;
-import io.imunity.vaadin23.shared.endpoint.plugins.identities.IdentityEditorRegistryV23;
 import io.imunity.vaadin23.shared.endpoint.components.RegistrationLayoutsContainer;
-import org.apache.logging.log4j.Logger;
+import io.imunity.vaadin23.shared.endpoint.forms.BaseRequestEditor;
+import io.imunity.vaadin23.shared.endpoint.forms.policy_agreements.PolicyAgreementRepresentationBuilderV23;
+import io.imunity.vaadin23.shared.endpoint.plugins.attributes.AttributeHandlerRegistryV23;
+import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorRegistryV23;
+import io.imunity.vaadin23.shared.endpoint.plugins.identities.IdentityEditorRegistryV23;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -56,18 +54,16 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	enum Stage {FIRST, SECOND}
 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationRequestEditor.class);
-	private RegistrationForm form;
+	private final RegistrationForm form;
 	
 	private TextField registrationCode;
 	private CaptchaComponent captcha;
-	private String regCodeProvided;
-	private ResolvedInvitationParam invitation;
+	private final String regCodeProvided;
+	private final ResolvedInvitationParam invitation;
 	private RequestEditorCreatorV23.InvitationCodeConsumer onLocalSignupHandler;
 	private FormLayout effectiveLayout;
 	private Stage stage;
-	private RegistrationLayoutsContainer layoutContainer;
-	private URLQueryPrefillCreator urlQueryPrefillCreator;
+	private final URLQueryPrefillCreator urlQueryPrefillCreator;
 	private final SwitchToEnquiryComponentProviderV23 toEnquirySwitchLabelProvider;
 	private final AuthenticationOptionKey authnOptionKey;
 
@@ -188,18 +184,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			ret.setRegistrationCode(regCodeProvided);
 	}
 	
-
-	void focusFirst()
-	{
-		focusFirst(layoutContainer.registrationFormLayout);
-	}
-	
 	private void initUI()
 	{
-		
 		RegistrationInvitationParam regInv = invitation == null ? null : invitation.getAsRegistration();
-		
-		layoutContainer = createLayouts(buildVarsToFreemarkerTemplates(Optional.ofNullable(regInv)));
+
+		RegistrationLayoutsContainer layoutContainer = createLayouts(buildVarsToFreemarkerTemplates(Optional.ofNullable(regInv)));
 
 		PrefilledSet prefilled = new PrefilledSet();
 		if (regInv != null)
@@ -245,10 +234,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 
 			Optional<Label> switchToEnquiryLabel = toEnquirySwitchLabelProvider
 					.getSwitchToEnquiryLabel(form.getSwitchToEnquiryInfoFallbackToDefault(msg), invitation, params);
-			if (switchToEnquiryLabel.isPresent())
-			{
-				main.add(switchToEnquiryLabel.get());
-			}
+			switchToEnquiryLabel.ifPresent(main::add);
 		}
 		
 		RegistrationLayoutsContainer container = new RegistrationLayoutsContainer(formWidth(), formWidthUnit());
@@ -260,17 +246,13 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
 			FormElement previousAdded, FormElement next, PrefilledSet prefilled)
 	{
-		switch (element.getType())
-		{
-		case CAPTCHA:
-			return createCaptchaControl(layoutContainer.registrationFormLayout);
-		case REG_CODE:
-			return createRegistrationCodeControl(layoutContainer.registrationFormLayout);
-		case LOCAL_SIGNUP:
-			return createLocalSignupButton(layoutContainer.registrationFormLayout);
-		default:
-			return super.createControlFor(layoutContainer, element, previousAdded, next, prefilled);
-		}
+		return switch (element.getType())
+				{
+					case CAPTCHA -> createCaptchaControl(layoutContainer.registrationFormLayout);
+					case REG_CODE -> createRegistrationCodeControl(layoutContainer.registrationFormLayout);
+					case LOCAL_SIGNUP -> createLocalSignupButton(layoutContainer.registrationFormLayout);
+					default -> super.createControlFor(layoutContainer, element, previousAdded, next, prefilled);
+				};
 	}
 	
 	private boolean createLocalSignupButton(VerticalLayout layout)

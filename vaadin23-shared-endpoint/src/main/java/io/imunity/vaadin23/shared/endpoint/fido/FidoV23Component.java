@@ -37,27 +37,32 @@ public class FidoV23Component extends Component
 	}
 
 	@ClientCallable
-	void clearExcludedCredentials() {
+	void clearExcludedCredentials()
+	{
 	}
 
 	@ClientCallable
-	void finalizeRegistration(String reqId, String json) {
+	void finalizeRegistration(String reqId, String json)
+	{
 		finalizeRegistration.accept(reqId, json);
 	}
 
 	@ClientCallable
-	void finalizeAuthentication(String reqId, String jsonBody) {
+	void finalizeAuthentication(String reqId, String jsonBody)
+	{
 		finalizeAuthentication.accept(reqId, jsonBody);
 	}
 
 	@ClientCallable
-	void showError(String caused, String error) {
+	void showError(String caused, String error)
+	{
 		log.debug("Showing error {}: {}", caused, error);
 		showErrorNotification(caused, error);
 	}
 
 	@ClientCallable
-	void showInternalError(String caused, String error) {
+	void showInternalError(String caused, String error)
+	{
 		log.error("Showing internal error caused by {}: {}", caused, error);
 		showErrorNotification(msg.getMessage("Fido.internalError"), msg.getMessage("FidoExc.internalErrorMsg"));
 	}
