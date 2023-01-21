@@ -145,9 +145,9 @@ public class RemotelyAuthenticatedPrincipal
 	public String toString()
 	{
 		return "RemotelyAuthenticatedContext [remoteIdPName=" + remoteIdPName + "\ninputTranslationProfile="
-				+ inputTranslationProfile + "\nsessionParticipants=" + sessionParticipants
-				+ "\nidentities=" + identities + "\nlocalMappedPrincipal=" + localMappedPrincipal
-				+ "\nattributes=" + attributes + "\ngroups=" + groups + "\n***mappingResult=\n"
-				+ mappingResult + "\n***input:\n" + input.getTextDump() + "\ncreationTime=" + creationTime + "]";
+				+ inputTranslationProfile + "\nsessionParticipants=" + sessionParticipants + "\nidentities="
+				+ identities + "\nlocalMappedPrincipal=" + localMappedPrincipal + "\nattributes=" + attributes
+				+ "\ngroups=" + groups + "\n***mappingResult=\n" + mappingResult + "\n***input:\n"
+				+ (input != null ? input.getTextDump() : "") + "\ncreationTime=" + creationTime + "]";
 	}
 }
