@@ -108,6 +108,7 @@ import pl.edu.icm.unity.restadm.mappers.registration.RegistrationRequestStateMap
 import pl.edu.icm.unity.restadm.mappers.registration.invite.InvitationParamMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.invite.InvitationWithCodeMapper;
 import pl.edu.icm.unity.restadm.mappers.translation.TranslationRuleMapper;
+import pl.edu.icm.unity.restadm.mappers.userimport.ImportResultMapper;
 import pl.edu.icm.unity.restadm.token.Token2JsonFormatter;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -1089,7 +1090,9 @@ public class RESTAdmin implements RESTAdminHandler
 				new UserImportSpec(importer, identity, identityType);
 		List<ImportResult> importUser = userImportManagement.importUser(
 				Lists.newArrayList(param));
-		return mapper.writeValueAsString(importUser);
+		return mapper.writeValueAsString(importUser.stream()
+				.map(ImportResultMapper::map)
+				.collect(Collectors.toList()));
 	}
 	
 	@Path("/triggerEvent/{eventName}")
