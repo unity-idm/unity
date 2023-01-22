@@ -75,7 +75,8 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 				if (preferences.getKeys().contains(client.id))
 				{
 					ret.add(IdPClientData.builder().withApplicationId(new ApplicationId(client.id))
-							.withApplicationName(getApplicationName(client)).withLogo(Optional.ofNullable(client.logo))
+							.withApplicationName(getApplicationName(client))
+							.withLogo(Optional.ofNullable(client.logo))
 							.withApplicationDomain(Optional.of(
 									URIPresentationHelper.getHumanReadableDomain(client.authorizedRedirectsUri.get(0))))
 							.withAccessStatus(preferences.getSPSettings(client.id).isDefaultAccept()
@@ -106,11 +107,11 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 		clearPreferences(appId.id);
 	}
 
-	private String getApplicationName(SAMLIndividualTrustedSPConfiguration client)
+	private Optional<String> getApplicationName(SAMLIndividualTrustedSPConfiguration client)
 	{
-		return client.displayedName != null && client.displayedName.getValue(msg) != null
+		return Optional.ofNullable(client.displayedName != null && client.displayedName.getValue(msg) != null
 				? client.displayedName.getValue(msg)
-				: client.id;
+				: client.id);
 	}
 
 	private void clearPreferences(String appId) throws EngineException
