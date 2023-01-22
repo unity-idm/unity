@@ -18,7 +18,7 @@ public class IdPClientData
 	}
 
 	public final ApplicationId applicationId;
-	public final String applicationName;
+	public final Optional<String> applicationName;
 	public final AccessStatus accessStatus;
 	public final AccessProtocol accessProtocol;
 	public final Optional<List<String>> accessScopes;
@@ -51,7 +51,7 @@ public class IdPClientData
 	public static final class Builder
 	{
 		private ApplicationId applicationId;
-		private String applicationName;
+		private Optional<String> applicationName;
 		private AccessStatus accessStatus;
 		private AccessProtocol accessProtocol;
 		private Optional<List<String>> accessScopes = Optional.empty();
@@ -71,7 +71,7 @@ public class IdPClientData
 			return this;
 		}
 
-		public Builder withApplicationName(String applicationName)
+		public Builder withApplicationName(Optional<String> applicationName)
 		{
 			this.applicationName = applicationName;
 			return this;

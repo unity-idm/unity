@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,14 +21,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import io.imunity.idp.TechnicalInformationProperty;
 import io.imunity.idp.AccessProtocol;
 import io.imunity.idp.ApplicationId;
 import io.imunity.idp.IdPClientData;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import io.imunity.idp.TrustedIdPClientsManagement;
 import io.imunity.idp.IdPClientData.AccessStatus;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
+import io.imunity.idp.TechnicalInformationProperty;
+import io.imunity.idp.TrustedIdPClientsManagement;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.UnityImage;
@@ -115,21 +114,21 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 								&& t.token.getIssuerUri().equals(service.issuerURI))
 						.sorted((t1, t2) -> t2.createdTime.compareTo(t1.createdTime)).collect(Collectors.toList());
 
-				Optional<OAuthClientInfo> serviceClient = service.clients.stream().filter(c -> c.id.equals(client))
+				Optional<OAuthClientInfo> serviceClientOp = service.clients.stream().filter(c -> c.id.isPresent() && c.id.get().equals(client))
 						.findAny();
 
-				if (serviceClient.isPresent())
+				if (serviceClientOp.isPresent())
 				{
-
+					OAuthClientInfo oauAuthClientInfo = serviceClientOp.get();
+					
 					if (isDisallowed(perClientData.get(client).preferences))
 					{
 						ret.add(IdPClientData.builder().withApplicationId(new ApplicationId(client))
-								.withLogo(Optional.ofNullable(serviceClient.get().logo))
+								.withLogo(oauAuthClientInfo.logo)
 								.withAccessProtocol(AccessProtocol.OAuth)
 								.withAccessStatus(AccessStatus.disallowWithoutAsking)
-								.withApplicationName(serviceClient.get().name)
-								.withApplicationDomain(Optional.of(URIPresentationHelper
-										.getHumanReadableDomain(serviceClient.get().redirectURIs.get(0))))
+								.withApplicationName(oauAuthClientInfo.name)
+								.withApplicationDomain(oauAuthClientInfo.redirectURI)
 								.build());
 					}
 
@@ -139,7 +138,7 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 						Set<String> scopes = getScopes(accessTokens, service);
 
 						ret.add(IdPClientData.builder().withApplicationId(new ApplicationId(client))
-								.withLogo(Optional.ofNullable(serviceClient.get().logo))
+								.withLogo(oauAuthClientInfo.logo)
 								.withAccessProtocol(AccessProtocol.OAuth)
 								.withLastAccessTime(Optional.ofNullable(getLastAccessByClient()
 										.get(new LastIdPClientAccessKey(AccessProtocol.OAuth, client))))
@@ -147,14 +146,10 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 										? AccessStatus.allowWithoutAsking
 										: AccessStatus.allow)
 								.withAccessGrantTime(getGrantTime(refreshTokens, perClientData.get(client).preferences))
-								.withApplicationName(
-										serviceClient.get().title == null || serviceClient.get().title.isEmpty()
-												? serviceClient.get().name
-												: serviceClient.get().title)
+								.withApplicationName(oauAuthClientInfo.name)
 								.withAccessScopes(Optional.ofNullable(
 										scopes.size() > 0 ? scopes.stream().collect(Collectors.toList()) : null))
-								.withApplicationDomain(Optional.of(URIPresentationHelper
-										.getHumanReadableDomain(serviceClient.get().redirectURIs.get(0))))
+								.withApplicationDomain(oauAuthClientInfo.redirectURI)
 								.withTechnicalInformations(getTechnicalInformations(accessTokens, refreshTokens))
 								.build());
 					}
@@ -394,20 +389,18 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 
 	private static class OAuthClientInfo
 	{
-		public final String name;
-		public final String id;
-		public final List<String> redirectURIs;
-		public final byte[] logo;
-		public final String title;
+		public final Optional<String> name;
+		public final Optional<String> id;
+		public final Optional<String> redirectURI;
+		public final Optional<byte[]> logo;
 
 		private OAuthClientInfo(Builder builder)
 		{
 
 			this.name = builder.name;
 			this.id = builder.id;
-			this.redirectURIs = builder.redirectURIs;
+			this.redirectURI = builder.redirectURI;
 			this.logo = builder.logo;
-			this.title = builder.title;
 		}
 
 		public static Builder builder()
@@ -418,11 +411,10 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 		public static final class Builder
 		{
 
-			private String name;
-			private String id;
-			private List<String> redirectURIs = Collections.emptyList();
-			private byte[] logo;
-			private String title;
+			private Optional<String> name = Optional.empty();
+			private Optional<String> id = Optional.empty();;
+			private Optional<String> redirectURI = Optional.empty();;
+			private Optional<byte[]> logo = Optional.empty();;
 
 			private Builder()
 			{
@@ -430,31 +422,26 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 
 			public Builder withName(String name)
 			{
-				this.name = name;
+				this.name = Optional.ofNullable(name);
 				return this;
 			}
 
 			public Builder withId(String id)
 			{
-				this.id = id;
+				this.id = Optional.ofNullable(id);
 				return this;
 			}
 
-			public Builder withRedirectURIs(List<String> redirectURIs)
+			public Builder withRedirectURI(String redirectURIs)
 			{
-				this.redirectURIs = redirectURIs;
+				this.redirectURI = Optional.ofNullable(redirectURIs).map(URIPresentationHelper
+										::getHumanReadableDomain);
 				return this;
 			}
 
 			public Builder withLogo(byte[] logo)
 			{
-				this.logo = logo;
-				return this;
-			}
-
-			public Builder withTitle(String title)
-			{
-				this.title = title;
+				this.logo = Optional.ofNullable(logo);
 				return this;
 			}
 
@@ -554,36 +541,58 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 		private OAuthClientInfo getOAuthClient(EntityInGroupData info, String group, String nameAttr)
 				throws EngineException
 		{
-			OAuthClientInfo.Builder c = OAuthClientInfo.builder();
-			c.withId(getUserName(info.entity.getIdentities()));
+			OAuthClientInfo.Builder oauthClientInfoBuilder = OAuthClientInfo.builder();
+			oauthClientInfoBuilder.withId(getUserName(info.entity.getIdentities()));
 
-			Map<String, AttributeExt> attrs = info.groupAttributesByName;
+			Map<String, AttributeExt> oauthGroupAttrs = info.groupAttributesByName;
 
-			if (attrs.containsKey(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI))
+			if (oauthGroupAttrs.containsKey(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI))
 			{
-				c.withRedirectURIs(attrs.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI).getValues());
+				oauthClientInfoBuilder
+						.withRedirectURI(oauthGroupAttrs.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI)
+								.getValues()
+								.isEmpty()
+										? null
+										: oauthGroupAttrs.get(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI)
+												.getValues()
+												.get(0));
 			}
 
-			if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_NAME))
+			if (oauthGroupAttrs.containsKey(OAuthSystemAttributesProvider.CLIENT_NAME))
 			{
-				c.withTitle(attrs.get(OAuthSystemAttributesProvider.CLIENT_NAME).getValues().get(0));
+				Attribute title = oauthGroupAttrs.get(OAuthSystemAttributesProvider.CLIENT_NAME);
+				if (!title.getValues()
+						.isEmpty())
+				oauthClientInfoBuilder.withName(title.getValues().get(0));
+			}
+			
+			if (oauthClientInfoBuilder.name.isEmpty() &&  nameAttr != null && info.rootAttributesByName.containsKey(nameAttr)
+					&& !info.rootAttributesByName.get(nameAttr)
+							.getValues()
+							.isEmpty())
+			{
+				oauthClientInfoBuilder.withName(info.rootAttributesByName.get(nameAttr)
+						.getValues()
+						.get(0));
 			}
 
-			if (nameAttr != null && info.rootAttributesByName.containsKey(nameAttr))
+			if (oauthGroupAttrs.containsKey(OAuthSystemAttributesProvider.CLIENT_LOGO))
 			{
-				c.withName(info.rootAttributesByName.get(nameAttr).getValues().get(0));
+				oauthClientInfoBuilder
+						.withLogo(getLogo(oauthGroupAttrs.get(OAuthSystemAttributesProvider.CLIENT_LOGO)));
 			}
-
-			if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_LOGO))
-			{
-				Attribute logo = attrs.get(OAuthSystemAttributesProvider.CLIENT_LOGO);
-				ImageAttributeSyntax syntax = (ImageAttributeSyntax) aTypeSupport.getSyntax(logo);
-				UnityImage image = syntax.convertFromString(logo.getValues().get(0));
-				c.withLogo(image.getImage());
-			}
-			return c.build();
+			return oauthClientInfoBuilder.build();
 		}
 
+		private byte[] getLogo(Attribute logoAttr)
+		{
+			if (logoAttr.getValues().isEmpty() || logoAttr.getValues().get(0) == null)
+				return null;
+			ImageAttributeSyntax syntax = (ImageAttributeSyntax) aTypeSupport.getSyntax(logoAttr);
+			UnityImage image = syntax.convertFromString(logoAttr.getValues().get(0));
+			return image.getImage();
+		}
+		
 		private String getUserName(List<Identity> identities)
 		{
 			for (Identity i : identities)
