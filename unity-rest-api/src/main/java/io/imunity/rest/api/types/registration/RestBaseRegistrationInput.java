@@ -43,22 +43,22 @@ public class RestBaseRegistrationInput
 	{
 		this.formId = builder.formId;
 		this.identities = Optional.ofNullable(builder.identities)
-				.map(List::copyOf)
+				.map(Collections::unmodifiableList)
 				.orElse(null);
 		this.attributes = Optional.ofNullable(builder.attributes)
-				.map(List::copyOf)
+				.map(Collections::unmodifiableList)
 				.orElse(null);
 		this.credentials = Optional.ofNullable(builder.credentials)
-				.map(List::copyOf)
+				.map(Collections::unmodifiableList)
 				.orElse(null);
 		this.groupSelections = Optional.ofNullable(builder.groupSelections)
-				.map(List::copyOf)
+				.map(Collections::unmodifiableList)
 				.orElse(null);
 		this.agreements = Optional.ofNullable(builder.agreements)
-				.map(List::copyOf)
+				.map(Collections::unmodifiableList)
 				.orElse(null);
 		this.policyAgreements = Optional.ofNullable(builder.policyAgreements)
-				.map(List::copyOf)
+				.map(Collections::unmodifiableList)
 				.orElse(null);
 		this.comments = builder.comments;
 		this.userLocale = builder.userLocale;
@@ -129,7 +129,7 @@ public class RestBaseRegistrationInput
 		public T withIdentities(List<RestIdentityParam> identities)
 		{
 			this.identities = Optional.ofNullable(identities)
-					.map(List::copyOf)
+					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return (T) this;
 		}
@@ -138,7 +138,7 @@ public class RestBaseRegistrationInput
 		public T withAttributes(List<RestAttribute> attributes)
 		{
 			this.attributes = Optional.ofNullable(attributes)
-					.map(List::copyOf)
+					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return (T) this;
 		}
@@ -147,7 +147,7 @@ public class RestBaseRegistrationInput
 		public T withCredentials(List<RestCredentialParamValue> credentials)
 		{
 			this.credentials = Optional.ofNullable(credentials)
-					.map(List::copyOf)
+					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return (T) this;
 		}
@@ -156,7 +156,7 @@ public class RestBaseRegistrationInput
 		public T withGroupSelections(List<RestGroupSelection> groupSelections)
 		{
 			this.groupSelections = Optional.ofNullable(groupSelections)
-					.map(List::copyOf)
+					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return (T) this;
 		}
@@ -165,7 +165,7 @@ public class RestBaseRegistrationInput
 		public T withAgreements(List<RestSelection> agreements)
 		{
 			this.agreements = Optional.ofNullable(agreements)
-					.map(List::copyOf)
+					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return (T) this;
 		}
@@ -174,7 +174,7 @@ public class RestBaseRegistrationInput
 		public T withPolicyAgreements(List<RestPolicyAgreementDecision> policyAgreements)
 		{
 			this.policyAgreements = Optional.ofNullable(policyAgreements)
-					.map(List::copyOf)
+					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return (T) this;
 		}

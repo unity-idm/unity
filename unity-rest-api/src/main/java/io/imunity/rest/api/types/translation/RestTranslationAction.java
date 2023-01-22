@@ -22,7 +22,7 @@ public class RestTranslationAction
 	{
 		this.name = builder.name;
 		this.parameters = Optional.ofNullable(builder.parameters)
-				.map(List::copyOf)
+				.map(Collections::unmodifiableList)
 				.orElse(null);
 	}
 
@@ -68,7 +68,7 @@ public class RestTranslationAction
 		public Builder withParameters(List<String> parameters)
 		{
 			this.parameters = Optional.ofNullable(parameters)
-					.map(List::copyOf)
+					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return this;
 		}
