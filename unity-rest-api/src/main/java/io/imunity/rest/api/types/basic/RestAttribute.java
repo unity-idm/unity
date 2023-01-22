@@ -28,7 +28,7 @@ public class RestAttribute
 		this.name = builder.name;
 		this.valueSyntax = builder.valueSyntax;
 		this.groupPath = builder.groupPath;
-		this.values = Optional.ofNullable(builder.values).map(List::copyOf).orElse(null);
+		this.values = Optional.ofNullable(builder.values).map(Collections::unmodifiableList).orElse(null);
 		this.translationProfile = builder.translationProfile;
 		this.remoteIdp = builder.remoteIdp;
 	}
@@ -93,7 +93,7 @@ public class RestAttribute
 
 		public Builder withValues(List<String> values)
 		{
-			this.values = Optional.ofNullable(values).map(List::copyOf).orElse(null);
+			this.values = Optional.ofNullable(values).map(Collections::unmodifiableList).orElse(null);
 			return this;
 		}
 

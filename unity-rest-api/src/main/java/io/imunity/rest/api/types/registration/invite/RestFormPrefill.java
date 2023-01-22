@@ -31,19 +31,19 @@ public class RestFormPrefill
 	{
 		this.formId = builder.formId;
 		this.identities = Optional.ofNullable(builder.identities)
-				.map(Map::copyOf)
+				.map(Collections::unmodifiableMap)
 				.orElse(null);
 		this.groupSelections = Optional.ofNullable(builder.groupSelections)
-				.map(Map::copyOf)
+				.map(Collections::unmodifiableMap)
 				.orElse(null);
 		this.allowedGroups = Optional.ofNullable(builder.allowedGroups)
-				.map(Map::copyOf)
+				.map(Collections::unmodifiableMap)
 				.orElse(null);
 		this.attributes = Optional.ofNullable(builder.attributes)
-				.map(Map::copyOf)
+				.map(Collections::unmodifiableMap)
 				.orElse(null);
 		this.messageParams = Optional.ofNullable(builder.messageParams)
-				.map(Map::copyOf)
+				.map(Collections::unmodifiableMap)
 				.orElse(null);
 	}
 
