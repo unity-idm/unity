@@ -4,16 +4,13 @@
  */
 package pl.edu.icm.unity.engine.policyDocument;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentNotFoundException;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentUpdateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -23,7 +20,11 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.PolicyDocumentDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
 import pl.edu.icm.unity.store.types.StoredPolicyDocument;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Implements policy documents operations.
@@ -90,7 +91,14 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	public void removePolicyDocument(long id) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
-		dao.deleteByKey(id);
+		try
+		{
+			dao.deleteByKey(id);
+		}
+		catch (EntityNotFoundException e)
+		{
+			throw new PolicyDocumentNotFoundException(String.format("Policy document with id %s not found.", id));
+		}
 	}
 
 	@Override
@@ -106,7 +114,14 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	public PolicyDocumentWithRevision getPolicyDocument(long id) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsRead);
-		return toPolicyDocumentWithRevision(dao.getByKey(id));
+		try
+		{
+			return toPolicyDocumentWithRevision(dao.getByKey(id));
+		}
+		catch (EntityNotFoundException e)
+		{
+			throw new PolicyDocumentNotFoundException(String.format("Policy document with id %s not found.", id));
+		}
 	}
 
 	private StoredPolicyDocument toStoredPolicyDocument(PolicyDocumentUpdateRequest pd, int revision)

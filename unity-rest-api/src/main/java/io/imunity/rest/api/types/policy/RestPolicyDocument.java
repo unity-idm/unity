@@ -19,9 +19,11 @@ public class RestPolicyDocument
 	public final boolean mandatory;
 	public final String contentType;
 	public final int revision;
+	public final Map<String, String> content;
+
 
 	RestPolicyDocument(Long id, String name, Map<String, String> displayedName, boolean mandatory, String contentType,
-	                   int revision)
+	                   int revision, Map<String, String> content)
 	{
 		this.id = id;
 		this.name = name;
@@ -29,6 +31,7 @@ public class RestPolicyDocument
 		this.mandatory = mandatory;
 		this.contentType = contentType;
 		this.revision = revision;
+		this.content = content;
 	}
 
 	@Override
@@ -37,13 +40,18 @@ public class RestPolicyDocument
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		RestPolicyDocument that = (RestPolicyDocument) o;
-		return mandatory == that.mandatory && revision == that.revision && Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(displayedName, that.displayedName) && Objects.equals(contentType, that.contentType);
+		return mandatory == that.mandatory && revision == that.revision &&
+			Objects.equals(id, that.id) &&
+			Objects.equals(name, that.name) &&
+			Objects.equals(displayedName, that.displayedName) &&
+			Objects.equals(contentType, that.contentType) &&
+			Objects.equals(content, that.content);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(id, name, displayedName, mandatory, contentType, revision);
+		return Objects.hash(id, name, displayedName, mandatory, contentType, revision, content);
 	}
 
 	@Override
@@ -56,6 +64,7 @@ public class RestPolicyDocument
 			", mandatory=" + mandatory +
 			", contentType='" + contentType + '\'' +
 			", revision=" + revision +
+			", content=" + content +
 			'}';
 	}
 
@@ -72,6 +81,7 @@ public class RestPolicyDocument
 		private boolean mandatory;
 		private String contentType;
 		private int revision;
+		private Map<String, String> content;
 
 		private RestPolicyDocumentBuilder()
 		{
@@ -113,9 +123,15 @@ public class RestPolicyDocument
 			return this;
 		}
 
+		public RestPolicyDocumentBuilder withContent(Map<String, String> content)
+		{
+			this.content = content;
+			return this;
+		}
+
 		public RestPolicyDocument build()
 		{
-			return new RestPolicyDocument(id, name, displayedName, mandatory, contentType, revision);
+			return new RestPolicyDocument(id, name, displayedName, mandatory, contentType, revision, content);
 		}
 	}
 }
