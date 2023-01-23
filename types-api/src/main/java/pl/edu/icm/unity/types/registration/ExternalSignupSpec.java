@@ -26,7 +26,7 @@ public class ExternalSignupSpec
 		this.specs = specs;
 	}
 	
-	ExternalSignupSpec() {} 
+	public ExternalSignupSpec() {} 
 
 	public List<AuthenticationOptionsSelector> getSpecs()
 	{
