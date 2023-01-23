@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.restadm;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
@@ -16,6 +17,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.junit.Before;
 import org.junit.Test;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
@@ -35,6 +37,11 @@ public class TestPolicyDocumentManagement extends RESTAdminTestBase
 {
 	private final ObjectMapper mapper = Constants.MAPPER;
 
+	@Before
+	public void setUp()
+	{
+		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+	}
 
 	@Test
 	public void addedPolicyDocumentIsReturned() throws Exception
@@ -64,6 +71,24 @@ public class TestPolicyDocumentManagement extends RESTAdminTestBase
 		assertThat(document.displayedName).isEqualTo(Map.of("en", "Ola"));
 		assertThat(document.revision).isEqualTo(1);
 		assertThat(document.content).isEqualTo(Map.of("en", "la la"));
+	}
+
+	@Test
+	public void notFullBodyOfPolicyDocumentNotAdded() throws Exception
+	{
+		HttpPost add = new HttpPost("/restadm/v1/policy-documents");
+		RestPolicyDocumentRequest build = RestPolicyDocumentRequest.builder()
+			.withName("Ala")
+			.withDisplayedName(Map.of("en", "Ola"))
+			.withContentType(PolicyDocumentContentType.EMBEDDED.name())
+			.withContent(Map.of("en", "la la"))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		try(ClassicHttpResponse response = client.executeOpen(host, add, getClientContext(host)))
+		{
+			assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getCode());
+		}
+
 	}
 
 	@Test
@@ -123,6 +148,45 @@ public class TestPolicyDocumentManagement extends RESTAdminTestBase
 	}
 
 	@Test
+	public void policiesDocumentWithExistingNameNotAdded() throws Exception
+	{
+		HttpPost add = new HttpPost("/restadm/v1/policy-documents");
+		RestPolicyDocumentRequest build = RestPolicyDocumentRequest.builder()
+			.withName("Ala")
+			.withMandatory(true)
+			.withDisplayedName(Map.of("en", "Ola"))
+			.withContentType(PolicyDocumentContentType.EMBEDDED.name())
+			.withContent(Map.of("en", "la la"))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+
+		HttpPost add2 = new HttpPost("/restadm/v1/policy-documents");
+		RestPolicyDocumentRequest build2 = RestPolicyDocumentRequest.builder()
+			.withName("Ala")
+			.withMandatory(true)
+			.withDisplayedName(Map.of("en", "Ola"))
+			.withContentType(PolicyDocumentContentType.EMBEDDED.name())
+			.withContent(Map.of("en", "la la"))
+			.build();
+		add2.setEntity(new StringEntity(mapper.writeValueAsString(build2)));
+		try(ClassicHttpResponse response = client.executeOpen(host, add2, getClientContext(host)))
+		{
+			assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getCode());
+		}
+	}
+
+	@Test
+	public void trashBodyOfPolicyDocumentNotAdded() throws Exception
+	{
+		HttpPost add = new HttpPost("/restadm/v1/policy-documents");
+		add.setEntity(new StringEntity(mapper.writeValueAsString("sfsdfsdfsfdkjfjsd")));
+		try(ClassicHttpResponse response = client.executeOpen(host, add, getClientContext(host))){
+			assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getCode());
+		}
+	}
+
+	@Test
 	public void updatedPolicyDocumentIsReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restadm/v1/policy-documents");
@@ -138,7 +202,7 @@ public class TestPolicyDocumentManagement extends RESTAdminTestBase
 		String idJson = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
 		RestPolicyDocumentId id = JsonUtil.parse(idJson, RestPolicyDocumentId.class);
 
-		HttpPut put = new HttpPut("/restadm/v1/policy-documents/" + id.id);
+		HttpPut put = new HttpPut("/restadm/v1/policy-documents/" + id.id + "?incrementRevision=false");
 		RestPolicyDocumentRequest updateBuild = RestPolicyDocumentRequest.builder()
 			.withName("Zla")
 			.withMandatory(true)
@@ -164,6 +228,24 @@ public class TestPolicyDocumentManagement extends RESTAdminTestBase
 		assertThat(document.displayedName).isEqualTo(Map.of("en", "Zla"));
 		assertThat(document.revision).isEqualTo(1);
 		assertThat(document.content).isEqualTo(Map.of("en", "lo lo"));
+	}
+
+	@Test
+	public void notAddedPolicyDocumentIsNotUpdated() throws Exception
+	{
+		HttpPut put = new HttpPut("/restadm/v1/policy-documents/" + "123?incrementRevision=false");
+		RestPolicyDocumentRequest updateBuild = RestPolicyDocumentRequest.builder()
+			.withName("Zla")
+			.withMandatory(true)
+			.withDisplayedName(Map.of("en", "Zla"))
+			.withContentType(PolicyDocumentContentType.LINK.name())
+			.withContent(Map.of("en", "lo lo"))
+			.build();
+		put.setEntity(new StringEntity(mapper.writeValueAsString(updateBuild)));
+
+		try(ClassicHttpResponse response = client.executeOpen(host, put, getClientContext(host))){
+			assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getCode());
+		}
 	}
 
 	@Test
@@ -208,6 +290,15 @@ public class TestPolicyDocumentManagement extends RESTAdminTestBase
 		assertThat(document.displayedName).isEqualTo(Map.of("en", "Zla"));
 		assertThat(document.revision).isEqualTo(2);
 		assertThat(document.content).isEqualTo(Map.of("en", "lo lo"));
+	}
+
+	@Test
+	public void wrongPathBring404() throws Exception
+	{
+		HttpGet getPolicyDocument = new HttpGet("/restadm/v1/policy-documents/123/content");
+		try(ClassicHttpResponse response = client.executeOpen(host, getPolicyDocument, getClientContext(host))){
+			assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getCode());
+		}
 	}
 
 	@Test

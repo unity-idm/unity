@@ -11,7 +11,6 @@ import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentNotFoundException;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
@@ -19,6 +18,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.restadm.mappers.policy.PolicyDocumentMapper;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -82,8 +82,7 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 	@POST
 	public String addPolicyDocuments(String policyDocumentJson) throws EngineException, JsonProcessingException
 	{
-		RestPolicyDocumentRequest parsedDocument = JsonUtil.parse(policyDocumentJson,
-			RestPolicyDocumentRequest.class);
+		RestPolicyDocumentRequest parsedDocument = parse(policyDocumentJson);
 		long id = policyDocumentManagement.addPolicyDocument(PolicyDocumentMapper.map(parsedDocument));
 		return mapper.writeValueAsString(new RestPolicyDocumentId(id));
 	}
@@ -91,15 +90,24 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 	@Path("/policy-documents/{document-id}")
 	@PUT
 	public void updatePolicyDocument(@PathParam("document-id") String documentId,
-	                                 @QueryParam("incrementRevision") boolean incrementRevision, String policyDocumentJson) throws EngineException
+	                                 @QueryParam("incrementRevision") Boolean incrementRevision,
+	                                 String policyDocumentJson) throws EngineException
 	{
-		RestPolicyDocumentRequest parsedDocument = JsonUtil.parse(policyDocumentJson,
-			RestPolicyDocumentRequest.class);
+		if(incrementRevision == null)
+			throw new BadRequestException("Query param incrementRevision is mandatory");
+		RestPolicyDocumentRequest parsedDocument = parse(policyDocumentJson);
+		try
+		{
 		if(incrementRevision)
 			policyDocumentManagement.updatePolicyDocumentWithRevision(PolicyDocumentMapper.map(parseLong(documentId),
 				parsedDocument));
 		else
 			policyDocumentManagement.updatePolicyDocument(PolicyDocumentMapper.map(parseLong(documentId), parsedDocument));
+		}
+		catch (PolicyDocumentNotFoundException e)
+		{
+			throw new NotFoundException(e);
+		}
 	}
 
 	@Path("/policy-documents/{document-id}")
@@ -114,6 +122,34 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 		{
 			throw new NotFoundException(e);
 		}
+	}
+
+	public static RestPolicyDocumentRequest parse(String contents)
+	{
+		RestPolicyDocumentRequest request;
+		try
+		{
+			request = Constants.MAPPER.readValue(contents, RestPolicyDocumentRequest.class);
+		} catch (Exception e)
+		{
+			throw new BadRequestException("Can't perform JSON deserialization", e);
+		}
+		valid(request);
+		return request;
+	}
+
+	private static void valid(RestPolicyDocumentRequest request)
+	{
+		if(request.name == null)
+			throw new BadRequestException("Name is required");
+		if(request.displayedName == null || request.displayedName.isEmpty())
+			throw new BadRequestException("DisplayedName is required");
+		if(request.mandatory == null)
+			throw new BadRequestException("Mandatory is required");
+		if(request.contentType == null)
+			throw new BadRequestException("ContentType is required");
+		if(request.content == null || request.content.isEmpty())
+			throw new BadRequestException("Content is required");
 	}
 }
 
