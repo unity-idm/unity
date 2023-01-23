@@ -98,10 +98,29 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id);
 		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
 		{
-			assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getCode());
+			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
 		}
 	}
 
+	@Test
+	public void notAddedProjectIsNotReturned() throws Exception
+	{
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + "test");
+		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
+		{
+			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+		}
+	}
+
+	@Test
+	public void notAddedProjectIsNotRemoved() throws Exception
+	{
+		HttpDelete removeProject = new HttpDelete("/restupm/v1/projects/" + "test");
+		try(ClassicHttpResponse response = client.executeOpen(host, removeProject, getClientContext(host)))
+		{
+			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+		}
+	}
 
 	@Test
 	public void addedProjectsAreReturned() throws Exception
@@ -150,6 +169,30 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 		assertThat(projects.size()).isEqualTo(2);
 		assertThat(projects.stream().map(p -> p.projectId).collect(Collectors.toSet()))
 			.isEqualTo(Set.of(projectId.id, projectId2.id));
+	}
+
+	@Test
+	public void notAddedProjectIsNotUpdate() throws Exception
+	{
+		HttpPut update = new HttpPut("/restupm/v1/projects/" + "test");
+		RestProjectUpdateRequest updateBuild = RestProjectUpdateRequest.builder()
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup2"))
+			.withDescription(Map.of("en", "description2"))
+			.withEnableDelegation(true)
+			.withLogoUrl("/image2.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		update.setEntity(new StringEntity(mapper.writeValueAsString(updateBuild)));
+
+		try(ClassicHttpResponse response = client.executeOpen(host, update, getClientContext(host)))
+		{
+			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+		}
 	}
 
 	@Test

@@ -9,6 +9,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 import javax.transaction.Transactional;
+import javax.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -136,18 +138,23 @@ class RestProjectService
 			.withRegistrationsManagement(registrationsManagement)
 			.withEnquiryManagement(enquiryManagement)
 			.build();
-
-		String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm);
-		String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry);
-		String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry);
-		toUpdate.setDelegationConfiguration(new GroupDelegationConfiguration(true,
-			project.enableSubprojects,
-			project.logoUrl,
-			registrationFormName, joinEnquiryName, updateEnquiryName,
-			project.readOnlyAttributes)
-		);
-
-		groupMan.updateGroup(fullGroupName, toUpdate);
+		try
+		{
+			String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm);
+			String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry);
+			String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry);
+			toUpdate.setDelegationConfiguration(new GroupDelegationConfiguration(true,
+				project.enableSubprojects,
+				project.logoUrl,
+				registrationFormName, joinEnquiryName, updateEnquiryName,
+				project.readOnlyAttributes)
+			);
+			groupMan.updateGroup(fullGroupName, toUpdate);
+		}
+		catch (GroupNotFoundException e)
+		{
+			throw new NotFoundException(e);
+		}
 	}
 
 	private I18nString convertToI18nString(Map<String, String> map)
@@ -175,7 +182,12 @@ class RestProjectService
 		try
 		{
 			groupMan.removeGroup(getFullGroupName(projectId), true);
-		} catch (Exception e)
+		}
+		catch (GroupNotFoundException e)
+		{
+			throw new NotFoundException(e);
+		}
+		catch (Exception e)
 		{
 			throw new IllegalArgumentException(e);
 		}
@@ -185,8 +197,17 @@ class RestProjectService
 	public RestProject getProject(String projectId) throws EngineException
 	{
 		assertAuthorization();
-		GroupContents contents = groupMan.getContents(getFullGroupName(projectId),
-			GroupContents.GROUPS | GroupContents.METADATA);
+		GroupContents contents;
+		try
+		{
+			contents = groupMan.getContents(getFullGroupName(projectId),
+				GroupContents.GROUPS | GroupContents.METADATA);
+		}
+		catch (GroupNotFoundException e)
+		{
+			throw new NotFoundException(e);
+		}
+
 		Group group = contents.getGroup();
 		return map(projectId, group);
 	}
