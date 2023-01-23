@@ -12,28 +12,25 @@ import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentNotFoundException;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.restadm.mappers.policy.PolicyDocumentMapper;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.Long.parseLong;
@@ -69,8 +66,15 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 	public String getPolicyDocument(@PathParam("document-id") String documentId) throws EngineException,
 		JsonProcessingException
 	{
-		PolicyDocumentWithRevision policyDocument =
-			policyDocumentManagement.getPolicyDocument(parseLong(documentId));
+		PolicyDocumentWithRevision policyDocument;
+		try
+		{
+			policyDocument = policyDocumentManagement.getPolicyDocument(parseLong(documentId));
+		}
+		catch (PolicyDocumentNotFoundException e)
+		{
+			throw new NotFoundException(e);
+		}
 		return mapper.writeValueAsString(PolicyDocumentMapper.map(policyDocument));
 	}
 
@@ -87,11 +91,11 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 	@Path("/policy-documents/{document-id}")
 	@PUT
 	public void updatePolicyDocument(@PathParam("document-id") String documentId,
-	                                 @QueryParam("revision") boolean revision, String policyDocumentJson) throws EngineException
+	                                 @QueryParam("incrementRevision") boolean incrementRevision, String policyDocumentJson) throws EngineException
 	{
 		RestPolicyDocumentRequest parsedDocument = JsonUtil.parse(policyDocumentJson,
 			RestPolicyDocumentRequest.class);
-		if(revision)
+		if(incrementRevision)
 			policyDocumentManagement.updatePolicyDocumentWithRevision(PolicyDocumentMapper.map(parseLong(documentId),
 				parsedDocument));
 		else
@@ -102,27 +106,15 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 	@DELETE
 	public void deletePolicyDocument(@PathParam("document-id") String documentId) throws EngineException
 	{
-		policyDocumentManagement.removePolicyDocument(parseLong(documentId));
+		try
+		{
+			policyDocumentManagement.removePolicyDocument(parseLong(documentId));
+		}
+		catch (PolicyDocumentNotFoundException e)
+		{
+			throw new NotFoundException(e);
+		}
 	}
-
-	@Path("/policy-documents/{document-id}/content")
-	@GET
-	public Response getPolicyDocumentContent(@PathParam("document-id") String documentId, @Context HttpServletRequest request) throws EngineException
-	{
-		String language = request.getLocale().getLanguage();
-
-		PolicyDocumentWithRevision policyDocument =
-			policyDocumentManagement.getPolicyDocument(parseLong(documentId));
-
-		String content = Optional.ofNullable(policyDocument.content.getValue(language))
-			.orElse(policyDocument.content.getDefaultValue());
-
-		if(policyDocument.contentType.equals(PolicyDocumentContentType.EMBEDDED))
-			return Response.ok(content, MediaType.TEXT_HTML).build();
-		else
-			return Response.ok(content, MediaType.TEXT_PLAIN).build();
-	}
-
 }
 
 

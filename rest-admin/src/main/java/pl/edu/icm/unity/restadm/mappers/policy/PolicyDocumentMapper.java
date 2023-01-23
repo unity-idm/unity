@@ -22,6 +22,7 @@ public class PolicyDocumentMapper
 			.withMandatory(policyDocument.mandatory)
 			.withContentType(policyDocument.contentType.name())
 			.withRevision(policyDocument.revision)
+			.withContent(policyDocument.content.getMap())
 			.build();
 	}
 
