@@ -83,7 +83,7 @@ public class AttributeStatement
 			String extraAttributesGroup, ConflictResolution conflictResolution,
 			Attribute fixedAttribute)
 	{
-		this.condition = condition;
+		setCondition(condition);
 		this.extraAttributesGroup = extraAttributesGroup;
 		this.conflictResolution = conflictResolution;
 		this.fixedAttribute = fixedAttribute;
@@ -103,11 +103,11 @@ public class AttributeStatement
 			ConflictResolution conflictResolution, 
 			String dynamicAttributeType, String dynamicAttributeExpression)
 	{
-		this.condition = condition;
+		setCondition(condition);
 		this.extraAttributesGroup = extraAttributesGroup;
 		this.conflictResolution = conflictResolution;
 		this.dynamicAttributeType = dynamicAttributeType;
-		this.dynamicAttributeExpression = dynamicAttributeExpression;
+		setDynamicAttributeExpression(dynamicAttributeExpression);
 	}
 
 	public AttributeStatement()
