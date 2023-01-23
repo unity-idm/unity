@@ -18,6 +18,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
+import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -202,7 +203,7 @@ public class RegistrationFormMapper
 				.withPubliclyAvailable(restRegistrationForm.publiclyAvailable)
 				.withNotificationsConfiguration(Optional.ofNullable(restRegistrationForm.notificationsConfiguration)
 						.map(RegistrationFormNotificationsMapper::map)
-						.orElse(null))
+						.orElse(new RegistrationFormNotifications()))
 				.withCaptchaLength(restRegistrationForm.captchaLength)
 				.withRegistrationCode(restRegistrationForm.registrationCode)
 				.withDefaultCredentialRequirement(restRegistrationForm.defaultCredentialRequirement)
