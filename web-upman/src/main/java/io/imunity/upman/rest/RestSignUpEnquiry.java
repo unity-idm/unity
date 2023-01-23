@@ -12,8 +12,8 @@ import java.util.Objects;
 
 class RestSignUpEnquiry
 {
-	public final String name;
-	public final boolean autogenerate;
+	final String name;
+	final boolean autogenerate;
 
 	@JsonCreator
 	RestSignUpEnquiry(@JsonProperty("name") String name, @JsonProperty("autogenerate") boolean autogenerate)

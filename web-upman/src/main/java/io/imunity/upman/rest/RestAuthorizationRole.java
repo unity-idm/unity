@@ -12,7 +12,7 @@ import java.util.Objects;
 
 class RestAuthorizationRole
 {
-	public final String role;
+	final String role;
 	@JsonCreator
 	RestAuthorizationRole(@JsonProperty("role") String role)
 	{

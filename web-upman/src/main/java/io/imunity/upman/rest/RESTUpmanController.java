@@ -4,6 +4,8 @@
  */
 package io.imunity.upman.rest;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.Logger;
@@ -47,6 +49,7 @@ public class RESTUpmanController
 	{
 		this.restProjectService = restProjectService;
 		this.rootGroup = rootGroup;
+		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NON_PRIVATE);
 	}
 
 	@Path("/projects")

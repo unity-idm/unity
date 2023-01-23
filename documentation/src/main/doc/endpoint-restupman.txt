@@ -11,6 +11,7 @@ The endpoint requires two configuration properties:
 - Authorization group - All users who should have access to this API must be members of this group and must have the authorization attribute <ATTR NAME> set in this group.
 
 Example:
+
 ----
 unity.upman.rest.rootGroup=/A
 unity.upman.rest.authorizationGroup=/A

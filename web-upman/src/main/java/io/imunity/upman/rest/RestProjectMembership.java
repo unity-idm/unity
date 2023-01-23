@@ -13,15 +13,15 @@ import java.util.Objects;
 @JsonDeserialize(builder = RestProjectMembership.RestProjectMembershipBuilder.class)
 class RestProjectMembership
 {
-	public final String email;
-	public final String role;
-	public final List<RestAttribute> attributes;
+	final String email;
+	final String role;
+	final List<RestAttribute> attributes;
 
 	RestProjectMembership(String email, String role, List<RestAttribute> attributes)
 	{
 		this.email = email;
 		this.role = role;
-		this.attributes = attributes;
+		this.attributes = List.copyOf(attributes);
 	}
 
 	@Override

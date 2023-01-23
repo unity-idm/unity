@@ -16,7 +16,7 @@ The Unity Upman REST API may be exposed (or disabled) as a regular Unity endpoin
 All paths must be naturally prefixed with the server's base URL, endpoint deployment's path
 (as configured) and API version (currently there is only one). Example query path can be similar to:
 
-   https://unity.example.com/rest-upman/v1/projects/A
+   https://unity.example.com/rest-upman/v1/projects/PROJECT-ID
 
 == API reference
 
@@ -26,14 +26,14 @@ All paths must be naturally prefixed with the server's base URL, endpoint deploy
 +@Path("/projects")+ +
 +@POST+ +
 
-Adds a new project with delegation under root group.
+Adds a new project.
 If "registrationForm" or "signUpEnquiry" or "membershipUpdateEnquiry" has property "autogenerate" set to true, "name" property can be just skipped.
-If "projectId" is null or skipped, it will be auto generated (UUID).
+If "projectId" is null or skipped, it will be auto generated.
 
 Example input:
 ----
 {
-    "projectId": "A",
+    "projectId": "my-project-id",
     "isPublic": false,
     "displayedName": {
         "en": "displayedName"
@@ -44,7 +44,6 @@ Example input:
     "logoUrl": "https://www.myservice.org/logo",
     "enableSubprojects": true,
     "readOnlyAttributes": [],
-    "registrationFormAutogenerate": false,
     "registrationForm": {
         "name": "registrationFormName",
         "autogenerate": false
@@ -63,7 +62,7 @@ Example input:
 Example output:
 ----
 {
-    "id": "A"
+    "id": "my-project-id"
 }
 ----
 
@@ -85,7 +84,6 @@ Example input:
     "description": {
         "en": "description"
     },
-    "enableDelegation": true,
     "logoUrl": "https://www.myservice.org/logo",
     "enableSubprojects": true,
     "readOnlyAttributes": [],
@@ -131,7 +129,6 @@ Example output:
     "description": {
         "en": "description"
     },
-    "enableDelegation": true,
     "logoUrl": "https://www.myservice.org/logo",
     "enableSubprojects": true,
     "readOnlyAttributes": [],
@@ -161,7 +158,6 @@ Example output:
 	    "description": {
 	        "en": "description"
 	    },
-	    "enableDelegation": true,
 	    "logoUrl": "https://www.myservice.org/logo",
 	    "enableSubprojects": true,
 	    "readOnlyAttributes": [],
@@ -179,7 +175,7 @@ Example output:
 +@POST+ +
 
 Adds a user to the specified project.
-Property "userId" should be provider as user's email.
+Property "userId" should be provided as user's email.
 
 
 === Remove member
@@ -200,11 +196,11 @@ Example output:
 ----
 {
     "email": "email@mail.com",
-    "role": "role",
-    "attributes": {
-        "name": "manager",
+    "role": "manager",
+    "attributes": [{
+        "name": "attribute-name",
         "values": ["val1", "val2"]
-    }
+    }]
 }
 ----
 
@@ -221,10 +217,10 @@ Example output:
 	{
 	    "email": "email@mail.com",
 	    "role": "manager",
-	    "attributes": {
-	        "name": "name",
+	    "attributes": [{
+	        "name": "attribute-name",
 	        "values": ["val1", "val2"]
-	    }
+	    }]
 	}
 ]
 ----
@@ -236,7 +232,7 @@ Example output:
 +@GET+ +
 
 Returns user's project authorization role.
-Property +role+ can be one of ("manager", "projectsAdmin", "regular")
+Property +role+ can be one of (+manager+, +projectsAdmin+, +regular+)
 Example output:
 ----
 {

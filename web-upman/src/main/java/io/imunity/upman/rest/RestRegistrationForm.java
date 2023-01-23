@@ -12,8 +12,8 @@ import java.util.Objects;
 
 class RestRegistrationForm
 {
-	public final String name;
-	public final boolean autogenerate;
+	final String name;
+	final boolean autogenerate;
 
 	@JsonCreator
 	RestRegistrationForm(@JsonProperty("name") String name, @JsonProperty("autogenerate") boolean autogenerate)

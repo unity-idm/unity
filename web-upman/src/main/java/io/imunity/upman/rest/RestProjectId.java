@@ -12,7 +12,7 @@ import java.util.Objects;
 
 class RestProjectId
 {
-	public final String id;
+	final String id;
 	@JsonCreator
 	RestProjectId(@JsonProperty("id") String id)
 	{

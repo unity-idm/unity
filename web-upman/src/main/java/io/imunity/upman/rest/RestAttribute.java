@@ -13,14 +13,14 @@ import java.util.Objects;
 
 class RestAttribute
 {
-	public final String name;
-	public final List<String> values;
+	final String name;
+	final List<String> values;
 
 	@JsonCreator
 	RestAttribute(@JsonProperty("name") String name, @JsonProperty("values") List<String> values)
 	{
 		this.name = name;
-		this.values = values;
+		this.values = List.copyOf(values);
 	}
 
 	@Override

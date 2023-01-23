@@ -21,6 +21,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 import javax.transaction.Transactional;
@@ -90,9 +91,24 @@ class RestProjectService
 
 		groupMan.addGroup(toAdd);
 
-		new DelegationSetter(project.registrationForm, project.signUpEnquiry, project.membershipUpdateEnquiry,
-			fullGroupName, project.logoUrl, project.enableSubprojects, project.readOnlyAttributes, groupDelegationConfigGenerator,
-			registrationsManagement, enquiryManagement).setFor(toAdd);
+		DelegationComputer delegationComputer = DelegationComputer.builder()
+			.withFullGroupName(fullGroupName)
+			.withLogoUrl(project.logoUrl)
+			.withReadOnlyAttributes(project.readOnlyAttributes)
+			.withGroupDelegationConfigGenerator(groupDelegationConfigGenerator)
+			.withRegistrationsManagement(registrationsManagement)
+			.withEnquiryManagement(enquiryManagement)
+			.build();
+
+		String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm);
+		String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry);
+		String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry);
+		toAdd.setDelegationConfiguration(new GroupDelegationConfiguration(true,
+			project.enableSubprojects,
+			project.logoUrl,
+			registrationFormName, joinEnquiryName, updateEnquiryName,
+			project.readOnlyAttributes)
+		);
 
 		groupMan.updateGroup(fullGroupName, toAdd);
 		return new RestProjectId(projectId);
@@ -112,9 +128,24 @@ class RestProjectService
 		toUpdate.setDisplayedName(convertToI18nString(project.displayedName));
 		toUpdate.setDescription(convertToI18nString(project.description));
 
-		new DelegationSetter(project.registrationForm, project.signUpEnquiry, project.membershipUpdateEnquiry,
-			fullGroupName, project.logoUrl, project.enableSubprojects, project.readOnlyAttributes, groupDelegationConfigGenerator,
-			registrationsManagement, enquiryManagement).setFor(toUpdate);
+		DelegationComputer delegationComputer = DelegationComputer.builder()
+			.withFullGroupName(fullGroupName)
+			.withLogoUrl(project.logoUrl)
+			.withReadOnlyAttributes(project.readOnlyAttributes)
+			.withGroupDelegationConfigGenerator(groupDelegationConfigGenerator)
+			.withRegistrationsManagement(registrationsManagement)
+			.withEnquiryManagement(enquiryManagement)
+			.build();
+
+		String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm);
+		String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry);
+		String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry);
+		toUpdate.setDelegationConfiguration(new GroupDelegationConfiguration(true,
+			project.enableSubprojects,
+			project.logoUrl,
+			registrationFormName, joinEnquiryName, updateEnquiryName,
+			project.readOnlyAttributes)
+		);
 
 		groupMan.updateGroup(fullGroupName, toUpdate);
 	}

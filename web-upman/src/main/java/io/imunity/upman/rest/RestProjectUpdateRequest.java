@@ -16,16 +16,16 @@ import java.util.Objects;
 class RestProjectUpdateRequest
 {
 	@JsonProperty("public")
-	public final boolean isPublic;
-	public final Map<String, String> displayedName;
-	public final Map<String, String> description;
-	public final boolean enableDelegation;
-	public final String logoUrl;
-	public final boolean enableSubprojects;
-	public final List<String> readOnlyAttributes;
-	public final RestRegistrationForm registrationForm;
-	public final RestSignUpEnquiry signUpEnquiry;
-	public final RestMembershipEnquiry membershipUpdateEnquiry;
+	final boolean isPublic;
+	final Map<String, String> displayedName;
+	final Map<String, String> description;
+	final boolean enableDelegation;
+	final String logoUrl;
+	final boolean enableSubprojects;
+	final List<String> readOnlyAttributes;
+	final RestRegistrationForm registrationForm;
+	final RestSignUpEnquiry signUpEnquiry;
+	final RestMembershipEnquiry membershipUpdateEnquiry;
 
 	RestProjectUpdateRequest(boolean isPublic, Map<String, String> displayedName,
 	                         Map<String, String> description, boolean enableDelegation,
