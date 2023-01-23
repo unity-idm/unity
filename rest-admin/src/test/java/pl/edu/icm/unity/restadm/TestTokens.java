@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -59,8 +60,11 @@ public class TestTokens extends RESTAdminTestBase
 		tokenMan.addToken("type1", "v2", new EntityParam(id2), "v2".getBytes(), now, exp);
 		tokenMan.addToken("type1", "v3", new EntityParam(id2), "v3".getBytes(), now, exp);
 		tokenMan.addToken("type2", "v4", new EntityParam(id2), "v4".getBytes(), now, exp);
+		
+		tokenMan.addToken("session", "session", new EntityParam(id2), getSampleSessionToken().getTokenContents(), now,
+				exp);
 	}
-
+	
 	@Test
 	public void shouldReturnAllTokenWithType() throws Exception
 	{
@@ -84,6 +88,41 @@ public class TestTokens extends RESTAdminTestBase
 		Set<String> types = returned.stream().map(s -> s.get("type").asText()).collect(Collectors.toSet());
 		assertThat(types, hasItem("type1"));
 		assertThat(types, hasItem("type2"));
+		assertThat(types, hasItem("session"));
+	}
+	
+	@Test
+	public void shouldReturnTokenWithJsonContent() throws Exception
+	{
+
+		HttpGet get = new HttpGet("/restadm/v1/tokens");
+		String contentsGet = executeQuery(get);
+		System.out.println("Response:\n" + contentsGet);
+		List<JsonNode> returned = m.readValue(contentsGet, new TypeReference<List<JsonNode>>()
+		{
+		});
+
+		JsonNode jsonToken = returned.stream()
+				.filter(t -> t.get("type")
+						.asText()
+						.equals("session")
+						&& t.get("value")
+								.asText()
+								.equals("session"))
+				.findFirst()
+				.get();
+
+		assertThat(jsonToken.get("contents")
+				.get("realm").asText(), is("realmv"));
+
+	}
+	
+	private LoginSession getSampleSessionToken()
+	{
+		LoginSession loginSession = new LoginSession();
+		loginSession.setRealm("realmv");
+		loginSession.setLastUsed(new Date(1));
+		return loginSession;
 	}
 	
 	@Test
