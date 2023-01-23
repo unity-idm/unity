@@ -27,12 +27,15 @@ import org.junit.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.registration.RestIdentityRegistrationParam;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
+import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutSettingsMapper;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
 /**
  * Registration forms management test
@@ -111,6 +114,8 @@ public class TestFormsManagement extends RESTAdminTestBase
 			.withPubliclyAvailable(true)
 			.withCollectComments(true)
 			.withDefaultCredentialRequirement(CRED_REQ_PASS)
+			.withFormInformation(RestI18nString.builder().build())
+			.withLayoutSettings(FormLayoutSettingsMapper.map(FormLayoutSettings.DEFAULT))
 			.build();
 	}
 
@@ -127,6 +132,8 @@ public class TestFormsManagement extends RESTAdminTestBase
 			.withPubliclyAvailable(false)
 			.withCollectComments(true)
 			.withDefaultCredentialRequirement(CRED_REQ_PASS)
+			.withFormInformation(RestI18nString.builder().build())
+			.withLayoutSettings(FormLayoutSettingsMapper.map(FormLayoutSettings.DEFAULT))
 			.build();
 	}
 	
