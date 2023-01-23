@@ -98,7 +98,7 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 	@Override
 	public List<IdPClientData> getIdpClientsData() throws EngineException
 	{
-		Map<String, TokensAndPreferences> perClientData = getGroupedByClientPreferencesAndTokens();
+		Map<String, TokensAndPreferences> perClientData = getClientPreferencesAndTokensGroupedByClient();
 		List<OAuthServiceConfiguration> services = getServices();
 		List<IdPClientData> ret = new ArrayList<>();
 		for (OAuthServiceConfiguration service : services)
@@ -257,7 +257,7 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 		return scopes;
 	}
 
-	private Map<String, TokensAndPreferences> getGroupedByClientPreferencesAndTokens() throws EngineException
+	private Map<String, TokensAndPreferences> getClientPreferencesAndTokensGroupedByClient() throws EngineException
 	{
 		Map<String, TokensAndPreferences> perClientData = new HashMap<>();
 
@@ -561,15 +561,14 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 			if (oauthGroupAttrs.containsKey(OAuthSystemAttributesProvider.CLIENT_NAME))
 			{
 				Attribute title = oauthGroupAttrs.get(OAuthSystemAttributesProvider.CLIENT_NAME);
-				if (!title.getValues()
-						.isEmpty())
-				oauthClientInfoBuilder.withName(title.getValues().get(0));
+				if (!title.getValues().isEmpty())
+				{
+					oauthClientInfoBuilder.withName(title.getValues().get(0));
+				}
 			}
 			
 			if (oauthClientInfoBuilder.name.isEmpty() &&  nameAttr != null && info.rootAttributesByName.containsKey(nameAttr)
-					&& !info.rootAttributesByName.get(nameAttr)
-							.getValues()
-							.isEmpty())
+					&& !info.rootAttributesByName.get(nameAttr).getValues().isEmpty())
 			{
 				oauthClientInfoBuilder.withName(info.rootAttributesByName.get(nameAttr)
 						.getValues()
