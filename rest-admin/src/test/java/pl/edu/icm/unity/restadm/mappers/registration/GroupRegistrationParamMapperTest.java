@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsM
 public class GroupRegistrationParamMapperTest extends MapperTestBase<GroupRegistrationParam, RestGroupRegistrationParam>
 {
 	@Override
-	protected GroupRegistrationParam getAPIObject()
+	protected GroupRegistrationParam getFullAPIObject()
 	{
 		GroupRegistrationParam groupRegistrationParam = new GroupRegistrationParam();
 		groupRegistrationParam.setDescription("desc");
@@ -31,7 +31,7 @@ public class GroupRegistrationParamMapperTest extends MapperTestBase<GroupRegist
 	}
 
 	@Override
-	protected RestGroupRegistrationParam getRestObject()
+	protected RestGroupRegistrationParam getFullRestObject()
 	{
 		return RestGroupRegistrationParam.builder()
 				.withGroupPath("/group")

@@ -22,14 +22,14 @@ public class PolicyAgreementConfigurationMapperTest
 {
 
 	@Override
-	protected PolicyAgreementConfiguration getAPIObject()
+	protected PolicyAgreementConfiguration getFullAPIObject()
 	{
 		return new PolicyAgreementConfiguration(List.of(1l, 2l), PolicyAgreementPresentationType.CHECKBOX_SELECTED,
 				new I18nString("text"));
 	}
 
 	@Override
-	protected RestPolicyAgreementConfiguration getRestObject()
+	protected RestPolicyAgreementConfiguration getFullRestObject()
 	{
 		return RestPolicyAgreementConfiguration.builder()
 				.withDocumentsIdsToAccept(List.of(1l, 2l))

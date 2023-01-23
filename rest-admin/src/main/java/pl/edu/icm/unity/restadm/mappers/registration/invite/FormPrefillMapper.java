@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.restadm.mappers.registration.invite;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -74,14 +75,14 @@ public class FormPrefillMapper
 	{
 		FormPrefill formPrefill = new FormPrefill();
 		formPrefill.setFormId(restFormPrefill.formId);
-		formPrefill.setMessageParams(restFormPrefill.messageParams);
+		formPrefill.setMessageParams(Optional.ofNullable(restFormPrefill.messageParams).orElse(new HashMap<>()));
 		formPrefill.setAllowedGroups(Optional.ofNullable(restFormPrefill.allowedGroups)
 				.map(allowedGroupsMap -> allowedGroupsMap.entrySet()
 						.stream()
 						.collect(Collectors.toMap(e -> e.getKey(), e -> Optional.ofNullable(e.getValue())
 								.map(GroupSelectionMapper::map)
 								.orElse(null))))
-				.orElse(null));
+				.orElse(new HashMap<>()));
 		formPrefill.setAttributes(Optional.ofNullable(restFormPrefill.attributes)
 				.map(attributes -> attributes.entrySet()
 						.stream()
@@ -89,7 +90,7 @@ public class FormPrefillMapper
 								.ofNullable(attributeEntry.getValue())
 								.map(e -> PrefilledEntryMapper.<RestAttribute, Attribute>map(e, AttributeMapper::map))
 								.orElse(null))))
-				.orElse(null));
+				.orElse(new HashMap<>()));
 		formPrefill.setIdentities(Optional.ofNullable(restFormPrefill.identities)
 				.map(attributes -> attributes.entrySet()
 						.stream()
@@ -100,7 +101,7 @@ public class FormPrefillMapper
 										.orElse(null))
 
 						))
-				.orElse(null));
+				.orElse(new HashMap<>()));
 		formPrefill.setGroupSelections(Optional.ofNullable(restFormPrefill.groupSelections)
 				.map(attributes -> attributes.entrySet()
 						.stream()
@@ -111,7 +112,7 @@ public class FormPrefillMapper
 										.orElse(null))
 
 						))
-				.orElse(null));
+				.orElse(new HashMap<>()));
 
 		return formPrefill;
 	}

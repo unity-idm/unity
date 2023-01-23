@@ -19,6 +19,7 @@ public class RestAttributeType
 	public final String name;
 	public final RestI18nString displayedName;
 	public final RestI18nString i18nDescription;
+	public final String description;
 	public final String syntaxId;
 	public final JsonNode syntaxState;
 	public final int minElements;
@@ -34,6 +35,7 @@ public class RestAttributeType
 		this.name = builder.name;
 		this.displayedName = builder.displayedName;
 		this.i18nDescription = builder.i18nDescription;
+		this.description = builder.description;
 		this.syntaxId = builder.syntaxId;
 		this.syntaxState = builder.syntaxState;
 		this.minElements = builder.minElements;
@@ -50,7 +52,7 @@ public class RestAttributeType
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(displayedName, flags, global, i18nDescription, maxElements, metadata, minElements, name,
+		return Objects.hash(displayedName, flags, global, i18nDescription, description, maxElements, metadata, minElements, name,
 				selfModificable, syntaxState, uniqueValues, syntaxId);
 	}
 
@@ -65,7 +67,8 @@ public class RestAttributeType
 			return false;
 		RestAttributeType other = (RestAttributeType) obj;
 		return Objects.equals(displayedName, other.displayedName) && flags == other.flags && global == other.global
-				&& Objects.equals(i18nDescription, other.i18nDescription) && maxElements == other.maxElements
+				&& Objects.equals(i18nDescription, other.i18nDescription)
+				&& Objects.equals(description, other.description) && maxElements == other.maxElements
 				&& Objects.equals(metadata, other.metadata) && minElements == other.minElements
 				&& Objects.equals(name, other.name) && selfModificable == other.selfModificable
 				&& Objects.equals(syntaxState, other.syntaxState) && uniqueValues == other.uniqueValues
@@ -82,6 +85,7 @@ public class RestAttributeType
 		private String name;
 		private RestI18nString displayedName;
 		private RestI18nString i18nDescription;
+		private String description;
 		private String syntaxId;
 		private JsonNode syntaxState;
 		private int minElements = 0;
@@ -111,6 +115,12 @@ public class RestAttributeType
 		public Builder withI18nDescription(RestI18nString i18nDescription)
 		{
 			this.i18nDescription = i18nDescription;
+			return this;
+		}
+		
+		public Builder withDescription(String description)
+		{
+			this.description = description;
 			return this;
 		}
 

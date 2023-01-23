@@ -18,13 +18,13 @@ public class URLQueryPrefillConfigMapperTest extends MapperTestBase<URLQueryPref
 {
 
 	@Override
-	protected URLQueryPrefillConfig getAPIObject()
+	protected URLQueryPrefillConfig getFullAPIObject()
 	{
 		return new URLQueryPrefillConfig("param", PrefilledEntryMode.DEFAULT);
 	}
 
 	@Override
-	protected RestURLQueryPrefillConfig getRestObject()
+	protected RestURLQueryPrefillConfig getFullRestObject()
 	{
 		return RestURLQueryPrefillConfig.builder()
 				.withMode("DEFAULT")

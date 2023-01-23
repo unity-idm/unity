@@ -20,7 +20,7 @@ public class RestGroup
 	public final String path;
 	public final RestI18nString displayedName;
 	public final RestI18nString i18nDescription;
-
+	public final String description;
 	public final RestAttributeStatement[] attributeStatements;
 	public final Set<String> attributesClasses;
 	public final RestGroupDelegationConfiguration delegationConfiguration;
@@ -32,6 +32,7 @@ public class RestGroup
 		this.path = builder.path;
 		this.displayedName = builder.displayedName;
 		this.i18nDescription = builder.i18nDescription;
+		this.description = builder.description;
 		this.attributeStatements = builder.attributeStatements;
 		this.attributesClasses = Optional.ofNullable(builder.attributesClasses)
 				.map(Set::copyOf)
@@ -50,7 +51,7 @@ public class RestGroup
 		int result = 1;
 		result = prime * result + Arrays.hashCode(attributeStatements);
 		result = prime * result + Objects.hash(attributesClasses, delegationConfiguration, displayedName,
-				i18nDescription, path, properties, publicGroup);
+				i18nDescription, path, properties, publicGroup, description);
 		return result;
 	}
 
@@ -68,7 +69,8 @@ public class RestGroup
 				&& Objects.equals(attributesClasses, other.attributesClasses)
 				&& Objects.equals(delegationConfiguration, other.delegationConfiguration)
 				&& Objects.equals(displayedName, other.displayedName)
-				&& Objects.equals(i18nDescription, other.i18nDescription) && Objects.equals(path, other.path)
+				&& Objects.equals(i18nDescription, other.i18nDescription) 
+				&& Objects.equals(description, other.description) && Objects.equals(path, other.path)
 				&& Objects.equals(properties, other.properties) && publicGroup == other.publicGroup;
 	}
 
@@ -82,6 +84,7 @@ public class RestGroup
 		private String path;
 		private RestI18nString displayedName;
 		private RestI18nString i18nDescription;
+		private String description;
 		private RestAttributeStatement[] attributeStatements = new RestAttributeStatement[0];
 		private Set<String> attributesClasses = Collections.emptySet();
 		private RestGroupDelegationConfiguration delegationConfiguration;
@@ -107,6 +110,12 @@ public class RestGroup
 		public Builder withI18nDescription(RestI18nString i18nDescription)
 		{
 			this.i18nDescription = i18nDescription;
+			return this;
+		}
+		
+		public Builder withDescription(String description)
+		{
+			this.description = description;
 			return this;
 		}
 
@@ -146,11 +155,6 @@ public class RestGroup
 
 		public RestGroup build()
 		{
-			if (Objects.isNull(displayedName))
-			{
-				throw new IllegalArgumentException("Displayed name cannot be null");
-			}
-
 			return new RestGroup(this);
 		}
 	}

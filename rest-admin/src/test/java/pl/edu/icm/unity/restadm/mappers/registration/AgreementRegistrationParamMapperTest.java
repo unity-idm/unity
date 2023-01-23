@@ -20,13 +20,13 @@ public class AgreementRegistrationParamMapperTest
 {
 
 	@Override
-	protected AgreementRegistrationParam getAPIObject()
+	protected AgreementRegistrationParam getFullAPIObject()
 	{
 		return new AgreementRegistrationParam(new I18nString("testV"), true);
 	}
 
 	@Override
-	protected RestAgreementRegistrationParam getRestObject()
+	protected RestAgreementRegistrationParam getFullRestObject()
 	{
 		return RestAgreementRegistrationParam.builder()
 				.withMandatory(true)

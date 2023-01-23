@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.restadm.mappers.registration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,11 +16,14 @@ import pl.edu.icm.unity.restadm.mappers.policyAgreement.PolicyAgreementConfigura
 import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutSettingsMapper;
 import pl.edu.icm.unity.restadm.mappers.translation.TranslationProfileMapper;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
+import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class EnquiryFormMapper
 {
@@ -120,14 +124,14 @@ public class EnquiryFormMapper
 										.map(IdentityRegistrationParamMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withAttributeParams(Optional.ofNullable(restEnquiryForm.attributeParams)
 						.map(p -> p.stream()
 								.map(a -> Optional.ofNullable(a)
 										.map(AttributeRegistrationParamMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withGroupParams(Optional.ofNullable(restEnquiryForm.groupParams)
 						.map(p -> p.stream()
 								.map(g -> Optional.ofNullable(g)
@@ -141,38 +145,44 @@ public class EnquiryFormMapper
 										.map(CredentialRegistrationParamMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withAgreements(Optional.ofNullable(restEnquiryForm.agreements)
 						.map(p -> p.stream()
 								.map(a -> Optional.ofNullable(a)
 										.map(AgreementRegistrationParamMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withCollectComments(restEnquiryForm.collectComments)
 				.withDisplayedName(Optional.ofNullable(restEnquiryForm.displayedName)
 						.map(I18nStringMapper::map)
-						.orElse(null))
-				.withFormInformation(Optional.ofNullable(restEnquiryForm.formInformation)
+						.orElse(new I18nString(restEnquiryForm.name)))
+				.withFormInformation(Optional.ofNullable(restEnquiryForm.i18nFormInformation)
 						.map(I18nStringMapper::map)
-						.orElse(null))
+						.orElse(new I18nString(restEnquiryForm.formInformation)))
 				.withPageTitle(Optional.ofNullable(restEnquiryForm.pageTitle)
 						.map(I18nStringMapper::map)
-						.orElse(null))
+						.orElse(new I18nString()))
 				.withTranslationProfile(Optional.ofNullable(restEnquiryForm.translationProfile)
 						.map(TranslationProfileMapper::map)
-						.orElse(null))
-				.withWrapUpConfig(List.of(new RegistrationWrapUpConfig(TriggeringState.AUTO_ACCEPTED)))
+						.orElse(new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>())))
+				.withWrapUpConfig(Optional.ofNullable(restEnquiryForm.wrapUpConfig)
+						.map(p -> p.stream()
+								.map(a -> Optional.ofNullable(a)
+										.map(RegistrationWrapUpConfigMapper::map)
+										.orElse(null))
+								.collect(Collectors.toList()))
+						.orElse(new ArrayList<>()))
 				.withPolicyAgreements(Optional.ofNullable(restEnquiryForm.policyAgreements)
 						.map(p -> p.stream()
 								.map(a -> Optional.ofNullable(a)
 										.map(PolicyAgreementConfigurationMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withFormLayoutSettings(Optional.ofNullable(restEnquiryForm.layoutSettings)
 						.map(FormLayoutSettingsMapper::map)
-						.orElse(null))
+						.orElse(FormLayoutSettings.DEFAULT))
 				.withByInvitationOnly(restEnquiryForm.byInvitationOnly)
 				.withCheckIdentityOnSubmit(restEnquiryForm.checkIdentityOnSubmit)
 				.withType(EnquiryType.valueOf(restEnquiryForm.type))
@@ -180,7 +190,7 @@ public class EnquiryFormMapper
 				.withTargetCondition(restEnquiryForm.targetCondition)
 				.withNotificationsConfiguration(Optional.ofNullable(restEnquiryForm.notificationsConfiguration)
 						.map(EnquiryFormNotificationsMapper::map)
-						.orElse(null))
+						.orElse(new EnquiryFormNotifications()))
 				.withLayout(Optional.ofNullable(restEnquiryForm.layout)
 						.map(FormLayoutMapper::map)
 						.orElse(null))

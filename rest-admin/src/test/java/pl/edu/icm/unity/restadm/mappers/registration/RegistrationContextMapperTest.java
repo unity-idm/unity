@@ -18,13 +18,13 @@ public class RegistrationContextMapperTest extends MapperTestBase<RegistrationCo
 {
 
 	@Override
-	protected RegistrationContext getAPIObject()
+	protected RegistrationContext getFullAPIObject()
 	{
 		return new RegistrationContext(true, TriggeringMode.manualAtLogin);
 	}
 
 	@Override
-	protected RestRegistrationContext getRestObject()
+	protected RestRegistrationContext getFullRestObject()
 	{
 		return RestRegistrationContext.builder()
 				.withIsOnIdpEndpoint(true)

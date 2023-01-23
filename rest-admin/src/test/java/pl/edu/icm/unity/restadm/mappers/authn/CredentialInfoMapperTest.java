@@ -21,14 +21,14 @@ public class CredentialInfoMapperTest extends MapperTestBase<CredentialInfo, Res
 {
 
 	@Override
-	protected CredentialInfo getAPIObject()
+	protected CredentialInfo getFullAPIObject()
 	{
 		return new CredentialInfo("cred",
 				Map.of("cpi1", new CredentialPublicInformation(LocalCredentialState.correct, "detail", "extraInfo")));
 	}
 
 	@Override
-	protected RestCredentialInfo getRestObject()
+	protected RestCredentialInfo getFullRestObject()
 	{
 		return RestCredentialInfo.builder()
 				.withCredentialRequirementId("cred")

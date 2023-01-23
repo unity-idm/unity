@@ -18,13 +18,13 @@ public class GroupDelegationConfigurationMapperTest
 {
 
 	@Override
-	protected GroupDelegationConfiguration getAPIObject()
+	protected GroupDelegationConfiguration getFullAPIObject()
 	{
 		return new GroupDelegationConfiguration(true, false, "logo", "regForm", "enqForm", "enqForm2", List.of("at1"));
 	}
 
 	@Override
-	protected RestGroupDelegationConfiguration getRestObject()
+	protected RestGroupDelegationConfiguration getFullRestObject()
 	{
 		return RestGroupDelegationConfiguration.builder()
 				.withEnabled(true)

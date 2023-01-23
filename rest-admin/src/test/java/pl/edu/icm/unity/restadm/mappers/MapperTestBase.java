@@ -14,26 +14,27 @@ import org.junit.Test;
 
 public abstract class MapperTestBase<S, T>
 {
-	protected abstract S getAPIObject();
+	protected abstract S getFullAPIObject();
 
-	protected abstract T getRestObject();
-
+	protected abstract T getFullRestObject();
+	
 	protected abstract Pair<Function<S, T>, Function<T, S>> getMapper();
 
 	@Test
-	public void shouldMapToRestObject()
+	public void shouldMapToFullRestObject()
 	{
 		T mapped = getMapper().getLeft()
-				.apply(getAPIObject());
-		assertThat(mapped).isEqualTo(getRestObject());
+				.apply(getFullAPIObject());		
+		T fullRestObject = getFullRestObject();
+		assertThat(mapped).isEqualTo(fullRestObject);
 	}
 
 	@Test
-	public void shouldMapFromRestObject()
+	public void shouldMapFromFullRestObject()
 	{
 		S mapped = getMapper().getRight()
-				.apply(getRestObject());
-		S apiObject = getAPIObject();
+				.apply(getFullRestObject());
+		S apiObject = getFullAPIObject();
 		assertThat(mapped).isEqualTo(apiObject);
 	}
 }

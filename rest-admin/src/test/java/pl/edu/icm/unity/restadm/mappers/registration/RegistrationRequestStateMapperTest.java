@@ -46,7 +46,7 @@ public class RegistrationRequestStateMapperTest
 {
 
 	@Override
-	protected RegistrationRequestState getAPIObject()
+	protected RegistrationRequestState getFullAPIObject()
 	{
 
 		AdminComment adminComment = new AdminComment("comment", 1, true);
@@ -101,7 +101,7 @@ public class RegistrationRequestStateMapperTest
 	}
 
 	@Override
-	protected RestRegistrationRequestState getRestObject()
+	protected RestRegistrationRequestState getFullRestObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");

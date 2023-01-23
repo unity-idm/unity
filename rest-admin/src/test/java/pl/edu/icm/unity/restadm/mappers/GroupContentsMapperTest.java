@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 public class GroupContentsMapperTest extends MapperTestBase<GroupContents, RestGroupContents>
 {
 	@Override
-	protected GroupContents getAPIObject()
+	protected GroupContents getFullAPIObject()
 	{
 		GroupContents groupContents = new GroupContents();
 		groupContents.setGroup(new Group("/A"));
@@ -33,7 +33,7 @@ public class GroupContentsMapperTest extends MapperTestBase<GroupContents, RestG
 	}
 
 	@Override
-	protected RestGroupContents getRestObject()
+	protected RestGroupContents getFullRestObject()
 	{
 		return RestGroupContents.builder()
 				.withGroup(RestGroup.builder()

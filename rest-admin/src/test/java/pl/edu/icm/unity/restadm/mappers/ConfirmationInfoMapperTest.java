@@ -16,7 +16,7 @@ public class ConfirmationInfoMapperTest extends MapperTestBase<ConfirmationInfo,
 {
 
 	@Override
-	protected ConfirmationInfo getAPIObject()
+	protected ConfirmationInfo getFullAPIObject()
 	{
 		ConfirmationInfo confirmationInfo = new ConfirmationInfo(true);
 		confirmationInfo.setConfirmationDate(99);
@@ -25,7 +25,7 @@ public class ConfirmationInfoMapperTest extends MapperTestBase<ConfirmationInfo,
 	}
 
 	@Override
-	protected RestConfirmationInfo getRestObject()
+	protected RestConfirmationInfo getFullRestObject()
 	{
 		return RestConfirmationInfo.builder()
 				.withConfirmationDate(99)

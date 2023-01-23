@@ -17,7 +17,7 @@ public class I18nStringMapperTest extends MapperTestBase<I18nString, RestI18nStr
 {
 
 	@Override
-	protected I18nString getAPIObject()
+	protected I18nString getFullAPIObject()
 	{
 		I18nString s = new I18nString("default");
 		s.addValue("pl", "plVal");
@@ -26,7 +26,7 @@ public class I18nStringMapperTest extends MapperTestBase<I18nString, RestI18nStr
 	}
 
 	@Override
-	protected RestI18nString getRestObject()
+	protected RestI18nString getFullRestObject()
 	{
 		return RestI18nString.builder()
 				.withDefaultValue("default")

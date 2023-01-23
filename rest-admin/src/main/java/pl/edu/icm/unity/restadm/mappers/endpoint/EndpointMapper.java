@@ -34,7 +34,9 @@ public class EndpointMapper
 				Optional.ofNullable(restEndpoint.configuration)
 						.map(EndpointConfigurationMapper::map)
 						.orElse(null),
-				restEndpoint.revision, EndpointState.valueOf(restEndpoint.status));
+				restEndpoint.revision, Optional.ofNullable(restEndpoint.status)
+						.map(EndpointState::valueOf)
+						.orElse(EndpointState.DEPLOYED));
 
 	}
 }

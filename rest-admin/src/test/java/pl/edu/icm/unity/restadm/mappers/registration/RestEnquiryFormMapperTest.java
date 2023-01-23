@@ -5,10 +5,13 @@
 
 package pl.edu.icm.unity.restadm.mappers.registration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
 
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.policyAgreement.RestPolicyAgreementConfiguration;
@@ -35,7 +38,7 @@ import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
-import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
+import pl.edu.icm.unity.restadm.mappers.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
@@ -62,11 +65,11 @@ import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
-public class RestEnquiryFormMapperTest extends MapperTestBase<EnquiryForm, RestEnquiryForm>
+public class RestEnquiryFormMapperTest extends MapperWithMinimalTestBase<EnquiryForm, RestEnquiryForm>
 {
 
 	@Override
-	protected EnquiryForm getAPIObject()
+	protected EnquiryForm getFullAPIObject()
 	{
 		EnquiryFormNotifications enquiryFormNotifications = new EnquiryFormNotifications();
 		enquiryFormNotifications.setAcceptedTemplate("acceptedTemplate");
@@ -134,7 +137,7 @@ public class RestEnquiryFormMapperTest extends MapperTestBase<EnquiryForm, RestE
 	}
 
 	@Override
-	protected RestEnquiryForm getRestObject()
+	protected RestEnquiryForm getFullRestObject()
 	{
 		return RestEnquiryForm.builder()
 				.withName("f1")
@@ -249,6 +252,41 @@ public class RestEnquiryFormMapperTest extends MapperTestBase<EnquiryForm, RestE
 						.build())
 				.build();
 	}
+
+	@Override
+	protected EnquiryForm getMinAPIObject()
+	{
+		return new EnquiryFormBuilder().withName("f1")
+				.withType(EnquiryType.REQUESTED_MANDATORY)
+				.withTargetGroups(new String[]
+				{ "/" })
+				.build();
+	}
+
+	@Override
+	protected RestEnquiryForm getMinRestObject()
+	{
+		return RestEnquiryForm.builder()
+				.withName("f1")
+				.withType("REQUESTED_MANDATORY")
+				.withTargetGroups(List.of("/"))
+				.build();
+	}
+	
+	@Test
+	public void shouldSupportStringFormInformation()
+	{
+		RestEnquiryForm restEnquiryForm = RestEnquiryForm.builder()
+				.withName("f1")
+				.withFormInformation("formInfo")
+				.withType("REQUESTED_MANDATORY")
+				.withTargetGroups(List.of("/"))
+				.build();
+		EnquiryForm map = EnquiryFormMapper.map(restEnquiryForm);
+		assertThat(map.getFormInformation()
+				.getDefaultValue()).isEqualTo("formInfo");
+	}
+
 
 	@Override
 	protected Pair<Function<EnquiryForm, RestEnquiryForm>, Function<RestEnquiryForm, EnquiryForm>> getMapper()

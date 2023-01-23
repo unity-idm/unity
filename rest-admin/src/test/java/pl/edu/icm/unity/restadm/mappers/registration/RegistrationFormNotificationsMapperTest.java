@@ -18,7 +18,7 @@ public class RegistrationFormNotificationsMapperTest
 {
 
 	@Override
-	protected RegistrationFormNotifications getAPIObject()
+	protected RegistrationFormNotifications getFullAPIObject()
 	{
 		RegistrationFormNotifications registrationFormNotifications = new RegistrationFormNotifications();
 		registrationFormNotifications.setAcceptedTemplate("acceptedTemplate");
@@ -33,7 +33,7 @@ public class RegistrationFormNotificationsMapperTest
 	}
 
 	@Override
-	protected RestRegistrationFormNotifications getRestObject()
+	protected RestRegistrationFormNotifications getFullRestObject()
 	{
 		return RestRegistrationFormNotifications.builder()
 				.withAcceptedTemplate("acceptedTemplate")

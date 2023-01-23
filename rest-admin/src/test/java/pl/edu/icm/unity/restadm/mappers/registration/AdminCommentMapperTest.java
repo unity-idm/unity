@@ -18,7 +18,7 @@ public class AdminCommentMapperTest extends MapperTestBase<AdminComment, RestAdm
 {
 
 	@Override
-	protected AdminComment getAPIObject()
+	protected AdminComment getFullAPIObject()
 	{
 		AdminComment adminComment = new AdminComment("comment", 1, true);
 		adminComment.setDate(new Date(1));
@@ -26,7 +26,7 @@ public class AdminCommentMapperTest extends MapperTestBase<AdminComment, RestAdm
 	}
 
 	@Override
-	protected RestAdminComment getRestObject()
+	protected RestAdminComment getFullRestObject()
 	{
 		return RestAdminComment.builder()
 				.withAuthorEntityId(1)

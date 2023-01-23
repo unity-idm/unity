@@ -21,7 +21,7 @@ public class SigInStatisticMapperTest extends MapperTestBase<SigInStatistic, Res
 {
 
 	@Override
-	protected SigInStatistic getAPIObject()
+	protected SigInStatistic getFullAPIObject()
 	{
 
 		return new SigInStatistic(LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneId.of("UTC"))
@@ -32,7 +32,7 @@ public class SigInStatisticMapperTest extends MapperTestBase<SigInStatistic, Res
 	}
 
 	@Override
-	protected RestSigInStatistic getRestObject()
+	protected RestSigInStatistic getFullRestObject()
 	{
 		return RestSigInStatistic.builder()
 				.withPeriodStart(LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneId.of("UTC"))

@@ -16,13 +16,13 @@ public class GroupPropertyMapperTest extends MapperTestBase<GroupProperty, RestG
 {
 
 	@Override
-	protected GroupProperty getAPIObject()
+	protected GroupProperty getFullAPIObject()
 	{
 		return new GroupProperty("key", "value");
 	}
 
 	@Override
-	protected RestGroupProperty getRestObject()
+	protected RestGroupProperty getFullRestObject()
 	{
 		return RestGroupProperty.builder()
 				.withKey("key")

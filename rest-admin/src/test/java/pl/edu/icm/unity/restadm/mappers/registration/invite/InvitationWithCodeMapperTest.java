@@ -42,7 +42,7 @@ public class InvitationWithCodeMapperTest extends MapperTestBase<InvitationWithC
 {
 
 	@Override
-	protected InvitationWithCode getAPIObject()
+	protected InvitationWithCode getFullAPIObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");
@@ -89,7 +89,7 @@ public class InvitationWithCodeMapperTest extends MapperTestBase<InvitationWithC
 	}
 
 	@Override
-	protected RestInvitationWithCode getRestObject()
+	protected RestInvitationWithCode getFullRestObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");
@@ -167,5 +167,6 @@ public class InvitationWithCodeMapperTest extends MapperTestBase<InvitationWithC
 	{
 		return Pair.of(InvitationWithCodeMapper::map, InvitationWithCodeMapper::map);
 	}
+
 
 }

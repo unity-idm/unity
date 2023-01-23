@@ -30,7 +30,7 @@ public class ResolvedEndpointMapperTest extends MapperTestBase<ResolvedEndpoint,
 {
 
 	@Override
-	protected ResolvedEndpoint getAPIObject()
+	protected ResolvedEndpoint getFullAPIObject()
 	{
 		AuthenticationRealm authenticationRealm = new AuthenticationRealm("realm", "desc", 1, 1,
 				RememberMePolicy.allowFor2ndFactor, 1, 2);
@@ -43,7 +43,7 @@ public class ResolvedEndpointMapperTest extends MapperTestBase<ResolvedEndpoint,
 	}
 
 	@Override
-	protected RestResolvedEndpoint getRestObject()
+	protected RestResolvedEndpoint getFullRestObject()
 	{
 		return RestResolvedEndpoint.builder()
 				.withEndpoint(RestEndpoint.builder()
