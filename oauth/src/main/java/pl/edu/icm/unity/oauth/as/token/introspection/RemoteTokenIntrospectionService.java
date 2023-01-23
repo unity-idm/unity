@@ -38,20 +38,20 @@ import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthJWKSetCache;
 
-public class RemoteTokenIntrospectionService
+class RemoteTokenIntrospectionService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, RemoteTokenIntrospectionService.class);
 	private IntrospectionServiceContextProvider introspectionServiceProvider;
 	private HttpRequestConfigurer httpRequestConfigurer;
 
-	public RemoteTokenIntrospectionService(IntrospectionServiceContextProvider introspectionServiceProvider,
+	RemoteTokenIntrospectionService(IntrospectionServiceContextProvider introspectionServiceProvider,
 			HttpRequestConfigurer httpRequestConfigurer)
 	{
 		this.introspectionServiceProvider = introspectionServiceProvider;
 		this.httpRequestConfigurer = httpRequestConfigurer;
 	}
 
-	public RemoteTokenIntrospectionService(IntrospectionServiceContextProvider introspectionServiceProvider)
+	RemoteTokenIntrospectionService(IntrospectionServiceContextProvider introspectionServiceProvider)
 	{
 		this(introspectionServiceProvider, new HttpRequestConfigurer());
 
@@ -62,25 +62,27 @@ public class RemoteTokenIntrospectionService
 		log.debug("Remote token introspection, token {}",
 				BaseOAuthResource.tokenToLog(signedJWTWithIssuer.signedJWT.toString()));
 		Optional<TokenIntrospectionResponse> remoteResponse = proxyRequestToRemoteService(signedJWTWithIssuer);
-		if (remoteResponse.isEmpty())
-		{
-			return Response.ok(TokenIntrospectionResource.getInactiveResponse()
-					.toJSONString())
-					.build();
-		} else
-		{
-			log.debug("Remote token instrospection response {}", remoteResponse.get().toHTTPResponse().getContent());
-			
-			return Response.ok(remoteResponse.get()
-					.indicatesSuccess()
-							? remoteResponse.get()
-									.toSuccessResponse()
-									.toJSONObject()
-									.toJSONString()
-							: TokenIntrospectionResource.getInactiveResponse()
-									.toJSONString())
-					.build();
-		}
+
+		return remoteResponse.map(response -> mapRemoteResponse(response))
+				.orElse(Response.ok(TokenIntrospectionResource.getInactiveResponse()
+						.toJSONString())
+						.build());
+		
+		
+	}
+	
+	private Response mapRemoteResponse(TokenIntrospectionResponse response)
+	{
+		log.debug("Remote token instrospection response {}", response.toHTTPResponse().getContent());
+		return Response.ok(response
+				.indicatesSuccess()
+						? response
+								.toSuccessResponse()
+								.toJSONObject()
+								.toJSONString()
+						: TokenIntrospectionResource.getInactiveResponse()
+								.toJSONString())
+				.build();
 	}
 
 	private Optional<TokenIntrospectionResponse> proxyRequestToRemoteService(SignedJWTWithIssuer signedJWT)
@@ -97,7 +99,7 @@ public class RemoteTokenIntrospectionService
 
 		try
 		{
-			verifySign(signedJWT.signedJWT, serviceContext.verifier);
+			verifySignature(signedJWT.signedJWT, serviceContext.verifier);
 		} catch (Exception e)
 		{
 			log.error("Invalid sign of token " + BaseOAuthResource.tokenToLog(signedJWT.signedJWT.toString()), e);
@@ -141,7 +143,7 @@ public class RemoteTokenIntrospectionService
 		}
 	}
 
-	void verifySign(SignedJWT signedJWT, JWSVerifier verifier) throws JOSEException, java.text.ParseException
+	void verifySignature(SignedJWT signedJWT, JWSVerifier verifier) throws JOSEException, java.text.ParseException
 	{
 		if (verifier == null)
 		{

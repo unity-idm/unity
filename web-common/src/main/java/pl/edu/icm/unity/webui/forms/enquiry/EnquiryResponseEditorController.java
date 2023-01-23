@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +29,9 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.AccessMode;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.Type;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -233,24 +235,37 @@ public class EnquiryResponseEditorController
 		return prefilledAttributes;
 	}
 	
-	public boolean isFormApplicable(String formName)
+	public boolean isFormApplicableForLoggedEntity(String formName, boolean ignoreByIvitationForms)
 	{
-		return isFormApplicable(formName,  getFormsToFill());
+		EntityParam entity = getLoggedEntity();
+		try
+		{
+			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
+					.withType(Type.ALL)
+					.withAccessMode(ignoreByIvitationForms ? AccessMode.NOT_BY_INVITATION_ONLY : AccessMode.ANY)
+					.build()).stream().filter(f -> f.getName().equals(formName)).findAny().isPresent();
+		} catch (EngineException e)
+		{
+			log.error("Can't load enquiry forms", e);
+		}
+
+		return false;
 	}
-	
+
 	public boolean isStickyFormApplicable(String formName)
 	{
-		return isFormApplicable(formName,  getStickyForms());
-	}
-	
-	private boolean isFormApplicable(String formName,
-		List<EnquiryForm> formsToFill)
-	{
-		Optional<String> found = formsToFill.stream()
-				.map(form -> form.getName())
-				.filter(name -> name.equals(formName))
-				.findAny();
-		return found.isPresent();
+		EntityParam entity = getLoggedEntity();
+		try
+		{
+			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
+					.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+					.withType(Type.STICKY)
+					.build()).stream().filter(f -> f.getName().equals(formName)).findAny().isPresent();
+		} catch (EngineException e)
+		{
+			log.error("Can't load sticky enquiry forms", e);
+		}
+		return false;
 	}
 	
 	private EntityParam getLoggedEntity()
@@ -258,34 +273,21 @@ public class EnquiryResponseEditorController
 		return  new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());
 	}
 	
-	public List<EnquiryForm> getFormsToFill()
+	public List<EnquiryForm> getRegularFormsToFill()
 	{
 		EntityParam entity = getLoggedEntity();
-		List<EnquiryForm> ret = new ArrayList<>();
-
 		try
 		{
-			ret.addAll(enquiryManagement.getPendingEnquires(entity));
+			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
+					.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+					.withType(Type.REGULAR)
+					.build());
 		} catch (EngineException e)
 		{
 			log.error("Can't load pending enquiry forms", e);
 		}
-		return ret;
+		return Collections.emptyList();
 
-	}
-	
-	public List<EnquiryForm> getStickyForms()
-	{
-		EntityParam entity = getLoggedEntity();
-		List<EnquiryForm> ret = new ArrayList<>();
-		try
-		{
-			ret.addAll(enquiryManagement.getAvailableStickyEnquires(entity));
-		} catch (EngineException e)
-		{
-			log.error("Can't load sticky enquiry forms", e);
-		}
-		return ret;
 	}
 	
 	public void markFormAsIgnored(String formId)

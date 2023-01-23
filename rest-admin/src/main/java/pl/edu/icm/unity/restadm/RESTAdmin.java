@@ -99,6 +99,7 @@ import pl.edu.icm.unity.restadm.mappers.TokenMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.EndpointConfigurationMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.ResolvedEndpointMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.RegistrationFormMapper;
+import pl.edu.icm.unity.restadm.mappers.registration.RegistrationRequestStateMapper;
 import pl.edu.icm.unity.restadm.mappers.translation.TranslationRuleMapper;
 import pl.edu.icm.unity.restadm.token.Token2JsonFormatter;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
@@ -952,7 +953,9 @@ public class RESTAdmin implements RESTAdminHandler
 	public String getRegistrationRequests() throws EngineException, JsonProcessingException
 	{
 		List<RegistrationRequestState> requests = registrationManagement.getRegistrationRequests();
-		return mapper.writeValueAsString(requests);
+		return mapper.writeValueAsString(requests.stream()
+				.map(RegistrationRequestStateMapper::map)
+				.collect(Collectors.toList()));
 	}
 	
 	@Path("/registrationRequest/{requestId}")
@@ -966,7 +969,7 @@ public class RESTAdmin implements RESTAdminHandler
 				findAny();
 		if (!request.isPresent())
 			throw new WrongArgumentException("There is no request with id " + requestId);
-		return mapper.writeValueAsString(request.get());
+		return mapper.writeValueAsString(RegistrationRequestStateMapper.map(request.get()));
 	}
 	
 	@Path("/invitations")

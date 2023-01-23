@@ -53,7 +53,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	@Transactional
 	public long addPolicyDocument(PolicyDocumentCreateRequest policyDocument) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
+		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.PolicyDocumentsCount,
 				() -> dao.getCount());
 		return dao.create(toStoredPolicyDocument(policyDocument));
@@ -64,7 +64,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	@Transactional
 	public void updatePolicyDocument(PolicyDocumentUpdateRequest policyDocument) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
+		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
 		StoredPolicyDocument org = dao.getByKey(policyDocument.id);
 		StoredPolicyDocument storedPolicyDocument = toStoredPolicyDocument(policyDocument, org.getRevision());
 		storedPolicyDocument.setId(org.getId());
@@ -76,7 +76,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	@Transactional
 	public void updatePolicyDocumentWithRevision(PolicyDocumentUpdateRequest policyDocument) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
+		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
 		StoredPolicyDocument org = dao.getByKey(policyDocument.id);
 		StoredPolicyDocument storedPolicyDocument = toStoredPolicyDocument(policyDocument,
 				org.getRevision() + 1);
@@ -89,7 +89,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	@Transactional
 	public void removePolicyDocument(long id) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
+		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
 		dao.deleteByKey(id);
 	}
 
@@ -97,7 +97,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	@Transactional
 	public Collection<PolicyDocumentWithRevision> getPolicyDocuments() throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
+		authz.checkAuthorization(AuthzCapability.policyDocumentsRead);
 		return dao.getAll().stream().map(d -> toPolicyDocumentWithRevision(d)).collect(Collectors.toList());
 	}
 
@@ -105,7 +105,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	@Transactional
 	public PolicyDocumentWithRevision getPolicyDocument(long id) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
+		authz.checkAuthorization(AuthzCapability.policyDocumentsRead);
 		return toPolicyDocumentWithRevision(dao.getByKey(id));
 	}
 

@@ -25,34 +25,33 @@ import pl.edu.icm.unity.oauth.as.token.BaseTokenResource.TokensPair;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 
-public class LocalTokenIntrospectionService
+class LocalTokenIntrospectionService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, LocalTokenIntrospectionService.class);
 	private final OAuthAccessTokenRepository accessTokenRespository;
 	private final OAuthRefreshTokenRepository refreshTokenRepository;
 
-	public LocalTokenIntrospectionService(OAuthAccessTokenRepository accessTokenRespository,
+	LocalTokenIntrospectionService(OAuthAccessTokenRepository accessTokenRespository,
 			OAuthRefreshTokenRepository refreshTokenRepository)
 	{
 		this.accessTokenRespository = accessTokenRespository;
 		this.refreshTokenRepository = refreshTokenRepository;
 	}
 
-	public Response processLocalIntrospection(String token)
+	Response processLocalIntrospection(String token)
 	{
 		log.debug("Localy token introspection, token {}", BaseOAuthResource.tokenToLog(token));
-		Optional<TokensPair> tokensOpt = loadToken(token);
-		if (!tokensOpt.isPresent())
-		{
-			log.debug("Token {} is not present, returning inactive response", BaseOAuthResource.tokenToLog(token));
-			return getOKResponse(TokenIntrospectionResource.getInactiveResponse());
-		}
+		return loadToken(token).map(tokens -> getOKResponse(getBearerStyleTokenInfo(tokens)))
+				.orElse(getTokenNotPresentResponse(token));
 
-		TokensPair tokens = tokensOpt.get();
-
-		return getOKResponse(getBearerStyleTokenInfo(tokens));
 	}
 
+	private Response getTokenNotPresentResponse(String token)
+	{
+		log.debug("Token {} is not present, returning inactive response", BaseOAuthResource.tokenToLog(token));
+		return getOKResponse(TokenIntrospectionResource.getInactiveResponse());
+	}
+	
 	private Optional<TokensPair> loadToken(String token)
 	{
 		try
@@ -62,6 +61,7 @@ public class LocalTokenIntrospectionService
 			return Optional.of(new TokensPair(rawToken, parsedAccessToken));
 		} catch (IllegalArgumentException e)
 		{
+			log.trace("Can not find access token", e);
 			try
 			{
 				Token rawToken = refreshTokenRepository.readRefreshToken(token);
@@ -69,6 +69,7 @@ public class LocalTokenIntrospectionService
 				return Optional.of(new TokensPair(rawToken, parsedAccessToken));
 			} catch (IllegalArgumentException e2)
 			{
+				log.trace("Can not find refresh token", e);
 				return Optional.empty();
 			}
 		}
@@ -76,24 +77,31 @@ public class LocalTokenIntrospectionService
 
 	private JSONObject getBearerStyleTokenInfo(TokensPair tokens)
 	{
+		OAuthToken parsedToken = tokens.parsedToken;
+		
 		JSONObject ret = new JSONObject();
 		ret.put("active", true);
 		ret.put("scope", Joiner.on(' ')
-				.join(tokens.parsedToken.getEffectiveScope()));
-		ret.put("client_id", tokens.parsedToken.getClientUsername());
+				.join(parsedToken.getEffectiveScope()));
+		ret.put("client_id", parsedToken.getClientUsername());
 		ret.put("token_type", "bearer");
 		ret.put("exp", DateUtils.toSecondsSinceEpoch(tokens.tokenSrc.getExpires()));
 		ret.put("iat", DateUtils.toSecondsSinceEpoch(tokens.tokenSrc.getCreated()));
 		ret.put("nbf", DateUtils.toSecondsSinceEpoch(tokens.tokenSrc.getCreated()));
-		ret.put("sub", tokens.parsedToken.getSubject());
-		ret.put("aud", tokens.parsedToken.getAudience() != null && tokens.parsedToken.getAudience()
-				.size() == 1 ? tokens.parsedToken.getAudience()
-						.get(0) : tokens.parsedToken.getAudience());
-		ret.put("iss", tokens.parsedToken.getIssuerUri());
+		ret.put("sub", parsedToken.getSubject());
+		ret.put("aud", getTokenAudience(parsedToken));
+		ret.put("iss", parsedToken.getIssuerUri());
 		log.debug("Returning token information: {}", ret.toJSONString());
 		return ret;
 	}
 
+	private Object getTokenAudience(OAuthToken parsedToken)
+	{
+		return parsedToken.getAudience() != null && parsedToken.getAudience()
+				.size() == 1 ? parsedToken.getAudience()
+						.get(0) : parsedToken.getAudience();
+	}
+	
 	private Response getOKResponse(JSONObject jsonObject)
 	{
 		return BaseOAuthResource.toResponse(Response.ok(jsonObject.toJSONString()));

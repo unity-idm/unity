@@ -4,17 +4,33 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.security.dsig.DSigException;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
+
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import eu.unicore.security.dsig.DSigException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -22,6 +38,9 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.AccessMode;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.Type;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
@@ -52,15 +71,6 @@ import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
-
-import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
-
 /**
  * Invoked after authentication, main SAML web IdP servlet. It decides whether the request should be
  * processed automatically or with manual consent. This is separated from Vaadin consent app so it is not needlessly 
@@ -83,7 +93,6 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected AttributeTypeSupport aTypeSupport;
 	private EnquiryManagement enquiryManagement;
 	private final PolicyAgreementManagement policyAgreementsMan;
-	private final MessageSource msg;
 	private final FreemarkerAppHandler freemarker;
 	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
@@ -96,7 +105,6 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			SessionManagement sessionMan,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
-			MessageSource msg,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
 			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
@@ -106,7 +114,6 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		this.enquiryManagement = enquiryManagement;
 		this.sessionMan = sessionMan;
 		this.policyAgreementsMan = policyAgreementsMan;
-		this.msg = msg;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.freemarker = freemarker;
 		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
@@ -234,7 +241,10 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		try
 		{
-			return !enquiryManagement.getPendingEnquires(entity).isEmpty();
+			return !enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
+					.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+					.withType(Type.REGULAR)
+					.build()).isEmpty();
 		} catch (EngineException e)
 		{
 			log.warn("Can't retrieve pending enquiries for user", e);

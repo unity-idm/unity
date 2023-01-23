@@ -17,8 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
+import io.imunity.rest.api.types.registration.RestRegistrationRequest;
+import io.imunity.rest.api.types.registration.RestRegistrationRequestState;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.restadm.mappers.registration.RegistrationRequestMapper;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -34,7 +37,6 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestBuilder;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 public class TestRegRequests extends RESTAdminTestBase
 {
@@ -62,11 +64,11 @@ public class TestRegRequests extends RESTAdminTestBase
 		String contents = executeQuery(get);
 		System.out.println("Response:\n" + contents);
 
-		List<RegistrationRequestState> returnedL = m.readValue(contents, 
-				new TypeReference<List<RegistrationRequestState>>() {});
+		List<RestRegistrationRequestState> returnedL = m.readValue(contents, 
+				new TypeReference<List<RestRegistrationRequestState>>() {});
 		assertThat(returnedL.size(), is(2));
-		assertEqual(request, returnedL.get(0));
-		assertEqual(request, returnedL.get(1));
+		assertEqual(RegistrationRequestMapper.map(request), returnedL.get(0));
+		assertEqual(RegistrationRequestMapper.map(request), returnedL.get(1));
 	}
 	
 	@Test
@@ -80,16 +82,16 @@ public class TestRegRequests extends RESTAdminTestBase
 		String contents = executeQuery(get);
 		System.out.println("Response:\n" + contents);
 
-		RegistrationRequestState returned = m.readValue(contents, RegistrationRequestState.class);
-		assertEqual(request, returned);
+		RestRegistrationRequestState returned = m.readValue(contents, RestRegistrationRequestState.class);
+		assertEqual(RegistrationRequestMapper.map(request), returned);
 	}
 
-	private void assertEqual(RegistrationRequest expected, RegistrationRequestState returned)
+	private void assertEqual(RestRegistrationRequest expected, RestRegistrationRequestState returned)
 	{
-		assertThat(returned.getRequest().getAttributes().size(), is(expected.getAttributes().size()));
-		assertThat(returned.getRequest().getAttributes().get(0), 
-				is(expected.getAttributes().get(0)));
-		assertThat(returned.getRequest().getIdentities(), is(expected.getIdentities()));
+		assertThat(returned.request.attributes.size(), is(expected.attributes.size()));
+		assertThat(returned.request.attributes.get(0), 
+				is(expected.attributes.get(0)));
+		assertThat(returned.request.identities, is(expected.identities));
 	}
 	
 	private RegistrationRequest getRequest()

@@ -48,7 +48,7 @@ public class EnquiresDialogLauncher
 
 	public void showEnquiryDialogIfNeeded(Runnable gotoNextUI)
 	{
-		List<EnquiryForm> formsToFill = enquiryController.getFormsToFill();
+		List<EnquiryForm> formsToFill = enquiryController.getRegularFormsToFill();
 		if (!formsToFill.isEmpty())
 			showEnquiryDialog(0, formsToFill, gotoNextUI);
 		else

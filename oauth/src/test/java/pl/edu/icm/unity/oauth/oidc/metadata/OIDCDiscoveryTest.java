@@ -26,29 +26,35 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 public class OIDCDiscoveryTest
 {
 	@Test
-	public void shouldDiscoverMetadataFromGoogle() throws ParseException, IOException
+	public void shouldDiscoverMetadata() throws ParseException, IOException
 	{
-		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery();
+
+		HttpRequestConfigurer reqFactory = mock(HttpRequestConfigurer.class);
+		HTTPRequest wrapped = mock(HTTPRequest.class);
+		HTTPResponse response = mock(HTTPResponse.class);
+		when(reqFactory.secureRequest(any(), any(), any())).thenReturn(wrapped);
+		when(wrapped.send()).thenReturn(response);
+		when(response.getCacheControl()).thenReturn(null);
+		when(response.getContent()).thenReturn(META);
+
+		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery(reqFactory);
 		Properties props = new Properties();
 		props.setProperty("translationProfile", "");
 		props.setProperty("clientSecret", "");
 		props.setProperty("clientId", "");
 		props.setProperty("name", "");
 		props.setProperty("openIdConnect", "true");
-		props.setProperty("openIdConnectDiscoveryEndpoint", "https://accounts.google.com/.well-known/openid-configuration");
+		props.setProperty("openIdConnectDiscoveryEndpoint", "https://mock.googole.com");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
 		OIDCProviderMetadata meta = tested.getMetadata(def.generateMetadataRequest());
-		Assert.assertEquals("https://accounts.google.com", meta.getIssuer().getValue());
+		Assert.assertEquals("https://mock-issuer", meta.getIssuer()
+				.getValue());
 	}
 
-	private final String META = "{"
-			+ "\"issuer\": \"https://mock-issuer\","
-			+ "\"authorization_endpoint\": \"https://mock-authz\","
-			+ "\"token_endpoint\": \"https://mock-token\","
-			+ "\"jwks_uri\": \"https://mock-certs\","
-			+ "\"subject_types_supported\": [\"public\"]"
-			+ "}";
-	
+	private final String META = "{" + "\"issuer\": \"https://mock-issuer\","
+			+ "\"authorization_endpoint\": \"https://mock-authz\"," + "\"token_endpoint\": \"https://mock-token\","
+			+ "\"jwks_uri\": \"https://mock-certs\"," + "\"subject_types_supported\": [\"public\"]" + "}";
+
 	@Test
 	public void shouldDiscoverMetadataWithoutCacheHeaders() throws ParseException, IOException
 	{
@@ -59,18 +65,19 @@ public class OIDCDiscoveryTest
 		props.setProperty("clientId", "");
 		props.setProperty("name", "");
 		props.setProperty("openIdConnect", "true");
-		props.setProperty("openIdConnectDiscoveryEndpoint", "https://accounts.google.com/.well-known/openid-configuration");
+		props.setProperty("openIdConnectDiscoveryEndpoint", "https://mock");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
-		HTTPRequest wrapped =  mock(HTTPRequest.class);
+		HTTPRequest wrapped = mock(HTTPRequest.class);
 		HTTPResponse response = mock(HTTPResponse.class);
-		when(reqFactory.secureRequest(any(),any(),any())).thenReturn(wrapped);
+		when(reqFactory.secureRequest(any(), any(), any())).thenReturn(wrapped);
 		when(wrapped.send()).thenReturn(response);
 		when(response.getCacheControl()).thenReturn(null);
 		when(response.getContent()).thenReturn(META);
 		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery(reqFactory);
-		
+
 		OIDCProviderMetadata meta = tested.getMetadata(def.generateMetadataRequest());
-		
-		Assert.assertEquals("https://mock-issuer", meta.getIssuer().getValue());
+
+		Assert.assertEquals("https://mock-issuer", meta.getIssuer()
+				.getValue());
 	}
 }

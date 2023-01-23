@@ -1,0 +1,3672 @@
+{
+  "versionMajor" : 17,
+  "versionMinor" : 0,
+  "timestamp" : 1673439274352,
+  "dumpElements" : [ "credential", "authenticationRealm", "authenticator", "authenticationFlow", "endpointDefinition", "files", "inputTranslationProfile", "certificate", "notificationChannel", "outputTranslationProfile", "policyDocuments", "messages", "credentialRequirement", "processingRule", "attributeTypes", "enquiryForm", "groups", "identityTypes", "attributeClass", "registrationForm", "messageTemplate", "identities", "entities", "attributes", "groupMembers", "tokens", "invitationWithCode", "enquiryResponse", "registrationRequest", "auditEvents", "idpStatistics" ],
+  "contents" : {
+    "attributeTypes" : [ {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:userMFAOptIn",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:userMFAOptIn",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 2147483647,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:FilledEnquires",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:FilledEnquires",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 2147483647,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:IgnoredEnquires",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:IgnoredEnquires",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 99,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:policy-agreement-state",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:policy-agreement-state",
+      "syntaxId" : "policyagreement"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:LastAuthentication",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Speichert Datum und Zeit der letzten erfolgreichen Authentifizierung. Format: ISO-Zeit in der UTC Zeitzone, auf Sekunden genau, z.B.: 2011-12-03T10:15:30",
+          "en" : "Stores date and time of the last successful authentication. The format is ISO time in UTC time zone with seconds precision, e.g.: 2011-12-03T10:15:30"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:LastAuthentication",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:CredentialRequirements",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Legt fest, welchen Berechtigungsnachweis der Besitzer erbringen muss",
+          "en" : "Defines which credential requirements are set for the owner"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:CredentialRequirements",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:Credential:sys:password",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Berechtigungsnachweis von sys:password",
+          "en" : "Credential of sys:password"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Credential:sys:password",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 20,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:AttributeClasses",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Attributsklassen des Benutzers",
+          "en" : "Attribute classes of the user"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:AttributeClasses",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "global" : false,
+      "syntaxState" : {
+        "allowed" : [ "manager", "projectsAdmin", "regular" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:ProjectManagementRole",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "en" : "Controls authorization level in UpMan (Unity projects management). Must be set in the delegated group of the project. Roles:\n <br><b>manager</b> - Complete project management\n<br><b>projectsAdmin</b> - Complete project management plus ability to create sub-projects (if root project settings allows for that)\n<br><b>regular</b> - No administration capabilities\n"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:ProjectManagementRole",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 1,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "global" : false,
+      "syntaxState" : {
+        "allowed" : [ "Privileged Inspector", "Anonymous User", "Inspector", "System Manager", "Contents Manager", "Regular User" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:AuthorizationRole",
+        "Map" : {
+          "de" : "Autorisierungsrolle",
+          "en" : "Authorization role",
+          "pl" : "Rola autoryzacyjna"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Definiert, welche Operationen für den Träger erlaubt sind. Das Attribut dieses Typs legt den Zugriff in Gruppe fest, in der es definiert ist, und in allen Untergruppen. In Untergruppen kann es überschrieben werden um mehr Zugriffsrechte einzuräumen. Rollen:\n <b>System Manager</b> - System manager with all privileges.\n<b>Contents Manager</b> - Allows for performing all management operations related to groups, entities and attributes. Also allows for reading information about hidden attributes.\n<b>Privileged Inspector</b> - Allows for reading entities, groups and attributes, including the attributes visible locally only. No modifications are possible\n<b>Inspector</b> - Allows for reading entities, groups and attributes. No modifications are possible\n<b>Regular User</b> - Allows owners for reading of the basic system information, retrieval of information about themselves and also for changing self managed attributes, identities and passwords\n<b>Anonymous User</b> - Allows for minimal access to the system: owners can get basic system information and retrieve information about themselves\n",
+          "en" : "Defines what operations are allowed for the bearer. The attribute of this type defines the access in the group where it is defined and in all subgroups. In subgroup it can be redefined to grant more access. Roles:\n <b>System Manager</b> - System manager with all privileges.\n<b>Contents Manager</b> - Allows for performing all management operations related to groups, entities and attributes. Also allows for reading information about hidden attributes.\n<b>Privileged Inspector</b> - Allows for reading entities, groups and attributes, including the attributes visible locally only. No modifications are possible\n<b>Inspector</b> - Allows for reading entities, groups and attributes. No modifications are possible\n<b>Regular User</b> - Allows owners for reading of the basic system information, retrieval of information about themselves and also for changing self managed attributes, identities and passwords\n<b>Anonymous User</b> - Allows for minimal access to the system: owners can get basic system information and retrieve information about themselves\n",
+          "pl" : "Definiuje jakie operacje są dozwolone dla posiadacza. Wpływa na dostęp do grupy w której atrybut jest przydzielony oraz wszystkich podgrupach, gdzie może być nadpisany. Dostępne role:\n<b>System Manager</b> - System manager with all privileges.\n<b>Contents Manager</b> - Allows for performing all management operations related to groups, entities and attributes. Also allows for reading information about hidden attributes.\n<b>Privileged Inspector</b> - Allows for reading entities, groups and attributes, including the attributes visible locally only. No modifications are possible\n<b>Inspector</b> - Allows for reading entities, groups and attributes. No modifications are possible\n<b>Regular User</b> - Allows owners for reading of the basic system information, retrieval of information about themselves and also for changing self managed attributes, identities and passwords\n<b>Anonymous User</b> - Allows for minimal access to the system: owners can get basic system information and retrieve information about themselves\n"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:AuthorizationRole",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:Preferences",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Benutzereinstellungen",
+          "en" : "Preferences of the user"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Preferences",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 5,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "global" : false,
+      "syntaxState" : {
+        "allowed" : [ "implicit", "client", "openidHybrid", "authorizationCode" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:allowedGrantFlows",
+        "Map" : {
+          "de" : "OAuth-Client, gewährte Berechtigungen",
+          "en" : "OAuth client allowed grants",
+          "pl" : "Dozwolone granty OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Legt fest, welche Berechtigungen der Client hat. Wenn nicht definiert wird nur die Authorization Code Berechtigung gewährt.",
+          "en" : "OAuth Client specific attribute. Defines which grants are allowed for the client. If undefined then only the Authorization Code grant is allowed.",
+          "pl" : "Atrybut klienta OAauth. Definiuje dozwolone granty OAuth dla klienta. Jeśli jest niezdefiniowany tylko Authorization Code grant jest dozwolony."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:allowedGrantFlows",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 1,
+      "maxElements" : 512,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:allowedScopes",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:allowedScopes",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "allowed" : [ "PUBLIC", "CONFIDENTIAL" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:clientType",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:clientType",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 1,
+      "maxElements" : 512,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:allowedReturnURI",
+        "Map" : {
+          "de" : "OAuth-Client Rückgabe-URL",
+          "en" : "OAuth client return URL",
+          "pl" : "Powrotny adres klienta OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Legt fest, welche Rückgabe-URIs freigeschalten sind, zu denen der Client zurückkehren darf, nachdem die Authentifizierung abgeschlossen wurde. Dies ist eine wichtige Sicherheitsmaßnahme für  Authorization Code und implizite Berechtigungen. Wenn nicht definiert ist keine URL freigeschalten und sowohl implizite als auch Authorization Code Berechtigungen sind für den Client effektiv deaktiviert.",
+          "en" : "OAuth Client specific attribute. Defines which return redirect URIs are allowed for the client. This is important security measure for the authorization code and implicit grants. If undefined then no URI is allowed and both implicit and authorization code grants will be effectively disabled for the client.",
+          "pl" : "Atrybut klienta OAauth. Definiuje dozwolone adresu przekierowań powrotnych. Jest to ważne ustawienie bezpieczeństwa dla grantów authorization code i implicit. Jeśli nie jest ustawiony nie będą one działać dla klienta. "
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:allowedReturnURI",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "maxWidth" : 400,
+        "maxHeight" : 200,
+        "maxSize" : 4000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:clientLogo",
+        "Map" : {
+          "de" : "OAuth-Client-Logo",
+          "en" : "OAuth client logo",
+          "pl" : "Logo klienta OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Logo, das fuer den Client verwendet wird.",
+          "en" : "OAuth Client specific attribute. Defines a logo which is displayed for the client.",
+          "pl" : "Atrybut klienta OAauth. Definiuje logo klienta wyświetlane użytkownikom."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:clientLogo",
+      "syntaxId" : "image"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:clientName",
+        "Map" : {
+          "de" : "OAuth-Client-Name",
+          "en" : "OAuth client name",
+          "pl" : "Nazwa klienta OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Menschenlesbarer Name des Clients.",
+          "en" : "OAuth Client specific attribute. Defines human readable name of the client.",
+          "pl" : "Atrybut klienta OAauth. Definiuje nazwę klienta wyświetlaną użytkownikom. "
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:clientName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:groupForClient",
+        "Map" : {
+          "de" : "OAuth-Benutzergruppe",
+          "en" : "OAuth users group",
+          "pl" : "Grupa użytkowników klienta OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Definiert einen Gruppenpfad unter dem die Benutzer dieses Clients erreichbar sein sollten und wo ihre Eigenschaften aufgelöst werden. Diese Eigenschaft hat Vorrang vor der Standardgruppe, die im Endpunkt konfiguriert ist.",
+          "en" : "OAuth Client specific attribute. Defines a group path, where users of this client should be present and where their attributes are resolved. This attribute overrides the default group configured per endpoint.",
+          "pl" : "Atrybut klienta OAauth. Definiuje grupę do której muszą należeć wszyscy użytkownicy których do których ma dostęp klient. Z tej grupy będą również pobierane ich atrybuty dla klienta. Ten atrybut nadpisuje ogólnie ustawioną grupę w konfiguracji endpointu."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:groupForClient",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:idp:clientLastAccess",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:idp:clientLastAccess",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : null,
+      "displayedName" : {
+        "DefaultValue" : "sys:Credential:Certificate credential",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Berechtigungsnachweis von Certificate credential",
+          "en" : "Credential of Certificate credential"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Credential:Certificate credential",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : true,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 100,
+        "editWithTextArea" : "false"
+      },
+      "displayedName" : {
+        "DefaultValue" : "name",
+        "Map" : {
+          "pl" : "Nazwa",
+          "en" : "Name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Nazwa",
+          "en" : "Name"
+        }
+      },
+      "metadata" : {
+        "entityDisplayedName" : ""
+      },
+      "name" : "name",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 5,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "emailConfirmationConfiguration" : {
+          "messageTemplate" : "emailConfirmation",
+          "validityTime" : 2880
+        }
+      },
+      "displayedName" : {
+        "DefaultValue" : "email",
+        "Map" : {
+          "de" : "E-mail-Adresse",
+          "en" : "E-mail address",
+          "pl" : "Adres e-mail",
+          "fr" : "Adresse courriel"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "E-mail-Adresse",
+          "en" : "E-mail address",
+          "pl" : "Adres e-mail",
+          "fr" : "Adresse courriel"
+        }
+      },
+      "metadata" : {
+        "contactEmail" : ""
+      },
+      "name" : "email",
+      "syntaxId" : "verifiableEmail"
+    }, {
+      "flags" : 0,
+      "maxElements" : 5,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : { },
+      "displayedName" : {
+        "DefaultValue" : "mobile",
+        "Map" : {
+          "de" : "Mobiltelefonnummer",
+          "en" : "Mobile number",
+          "pl" : "Numer tel. komórkowego",
+          "fr" : "Numéro de téléphone portable"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Mobiltelefonnummer",
+          "en" : "Mobile number",
+          "pl" : "Numer tel. komórkowego",
+          "fr" : "Numéro de téléphone portable"
+        }
+      },
+      "metadata" : {
+        "contactMobile" : ""
+      },
+      "name" : "mobile",
+      "syntaxId" : "verifiableMobileNumber"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "min" : 4.9E-324,
+        "max" : 1.7976931348623157E308
+      },
+      "displayedName" : {
+        "DefaultValue" : "height",
+        "Map" : {
+          "de" : "Größe",
+          "en" : "Height",
+          "pl" : "Wzrost"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Größe des Benutzers",
+          "en" : "Height provides information on users height",
+          "pl" : "Informacja o wzroście użytkownika w cm."
+        }
+      },
+      "metadata" : { },
+      "name" : "height",
+      "syntaxId" : "floatingPoint"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "min" : 4.9E-324,
+        "max" : 1.7976931348623157E308
+      },
+      "displayedName" : {
+        "DefaultValue" : "weight",
+        "Map" : {
+          "de" : "Gewicht",
+          "en" : "Weight",
+          "pl" : "Waga"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Gewicht des Benutzers",
+          "en" : "Weight provides information on users weight",
+          "pl" : "Informacja o wadze użytkownika w kg."
+        }
+      },
+      "metadata" : { },
+      "name" : "weight",
+      "syntaxId" : "floatingPoint"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "address",
+        "Map" : {
+          "pl" : "Adres",
+          "en" : "Address"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "address",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "affiliation",
+        "Map" : {
+          "pl" : "Afiliacja",
+          "en" : "Affiliation"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "affiliation",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "maxWidth" : 100,
+        "maxHeight" : 100,
+        "maxSize" : 1000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "avatar",
+        "Map" : {
+          "en" : "Avatar"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Małe zdjęcie",
+          "en" : "Small picture"
+        }
+      },
+      "metadata" : { },
+      "name" : "avatar",
+      "syntaxId" : "image"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "avatarURL",
+        "Map" : {
+          "en" : "Avatar URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "avatarURL",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : { },
+      "displayedName" : {
+        "DefaultValue" : "birthday",
+        "Map" : {
+          "pl" : "Data urodzin",
+          "en" : "Birthday"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "birthday",
+      "syntaxId" : "date"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "blog",
+        "Map" : {
+          "pl" : "Blog",
+          "en" : "Blog"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "blog",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "city",
+        "Map" : {
+          "pl" : "Miasto",
+          "en" : "City"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "city",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "company",
+        "Map" : {
+          "pl" : "Nazwa firmy",
+          "en" : "Company name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "company",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 100,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "country",
+        "Map" : {
+          "pl" : "Kraj",
+          "en" : "Country"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "country",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 2,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "countryCode",
+        "Map" : {
+          "pl" : "Kod kraju",
+          "en" : "Country code"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "countryCode",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 400,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "description",
+        "Map" : {
+          "pl" : "Opis",
+          "en" : "Description"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "description",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 100,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "currency",
+        "Map" : {
+          "pl" : "Waluta",
+          "en" : "Currency"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "currency",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 9,
+        "maxLength" : 20,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "facsimileTelephoneNumber",
+        "Map" : {
+          "pl" : "Faks",
+          "en" : "Facsimile telephone number"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "facsimileTelephoneNumber",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : true,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "firstname",
+        "Map" : {
+          "pl" : "Imię",
+          "en" : "Firstname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "firstname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 100,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "gender",
+        "Map" : {
+          "pl" : "Płeć",
+          "en" : "Gender"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "gender",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 50,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "locale",
+        "Map" : {
+          "en" : "Locale"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "locale",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 20,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "initials",
+        "Map" : {
+          "pl" : "Inicjały",
+          "en" : "Initials"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "initials",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "middleName",
+        "Map" : {
+          "pl" : "Drugie imię",
+          "en" : "Middle name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "middleName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "nickname",
+        "Map" : {
+          "en" : "Nickname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "nickname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "organization",
+        "Map" : {
+          "pl" : "Organizacja",
+          "en" : "Organization"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "organization",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "organizationRole",
+        "Map" : {
+          "pl" : "Rola w organizacji",
+          "en" : "Organization role"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "organizationRole",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "organizationUnit",
+        "Map" : {
+          "pl" : "Nazwa jednostki organizacyjnej",
+          "en" : "Organization unit name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "organizationUnit",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 8000,
+        "editWithTextArea" : true
+      },
+      "displayedName" : {
+        "DefaultValue" : "pgpPublicKey",
+        "Map" : {
+          "pl" : "Klucz publiczny PGP",
+          "en" : "PGP public key"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "pgpPublicKey",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "maxWidth" : 1000,
+        "maxHeight" : 1000,
+        "maxSize" : 3000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "picture",
+        "Map" : {
+          "pl" : "Zdjęcie",
+          "en" : "Picture"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "picture",
+      "syntaxId" : "image"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "pictureURL",
+        "Map" : {
+          "pl" : "Adres zdjęcia",
+          "en" : "Picture URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "pictureURL",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "maxWidth" : 1000,
+        "maxHeight" : 1000,
+        "maxSize" : 3000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "logo",
+        "Map" : {
+          "pl" : "Logo",
+          "en" : "Logo"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "logo",
+      "syntaxId" : "image"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "post",
+        "Map" : {
+          "pl" : "Poczta",
+          "en" : "Post"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "post",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 2147483647,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 6,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "postalCode",
+        "Map" : {
+          "pl" : "Kod pocztowy",
+          "en" : "Postal code"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "postalCode",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 100,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "preferredLanguage",
+        "Map" : {
+          "pl" : "Preferowany język",
+          "en" : "Preferred language"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "preferredLanguage",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "primaryAffiliation",
+        "Map" : {
+          "pl" : "Główna afiliacja",
+          "en" : "Primary affiliation"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "primaryAffiliation",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "profileURL",
+        "Map" : {
+          "pl" : "Adres profilu",
+          "en" : "Profile URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "profileURL",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "provinceName",
+        "Map" : {
+          "pl" : "Nazwa prowincji",
+          "en" : "Province name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "provinceName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "Locality",
+        "Map" : {
+          "pl" : "Localizacja",
+          "en" : "Locality"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "locality",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "min" : 0.0,
+        "max" : 1.7976931348623157E308
+      },
+      "displayedName" : {
+        "DefaultValue" : "quota",
+        "Map" : {
+          "en" : "Quota"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "quota",
+      "syntaxId" : "floatingPoint"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "seeAlso",
+        "Map" : {
+          "pl" : "Inne",
+          "en" : "See also"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "seeAlso",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 1000,
+        "editWithTextArea" : true
+      },
+      "displayedName" : {
+        "DefaultValue" : "sshPublicKey",
+        "Map" : {
+          "pl" : "Klucz publiczny SSH",
+          "en" : "SSH public key"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sshPublicKey",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "street",
+        "Map" : {
+          "pl" : "Ulica",
+          "en" : "Street"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "street",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : true,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "surname",
+        "Map" : {
+          "pl" : "Nazwisko",
+          "en" : "Surname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "surname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "teamname",
+        "Map" : {
+          "pl" : "Nazwa zespołu",
+          "en" : "Teamname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "teamname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "(\\+)?(\\d){9,12}",
+        "minLength" : 9,
+        "maxLength" : 20,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "telephoneNumber",
+        "Map" : {
+          "pl" : "Numer telefonu",
+          "en" : "Telephone number"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "telephoneNumber",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 50,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "timezone",
+        "Map" : {
+          "pl" : "Strefa czasowa",
+          "en" : "Timezone"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "timezone",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "title",
+        "Map" : {
+          "pl" : "Tytuł",
+          "en" : "Title"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "title",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 20000,
+        "editWithTextArea" : true
+      },
+      "displayedName" : {
+        "DefaultValue" : "certificate",
+        "Map" : {
+          "pl" : "Certyfikat użytkownika",
+          "en" : "User certificate"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "certificate",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "website",
+        "Map" : {
+          "pl" : "Strona internetowa",
+          "en" : "Website"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "website",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "displayName",
+        "Map" : {
+          "pl" : "Wyświetlana nazwa",
+          "en" : "Display name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "displayName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "userName",
+        "Map" : {
+          "pl" : "Nazwa użytkownika",
+          "en" : "Username"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "userName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "global" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 300,
+        "editWithTextArea" : false
+      },
+      "displayedName" : {
+        "DefaultValue" : "uid",
+        "Map" : {
+          "pl" : "Identyfikator uzytkownika",
+          "en" : "User id"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "uid",
+      "syntaxId" : "string"
+    } ],
+    "identityTypes" : [ {
+      "identityTypeProvider" : "x500Name",
+      "description" : "X.500 name or a Distinguished Name (DN). Used in case of TLS/SSL authentication. The equality is tested on canonical form of DN.",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "name" : "x500Name"
+    }, {
+      "identityTypeProvider" : "identifier",
+      "description" : "Generic identifier, compared with string equality. It is useful to represent remotely assigned user identifiers and to match against them during subsequent authentications. It is not possible to directly login with this identity type.",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "name" : "identifier"
+    }, {
+      "identityTypeProvider" : "transient",
+      "description" : "An automatically assigned anonymous identifier. It is very similar to targetedPersistent, the only difference is that the identifier is regenerated for each login session.",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "name" : "transient"
+    }, {
+      "identityTypeProvider" : "targetedPersistent",
+      "description" : "An automatically assigned anonymous identifier. It is different from the persistent type as for each of Unity clients (targets) a different identifier is maintained. ",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "name" : "targetedPersistent"
+    }, {
+      "identityTypeProvider" : "persistent",
+      "description" : "An automatically assigned anonymous identifier. Should be constant for each entity for its lifetime (and is unless manually removed).",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "name" : "persistent"
+    }, {
+      "identityTypeProvider" : "userName",
+      "description" : "Username, compared with simple string equality. This type of identity can be used for all password-alike authentications in Unity.",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "name" : "userName"
+    }, {
+      "identityTypeProvider" : "email",
+      "description" : "E-mail address identity, compared with simple string equality. This type of identity can be used for all password-alike authentications in Unity. The value of this identity is subject of confirmation process.",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "emailConfirmationConfiguration" : {
+        "messageTemplate" : "emailConfirmation",
+        "validityTime" : 2880
+      },
+      "name" : "email"
+    }, {
+      "identityTypeProvider" : "fidoUserHandle",
+      "description" : "Automatically generated identifier. Used during FIDO registration and authentication processes.",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "name" : "fidoUserHandle"
+    } ],
+    "entities" : [ {
+      "state" : "valid",
+      "entityId" : 1
+    }, {
+      "state" : "valid",
+      "entityId" : 2
+    }, {
+      "state" : "valid",
+      "entityId" : 3
+    } ],
+    "identities" : [ {
+      "value" : "admin",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "admin",
+      "creationTs" : 1666887299600,
+      "updateTs" : 1666887299600,
+      "typeId" : "userName",
+      "entityId" : 1
+    }, {
+      "value" : "226fd12b-8a99-4403-afec-64dbc691a535",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "226fd12b-8a99-4403-afec-64dbc691a535",
+      "creationTs" : 1666887299703,
+      "updateTs" : 1666887299703,
+      "typeId" : "persistent",
+      "entityId" : 1
+    }, {
+      "value" : "oauth-client",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "oauth-client",
+      "creationTs" : 1666887304386,
+      "updateTs" : 1666887304386,
+      "typeId" : "userName",
+      "entityId" : 2
+    }, {
+      "value" : "8d572a6d-7e35-401f-a868-ef17d18d2672",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "8d572a6d-7e35-401f-a868-ef17d18d2672",
+      "creationTs" : 1666887304403,
+      "updateTs" : 1666887304403,
+      "typeId" : "persistent",
+      "entityId" : 2
+    }, {
+      "value" : "demo-user",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "demo-user",
+      "creationTs" : 1666887305709,
+      "updateTs" : 1666887305709,
+      "typeId" : "userName",
+      "entityId" : 3
+    }, {
+      "value" : "07acb98a-f64d-447b-b294-2bed6d4cbb6a",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "07acb98a-f64d-447b-b294-2bed6d4cbb6a",
+      "creationTs" : 1666887305717,
+      "updateTs" : 1666887305717,
+      "typeId" : "persistent",
+      "entityId" : 3
+    }, {
+      "value" : "CN=Demo user",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "cn=demo user",
+      "creationTs" : 1666887305746,
+      "updateTs" : 1666887305746,
+      "typeId" : "x500Name",
+      "entityId" : 3
+    } ],
+    "groups" : [ {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/",
+        "Map" : { }
+      },
+      "attributeStatements" : [ {
+        "resolution" : "skip",
+        "condition" : "true",
+        "fixedAttribute" : {
+          "values" : [ "Regular User" ],
+          "name" : "sys:AuthorizationRole",
+          "groupPath" : "/",
+          "valueSyntax" : "enumeration"
+        }
+      } ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "enableSubprojects" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "properties" : [ ],
+      "publicGroup" : false,
+      "path" : "/"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/oauth-clients",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "enableSubprojects" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "properties" : [ ],
+      "publicGroup" : false,
+      "path" : "/oauth-clients"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/A",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "enableSubprojects" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "properties" : [ ],
+      "publicGroup" : false,
+      "path" : "/A"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/A/B",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "enableSubprojects" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "properties" : [ ],
+      "publicGroup" : false,
+      "path" : "/A/B"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/A/B/C",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "enableSubprojects" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "properties" : [ ],
+      "publicGroup" : false,
+      "path" : "/A/B/C"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "enableSubprojects" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "properties" : [ ],
+      "publicGroup" : false,
+      "path" : "/D"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/E",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "enableSubprojects" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "properties" : [ ],
+      "publicGroup" : false,
+      "path" : "/D/E"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/G",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "enableSubprojects" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "properties" : [ ],
+      "publicGroup" : false,
+      "path" : "/D/G"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/F",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "enableSubprojects" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "properties" : [ ],
+      "publicGroup" : false,
+      "path" : "/D/F"
+    } ],
+    "groupMembers" : [ {
+      "creationTs" : 1666887299626,
+      "group" : "/",
+      "entityId" : 1
+    }, {
+      "creationTs" : 1666887304388,
+      "group" : "/",
+      "entityId" : 2
+    }, {
+      "creationTs" : 1666887305371,
+      "group" : "/oauth-clients",
+      "entityId" : 2
+    }, {
+      "creationTs" : 1666887305710,
+      "group" : "/",
+      "entityId" : 3
+    }, {
+      "creationTs" : 1666887305757,
+      "group" : "/A",
+      "entityId" : 3
+    } ],
+    "attributes" : [ {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1666887299646,
+      "updateTs" : 1666887299646,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "{\"passwords\":[{\"method\":\"SCRYPT\",\"methodParams\":{\"length\":64,\"workFactor\":17,\"parallelization\":1,\"blockSize\":8},\"hash\":\"Hr1Zr1fUOXtW1pIutSK5QtttFXgAAJWhJZzDFSti7tWuko72X+8kE6UDyunmTUp1WiKZT4/8GQuduKJ4pdvnRw==\",\"salt\":\"Wtm7p/9gQvJBFCxIFOrwIeNatjDxgxGkT+5Z2EJbGnk=\",\"time\":1666887300967}],\"outdated\":false,\"outdatedReason\":null,\"securityQuestion\":null,\"answer\":null}" ],
+      "creationTs" : 1666887301005,
+      "updateTs" : 1666887301005,
+      "direct" : true,
+      "name" : "sys:Credential:sys:password",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "System Manager" ],
+      "creationTs" : 1666887301024,
+      "updateTs" : 1666887301024,
+      "direct" : true,
+      "name" : "sys:AuthorizationRole",
+      "groupPath" : "/",
+      "valueSyntax" : "enumeration",
+      "entityId" : 1,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "Default Administrator" ],
+      "creationTs" : 1666887303727,
+      "updateTs" : 1666887303727,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1666887304396,
+      "updateTs" : 1666887304396,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 2,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "{\"passwords\":[{\"method\":\"SCRYPT\",\"methodParams\":{\"length\":64,\"workFactor\":17,\"parallelization\":1,\"blockSize\":8},\"hash\":\"XNKjox1aK8hfL/DjDGX3YA3slZOJ80buOxVVDT9JUnmVMslEKN9n5zEL1sqDe53Y8tev2cpYyGKS7JyIBXjJhQ==\",\"salt\":\"xLHNFdAln36diCNbzCe8PKCBTwiudRyh3yME6nKyoGU=\",\"time\":1666887305350}],\"outdated\":false,\"outdatedReason\":null,\"securityQuestion\":null,\"answer\":null}" ],
+      "creationTs" : 1666887305350,
+      "updateTs" : 1666887305350,
+      "direct" : true,
+      "name" : "sys:Credential:sys:password",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 2,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "OAuth client" ],
+      "creationTs" : 1666887305359,
+      "updateTs" : 1666887305359,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 2,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "authorizationCode", "implicit", "openidHybrid" ],
+      "creationTs" : 1666887305391,
+      "updateTs" : 1666887305391,
+      "direct" : true,
+      "name" : "sys:oauth:allowedGrantFlows",
+      "groupPath" : "/oauth-clients",
+      "valueSyntax" : "enumeration",
+      "entityId" : 2,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "https://localhost:2443/unitygw/oauth2ResponseConsumer" ],
+      "creationTs" : 1666887305398,
+      "updateTs" : 1666887305398,
+      "direct" : true,
+      "name" : "sys:oauth:allowedReturnURI",
+      "groupPath" : "/oauth-clients",
+      "valueSyntax" : "string",
+      "entityId" : 2,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1666887305713,
+      "updateTs" : 1666887305713,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 3,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "Regular User" ],
+      "creationTs" : 1666887305762,
+      "updateTs" : 1666887305762,
+      "direct" : true,
+      "name" : "sys:AuthorizationRole",
+      "groupPath" : "/",
+      "valueSyntax" : "enumeration",
+      "entityId" : 3,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "{\"value\":\"some@example.com\",\"confirmationData\":{\"confirmed\":true,\"confirmationDate\":1666887305773,\"sentRequestAmount\":0},\"tags\":[]}" ],
+      "creationTs" : 1666887305809,
+      "updateTs" : 1666887305809,
+      "direct" : true,
+      "name" : "email",
+      "groupPath" : "/",
+      "valueSyntax" : "verifiableEmail",
+      "entityId" : 3,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "Demo user" ],
+      "creationTs" : 1666887305814,
+      "updateTs" : 1666887305814,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 3,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "{\"passwords\":[{\"method\":\"SCRYPT\",\"methodParams\":{\"length\":64,\"workFactor\":17,\"parallelization\":1,\"blockSize\":8},\"hash\":\"Q99Lh662LVFOpP7P8NT5YueHIf6ZOcpuhBcQzmExTqM+PN4sCZOmXQFV4X7dFLlAGAwXxoqMnCpEXHZLOTJ4AA==\",\"salt\":\"grJm0L+1Kv8gk183vhuuO0YnZa/Te+gpf4eZGMzphdY=\",\"time\":1666887306660}],\"outdated\":false,\"outdatedReason\":null,\"securityQuestion\":null,\"answer\":null}" ],
+      "creationTs" : 1666887306660,
+      "updateTs" : 1666887306660,
+      "direct" : true,
+      "name" : "sys:Credential:sys:password",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 3,
+      "keywords" : [ ]
+    }, {
+      "values" : [ "2023-01-11T12:13:45" ],
+      "creationTs" : 1666887314198,
+      "updateTs" : 1673439225114,
+      "direct" : true,
+      "name" : "sys:LastAuthentication",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1,
+      "keywords" : [ ]
+    } ],
+    "files" : [ ],
+    "auditEvents" : [ {
+      "name" : "63c6e0f8-9067-4992-b1d1-09fa99e665bd",
+      "type" : "SESSION",
+      "timestamp" : 1673439225119,
+      "subject" : {
+        "entityId" : 1,
+        "name" : "Default Administrator",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "firstFactorOption" : "pwd.password",
+        "realm" : "adminRealm"
+      },
+      "tags" : [ "Authn" ]
+    }, {
+      "name" : "sys:LastAuthentication",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1673439225117,
+      "subject" : {
+        "entityId" : 1,
+        "name" : "Default Administrator",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "UPDATE",
+      "details" : {
+        "group" : "/",
+        "value" : "2023-01-11T12:13:45"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "2b025f92-13a5-4e5c-adb8-80f5e827b037",
+      "type" : "SESSION",
+      "timestamp" : 1672236459149,
+      "subject" : {
+        "entityId" : 1,
+        "name" : "Default Administrator",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "REMOVE",
+      "details" : null,
+      "tags" : [ "Authn" ]
+    }, {
+      "name" : "2b025f92-13a5-4e5c-adb8-80f5e827b037",
+      "type" : "SESSION",
+      "timestamp" : 1672234551252,
+      "subject" : {
+        "entityId" : 1,
+        "name" : "Default Administrator",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "firstFactorOption" : "pwd.password",
+        "realm" : "adminRealm"
+      },
+      "tags" : [ "Authn" ]
+    }, {
+      "name" : "sys:LastAuthentication",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1672234551236,
+      "subject" : {
+        "entityId" : 1,
+        "name" : "Default Administrator",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "UPDATE",
+      "details" : {
+        "group" : "/",
+        "value" : "2022-12-28T13:35:51"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "8487f786-3043-44e6-b6bb-1ed7f68a1999",
+      "type" : "SESSION",
+      "timestamp" : 1666890944394,
+      "subject" : {
+        "entityId" : 1,
+        "name" : "Default Administrator",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "REMOVE",
+      "details" : null,
+      "tags" : [ "Authn" ]
+    }, {
+      "name" : "8487f786-3043-44e6-b6bb-1ed7f68a1999",
+      "type" : "SESSION",
+      "timestamp" : 1666887314202,
+      "subject" : {
+        "entityId" : 1,
+        "name" : "Default Administrator",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "firstFactorOption" : "pwd",
+        "realm" : "defaultRealm"
+      },
+      "tags" : [ "Authn" ]
+    }, {
+      "name" : "sys:LastAuthentication",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1666887314201,
+      "subject" : {
+        "entityId" : 1,
+        "name" : "Default Administrator",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "group" : "/",
+        "value" : "2022-10-27T16:15:14"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "sys:Credential:sys:password",
+      "type" : "CREDENTIALS",
+      "timestamp" : 1666887306665,
+      "subject" : {
+        "entityId" : 3,
+        "name" : "Demo user",
+        "email" : "some@example.com"
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Authn" ]
+    }, {
+      "name" : "name",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1666887305816,
+      "subject" : {
+        "entityId" : 3,
+        "name" : "Demo user",
+        "email" : "some@example.com"
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "group" : "/",
+        "value" : "Demo user"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "email",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1666887305811,
+      "subject" : {
+        "entityId" : 3,
+        "name" : "Demo user",
+        "email" : "some@example.com"
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "group" : "/",
+        "value" : "some@example.com"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "sys:AuthorizationRole",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1666887305764,
+      "subject" : {
+        "entityId" : 3,
+        "name" : "Demo user",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "group" : "/",
+        "value" : "Regular User"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "/A",
+      "type" : "MEMBERSHIP",
+      "timestamp" : 1666887305759,
+      "subject" : {
+        "entityId" : 3,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups", "Members" ]
+    }, {
+      "name" : "x500Name:cn=demo user",
+      "type" : "IDENTITY",
+      "timestamp" : 1666887305752,
+      "subject" : {
+        "entityId" : 3,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "/",
+      "type" : "MEMBERSHIP",
+      "timestamp" : 1666887305712,
+      "subject" : {
+        "entityId" : 3,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups", "Members" ]
+    }, {
+      "name" : "userName:demo-user",
+      "type" : "IDENTITY",
+      "timestamp" : 1666887305710,
+      "subject" : {
+        "entityId" : 3,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "",
+      "type" : "ENTITY",
+      "timestamp" : 1666887305709,
+      "subject" : {
+        "entityId" : 3,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "/D/F",
+      "type" : "GROUP",
+      "timestamp" : 1666887305663,
+      "subject" : null,
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups" ]
+    }, {
+      "name" : "/D/G",
+      "type" : "GROUP",
+      "timestamp" : 1666887305646,
+      "subject" : null,
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups" ]
+    }, {
+      "name" : "/D/E",
+      "type" : "GROUP",
+      "timestamp" : 1666887305644,
+      "subject" : null,
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups" ]
+    }, {
+      "name" : "/D",
+      "type" : "GROUP",
+      "timestamp" : 1666887305642,
+      "subject" : null,
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups" ]
+    }, {
+      "name" : "/A/B/C",
+      "type" : "GROUP",
+      "timestamp" : 1666887305640,
+      "subject" : null,
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups" ]
+    }, {
+      "name" : "/A/B",
+      "type" : "GROUP",
+      "timestamp" : 1666887305638,
+      "subject" : null,
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups" ]
+    }, {
+      "name" : "/A",
+      "type" : "GROUP",
+      "timestamp" : 1666887305635,
+      "subject" : null,
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups" ]
+    }, {
+      "name" : "sys:oauth:allowedReturnURI",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1666887305400,
+      "subject" : {
+        "entityId" : 2,
+        "name" : "OAuth client",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "group" : "/oauth-clients",
+        "value" : "https://localhost:2443/unit..."
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "sys:oauth:allowedGrantFlows",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1666887305393,
+      "subject" : {
+        "entityId" : 2,
+        "name" : "OAuth client",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "group" : "/oauth-clients",
+        "value" : "authorizationCode"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "/oauth-clients",
+      "type" : "MEMBERSHIP",
+      "timestamp" : 1666887305373,
+      "subject" : {
+        "entityId" : 2,
+        "name" : "OAuth client",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups", "Members" ]
+    }, {
+      "name" : "name",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1666887305361,
+      "subject" : {
+        "entityId" : 2,
+        "name" : "OAuth client",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "group" : "/",
+        "value" : "OAuth client"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "sys:Credential:sys:password",
+      "type" : "CREDENTIALS",
+      "timestamp" : 1666887305353,
+      "subject" : {
+        "entityId" : 2,
+        "name" : "OAuth client",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Authn" ]
+    }, {
+      "name" : "/",
+      "type" : "MEMBERSHIP",
+      "timestamp" : 1666887304391,
+      "subject" : {
+        "entityId" : 2,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups", "Members" ]
+    }, {
+      "name" : "userName:oauth-client",
+      "type" : "IDENTITY",
+      "timestamp" : 1666887304388,
+      "subject" : {
+        "entityId" : 2,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "",
+      "type" : "ENTITY",
+      "timestamp" : 1666887304386,
+      "subject" : {
+        "entityId" : 2,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "/oauth-clients",
+      "type" : "GROUP",
+      "timestamp" : 1666887304365,
+      "subject" : null,
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups" ]
+    }, {
+      "name" : "name",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1666887303732,
+      "subject" : {
+        "entityId" : 1,
+        "name" : "Default Administrator",
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "group" : "/",
+        "value" : "Default Administrator"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "/",
+      "type" : "GROUP",
+      "timestamp" : 1666887303557,
+      "subject" : null,
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "UPDATE",
+      "details" : null,
+      "tags" : [ "Groups" ]
+    }, {
+      "name" : "sys:AuthorizationRole",
+      "type" : "ATTRIBUTE",
+      "timestamp" : 1666887301034,
+      "subject" : {
+        "entityId" : 1,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : {
+        "group" : "/",
+        "value" : "System Manager"
+      },
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "sys:Credential:sys:password",
+      "type" : "CREDENTIALS",
+      "timestamp" : 1666887301012,
+      "subject" : {
+        "entityId" : 1,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Authn" ]
+    }, {
+      "name" : "/",
+      "type" : "MEMBERSHIP",
+      "timestamp" : 1666887299632,
+      "subject" : {
+        "entityId" : 1,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Groups", "Members" ]
+    }, {
+      "name" : "userName:admin",
+      "type" : "IDENTITY",
+      "timestamp" : 1666887299626,
+      "subject" : {
+        "entityId" : 1,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Users" ]
+    }, {
+      "name" : "",
+      "type" : "ENTITY",
+      "timestamp" : 1666887299594,
+      "subject" : {
+        "entityId" : 1,
+        "name" : null,
+        "email" : null
+      },
+      "initiator" : {
+        "entityId" : 0,
+        "name" : "System",
+        "email" : null
+      },
+      "action" : "ADD",
+      "details" : null,
+      "tags" : [ "Users" ]
+    } ],
+    "tokens" : [ {
+      "type" : "session",
+      "value" : "63c6e0f8-9067-4992-b1d1-09fa99e665bd",
+      "owner" : 1,
+      "created" : 1673439225083,
+      "expires" : null,
+      "contents" : "eyJyZWFsbSI6ImFkbWluUmVhbG0iLCJtYXhJbmFjdGl2aXR5IjoxODAwMDAwLCJsYXN0VXNlZCI6MTY3MzQzOTI3MjI4NiwiZW50aXR5TGFiZWwiOiJEZWZhdWx0IEFkbWluaXN0cmF0b3IiLCJhdXRoZW50aWNhdGVkSWRlbnRpdGllcyI6W10sImF0dHJpYnV0ZXMiOnsic2Vzc2lvblBhcnRpY2lwYW50cyI6IltdIn0sImxvZ2luMXN0RmFjdG9yIjp7Im9wdGlvbklkIjoicHdkLnBhc3N3b3JkIiwidGltZSI6MTY3MzQzOTIyNTA4M30sImxvZ2luMm5kRmFjdG9yIjp7Im9wdGlvbklkIjpudWxsLCJ0aW1lIjoxNjczNDM5MjI1MDgzfSwicmVtZW1iZXJNZUluZm8iOnsiZmlyc3RGYWN0b3JTa2lwcGVkIjpmYWxzZSwic2Vjb25kRmFjdG9yU2tpcHBlZCI6ZmFsc2V9fQ=="
+    } ],
+    "policyDocuments" : [ ],
+    "messages" : [ ],
+    "idpStatistics" : [ ],
+    "attributeClass" : [ ],
+    "authenticator" : [ {
+      "_updateTS" : 1666887307085,
+      "obj" : {
+        "name" : "cert",
+        "verificationMethod" : "certificate",
+        "configuration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"Certificate authentication\",\n\t\t\t\"pl\": \"Uwierzytelnianie certyfikatem\"\n\t\t}\n\t}\n}",
+        "localCredentialName" : "Certificate credential",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1666887307125,
+      "obj" : {
+        "name" : "pwd",
+        "verificationMethod" : "password",
+        "configuration" : "retrieval.password.name=Password\n",
+        "localCredentialName" : "sys:password",
+        "revision" : 0
+      }
+    } ],
+    "credential" : [ {
+      "_updateTS" : 1666887301119,
+      "obj" : {
+        "typeId" : "certificate",
+        "name" : "Certificate credential",
+        "readOnly" : false,
+        "configuration" : "",
+        "displayedName" : {
+          "DefaultValue" : "Certificate credential",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Certificate credential.",
+          "Map" : { }
+        }
+      }
+    } ],
+    "credentialRequirement" : [ {
+      "_updateTS" : 1666887301133,
+      "obj" : {
+        "name" : "Password requirement",
+        "description" : "Password requirement.",
+        "requiredCredentials" : [ "sys:password" ],
+        "readOnly" : false
+      }
+    }, {
+      "_updateTS" : 1666887301143,
+      "obj" : {
+        "name" : "Certificate requirement",
+        "description" : "Certificate requirement.",
+        "requiredCredentials" : [ "Certificate credential" ],
+        "readOnly" : false
+      }
+    } ],
+    "messageTemplate" : [ {
+      "_updateTS" : 1666887301198,
+      "obj" : {
+        "name" : "registrationRequestRejected",
+        "description" : "",
+        "consumer" : "RegistrationRequestRejected",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration request rejected",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>The registration request \"${requestId}\" was rejected.</p>\n                        <p>${publicComment}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1666887301205,
+      "obj" : {
+        "name" : "enquiryFilled",
+        "description" : "",
+        "consumer" : "EnquiryFilled",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Enquiry response submitted",
+          "body" : "${include:master-header}\n                        <p>Dear Admin,</p>\n                        <p>A new enquiry response was submitted by ${user} to the enquiry form ${formName}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1666887301210,
+      "obj" : {
+        "name" : "master-header",
+        "description" : "",
+        "consumer" : "Generic",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "",
+          "body" : "<!doctype html>\n<html>\n  <head>\n    <meta name=\"viewport\" content=\"width=device-width\" />\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <style>\n      /* -------------------------------------\n          GLOBAL RESETS\n      ------------------------------------- */\n      img {\n        border: none;\n        -ms-interpolation-mode: bicubic;\n        max-width: 100%; }\n\n      body {\n        background-color: #f6f6f6;\n        font-family: sans-serif;\n        -webkit-font-smoothing: antialiased;\n        font-size: 14px;\n        line-height: 1.4;\n        margin: 0;\n        padding: 0;\n        -ms-text-size-adjust: 100%;\n        -webkit-text-size-adjust: 100%; }\n\n      table {\n        border-collapse: separate;\n        mso-table-lspace: 0pt;\n        mso-table-rspace: 0pt;\n        width: 100%; }\n        table td {\n          font-family: sans-serif;\n          font-size: 14px;\n          vertical-align: top; }\n\n      /* -------------------------------------\n          BODY & CONTAINER\n      ------------------------------------- */\n\n      .body {\n        background-color: #f6f6f6;\n        width: 100%; }\n\n      /* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */\n      .container {\n        display: block;\n        Margin: 0 auto !important;\n        /* makes it centered */\n        max-width: 580px;\n        padding: 10px;\n        width: 580px; }\n\n      /* This should also be a block element, so that it will fill 100% of the .container */\n      .content {\n        box-sizing: border-box;\n        display: block;\n        Margin: 0 auto;\n        max-width: 580px;\n        padding: 10px; }\n\n      /* -------------------------------------\n          HEADER, FOOTER, MAIN\n      ------------------------------------- */\n      .main {\n        background: #ffffff;\n        border-radius: 3px;\n        width: 100%; }\n\n      .wrapper {\n        box-sizing: border-box;\n        padding: 20px; }\n\n      .content-block {\n        padding-bottom: 10px;\n        padding-top: 10px;\n      }\n\n      .footer {\n        clear: both;\n        Margin-top: 10px;\n        text-align: center;\n        width: 100%; }\n        .footer td,\n        .footer p,\n        .footer span,\n        .footer a {\n          color: #999999;\n          font-size: 12px;\n          text-align: center; }\n\n      /* -------------------------------------\n          TYPOGRAPHY\n      ------------------------------------- */\n      h1,\n      h2,\n      h3,\n      h4 {\n        color: #000000;\n        font-family: sans-serif;\n        font-weight: 400;\n        line-height: 1.4;\n        margin: 0;\n        Margin-bottom: 30px; }\n\n      h1 {\n        font-size: 35px;\n        font-weight: 300;\n        text-align: center;\n        text-transform: capitalize; }\n\n      p,\n      ul,\n      ol {\n        font-family: sans-serif;\n        font-size: 14px;\n        font-weight: normal;\n        margin: 0;\n        Margin-bottom: 15px; }\n        p li,\n        ul li,\n        ol li {\n          list-style-position: inside;\n          margin-left: 5px; }\n\n      a {\n        color: #3498db;\n        text-decoration: underline; }\n\n      /* -------------------------------------\n          BUTTONS\n      ------------------------------------- */\n      .btn {\n        box-sizing: border-box;\n        width: 100%; }\n        .btn > tbody > tr > td {\n          padding-bottom: 15px; }\n        .btn table {\n          width: auto; }\n        .btn table td {\n          background-color: #ffffff;\n          border-radius: 5px;\n          text-align: center; }\n        .btn a {\n          background-color: #ffffff;\n          border: solid 1px #3498db;\n          border-radius: 5px;\n          box-sizing: border-box;\n          color: #3498db;\n          cursor: pointer;\n          display: inline-block;\n          font-size: 14px;\n          font-weight: bold;\n          margin: 0;\n          padding: 12px 25px;\n          text-decoration: none;\n          text-transform: capitalize; }\n\n      .btn-primary table td {\n        background-color: #3498db; }\n\n      .btn-primary a {\n        background-color: #3498db;\n        border-color: #3498db;\n        color: #ffffff; }\n\n      /* -------------------------------------\n          OTHER STYLES THAT MIGHT BE USEFUL\n      ------------------------------------- */\n      .last {\n        margin-bottom: 0; }\n\n      .first {\n        margin-top: 0; }\n\n      .align-center {\n        text-align: center; }\n\n      .align-right {\n        text-align: right; }\n\n      .align-left {\n        text-align: left; }\n\n      .clear {\n        clear: both; }\n\n      .mt0 {\n        margin-top: 0; }\n\n      .mb0 {\n        margin-bottom: 0; }\n\n      .powered-by a {\n        text-decoration: none; }\n\n      hr {\n        border: 0;\n        border-bottom: 1px solid #f6f6f6;\n        Margin: 20px 0; }\n\n      .logo {\n        padding: 10px 0 10px 0;\n        background-color: #5596c2;\n      }\n\n      /* -------------------------------------\n          RESPONSIVE AND MOBILE FRIENDLY STYLES\n      ------------------------------------- */\n      @media only screen and (max-width: 620px) {\n        table[class=body] h1 {\n          font-size: 28px !important;\n          margin-bottom: 10px !important; }\n        table[class=body] p,\n        table[class=body] ul,\n        table[class=body] ol,\n        table[class=body] td,\n        table[class=body] span,\n        table[class=body] a {\n          font-size: 16px !important; }\n        table[class=body] .wrapper,\n        table[class=body] .article {\n          padding: 10px !important; }\n        table[class=body] .content {\n          padding: 0 !important; }\n        table[class=body] .container {\n          padding: 0 !important;\n          width: 100% !important; }\n        table[class=body] .main {\n          border-left-width: 0 !important;\n          border-radius: 0 !important;\n          border-right-width: 0 !important; }\n        table[class=body] .btn table {\n          width: 100% !important; }\n        table[class=body] .btn a {\n          width: 100% !important; }\n        table[class=body] .img-responsive {\n          height: auto !important;\n          max-width: 100% !important;\n          width: auto !important; }}\n\n      /* -------------------------------------\n          PRESERVE THESE STYLES IN THE HEAD\n      ------------------------------------- */\n      @media all {\n        .ExternalClass {\n          width: 100%; }\n        .ExternalClass,\n        .ExternalClass p,\n        .ExternalClass span,\n        .ExternalClass font,\n        .ExternalClass td,\n        .ExternalClass div {\n          line-height: 100%; }\n        .apple-link a {\n          color: inherit !important;\n          font-family: inherit !important;\n          font-size: inherit !important;\n          font-weight: inherit !important;\n          line-height: inherit !important;\n          text-decoration: none !important; }\n        .btn-primary table td:hover {\n          background-color: #34495e !important; }\n        .btn-primary a:hover {\n          background-color: #34495e !important;\n          border-color: #34495e !important; } }\n\n    </style>\n  </head>\n\n  <body class=\"\">\n    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"body\">\n      <tr>\n        <td>&nbsp;</td>\n        <td class=\"container\">\n          <div class=\"content\">\n\n            <!-- START CENTERED WHITE CONTAINER -->\n            <table class=\"main\">\n              <td align=\"center\" class=\"logo\">\n               <img src=\"http://www.unity-idm.eu/wp-content/uploads/2016/07/unity_white-1.png\" alt=\"Unity\" style=\"display: block; max-height: 60px; height:40%\" />\n              </td>\n              <!-- START MAIN CONTENT AREA -->\n              <tr>\n                <td class=\"wrapper\">\n                  <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                    <tr>\n                      <td>\n"
+        } ],
+        "notificationChannel" : ""
+      }
+    }, {
+      "_updateTS" : 1666887301220,
+      "obj" : {
+        "name" : "registrationRequestUpdated",
+        "description" : "",
+        "consumer" : "RegistrationRequestUpdated",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration request update",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>The registration request \"${requestId}\" was updated.</p>\n                        <p>${publicComment}</p>\n                        <p>${internalComment}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1666887301229,
+      "obj" : {
+        "name" : "newEnquiry",
+        "description" : "",
+        "consumer" : "NewEnquiry",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "User enquiry",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>You are requested to fill an enquiry ${formName}.</p>\n                        <p>The enquiry is available after login into your regular account:</p>\n                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">\n                          <tbody>\n                            <tr>\n                              <td align=\"center\">\n                                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                                  <tbody>\n                                    <tr>\n                                      <td> <a href=\"${url}\" target=\"_blank\">Open enquiry</a> </td>\n                                    </tr>\n                                  </tbody>\n                                </table>\n                              </td>\n                            </tr>\n                          </tbody>\n                        </table>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1666887301253,
+      "obj" : {
+        "name" : "invitationWithCode",
+        "description" : "",
+        "consumer" : "InvitationWithCode",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration invitation",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>You are invited to register with the ${formName}.</p>\n                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">\n                          <tbody>\n                            <tr>\n                              <td align=\"center\">\n                                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                                  <tbody>\n                                    <tr>\n                                      <td> <a href=\"${url}\" target=\"_blank\">Register</a> </td>\n                                    </tr>\n                                  </tbody>\n                                </table>\n                              </td>\n                            </tr>\n                          </tbody>\n                        </table>\n                        <p>If you don't want to register please ignore this message.</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1666887301259,
+      "obj" : {
+        "name" : "emailPasswordResetCode",
+        "description" : "",
+        "consumer" : "EmailPasswordResetCode",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Credential reset code",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>Somebody, hopefully you, requested to reset your credential in the UNITY service.</p>\n                        <p>If you didn't requested the credential reset simply ignore this message.</p>\n                        <p>If you did, then use the following code in the credential reset window:</p>\n                        <p>${code}</p>\n ${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1666887301265,
+      "obj" : {
+        "name" : "registrationRequestAccepted",
+        "description" : "",
+        "consumer" : "RegistrationRequestAccepted",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration request accepted",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>The registration request \"${requestId}\" was accepted.</p>\n                        <p>${publicComment}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1666887301273,
+      "obj" : {
+        "name" : "emailConfirmation",
+        "description" : "",
+        "consumer" : "EmailConfirmation",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "UNITY e-mail confirmation request",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>Your e-mail address was entered in the Unity service and must be validated.</p>\n                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">\n                          <tbody>\n                            <tr>\n                              <td align=\"center\">\n                                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                                  <tbody>\n                                    <tr>\n                                      <td> <a href=\"${confirmationLink}\" target=\"_blank\">Confirm Your e-mail</a> </td>\n                                    </tr>\n                                  </tbody>\n                                </table>\n                              </td>\n                            </tr>\n                          </tbody>\n                        </table>\n                        <p>If you didn't requested e-mail confirmation please ignore this message.</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1666887301279,
+      "obj" : {
+        "name" : "registrationRequestSubmitted",
+        "description" : "",
+        "consumer" : "RegistrationRequestSubmitted",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "New registration request",
+          "body" : "${include:master-header}\n                        <p>Dear Admin,</p>\n                        <p>A new registration request \"${requestId}\" was submitted to the registration form \"${formName}\".</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1666887301282,
+      "obj" : {
+        "name" : "master-footer",
+        "description" : "",
+        "consumer" : "Generic",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "",
+          "body" : "                      </td>\n                    </tr>\n                  </table>\n                </td>\n              </tr>\n\n            <!-- END MAIN CONTENT AREA -->\n            </table>\n\n            <!-- START FOOTER -->\n            <div class=\"footer\">\n              <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                <tr>\n                  <td class=\"content-block powered-by\">\n                    Powered by <a href=\"http://www.unity-idm.eu/\">Unity IdM</a>.\n                  </td>\n                </tr>\n              </table>\n            </div>\n            <!-- END FOOTER -->\n\n          <!-- END CENTERED WHITE CONTAINER -->\n          </div>\n        </td>\n        <td>&nbsp;</td>\n      </tr>\n    </table>\n  </body>\n</html>\n"
+        } ],
+        "notificationChannel" : ""
+      }
+    } ],
+    "notificationChannel" : [ {
+      "_updateTS" : 1666887301153,
+      "obj" : {
+        "description" : "Default email channel",
+        "name" : "default_email",
+        "configuration" : "# User name which will be used for From: field of the email. It is also used  \n# as SMTP envelope return address if not overriden below.\nmail.from=root@localhost\n\n# The SMTP server to connect to.\nmail.smtp.host=localhost\n\n# If true, enables the use of the STARTTLS command (if supported by the server) \n# to switch the connection to a TLS-protected connection before issuing any login commands.\n# \n# IMPORTANT! SMTP server's certificate must be trusted to establish the connection.\n# The software will use the same truststore that is defined in main configuration of the server\n# so add SMTP server's CA certificate to it. Otherwise you can turn off the server's certificate verification\n# below, but you expose yourself for the MITM attacks. \n# Defaults to false.\n#mail.smtp.starttls.enable=true\n\n# Relevant only if starttls is enabled. Turns off SMTP server certificate verification.\n#mailx.smtp.trustAll=true\n\n# Email address to use for SMTP MAIL command. This sets the envelope return address. \n# Defaults to mail.from defined above.\n#mail.smtp.from=\n\n# If true, attempt to authenticate the user using the AUTH command. Defaults to false.\n#mail.smtp.auth=true\n\n# User and password used when authentication is enabled above.\n#mailx.smtp.auth.username=XX\n#mailx.smtp.auth.password=XX\n\n# I/O timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.timeoutSocket=15000\n\n# Socket connection timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.connectiontimeout=15000\n\n# The SMTP server port to connect to. Defaults to 25.\n#mail.smtp.port=587\n\n# Set this property to true if you want to see debug messages (are printed to the\n# stderr). Default is false.\n#mail.debug=true\n\n# For other (less frequently used) properties of email client configuration\n# take a look at  \n# https://javamail.java.net/nonav/docs/api/\n# and other documentation of javax-mail package.\n",
+        "facilityId" : "EMAIL"
+      }
+    } ],
+    "authenticationRealm" : [ {
+      "_updateTS" : 1666887307144,
+      "obj" : {
+        "description" : null,
+        "name" : "defaultRealm",
+        "rememberMePolicy" : "allowFor2ndFactor",
+        "allowForRememberMeDays" : 14,
+        "blockAfterUnsuccessfulLogins" : 4,
+        "blockFor" : 30,
+        "maxInactivity" : 3600
+      }
+    }, {
+      "_updateTS" : 1666887307169,
+      "obj" : {
+        "description" : null,
+        "name" : "adminRealm",
+        "rememberMePolicy" : "allowFor2ndFactor",
+        "allowForRememberMeDays" : 14,
+        "blockAfterUnsuccessfulLogins" : 4,
+        "blockFor" : 30,
+        "maxInactivity" : 1800
+      }
+    } ],
+    "inputTranslationProfile" : [ ],
+    "outputTranslationProfile" : [ ],
+    "processingRule" : [ ],
+    "endpointDefinition" : [ {
+      "_updateTS" : 1666887307243,
+      "obj" : {
+        "name" : "UNITY SAML web authentication",
+        "typeId" : "SAMLWebIdP",
+        "contextAddress" : "/saml-idp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY SAML web authentication",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "#######################################\n# SAML web IdP SAML endpoint settings\n#######################################\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server. \nunity.saml.issuerURI=http://example-saml-idp.org\n\n# The credential used to sign assertions\nunity.saml.credential=MAIN\n\n#Which group should be used for providing attributes?\nunity.saml.defaultGroup=/portal\n\n# The fundamental setting: clients acceptance policy.\nunity.saml.spAcceptPolicy=validRequester\n\n# Certain acceptance policies require to enumerate allowed clients.\n#unity.saml.acceptedSP.xx.entity=\n#unity.saml.acceptedSP.xx.certificate=\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# This one can be most often leaved unchanged. It controls maximal validity \n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compilant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=20\n\n\n",
+          "realm" : "defaultRealm",
+          "tag" : "/home/unity/unityReleases/unityConf/modules/saml/saml-webidp.properties",
+          "authenticationOptions" : [ "pwd", "cert" ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    }, {
+      "_updateTS" : 1666887308318,
+      "obj" : {
+        "name" : "UNITY SOAP SAML service",
+        "typeId" : "SAMLSoapIdP",
+        "contextAddress" : "/soapidp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY SOAP SAML service",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "#######################################\n# SAML web IdP SAML endpoint settings\n#######################################\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server. \nunity.saml.issuerURI=http://example-saml-idp.org\n\n# The credential used to sign assertions\nunity.saml.credential=MAIN\n\n#Which group should be used for providing attributes?\nunity.saml.defaultGroup=/portal\n\n# The fundamental setting: clients acceptance policy.\nunity.saml.spAcceptPolicy=validRequester\n\n# Certain acceptance policies require to enumerate allowed clients.\n#unity.saml.acceptedSP.xx.entity=\n#unity.saml.acceptedSP.xx.certificate=\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# This one can be most often leaved unchanged. It controls maximal validity \n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compilant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=20\n\n\n",
+          "realm" : "defaultRealm",
+          "tag" : "/home/unity/unityReleases/unityConf/modules/saml/saml-webidp.properties",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    }, {
+      "_updateTS" : 1666887308497,
+      "obj" : {
+        "name" : "UNITY console administration interface",
+        "typeId" : "WebConsoleUI",
+        "contextAddress" : "/console",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY console administration interface",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.enableRegistration=true\nunity.endpoint.web.mainTheme=unityThemeValo\nunity.endpoint.web.authnTheme=unityThemeValo\n",
+          "realm" : "adminRealm",
+          "tag" : "/home/unity/unityReleases/unityConf/modules/core/console.properties",
+          "authenticationOptions" : [ "pwd", "cert" ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    }, {
+      "_updateTS" : 1666887308506,
+      "obj" : {
+        "name" : "Attribute Introspection",
+        "typeId" : "AttributeIntrospection",
+        "contextAddress" : "/introspection",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "Attribute instrospection endpoint",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.showRegistrationFormsInHeader=true\nunity.endpoint.web.productionMode=false\nunity.endpoint.web.mainTheme=unityThemeValo\nunity.endpoint.web.authnTheme=unityThemeValo\n\nunity.endpoint.web.authnScreenShowSearch=false\n\n\nunity.endpoint.web.authnScreenColumn.1.columnContents=oauth saml\nunity.endpoint.web.authnScreenColumn.1.columnWidth=17\n\nunity.attrintrospection.defaultPolicyAttributes.1={\"name\":\"sub\",\"description\":\"subject\",\"mandatory\":true}\n\nunity.attrintrospection.customAttributePolicies.1.policyName=Unity\nunity.attrintrospection.customAttributePolicies.1.targetIdps=https://localhost:2443/oauth2/token\nunity.attrintrospection.customAttributePolicies.1.attributes.1={\"name\":\"sub\",\"description\":\"subject\",\"mandatory\":true}\nunity.attrintrospection.customAttributePolicies.1.attributes.2={\"name\":\"picture\",\"description\":\"picture\",\"mandatory\":false}\nunity.attrintrospection.customAttributePolicies.1.attributes.3={\"name\":\"email\",\"description\":\"email\",\"mandatory\":true}\nunity.attrintrospection.customAttributePolicies.1.targetFederations=\n\n\n",
+          "tag" : "/home/unity/unityReleases/unityConf/modules/core/attrIntro.properties",
+          "authenticationOptions" : [ ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    }, {
+      "_updateTS" : 1666887308551,
+      "obj" : {
+        "name" : "UNITY OAuth2 Authorization Server",
+        "typeId" : "OAuth2Authz",
+        "contextAddress" : "/oauth2-as",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY OAuth2 Authorization Server",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "################################################\n# OAuth2 Authorization Server endpoint settings\n################################################\n\n#Note: this file is configuring both the OAuth web authorization and rest token endpoints. \n\n# Identity of the server. Should be formed from the base path of the token endpoint\nunity.oauth2.as.issuerUri=https://localhost:2443/oauth2\n\n# Credential which is used to sign OIDC tokens\nunity.oauth2.as.signingCredential=MAIN\n\n# A group in which allowed OAuth clients must be present \nunity.oauth2.as.clientsGroup=/oauth-clients\n# A group in which users allowed to use OAuth login must be present \nunity.oauth2.as.usersGroup=/oauth-users\n\n# Output translation profile can be used to change Unity names into OAuth specific names\n# and to perform more advanced preprocessing of a released information.\n#unity.oauth2.as.translationProfile=\n\n\n# Definition of scopes\n\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\n\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.oauth2.as.scopes.2.attributes.1=name\nunity.oauth2.as.scopes.2.attributes.2=organization\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.4=address\nunity.oauth2.as.scopes.2.attributes.5=country\nunity.oauth2.as.scopes.2.attributes.6=postalCode\nunity.oauth2.as.scopes.2.attributes.7=street\nunity.oauth2.as.scopes.2.attributes.8=locality\nunity.oauth2.as.scopes.2.attributes.9=provinceName\nunity.oauth2.as.scopes.2.attributes.10=phone_number\nunity.oauth2.as.scopes.2.attributes.11=zoneinfo\nunity.oauth2.as.scopes.2.attributes.12=picture\nunity.oauth2.as.scopes.2.attributes.13=middle_name\nunity.oauth2.as.scopes.2.attributes.14=given_name\nunity.oauth2.as.scopes.2.attributes.15=family_name\nunity.oauth2.as.scopes.2.attributes.16=profile\nunity.oauth2.as.scopes.2.attributes.17=website\nunity.oauth2.as.scopes.2.attributes.18=gender\nunity.oauth2.as.scopes.2.attributes.19=nickname\nunity.oauth2.as.scopes.2.attributes.20=birthdate\nunity.oauth2.as.scopes.2.attributes.21=locale\nunity.oauth2.as.scopes.2.attributes.22=email_verified\n\nunity.oauth2.as.scopes.3.name=offline_access\n\n",
+          "realm" : "defaultRealm",
+          "tag" : "/home/unity/unityReleases/unityConf/modules/oauth/oauth2-as.properties",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    }, {
+      "_updateTS" : 1666887308594,
+      "obj" : {
+        "name" : "UNITY OAuth2 Token endpoint",
+        "typeId" : "OAuth2Token",
+        "contextAddress" : "/oauth2",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY OAuth2 Token endpoint",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "################################################\n# OAuth2 Authorization Server endpoint settings\n################################################\n\n#Note: this file is configuring both the OAuth web authorization and rest token endpoints. \n\n# Identity of the server. Should be formed from the base path of the token endpoint\nunity.oauth2.as.issuerUri=https://localhost:2443/oauth2\n\n# Credential which is used to sign OIDC tokens\nunity.oauth2.as.signingCredential=MAIN\n\n# A group in which allowed OAuth clients must be present \nunity.oauth2.as.clientsGroup=/oauth-clients\n# A group in which users allowed to use OAuth login must be present \nunity.oauth2.as.usersGroup=/oauth-users\n\n# Output translation profile can be used to change Unity names into OAuth specific names\n# and to perform more advanced preprocessing of a released information.\n#unity.oauth2.as.translationProfile=\n\n\n# Definition of scopes\n\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\n\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.oauth2.as.scopes.2.attributes.1=name\nunity.oauth2.as.scopes.2.attributes.2=organization\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.4=address\nunity.oauth2.as.scopes.2.attributes.5=country\nunity.oauth2.as.scopes.2.attributes.6=postalCode\nunity.oauth2.as.scopes.2.attributes.7=street\nunity.oauth2.as.scopes.2.attributes.8=locality\nunity.oauth2.as.scopes.2.attributes.9=provinceName\nunity.oauth2.as.scopes.2.attributes.10=phone_number\nunity.oauth2.as.scopes.2.attributes.11=zoneinfo\nunity.oauth2.as.scopes.2.attributes.12=picture\nunity.oauth2.as.scopes.2.attributes.13=middle_name\nunity.oauth2.as.scopes.2.attributes.14=given_name\nunity.oauth2.as.scopes.2.attributes.15=family_name\nunity.oauth2.as.scopes.2.attributes.16=profile\nunity.oauth2.as.scopes.2.attributes.17=website\nunity.oauth2.as.scopes.2.attributes.18=gender\nunity.oauth2.as.scopes.2.attributes.19=nickname\nunity.oauth2.as.scopes.2.attributes.20=birthdate\nunity.oauth2.as.scopes.2.attributes.21=locale\nunity.oauth2.as.scopes.2.attributes.22=email_verified\n\nunity.oauth2.as.scopes.3.name=offline_access\n\n",
+          "realm" : "defaultRealm",
+          "tag" : "/home/unity/unityReleases/unityConf/modules/oauth/oauth2-as.properties",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    }, {
+      "_updateTS" : 1666887308763,
+      "obj" : {
+        "name" : "RESTful administration API",
+        "typeId" : "RESTAdmin",
+        "contextAddress" : "/rest-admin",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "RESTful administration API",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "",
+          "realm" : "defaultRealm",
+          "tag" : "/home/unity/unityReleases/unityConf/authenticators/empty.json",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    }, {
+      "_updateTS" : 1666887308848,
+      "obj" : {
+        "name" : "UNITY project management",
+        "typeId" : "UpManUI",
+        "contextAddress" : "/upman",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY project management",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.enableRegistration=false\nunity.endpoint.web.mainTheme=unityThemeValo\nunity.endpoint.web.authnTheme=unityThemeValo\n",
+          "realm" : "defaultRealm",
+          "tag" : "/home/unity/unityReleases/unityConf/modules/core/upman.properties",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    }, {
+      "_updateTS" : 1666887308884,
+      "obj" : {
+        "name" : "UNITY user's account",
+        "typeId" : "UserHomeUI",
+        "contextAddress" : "/home",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY user's account",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.enableRegistration=true\n\n#unity.userhome.selfRemovalMode=remove\n#unity.userhome.disableSelfRemovalScheduling=false\n\nunity.userhome.attributes.1.attribute=cn\nunity.userhome.attributes.1.group=/\nunity.userhome.attributes.1.showGroup=false\nunity.userhome.attributes.1.editable=true\n\nunity.userhome.attributes.2.attribute=email\nunity.userhome.attributes.2.group=/\nunity.userhome.attributes.2.showGroup=false\nunity.userhome.attributes.2.editable=true\n\nunity.userhome.attributes.3.attribute=o\nunity.userhome.attributes.3.group=/\nunity.userhome.attributes.3.showGroup=false\nunity.userhome.attributes.3.editable=true\n\nunity.userhome.attributes.4.attribute=jpegPhoto\nunity.userhome.attributes.4.group=/\nunity.userhome.attributes.4.showGroup=false\nunity.userhome.attributes.4.editable=true\n\n#unity.userhome.attributes.4.attribute=\n#unity.userhome.attributes.4.group=/\n#unity.userhome.attributes.4.showGroup=true\n#unity.userhome.attributes.4.editable=true\n\n#unity.userhome.disabledComponents.1=credential\n#unity.userhome.disabledComponents.2=userDetails\n#unity.userhome.disabledComponents.3=preferences\n#unity.userhome.disabledComponents.4=accountRemoval\n#unity.userhome.disabledComponents.5=userInfo\n#unity.userhome.disabledComponents.6=attributesManagement\n",
+          "realm" : "defaultRealm",
+          "tag" : "/home/unity/unityReleases/unityConf/modules/core/userhome.properties",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    }, {
+      "_updateTS" : 1666887308891,
+      "obj" : {
+        "name" : "Account service",
+        "typeId" : "WellKnownLinksHandler",
+        "contextAddress" : "/well-known",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "Account service",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "",
+          "realm" : "defaultRealm",
+          "tag" : "/home/unity/unityReleases/unityConf/authenticators/empty.json",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0,
+        "status" : "DEPLOYED"
+      }
+    } ],
+    "registrationForm" : [ ],
+    "enquiryForm" : [ ],
+    "registrationRequest" : [ ],
+    "enquiryResponse" : [ ],
+    "invitationWithCode" : [ ],
+    "authenticationFlow" : [ ],
+    "certificate" : [ {
+      "_updateTS" : 1666887301293,
+      "obj" : {
+        "name" : "MAIN",
+        "value" : "-----BEGIN CERTIFICATE-----\nMIIDczCCAlugAwIBAgIJAPm9oVHHE5xCMA0GCSqGSIb3DQEBCwUAMDoxCzAJBgNV\nBAYTAkVVMQ4wDAYDVQQKDAVVbml0eTEbMBkGA1UEAwwSVW5pdHkgTG93IFRydXN0\nIENBMB4XDTE5MTExMTIwMDEyMloXDTI0MTEwOTIwMDEyMlowSTELMAkGA1UEBhMC\nRVUxDzANBgNVBAcMBldhcnNhdzEOMAwGA1UECgwFVW5pdHkxGTAXBgNVBAMMEGRl\ndi51bml0eS1pZG0uZXUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4\n+A50ZBvh+Fb77OoMxVyi9vEkLBrENZVZtLWgURF6qAiHSUedPQCX22797uBIa6L3\ntj2mqsbmJhvjrESy6yMpIMekVaux8AP1N8Sseru/vIoB0OVx/x3+gLXJz+7azfxo\n/VYgpX8+r2lQU66S99c7DUs+V9EpTDJ0GU+UBX0nBAnul3zbSGFJbUIpF9JHVUkX\ngsDC426Ih2T3goUA2YFo+vjxoX4GH7wM1uDQkAS97EwEe2Frbhl3z/bZuLdXyN79\nXFuSANWY5G2+3C+RT8K1Y8zOG8Wse1fnS021Gssq08Cdacawf6xqX8Jtvjua4XZ7\ntA2lXbi/5kYHkr9bMsatAgMBAAGjbTBrMAkGA1UdEwQCMAAwEQYJYIZIAYb4QgEB\nBAQDAgTwMAsGA1UdDwQEAwIE8DAdBgNVHQ4EFgQURDXb1Zb4tRYoAaqdPhKhCRXd\neyswHwYDVR0jBBgwFoAUZt7NHNaS2qdSukbwJHs+DHIHwBYwDQYJKoZIhvcNAQEL\nBQADggEBAEDk50YrlLb55xERDACB3S1SUNTLZgErbX/ELPxMIjVsHmTXZmtPK/tJ\nJ5U1t2CR7utc56a2Ml8WGujB7X0AIIlJy/lYJj7CCKEplpwD4hTCFH2e23+6rR8e\nNd0rjd7ygGp9Os98PLJgeyY/XbnNDGXP0+iLGiAWtcXr2u9+V8vSHJEdEsf+KoPQ\nijQzJYesv2ktL5W7+ZYcjhi8Ok/w1jPti0zdyKGcWe5CE8Gd/enJReFZw6gCJ1ze\n0sF6In9E/KthinC4n77u1OnyLv5sQq42JM+uTvzewYLZ4jwnvF7SbdCK/yOhxMwE\nGGcvHMMqgbnisTrHb0qbLKf9JA707aw=\n-----END CERTIFICATE-----\n"
+      }
+    } ]
+  }
+}

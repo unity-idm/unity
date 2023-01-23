@@ -74,7 +74,7 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(aTypeSupport, preferencesMan, idpEngine, 
-				freemarker, sessionMan, enquiryManagement, policyAgreementsMan, msg, idpStatisticReporterFactory, 
+				freemarker, sessionMan, enquiryManagement, policyAgreementsMan, idpStatisticReporterFactory, 
 				lastAccessAttributeManagement);
 	}
 	

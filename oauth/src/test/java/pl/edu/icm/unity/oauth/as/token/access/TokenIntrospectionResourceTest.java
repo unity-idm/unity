@@ -7,9 +7,7 @@ package pl.edu.icm.unity.oauth.as.token.access;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 import java.util.Date;
@@ -21,8 +19,6 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.springframework.context.ApplicationEventPublisher;
 
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ResponseType;
@@ -37,7 +33,6 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.oauth.as.MockPKIMan;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
@@ -45,10 +40,8 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.TestTxRunner;
-import pl.edu.icm.unity.oauth.as.token.introspection.LocalTokenIntrospectionService;
-import pl.edu.icm.unity.oauth.as.token.introspection.RemoteTokenIntrospectionService;
+import pl.edu.icm.unity.oauth.as.token.introspection.MockTokenIntrospectionFactory;
 import pl.edu.icm.unity.oauth.as.token.introspection.TokenIntrospectionResource;
-import pl.edu.icm.unity.rest.jwt.JWTUtils;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
@@ -56,32 +49,6 @@ import pl.edu.icm.unity.types.authn.RememberMePolicy;
 public class TokenIntrospectionResourceTest
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TokenIntrospectionResourceTest.class);
-
-	@Test
-	public void shouldRedirectToRemoteService() throws Exception
-	{
-		RemoteTokenIntrospectionService remoteTokenIntrospectionService = mock(RemoteTokenIntrospectionService.class);
-		TokenIntrospectionResource res = new TokenIntrospectionResource(remoteTokenIntrospectionService, null,
-				OAuthTestUtils.ISSUER);
-		SignedJWT jwts = SignedJWT.parse(
-				JWTUtils.generate(new MockPKIMan().getCredential("MAIN"), new JWTClaimsSet.Builder().issuer("rem")
-						.build()));
-		res.introspectToken(jwts.serialize());
-		verify(remoteTokenIntrospectionService).processRemoteIntrospection(any());
-	}
-	
-	@Test
-	public void shouldIntrospectByLocalService() throws Exception
-	{
-		LocalTokenIntrospectionService localTokenIntrospectionService = mock(LocalTokenIntrospectionService.class);
-		TokenIntrospectionResource res = new TokenIntrospectionResource(null, localTokenIntrospectionService,
-				OAuthTestUtils.ISSUER);
-		SignedJWT jwts = SignedJWT.parse(
-				JWTUtils.generate(new MockPKIMan().getCredential("MAIN"), new JWTClaimsSet.Builder().issuer(OAuthTestUtils.ISSUER)
-						.build()));
-		res.introspectToken(jwts.serialize());
-		verify(localTokenIntrospectionService).processLocalIntrospection(any());
-	}
 
 	@Test
 	public void shouldReturnInfoOnValidLocalRefreshToken() throws Exception
@@ -130,7 +97,7 @@ public class TokenIntrospectionResourceTest
 		httpResp.setContentType("application/json");
 		OIDCTokenResponse tokensResponse = OIDCTokenResponse.parse(httpResp);
 
-		TokenIntrospectionResource tested = createIntrospectionResource(tokensManagement);
+		TokenIntrospectionResource tested = MockTokenIntrospectionFactory.createIntrospectionResource(tokensManagement);
 		Response r = tested.introspectToken(tokensResponse.getTokens()
 				.getRefreshToken()
 				.getValue());
@@ -159,18 +126,5 @@ public class TokenIntrospectionResourceTest
 		virtualAdmin.setLoginSession(loginSession);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);
-	}
-
-	private TokenIntrospectionResource createIntrospectionResource(TokensManagement tokensManagement)
-	{
-		RemoteTokenIntrospectionService remoteTokenIntrospectionService = mock(RemoteTokenIntrospectionService.class);
-		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement,
-				mock(SecuredTokensManagement.class));
-		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement,
-				mock(SecuredTokensManagement.class));
-
-		return new TokenIntrospectionResource(remoteTokenIntrospectionService,
-				new LocalTokenIntrospectionService(accessTokenRepository, refreshTokenRepository),
-				OAuthTestUtils.ISSUER);
 	}
 }
