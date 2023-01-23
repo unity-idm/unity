@@ -6,6 +6,7 @@
 package io.imunity.rest.api.types.registration.invite;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,18 +32,23 @@ public class RestFormPrefill
 	{
 		this.formId = builder.formId;
 		this.identities = Optional.ofNullable(builder.identities)
+				.map(HashMap::new)
 				.map(Collections::unmodifiableMap)
 				.orElse(null);
 		this.groupSelections = Optional.ofNullable(builder.groupSelections)
+				.map(HashMap::new)
 				.map(Collections::unmodifiableMap)
 				.orElse(null);
 		this.allowedGroups = Optional.ofNullable(builder.allowedGroups)
+				.map(HashMap::new)
 				.map(Collections::unmodifiableMap)
 				.orElse(null);
 		this.attributes = Optional.ofNullable(builder.attributes)
+				.map(HashMap::new)
 				.map(Collections::unmodifiableMap)
 				.orElse(null);
 		this.messageParams = Optional.ofNullable(builder.messageParams)
+				.map(HashMap::new)
 				.map(Collections::unmodifiableMap)
 				.orElse(null);
 	}

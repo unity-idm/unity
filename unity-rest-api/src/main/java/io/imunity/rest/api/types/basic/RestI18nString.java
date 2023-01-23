@@ -6,6 +6,7 @@
 package io.imunity.rest.api.types.basic;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class RestI18nString
 	private RestI18nString(Builder builder)
 	{
 		this.values = Optional.ofNullable(builder.values)
+				.map(HashMap::new)
 				.map(Collections::unmodifiableMap)
 				.orElse(null);
 		this.defaultValue = builder.defaultValue;
@@ -67,6 +69,7 @@ public class RestI18nString
 		public Builder withValues(Map<String, String> values)
 		{
 			this.values = Optional.ofNullable(values)
+					.map(HashMap::new)
 					.map(Collections::unmodifiableMap)
 					.orElse(null);
 			return this;

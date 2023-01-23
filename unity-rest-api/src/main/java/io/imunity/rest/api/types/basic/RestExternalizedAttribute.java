@@ -4,6 +4,7 @@
  */
 package io.imunity.rest.api.types.basic;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -37,11 +38,13 @@ public class RestExternalizedAttribute
 		this.valueSyntax = builder.valueSyntax;
 		this.groupPath = builder.groupPath;
 		this.values = Optional.ofNullable(builder.values)
+				.map(ArrayList::new)
 				.map(Collections::unmodifiableList)
 				.orElse(null);
 		this.translationProfile = builder.translationProfile;
 		this.remoteIdp = builder.remoteIdp;
 		this.simpleValues = Optional.ofNullable(builder.simpleValues)
+				.map(ArrayList::new)
 				.map(Collections::unmodifiableList)
 				.orElse(null);
 	}
@@ -132,6 +135,7 @@ public class RestExternalizedAttribute
 		public Builder withValues(List<String> values)
 		{
 			this.values = Optional.ofNullable(values)
+					.map(ArrayList::new)
 					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return this;
@@ -152,6 +156,7 @@ public class RestExternalizedAttribute
 		public Builder withSimpleValues(List<String> simpleValues)
 		{
 			this.simpleValues = Optional.ofNullable(simpleValues)
+					.map(ArrayList::new)
 					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return this;
