@@ -5,6 +5,8 @@
 
 package io.imunity.rest.api.types.endpoint;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,7 +32,8 @@ public class RestEndpointConfiguration
 		this.displayedName = builder.displayedName;
 		this.description = builder.description;
 		this.authenticationOptions = Optional.ofNullable(builder.authenticationOptions)
-				.map(List::copyOf)
+				.map(ArrayList::new)
+				.map(Collections::unmodifiableList)
 				.orElse(null);
 		this.configuration = builder.configuration;
 		this.realm = builder.realm;
@@ -92,7 +95,8 @@ public class RestEndpointConfiguration
 		public Builder withAuthenticationOptions(List<String> authenticationOptions)
 		{
 			this.authenticationOptions = Optional.ofNullable(authenticationOptions)
-					.map(List::copyOf)
+					.map(ArrayList::new)
+					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return this;
 		}

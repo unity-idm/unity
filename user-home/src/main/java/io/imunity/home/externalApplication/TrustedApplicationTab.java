@@ -247,7 +247,7 @@ public class TrustedApplicationTab extends CustomComponent
 				header.setExpandRatio(logoI, 0);
 			}
 
-			Label appName = new Label(application.applicationName);
+			Label appName = new Label(application.applicationName.orElse(msg.getMessage("TrustedApplications.unknownApplication")));
 			appName.setStyleName(Styles.textLarge.toString());
 			appName.addStyleName(Styles.bold.toString());
 			header.addComponent(appName);

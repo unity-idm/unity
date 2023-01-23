@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.authn;
 
+import java.util.Objects;
+
 /**
  * Describes expected identity
  * 
@@ -25,6 +27,27 @@ public class ExpectedIdentity
 		this.identity = identity;
 		this.expectation = expectation;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(expectation, identity);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ExpectedIdentity other = (ExpectedIdentity) obj;
+		return expectation == other.expectation && Objects.equals(identity, other.identity);
+	}
+
+
 
 	//for JSON
 	protected ExpectedIdentity()

@@ -5,6 +5,7 @@
 
 package io.imunity.rest.api.types.translation;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +23,8 @@ public class RestTranslationAction
 	{
 		this.name = builder.name;
 		this.parameters = Optional.ofNullable(builder.parameters)
-				.map(List::copyOf)
+				.map(ArrayList::new)
+				.map(Collections::unmodifiableList)
 				.orElse(null);
 	}
 
@@ -68,7 +70,8 @@ public class RestTranslationAction
 		public Builder withParameters(List<String> parameters)
 		{
 			this.parameters = Optional.ofNullable(parameters)
-					.map(List::copyOf)
+					.map(ArrayList::new)
+					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return this;
 		}

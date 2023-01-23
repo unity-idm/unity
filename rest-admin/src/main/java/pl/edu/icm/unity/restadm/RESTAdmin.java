@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -58,6 +59,9 @@ import io.imunity.rest.api.types.basic.RestGroup;
 import io.imunity.rest.api.types.basic.RestToken;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
+import io.imunity.rest.api.types.registration.invite.RestEnquiryInvitationParam;
+import io.imunity.rest.api.types.registration.invite.RestInvitationParam;
+import io.imunity.rest.api.types.registration.invite.RestRegistrationInvitationParam;
 import io.imunity.rest.api.types.translation.RestTranslationRule;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
@@ -98,9 +102,13 @@ import pl.edu.icm.unity.restadm.mappers.GroupMembershipMapper;
 import pl.edu.icm.unity.restadm.mappers.TokenMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.EndpointConfigurationMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.ResolvedEndpointMapper;
+import pl.edu.icm.unity.restadm.mappers.idp.statistic.GroupedIdpStatisticMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.RegistrationFormMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.RegistrationRequestStateMapper;
+import pl.edu.icm.unity.restadm.mappers.registration.invite.InvitationParamMapper;
+import pl.edu.icm.unity.restadm.mappers.registration.invite.InvitationWithCodeMapper;
 import pl.edu.icm.unity.restadm.mappers.translation.TranslationRuleMapper;
+import pl.edu.icm.unity.restadm.mappers.userimport.ImportResultMapper;
 import pl.edu.icm.unity.restadm.token.Token2JsonFormatter;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -120,11 +128,8 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 /**
  * RESTful API implementation.
@@ -977,7 +982,7 @@ public class RESTAdmin implements RESTAdminHandler
 	public String getInvitations() throws EngineException, JsonProcessingException
 	{
 		List<InvitationWithCode> invitations = invitationMan.getInvitations();
-		return mapper.writeValueAsString(invitations);
+		return mapper.writeValueAsString(invitations.stream().map(InvitationWithCodeMapper::map).collect(Collectors.toList()));
 	}
 
 	@Path("/invitation/{code}")
@@ -985,7 +990,7 @@ public class RESTAdmin implements RESTAdminHandler
 	public String getInvitation(@PathParam("code") String code) throws EngineException, JsonProcessingException
 	{
 		InvitationWithCode invitation = invitationMan.getInvitation(code);
-		return mapper.writeValueAsString(invitation);
+		return mapper.writeValueAsString(InvitationWithCodeMapper.map(invitation));
 	}
 	
 	@Path("/invitation/{code}")
@@ -1008,8 +1013,8 @@ public class RESTAdmin implements RESTAdminHandler
 	@Produces(MediaType.TEXT_PLAIN)
 	public String addInvitation(String jsonInvitation) throws EngineException, IOException
 	{	
-		InvitationParam invitationParam = getInvitationFromJson(jsonInvitation);
-		return invitationMan.addInvitation(invitationParam);
+		RestInvitationParam invitationParam = getInvitationFromJson(jsonInvitation);
+		return invitationMan.addInvitation(InvitationParamMapper.map(invitationParam));
 	}
 	
 	@Path("/invitation/{code}")
@@ -1017,11 +1022,11 @@ public class RESTAdmin implements RESTAdminHandler
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updateInvitation(@PathParam("code") String code, String jsonInvitation) throws EngineException, IOException
 	{
-		InvitationParam invitationParam = getInvitationFromJson(jsonInvitation);
-		invitationMan.updateInvitation(code, invitationParam);
+		RestInvitationParam invitationParam = getInvitationFromJson(jsonInvitation);
+		invitationMan.updateInvitation(code, InvitationParamMapper.map(invitationParam));
 	}	
 	
-	private InvitationParam getInvitationFromJson(String jsonInvitation) throws WrongArgumentException
+	private RestInvitationParam getInvitationFromJson(String jsonInvitation) throws WrongArgumentException, JsonMappingException, JsonProcessingException
 	{
 		ObjectNode invNode = JsonUtil.parse(jsonInvitation);
 		JsonNode itype = invNode.get("type");
@@ -1037,10 +1042,10 @@ public class RESTAdmin implements RESTAdminHandler
 
 		if (type.equals(InvitationType.REGISTRATION))
 		{
-			return new RegistrationInvitationParam(invNode);
+			return mapper.readValue(jsonInvitation, RestRegistrationInvitationParam.class);
 		} else
 		{
-			return new EnquiryInvitationParam(invNode);
+			return mapper.readValue(jsonInvitation, RestEnquiryInvitationParam.class);
 		}
 	}
 	
@@ -1085,7 +1090,9 @@ public class RESTAdmin implements RESTAdminHandler
 				new UserImportSpec(importer, identity, identityType);
 		List<ImportResult> importUser = userImportManagement.importUser(
 				Lists.newArrayList(param));
-		return mapper.writeValueAsString(importUser);
+		return mapper.writeValueAsString(importUser.stream()
+				.map(ImportResultMapper::map)
+				.collect(Collectors.toList()));
 	}
 	
 	@Path("/triggerEvent/{eventName}")
@@ -1150,8 +1157,12 @@ public class RESTAdmin implements RESTAdminHandler
 		GroupBy groupByFallbackToTotal = groupBy != null ? GroupBy.valueOf(groupBy) : GroupBy.none;
 		if (skipZeroRecords == null)
 			skipZeroRecords = true;
-		return mapper.writeValueAsString(idpStatisticManagement.getIdpStatisticsSinceGroupBy(sinceDate,
-				groupByFallbackToTotal, IdpStatisticManagement.DEFAULT_SIG_IN_RECORD_LIMIT, skipZeroRecords));
+		return mapper.writeValueAsString(idpStatisticManagement
+				.getIdpStatisticsSinceGroupBy(sinceDate, groupByFallbackToTotal,
+						IdpStatisticManagement.DEFAULT_SIG_IN_RECORD_LIMIT, skipZeroRecords)
+				.stream()
+				.map(GroupedIdpStatisticMapper::map)
+				.collect(Collectors.toList()));
 	}
 
 	/**
