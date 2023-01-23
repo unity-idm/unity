@@ -5,6 +5,7 @@
 
 package io.imunity.rest.api.types.registration;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +37,7 @@ public abstract class RestUserRequestState<T extends RestBaseRegistrationInput>
 		this.request = builder.request;
 		this.registrationContext = builder.registrationContext;
 		this.adminComments = Optional.ofNullable(builder.adminComments)
+				.map(ArrayList::new)
 				.map(Collections::unmodifiableList)
 				.orElse(null);
 		this.status = builder.status;
@@ -114,6 +116,7 @@ public abstract class RestUserRequestState<T extends RestBaseRegistrationInput>
 		public S withAdminComments(List<RestAdminComment> adminComments)
 		{
 			this.adminComments = Optional.ofNullable(adminComments)
+					.map(ArrayList::new)
 					.map(Collections::unmodifiableList)
 					.orElse(null);
 			return (S) this;
