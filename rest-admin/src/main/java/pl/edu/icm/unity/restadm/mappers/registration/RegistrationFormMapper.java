@@ -15,6 +15,8 @@ import pl.edu.icm.unity.restadm.mappers.policyAgreement.PolicyAgreementConfigura
 import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutSettingsMapper;
 import pl.edu.icm.unity.restadm.mappers.translation.TranslationProfileMapper;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
+import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
@@ -212,10 +214,10 @@ public class RegistrationFormMapper
 						.orElse(new I18nString()))
 				.withExternalGridSignupSpec(Optional.ofNullable(restRegistrationForm.externalSignupGridSpec)
 						.map(ExternalSignupGridSpecMapper::map)
-						.orElse(null))
+						.orElse(new ExternalSignupGridSpec()))
 				.withExternalSignupSpec(Optional.ofNullable(restRegistrationForm.externalSignupSpec)
 						.map(ExternalSignupSpecMapper::map)
-						.orElse(null))
+						.orElse(new ExternalSignupSpec()))
 				.withShowGotoSignIn(restRegistrationForm.showSignInLink, restRegistrationForm.signInLink)
 				.withSwitchToEnquiryInfo(Optional.ofNullable(restRegistrationForm.switchToEnquiryInfo)
 						.map(I18nStringMapper::map)
