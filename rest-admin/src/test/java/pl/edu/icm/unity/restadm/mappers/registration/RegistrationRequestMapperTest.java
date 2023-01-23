@@ -36,7 +36,7 @@ public class RegistrationRequestMapperTest extends MapperTestBase<RegistrationRe
 {
 
 	@Override
-	protected RegistrationRequest getAPIObject()
+	protected RegistrationRequest getFullAPIObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");
@@ -75,7 +75,7 @@ public class RegistrationRequestMapperTest extends MapperTestBase<RegistrationRe
 	}
 
 	@Override
-	protected RestRegistrationRequest getRestObject()
+	protected RestRegistrationRequest getFullRestObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");

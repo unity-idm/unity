@@ -22,14 +22,14 @@ public class ExternalSignupGridSpecMapperTest extends MapperTestBase<ExternalSig
 {
 
 	@Override
-	protected ExternalSignupGridSpec getAPIObject()
+	protected ExternalSignupGridSpec getFullAPIObject()
 	{
 		return new ExternalSignupGridSpec(List.of(new AuthenticationOptionsSelector("key", "option")),
 				new AuthnGridSettings(true, 1));
 	}
 
 	@Override
-	protected RestExternalSignupGridSpec getRestObject()
+	protected RestExternalSignupGridSpec getFullRestObject()
 	{
 		return RestExternalSignupGridSpec.builder()
 				.withSpecs(List.of(RestAuthenticationOptionsSelector.builder()

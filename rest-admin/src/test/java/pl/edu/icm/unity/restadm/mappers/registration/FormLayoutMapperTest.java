@@ -23,13 +23,13 @@ public class FormLayoutMapperTest extends MapperTestBase<FormLayout, RestFormLay
 {
 
 	@Override
-	protected FormLayout getAPIObject()
+	protected FormLayout getFullAPIObject()
 	{
 		return new FormLayout(List.of(new BasicFormElement(FormLayoutElement.REG_CODE)));
 	}
 
 	@Override
-	protected RestFormLayout getRestObject()
+	protected RestFormLayout getFullRestObject()
 	{
 		return RestFormLayout.builder()
 				.withElements(List.of(RestBasicFormElement.builder()

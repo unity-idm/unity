@@ -18,13 +18,13 @@ public class GroupSelectionMapperTest extends MapperTestBase<GroupSelection, Res
 {
 
 	@Override
-	protected GroupSelection getAPIObject()
+	protected GroupSelection getFullAPIObject()
 	{
 		return new GroupSelection(List.of("/g1", "/g2"), "externalIdp", "Profile");
 	}
 
 	@Override
-	protected RestGroupSelection getRestObject()
+	protected RestGroupSelection getFullRestObject()
 	{
 		return RestGroupSelection.builder()
 				.withExternalIdp("externalIdp")

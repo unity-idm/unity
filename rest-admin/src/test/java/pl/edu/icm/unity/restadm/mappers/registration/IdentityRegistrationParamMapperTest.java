@@ -23,7 +23,7 @@ public class IdentityRegistrationParamMapperTest
 {
 
 	@Override
-	protected IdentityRegistrationParam getAPIObject()
+	protected IdentityRegistrationParam getFullAPIObject()
 	{
 		IdentityRegistrationParam identityRegistrationParam = new IdentityRegistrationParam();
 		identityRegistrationParam.setConfirmationMode(ConfirmationMode.CONFIRMED);
@@ -37,7 +37,7 @@ public class IdentityRegistrationParamMapperTest
 	}
 
 	@Override
-	protected RestIdentityRegistrationParam getRestObject()
+	protected RestIdentityRegistrationParam getFullRestObject()
 	{
 		return RestIdentityRegistrationParam.builder()
 				.withConfirmationMode("CONFIRMED")

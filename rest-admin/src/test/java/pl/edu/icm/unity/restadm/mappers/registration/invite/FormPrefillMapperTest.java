@@ -21,7 +21,7 @@ import io.imunity.rest.api.types.registration.RestGroupSelection;
 import io.imunity.rest.api.types.registration.invite.RestFormPrefill;
 import io.imunity.rest.api.types.registration.invite.RestPrefilledEntry;
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
+import pl.edu.icm.unity.restadm.mappers.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
@@ -30,11 +30,11 @@ import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
-public class FormPrefillMapperTest extends MapperTestBase<FormPrefill, RestFormPrefill>
+public class FormPrefillMapperTest extends MapperWithMinimalTestBase<FormPrefill, RestFormPrefill>
 {
 
 	@Override
-	protected FormPrefill getAPIObject()
+	protected FormPrefill getFullAPIObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");
@@ -67,7 +67,7 @@ public class FormPrefillMapperTest extends MapperTestBase<FormPrefill, RestFormP
 	}
 
 	@Override
-	protected RestFormPrefill getRestObject()
+	protected RestFormPrefill getFullRestObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");
@@ -121,11 +121,26 @@ public class FormPrefillMapperTest extends MapperTestBase<FormPrefill, RestFormP
 				.build();
 
 	}
+	
+	@Override
+	protected FormPrefill getMinAPIObject()
+	{
+		
+		return  new FormPrefill("form", null);
+	}
+
+	@Override
+	protected RestFormPrefill getMinRestObject()
+	{
+		return RestFormPrefill.builder().withFormId("form").build();
+	}
 
 	@Override
 	protected Pair<Function<FormPrefill, RestFormPrefill>, Function<RestFormPrefill, FormPrefill>> getMapper()
 	{
 		return Pair.of(FormPrefillMapper::map, FormPrefillMapper::map);
 	}
+
+	
 
 }

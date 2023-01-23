@@ -5,10 +5,13 @@
 
 package pl.edu.icm.unity.restadm.mappers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
 
 import io.imunity.rest.api.types.basic.RestAttributeType;
 import io.imunity.rest.api.types.basic.RestI18nString;
@@ -16,11 +19,11 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
-public class AttributeTypeMapperTest extends MapperTestBase<AttributeType, RestAttributeType>
+public class AttributeTypeMapperTest extends MapperWithMinimalTestBase<AttributeType, RestAttributeType>
 {
 
 	@Override
-	protected AttributeType getAPIObject()
+	protected AttributeType getFullAPIObject()
 	{
 		AttributeType attributeType = new AttributeType("name", "string");
 		attributeType.setDescription(new I18nString("desc"));
@@ -37,7 +40,7 @@ public class AttributeTypeMapperTest extends MapperTestBase<AttributeType, RestA
 	}
 
 	@Override
-	protected RestAttributeType getRestObject()
+	protected RestAttributeType getFullRestObject()
 	{
 		return RestAttributeType.builder()
 				.withName("name")
@@ -60,9 +63,41 @@ public class AttributeTypeMapperTest extends MapperTestBase<AttributeType, RestA
 	}
 
 	@Override
+	protected AttributeType getMinAPIObject()
+	{
+
+		AttributeType type = new AttributeType("name", "string");
+		type.setDescription(new I18nString());
+		return type;
+	}
+
+	@Override
+	protected RestAttributeType getMinRestObject()
+	{
+		return RestAttributeType.builder()
+				.withName("name")
+				.withSyntaxId("string")
+				.withMaxElements(1)
+				.build();
+	}
+
+	@Test
+	public void shouldSupportStringDescription()
+	{
+		RestAttributeType type = RestAttributeType.builder()
+				.withName("name")
+				.withSyntaxId("string")
+				.withDescription("desc")
+				.withMaxElements(1)
+				.build();
+		AttributeType map = AttributeTypeMapper.map(type);
+		assertThat(map.getDescription()
+				.getDefaultValue()).isEqualTo("desc");
+	}
+
+	@Override
 	protected Pair<Function<AttributeType, RestAttributeType>, Function<RestAttributeType, AttributeType>> getMapper()
 	{
 		return Pair.of(AttributeTypeMapper::map, AttributeTypeMapper::map);
 	}
-
 }

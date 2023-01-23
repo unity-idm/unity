@@ -23,13 +23,13 @@ public class PrefilledEntryMapperTest
 {
 
 	@Override
-	protected PrefilledEntry<GroupSelection> getAPIObject()
+	protected PrefilledEntry<GroupSelection> getFullAPIObject()
 	{
 		return new PrefilledEntry<GroupSelection>(new GroupSelection(List.of("/g1")), PrefilledEntryMode.HIDDEN);
 	}
 
 	@Override
-	protected RestPrefilledEntry<RestGroupSelection> getRestObject()
+	protected RestPrefilledEntry<RestGroupSelection> getFullRestObject()
 	{
 		return new RestPrefilledEntry.Builder<RestGroupSelection>().withEntry(RestGroupSelection.builder()
 				.withSelectedGroups(List.of("/g1"))

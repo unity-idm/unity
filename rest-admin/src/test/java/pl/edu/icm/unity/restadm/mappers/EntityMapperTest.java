@@ -29,7 +29,7 @@ public class EntityMapperTest extends MapperTestBase<Entity, RestEntity>
 {
 
 	@Override
-	protected Entity getAPIObject()
+	protected Entity getFullAPIObject()
 	{
 		Identity id = new Identity("email", "email@email.com", 0, "email@email.com");
 		id.setCreationTs(new Date(1));
@@ -40,7 +40,7 @@ public class EntityMapperTest extends MapperTestBase<Entity, RestEntity>
 	}
 
 	@Override
-	protected RestEntity getRestObject()
+	protected RestEntity getFullRestObject()
 	{
 		return RestEntity.builder()
 				.withIdentities(List.of(RestIdentity.builder()

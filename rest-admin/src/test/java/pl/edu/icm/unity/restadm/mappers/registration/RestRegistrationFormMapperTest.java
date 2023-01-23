@@ -5,10 +5,13 @@
 
 package pl.edu.icm.unity.restadm.mappers.registration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
 
 import io.imunity.rest.api.types.authn.RestAuthenticationOptionsSelector;
 import io.imunity.rest.api.types.basic.RestI18nString;
@@ -40,7 +43,7 @@ import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
-import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
+import pl.edu.icm.unity.restadm.mappers.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
@@ -49,13 +52,13 @@ import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
+import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec.AuthnGridSettings;
 import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
-import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec.AuthnGridSettings;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
@@ -70,11 +73,11 @@ import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
-public class RestRegistrationFormMapperTest extends MapperTestBase<RegistrationForm, RestRegistrationForm>
+public class RestRegistrationFormMapperTest extends MapperWithMinimalTestBase<RegistrationForm, RestRegistrationForm>
 {
 
 	@Override
-	protected RegistrationForm getAPIObject()
+	protected RegistrationForm getFullAPIObject()
 	{
 		FormLayout formLayout = new FormLayout(List.of(new BasicFormElement(FormLayoutElement.REG_CODE),
 				new FormCaptionElement(new I18nString("value")),
@@ -125,7 +128,6 @@ public class RestRegistrationFormMapperTest extends MapperTestBase<RegistrationF
 				.withRegistrationCode("123")
 				.withCollectComments(true)
 				.withDisplayedName(new I18nString("displayedName"))
-				.withFormInformation(new I18nString("formInfo"))
 				.withPageTitle(new I18nString("pageTitle"))
 				.withFormLayoutSettings(new FormLayoutSettings(true, 50, "em", true, "logoUrl"))
 				.withWrapUpConfig(List.of(new RegistrationWrapUpConfig(TriggeringState.AUTO_ACCEPTED)))
@@ -151,7 +153,7 @@ public class RestRegistrationFormMapperTest extends MapperTestBase<RegistrationF
 	}
 
 	@Override
-	protected RestRegistrationForm getRestObject()
+	protected RestRegistrationForm getFullRestObject()
 	{
 		return RestRegistrationForm.builder()
 				.withName("f1")
@@ -209,9 +211,6 @@ public class RestRegistrationFormMapperTest extends MapperTestBase<RegistrationF
 				.withCollectComments(true)
 				.withDisplayedName(RestI18nString.builder()
 						.withDefaultValue("displayedName")
-						.build())
-				.withFormInformation(RestI18nString.builder()
-						.withDefaultValue("formInfo")
 						.build())
 				.withPageTitle(RestI18nString.builder()
 						.withDefaultValue("pageTitle")
@@ -302,9 +301,40 @@ public class RestRegistrationFormMapperTest extends MapperTestBase<RegistrationF
 	}
 
 	@Override
+	protected RegistrationForm getMinAPIObject()
+	{
+
+		return new RegistrationFormBuilder().withName("f1")
+				.withDefaultCredentialRequirement(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.build();
+	}
+
+	@Override
+	protected RestRegistrationForm getMinRestObject()
+	{
+		return RestRegistrationForm.builder()
+				.withName("f1")
+				.withDefaultCredentialRequirement("sys:all")
+				.build();
+	}
+
+	@Override
 	protected Pair<Function<RegistrationForm, RestRegistrationForm>, Function<RestRegistrationForm, RegistrationForm>> getMapper()
 	{
 		return Pair.of(RegistrationFormMapper::map, RegistrationFormMapper::map);
+	}
+
+	@Test
+	public void shouldSupportStringFormInformation()
+	{
+		RestRegistrationForm restRegistrationForm = RestRegistrationForm.builder()
+				.withName("f1")
+				.withFormInformation("formInfo")
+				.withDefaultCredentialRequirement("sys:all")
+				.build();
+		RegistrationForm map = RegistrationFormMapper.map(restRegistrationForm);
+		assertThat(map.getFormInformation()
+				.getDefaultValue()).isEqualTo("formInfo");
 	}
 
 }

@@ -41,7 +41,7 @@ public class RegistrationInvitationParamMapperTest
 {
 
 	@Override
-	protected RegistrationInvitationParam getAPIObject()
+	protected RegistrationInvitationParam getFullAPIObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");
@@ -83,7 +83,7 @@ public class RegistrationInvitationParamMapperTest
 	}
 
 	@Override
-	protected RestRegistrationInvitationParam getRestObject()
+	protected RestRegistrationInvitationParam getFullRestObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");

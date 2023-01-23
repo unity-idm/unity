@@ -29,7 +29,10 @@ public class RestAttribute
 		this.name = builder.name;
 		this.valueSyntax = builder.valueSyntax;
 		this.groupPath = builder.groupPath;
-		this.values = Optional.ofNullable(builder.values).map(ArrayList::new).map(Collections::unmodifiableList).orElse(null);
+		this.values = Optional.ofNullable(builder.values)
+				.map(ArrayList::new)
+				.map(Collections::unmodifiableList)
+				.orElse(null);
 		this.translationProfile = builder.translationProfile;
 		this.remoteIdp = builder.remoteIdp;
 	}

@@ -5,9 +5,11 @@
 
 package pl.edu.icm.unity.restadm.mappers;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.basic.RestAttributeType;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 public class AttributeTypeMapper
@@ -39,10 +41,10 @@ public class AttributeTypeMapper
 		AttributeType type = new AttributeType(restAttributeType.name, restAttributeType.syntaxId,
 				Optional.ofNullable(restAttributeType.displayedName)
 						.map(I18nStringMapper::map)
-						.orElse(null),
+						.orElse(new I18nString(restAttributeType.name)),
 				Optional.ofNullable(restAttributeType.i18nDescription)
 						.map(I18nStringMapper::map)
-						.orElse(null));
+						.orElse(new I18nString(restAttributeType.description)));
 		type.setFlags(restAttributeType.flags);
 		type.setGlobal(restAttributeType.global);
 		type.setMaxElements(restAttributeType.maxElements);
@@ -50,7 +52,7 @@ public class AttributeTypeMapper
 		type.setUniqueValues(restAttributeType.uniqueValues);
 		type.setValueSyntaxConfiguration(restAttributeType.syntaxState);
 		type.setSelfModificable(restAttributeType.selfModificable);
-		type.setMetadata(restAttributeType.metadata);
+		type.setMetadata(Optional.ofNullable(restAttributeType.metadata).orElse(new HashMap<>()));
 		return type;
 
 	}

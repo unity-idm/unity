@@ -16,13 +16,13 @@ import pl.edu.icm.unity.types.registration.Selection;
 public class SelectionMapperTest extends MapperTestBase<Selection, RestSelection>
 {
 	@Override
-	protected Selection getAPIObject()
+	protected Selection getFullAPIObject()
 	{
 		return new Selection(true, "externalIdp", "Profile");
 	}
 
 	@Override
-	protected RestSelection getRestObject()
+	protected RestSelection getFullRestObject()
 	{
 		return RestSelection.builder()
 				.withExternalIdp("externalIdp")

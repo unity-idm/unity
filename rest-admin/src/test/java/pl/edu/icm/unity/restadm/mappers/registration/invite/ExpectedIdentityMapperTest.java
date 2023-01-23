@@ -18,13 +18,13 @@ public class ExpectedIdentityMapperTest extends MapperTestBase<ExpectedIdentity,
 {
 
 	@Override
-	protected ExpectedIdentity getAPIObject()
+	protected ExpectedIdentity getFullAPIObject()
 	{
 		return new ExpectedIdentity("identity", IdentityExpectation.MANDATORY);
 	}
 
 	@Override
-	protected RestExpectedIdentity getRestObject()
+	protected RestExpectedIdentity getFullRestObject()
 	{
 		return RestExpectedIdentity.builder()
 				.withExpectation("MANDATORY")

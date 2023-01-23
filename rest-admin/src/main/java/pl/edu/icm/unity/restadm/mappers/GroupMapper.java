@@ -6,14 +6,18 @@
 package pl.edu.icm.unity.restadm.mappers;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.imunity.rest.api.types.basic.RestAttributeStatement;
 import io.imunity.rest.api.types.basic.RestGroup;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 
 public class GroupMapper
 {
@@ -49,7 +53,7 @@ public class GroupMapper
 	{
 		Group group = new Group(rgroup.path);
 		group.setAttributesClasses(Optional.ofNullable(rgroup.attributesClasses)
-				.orElse(null));
+				.orElse(new HashSet<>()));
 		group.setAttributeStatements(Optional.ofNullable(rgroup.attributeStatements)
 				.map(as -> Stream.of(as)
 						.map(a -> Optional.ofNullable(a)
@@ -57,22 +61,22 @@ public class GroupMapper
 								.orElse(null))
 						.collect(Collectors.toList())
 						.toArray(new AttributeStatement[rgroup.attributeStatements.length]))
-				.orElse(null));
+				.orElse(new AttributeStatement[0]));
 		group.setDelegationConfiguration(Optional.ofNullable(rgroup.delegationConfiguration)
 				.map(GroupDelegationConfigurationMapper::map)
-				.orElse(null));
+				.orElse(new GroupDelegationConfiguration(false)));
 		group.setDescription(Optional.ofNullable(rgroup.i18nDescription)
 				.map(I18nStringMapper::map)
-				.orElse(null));
+				.orElse(new I18nString(rgroup.description)));
 		group.setDisplayedName(Optional.ofNullable(rgroup.displayedName)
 				.map(I18nStringMapper::map)
-				.orElse(null));
+				.orElse(new I18nString(group.toString())));
 		group.setPublic(rgroup.publicGroup);
 		group.setProperties(Optional.ofNullable(rgroup.properties)
 				.map(gp -> gp.stream()
 						.map(GroupPropertyMapper::map)
 						.collect(Collectors.toList()))
-				.orElse(null));
+				.orElse(Collections.emptyList()));
 		return group;
 	}
 }

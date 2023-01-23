@@ -34,7 +34,7 @@ public class RegistrationFormLayoutsMapperTest
 {
 
 	@Override
-	protected RegistrationFormLayouts getAPIObject()
+	protected RegistrationFormLayouts getFullAPIObject()
 	{
 		FormLayout formLayout = new FormLayout(List.of(new BasicFormElement(FormLayoutElement.REG_CODE),
 				new FormCaptionElement(new I18nString("value")),
@@ -54,7 +54,7 @@ public class RegistrationFormLayoutsMapperTest
 	}
 
 	@Override
-	protected RestRegistrationFormLayouts getRestObject()
+	protected RestRegistrationFormLayouts getFullRestObject()
 	{
 		return RestRegistrationFormLayouts.builder()
 				.withLocalSignupEmbeddedAsButton(true)

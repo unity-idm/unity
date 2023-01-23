@@ -21,13 +21,13 @@ public class PolicyAgreementDecisionMapperTest
 {
 
 	@Override
-	protected PolicyAgreementDecision getAPIObject()
+	protected PolicyAgreementDecision getFullAPIObject()
 	{
 		return new PolicyAgreementDecision(PolicyAgreementAcceptanceStatus.ACCEPTED, List.of(1L, 2L));
 	}
 
 	@Override
-	protected RestPolicyAgreementDecision getRestObject()
+	protected RestPolicyAgreementDecision getFullRestObject()
 	{
 		return RestPolicyAgreementDecision.builder()
 				.withAcceptanceStatus("ACCEPTED")

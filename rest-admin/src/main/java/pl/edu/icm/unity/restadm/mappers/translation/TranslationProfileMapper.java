@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.restadm.mappers.translation;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,7 @@ public class TranslationProfileMapper
 								.map(sr -> new TranslationRule(sr.condition.conditionValue,
 										TranslationActionMapper.map(sr.action)))
 								.collect(Collectors.toList()))
-						.orElse(null));
+						.orElse(new ArrayList<>()));
 
 	}
 }

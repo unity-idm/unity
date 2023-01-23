@@ -24,7 +24,7 @@ public class AttributeRegistrationParamMapperTest
 
 	@SuppressWarnings("deprecation")
 	@Override
-	protected AttributeRegistrationParam getAPIObject()
+	protected AttributeRegistrationParam getFullAPIObject()
 	{
 		AttributeRegistrationParam attributeRegistrationParam = new AttributeRegistrationParam();
 		attributeRegistrationParam.setConfirmationMode(ConfirmationMode.CONFIRMED);
@@ -41,7 +41,7 @@ public class AttributeRegistrationParamMapperTest
 	}
 
 	@Override
-	protected RestAttributeRegistrationParam getRestObject()
+	protected RestAttributeRegistrationParam getFullRestObject()
 	{
 		return RestAttributeRegistrationParam.builder()
 				.withAttributeType("type")

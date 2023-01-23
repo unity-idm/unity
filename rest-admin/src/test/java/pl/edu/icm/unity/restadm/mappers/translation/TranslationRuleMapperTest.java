@@ -20,13 +20,13 @@ public class TranslationRuleMapperTest extends MapperTestBase<TranslationRule, R
 {
 
 	@Override
-	protected TranslationRule getAPIObject()
+	protected TranslationRule getFullAPIObject()
 	{
 		return new TranslationRule("true", new TranslationAction("action", "p1", "p2"));
 	}
 
 	@Override
-	protected RestTranslationRule getRestObject()
+	protected RestTranslationRule getFullRestObject()
 	{
 		return RestTranslationRule.builder()
 				.withCondition("true")

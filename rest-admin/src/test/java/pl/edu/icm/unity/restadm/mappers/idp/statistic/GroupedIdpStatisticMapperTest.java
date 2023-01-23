@@ -23,7 +23,7 @@ import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 public class GroupedIdpStatisticMapperTest extends MapperTestBase<GroupedIdpStatistic, RestGroupedIdpStatistic>
 {
 	@Override
-	protected GroupedIdpStatistic getAPIObject()
+	protected GroupedIdpStatistic getFullAPIObject()
 	{
 		SigInStatistic sigInStatistic = new SigInStatistic(
 				LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneId.of("UTC"))
@@ -36,7 +36,7 @@ public class GroupedIdpStatisticMapperTest extends MapperTestBase<GroupedIdpStat
 	}
 
 	@Override
-	protected RestGroupedIdpStatistic getRestObject()
+	protected RestGroupedIdpStatistic getFullRestObject()
 	{
 		return RestGroupedIdpStatistic.builder()
 				.withClientId("client")

@@ -37,7 +37,7 @@ public class EnquiryInvitationParamMapperTest extends MapperTestBase<EnquiryInvi
 {
 
 	@Override
-	protected EnquiryInvitationParam getAPIObject()
+	protected EnquiryInvitationParam getFullAPIObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");
@@ -77,7 +77,7 @@ public class EnquiryInvitationParamMapperTest extends MapperTestBase<EnquiryInvi
 	}
 
 	@Override
-	protected RestEnquiryInvitationParam getRestObject()
+	protected RestEnquiryInvitationParam getFullRestObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");

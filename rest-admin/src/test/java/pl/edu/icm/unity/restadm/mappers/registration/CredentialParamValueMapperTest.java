@@ -17,13 +17,13 @@ public class CredentialParamValueMapperTest extends MapperTestBase<CredentialPar
 {
 
 	@Override
-	protected CredentialParamValue getAPIObject()
+	protected CredentialParamValue getFullAPIObject()
 	{
 		return new CredentialParamValue("credential", "secret");
 	}
 
 	@Override
-	protected RestCredentialParamValue getRestObject()
+	protected RestCredentialParamValue getFullRestObject()
 	{
 		return RestCredentialParamValue.builder()
 				.withCredentialId("credential")

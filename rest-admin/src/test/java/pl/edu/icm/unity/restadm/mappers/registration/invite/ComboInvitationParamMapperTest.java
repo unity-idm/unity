@@ -37,7 +37,7 @@ public class ComboInvitationParamMapperTest extends MapperTestBase<ComboInvitati
 {
 
 	@Override
-	protected ComboInvitationParam getAPIObject()
+	protected ComboInvitationParam getFullAPIObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");
@@ -77,7 +77,7 @@ public class ComboInvitationParamMapperTest extends MapperTestBase<ComboInvitati
 	}
 
 	@Override
-	protected RestComboInvitationParam getRestObject()
+	protected RestComboInvitationParam getFullRestObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		meta.put("1", "v");

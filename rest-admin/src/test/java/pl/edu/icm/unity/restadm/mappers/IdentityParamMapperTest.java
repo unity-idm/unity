@@ -17,11 +17,11 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
-public class IdentityParamMapperTest extends MapperTestBase<IdentityParam, RestIdentityParam>
+public class IdentityParamMapperTest extends MapperWithMinimalTestBase<IdentityParam, RestIdentityParam>
 {
 
 	@Override
-	protected IdentityParam getAPIObject()
+	protected IdentityParam getFullAPIObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		IdentityParam idParam1 = new IdentityParam("email", "test@wp.pl", "remoteIdp", "Profile");
@@ -36,7 +36,7 @@ public class IdentityParamMapperTest extends MapperTestBase<IdentityParam, RestI
 	}
 
 	@Override
-	protected RestIdentityParam getRestObject()
+	protected RestIdentityParam getFullRestObject()
 	{
 		return RestIdentityParam.builder()
 				.withValue("test@wp.pl")
@@ -55,11 +55,25 @@ public class IdentityParamMapperTest extends MapperTestBase<IdentityParam, RestI
 	}
 
 	@Override
+	protected IdentityParam getMinAPIObject()
+	{
+		return new IdentityParam("email", "test@wp.pl");
+	}
+
+	@Override
+	protected RestIdentityParam getMinRestObject()
+	{
+		return RestIdentityParam.builder()
+				.withValue("test@wp.pl")
+				.withTypeId("email")
+				.build();
+	}
+
+	@Override
 	protected Pair<Function<IdentityParam, RestIdentityParam>, Function<RestIdentityParam, IdentityParam>> getMapper()
 	{
 
 		return Pair.of(IdentityParamMapper::map, IdentityParamMapper::map);
 
 	}
-
 }

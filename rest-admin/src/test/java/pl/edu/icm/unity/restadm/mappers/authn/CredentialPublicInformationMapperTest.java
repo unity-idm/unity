@@ -19,13 +19,13 @@ public class CredentialPublicInformationMapperTest
 {
 
 	@Override
-	protected CredentialPublicInformation getAPIObject()
+	protected CredentialPublicInformation getFullAPIObject()
 	{
 		return new CredentialPublicInformation(LocalCredentialState.correct, "det", "ext");
 	}
 
 	@Override
-	protected RestCredentialPublicInformation getRestObject()
+	protected RestCredentialPublicInformation getFullRestObject()
 	{
 		return RestCredentialPublicInformation.builder()
 				.withStateDetail("det")

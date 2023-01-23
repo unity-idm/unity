@@ -21,7 +21,7 @@ public class EndpointTypeDescriptionMapperTest
 {
 
 	@Override
-	protected EndpointTypeDescription getAPIObject()
+	protected EndpointTypeDescription getFullAPIObject()
 	{
 		EndpointTypeDescription endpointTypeDescription = new EndpointTypeDescription("name", "desc", "binding",
 				Map.of("p1k", "p1v"));
@@ -33,7 +33,7 @@ public class EndpointTypeDescriptionMapperTest
 	}
 
 	@Override
-	protected RestEndpointTypeDescription getRestObject()
+	protected RestEndpointTypeDescription getFullRestObject()
 	{
 		return RestEndpointTypeDescription.builder()
 				.withName("name")
