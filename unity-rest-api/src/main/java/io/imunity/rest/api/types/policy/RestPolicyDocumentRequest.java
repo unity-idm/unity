@@ -15,11 +15,11 @@ public class RestPolicyDocumentRequest
 {
 	public final String name;
 	public final Map<String, String> displayedName;
-	public final boolean mandatory;
+	public final Boolean mandatory;
 	public final String contentType;
 	public final Map<String, String> content;
 
-	public RestPolicyDocumentRequest(String name, Map<String, String> displayedName, boolean mandatory,
+	public RestPolicyDocumentRequest(String name, Map<String, String> displayedName, Boolean mandatory,
 	                                 String contentType, Map<String, String> content)
 	{
 
@@ -67,7 +67,7 @@ public class RestPolicyDocumentRequest
 	{
 		private String name;
 		private Map<String, String> displayedName;
-		private boolean mandatory;
+		private Boolean mandatory;
 		private String contentType;
 		private Map<String, String> content;
 
@@ -87,7 +87,7 @@ public class RestPolicyDocumentRequest
 			return this;
 		}
 
-		public RestPolicyDocumentCreateRequestBuilder withMandatory(boolean mandatory)
+		public RestPolicyDocumentCreateRequestBuilder withMandatory(Boolean mandatory)
 		{
 			this.mandatory = mandatory;
 			return this;

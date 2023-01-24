@@ -11,8 +11,16 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper;
 import org.apache.cxf.jaxrs.utils.ResourceUtils;
-import pl.edu.icm.unity.rest.exception.*;
+import pl.edu.icm.unity.rest.exception.EngineExceptionMapper;
+import pl.edu.icm.unity.rest.exception.IllegalArgumentExceptionMapper;
+import pl.edu.icm.unity.rest.exception.InternalExceptionMapper;
+import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
+import pl.edu.icm.unity.rest.exception.JSONParseExceptionMapper;
+import pl.edu.icm.unity.rest.exception.JSONParsingExceptionMapper;
+import pl.edu.icm.unity.rest.exception.NPEExceptionMapper;
+import pl.edu.icm.unity.rest.exception.RuntimeEngineExceptionMapper;
 
 import javax.ws.rs.core.Application;
 import java.util.Set;
@@ -35,7 +43,7 @@ public class RestEndpointHelper
 		ret.add(new JSONParseExceptionMapper());
 		ret.add(new JSONParsingExceptionMapper());
 		ret.add(new JSONExceptionMapper());
-		ret.add(new NotFoundExceptionMapper());
+		ret.add(new WebApplicationExceptionMapper());
 	}
 
 	public static Endpoint createCxfEndpoint(Application application, Bus bus)
