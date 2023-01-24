@@ -55,7 +55,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	public long addPolicyDocument(PolicyDocumentCreateRequest policyDocument) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
-		validRequest(policyDocument);
+		validateRequest(policyDocument);
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.PolicyDocumentsCount,
 				() -> dao.getCount());
 		return dao.create(toStoredPolicyDocument(policyDocument));
@@ -67,7 +67,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	public void updatePolicyDocument(PolicyDocumentUpdateRequest policyDocument) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
-		validRequest(policyDocument);
+		validateRequest(policyDocument);
 		StoredPolicyDocument org;
 		try
 		{
@@ -89,7 +89,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
 		StoredPolicyDocument org;
-		validRequest(policyDocument);
+		validateRequest(policyDocument);
 		try
 		{
 			org = dao.getByKey(policyDocument.id);
@@ -97,14 +97,14 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 		catch (EntityNotFoundException e)
 		{
 			throw new PolicyDocumentNotFoundException(e.getMessage());
-		}		StoredPolicyDocument storedPolicyDocument = toStoredPolicyDocument(policyDocument,
-				org.getRevision() + 1);
+		}
+		StoredPolicyDocument storedPolicyDocument = toStoredPolicyDocument(policyDocument, org.getRevision() + 1);
 		storedPolicyDocument.setId(org.getId());
 		dao.updateByKey(policyDocument.id, storedPolicyDocument);
 
 	}
 
-	private void validRequest(PolicyDocumentCreateRequest policyDocument)
+	private void validateRequest(PolicyDocumentCreateRequest policyDocument)
 	{
 		if(policyDocument.name == null)
 			throw new IllegalArgumentException("Name is required property");
@@ -114,7 +114,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 		if(nameExists)
 			throw new IllegalArgumentException("Name is not uniqe");
 	}
-	private void validRequest(PolicyDocumentUpdateRequest policyDocument)
+	private void validateRequest(PolicyDocumentUpdateRequest policyDocument)
 	{
 		if(policyDocument.name == null)
 			throw new IllegalArgumentException("Name is required property");

@@ -19,7 +19,6 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Test;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 
@@ -35,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TestPolicyDocumentManagement extends RESTAdminTestBase
 {
-	private final ObjectMapper mapper = Constants.MAPPER;
+	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 
 	@Before
 	public void setUp()

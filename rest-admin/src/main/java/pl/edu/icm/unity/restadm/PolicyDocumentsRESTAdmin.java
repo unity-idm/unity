@@ -98,11 +98,11 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 		RestPolicyDocumentRequest parsedDocument = parse(policyDocumentJson);
 		try
 		{
-		if(incrementRevision)
-			policyDocumentManagement.updatePolicyDocumentWithRevision(PolicyDocumentMapper.map(parseLong(documentId),
-				parsedDocument));
-		else
-			policyDocumentManagement.updatePolicyDocument(PolicyDocumentMapper.map(parseLong(documentId), parsedDocument));
+			if(incrementRevision)
+				policyDocumentManagement.updatePolicyDocumentWithRevision(PolicyDocumentMapper.map(parseLong(documentId),
+					parsedDocument));
+			else
+				policyDocumentManagement.updatePolicyDocument(PolicyDocumentMapper.map(parseLong(documentId), parsedDocument));
 		}
 		catch (PolicyDocumentNotFoundException e)
 		{
@@ -134,11 +134,11 @@ public class PolicyDocumentsRESTAdmin implements RESTAdminHandler
 		{
 			throw new BadRequestException("Can't perform JSON deserialization", e);
 		}
-		valid(request);
+		validate(request);
 		return request;
 	}
 
-	private static void valid(RestPolicyDocumentRequest request)
+	private static void validate(RestPolicyDocumentRequest request)
 	{
 		if(request.name == null)
 			throw new BadRequestException("Name is required");
