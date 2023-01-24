@@ -5,24 +5,17 @@
 
 package pl.edu.icm.unity.engine.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
@@ -39,8 +32,10 @@ import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
@@ -58,6 +53,12 @@ import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 
@@ -528,9 +529,18 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 		return lsettings;
 	}
 
-	private String getGroupDisplayedName(String group)
+	private String getGroupDisplayedName(String groupName)
 	{
-		return groupDB.get(group).getDisplayedName().getValue(msg);
+		Group group;
+		try
+		{
+			group = groupDB.get(groupName);
+		}
+		catch (EntityNotFoundException e)
+		{
+			throw new GroupNotFoundException(e.getMessage());
+		}
+		return group.getDisplayedName().getValue(msg);
 	}
 
 	private String generateName(String suffix, String group, Set<String> actualNames)

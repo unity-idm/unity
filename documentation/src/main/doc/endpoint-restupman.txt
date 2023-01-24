@@ -1,0 +1,21 @@
+[[endp-rest-upman]]
+=== RESTful Upman API endpoint
+
+Endpoint type:: +RESTUpman+
+Binding:: RESTful
+Exposed paths:: +/v1/*+
+
+This endpoint exposes a RESTful API allowing for management of Unity projects, exposed by UpMan UI.
+The endpoint requires two configuration properties:
+- Root group, under which the projects shall be managed
+- Authorization group - All users who should have access to this API must be members of this group and must have the authorization attribute <ATTR NAME> set in this group.
+
+Example:
+
+----
+unity.upman.rest.rootGroup=/A
+unity.upman.rest.authorizationGroup=/A
+----
+
+The documentation of the REST API is available on a separate page
+link:upman-rest-api-v1.html[REST API]

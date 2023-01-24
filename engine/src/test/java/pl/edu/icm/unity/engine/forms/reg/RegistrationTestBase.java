@@ -4,15 +4,8 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Lists;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
@@ -42,6 +35,11 @@ import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
+
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Utility methods for registration tests
@@ -160,7 +158,7 @@ public abstract class RegistrationTestBase extends DBIntegrationTestBase
 			fail("Added the form with illegal " + msg);
 		} catch (Exception e) 
 		{
-			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
+			assertTrue(e.toString(), exception.isAssignableFrom(e.getClass()));
 		}
 		try
 		{
@@ -168,7 +166,7 @@ public abstract class RegistrationTestBase extends DBIntegrationTestBase
 			fail("Updated the form with illegal " + msg);
 		} catch (Exception e) 
 		{
-			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
+			assertTrue(e.toString(), exception.isAssignableFrom(e.getClass()));
 		}
 	}
 	
