@@ -4,6 +4,8 @@
  */
 package io.imunity.upman.rest;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -12,8 +14,8 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.junit.Before;
 import org.junit.Test;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 
 import javax.ws.rs.core.Response.Status;
@@ -27,7 +29,13 @@ import static org.junit.Assert.assertEquals;
 
 public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 {
-	private final ObjectMapper mapper = Constants.MAPPER;
+	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+
+	@Before
+	public void setUp()
+	{
+		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NON_PRIVATE);
+	}
 
 	@Test
 	public void addedProjectIsReturned() throws Exception

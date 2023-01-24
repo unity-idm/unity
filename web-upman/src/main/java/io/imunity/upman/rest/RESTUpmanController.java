@@ -13,7 +13,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -41,7 +40,7 @@ import java.util.List;
 public class RESTUpmanController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTUpmanController.class);
-	private final ObjectMapper mapper = Constants.MAPPER;
+	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 	private RestProjectService restProjectService;
 	private String rootGroup;
 

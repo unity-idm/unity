@@ -79,12 +79,12 @@ class DelegationComputer
 		return registrationFormName;
 	}
 
-	public static DelegationSetterBuilder builder()
+	public static DelegationComputerBuilder builder()
 	{
-		return new DelegationSetterBuilder();
+		return new DelegationComputerBuilder();
 	}
 
-	public static final class DelegationSetterBuilder
+	public static final class DelegationComputerBuilder
 	{
 		private String fullGroupName;
 		private String logoUrl;
@@ -93,41 +93,41 @@ class DelegationComputer
 		private RegistrationsManagement registrationsManagement;
 		private EnquiryManagement enquiryManagement;
 
-		private DelegationSetterBuilder()
+		private DelegationComputerBuilder()
 		{
 		}
 
-		public DelegationSetterBuilder withFullGroupName(String fullGroupName)
+		public DelegationComputerBuilder withFullGroupName(String fullGroupName)
 		{
 			this.fullGroupName = fullGroupName;
 			return this;
 		}
 
-		public DelegationSetterBuilder withLogoUrl(String logoUrl)
+		public DelegationComputerBuilder withLogoUrl(String logoUrl)
 		{
 			this.logoUrl = logoUrl;
 			return this;
 		}
 
-		public DelegationSetterBuilder withReadOnlyAttributes(List<String> readOnlyAttributes)
+		public DelegationComputerBuilder withReadOnlyAttributes(List<String> readOnlyAttributes)
 		{
 			this.readOnlyAttributes = readOnlyAttributes;
 			return this;
 		}
 
-		public DelegationSetterBuilder withGroupDelegationConfigGenerator(GroupDelegationConfigGenerator groupDelegationConfigGenerator)
+		public DelegationComputerBuilder withGroupDelegationConfigGenerator(GroupDelegationConfigGenerator groupDelegationConfigGenerator)
 		{
 			this.groupDelegationConfigGenerator = groupDelegationConfigGenerator;
 			return this;
 		}
 
-		public DelegationSetterBuilder withRegistrationsManagement(RegistrationsManagement registrationsManagement)
+		public DelegationComputerBuilder withRegistrationsManagement(RegistrationsManagement registrationsManagement)
 		{
 			this.registrationsManagement = registrationsManagement;
 			return this;
 		}
 
-		public DelegationSetterBuilder withEnquiryManagement(EnquiryManagement enquiryManagement)
+		public DelegationComputerBuilder withEnquiryManagement(EnquiryManagement enquiryManagement)
 		{
 			this.enquiryManagement = enquiryManagement;
 			return this;
