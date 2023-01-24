@@ -56,7 +56,7 @@ public class JsonDumpUpdateFromV17 implements JsonDumpUpdate
 			String type = tokenObj.get("type").asText();
 			if (!UpdateHelperTo17.oauthTokenTypes.contains(type))
 				continue;
-			ObjectNode objContent = JsonUtil.parse(new String(tokenObj.get("contents").binaryValue()));
+			ObjectNode objContent = JsonUtil.parse(tokenObj.get("contents").binaryValue());
 			Optional<ObjectNode> fixed = UpdateHelperTo17.fixOauthToken(objContent);
 			if (fixed.isPresent())
 			{
