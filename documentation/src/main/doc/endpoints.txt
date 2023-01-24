@@ -202,6 +202,8 @@ include::endpoint-jwt.txt[]
 
 include::endpoint-restadmin.txt[]
 
+include::endpoint-restupman.txt[]
+
 include::endpoint-wellknown.txt[]
 
 include::endpoint-scim.txt[]

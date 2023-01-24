@@ -1,0 +1,256 @@
+RESTful Upman API
+==========================
+Unity Team <unity-idm-discuss@lists.sourceforge.net>
+//Set to override automated version, which is the project version
+//:revnumber: 9.9.9-FIXED
+:numbered:
+:toc: left
+:linkcss:
+:iconsdir: ./icons
+:icons: font
+
+
+The Unity Upman REST API may be exposed (or disabled) as a regular Unity endpoint. See the
+<<manual.txt#endp-rest-upman,main Unity documentation>> for endpoints configuration details.
+
+All paths must be naturally prefixed with the server's base URL, endpoint deployment's path
+(as configured) and API version (currently there is only one). Example query path can be similar to:
+
+   https://unity.example.com/rest-upman/v1/projects/PROJECT-ID
+
+== API reference
+
+
+=== Create project
+
++@Path("/projects")+ +
++@POST+ +
+
+Adds a new project.
+If "registrationForm" or "signUpEnquiry" or "membershipUpdateEnquiry" has property "autogenerate" set to true, "name" property can be just skipped.
+If "projectId" is null or skipped, it will be auto generated.
+
+Example input:
+----
+{
+    "projectId": "my-project-id",
+    "isPublic": false,
+    "displayedName": {
+        "en": "displayedName"
+    },
+    "description": {
+        "en": "description"
+    },
+    "logoUrl": "https://www.myservice.org/logo",
+    "enableSubprojects": true,
+    "readOnlyAttributes": [],
+    "registrationForm": {
+        "name": "registrationFormName",
+        "autogenerate": false
+    },
+    "signUpEnquiry": {
+        "name": "signUpEnquiryName",
+        "autogenerate": false
+    },
+    "membershipUpdateEnquiry": {
+        "name": "membershipUpdateEnquiryName",
+        "autogenerate": false
+    }
+}
+----
+
+Example output:
+----
+{
+    "id": "my-project-id"
+}
+----
+
+=== Update project
+
++@Path("/projects/{project-id}")+ +
++@PUT+ +
+
+Updates the project.
+If "registrationForm" or "signUpEnquiry" or "membershipUpdateEnquiry" has property "autogenerate" set to true, "name" property can be just skipped.
+
+Example input:
+----
+{
+    "isPublic": false,
+    "displayedName": {
+        "en": "displayedName"
+    },
+    "description": {
+        "en": "description"
+    },
+    "logoUrl": "https://www.myservice.org/logo",
+    "enableSubprojects": true,
+    "readOnlyAttributes": [],
+    "registrationForm": {
+        "name": "registrationFormName",
+        "autogenerate": false
+    },
+    "signUpEnquiry": {
+        "name": "signUpEnquiryName",
+        "autogenerate": false
+    },
+    "membershipUpdateEnquiry": {
+        "name": "membershipUpdateEnquiryName",
+        "autogenerate": false
+    }
+}
+----
+
+
+=== Remove project
+
++@Path("/projects/{project-id}")+ +
++@DELETE+ +
+
+Removes the given project.
+
+
+=== Get project
+
++@Path("/projects/{project-id}")+ +
++@GET+ +
+
+Retrieves the given project.
+
+Example output:
+----
+{
+    "project-id": "projectId",
+    "public": false,
+    "displayedName": {
+        "en": "displayedName"
+    },
+    "description": {
+        "en": "description"
+    },
+    "logoUrl": "https://www.myservice.org/logo",
+    "enableSubprojects": true,
+    "readOnlyAttributes": [],
+    "registrationForm": "registrationFormName",
+    "signUpEnquiry": "signUpEnquiryName",
+    "membershipUpdateEnquiry": "membershipUpdateEnquiryName"
+}
+----
+
+
+=== Get projects
+
++@Path("/projects")+ +
++@GET+ +
+
+Receives all groups under root group.
+
+Example output:
+----
+[
+	{
+	    "project-id": "projectId",
+	    "public": false,
+	    "displayedName": {
+	        "en": "displayedName"
+	    },
+	    "description": {
+	        "en": "description"
+	    },
+	    "logoUrl": "https://www.myservice.org/logo",
+	    "enableSubprojects": true,
+	    "readOnlyAttributes": [],
+	    "registrationForm": "registrationFormName",
+	    "signUpEnquiry": "signUpEnquiryName",
+	    "membershipUpdateEnquiry": "membershipUpdateEnquiryName"
+	}
+]
+----
+
+
+=== Add member
+
++@Path("/projects/{project-id}/members/{userId}")+ +
++@POST+ +
+
+Adds a user to the specified project.
+Property "userId" should be provided as user's email.
+
+
+=== Remove member
+
++@Path("/projects/{project-id}/members/{userId}")+ +
++@DELETE+ +
+
+Removes a user from the specified project.
+
+
+=== Get member
+
++@Path("/projects/{project-id}/members/{userId}")+ +
++@GET+ +
+
+Returns the specified user.
+Example output:
+----
+{
+    "email": "email@mail.com",
+    "role": "manager",
+    "attributes": [{
+        "name": "attribute-name",
+        "values": ["val1", "val2"]
+    }]
+}
+----
+
+
+=== Get members
+
++@Path("/projects/{project-id}/members")+ +
++@GET+ +
+
+Returns all project users.
+Example output:
+----
+[
+	{
+	    "email": "email@mail.com",
+	    "role": "manager",
+	    "attributes": [{
+	        "name": "attribute-name",
+	        "values": ["val1", "val2"]
+	    }]
+	}
+]
+----
+
+
+=== Get member authorization role
+
++@Path("/projects/{project-id}/members/{userId}/role")+ +
++@GET+ +
+
+Returns user's project authorization role.
+Property +role+ can be one of (+manager+, +projectsAdmin+, +regular+)
+Example output:
+----
+{
+    "role": "manager"
+}
+----
+
+
+=== Set member authorization role
+
++@Path("/projects/{project-id}/members/{userId}/role")+ +
++@PUT+ +
+
+Updates user's authorization role.
+Property +role+ can be one of ("manager", "projectsAdmin", "regular")
+Example output:
+----
+{
+    "role": "manager"
+}
+----

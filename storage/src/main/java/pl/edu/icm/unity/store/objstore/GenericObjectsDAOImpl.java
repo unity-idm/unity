@@ -4,6 +4,18 @@
  */
 package pl.edu.icm.unity.store.objstore;
 
+import pl.edu.icm.unity.store.ReferenceAwareDAO;
+import pl.edu.icm.unity.store.ReferenceRemovalHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
+import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
+import pl.edu.icm.unity.store.impl.StorageLimits;
+import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
+import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
+import pl.edu.icm.unity.store.types.UpdateFlag;
+import pl.edu.icm.unity.types.NamedObject;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,17 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import pl.edu.icm.unity.store.ReferenceAwareDAO;
-import pl.edu.icm.unity.store.ReferenceRemovalHandler;
-import pl.edu.icm.unity.store.ReferenceUpdateHandler;
-import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
-import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
-import pl.edu.icm.unity.store.impl.StorageLimits;
-import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
-import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
-import pl.edu.icm.unity.store.types.UpdateFlag;
-import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Engine handling DB operations on the generic objects table on a specified type.
@@ -84,7 +85,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(name, type);
 		if (raw == null)
-			throw new IllegalArgumentException("There is no [" + name + "] " + objectName);
+			throw new EntityNotFoundException("There is no [" + name + "] " + objectName);
 		return handler.fromBlob(raw);
 	}
 	
@@ -161,7 +162,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 	{
 		GenericObjectBean raw = dbGeneric.getObjectByNameType(name, type);
 		if (raw == null)
-			throw new IllegalArgumentException("There is no [" + name + "] " + objectName);
+			throw new EntityNotFoundException("There is no [" + name + "] " + objectName);
 		T removed = handler.fromBlob(raw);
 		if (!ignoreDependencyChecking)
 		{
