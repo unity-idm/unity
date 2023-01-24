@@ -55,6 +55,7 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	public long addPolicyDocument(PolicyDocumentCreateRequest policyDocument) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
+		validateRequest(policyDocument);
 		capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.PolicyDocumentsCount,
 				() -> dao.getCount());
 		return dao.create(toStoredPolicyDocument(policyDocument));
@@ -66,7 +67,16 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	public void updatePolicyDocument(PolicyDocumentUpdateRequest policyDocument) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
-		StoredPolicyDocument org = dao.getByKey(policyDocument.id);
+		validateRequest(policyDocument);
+		StoredPolicyDocument org;
+		try
+		{
+			org = dao.getByKey(policyDocument.id);
+		}
+		catch (EntityNotFoundException e)
+		{
+			throw new PolicyDocumentNotFoundException(e.getMessage());
+		}
 		StoredPolicyDocument storedPolicyDocument = toStoredPolicyDocument(policyDocument, org.getRevision());
 		storedPolicyDocument.setId(org.getId());
 		dao.updateByKey(policyDocument.id, storedPolicyDocument);
@@ -78,12 +88,36 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	public void updatePolicyDocumentWithRevision(PolicyDocumentUpdateRequest policyDocument) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
-		StoredPolicyDocument org = dao.getByKey(policyDocument.id);
-		StoredPolicyDocument storedPolicyDocument = toStoredPolicyDocument(policyDocument,
-				org.getRevision() + 1);
+		StoredPolicyDocument org;
+		validateRequest(policyDocument);
+		try
+		{
+			org = dao.getByKey(policyDocument.id);
+		}
+		catch (EntityNotFoundException e)
+		{
+			throw new PolicyDocumentNotFoundException(e.getMessage());
+		}
+		StoredPolicyDocument storedPolicyDocument = toStoredPolicyDocument(policyDocument, org.getRevision() + 1);
 		storedPolicyDocument.setId(org.getId());
 		dao.updateByKey(policyDocument.id, storedPolicyDocument);
 
+	}
+
+	private void validateRequest(PolicyDocumentCreateRequest policyDocument)
+	{
+		if(policyDocument.name == null)
+			throw new IllegalArgumentException("Name is required property");
+		boolean nameExists = dao.getAll().stream()
+			.map(StoredPolicyDocument::getName)
+			.anyMatch(name -> name.equals(policyDocument.name));
+		if(nameExists)
+			throw new IllegalArgumentException("Name is not uniqe");
+	}
+	private void validateRequest(PolicyDocumentUpdateRequest policyDocument)
+	{
+		if(policyDocument.name == null)
+			throw new IllegalArgumentException("Name is required property");
 	}
 
 	@Override
