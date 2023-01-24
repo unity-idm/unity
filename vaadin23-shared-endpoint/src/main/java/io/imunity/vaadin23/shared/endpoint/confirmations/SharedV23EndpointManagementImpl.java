@@ -17,6 +17,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -39,6 +40,7 @@ import static io.imunity.vaadin23.elements.VaadinInitParameters.SESSION_TIMEOUT_
 import static java.util.Collections.emptyList;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
+@Primary
 @Component
 public class SharedV23EndpointManagementImpl implements SharedEndpointManagement
 {
