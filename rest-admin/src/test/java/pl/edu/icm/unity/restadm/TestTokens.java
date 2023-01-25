@@ -79,7 +79,6 @@ public class TestTokens extends RESTAdminTestBase
 	{
 		HttpGet get = new HttpGet("/restadm/v1/tokens");
 		String contentsGet = executeQuery(get);
-		System.out.println("Response:\n" + contentsGet);
 		List<JsonNode> returned = m.readValue(contentsGet,
 				new TypeReference<List<JsonNode>>()
 				{
@@ -97,7 +96,6 @@ public class TestTokens extends RESTAdminTestBase
 
 		HttpGet get = new HttpGet("/restadm/v1/tokens");
 		String contentsGet = executeQuery(get);
-		System.out.println("Response:\n" + contentsGet);
 		List<JsonNode> returned = m.readValue(contentsGet, new TypeReference<List<JsonNode>>()
 		{
 		});
@@ -172,7 +170,6 @@ public class TestTokens extends RESTAdminTestBase
 	{
 		HttpGet get = new HttpGet("/restadm/v1/tokens?type=" + type);
 		String contentsGet = executeQuery(get, context);
-		System.out.println("Response:\n" + contentsGet);
 
 		List<JsonNode> returned = m.readValue(contentsGet,
 				new TypeReference<List<JsonNode>>()
