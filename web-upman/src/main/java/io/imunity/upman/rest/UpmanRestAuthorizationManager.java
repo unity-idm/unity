@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static io.imunity.upman.rest.ProjectManagerRestRoleAttributeTypeProvider.AUTHORIZATION_ROLE;
+
 @Component
 class UpmanRestAuthorizationManager
 {
@@ -80,7 +82,7 @@ class UpmanRestAuthorizationManager
 				attrDao.getAttributes(
 					new EntityParam(entity),
 					authorizationPath,
-				"sys:ProjectManagementRESTAPIRole")
+					AUTHORIZATION_ROLE)
 			);
 
 		} catch (EngineException e)

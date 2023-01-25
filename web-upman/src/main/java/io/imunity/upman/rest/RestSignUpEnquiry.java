@@ -8,6 +8,7 @@ package io.imunity.upman.rest;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.ws.rs.BadRequestException;
 import java.util.Objects;
 
 class RestSignUpEnquiry
@@ -18,6 +19,8 @@ class RestSignUpEnquiry
 	@JsonCreator
 	RestSignUpEnquiry(@JsonProperty("name") String name, @JsonProperty("autogenerate") boolean autogenerate)
 	{
+		if(autogenerate && name != null)
+			throw new BadRequestException("Name should be null when autogenerate flag is enabled");
 		this.name = name;
 		this.autogenerate = autogenerate;
 	}

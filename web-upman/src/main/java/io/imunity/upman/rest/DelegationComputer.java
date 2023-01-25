@@ -37,6 +37,8 @@ class DelegationComputer
 
 	public String computeMembershipUpdateEnquiryName(RestMembershipEnquiry membershipUpdateEnquiry) throws EngineException
 	{
+		if(membershipUpdateEnquiry == null)
+			return null;
 		String updateEnquiryName = membershipUpdateEnquiry.name;
 		if (membershipUpdateEnquiry.autogenerate)
 		{
@@ -52,6 +54,8 @@ class DelegationComputer
 
 	public String computeSignUpEnquiryName(RestSignUpEnquiry signUpEnquiry) throws EngineException
 	{
+		if(signUpEnquiry == null)
+			return null;
 		String joinEnquiryName = signUpEnquiry.name;
 		if (signUpEnquiry.autogenerate)
 		{
@@ -67,6 +71,8 @@ class DelegationComputer
 
 	public String computeRegistrationFormName(RestRegistrationForm registrationForm) throws EngineException
 	{
+		if(registrationForm == null)
+			return null;
 		String registrationFormName = registrationForm.name;
 		if (registrationForm.autogenerate)
 		{
