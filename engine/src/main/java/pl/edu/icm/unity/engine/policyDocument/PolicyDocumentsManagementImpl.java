@@ -67,10 +67,10 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	public void updatePolicyDocument(PolicyDocumentUpdateRequest policyDocument) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
-		validateRequest(policyDocument);
 		StoredPolicyDocument org;
 		try
 		{
+			validateRequest(policyDocument);
 			org = dao.getByKey(policyDocument.id);
 		}
 		catch (EntityNotFoundException e)
@@ -89,9 +89,9 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	{
 		authz.checkAuthorization(AuthzCapability.policyDocumentsModify);
 		StoredPolicyDocument org;
-		validateRequest(policyDocument);
 		try
 		{
+			validateRequest(policyDocument);
 			org = dao.getByKey(policyDocument.id);
 		}
 		catch (EntityNotFoundException e)
@@ -108,16 +108,25 @@ public class PolicyDocumentsManagementImpl implements PolicyDocumentManagement
 	{
 		if(policyDocument.name == null)
 			throw new IllegalArgumentException("Name is required property");
+		validateNameUniqueness(policyDocument.name);
+	}
+
+	private void validateNameUniqueness(String policyDocumentName)
+	{
 		boolean nameExists = dao.getAll().stream()
 			.map(StoredPolicyDocument::getName)
-			.anyMatch(name -> name.equals(policyDocument.name));
+			.anyMatch(name -> name.equals(policyDocumentName));
 		if(nameExists)
-			throw new IllegalArgumentException("Name is not uniqe");
+			throw new IllegalArgumentException(String.format("Name %s is not unique", policyDocumentName));
 	}
+
 	private void validateRequest(PolicyDocumentUpdateRequest policyDocument)
 	{
 		if(policyDocument.name == null)
 			throw new IllegalArgumentException("Name is required property");
+		StoredPolicyDocument oldPolicyDocument = dao.getByKey(policyDocument.id);
+		if(!policyDocument.name.equals(oldPolicyDocument.getName()))
+			validateNameUniqueness(policyDocument.name);
 	}
 
 	@Override
