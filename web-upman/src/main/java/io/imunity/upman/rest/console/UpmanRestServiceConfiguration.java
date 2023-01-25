@@ -5,6 +5,12 @@
 
 package io.imunity.upman.rest.console;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
 import io.imunity.upman.rest.UpmanRestEndpointProperties;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -12,13 +18,7 @@ import pl.edu.icm.unity.rest.RESTEndpointProperties;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-class UpmanRestServiceConfiguration
+public class UpmanRestServiceConfiguration
 {
 	private GroupWithIndentIndicator rootGroup;
 	private GroupWithIndentIndicator authorizationGroup;
