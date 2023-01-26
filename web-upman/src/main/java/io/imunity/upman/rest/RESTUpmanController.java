@@ -145,8 +145,7 @@ public class RESTUpmanController
 		throws EngineException, JsonProcessingException
 	{
 		log.debug("getProjectMemberAuthorizationRole {}, {}", projectId, userId);
-		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole(
-			projectId, userId);
+		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole(projectId, userId);
 		return mapper.writeValueAsString(role);
 	}
 
