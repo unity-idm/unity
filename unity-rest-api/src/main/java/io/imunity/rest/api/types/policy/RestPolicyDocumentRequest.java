@@ -24,10 +24,10 @@ public class RestPolicyDocumentRequest
 	{
 
 		this.name = name;
-		this.displayedName = Map.copyOf(displayedName);
+		this.displayedName = displayedName == null ? null : Map.copyOf(displayedName);
 		this.mandatory = mandatory;
 		this.contentType = contentType;
-		this.content = Map.copyOf(content);
+		this.content = content == null ? null : Map.copyOf(content);
 	}
 
 	@Override

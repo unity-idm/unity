@@ -78,16 +78,15 @@ public class TestPolicyDocumentManagement extends RESTAdminTestBase
 		HttpPost add = new HttpPost("/restadm/v1/policy-documents");
 		RestPolicyDocumentRequest build = RestPolicyDocumentRequest.builder()
 			.withName("Ala")
+			.withMandatory(true)
 			.withDisplayedName(Map.of("en", "Ola"))
 			.withContentType(PolicyDocumentContentType.EMBEDDED.name())
-			.withContent(Map.of("en", "la la"))
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		try(ClassicHttpResponse response = client.executeOpen(host, add, getClientContext(host)))
 		{
 			assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getCode());
 		}
-
 	}
 
 	@Test
@@ -265,7 +264,7 @@ public class TestPolicyDocumentManagement extends RESTAdminTestBase
 
 		HttpPut put = new HttpPut("/restadm/v1/policy-documents/" + id.id + "?incrementRevision=true");
 		RestPolicyDocumentRequest updateBuild = RestPolicyDocumentRequest.builder()
-			.withName("Zla")
+			.withName("Ala")
 			.withMandatory(true)
 			.withDisplayedName(Map.of("en", "Zla"))
 			.withContentType(PolicyDocumentContentType.LINK.name())
@@ -284,7 +283,7 @@ public class TestPolicyDocumentManagement extends RESTAdminTestBase
 		RestPolicyDocument document = JsonUtil.parse(contents, RestPolicyDocument.class);
 
 		assertThat(document.id).isEqualTo(id.id);
-		assertThat(document.name).isEqualTo("Zla");
+		assertThat(document.name).isEqualTo("Ala");
 		assertThat(document.contentType).isEqualTo(PolicyDocumentContentType.LINK.name());
 		assertThat(document.displayedName).isEqualTo(Map.of("en", "Zla"));
 		assertThat(document.revision).isEqualTo(2);
