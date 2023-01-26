@@ -5,6 +5,7 @@
 
 package io.imunity.upman.rest;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -34,6 +36,7 @@ import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
+import javax.ws.rs.NotFoundException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -326,14 +329,40 @@ class RestProjectServiceTest
 	@Test
 	void shouldAddProjectMember() throws EngineException
 	{
+		long id = 2L;
+		Entity entity = mock(Entity.class);
+		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email"))))
+			.thenReturn(entity);
+		when(entity.getId()).thenReturn(id);
+		when(groupMan.isPresent("/A/B")).thenReturn(true);
+
 		restProjectService.addProjectMember("B", "email");
 
-		verify(groupMan).addMemberFromParent("/A/B", new EntityParam(new IdentityTaV(EmailIdentity.ID, "email")));
+		verify(delGroupMan).addMemberToGroup("/A", "/A/B", id);
+	}
+
+	@Test
+	void shouldNotAddProjectMemberWhenGroupDoesntExist() throws EngineException
+	{
+		when(groupMan.isPresent("/A/B")).thenReturn(false);
+
+		Assertions.assertThrows(NotFoundException.class, () -> restProjectService.addProjectMember("B", "email"));
+	}
+
+	@Test
+	void shouldNotAddProjectMemberWhenUserIdentityDoesntExist() throws EngineException
+	{
+		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email"))))
+			.thenThrow(UnknownIdentityException.class);
+		when(groupMan.isPresent("/A/B")).thenReturn(true);
+
+		Assertions.assertThrows(NotFoundException.class, () -> restProjectService.addProjectMember("B", "email"));
 	}
 
 	@Test
 	void shouldRemoveProjectMember() throws EngineException
 	{
+		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
 		restProjectService.removeProjectMember("B", "email");
 
@@ -352,6 +381,7 @@ class RestProjectServiceTest
 				"name", new VerifiableElementBase("email@gmail.com"),
 					Optional.of(List.of(new Attribute("attr", "string", "/A/B", List.of("val"))))))
 			);
+		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
 		RestProjectMembership membership = restProjectService.getProjectMember("B", "email@gmail.com");
 
@@ -372,6 +402,7 @@ class RestProjectServiceTest
 					"name", new VerifiableElementBase("email@gmail.com"),
 					Optional.of(List.of(new Attribute("attr", "string", "/A/B", List.of("val"))))))
 			);
+		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
 		List<RestProjectMembership> members = restProjectService.getProjectMembers("B");
 
@@ -392,6 +423,7 @@ class RestProjectServiceTest
 		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email"))))
 			.thenReturn(entity);
 		when(entity.getId()).thenReturn(id);
+		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
 		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole("B", "email");
 
@@ -406,6 +438,8 @@ class RestProjectServiceTest
 		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email"))))
 			.thenReturn(entity);
 		when(entity.getId()).thenReturn(id);
+		when(groupMan.isPresent("/A/B")).thenReturn(true);
+
 
 		restProjectService.setProjectAuthorizationRole("B", "email", new RestAuthorizationRole("manager"));
 

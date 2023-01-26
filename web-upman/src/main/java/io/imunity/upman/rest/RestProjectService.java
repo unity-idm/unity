@@ -17,6 +17,8 @@ import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -29,8 +31,9 @@ import javax.transaction.Transactional;
 import javax.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 class RestProjectService
 {
@@ -161,7 +164,7 @@ class RestProjectService
 	{
 		I18nString i18nString = new I18nString();
 		i18nString.addAllValues(map);
-		Optional.ofNullable(map.get("")).ifPresent(i18nString::setDefaultValue);
+		ofNullable(map.get("")).ifPresent(i18nString::setDefaultValue);
 		return i18nString;
 	}
 
@@ -219,6 +222,7 @@ class RestProjectService
 		List<Group> groups = groupMan.getGroupsByWildcard(rootGroup + "/**");
 		return groups.stream()
 			.filter(group -> !group.getName().equals(rootGroup))
+			.filter(group -> group.getDelegationConfiguration().enabled)
 			.map(group -> map(group.getName().replace(rootGroup + "/", ""), group))
 			.collect(Collectors.toList());
 	}
@@ -227,20 +231,37 @@ class RestProjectService
 	public void addProjectMember(String projectId, String email) throws EngineException
 	{
 		assertAuthorization();
-		groupMan.addMemberFromParent(getFullGroupName(projectId), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
+		validateGroupPresence(projectId);
+		Long id = getId(email);
+		delGroupMan.addMemberToGroup(rootGroup, getFullGroupName(projectId), id);
+	}
+
+	private void validateGroupPresence(String projectId) throws AuthorizationException
+	{
+		if (!groupMan.isPresent(getFullGroupName(projectId)))
+			throw new NotFoundException(String.format("Project %s doesn't exist", projectId));
 	}
 
 	@Transactional
 	public void removeProjectMember(String projectId, String email) throws EngineException
 	{
 		assertAuthorization();
-		groupMan.removeMember(getFullGroupName(projectId), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
+		validateGroupPresence(projectId);
+		try
+		{
+			groupMan.removeMember(getFullGroupName(projectId), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
+		}
+		catch (UnknownIdentityException e)
+		{
+			throw new NotFoundException(String.format("Email %s not found", email));
+		}
 	}
 
 	@Transactional
 	public List<RestProjectMembership> getProjectMembers(String projectId) throws EngineException
 	{
 		assertAuthorization();
+		validateGroupPresence(projectId);
 		return delGroupMan.getDelegatedGroupMemebers(rootGroup, getFullGroupName(projectId)).stream()
 			.map(RestProjectService::map)
 			.collect(Collectors.toList());
@@ -250,21 +271,33 @@ class RestProjectService
 	public RestProjectMembership getProjectMember(String projectId, String email) throws EngineException
 	{
 		assertAuthorization();
+		validateGroupPresence(projectId);
 		return delGroupMan.getDelegatedGroupMemebers(rootGroup, getFullGroupName(projectId)).stream()
 			.filter(member -> member.email.getValue().equals(email))
 			.map(RestProjectService::map)
 			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("There is no membership"));
+			.orElseThrow(() -> new NotFoundException("There is no member"));
 	}
 
 	@Transactional
 	public RestAuthorizationRole getProjectAuthorizationRole(String projectId, String email) throws EngineException
 	{
 		assertAuthorization();
-		Long id = idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, email))).getId();
-		GroupAuthorizationRole groupAuthorizationRole =
-			delGroupMan.getGroupAuthorizationRole(getFullGroupName(projectId), id);
-		return new RestAuthorizationRole(groupAuthorizationRole.name());
+		validateGroupPresence(projectId);
+		Long id = getId(email);
+		GroupAuthorizationRole groupAuthorizationRole;
+		try
+		{
+			groupAuthorizationRole = delGroupMan.getGroupAuthorizationRole(getFullGroupName(projectId), id);
+		}
+		catch (IllegalGroupValueException e)
+		{
+			throw new NotFoundException(e.getMessage());
+		}
+		return ofNullable(groupAuthorizationRole)
+			.map(Enum::name)
+			.map(RestAuthorizationRole::new)
+			.orElseThrow(NotFoundException::new);
 	}
 
 	@Transactional
@@ -272,8 +305,28 @@ class RestProjectService
 	                                                         RestAuthorizationRole role) throws EngineException
 	{
 		assertAuthorization();
-		Long id = idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, email))).getId();
-		delGroupMan.setGroupAuthorizationRole(rootGroup, getFullGroupName(projectId), id, GroupAuthorizationRole.valueOf(role.role));
+		validateGroupPresence(projectId);
+		Long id = getId(email);
+		try
+		{
+			delGroupMan.setGroupAuthorizationRole(rootGroup, getFullGroupName(projectId), id, GroupAuthorizationRole.valueOf(role.role));
+		}
+		catch (IllegalGroupValueException e)
+		{
+			throw new NotFoundException("Entity is not a member of the project");
+		}
+	}
+
+	private Long getId(String email) throws EngineException
+	{
+		try
+		{
+			return idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, email))).getId();
+		}
+		catch (UnknownIdentityException e)
+		{
+			throw new NotFoundException(String.format("Email %s not found", email));
+		}
 	}
 
 	private String getFullGroupName(String projectId)

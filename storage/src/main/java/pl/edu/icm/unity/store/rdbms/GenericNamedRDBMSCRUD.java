@@ -107,7 +107,7 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 		NamedCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(namedMapperClass);
 		DBT byName = mapper.getByName(id);
 		if (byName == null)
-			throw new IllegalArgumentException(elementName + " [" + id + 
+			throw new EntityNotFoundException(elementName + " [" + id +
 					"] does not exist");
 		return byName.getId();
 	}
