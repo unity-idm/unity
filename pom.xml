@@ -87,8 +87,11 @@
         <module>unity-rest-api</module>
         <module>vaadin23-endpoint-common</module>
         <module>vaadin23-elements</module>
-        <module>vaadin23-shared-endpoint</module>
-    </modules>
+        <module>vaadin23-public-shared-endpoint</module>
+        <module>vaadin23-registration</module>
+		<module>vaadin23-enquiry</module>
+		<module>vaadin23-secured-shared-endpoint</module>
+	</modules>
 
 	<developers>
 		<developer>

@@ -46,7 +46,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>vaadin23-shared-endpoint</artifactId>
+			<artifactId>vaadin23-public-shared-endpoint</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

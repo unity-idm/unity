@@ -19,7 +19,7 @@ import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredential;
 import io.imunity.fido.credential.FidoCredentialInfo;
 import io.imunity.vaadin23.elements.NotificationPresenter;
-import io.imunity.vaadin23.shared.endpoint.plugins.credentials.CredentialEditorContext;
+import io.imunity.vaadin23.endpoint.common.plugins.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
