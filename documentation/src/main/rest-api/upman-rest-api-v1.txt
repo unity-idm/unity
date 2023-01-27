@@ -27,14 +27,14 @@ All paths must be naturally prefixed with the server's base URL, endpoint deploy
 +@POST+ +
 
 Adds a new project.
-If "registrationForm" or "signUpEnquiry" or "membershipUpdateEnquiry" has property "autogenerate" set to true, "name" property can be just skipped.
+If "registrationForm" or "signUpEnquiry" or "membershipUpdateEnquiry" has property "autogenerate" set to true, "name" property should be just skipped.
 If "projectId" is null or skipped, it will be auto generated.
 
 Example input:
 ----
 {
     "projectId": "my-project-id",
-    "isPublic": false,
+    "public": false,
     "displayedName": {
         "en": "displayedName"
     },
@@ -72,12 +72,12 @@ Example output:
 +@PUT+ +
 
 Updates the project.
-If "registrationForm" or "signUpEnquiry" or "membershipUpdateEnquiry" has property "autogenerate" set to true, "name" property can be just skipped.
+If "registrationForm" or "signUpEnquiry" or "membershipUpdateEnquiry" has property "autogenerate" set to true, "name" property should be just skipped.
 
 Example input:
 ----
 {
-    "isPublic": false,
+    "public": false,
     "displayedName": {
         "en": "displayedName"
     },
