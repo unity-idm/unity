@@ -29,6 +29,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 import javax.transaction.Transactional;
 import javax.ws.rs.NotFoundException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -105,17 +106,26 @@ class RestProjectService
 			.withEnquiryManagement(enquiryManagement)
 			.build();
 
-		String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm);
-		String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry);
-		String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry);
-		toAdd.setDelegationConfiguration(new GroupDelegationConfiguration(true,
-			project.enableSubprojects,
-			project.logoUrl,
-			registrationFormName, joinEnquiryName, updateEnquiryName,
-			project.readOnlyAttributes)
-		);
+		try
+		{
+			String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm);
+			String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry);
+			String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry);
+			toAdd.setDelegationConfiguration(new GroupDelegationConfiguration(true,
+				project.enableSubprojects,
+				project.logoUrl,
+				registrationFormName, joinEnquiryName, updateEnquiryName,
+				project.readOnlyAttributes)
+			);
 
-		groupMan.updateGroup(fullGroupName, toAdd);
+			groupMan.updateGroup(fullGroupName, toAdd);
+		}
+		catch (Exception e)
+		{
+			groupMan.removeGroup(fullGroupName, false);
+			throw e;
+		}
+
 		return new RestProjectId(projectId);
 	}
 
@@ -242,6 +252,13 @@ class RestProjectService
 			throw new NotFoundException(String.format("Project %s doesn't exist", projectId));
 	}
 
+	private void validateRole(RestAuthorizationRole role)
+	{
+		if (Arrays.stream(GroupAuthorizationRole.values()).noneMatch(authzRole -> authzRole.name().equals(role.role)))
+			throw new IllegalArgumentException(String.format("Invalid role: %s, allowed values: manager, " +
+				"projectsAdmin, regular", role.role));
+	}
+
 	@Transactional
 	public void removeProjectMember(String projectId, String email) throws EngineException
 	{
@@ -306,6 +323,7 @@ class RestProjectService
 	{
 		assertAuthorization();
 		validateGroupPresence(projectId);
+		validateRole(role);
 		Long id = getId(email);
 		try
 		{
