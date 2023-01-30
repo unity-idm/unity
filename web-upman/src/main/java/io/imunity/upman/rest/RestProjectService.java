@@ -280,7 +280,7 @@ class RestProjectService
 		assertAuthorization();
 		validateGroupPresence(projectId);
 		String fullGroupName = getFullGroupName(projectId);
-		return delGroupMan.getDelegatedGroupMemebers(fullGroupName, getFullGroupName(projectId)).stream()
+		return delGroupMan.getDelegatedGroupMemebers(fullGroupName, fullGroupName).stream()
 			.map(RestProjectService::map)
 			.collect(Collectors.toList());
 	}
