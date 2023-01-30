@@ -289,7 +289,8 @@ class RestProjectService
 	{
 		assertAuthorization();
 		validateGroupPresence(projectId);
-		return delGroupMan.getDelegatedGroupMemebers(rootGroup, getFullGroupName(projectId)).stream()
+		String fullGroupName = getFullGroupName(projectId);
+		return delGroupMan.getDelegatedGroupMemebers(fullGroupName, fullGroupName).stream()
 			.filter(member -> member.email.getValue().equals(email))
 			.map(RestProjectService::map)
 			.findFirst()
