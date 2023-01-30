@@ -3,19 +3,15 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.mappers;
+package pl.edu.icm.unity.store.impl.attribute;
 
-import pl.edu.icm.unity.store.types.DBAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 
-public class AttributeMapper
+public class AttributeBaseMapper
 {
-	public static DBAttribute map(Attribute attribute)
+	public static DBAttributeBase map(Attribute attribute)
 	{
-		return DBAttribute.builder()
-				.withName(attribute.getName())
-				.withValueSyntax(attribute.getValueSyntax())
-				.withGroupPath(attribute.getGroupPath())
+		return DBAttributeBase.builder()
 				.withValues(attribute.getValues())
 				.withTranslationProfile(attribute.getTranslationProfile())
 				.withRemoteIdp(attribute.getRemoteIdp())

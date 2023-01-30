@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.mappers;
+package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,18 +12,17 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import pl.edu.icm.unity.store.types.DBAttributeStatement;
-import pl.edu.icm.unity.store.types.DBGroup;
+import pl.edu.icm.unity.store.types.I18nStringMapper;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 
-public class GroupMapper
+class GroupMapper
 {
-	public static DBGroup map(Group group)
+	static DBGroupBase mapBaseGroup(Group group)
 	{
-		return DBGroup.builder()
+		return DBGroupBase.builder()
 				.withPublicGroup(group.isPublic())
 				.withI18nDescription(Optional.ofNullable(group.getDescription())
 						.map(I18nStringMapper::map)
@@ -48,7 +47,7 @@ public class GroupMapper
 				.build();
 	}
 
-	public static Group map(DBGroup rgroup, String path)
+	static Group mapFromBaseGroup(DBGroupBase rgroup, String path)
 	{
 		Group group = new Group(path);
 		group.setAttributesClasses(Optional.ofNullable(rgroup.attributesClasses)
@@ -78,4 +77,39 @@ public class GroupMapper
 				.orElse(Collections.emptyList()));
 		return group;
 	}
+	
+	static DBGroup map(Group group)
+	{
+		return DBGroup.builder().withPath(group.getPathEncoded())
+				.withPublicGroup(group.isPublic())
+				.withI18nDescription(Optional.ofNullable(group.getDescription())
+						.map(I18nStringMapper::map)
+						.orElse(null))
+				.withDisplayedName(Optional.ofNullable(group.getDisplayedName())
+						.map(I18nStringMapper::map)
+						.orElse(null))
+				.withAttributeStatements(Arrays.stream(group.getAttributeStatements())
+						.map(as -> Optional.ofNullable(as)
+								.map(AttributeStatementMapper::map)
+								.orElse(null))
+						.toArray(DBAttributeStatement[]::new))
+				.withDelegationConfiguration(Optional.ofNullable(group.getDelegationConfiguration())
+						.map(GroupDelegationConfigurationMapper::map)
+						.orElse(null))
+				.withAttributesClasses(group.getAttributesClasses())
+				.withProperties(group.getProperties()
+						.values()
+						.stream()
+						.map(GroupPropertyMapper::map)
+						.collect(Collectors.toList()))
+				.build();
+	}
+	
+	static Group map(DBGroup rgroup)
+	{
+		return mapFromBaseGroup(rgroup, rgroup.path);
+	}
+	
+	
+	
 }

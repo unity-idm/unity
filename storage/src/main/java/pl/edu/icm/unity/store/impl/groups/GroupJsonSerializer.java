@@ -14,9 +14,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.store.mappers.GroupMapper;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.store.types.DBGroup;
 import pl.edu.icm.unity.types.basic.Group;
 
 /**
@@ -35,7 +33,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		GroupBean gb = new GroupBean(object.toString(), object.getParentPath());
 		try
 		{
-			gb.setContents(Constants.MAPPER.writeValueAsBytes(GroupMapper.map(object)));
+			gb.setContents(Constants.MAPPER.writeValueAsBytes(GroupMapper.mapBaseGroup(object)));
 		} catch (JsonProcessingException e)
 		{
 			throw new IllegalStateException("Error saving group to DB", e);
@@ -57,17 +55,17 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 	
 	private Group parse(GroupBean bean)
 	{
-		DBGroup dbGroup;
+		DBGroupBase dbGroup;
 
 		try
 		{
-			dbGroup = Constants.MAPPER.readValue(bean.getContents(), DBGroup.class);
+			dbGroup = Constants.MAPPER.readValue(bean.getContents(), DBGroupBase.class);
 		} catch (IOException e)
 		{
 			throw new IllegalStateException("Error parsing group from DB", e);
 		}
 
-		return GroupMapper.map(dbGroup, bean.getName());
+		return GroupMapper.mapFromBaseGroup(dbGroup, bean.getName());
 	}
 	
 	/**
@@ -78,7 +76,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 	{
 		try
 		{
-			return Constants.MAPPER.writeValueAsBytes(DBGroup.builder().build());
+			return Constants.MAPPER.writeValueAsBytes(DBGroupBase.builder().build());
 		} catch (JsonProcessingException e)
 		{
 			throw new IllegalStateException("Error parsing group", e);

@@ -3,9 +3,8 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.mappers;
+package pl.edu.icm.unity.store.types;
 
-import pl.edu.icm.unity.store.types.DBI18nString;
 import pl.edu.icm.unity.types.I18nString;
 
 public class I18nStringMapper

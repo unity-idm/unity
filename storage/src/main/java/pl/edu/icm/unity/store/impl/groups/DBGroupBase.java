@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.types;
+package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,8 +14,10 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(builder = DBGroup.Builder.class)
-public class DBGroup
+import pl.edu.icm.unity.store.types.DBI18nString;
+
+@JsonDeserialize(builder = DBGroupBase.DBGroupBaseBuilder.class)
+class DBGroupBase
 {
 	public final DBI18nString displayedName;
 	public final DBI18nString i18nDescription;
@@ -26,7 +28,7 @@ public class DBGroup
 	public final boolean publicGroup;
 	public final List<DBGroupProperty> properties;
 
-	private DBGroup(Builder builder)
+	protected DBGroupBase(DBGroupBaseBuilder<?> builder)
 	{
 		this.displayedName = builder.displayedName;
 		this.i18nDescription = builder.i18nDescription;
@@ -62,7 +64,7 @@ public class DBGroup
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DBGroup other = (DBGroup) obj;
+		DBGroupBase other = (DBGroupBase) obj;
 		return Arrays.equals(attributeStatements, other.attributeStatements)
 				&& Objects.equals(attributesClasses, other.attributesClasses)
 				&& Objects.equals(delegationConfiguration, other.delegationConfiguration)
@@ -72,12 +74,12 @@ public class DBGroup
 				&& publicGroup == other.publicGroup;
 	}
 
-	public static Builder builder()
+	static DBGroupBaseBuilder<?> builder()
 	{
-		return new Builder();
+		return new DBGroupBaseBuilder<>();
 	}
 
-	public static final class Builder
+	static class DBGroupBaseBuilder<T extends DBGroupBaseBuilder<?>>
 	{
 		private DBI18nString displayedName;
 		private DBI18nString i18nDescription;
@@ -88,65 +90,72 @@ public class DBGroup
 		private boolean publicGroup = false;
 		private List<DBGroupProperty> properties = Collections.emptyList();
 
-		private Builder()
+		protected DBGroupBaseBuilder()
 		{
 		}
 
-		public Builder withDisplayedName(DBI18nString displayedName)
+		@SuppressWarnings("unchecked")
+		T withDisplayedName(DBI18nString displayedName)
 		{
 			this.displayedName = displayedName;
-			return this;
+			return (T) this;
 		}
 
-		public Builder withI18nDescription(DBI18nString i18nDescription)
+		@SuppressWarnings("unchecked")
+		T withI18nDescription(DBI18nString i18nDescription)
 		{
 			this.i18nDescription = i18nDescription;
-			return this;
+			return (T) this;
 		}
-
-		public Builder withDescription(String description)
+		@SuppressWarnings("unchecked")
+		T withDescription(String description)
 		{
 			this.description = description;
-			return this;
+			return (T) this;
 		}
-
-		public Builder withAttributeStatements(DBAttributeStatement[] attributeStatements)
+		
+		@SuppressWarnings("unchecked")
+		T withAttributeStatements(DBAttributeStatement[] attributeStatements)
 		{
 			this.attributeStatements = attributeStatements;
-			return this;
+			return (T) this;
 		}
 
-		public Builder withAttributesClasses(Set<String> attributesClasses)
+		@SuppressWarnings("unchecked")
+		T withAttributesClasses(Set<String> attributesClasses)
 		{
 			this.attributesClasses = Optional.ofNullable(attributesClasses)
 					.map(Set::copyOf)
 					.orElse(null);
-			return this;
+			return (T) this;
 		}
-
-		public Builder withDelegationConfiguration(DBGroupDelegationConfiguration delegationConfiguration)
+		
+		@SuppressWarnings("unchecked")
+		T withDelegationConfiguration(DBGroupDelegationConfiguration delegationConfiguration)
 		{
 			this.delegationConfiguration = delegationConfiguration;
-			return this;
+			return (T) this;
 		}
 
-		public Builder withPublicGroup(boolean publicGroup)
+		@SuppressWarnings("unchecked")
+		T withPublicGroup(boolean publicGroup)
 		{
 			this.publicGroup = publicGroup;
-			return this;
+			return (T) this;
 		}
 
-		public Builder withProperties(List<DBGroupProperty> properties)
+		@SuppressWarnings("unchecked")
+		T withProperties(List<DBGroupProperty> properties)
 		{
 			this.properties = Optional.ofNullable(properties)
 					.map(List::copyOf)
 					.orElse(null);
-			return this;
+			return (T) this;
 		}
 
-		public DBGroup build()
+		DBGroupBase build()
 		{
-			return new DBGroup(this);
+			return new DBGroupBase(this);
 		}
 	}
 }

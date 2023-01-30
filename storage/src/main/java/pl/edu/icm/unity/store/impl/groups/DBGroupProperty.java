@@ -3,15 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.types;
+package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-
 @JsonDeserialize(builder = DBGroupProperty.Builder.class)
-public class DBGroupProperty
+class DBGroupProperty
 {
 	public final String key;
 	public final String value;
@@ -41,12 +40,12 @@ public class DBGroupProperty
 		return Objects.equals(key, other.key) && Objects.equals(value, other.value);
 	}
 
-	public static Builder builder()
+	static Builder builder()
 	{
 		return new Builder();
 	}
 
-	public static final class Builder
+	static final class Builder
 	{
 		private String key;
 		private String value;
@@ -55,19 +54,19 @@ public class DBGroupProperty
 		{
 		}
 
-		public Builder withKey(String key)
+		Builder withKey(String key)
 		{
 			this.key = key;
 			return this;
 		}
 
-		public Builder withValue(String value)
+		Builder withValue(String value)
 		{
 			this.value = value;
 			return this;
 		}
 
-		public DBGroupProperty build()
+		DBGroupProperty build()
 		{
 			return new DBGroupProperty(this);
 		}

@@ -3,17 +3,17 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.mappers;
+package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.store.types.DBAttributeStatement;
+import pl.edu.icm.unity.store.impl.attribute.AttributeMapper;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 
-public class AttributeStatementMapper
+class AttributeStatementMapper
 {
-	public static DBAttributeStatement map(AttributeStatement attributeStatement)
+	static DBAttributeStatement map(AttributeStatement attributeStatement)
 	{
 		return DBAttributeStatement.builder()
 				.withCondition(attributeStatement.getCondition())
@@ -28,7 +28,7 @@ public class AttributeStatementMapper
 				.build();
 	}
 
-	public static AttributeStatement map(DBAttributeStatement attributeStatement)
+	static AttributeStatement map(DBAttributeStatement attributeStatement)
 	{
 		if (attributeStatement.fixedAttribute != null)
 		{

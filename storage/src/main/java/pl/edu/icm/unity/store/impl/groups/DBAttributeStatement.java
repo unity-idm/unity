@@ -3,14 +3,16 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.types;
+package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import pl.edu.icm.unity.store.impl.attribute.DBAttribute;
+
 @JsonDeserialize(builder = DBAttributeStatement.Builder.class)
-public class DBAttributeStatement
+class DBAttributeStatement
 {
 	public final String condition;
 	public final String extraGroupName;
@@ -53,12 +55,12 @@ public class DBAttributeStatement
 				&& Objects.equals(fixedAttribute, other.fixedAttribute) && Objects.equals(resolution, other.resolution);
 	}
 
-	public static Builder builder()
+	static Builder builder()
 	{
 		return new Builder();
 	}
 
-	public static final class Builder
+	static final class Builder
 	{
 		private String condition;
 		private String extraGroupName;
@@ -71,43 +73,43 @@ public class DBAttributeStatement
 		{
 		}
 
-		public Builder withCondition(String condition)
+		Builder withCondition(String condition)
 		{
 			this.condition = condition;
 			return this;
 		}
 
-		public Builder withExtraGroupName(String extraGroupName)
+		Builder withExtraGroupName(String extraGroupName)
 		{
 			this.extraGroupName = extraGroupName;
 			return this;
 		}
 
-		public Builder withResolution(String resolution)
+		Builder withResolution(String resolution)
 		{
 			this.resolution = resolution;
 			return this;
 		}
 
-		public Builder withFixedAttribute(DBAttribute fixedAttribute)
+		Builder withFixedAttribute(DBAttribute fixedAttribute)
 		{
 			this.fixedAttribute = fixedAttribute;
 			return this;
 		}
 
-		public Builder withDynamicAttributeName(String dynamicAttributeName)
+		Builder withDynamicAttributeName(String dynamicAttributeName)
 		{
 			this.dynamicAttributeName = dynamicAttributeName;
 			return this;
 		}
 
-		public Builder withDynamicAttributeExpression(String dynamicAttributeExpression)
+		Builder withDynamicAttributeExpression(String dynamicAttributeExpression)
 		{
 			this.dynamicAttributeExpression = dynamicAttributeExpression;
 			return this;
 		}
 
-		public DBAttributeStatement build()
+		DBAttributeStatement build()
 		{
 			return new DBAttributeStatement(this);
 		}

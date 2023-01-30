@@ -3,12 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.mappers;
+package pl.edu.icm.unity.store.impl.groups;
 
-import pl.edu.icm.unity.store.types.DBGroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 
-public class GroupDelegationConfigurationMapper
+class GroupDelegationConfigurationMapper
 {
 	static DBGroupDelegationConfiguration map(GroupDelegationConfiguration groupDelegationConfiguration)
 	{
@@ -28,8 +27,7 @@ public class GroupDelegationConfigurationMapper
 		return new GroupDelegationConfiguration(dbGroupDelegationConfiguration.enabled,
 				dbGroupDelegationConfiguration.enableSubprojects, dbGroupDelegationConfiguration.logoUrl,
 				dbGroupDelegationConfiguration.registrationForm, dbGroupDelegationConfiguration.signupEnquiryForm,
-				dbGroupDelegationConfiguration.membershipUpdateEnquiryForm,
-				dbGroupDelegationConfiguration.attributes);
+				dbGroupDelegationConfiguration.membershipUpdateEnquiryForm, dbGroupDelegationConfiguration.attributes);
 
 	}
 }

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.types;
+package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.List;
 import java.util.Objects;
@@ -11,9 +11,8 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-
 @JsonDeserialize(builder = DBGroupDelegationConfiguration.Builder.class)
-public class DBGroupDelegationConfiguration
+class DBGroupDelegationConfiguration
 {
 	public final boolean enabled;
 	public final String logoUrl;
@@ -60,12 +59,12 @@ public class DBGroupDelegationConfiguration
 				&& Objects.equals(signupEnquiryForm, other.signupEnquiryForm);
 	}
 
-	public static Builder builder()
+	static Builder builder()
 	{
 		return new Builder();
 	}
 
-	public static final class Builder
+	static final class Builder
 	{
 		private boolean enabled;
 		private String logoUrl;
@@ -79,37 +78,37 @@ public class DBGroupDelegationConfiguration
 		{
 		}
 
-		public Builder withEnabled(boolean enabled)
+		Builder withEnabled(boolean enabled)
 		{
 			this.enabled = enabled;
 			return this;
 		}
 
-		public Builder withLogoUrl(String logoUrl)
+		Builder withLogoUrl(String logoUrl)
 		{
 			this.logoUrl = logoUrl;
 			return this;
 		}
 
-		public Builder withRegistrationForm(String registrationForm)
+		Builder withRegistrationForm(String registrationForm)
 		{
 			this.registrationForm = registrationForm;
 			return this;
 		}
 
-		public Builder withSignupEnquiryForm(String signupEnquiryForm)
+		Builder withSignupEnquiryForm(String signupEnquiryForm)
 		{
 			this.signupEnquiryForm = signupEnquiryForm;
 			return this;
 		}
 
-		public Builder withMembershipUpdateEnquiryForm(String membershipUpdateEnquiryForm)
+		Builder withMembershipUpdateEnquiryForm(String membershipUpdateEnquiryForm)
 		{
 			this.membershipUpdateEnquiryForm = membershipUpdateEnquiryForm;
 			return this;
 		}
 
-		public Builder withAttributes(List<String> attributes)
+		Builder withAttributes(List<String> attributes)
 		{
 			this.attributes = Optional.ofNullable(attributes)
 					.map(List::copyOf)
@@ -117,13 +116,13 @@ public class DBGroupDelegationConfiguration
 			return this;
 		}
 
-		public Builder withEnableSubprojects(boolean enableSubprojects)
+		Builder withEnableSubprojects(boolean enableSubprojects)
 		{
 			this.enableSubprojects = enableSubprojects;
 			return this;
 		}
 
-		public DBGroupDelegationConfiguration build()
+		DBGroupDelegationConfiguration build()
 		{
 			return new DBGroupDelegationConfiguration(this);
 		}

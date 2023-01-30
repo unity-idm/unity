@@ -3,12 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.mappers;
+package pl.edu.icm.unity.store.impl.groups;
 
-import pl.edu.icm.unity.store.types.DBGroupProperty;
 import pl.edu.icm.unity.types.basic.GroupProperty;
 
-public class GroupPropertyMapper
+class GroupPropertyMapper
 {
 	static DBGroupProperty map(GroupProperty groupProperty)
 	{
