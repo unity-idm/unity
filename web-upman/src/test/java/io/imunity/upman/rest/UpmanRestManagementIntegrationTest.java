@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
+public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 {
 	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 

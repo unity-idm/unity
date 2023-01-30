@@ -40,7 +40,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class UpmanRESTBaseTest extends DBIntegrationTestBase
+abstract class UpmanRESTTestBase extends DBIntegrationTestBase
 {
 	public static final String AUTHENTICATOR_REST_PASS = "ApassREST";
 	public static final String CONFIGURATION = "#\n" +
