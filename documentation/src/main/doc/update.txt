@@ -380,5 +380,13 @@ to UpMan is unaffected, and so the old styling and templates will still work int
 
 ==== From 3.11 to 3.12
 
+===== RPM packaging
+
 RPM packaging was dropped, starting from Unity 3.12.0 only the +tar.gz+ installation bundle is officially supported.
 
+===== Java integration over REST API 
+
+The +unity-types-api+ module, sometimes used in external Java apps to rapidly develop integration with Unity over its REST API, is now deprecated and will be dropped in the 4.0 release. 
+
+REST integrations relying on this module should be migrated to a new module +unity-rest-api+. This new module contains only types relevant for the REST API. It is clean: all types are immutable, contain builders and can be (de)serialized using native Jackson mechanism without any added magic or custom methods. Note that we haven't changed the JSONs formats - only the Java API was rewritten.
+ 
