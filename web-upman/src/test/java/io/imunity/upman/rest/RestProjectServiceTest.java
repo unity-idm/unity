@@ -396,7 +396,7 @@ class RestProjectServiceTest
 		GroupContents groupContents = new GroupContents();
 		groupContents.setMembers(List.of(new GroupMembership("/A/B", 2, new Date())));
 
-		when(delGroupMan.getDelegatedGroupMemebers("/A", "/A/B"))
+		when(delGroupMan.getDelegatedGroupMemebers("/A/B", "/A/B"))
 			.thenReturn(List.of(
 				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.manager,
 					"name", new VerifiableElementBase("email@gmail.com"),
