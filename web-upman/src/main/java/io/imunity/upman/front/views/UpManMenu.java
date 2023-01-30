@@ -180,7 +180,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 
 		private void setImage(ProjectGroup projectGroup)
 		{
-			Image image = new Image(projectService.getProjectLogo(projectGroup), "");
+			Image image = projectService.getProjectLogoFallbackToEmptyImage(projectGroup);
 			image.setId("unity-logo-image");
 			imageLayout.removeAll();
 			imageLayout.add(image);
