@@ -416,16 +416,18 @@ class RestProjectServiceTest
 	@Test
 	void shouldGetProjectAuthorizationRole() throws EngineException
 	{
-		long id = 2L;
-		when(delGroupMan.getGroupAuthorizationRole("/A/B", id))
-			.thenReturn(GroupAuthorizationRole.manager);
-		Entity entity = mock(Entity.class);
-		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email"))))
-			.thenReturn(entity);
-		when(entity.getId()).thenReturn(id);
+		GroupContents groupContents = new GroupContents();
+		groupContents.setMembers(List.of(new GroupMembership("/A/B", 2, new Date())));
+
+		when(delGroupMan.getDelegatedGroupMemebers("/A", "/A/B"))
+			.thenReturn(List.of(
+				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.manager,
+					"name", new VerifiableElementBase("email@gmail.com"),
+					Optional.of(List.of(new Attribute("attr", "string", "/A/B", List.of("val"))))))
+			);
 		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
-		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole("B", "email");
+		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole("B", "email@gmail.com");
 
 		assertThat(role).isEqualTo(new RestAuthorizationRole("manager"));
 	}
