@@ -299,22 +299,7 @@ class RestProjectService
 	@Transactional
 	public RestAuthorizationRole getProjectAuthorizationRole(String projectId, String email) throws EngineException
 	{
-		assertAuthorization();
-		validateGroupPresence(projectId);
-		Long id = getId(email);
-		GroupAuthorizationRole groupAuthorizationRole;
-		try
-		{
-			groupAuthorizationRole = delGroupMan.getGroupAuthorizationRole(getFullGroupName(projectId), id);
-		}
-		catch (IllegalGroupValueException e)
-		{
-			throw new NotFoundException(e.getMessage());
-		}
-		return ofNullable(groupAuthorizationRole)
-			.map(Enum::name)
-			.map(RestAuthorizationRole::new)
-			.orElseThrow(NotFoundException::new);
+		return new RestAuthorizationRole(getProjectMember(projectId, email).role);
 	}
 
 	@Transactional

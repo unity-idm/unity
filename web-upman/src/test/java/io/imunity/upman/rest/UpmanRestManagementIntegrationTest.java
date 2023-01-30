@@ -377,6 +377,40 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 	}
 
 	@Test
+	public void addedMembershipReturnedDefaultRegularRole() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		String contents = client.execute(host, getProject, getClientContext(host),
+			new BasicHttpClientResponseHandler());
+		RestAuthorizationRole role = JsonUtil.parse(contents, RestAuthorizationRole.class);
+
+		assertThat(role.role).isEqualTo("regular");
+	}
+
+	@Test
 	public void updatedMembershipRoleIsReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
