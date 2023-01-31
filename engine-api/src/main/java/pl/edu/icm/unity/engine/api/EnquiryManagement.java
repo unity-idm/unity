@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api;
 
-import java.util.List;
-
 import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -15,6 +13,8 @@ import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
+
+import java.util.List;
 
 /**
  * Enquires support: forms, submissions of requests and their processing.
@@ -82,6 +82,8 @@ public interface EnquiryManagement
 	 * @return enquiry form with given id.
 	 */
 	EnquiryForm getEnquiry(String id) throws EngineException;
+
+	boolean hasForm(String id);
 	
 	/**
 	 * Marks an enquiry as ignored for the given user. This is only possible for enquires 

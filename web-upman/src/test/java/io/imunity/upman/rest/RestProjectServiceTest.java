@@ -16,12 +16,12 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -158,6 +159,9 @@ class RestProjectServiceTest
 			.withSignUpEnquiry(new RestSignUpEnquiry("ola", false))
 			.withMembershipUpdateEnquiry(new RestMembershipEnquiry("tola", false))
 			.build();
+		when(registrationsManagement.hasForm("ala")).thenReturn(true);
+		when(enquiryManagement.hasForm("ola")).thenReturn(true);
+		when(enquiryManagement.hasForm("tola")).thenReturn(true);
 
 		restProjectService.addProject(request);
 
@@ -250,6 +254,10 @@ class RestProjectServiceTest
 			.withMembershipUpdateEnquiry(new RestMembershipEnquiry("tola", false))
 			.build();
 
+		when(registrationsManagement.hasForm("ala")).thenReturn(true);
+		when(enquiryManagement.hasForm("ola")).thenReturn(true);
+		when(enquiryManagement.hasForm("tola")).thenReturn(true);
+
 		restProjectService.updateProject("B", request);
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
@@ -288,7 +296,6 @@ class RestProjectServiceTest
 		assertThat(project.isPublic).isEqualTo(true);
 		assertThat(project.displayedName).isEqualTo(Map.of("en", "disName"));
 		assertThat(project.description).isEqualTo(Map.of("en", "description"));
-		assertThat(project.enableDelegation).isEqualTo(true);
 		assertThat(project.logoUrl).isEqualTo("logoUrl");
 		assertThat(project.enableSubprojects).isEqualTo(true);
 		assertThat(project.readOnlyAttributes).isEqualTo(List.of("attr"));
@@ -317,7 +324,6 @@ class RestProjectServiceTest
 		assertThat(project.isPublic).isEqualTo(true);
 		assertThat(project.displayedName).isEqualTo(Map.of("en", "disName"));
 		assertThat(project.description).isEqualTo(Map.of("en", "description"));
-		assertThat(project.enableDelegation).isEqualTo(true);
 		assertThat(project.logoUrl).isEqualTo("logoUrl");
 		assertThat(project.enableSubprojects).isEqualTo(true);
 		assertThat(project.readOnlyAttributes).isEqualTo(List.of("attr"));
@@ -331,14 +337,14 @@ class RestProjectServiceTest
 	{
 		long id = 2L;
 		Entity entity = mock(Entity.class);
-		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email"))))
-			.thenReturn(entity);
+		when(idsMan.getAllEntitiesWithContactEmail("email"))
+			.thenReturn(Set.of(entity));
 		when(entity.getId()).thenReturn(id);
 		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
 		restProjectService.addProjectMember("B", "email");
 
-		verify(delGroupMan).addMemberToGroup("/A", "/A/B", id);
+		verify(delGroupMan).addMemberToGroup("/A/B", "/A/B", id);
 	}
 
 	@Test
@@ -352,8 +358,8 @@ class RestProjectServiceTest
 	@Test
 	void shouldNotAddProjectMemberWhenUserIdentityDoesntExist() throws EngineException
 	{
-		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email"))))
-			.thenThrow(UnknownIdentityException.class);
+		when(idsMan.getAllEntitiesWithContactEmail("email"))
+			.thenThrow(UnknownEmailException.class);
 		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
 		Assertions.assertThrows(NotFoundException.class, () -> restProjectService.addProjectMember("B", "email"));
@@ -375,7 +381,7 @@ class RestProjectServiceTest
 		GroupContents groupContents = new GroupContents();
 		groupContents.setMembers(List.of(new GroupMembership("/A/B", 2, new Date())));
 
-		when(delGroupMan.getDelegatedGroupMemebers("/A/B", "/A/B"))
+		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
 			.thenReturn(List.of(
 				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.manager,
 				"name", new VerifiableElementBase("email@gmail.com"),
@@ -396,7 +402,7 @@ class RestProjectServiceTest
 		GroupContents groupContents = new GroupContents();
 		groupContents.setMembers(List.of(new GroupMembership("/A/B", 2, new Date())));
 
-		when(delGroupMan.getDelegatedGroupMemebers("/A/B", "/A/B"))
+		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
 			.thenReturn(List.of(
 				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.manager,
 					"name", new VerifiableElementBase("email@gmail.com"),
@@ -419,7 +425,7 @@ class RestProjectServiceTest
 		GroupContents groupContents = new GroupContents();
 		groupContents.setMembers(List.of(new GroupMembership("/A/B", 2, new Date())));
 
-		when(delGroupMan.getDelegatedGroupMemebers("/A/B", "/A/B"))
+		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
 			.thenReturn(List.of(
 				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.manager,
 					"name", new VerifiableElementBase("email@gmail.com"),
@@ -437,15 +443,15 @@ class RestProjectServiceTest
 	{
 		long id = 2L;
 		Entity entity = mock(Entity.class);
-		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email"))))
-			.thenReturn(entity);
+		when(idsMan.getAllEntitiesWithContactEmail("email"))
+			.thenReturn(Set.of(entity));
 		when(entity.getId()).thenReturn(id);
 		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
 
 		restProjectService.setProjectAuthorizationRole("B", "email", new RestAuthorizationRole("manager"));
 
-		verify(delGroupMan).setGroupAuthorizationRole("/A", "/A/B", 2, GroupAuthorizationRole.manager);
+		verify(delGroupMan).setGroupAuthorizationRole("/A/B", "/A/B", 2, GroupAuthorizationRole.manager);
 	}
 
 	private I18nString convertToI18nString(Map<String, String> map)

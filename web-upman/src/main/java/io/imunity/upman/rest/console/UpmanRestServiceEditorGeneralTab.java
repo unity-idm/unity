@@ -27,7 +27,6 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 	private Binder<UpmanRestServiceConfiguration> restBinder;
 	private final List<Group> allGroups;
 
-
 	public UpmanRestServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type,
 	                                        List<String> usedEndpointsPaths, Set<String> serverContextPaths,
 	                                        List<Group> allGroups)
@@ -65,8 +64,9 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 		main.addComponent(authorizationGroup);
 		restBinder.forField(authorizationGroup).asRequired().bind("authorizationGroup");
 
-		return new CollapsibleLayout(
-				msg.getMessage("UpmanRestServiceEditorComponent.groups"), main);
+		CollapsibleLayout components = new CollapsibleLayout(msg.getMessage("UpmanRestServiceEditorComponent.groups"), main);
+		components.expand();
+		return components;
 	}
 
 	private Component buildCorsSection()

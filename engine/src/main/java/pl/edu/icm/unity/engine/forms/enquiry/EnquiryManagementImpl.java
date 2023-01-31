@@ -4,23 +4,10 @@
  */
 package pl.edu.icm.unity.engine.forms.enquiry;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
@@ -70,6 +57,18 @@ import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the enquiry management API.
@@ -563,6 +562,13 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public EnquiryForm getEnquiry(String id) throws EngineException
 	{
 		return enquiryFormDB.get(id);
+	}
+
+	@Override
+	@Transactional
+	public boolean hasForm(String id)
+	{
+		return enquiryFormDB.exists(id);
 	}
 
 	private static class FormWithInvitation

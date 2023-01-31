@@ -68,8 +68,7 @@ class UpmanRestAuthorizationManager
 				|| roles.contains(GroupAuthorizationRole.projectsAdmin)))
 		{
 			throw new AuthorizationException(
-					"Access is denied. The operation requires unity rest manager capability in " + authorizationPath
-							+ " group");
+					"Access is denied. The operation requires unity rest manager capability");
 		}
 	}
 
