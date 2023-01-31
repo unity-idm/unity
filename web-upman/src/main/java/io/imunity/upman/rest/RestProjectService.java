@@ -90,11 +90,11 @@ class RestProjectService
 		else
 			projectId = project.projectId;
 
-		String fullGroupName = getFullGroupName(projectId);
+		String projectPath = getProjectPath(projectId);
 		if (project.displayedName == null || project.displayedName.isEmpty())
 			throw new IllegalArgumentException();
 
-		Group toAdd = new Group(fullGroupName);
+		Group toAdd = new Group(projectPath);
 		toAdd.setPublic(project.isPublic);
 		toAdd.setDisplayedName(convertToI18nString(project.displayedName));
 		toAdd.setDescription(convertToI18nString(project.description));
@@ -102,7 +102,7 @@ class RestProjectService
 		groupMan.addGroup(toAdd);
 
 		DelegationComputer delegationComputer = DelegationComputer.builder()
-			.withFullGroupName(fullGroupName)
+			.withFullGroupName(projectPath)
 			.withLogoUrl(project.logoUrl)
 			.withReadOnlyAttributes(project.readOnlyAttributes)
 			.withGroupDelegationConfigGenerator(groupDelegationConfigGenerator)
@@ -122,11 +122,11 @@ class RestProjectService
 				project.readOnlyAttributes)
 			);
 
-			groupMan.updateGroup(fullGroupName, toAdd);
+			groupMan.updateGroup(projectPath, toAdd);
 		}
 		catch (Exception e)
 		{
-			groupMan.removeGroup(fullGroupName, false);
+			groupMan.removeGroup(projectPath, false);
 			throw e;
 		}
 
@@ -141,14 +141,14 @@ class RestProjectService
 		if (project.displayedName == null || project.displayedName.isEmpty())
 			throw new IllegalArgumentException("Displayed name have to be set");
 
-		String fullGroupName = getFullGroupName(projectId);
-		Group toUpdate = new Group(fullGroupName);
+		String projectPath = getProjectPath(projectId);
+		Group toUpdate = new Group(projectPath);
 		toUpdate.setPublic(project.isPublic);
 		toUpdate.setDisplayedName(convertToI18nString(project.displayedName));
 		toUpdate.setDescription(convertToI18nString(project.description));
 
 		DelegationComputer delegationComputer = DelegationComputer.builder()
-			.withFullGroupName(fullGroupName)
+			.withFullGroupName(projectPath)
 			.withLogoUrl(project.logoUrl)
 			.withReadOnlyAttributes(project.readOnlyAttributes)
 			.withGroupDelegationConfigGenerator(groupDelegationConfigGenerator)
@@ -166,7 +166,7 @@ class RestProjectService
 				registrationFormName, joinEnquiryName, updateEnquiryName,
 				project.readOnlyAttributes)
 			);
-			groupMan.updateGroup(fullGroupName, toUpdate);
+			groupMan.updateGroup(projectPath, toUpdate);
 		}
 		catch (GroupNotFoundException e)
 		{
@@ -198,7 +198,7 @@ class RestProjectService
 		assertAuthorization();
 		try
 		{
-			groupMan.removeGroup(getFullGroupName(projectId), true);
+			groupMan.removeGroup(getProjectPath(projectId), true);
 		}
 		catch (GroupNotFoundException e)
 		{
@@ -217,7 +217,7 @@ class RestProjectService
 		GroupContents contents;
 		try
 		{
-			contents = groupMan.getContents(getFullGroupName(projectId),
+			contents = groupMan.getContents(getProjectPath(projectId),
 				GroupContents.GROUPS | GroupContents.METADATA);
 		}
 		catch (GroupNotFoundException e)
@@ -247,13 +247,13 @@ class RestProjectService
 		assertAuthorization();
 		validateGroupPresence(projectId);
 		Long id = getId(email);
-		String fullGroupName = getFullGroupName(projectId);
-		delGroupMan.addMemberToGroup(fullGroupName, fullGroupName, id);
+		String projectPath = getProjectPath(projectId);
+		delGroupMan.addMemberToGroup(projectPath, projectPath, id);
 	}
 
 	private void validateGroupPresence(String projectId) throws AuthorizationException
 	{
-		if (!groupMan.isPresent(getFullGroupName(projectId)))
+		if (!groupMan.isPresent(getProjectPath(projectId)))
 			throw new NotFoundException(String.format("Project %s doesn't exist", projectId));
 	}
 
@@ -271,7 +271,7 @@ class RestProjectService
 		validateGroupPresence(projectId);
 		try
 		{
-			groupMan.removeMember(getFullGroupName(projectId), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
+			groupMan.removeMember(getProjectPath(projectId), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
 		}
 		catch (UnknownIdentityException e)
 		{
@@ -284,8 +284,8 @@ class RestProjectService
 	{
 		assertAuthorization();
 		validateGroupPresence(projectId);
-		String fullGroupName = getFullGroupName(projectId);
-		return delGroupMan.getDelegatedGroupMembers(fullGroupName, fullGroupName).stream()
+		String projectPath = getProjectPath(projectId);
+		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
 			.map(RestProjectService::map)
 			.collect(Collectors.toList());
 	}
@@ -295,8 +295,8 @@ class RestProjectService
 	{
 		assertAuthorization();
 		validateGroupPresence(projectId);
-		String fullGroupName = getFullGroupName(projectId);
-		return delGroupMan.getDelegatedGroupMembers(fullGroupName, fullGroupName).stream()
+		String projectPath = getProjectPath(projectId);
+		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
 			.filter(member -> member.email.getValue().equals(email))
 			.map(RestProjectService::map)
 			.findFirst()
@@ -319,8 +319,9 @@ class RestProjectService
 		Long id = getId(email);
 		try
 		{
-			String fullGroupName = getFullGroupName(projectId);
-			delGroupMan.setGroupAuthorizationRole(fullGroupName, fullGroupName, id, GroupAuthorizationRole.valueOf(role.role));
+			String projectPath = getProjectPath(projectId);
+			delGroupMan.setGroupAuthorizationRole(projectPath, projectPath, id,
+				GroupAuthorizationRole.valueOf(role.role));
 		}
 		catch (IllegalGroupValueException e)
 		{
@@ -347,7 +348,7 @@ class RestProjectService
 		return entities.iterator().next().getId();
 	}
 
-	private String getFullGroupName(String projectId)
+	private String getProjectPath(String projectId)
 	{
 		if(projectId.contains("/"))
 			throw new IllegalArgumentException("Project Id cannot start form /");

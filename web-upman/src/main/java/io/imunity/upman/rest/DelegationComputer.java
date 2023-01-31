@@ -52,7 +52,7 @@ class DelegationComputer
 		} else if (membershipUpdateEnquiry.name != null)
 		{
 			if(!enquiryManagement.hasForm(membershipUpdateEnquiry.name))
-				throw new BadRequestException("Name of membershipUpdateEnquiry doesn't exist");
+				throw new BadRequestException("Form named " + membershipUpdateEnquiry.name + " does not exist");
 		}
 		return updateEnquiryName;
 	}
@@ -74,7 +74,7 @@ class DelegationComputer
 		else if (signUpEnquiry.name != null)
 		{
 			if(!enquiryManagement.hasForm(signUpEnquiry.name))
-				throw new BadRequestException("Name of signUpEnquiry doesn't exist");
+				throw new BadRequestException("Form named " + signUpEnquiry.name + " does not exist");
 		}
 		return joinEnquiryName;
 	}
@@ -95,7 +95,7 @@ class DelegationComputer
 		else if (registrationForm.name != null)
 		{
 			if(!registrationsManagement.hasForm(registrationForm.name))
-				throw new BadRequestException("Name of registrationForm doesn't exist");
+				throw new BadRequestException("Form named " + registrationForm.name + " does not exist");
 		}
 		return registrationFormName;
 	}
