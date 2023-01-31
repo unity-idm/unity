@@ -68,7 +68,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		assertThat(project.isPublic).isEqualTo(false);
 		assertThat(project.displayedName).isEqualTo(Map.of("en", "superGroup"));
 		assertThat(project.description).isEqualTo(Map.of("en", "description"));
-		assertThat(project.enableDelegation).isEqualTo(true);
 		assertThat(project.logoUrl).isEqualTo("/image.png");
 		assertThat(project.enableSubprojects).isEqualTo(true);
 		assertThat(project.readOnlyAttributes).isEqualTo(List.of());
@@ -253,7 +252,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		assertThat(project.isPublic).isEqualTo(false);
 		assertThat(project.displayedName).isEqualTo(Map.of("en", "superGroup2"));
 		assertThat(project.description).isEqualTo(Map.of("en", "description2"));
-		assertThat(project.enableDelegation).isEqualTo(true);
 		assertThat(project.logoUrl).isEqualTo("/image2.png");
 		assertThat(project.enableSubprojects).isEqualTo(true);
 		assertThat(project.readOnlyAttributes).isEqualTo(List.of());

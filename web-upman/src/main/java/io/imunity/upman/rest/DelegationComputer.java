@@ -12,6 +12,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
+import javax.ws.rs.BadRequestException;
 import java.util.List;
 
 class DelegationComputer
@@ -48,6 +49,10 @@ class DelegationComputer
 					logoUrl);
 			enquiryManagement.addEnquiry(updateEnquiryForm);
 			updateEnquiryName = updateEnquiryForm.getName();
+		} else if (membershipUpdateEnquiry.name != null)
+		{
+			if(!enquiryManagement.hasForm(membershipUpdateEnquiry.name))
+				throw new BadRequestException("Name of membershipUpdateEnquiry doesn't exist");
 		}
 		return updateEnquiryName;
 	}
@@ -66,6 +71,11 @@ class DelegationComputer
 			enquiryManagement.addEnquiry(joinEnquiryForm);
 			joinEnquiryName = joinEnquiryForm.getName();
 		}
+		else if (signUpEnquiry.name != null)
+		{
+			if(!enquiryManagement.hasForm(signUpEnquiry.name))
+				throw new BadRequestException("Name of signUpEnquiry doesn't exist");
+		}
 		return joinEnquiryName;
 	}
 
@@ -81,6 +91,11 @@ class DelegationComputer
 					fullGroupName, logoUrl, readOnlyAttributes);
 			registrationsManagement.addForm(regForm);
 			registrationFormName = regForm.getName();
+		}
+		else if (registrationForm.name != null)
+		{
+			if(!registrationsManagement.hasForm(registrationForm.name))
+				throw new BadRequestException("Name of registrationForm doesn't exist");
 		}
 		return registrationFormName;
 	}

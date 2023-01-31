@@ -21,7 +21,6 @@ class RestProject
 	final boolean isPublic;
 	final Map<String, String> displayedName;
 	final Map<String, String> description;
-	final boolean enableDelegation;
 	final String logoUrl;
 	final boolean enableSubprojects;
 	final List<String> readOnlyAttributes;
@@ -30,15 +29,13 @@ class RestProject
 	final String membershipUpdateEnquiry;
 
 	RestProject(String projectId, boolean isPublic, Map<String, String> displayedName,
-	            Map<String, String> description, boolean enableDelegation,
-	            String logoUrl, boolean enableSubprojects, List<String> readOnlyAttributes, String registrationForm,
-	            String signUpEnquiry, String membershipUpdateEnquiry)
+	            Map<String, String> description, String logoUrl, boolean enableSubprojects,
+	            List<String> readOnlyAttributes, String registrationForm, String signUpEnquiry, String membershipUpdateEnquiry)
 	{
 		this.projectId = projectId;
 		this.isPublic = isPublic;
 		this.displayedName = displayedName;
 		this.description = description;
-		this.enableDelegation = enableDelegation;
 		this.logoUrl = logoUrl;
 		this.enableSubprojects = enableSubprojects;
 		this.readOnlyAttributes = readOnlyAttributes;
@@ -53,7 +50,7 @@ class RestProject
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		RestProject that = (RestProject) o;
-		return isPublic == that.isPublic && enableDelegation == that.enableDelegation &&
+		return isPublic == that.isPublic &&
 			enableSubprojects == that.enableSubprojects &&
 			Objects.equals(projectId, that.projectId) &&
 			Objects.equals(displayedName, that.displayedName) &&
@@ -68,7 +65,7 @@ class RestProject
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(projectId, isPublic, displayedName, description, enableDelegation, logoUrl,
+		return Objects.hash(projectId, isPublic, displayedName, description, logoUrl,
 			enableSubprojects, readOnlyAttributes, registrationForm, signUpEnquiry, membershipUpdateEnquiry);
 	}
 
@@ -80,7 +77,6 @@ class RestProject
 			", isPublic=" + isPublic +
 			", displayedName=" + displayedName +
 			", description=" + description +
-			", enableDelegation=" + enableDelegation +
 			", logoUrl='" + logoUrl + '\'' +
 			", enableSubprojects=" + enableSubprojects +
 			", readOnlyAttributes='" + readOnlyAttributes + '\'' +
@@ -101,7 +97,6 @@ class RestProject
 		private boolean isPublic;
 		private Map<String, String> displayedName;
 		private Map<String, String> description;
-		private boolean enableDelegation;
 		private String logoUrl;
 		private boolean enableSubprojects;
 		private List<String> readOnlyAttributes;
@@ -133,12 +128,6 @@ class RestProject
 		public RestProjectBuilder withDescription(Map<String, String> description)
 		{
 			this.description = description;
-			return this;
-		}
-
-		public RestProjectBuilder withEnableDelegation(boolean enableDelegation)
-		{
-			this.enableDelegation = enableDelegation;
 			return this;
 		}
 
@@ -180,7 +169,7 @@ class RestProject
 
 		public RestProject build()
 		{
-			return new RestProject(projectId, isPublic, displayedName, description, enableDelegation, logoUrl,
+			return new RestProject(projectId, isPublic, displayedName, description, logoUrl,
 				enableSubprojects, readOnlyAttributes, registrationForm, signUpEnquiry, membershipUpdateEnquiry);
 		}
 	}

@@ -62,7 +62,7 @@ public class TestGroupMembersService
 		Group group = new Group("/project/group",  new I18nString("group"),"group", false, false, "", false, 0);
 
 		service.getGroupMembers(project, group);
-		verify(mockDelGroupMan).getDelegatedGroupMemebers(eq("/project"), eq("/project/group"));
+		verify(mockDelGroupMan).getDelegatedGroupMembers(eq("/project"), eq("/project/group"));
 
 	}
 

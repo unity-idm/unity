@@ -20,7 +20,8 @@ class RestSignUpEnquiry
 	RestSignUpEnquiry(@JsonProperty("name") String name, @JsonProperty("autogenerate") boolean autogenerate)
 	{
 		if(autogenerate && name != null)
-			throw new BadRequestException("Name should be null when autogenerate flag is enabled");
+			throw new BadRequestException("Property 'name' should be null when property 'autogenerate' is enabled " +
+				"inside signUpEnquiry json object");
 		this.name = name;
 		this.autogenerate = autogenerate;
 	}

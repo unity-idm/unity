@@ -10,6 +10,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
+import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -21,6 +22,7 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -28,10 +30,12 @@ import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 import javax.transaction.Transactional;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
@@ -243,7 +247,8 @@ class RestProjectService
 		assertAuthorization();
 		validateGroupPresence(projectId);
 		Long id = getId(email);
-		delGroupMan.addMemberToGroup(rootGroup, getFullGroupName(projectId), id);
+		String fullGroupName = getFullGroupName(projectId);
+		delGroupMan.addMemberToGroup(fullGroupName, fullGroupName, id);
 	}
 
 	private void validateGroupPresence(String projectId) throws AuthorizationException
@@ -280,7 +285,7 @@ class RestProjectService
 		assertAuthorization();
 		validateGroupPresence(projectId);
 		String fullGroupName = getFullGroupName(projectId);
-		return delGroupMan.getDelegatedGroupMemebers(fullGroupName, fullGroupName).stream()
+		return delGroupMan.getDelegatedGroupMembers(fullGroupName, fullGroupName).stream()
 			.map(RestProjectService::map)
 			.collect(Collectors.toList());
 	}
@@ -291,7 +296,7 @@ class RestProjectService
 		assertAuthorization();
 		validateGroupPresence(projectId);
 		String fullGroupName = getFullGroupName(projectId);
-		return delGroupMan.getDelegatedGroupMemebers(fullGroupName, fullGroupName).stream()
+		return delGroupMan.getDelegatedGroupMembers(fullGroupName, fullGroupName).stream()
 			.filter(member -> member.email.getValue().equals(email))
 			.map(RestProjectService::map)
 			.findFirst()
@@ -314,7 +319,8 @@ class RestProjectService
 		Long id = getId(email);
 		try
 		{
-			delGroupMan.setGroupAuthorizationRole(rootGroup, getFullGroupName(projectId), id, GroupAuthorizationRole.valueOf(role.role));
+			String fullGroupName = getFullGroupName(projectId);
+			delGroupMan.setGroupAuthorizationRole(fullGroupName, fullGroupName, id, GroupAuthorizationRole.valueOf(role.role));
 		}
 		catch (IllegalGroupValueException e)
 		{
@@ -324,14 +330,21 @@ class RestProjectService
 
 	private Long getId(String email) throws EngineException
 	{
+		Set<Entity> entities;
 		try
 		{
-			return idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, email))).getId();
+			entities = idsMan.getAllEntitiesWithContactEmail(email);
 		}
-		catch (UnknownIdentityException e)
+		catch (UnknownEmailException e)
 		{
 			throw new NotFoundException(String.format("Email %s not found", email));
 		}
+
+		if(entities.size() > 1)
+			throw new BadRequestException("Ambiguous user");
+		if(entities.size() == 0)
+			throw new NotFoundException(String.format("Email %s not found", email));
+		return entities.iterator().next().getId();
 	}
 
 	private String getFullGroupName(String projectId)
@@ -353,7 +366,6 @@ class RestProjectService
 			.withPublic(group.isPublic())
 			.withDisplayedName(group.getDisplayedName().getMap())
 			.withDescription(group.getDescription().getMap())
-			.withEnableDelegation(group.getDelegationConfiguration().enabled)
 			.withLogoUrl(group.getDelegationConfiguration().logoUrl)
 			.withEnableSubprojects(group.getDelegationConfiguration().enableSubprojects)
 			.withReadOnlyAttributes(group.getDelegationConfiguration().attributes)
