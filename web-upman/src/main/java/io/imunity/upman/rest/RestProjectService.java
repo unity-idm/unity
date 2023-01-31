@@ -32,6 +32,9 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import javax.transaction.Transactional;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
+
+import io.imunity.upman.rest.DelegationComputer.RollbackState;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -109,12 +112,13 @@ class RestProjectService
 			.withRegistrationsManagement(registrationsManagement)
 			.withEnquiryManagement(enquiryManagement)
 			.build();
-
+		RollbackState rollbackState = delegationComputer.newRollbackState();
 		try
 		{
-			String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm);
-			String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry);
-			String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry);
+			String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm, rollbackState);
+			String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry, rollbackState);
+			String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(
+					project.membershipUpdateEnquiry, rollbackState);
 			toAdd.setDelegationConfiguration(new GroupDelegationConfiguration(true,
 				project.enableSubprojects,
 				project.logoUrl,
@@ -126,6 +130,7 @@ class RestProjectService
 		}
 		catch (Exception e)
 		{
+			delegationComputer.rollback(rollbackState);
 			groupMan.removeGroup(projectPath, false);
 			throw e;
 		}
@@ -155,11 +160,12 @@ class RestProjectService
 			.withRegistrationsManagement(registrationsManagement)
 			.withEnquiryManagement(enquiryManagement)
 			.build();
+		RollbackState rollbackState = delegationComputer.newRollbackState();
 		try
 		{
-			String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm);
-			String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry);
-			String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry);
+			String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm, rollbackState);
+			String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry, rollbackState);
+			String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry, rollbackState);
 			toUpdate.setDelegationConfiguration(new GroupDelegationConfiguration(true,
 				project.enableSubprojects,
 				project.logoUrl,
