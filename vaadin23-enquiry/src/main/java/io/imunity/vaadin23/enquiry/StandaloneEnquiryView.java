@@ -130,14 +130,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 				.getParameters()
 				.getOrDefault(REG_CODE_PARAM, List.of())
 				.stream().findFirst().orElse(null);
-
-		try
-		{
-			enter();
-		} catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		enter();
 	}
 
 	private EnquiryForm getForm(String name)
@@ -152,14 +145,12 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		return null;
 	}
 
-	public void enter() throws Exception
+	public void enter()
 	{
 
 		if(InvocationContext.getCurrent().getLoginSession() != null)
 		{
-			editor = editorController.getEditorInstanceForAuthenticatedUser(form, new PrefilledSet(),
-							RemotelyAuthenticatedPrincipal.getLocalContext());
-			showEditorContent();
+			showContentForLoggedInUser();
 		}
 		else if (registrationCode == null)
 		{
@@ -168,6 +159,21 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		{
 			doShowEditorOrSkipToFinalStep();
 		}
+	}
+
+	private void showContentForLoggedInUser()
+	{
+		try
+		{
+			editor = editorController.getEditorInstanceForAuthenticatedUser(form, new PrefilledSet(),
+					RemotelyAuthenticatedPrincipal.getLocalContext());
+		} catch (Exception e)
+		{
+			log.error("Can not setup enquiry editor", e);
+			handleError(e, ErrorCause.MISCONFIGURED);
+			return;
+		}
+		showEditorContent();
 	}
 
 	private void doShowEditorOrSkipToFinalStep()
