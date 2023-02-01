@@ -115,6 +115,22 @@ public class EnquiryResponseEditorControllerV23
 		return getEditorInstance(form, messageParams, remoteContext, prefilled, filteredPolicyAgreement);
 	}
 
+	public EnquiryResponseEditor getEditorInstanceForAuthenticatedUser(EnquiryForm form, PrefilledSet prefilled,
+	                                                                   RemotelyAuthenticatedPrincipal remoteContext) throws Exception
+	{
+		EntityParam loggedEntity = getLoggedEntity();
+		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
+				loggedEntity,
+				form.getPolicyAgreements());
+		return getEditorInstance(form, Collections.emptyMap(), remoteContext, prefilled,
+				filteredPolicyAgreement);
+	}
+
+	private EntityParam getLoggedEntity()
+	{
+		return  new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());
+	}
+
 	public PrefilledSet getPrefilledSetForSticky(EnquiryForm form, EntityParam entity) throws EngineException
 	{		
 		if (form.getType().equals(EnquiryType.STICKY))

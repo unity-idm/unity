@@ -16,10 +16,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import io.imunity.vaadin23.elements.NotificationPresenter;
 import io.imunity.vaadin23.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin23.endpoint.common.forms.components.WorkflowCompletedComponent;
@@ -29,6 +26,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -55,16 +53,18 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER;
+import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.SEC_ENQUIRY_PATH;
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
 
-@Route(value = ENQUIRY_PATH + ":" + StandalonePublicEnquiryView.FORM_PARAM)
-public class StandalonePublicEnquiryView extends Composite<Div> implements HasDynamicTitle, BeforeEnterObserver
+@RouteAlias(SEC_ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
+@Route(value = ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
+public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, BeforeEnterObserver
 {
 	public static final String FORM_PARAM = "form";
 	public static final String REG_CODE_PARAM = "regcode";
 
 
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandalonePublicEnquiryView.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneEnquiryView.class);
 
 	private final MessageSource msg;
 	private String registrationCode;
@@ -85,12 +85,12 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 	private final EnquiryInvitationEntityChooserV23.InvitationEntityChooserComponentFactoryV23 entityChooserComponentFactory;
 
 	@Autowired
-	public StandalonePublicEnquiryView(EnquiryResponseEditorControllerV23 editorController,
-	                                   InvitationResolver invitationResolver, MessageSource msg,
-	                                   URLQueryPrefillCreator urlQueryPrefillCreator,
-	                                   EnquiryInvitationEntityChooserV23.InvitationEntityChooserComponentFactoryV23 entityChooserComponentFactory,
-	                                   EnquiryManagement enqMan,
-	                                   NotificationPresenter notificationPresenter)
+	public StandaloneEnquiryView(EnquiryResponseEditorControllerV23 editorController,
+	                             InvitationResolver invitationResolver, MessageSource msg,
+	                             URLQueryPrefillCreator urlQueryPrefillCreator,
+	                             EnquiryInvitationEntityChooserV23.InvitationEntityChooserComponentFactoryV23 entityChooserComponentFactory,
+	                             EnquiryManagement enqMan,
+	                             NotificationPresenter notificationPresenter)
 	{
 		this.editorController = editorController;
 		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
@@ -102,7 +102,7 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 		getContent().setClassName("u-standalone-public-form");
 	}
 
-	public StandalonePublicEnquiryView init(EnquiryForm form)
+	public StandaloneEnquiryView init(EnquiryForm form)
 	{
 		this.form = form;
 		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
@@ -131,7 +131,13 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 				.getOrDefault(REG_CODE_PARAM, List.of())
 				.stream().findFirst().orElse(null);
 
-		enter();
+		try
+		{
+			enter();
+		} catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	private EnquiryForm getForm(String name)
@@ -146,9 +152,16 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 		return null;
 	}
 
-	public void enter()
+	public void enter() throws Exception
 	{
-		if (registrationCode == null)
+
+		if(InvocationContext.getCurrent().getLoginSession() != null)
+		{
+			editor = editorController.getEditorInstanceForAuthenticatedUser(form, new PrefilledSet(),
+							RemotelyAuthenticatedPrincipal.getLocalContext());
+			showEditorContent();
+		}
+		else if (registrationCode == null)
 		{
 			askForCode(this::doShowEditorOrSkipToFinalStep);
 		} else
@@ -196,8 +209,6 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 			}
 		}
 	}
-
-	
 
 	private void processInvitation(Long entity)
 	{
@@ -313,6 +324,7 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 		main.setAlignItems(FlexComponent.Alignment.CENTER);
 		Component buttonsBar = createButtonsBar();
 		main.add(buttonsBar);
+		main.getStyle().set("gap", "0");
 		getContent().add(main);
 	}
 
@@ -362,17 +374,18 @@ public class StandalonePublicEnquiryView extends Composite<Div> implements HasDy
 			}
 		);
 		okButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		okButton.setWidthFull();
 
 		Button cancelButton = new Button(msg.getMessage("cancel"), event ->
 		{
 			WorkflowFinalizationConfiguration config = cancel();
 			gotoFinalStep(config);
 		});
+		cancelButton.setWidthFull();
 
 		buttons.add(cancelButton, okButton);
-		buttons.setSpacing(true);
-		buttons.setMargin(true);
-		buttons.setPadding(true);
+		buttons.setMargin(false);
+		buttons.setPadding(false);
 		buttons.setJustifyContentMode(CENTER);
 		return buttons;
 	}

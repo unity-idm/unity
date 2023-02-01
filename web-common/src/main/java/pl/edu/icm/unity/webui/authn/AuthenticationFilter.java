@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static pl.edu.icm.unity.webui.VaadinRequestTypeMatcher.isVaadinBackgroundRequest;
@@ -36,6 +37,7 @@ import static pl.edu.icm.unity.webui.VaadinRequestTypeMatcher.isVaadinBackground
 public class AuthenticationFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationFilter.class);
+	private static final Set<String> VAADIN_PATH_ELEMENTS = Set.of("VAADIN", "APP", "UIDL");
 
 	private List<String> protectedServletPaths;
 	private String authnServletPath;
@@ -244,7 +246,8 @@ public class AuthenticationFilter implements Filter
 		String forwardURI = authnServletPath;
 		if (httpRequest.getPathInfo() != null)
 		{
-			forwardURI += httpRequest.getPathInfo();
+			String path = removePathElementsUntil(httpRequest.getPathInfo(), VAADIN_PATH_ELEMENTS);
+			forwardURI += path;
 		}
 		if (log.isTraceEnabled())
 		{
@@ -254,6 +257,20 @@ public class AuthenticationFilter implements Filter
 		}
 		RequestDispatcher dispatcher = httpRequest.getRequestDispatcher(forwardURI);
 		dispatcher.forward(httpRequest, response);
+	}
+
+	private static String removePathElementsUntil(String path, Set<String> until)
+	{
+		boolean startAdd = false;
+		StringBuilder newPath = new StringBuilder();
+		for(String element : path.split("/"))
+		{
+			if(until.contains(element))
+				startAdd = true;
+			if(startAdd)
+				newPath.append("/").append(element);
+		}
+		return newPath.toString();
 	}
 
 	private void bindSessionAndGotoProtectedResource(HttpServletRequest httpRequest,
