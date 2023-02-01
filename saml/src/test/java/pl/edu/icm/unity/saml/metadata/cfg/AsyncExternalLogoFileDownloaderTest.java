@@ -6,8 +6,10 @@
 package pl.edu.icm.unity.saml.metadata.cfg;
 
 import org.junit.Test;
-import org.mockito.internal.stubbing.answers.AnswersWithDelay;
 import org.mockito.internal.stubbing.answers.Returns;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.ValidableAnswer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -16,13 +18,19 @@ import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
 
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.stream.IntStream;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AsyncExternalLogoFileDownloaderTest
 {
@@ -52,9 +60,38 @@ public class AsyncExternalLogoFileDownloaderTest
 		when(entitiesDescriptorDocument.getEntitiesDescriptor()).thenReturn(entitiesDescriptorType);
 		when(entitiesDescriptorType.getID()).thenReturn("federationId");
 
-		doAnswer(new AnswersWithDelay( 5000,  new Returns(new TrustedIdPs(Set.of()))) ).when(metadataConverter).convertToTrustedIdPs(any(), any());
-		IntStream.range(0, 50).parallel().forEach(x -> asyncExternalLogoFileDownloader.downloadLogoFilesAsync(entitiesDescriptorDocument, null));
+		CompletableFuture<Void> waiter = new CompletableFuture<>();
+		doAnswer(new AnswersWithDelay(waiter,  new Returns(new TrustedIdPs(Set.of())))).when(metadataConverter).convertToTrustedIdPs(any(), any());
 
-		verify(metadataConverter, times(1)).convertToTrustedIdPs(any(), any());
+		CompletableFuture.allOf(
+			CompletableFuture.runAsync(() -> asyncExternalLogoFileDownloader.downloadLogoFilesAsync(entitiesDescriptorDocument, null)),
+			CompletableFuture.runAsync(() -> asyncExternalLogoFileDownloader.downloadLogoFilesAsync(entitiesDescriptorDocument, null))
+		).thenRun(() -> waiter.complete(null));
+
+		verify(metadataConverter, timeout(5000).times(1)).convertToTrustedIdPs(any(), any());
+	}
+
+	static class AnswersWithDelay implements Answer<Object>, ValidableAnswer, Serializable
+	{
+		private final CompletableFuture<Void> waiter;
+		private final Answer<Object> answer;
+
+		public AnswersWithDelay(CompletableFuture<Void> waiter, Answer<Object> answer) {
+			this.waiter = waiter;
+			this.answer = answer;
+		}
+
+		@Override
+		public Object answer(final InvocationOnMock invocation) throws Throwable {
+			waiter.join();
+			return answer.answer(invocation);
+		}
+
+		@Override
+		public void validateFor(final InvocationOnMock invocation) {
+			if (answer instanceof ValidableAnswer) {
+				((ValidableAnswer) answer).validateFor(invocation);
+			}
+		}
 	}
 }
