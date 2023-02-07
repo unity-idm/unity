@@ -60,23 +60,23 @@ public class AsyncExternalLogoFileDownloaderTest
 		when(entitiesDescriptorDocument.getEntitiesDescriptor()).thenReturn(entitiesDescriptorType);
 		when(entitiesDescriptorType.getID()).thenReturn("federationId");
 
-		CompletableFuture<Void> waiter = new CompletableFuture<>();
-		doAnswer(new AnswersWithDelay(waiter,  new Returns(new TrustedIdPs(Set.of())))).when(metadataConverter).convertToTrustedIdPs(any(), any());
+		CompletableFuture<Void> waitingTask = new CompletableFuture<>();
+		doAnswer(new AnswerAfterFuture(waitingTask,  new Returns(new TrustedIdPs(Set.of())))).when(metadataConverter).convertToTrustedIdPs(any(), any());
 
 		CompletableFuture.allOf(
 			CompletableFuture.runAsync(() -> asyncExternalLogoFileDownloader.downloadLogoFilesAsync(entitiesDescriptorDocument, null)),
 			CompletableFuture.runAsync(() -> asyncExternalLogoFileDownloader.downloadLogoFilesAsync(entitiesDescriptorDocument, null))
-		).thenRun(() -> waiter.complete(null));
+		).thenRun(() -> waitingTask.complete(null));
 
 		verify(metadataConverter, timeout(5000).times(1)).convertToTrustedIdPs(any(), any());
 	}
 
-	static class AnswersWithDelay implements Answer<Object>, ValidableAnswer, Serializable
+	static class AnswerAfterFuture implements Answer<Object>, ValidableAnswer, Serializable
 	{
 		private final CompletableFuture<Void> waiter;
 		private final Answer<Object> answer;
 
-		public AnswersWithDelay(CompletableFuture<Void> waiter, Answer<Object> answer) {
+		public AnswerAfterFuture(CompletableFuture<Void> waiter, Answer<Object> answer) {
 			this.waiter = waiter;
 			this.answer = answer;
 		}
@@ -88,10 +88,12 @@ public class AsyncExternalLogoFileDownloaderTest
 		}
 
 		@Override
-		public void validateFor(final InvocationOnMock invocation) {
+		public void validateFor(InvocationOnMock invocation) {
 			if (answer instanceof ValidableAnswer) {
 				((ValidableAnswer) answer).validateFor(invocation);
+				return;
 			}
+			throw new IllegalArgumentException("Answer have to be instanceof ValidableAnswer");
 		}
 	}
 }
