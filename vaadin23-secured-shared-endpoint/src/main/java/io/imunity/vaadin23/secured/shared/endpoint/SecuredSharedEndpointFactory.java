@@ -6,7 +6,6 @@
 
 package io.imunity.vaadin23.secured.shared.endpoint;
 
-import io.imunity.vaadin23.endpoint.common.Vaadin823Endpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ import java.util.Collections;
 @Component
 public class SecuredSharedEndpointFactory implements EndpointFactory
 {
-	public static final String NAME = "WellKnownLinksHandler2";
+	public static final String NAME = "WellKnownLinksHandler";
 	public static final String SERVLET_PATH = "/well-known";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
 			"Provides access to public links which can be used to access parts of Unity UIs directly", VaadinAuthentication.NAME,
@@ -60,7 +59,7 @@ public class SecuredSharedEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new Vaadin823Endpoint(server, advertisedAddrProvider, msg, applicationContext,
+		return new Vaadin823EndpointWithSandbox(server, advertisedAddrProvider, msg, applicationContext,
 				new SecuredSharedResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, SharedVaadin23Servlet.class);
 	}
 }

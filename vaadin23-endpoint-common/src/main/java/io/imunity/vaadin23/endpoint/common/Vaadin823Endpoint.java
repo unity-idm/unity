@@ -101,7 +101,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		}
 	}
 
-	private ServletContextHandler getServletContextHandlerOverridable()
+	protected ServletContextHandler getServletContextHandlerOverridable(WebAppContext webAppContext)
 	{
 		if (context != null)
 			return context;
@@ -109,7 +109,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		ServletContextHandler context;
 		try
 		{
-			context = getWebAppContext(uiServletPath,
+			context = getWebAppContext(webAppContext, uiServletPath,
 					resourceProvider.getChosenClassPathElement(),
 					getWebContentsDir(),
 					new ServletContextListeners()
@@ -165,7 +165,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		return context;
 	}
 
-	private ServletHolder createVaadin8ServletHolder(VaadinServlet servlet)
+	protected ServletHolder createVaadin8ServletHolder(VaadinServlet servlet)
 	{
 		ServletHolder holder = new ServletHolder(servlet);
 		holder.setInitParameter("closeIdleSessions", "true");
@@ -200,7 +200,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 			heartBeat, uiPath);
 	}
 
-	private String getWebContentsDir()
+	protected String getWebContentsDir()
 	{
 		if (genericEndpointProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
 			return genericEndpointProperties.getValue(VaadinEndpointProperties.WEB_CONTENT_PATH);
@@ -212,13 +212,13 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 	@Override
 	public synchronized ServletContextHandler getServletContextHandler()
 	{
-		context = getServletContextHandlerOverridable();
+		Vaadin23WebAppContext vaadin23WebAppContext = new Vaadin23WebAppContext(properties, genericEndpointProperties, msg, description);
+		context = getServletContextHandlerOverridable(vaadin23WebAppContext);
 		return context;
 	}
 
-	WebAppContext getWebAppContext(String contextPath, Set<String> classPathElements, String webResourceRootUri,
+	WebAppContext getWebAppContext(WebAppContext context, String contextPath, Set<String> classPathElements, String webResourceRootUri,
 	                               EventListener eventListener) {
-		WebAppContext context = new Vaadin23WebAppContext(properties, genericEndpointProperties, msg, description);
 		context.setResourceBase(webResourceRootUri);
 		context.setContextPath(contextPath);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(classPathElements));

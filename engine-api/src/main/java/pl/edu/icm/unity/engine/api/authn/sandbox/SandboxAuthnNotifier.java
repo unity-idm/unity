@@ -14,7 +14,7 @@ public interface SandboxAuthnNotifier
 	void addListener(AuthnResultListener listener);
 	void removeListener(AuthnResultListener listener);
 	
-	public interface AuthnResultListener 
+	interface AuthnResultListener
 	{
 		void onSandboxAuthnResult(SandboxAuthnEvent event);
 	}	

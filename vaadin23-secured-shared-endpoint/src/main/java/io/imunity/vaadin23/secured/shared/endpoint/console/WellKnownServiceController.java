@@ -25,17 +25,17 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import java.util.stream.Collectors;
 
 @Component
-class WellKnownServiceController2 extends DefaultServicesControllerBase implements ServiceController
+class WellKnownServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 	private RealmsManagement realmsMan;
 	private AuthenticationFlowManagement flowsMan;
 	private AuthenticatorManagement authMan;
 	private NetworkServer networkServer;
 
-	public WellKnownServiceController2(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
-	                                   AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
-	                                   UnityServerConfiguration unityServerConfiguration, ImageAccessService imageAccessService,
-	                                   EndpointFileConfigurationManagement serviceFileConfigController)
+	public WellKnownServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
+	                                  AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
+	                                  UnityServerConfiguration unityServerConfiguration, ImageAccessService imageAccessService,
+	                                  EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
@@ -53,7 +53,7 @@ class WellKnownServiceController2 extends DefaultServicesControllerBase implemen
 	@Override
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
-		return new WellKnownServiceEditor2(msg,
+		return new WellKnownServiceEditor(msg,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
