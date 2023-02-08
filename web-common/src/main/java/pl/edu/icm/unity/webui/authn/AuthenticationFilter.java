@@ -259,15 +259,15 @@ public class AuthenticationFilter implements Filter
 		dispatcher.forward(httpRequest, response);
 	}
 
-	private static String removePathElementsUntil(String path, Set<String> until)
+	static String removePathElementsUntil(String path, Set<String> until)
 	{
-		boolean startAdd = false;
+		boolean adding = false;
 		StringBuilder newPath = new StringBuilder();
 		for(String element : path.split("/"))
 		{
 			if(until.contains(element))
-				startAdd = true;
-			if(startAdd)
+				adding = true;
+			if(adding)
 				newPath.append("/").append(element);
 		}
 		return newPath.toString();
