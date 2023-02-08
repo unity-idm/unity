@@ -19,7 +19,7 @@ import io.imunity.upman.front.UnityViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
-import io.imunity.vaadin23.elements.*;
+import io.imunity.vaadin.elements.*;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.List;

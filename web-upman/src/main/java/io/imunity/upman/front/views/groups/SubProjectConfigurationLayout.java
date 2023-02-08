@@ -10,8 +10,8 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.upman.front.model.Group;
-import io.imunity.vaadin23.elements.FormLayoutLabel;
-import io.imunity.vaadin23.elements.TooltipAttacher;
+import io.imunity.vaadin.elements.FormLayoutLabel;
+import io.imunity.vaadin.elements.TooltipAttacher;
 import pl.edu.icm.unity.MessageSource;
 
 import static com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition.ASIDE;

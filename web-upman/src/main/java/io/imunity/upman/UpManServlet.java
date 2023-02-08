@@ -9,8 +9,8 @@ import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
-import io.imunity.vaadin23.endpoint.common.SpringContextProvider;
-import io.imunity.vaadin23.endpoint.common.SpringVaadin23ServletService;
+import io.imunity.vaadin.endpoint.common.SpringContextProvider;
+import io.imunity.vaadin.endpoint.common.SpringVaadin23ServletService;
 
 public class UpManServlet extends VaadinServlet {
 

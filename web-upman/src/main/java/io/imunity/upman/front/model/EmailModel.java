@@ -10,7 +10,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import io.imunity.vaadin23.elements.TooltipAttacher;
+import io.imunity.vaadin.elements.TooltipAttacher;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 

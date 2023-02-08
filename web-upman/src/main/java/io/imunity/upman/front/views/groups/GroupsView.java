@@ -19,8 +19,8 @@ import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
-import io.imunity.vaadin23.elements.ActionMenu;
-import io.imunity.vaadin23.elements.MenuButton;
+import io.imunity.vaadin.elements.ActionMenu;
+import io.imunity.vaadin.elements.MenuButton;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 

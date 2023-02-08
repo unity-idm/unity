@@ -7,7 +7,7 @@ package io.imunity.upman.front.views.groups;
 
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.ProjectGroup;
-import io.imunity.vaadin23.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;

@@ -5,13 +5,13 @@
 
 package io.imunity.upman;
 
-import io.imunity.vaadin23.endpoint.common.CustomResourceProvider;
+import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
 
 
 public class UpManResourceProvider extends CustomResourceProvider
 {
 	public UpManResourceProvider()
 	{
-		super("vaadin23-endpoint-common");
+		super("vaadin-endpoint-common");
 	}
 }

@@ -13,14 +13,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
-import io.imunity.vaadin23.elements.ExtraLayoutPanel;
-import io.imunity.vaadin23.elements.MenuComponent;
-import io.imunity.vaadin23.endpoint.common.Vaadin823EndpointProperties;
-import io.imunity.vaadin23.endpoint.common.Vaddin23WebLogoutHandler;
+import io.imunity.vaadin.elements.ExtraLayoutPanel;
+import io.imunity.vaadin.elements.MenuComponent;
+import io.imunity.vaadin.endpoint.common.Vaadin823EndpointProperties;
+import io.imunity.vaadin.endpoint.common.Vaddin23WebLogoutHandler;
 
 import java.util.List;
 
-import static io.imunity.vaadin23.endpoint.common.Vaadin23WebAppContext.getCurrentWebAppVaadinProperties;
+import static io.imunity.vaadin.endpoint.common.Vaadin23WebAppContext.getCurrentWebAppVaadinProperties;
 
 @CssImport("./styles/views/main-layout.css")
 @CssImport("./styles/custom-lumo-theme.css")

@@ -9,7 +9,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
-import io.imunity.vaadin23.elements.ActionMenu;
+import io.imunity.vaadin.elements.ActionMenu;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
 import java.util.HashSet;

@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.saml.idp.ecp;
 
-import io.imunity.vaadin23.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

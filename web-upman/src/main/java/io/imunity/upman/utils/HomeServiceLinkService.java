@@ -6,7 +6,7 @@
 package io.imunity.upman.utils;
 
 import io.imunity.upman.UpmanEndpointProperties;
-import io.imunity.vaadin23.endpoint.common.Vaadin23WebAppContext;
+import io.imunity.vaadin.endpoint.common.Vaadin23WebAppContext;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

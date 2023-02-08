@@ -17,10 +17,10 @@ import com.vaadin.flow.router.Route;
 import io.imunity.upman.front.UnityViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
-import io.imunity.vaadin23.elements.ActionMenu;
-import io.imunity.vaadin23.elements.BlankPageAnchor;
-import io.imunity.vaadin23.elements.MenuButton;
-import io.imunity.vaadin23.elements.SearchField;
+import io.imunity.vaadin.elements.ActionMenu;
+import io.imunity.vaadin.elements.BlankPageAnchor;
+import io.imunity.vaadin.elements.MenuButton;
+import io.imunity.vaadin.elements.SearchField;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.Set;

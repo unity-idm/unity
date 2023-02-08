@@ -20,7 +20,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.ProjectGroup;
-import io.imunity.vaadin23.elements.*;
+import io.imunity.vaadin.elements.*;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.*;

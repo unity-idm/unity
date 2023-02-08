@@ -6,7 +6,7 @@
 
 package io.imunity.upman;
 
-import io.imunity.vaadin23.endpoint.common.Vaadin823Endpoint;
+import io.imunity.vaadin.endpoint.common.Vaadin823Endpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;

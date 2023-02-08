@@ -11,7 +11,7 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import io.imunity.vaadin23.elements.MultiSelectGrid;
+import io.imunity.vaadin.elements.MultiSelectGrid;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.Map;

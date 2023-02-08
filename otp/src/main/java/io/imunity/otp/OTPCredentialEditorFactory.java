@@ -6,8 +6,8 @@
 package io.imunity.otp;
 
 import io.imunity.otp.v8.OTPCredentialDefinitionEditor;
-import io.imunity.vaadin23.endpoint.common.plugins.credentials.CredentialEditor;
-import io.imunity.vaadin23.endpoint.common.plugins.credentials.CredentialEditorFactory;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

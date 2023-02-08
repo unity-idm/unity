@@ -7,7 +7,7 @@ package io.imunity.upman.front.views.user_updates;
 
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
-import io.imunity.vaadin23.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

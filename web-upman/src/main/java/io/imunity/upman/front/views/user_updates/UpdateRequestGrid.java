@@ -9,8 +9,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Label;
-import io.imunity.vaadin23.elements.MultiSelectGrid;
-import io.imunity.vaadin23.elements.TooltipAttacher;
+import io.imunity.vaadin.elements.MultiSelectGrid;
+import io.imunity.vaadin.elements.TooltipAttacher;
 import pl.edu.icm.unity.MessageSource;
 
 import java.time.ZoneId;
