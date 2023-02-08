@@ -5,56 +5,84 @@
 
 package io.imunity.vaadin.secured.shared.endpoint.wizard;
 
-import java.util.function.BiConsumer;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
-public final class WizardStepController<WS1 extends WizardStep, WS2 extends WizardStep>
+class WizardStepController
 {
-	private final WS1 wizardStartStep;
-	private final WS2 wizardFinalStep;
-	private final BiConsumer<WS1, WS2> roadPreparer;
-	private final boolean imminentlyGo;
-	private Wizard wizard;
+	private final LinkedList<WizardStep> steps;
+	private final List<WizardStepPreparer<?, ?>> wizardStepPreparers;
+	private ListIterator<WizardStep> listIterator;
+	private WizardStep current;
 
-	public WizardStepController(WS1 wizardStartStep, WS2 wizardFinalStep, BiConsumer<WS1, WS2> roadPreparer,
-	                             boolean imminentlyGo)
+	WizardStepController(List<WizardStep> steps, List<WizardStepPreparer<?, ?>> wizardStepPreparers)
 	{
-		this.wizardStartStep = wizardStartStep;
-		this.wizardFinalStep = wizardFinalStep;
-		this.roadPreparer = roadPreparer;
-		this.imminentlyGo = imminentlyGo;
+		if(steps == null || steps.size() == 0)
+			throw new IllegalArgumentException("You have to declare at least one step");
+		this.steps = new LinkedList<>(steps);
+		this.wizardStepPreparers = List.copyOf(wizardStepPreparers);
+		startAgain();
 	}
 
-	public WizardStepController(WS1 wizardStartStep, WS2 wizardFinalStep, BiConsumer<WS1, WS2> roadPreparer)
+	void startAgain()
 	{
-		this(wizardStartStep, wizardFinalStep, roadPreparer, false);
+		listIterator = steps.listIterator();
+		current = listIterator.next();
 	}
 
-	public WizardStepController(WS1 wizardStartStep, WS2 wizardFinalStep)
+	WizardStep getNext()
 	{
-		this(wizardStartStep, wizardFinalStep, (x, y) -> {}, false);
+		WizardStep next = listIterator.next();
+		prepareNextStep(current, next);
+		current = next;
+		current.initialize();
+		return current;
 	}
 
-	WizardStep getCurrentStep()
+	WizardStep getPrev()
 	{
-		return wizardStartStep;
+		listIterator.previous();
+		current = listIterator.previous();
+		listIterator.next();
+		current.initialize();
+		return current;
 	}
 
-	WizardStep getEndStep()
+	WizardStep getCurrent()
 	{
-		return wizardFinalStep;
+		return current;
 	}
 
-	void setWizard(Wizard wizard)
+	boolean hasFinished()
 	{
-		this.wizard = wizard;
+		if(listIterator.hasNext())
+		{
+			listIterator.next();
+			boolean hasNext = listIterator.hasNext();
+			listIterator.previous();
+			return !hasNext;
+		}
+		return true;
 	}
 
-	void startStepCompleted()
+	boolean hasPrev()
 	{
-		roadPreparer.accept(wizardStartStep, wizardFinalStep);
-		if(imminentlyGo)
-			wizard.go();
-		else
-			wizard.readyToGo();
+		if(listIterator.hasPrevious())
+		{
+			listIterator.previous();
+			boolean hasPrevious = listIterator.hasPrevious();
+			listIterator.next();
+			return hasPrevious;
+		}
+		return false;
+	}
+
+	private void prepareNextStep(WizardStep currentStep, WizardStep nextStep)
+	{
+		wizardStepPreparers.stream()
+				.filter(preparer -> preparer.isApplicable(currentStep, nextStep))
+				.findFirst()
+				.ifPresent(preparer -> preparer.prepare(currentStep, nextStep));
 	}
 }

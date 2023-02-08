@@ -18,20 +18,15 @@ import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 import java.util.List;
 import java.util.Set;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 class WellKnownServiceEditor implements ServiceEditor
 {
-	private MessageSource msg;
-	private List<String> allRealms;
-	private List<AuthenticationFlowDefinition> flows;
-	private List<AuthenticatorInfo> authenticators;
-	private WellKnownServiceEditorComponent2 editor;
-	private List<String> usedEndpointsPaths;
-	private Set<String> serverContextPaths;
+	private final MessageSource msg;
+	private final List<String> allRealms;
+	private final List<AuthenticationFlowDefinition> flows;
+	private final List<AuthenticatorInfo> authenticators;
+	private WellKnownServiceEditorComponent editor;
+	private final List<String> usedEndpointsPaths;
+	private final Set<String> serverContextPaths;
 
 	WellKnownServiceEditor(MessageSource msg, List<String> allRealms,
 	                       List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths,
@@ -54,7 +49,7 @@ class WellKnownServiceEditor implements ServiceEditor
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				SecuredSharedEndpointFactory.TYPE.getSupportedBinding());
 		
-		editor = new WellKnownServiceEditorComponent2(msg, generalTab, authenticationTab, (DefaultServiceDefinition) endpoint);
+		editor = new WellKnownServiceEditorComponent(msg, generalTab, authenticationTab, (DefaultServiceDefinition) endpoint);
 		return editor;
 	}
 
@@ -64,13 +59,13 @@ class WellKnownServiceEditor implements ServiceEditor
 		return editor.getServiceDefiniton();
 	}
 
-	private class WellKnownServiceEditorComponent2 extends ServiceEditorBase
+	private static class WellKnownServiceEditorComponent extends ServiceEditorBase
 	{
 
-		private Binder<DefaultServiceDefinition> serviceBinder;
+		private final Binder<DefaultServiceDefinition> serviceBinder;
 
-		public WellKnownServiceEditorComponent2(MessageSource msg, GeneralTab generalTab, AuthenticationTab authTab,
-		                                        DefaultServiceDefinition toEdit)
+		public WellKnownServiceEditorComponent(MessageSource msg, GeneralTab generalTab, AuthenticationTab authTab,
+		                                       DefaultServiceDefinition toEdit)
 		{
 			super(msg);
 			boolean editMode = toEdit != null;

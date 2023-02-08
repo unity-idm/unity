@@ -10,11 +10,12 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.Tag;
 
 @Tag("div")
-public class WizardStep extends Component implements HasComponents
+public abstract class WizardStep extends Component implements HasComponents
 {
-	private WizardStepController<?,?> wizardStepController;
 	protected final String label;
 	protected final Component component;
+	private Wizard wizard;
+	private WizardStepStatus status = WizardStepStatus.IN_PROGRESS;
 
 	public WizardStep(String label, Component component)
 	{
@@ -23,18 +24,35 @@ public class WizardStep extends Component implements HasComponents
 		add(component);
 	}
 
-	public void setWizardStepController(WizardStepController<?, ?> wizardStepController)
+	void setWizard(Wizard wizard)
 	{
-		this.wizardStepController = wizardStepController;
+		this.wizard = wizard;
 	}
 
-	protected final void completed()
+	WizardStepStatus getStatus()
 	{
-		wizardStepController.startStepCompleted();
+		return status;
 	}
 
-	protected void run()
+	protected final void refreshWizard()
 	{
-		completed();
+		wizard.refresh();
 	}
+
+	protected final void stepComplited()
+	{
+		status = WizardStepStatus.COMPLITED;
+	}
+
+	protected final void stepInProgress()
+	{
+		status = WizardStepStatus.IN_PROGRESS;
+	}
+
+	protected final void stepRequiredNewStep()
+	{
+		status = WizardStepStatus.NEXT_STEP_REQUIRED;
+	}
+
+	protected abstract void initialize();
 }

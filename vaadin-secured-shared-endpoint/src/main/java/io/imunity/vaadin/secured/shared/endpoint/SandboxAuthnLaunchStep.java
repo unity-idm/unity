@@ -14,7 +14,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 
-class SandboxStep extends WizardStep
+class SandboxAuthnLaunchStep extends WizardStep
 {
 	private final String callerId = VaadinService.getCurrentRequest().getWrappedSession().getId();
 	private final UI parentUI = UI.getCurrent();
@@ -24,7 +24,7 @@ class SandboxStep extends WizardStep
 	private SandboxAuthnNotifier.AuthnResultListener listener;
 	SandboxAuthnEvent event;
 
-	public SandboxStep(String label, Component component, SandboxAuthnNotifier sandboxAuthnNotifier, Runnable sandboxNewWindowOpener)
+	public SandboxAuthnLaunchStep(String label, Component component, SandboxAuthnNotifier sandboxAuthnNotifier, Runnable sandboxNewWindowOpener)
 	{
 		super(label, component);
 		this.sandboxAuthnNotifier = sandboxAuthnNotifier;
@@ -32,10 +32,13 @@ class SandboxStep extends WizardStep
 	}
 
 	@Override
-	protected void run()
+	protected void initialize()
 	{
 		this.event = null;
 		sandboxNewWindowOpener.run();
+		if(this.listener != null)
+			sandboxAuthnNotifier.removeListener(this.listener);
+		stepInProgress();
 		this.listener = event ->
 		{
 				if (!callerId.equals(event.callerId))
@@ -50,7 +53,8 @@ class SandboxStep extends WizardStep
 						try
 						{
 							this.event = event;
-							completed();
+							stepRequiredNewStep();
+							refreshWizard();
 						} finally
 						{
 							InvocationContext.setCurrent(threadInvocationContext);

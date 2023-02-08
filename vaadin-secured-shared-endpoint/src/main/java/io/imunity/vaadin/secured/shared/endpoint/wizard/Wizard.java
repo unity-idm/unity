@@ -16,9 +16,7 @@ import com.vaadin.flow.component.progressbar.ProgressBar;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 public class Wizard extends VerticalLayout
 {
@@ -29,23 +27,22 @@ public class Wizard extends VerticalLayout
 	private final double progressBarIncrementer;
 	private final VerticalLayout contentLayout = new VerticalLayout();
 	private final UI ui = UI.getCurrent();
-	private final LinkedList<WizardStepController<?, ?>> steps;
-	private ListIterator<WizardStepController<?, ?>> listIterator;
+	private final WizardStepController wizardStepController;
 
 
-	public Wizard(List<WizardStepController<?, ?>> steps, MessageSource msg, Runnable cancelTask, String title)
+	public Wizard(List<WizardStep> steps, List<WizardStepPreparer<?,?>> stepPreparers, MessageSource msg, Runnable cancelTask, String title)
 	{
-		if(steps == null || steps.size() == 0)
-			throw new IllegalArgumentException("You have to declare at least one step");
-		this.steps = new LinkedList<>(steps);
-		this.progressBarIncrementer = 1.0/(steps.size());
+		this.wizardStepController = new WizardStepController(steps, stepPreparers);
+		List<String> labels = steps.stream()
+				.map(step -> step.label).toList();
+		this.progressBarIncrementer = 1.0/(steps.size() - 1);
 
 		H2 titleComponent = new H2(title);
 		titleComponent.getStyle().set("margin-top", "0");
 		HorizontalLayout labelsLayout = new HorizontalLayout();
 		HorizontalLayout buttonsLayout = new HorizontalLayout();
 
-		initLabelsLayout(steps, labelsLayout);
+		initLabelsLayout(labels, labelsLayout);
 
 		Button cancelButton = new Button(msg.getMessage("Wizard.cancel"), e -> cancelTask.run());
 		Button startOverButton = new Button(msg.getMessage("Wizard.start-over"), e -> init());
@@ -54,7 +51,7 @@ public class Wizard extends VerticalLayout
 		nextButton.addClickListener(event -> nextStep());
 
 		backButton.setText(msg.getMessage("Wizard.back"));
-		backButton.addClickListener(event -> backStep());
+		backButton.addClickListener(event -> prevStep());
 
 		finishButton.setText(msg.getMessage("Wizard.finish"));
 		finishButton.addClickListener(e ->
@@ -63,10 +60,8 @@ public class Wizard extends VerticalLayout
 			finishButton.setEnabled(false);
 			backButton.setEnabled(false);
 			progressBar.setValue(1.0);
-			WizardStep endStep = listIterator.previous().getEndStep();
 			contentLayout.removeAll();
-			contentLayout.add(endStep);
-			endStep.run();
+			contentLayout.add(wizardStepController.getNext());
 		});
 
 		buttonsLayout.add(cancelButton, startOverButton, backButton, nextButton, finishButton);
@@ -81,46 +76,40 @@ public class Wizard extends VerticalLayout
 		init();
 	}
 
-	private void initLabelsLayout(List<WizardStepController<?, ?>> steps, HorizontalLayout labelsLayout)
+	private void initLabelsLayout(List<String> labels, HorizontalLayout labelsLayout)
 	{
 		labelsLayout.setWidthFull();
-		steps.forEach(wizardStepController ->
+		labels.forEach(label ->
 		{
-			WizardStep currentStep = wizardStepController.getCurrentStep();
-			if(currentStep.label == null)
+			if(label == null)
 				return;
-			HorizontalLayout label = new HorizontalLayout(new Label(currentStep.label));
-			label.setWidthFull();
-			label.setJustifyContentMode(JustifyContentMode.CENTER);
-			labelsLayout.add(label);
+			HorizontalLayout labelComponent = new HorizontalLayout(new Label(label));
+			labelComponent.setWidthFull();
+			labelComponent.setJustifyContentMode(JustifyContentMode.CENTER);
+			labelsLayout.add(labelComponent);
 		});
 	}
 
-	private void backStep()
+	private void init()
 	{
-		listIterator.previous();
-		WizardStep currentStep = listIterator.previous().getCurrentStep();
-		listIterator.next();
+		wizardStepController.startAgain();
 		contentLayout.removeAll();
-		contentLayout.add(currentStep);
-		currentStep.run();
-		if(progressBar.getValue() == 1.0)
-		{
-			progressBar.setValue(1.0 - (progressBarIncrementer / 2));
-			return;
-		}
-		double value = progressBar.getValue() - progressBarIncrementer;
-		progressBar.setValue(Math.max(value, 0));
-
-		backButton.setEnabled(listIterator.hasPrevious());
+		progressBar.setValue(progressBarIncrementer / 2);
+		contentLayout.add(wizardStepController.getCurrent());
+		nextButton.setEnabled(true);
+		backButton.setEnabled(false);
+		finishButton.setEnabled(false);
 	}
 
 	private void nextStep()
 	{
+		if(wizardStepController.hasFinished())
+		{
+			finishButton.setEnabled(true);
+			return;
+		}
 		contentLayout.removeAll();
-		WizardStep currentStep = listIterator.next().getCurrentStep();
-		contentLayout.add(currentStep);
-		currentStep.run();
+		contentLayout.add(wizardStepController.getNext());
 
 		backButton.setEnabled(true);
 		if(progressBar.getValue() == 0)
@@ -133,37 +122,38 @@ public class Wizard extends VerticalLayout
 
 		nextButton.setEnabled(false);
 	}
-
-	private void init()
+	private void prevStep()
 	{
-		this.listIterator = new LinkedList<>(steps).listIterator();
 		contentLayout.removeAll();
-		progressBar.setValue(progressBarIncrementer / 2);
-		contentLayout.add(listIterator.next().getCurrentStep());
-		nextButton.setEnabled(true);
-		backButton.setEnabled(false);
-		finishButton.setEnabled(false);
+		contentLayout.add(wizardStepController.getPrev());
+		if(progressBar.getValue() == 1.0)
+		{
+			progressBar.setValue(1.0 - (progressBarIncrementer / 2));
+			return;
+		}
+		double value = progressBar.getValue() - progressBarIncrementer;
+		progressBar.setValue(Math.max(value, 0));
+
+		backButton.setEnabled(wizardStepController.hasPrev());
 	}
 
-	void readyToGo()
+	void refresh()
+	{
+		WizardStep current = wizardStepController.getCurrent();
+		if(current.getStatus() == WizardStepStatus.COMPLITED)
+			stepComplited();
+		else if (current.getStatus() == WizardStepStatus.NEXT_STEP_REQUIRED)
+			ui.access(this::nextStep);
+	}
+
+	private void stepComplited()
 	{
 		ui.access(() ->
 		{
-			if(listIterator.hasNext())
+			if(wizardStepController.hasFinished())
+				finishButton.setEnabled(true);
+			else
 				nextButton.setEnabled(true);
-			else
-				finishButton.setEnabled(true);
-		});
-	}
-
-	void go()
-	{
-		ui.access(() ->
-		{
-			if(listIterator.hasNext())
-				nextStep();
-			else
-				finishButton.setEnabled(true);
 		});
 	}
 
@@ -174,7 +164,8 @@ public class Wizard extends VerticalLayout
 
 	public static final class WizardBuilder
 	{
-		private final List<WizardStepController<?, ?>> stepControllers = new ArrayList<>();
+		private final List<WizardStep> wizardSteps = new ArrayList<>();
+		private final List<WizardStepPreparer<?, ?>> stepPreparers = new ArrayList<>();
 		private Runnable cancelTask;
 		private MessageSource msg;
 		private String title;
@@ -183,10 +174,15 @@ public class Wizard extends VerticalLayout
 		{
 		}
 
-		public WizardBuilder addStepControllers(WizardStepController<?, ?> stepController)
+		public WizardBuilder addStep(WizardStep wizardStep)
 		{
-			stepControllers.add(stepController);
-			stepController.getCurrentStep().setWizardStepController(stepController);
+			wizardSteps.add(wizardStep);
+			return this;
+		}
+
+		public WizardBuilder addNextStepPreparer(WizardStepPreparer<?, ?> preparer)
+		{
+			stepPreparers.add(preparer);
 			return this;
 		}
 
@@ -210,8 +206,8 @@ public class Wizard extends VerticalLayout
 
 		public Wizard build()
 		{
-			Wizard wizard = new Wizard(stepControllers, msg, cancelTask, title);
-			stepControllers.forEach(stepController -> stepController.setWizard(wizard));
+			Wizard wizard = new Wizard(wizardSteps, stepPreparers, msg, cancelTask, title);
+			wizardSteps.forEach(wizardStep -> wizardStep.setWizard(wizard));
 			return wizard;
 		}
 	}

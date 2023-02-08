@@ -38,7 +38,7 @@ class MergingUserConfirmationStep extends WizardStep
 	}
 
 	@Override
-	protected void run()
+	protected void initialize()
 	{
 		((HorizontalLayout)component).removeAll();
 		if (ctx.getAuthnException().isPresent())
@@ -74,7 +74,8 @@ class MergingUserConfirmationStep extends WizardStep
 				RemotelyAuthenticatedPrincipal authnContext = ctx.getRemotePrincipal().get();
 				String message = msg.getMessage("ConnectId.ConfirmStep.info", authnContext.getRemoteIdPName());
 				((HorizontalLayout)component).add(new Label(message));
-				completed();
+				stepComplited();
+				refreshWizard();
 			}
 		}
 	}

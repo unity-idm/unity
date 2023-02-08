@@ -4,6 +4,7 @@
  */
 package io.imunity.vaadin.secured.shared.endpoint;
 
+import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
 import io.imunity.vaadin.endpoint.common.Vaadin823Endpoint;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -24,7 +25,11 @@ import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
 public class Vaadin823EndpointWithSandbox extends Vaadin823Endpoint
 {
-	public Vaadin823EndpointWithSandbox(NetworkServer server, AdvertisedAddressProvider advertisedAddrProvider, MessageSource msg, ApplicationContext applicationContext, CustomResourceProvider resourceProvider, String servletPath, RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter, Class<? extends com.vaadin.flow.server.VaadinServlet> servletClass)
+	public Vaadin823EndpointWithSandbox(NetworkServer server, AdvertisedAddressProvider advertisedAddrProvider,
+	                                    MessageSource msg, ApplicationContext applicationContext,
+	                                    CustomResourceProvider resourceProvider, String servletPath,
+	                                    RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
+	                                    Class<? extends VaadinServlet> servletClass)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, resourceProvider, servletPath, remoteAuthnResponseProcessingFilter, servletClass);
 	}

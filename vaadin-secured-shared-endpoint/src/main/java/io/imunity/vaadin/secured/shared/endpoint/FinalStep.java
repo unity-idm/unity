@@ -45,7 +45,7 @@ class FinalStep extends WizardStep
 	}
 
 	@Override
-	protected void run()
+	protected void initialize()
 	{
 		if (authnContext == null)
 			return;
