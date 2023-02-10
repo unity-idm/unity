@@ -5,17 +5,28 @@
 
 package pl.edu.icm.unity.rest;
 
+import java.util.Set;
+
+import javax.ws.rs.core.Application;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper;
 import org.apache.cxf.jaxrs.utils.ResourceUtils;
-import pl.edu.icm.unity.rest.exception.*;
 
-import javax.ws.rs.core.Application;
-import java.util.Set;
+import pl.edu.icm.unity.rest.exception.BadRequestExceptionMapper;
+import pl.edu.icm.unity.rest.exception.EngineExceptionMapper;
+import pl.edu.icm.unity.rest.exception.IllegalArgumentExceptionMapper;
+import pl.edu.icm.unity.rest.exception.InternalExceptionMapper;
+import pl.edu.icm.unity.rest.exception.JSONExceptionMapper;
+import pl.edu.icm.unity.rest.exception.JSONParseExceptionMapper;
+import pl.edu.icm.unity.rest.exception.JSONParsingExceptionMapper;
+import pl.edu.icm.unity.rest.exception.NPEExceptionMapper;
+import pl.edu.icm.unity.rest.exception.RuntimeEngineExceptionMapper;
 
 /**
  * Collection of methods useful for creating rest endpoints
@@ -35,6 +46,8 @@ public class RestEndpointHelper
 		ret.add(new JSONParseExceptionMapper());
 		ret.add(new JSONParsingExceptionMapper());
 		ret.add(new JSONExceptionMapper());
+		ret.add(new WebApplicationExceptionMapper());
+		ret.add(new BadRequestExceptionMapper());
 	}
 
 	public static Endpoint createCxfEndpoint(Application application, Bus bus)

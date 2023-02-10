@@ -25,14 +25,6 @@ new Unity binaries location. It is a good practice to have a symbolic link to th
 that is used in the +PATH+ and startup scripts. Then it is possible to simply change its target to the updated 
 service directory.
 
-If using the RPM: 
-
-. Stop the old service.
-. Update the RPM using platform tools (usually +yum+).
-. Check if any configuration files needs to be updated (see below, also search for +.rpmnew+ files in /etc/unity-idm).
-. Start the new service.
-. Carefully check log files for any errors or warnings.
-
 [NOTE] 
 The database dump can be created and loaded from the Web Admin UI, from the _Server maintenance_ tab. It can be used 
 to transfer the Unity state between instances, can be also used as a backup tool. However in the upgrade case
@@ -52,8 +44,6 @@ When using the +.tar.gz+:
 . Stop the server
 . Replace the contents of the server's +lib/+ directory with the contents of the +lib/+ directory of the updated package.
 . Start the server
-
-When using RPM distribution it is enough to update the package with your package manager and restart the server. 
 
 [[ver-update]]
 === Version specific update instructions
@@ -96,3 +86,16 @@ Public links to exposed policy documents has been changed as follows:
 OLD: https://<UNITY>/unitygw/pub?id={policyId}#!policyDoc
 NEW: https://<UNITY>/unitygw/pub/policyDocuments/{policyId}
 
+
+==== From 3.11 to 3.12
+
+===== RPM packaging
+
+RPM packaging was dropped, starting from Unity 3.12.0 only the +tar.gz+ installation bundle is officially supported.
+
+===== Java integration over REST API 
+
+The +unity-types-api+ module, sometimes used in external Java apps to rapidly develop integration with Unity over its REST API, is now deprecated and will be dropped in the 4.0 release. 
+
+REST integrations relying on this module should be migrated to a new module +unity-rest-api+. This new module contains only types relevant for the REST API. It is clean: all types are immutable, contain builders and can be (de)serialized using native Jackson mechanism without any added magic or custom methods. Note that we haven't changed the JSONs formats - only the Java API was rewritten.
+ 

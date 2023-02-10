@@ -5,11 +5,11 @@
 
 package pl.edu.icm.unity.engine.api.project;
 
-import java.util.List;
-import java.util.Map;
-
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Internal engine API for delegated groups management
@@ -53,11 +53,11 @@ public interface DelegatedGroupManagement
 	/**
 	 * Allows to retrieve group's contents and metadata. 
 	 * 
-	 * @param path group to be queried.
+	 * @param subgroupPath group to be queried.
 	 * @return
 	 * @throws EngineException
 	 */
-	DelegatedGroupContents getContents(String projectPath, String path) throws EngineException;
+	DelegatedGroupContents getContents(String projectPath, String subgroupPath) throws EngineException;
 
 	/**
 	 * Sets group display name
@@ -83,15 +83,15 @@ public interface DelegatedGroupManagement
 
 	/**
 	 * Gets group with all child (recursive) groups as map.
-	 * 
-	 * @param projectPath project group path
-	 * @param groupPath group to be queried
+	 *
+	 * @param projectPath is a full path to the project's underlying group
+	 * @param subgroupPath is a full path to a subgroup of the project of which groups will be received
 	 * @return keys of the returned map include the selected group and all its children. Values are 
 	 * objects with group's metadata and subgroups
 	 * @throws EngineException
 	 */
 
-	Map<String, DelegatedGroupContents> getGroupAndSubgroups(String projectPath, String groupPath)
+	Map<String, DelegatedGroupContents> getGroupAndSubgroups(String projectPath, String subgroupPath)
 			throws EngineException;
 
 	
@@ -108,13 +108,14 @@ public interface DelegatedGroupManagement
 
 	/**
 	 * Update value of group authorization role attribute
-	 *  
-	 * @param projectPath project group path
+	 *
+	 * @param projectPath is a full path to the project's underlying group
+	 * @param subgroupPath is a full path to a subgroup of the project of which authorization role will be set
 	 * @param entityId attribute owner
 	 * @param role value to set
 	 * @throws EngineException
 	 */
-	void setGroupAuthorizationRole(String projectPath, String groupPath, long entityId, GroupAuthorizationRole role)
+	void setGroupAuthorizationRole(String projectPath, String subgroupPath, long entityId, GroupAuthorizationRole role)
 			throws EngineException;
 
 	
@@ -131,12 +132,12 @@ public interface DelegatedGroupManagement
 
 	/**
 	 * Sets group delegation configuration 
-	 * @param projectPath project group path
-	 * @param groupPath group path
+	 * @param projectPath is a full path to the project's underlying group
+	 * @param subgroupPath is a full path to a subgroup of the project of which delegation configuration will be added
 	 * @param subprojectGroupDelegationConfiguration group delegation configuration to set
 	 * @throws EngineException
 	 */
-	void setGroupDelegationConfiguration(String projectPath, String groupPath,
+	void setGroupDelegationConfiguration(String projectPath, String subgroupPath,
 			SubprojectGroupDelegationConfiguration subprojectGroupDelegationConfiguration)
 			throws EngineException;
 	
@@ -151,35 +152,35 @@ public interface DelegatedGroupManagement
 
 	/**
 	 * Adds a new member to the group
-	 * 
-	 * @param projectPath project group path
-	 * @param groupPath
+	 *
+	 * @param projectPath is a full path to the project's underlying group
+	 * @param subgroupPath is a full path to a subgroup of the project of which member will be added
 	 * @param entityId entity id to add
 	 * @throws EngineException
 	 */
-	void addMemberToGroup(String projectPath, String groupPath, long entityId)
+	void addMemberToGroup(String projectPath, String subgroupPath, long entityId)
 			throws EngineException;
 
 	/**
 	 * Removes from the group and all subgroups if the user is in any. 
 	 * Entity can not be removed from the group == '/' 
-	 * 
-	 * @param projectPath project group path
-	 * @param groupPath group removing from 
+	 *
+	 * @param projectPath is a full path to the project's underlying group
+	 * @param subgroupPath is a full path to a subgroup of the project of which member will be removed
 	 * @param entityId entity id to remove
 	 * @throws EngineException
 	 */
-	void removeMemberFromGroup(String projectPath, String groupPath, long entityId)
+	void removeMemberFromGroup(String projectPath, String subgroupPath, long entityId)
 			throws EngineException;
 
 	/**
 	 * Gets delegated group members
-	 * @param projectPath project group path
-	 * @param groupPath
+	 * @param projectPath is a full path to the project's underlying group
+	 * @param subgroupPath is a full path to a subgroup of the project of which members will be returned
 	 * @return
 	 * @throws EngineException
 	 */
-	List<DelegatedGroupMember> getDelegatedGroupMemebers(String projectPath, String groupPath)
+	List<DelegatedGroupMember> getDelegatedGroupMembers(String projectPath, String subgroupPath)
 			throws EngineException;
 
 	

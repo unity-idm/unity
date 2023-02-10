@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>3.12.0-SNAPSHOT</version>
+		<version>3.13.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -304,6 +304,21 @@
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
 								<argument>target/workspace/rest-api-v1.txt</argument>
+							</arguments>
+						</configuration>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>asciidoctor-upmanrestapi</id>
+						<phase>pre-site</phase>
+						<configuration>
+							<executable>asciidoctor</executable>
+							<arguments>
+								<argument>-D</argument>
+								<argument>${project.reporting.outputDirectory}</argument>
+								<argument>target/workspace/upman-rest-api-v1.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>

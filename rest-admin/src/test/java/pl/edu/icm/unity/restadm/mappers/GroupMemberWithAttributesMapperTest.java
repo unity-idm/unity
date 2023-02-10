@@ -27,7 +27,7 @@ public class GroupMemberWithAttributesMapperTest
 {
 
 	@Override
-	protected GroupMemberWithAttributes getAPIObject()
+	protected GroupMemberWithAttributes getFullAPIObject()
 	{
 		Identity id = new Identity("email", "email@email.com", 0, "email@email.com");
 		id.setCreationTs(new Date(1));
@@ -42,7 +42,7 @@ public class GroupMemberWithAttributesMapperTest
 	}
 
 	@Override
-	protected RestGroupMemberWithAttributes getRestObject()
+	protected RestGroupMemberWithAttributes getFullRestObject()
 	{
 		return RestGroupMemberWithAttributes.builder()
 				.withEntityInformation(RestEntityInformation.builder()

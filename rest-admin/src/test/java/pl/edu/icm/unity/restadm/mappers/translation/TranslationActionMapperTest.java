@@ -18,13 +18,13 @@ public class TranslationActionMapperTest extends MapperTestBase<TranslationActio
 {
 
 	@Override
-	protected TranslationAction getAPIObject()
+	protected TranslationAction getFullAPIObject()
 	{
 		return new TranslationAction("action", "p1", "p2");
 	}
 
 	@Override
-	protected RestTranslationAction getRestObject()
+	protected RestTranslationAction getFullRestObject()
 	{
 		return RestTranslationAction.builder()
 				.withName("action")

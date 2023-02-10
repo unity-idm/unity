@@ -5,31 +5,34 @@
 
 package io.imunity.upman.utils;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
+
+import com.vaadin.flow.component.html.Image;
+
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.Vaddin23WebLogoutHandler;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-import pl.edu.icm.unity.webui.common.Images;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
 public class ProjectService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, ProjectService.class);
-
+	
 	private final MessageSource msg;
 	private final DelegatedGroupManagement delGroupMan;
 	private final DelegatedGroupsHelper delGroupHelper;
@@ -89,7 +92,7 @@ public class ProjectService
 		return groupTreeNode;
 	}
 
-	public String getProjectLogo(ProjectGroup projectGroup)
+	public Image getProjectLogoFallbackToEmptyImage(ProjectGroup projectGroup)
 	{
 		DelegatedGroup group;
 		try
@@ -97,9 +100,11 @@ public class ProjectService
 			group = delGroupMan.getContents(projectGroup.path, projectGroup.path).group;
 		} catch (Exception e)
 		{
-			return Images.logoSmall.getPath();
+			return new Image();
 		}
-		return group.delegationConfiguration.logoUrl;
+		return Optional.ofNullable(group.delegationConfiguration.logoUrl)
+				.map(i -> i.isEmpty() ? new Image() : new Image(i, ""))
+				.orElse(new Image());
 	}
 
 	public Group getProjectGroup(ProjectGroup projectGroup)

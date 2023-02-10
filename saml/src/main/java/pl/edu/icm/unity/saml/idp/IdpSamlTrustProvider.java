@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.saml.idp;
 
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
-import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
@@ -19,9 +19,9 @@ import java.util.List;
  */
 public class IdpSamlTrustProvider implements SamlTrustProvider
 {
-	private RemoteMetaManager myMetadataManager;
+	private IdpRemoteMetaManager myMetadataManager;
 	
-	public IdpSamlTrustProvider(RemoteMetaManager myMetadataManager)
+	public IdpSamlTrustProvider(IdpRemoteMetaManager myMetadataManager)
 	{
 		this.myMetadataManager = myMetadataManager;
 	}

@@ -37,6 +37,7 @@ import pl.edu.icm.unity.oauth.as.token.access.AccessTokenResourceFactory;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.exception.OAuthExceptionMapper;
+import pl.edu.icm.unity.oauth.as.token.introspection.TokenIntrospectionResource.TokenIntrospectionResourceFactory;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.rest.authn.ext.HttpBasicRetrievalBase;
@@ -72,6 +73,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private final AccessTokenResourceFactory accessTokenResourceFactory;
 	private final OAuthAccessTokenRepository accessTokenRepository;
 	private final OAuthRefreshTokenRepository refreshTokenRepository;
+	private final TokenIntrospectionResourceFactory tokenIntrospectionResourceFactory;
 	
 	
 	@Autowired
@@ -81,7 +83,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			@Qualifier("insecure") IdPEngine idPEngine, TokensManagement tokensManagement,
 			OAuthAccessTokenRepository accessTokenRepository, OAuthRefreshTokenRepository refreshTokenRepository,
 			AdvertisedAddressProvider advertisedAddrProvider, OAuthScopesService scopeService,
-			AccessTokenResourceFactory accessTokenResourceFactory)
+			AccessTokenResourceFactory accessTokenResourceFactory,
+			TokenIntrospectionResourceFactory tokenIntrospectionResourceFactory)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.pkiManagement = pkiManagement;
@@ -90,6 +93,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.refreshTokenRepository = refreshTokenRepository;
 		this.scopeService = scopeService;
 		this.accessTokenResourceFactory = accessTokenResourceFactory;
+		this.tokenIntrospectionResourceFactory = tokenIntrospectionResourceFactory;
 	}
 	
 	@Override
@@ -122,7 +126,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			ret.add(new DiscoveryResource(config, coordinator, scopeService));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(accessTokenRepository));
-			ret.add(new TokenIntrospectionResource(accessTokenRepository, refreshTokenRepository));
+			ret.add(tokenIntrospectionResourceFactory.getTokenIntrospection(config));
 			ret.add(new UserInfoResource(accessTokenRepository));
 			ret.add(new RevocationResource(accessTokenRepository, refreshTokenRepository,
 					sessionMan, getEndpointDescription().getRealm(),

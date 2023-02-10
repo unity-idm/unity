@@ -62,6 +62,8 @@ class OAuthServiceEditor implements ServiceEditor
 	private URIAccessService uriAccessService;
 	private Collection<PolicyDocumentWithRevision> policyDocuments;
 	private OAuthScopesService scopeService;
+	private Set<String> validators;
+	private Set<String> certificates;
 
 	OAuthServiceEditor(MessageSource msg, 
 			SubViewSwitcher subViewSwitcher,
@@ -86,7 +88,9 @@ class OAuthServiceEditor implements ServiceEditor
 			Collection<IdentityType> idTypes,
 			List<String> usedPaths,
 			Collection<PolicyDocumentWithRevision> policyDocuments,
-			OAuthScopesService scopeService)
+			OAuthScopesService scopeService,	
+			Set<String> validators,
+			Set<String> certificates)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
@@ -112,6 +116,8 @@ class OAuthServiceEditor implements ServiceEditor
 		this.allUsernames = allUsernames;
 		this.policyDocuments = policyDocuments;
 		this.scopeService = scopeService;
+		this.validators = validators;
+		this.certificates = certificates;
 	}
 
 	@Override
@@ -119,7 +125,7 @@ class OAuthServiceEditor implements ServiceEditor
 	{
 		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, serverPrefix, serverContextPaths,
 				subViewSwitcher, outputTranslationProfileFieldFactory, endpoint != null, credentials, idTypes,
-				allAttributes, usedPaths, scopeService.getSystemScopes());
+				allAttributes, usedPaths, scopeService.getSystemScopes(), validators, certificates);
 		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig, uriAccessService,
 				subViewSwitcher, flows, authenticators, allRealms, allUsernames, generalTab::getScopes,
 				OAuthTokenEndpoint.TYPE.getSupportedBinding());

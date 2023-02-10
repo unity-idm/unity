@@ -4,31 +4,17 @@
  */
 package pl.edu.icm.unity.engine.group;
 
-import static java.util.Objects.nonNull;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.ImmutableMap;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
+import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
@@ -51,16 +37,30 @@ import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.GroupsChain;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.nonNull;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
 
 
 /**
@@ -190,7 +190,15 @@ public class GroupsManagementImpl implements GroupsManagement
 			throw new IllegalGroupValueException("Removing the root group is forbidden");
 		if (!recursive && !getSubGroups(path).isEmpty())
 			throw new IllegalGroupValueException("The group contains subgroups");
-		dbGroups.delete(path);
+		try
+		{
+			dbGroups.delete(path);
+		}
+		catch (EntityNotFoundException e)
+		{
+			throw new GroupNotFoundException(e.getMessage());
+		}
+
 		audit.log(AuditEventTrigger.builder()
 				.type(AuditEventType.GROUP)
 				.action(AuditEventAction.REMOVE)
@@ -294,7 +302,16 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 		if ((filter & GroupContents.METADATA) != 0)
 		{
-			Group fullGroup = dbGroups.get(path);
+			Group fullGroup;
+			try
+			{
+				fullGroup = dbGroups.get(path);
+			}
+			catch (EntityNotFoundException e)
+			{
+				throw new GroupNotFoundException(e.getMessage());
+			}
+
 			ret.setGroup(fullGroup);
 		}
 		return ret;
@@ -340,7 +357,15 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 		if ((filter & GroupContents.METADATA) != 0)
 		{
-			Group gMetadata = dbGroups.get(path);
+			Group gMetadata;
+			try
+			{
+				gMetadata = dbGroups.get(path);
+			}
+			catch (EntityNotFoundException e)
+			{
+				throw new GroupNotFoundException(e.getMessage());
+			}
 			ret.setGroup(gMetadata);
 		}
 		return ret;
@@ -363,7 +388,15 @@ public class GroupsManagementImpl implements GroupsManagement
 					+ "unsupported. Only displayed name can be changed.");
 		groupHelper.validateGroupStatements(group);
 		AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), acDB);
-		List<GroupMembership> gc = membershipDAO.getMembers(path);
+		List<GroupMembership> gc;
+		try
+		{
+			gc = membershipDAO.getMembers(path);
+		}
+		catch (EntityNotFoundException e)
+		{
+			throw new GroupNotFoundException(e.getMessage());
+		}
 		Map<String, AttributeType> allTypes = attributeTypeDAO.getAllAsMap();
 
 		for (GroupMembership membership : gc)
@@ -373,8 +406,17 @@ public class GroupsManagementImpl implements GroupsManagement
 			Collection<String> attributes = getEntityInGroupAttributeNames(entity, path);
 			helper.checkAttribtues(attributes, allTypes);
 		}
-		
-		Group actual = dbGroups.get(path);
+
+		Group actual;
+		try
+		{
+			actual = dbGroups.get(path);
+		}
+		catch (EntityNotFoundException e)
+		{
+			throw new GroupNotFoundException(e.getMessage());
+		}
+
 		boolean changingAccessMode = actual.isPublic() != group.isPublic();
 		if (changingAccessMode)
 		{

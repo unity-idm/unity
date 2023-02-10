@@ -18,8 +18,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean;
+import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesMapper;
 import pl.edu.icm.unity.store.impl.tokens.TokenRDBMSStore;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.AttributeType;
 
 @Component
 public class InDBUpdateFromSchema17 implements InDBContentsUpdater
@@ -44,6 +49,7 @@ public class InDBUpdateFromSchema17 implements InDBContentsUpdater
 	public void update() throws IOException
 	{
 		updateOAuthTokens();
+		updateRoleAttributeType();
 	}
 
 	void updateOAuthTokens() throws IOException
@@ -61,6 +67,35 @@ public class InDBUpdateFromSchema17 implements InDBContentsUpdater
 				token.setContents(JsonUtil.serialize2Bytes(fixed.get()));
 				tokensDAO.update(token);
 				log.info("Updated OAuth token audience {}", objContent);
+			}
+		}
+	}
+	
+	private void updateRoleAttributeType()
+	{
+		AttributeTypesMapper atTypeMapper = SQLTransactionTL.getSql()
+				.getMapper(AttributeTypesMapper.class);
+		List<AttributeTypeBean> atTypes = atTypeMapper.getAll();
+		for (AttributeTypeBean atType : atTypes)
+		{
+			if ("sys:AuthorizationRole".equals(atType.getName()))
+			{
+				log.info("Updating attribute type {} adding new value \"Policy documents manager\"", atType.getName());
+				AttributeType at = new AttributeType();
+				at.setName(atType.getName());
+				at.setValueSyntax(atType.getValueSyntaxId());
+				at.fromJsonBase(JsonUtil.parse(atType.getContents()));
+				at.setValueSyntaxConfiguration(UpdateHelperTo17.getRoleAttributeSyntaxConfig());
+				String orgEnRoleDescription = UpdateHelperTo17.getOrgEnRoleDescription();
+				if (orgEnRoleDescription.equals(at.getDescription() != null ? at.getDescription()
+						.getValue("en") : null))
+				{
+					I18nString orgDesc = at.getDescription();
+					orgDesc.addValue("en", UpdateHelperTo17.getEnRoleDescription());
+					at.setDescription(orgDesc);
+				}
+				atType.setContents(JsonUtil.serialize2Bytes(at.toJsonBase()));
+				atTypeMapper.updateByKey(atType);
 			}
 		}
 	}

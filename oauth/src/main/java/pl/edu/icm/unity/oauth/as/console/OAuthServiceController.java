@@ -734,6 +734,6 @@ class OAuthServiceController implements IdpServiceController
 						.collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), authenticatorSupportService, idTypeSupport.getIdentityTypes(),
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(Collectors.toList()),
-				policyDocumentManagement.getPolicyDocuments(), scopesService);
+				policyDocumentManagement.getPolicyDocuments(), scopesService, pkiMan.getValidatorNames(), pkiMan.getAllCertificateNames());
 	}
 }

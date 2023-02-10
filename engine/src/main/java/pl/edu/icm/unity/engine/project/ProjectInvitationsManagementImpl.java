@@ -157,6 +157,8 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		if (param.groups == null || param.groups.isEmpty())
 		{
+			toSet.getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection(Collections.emptyList()),
+					PrefilledEntryMode.READ_ONLY));
 			return;
 		}
 

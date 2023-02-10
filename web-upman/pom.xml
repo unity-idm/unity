@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>3.12.0-SNAPSHOT</version>
+		<version>3.13.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -57,6 +57,28 @@
 			<artifactId>vaadin-elements</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+	    <dependency>
+		    <groupId>io.imunity</groupId>
+		    <artifactId>unity-server-rest</artifactId>
+		    <version>${project.version}</version>
+	    </dependency>
+	    <dependency>
+		    <groupId>io.imunity</groupId>
+		    <artifactId>unity-server-engine</artifactId>
+		    <version>${project.version}</version>
+		    <scope>test</scope>
+	    </dependency>
+	    <dependency>
+		    <groupId>io.imunity</groupId>
+		    <artifactId>unity-server-storage</artifactId>
+		    <version>${project.version}</version>
+		    <scope>test</scope>
+	    </dependency>
+	    <dependency>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-test</artifactId>
+		    <scope>test</scope>
+	    </dependency>
 
 		<dependency>
 			<groupId>com.vaadin</groupId>
@@ -79,7 +101,7 @@
 			<artifactId>assertj-core</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+    </dependencies>
 	
 	<build>
 		<plugins>

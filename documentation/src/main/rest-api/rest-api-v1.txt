@@ -1457,3 +1457,133 @@ Example output without any grouping applied:
    }
 ]
 ----
+
+
+=== Get all policy documents
+
++@Path("/policy-documents")+ +
++@GET+ +
+
+Returns all policy documents.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example output:
+
+----
+[
+	{
+	      "id": 1,
+	      "name": "string",
+	      "displayedName": [
+	            "en": "displayedName",
+	            "fr": "nomAffiche"
+	      ],
+	      "mandatory": true,
+	      "contentType": "LINK"
+	      "revision": "1"
+	      "content": {
+	            "en": "content",
+	            "fr": "contenu"
+	      }
+	}
+]
+----
+
+
+=== Get policy document
+
++@Path("/policy-documents/{document-id}")+ +
++@GET+ +
+
+Returns the given policy document.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example output:
+
+----
+{
+      "id": 1,
+      "name": "string",
+      "displayedName": {
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      },
+      "mandatory": true,
+      "contentType": "EMBEDDED",
+      "revision": "1",
+      "content": {
+            "en": "content",
+            "fr": "contenu"
+      }
+}
+----
+
+=== Add policy document
+
++@Path("/policy-documents")+ +
++@POST+ +
+
+Adds a new policy document.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example input:
+
+----
+{
+      "name": "string",
+      "displayedName": {
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      },
+      "mandatory": true,
+      "contentType": "LINK",
+      "content": {
+            "en": "https://example.com/some/url/en",
+            "fr": "https://example.com/some/url/fr"
+      }
+}
+----
+
+
+Example output:
+
+----
+{
+      "id": 1
+}
+----
+
+=== Remove policy document
+
++@Path("/policy-documents/{document-id}")+ +
++@DELETE+ +
+
+Removes the given policy document.
+
+
+=== Update policy document
+
++@Path("/policy-documents/{document-id}")+ +
++@QueryParam("incrementRevision")+ +
++@PUT+ +
+
+Updates the given policy document. If query parameter "incrementRevision" is set to true, update increment revision, and re-acceptance will be needed.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example input:
+
+----
+{
+      "name": "string",
+      "displayedName": {
+            "en": "displayedName",
+            "fr": "nomAffiche"
+      },
+      "mandatory": true,
+      "contentType": "EMBEDDED",
+      "content": {
+            "en": "content",
+            "fr": "contenu"
+      }
+}
+----

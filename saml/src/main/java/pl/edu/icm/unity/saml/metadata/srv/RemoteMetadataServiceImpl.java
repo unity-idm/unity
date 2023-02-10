@@ -67,7 +67,7 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 	
 	@Override
 	public synchronized void registerConsumer(String key, Duration refreshInterval,
-			String customTruststore, BiConsumer<EntitiesDescriptorDocument, String> consumer)
+			String customTruststore, BiConsumer<EntitiesDescriptorDocument, String> consumer, boolean logoDownload)
 	{
 		String url = consumers2URL.get(key);
 		if (url == null)
@@ -81,7 +81,7 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 			metadataHandlersByURL.put(url, handler);
 		}
 		checkTruststoresConsistency(handler, customTruststore);
-		handler.addConsumer(new MetadataConsumer(refreshInterval, consumer, key));
+		handler.addConsumer(new MetadataConsumer(refreshInterval, consumer, key, logoDownload));
 		log.info("Registered consumer {} of metadata from {}", key, url);
 	}
 

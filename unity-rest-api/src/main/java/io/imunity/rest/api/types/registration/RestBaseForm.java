@@ -38,7 +38,9 @@ public class RestBaseForm
 	@JsonProperty("DisplayedName")
 	public final RestI18nString displayedName;
 	@JsonProperty("i18nFormInformation")
-	public final RestI18nString formInformation;
+	public final RestI18nString i18nFormInformation;
+	@JsonProperty("FormInformation")
+	public final String formInformation;
 	@JsonProperty("PageTitle")
 	public final RestI18nString pageTitle;
 	@JsonProperty("TranslationProfile")
@@ -75,7 +77,7 @@ public class RestBaseForm
 				.orElse(null);
 		this.collectComments = builder.collectComments;
 		this.displayedName = builder.displayedName;
-		this.formInformation = builder.formInformation;
+		this.i18nFormInformation = builder.i18nFormInformation;
 		this.pageTitle = builder.pageTitle;
 		this.translationProfile = builder.translationProfile;
 		this.layoutSettings = builder.layoutSettings;
@@ -87,14 +89,15 @@ public class RestBaseForm
 				.orElse(null);
 		this.byInvitationOnly = builder.byInvitationOnly;
 		this.checkIdentityOnSubmit = builder.checkIdentityOnSubmit;
+		this.formInformation = builder.formInformation;
 	}
 
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(agreements, attributeParams, byInvitationOnly, checkIdentityOnSubmit, collectComments,
-				credentialParams, description, displayedName, formInformation, groupParams, identityParams,
-				layoutSettings, name, pageTitle, policyAgreements, translationProfile, wrapUpConfig);
+				credentialParams, description, displayedName, i18nFormInformation, groupParams, identityParams,
+				layoutSettings, name, pageTitle, policyAgreements, translationProfile, wrapUpConfig, formInformation);
 	}
 
 	@Override
@@ -111,14 +114,16 @@ public class RestBaseForm
 				&& byInvitationOnly == other.byInvitationOnly && checkIdentityOnSubmit == other.checkIdentityOnSubmit
 				&& collectComments == other.collectComments && Objects.equals(credentialParams, other.credentialParams)
 				&& Objects.equals(description, other.description) && Objects.equals(displayedName, other.displayedName)
-				&& Objects.equals(formInformation, other.formInformation)
+				&& Objects.equals(i18nFormInformation, other.i18nFormInformation)
 				&& Objects.equals(groupParams, other.groupParams)
 				&& Objects.equals(identityParams, other.identityParams)
 				&& Objects.equals(layoutSettings, other.layoutSettings) && Objects.equals(name, other.name)
 				&& Objects.equals(pageTitle, other.pageTitle)
 				&& Objects.equals(policyAgreements, other.policyAgreements)
 				&& Objects.equals(translationProfile, other.translationProfile)
-				&& Objects.equals(wrapUpConfig, other.wrapUpConfig);
+				&& Objects.equals(wrapUpConfig, other.wrapUpConfig)
+				&& Objects.equals(i18nFormInformation, other.i18nFormInformation)
+				&& Objects.equals(formInformation, other.formInformation);
 	}
 
 	public static class RestBaseFormBuilder<T extends RestBaseFormBuilder<?>>
@@ -143,8 +148,9 @@ public class RestBaseForm
 		private RestI18nString displayedName = RestI18nString.builder()
 				.build();
 		@JsonProperty("i18nFormInformation")
-		private RestI18nString formInformation = RestI18nString.builder()
-				.build();
+		private RestI18nString i18nFormInformation;
+		@JsonProperty("FormInformation")
+		private String formInformation;
 		@JsonProperty("PageTitle")
 		private RestI18nString pageTitle = RestI18nString.builder()
 				.build();
@@ -246,7 +252,14 @@ public class RestBaseForm
 		@SuppressWarnings("unchecked")
 		public T withFormInformation(RestI18nString formInformation)
 		{
-			this.formInformation = formInformation;
+			this.i18nFormInformation = formInformation;
+			return (T) this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public T withFormInformation(String formInformation)
+		{
+			this.formInformation= formInformation;
 			return (T) this;
 		}
 

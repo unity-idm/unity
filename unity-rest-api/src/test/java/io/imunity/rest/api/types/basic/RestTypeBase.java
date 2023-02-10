@@ -42,7 +42,7 @@ public abstract class RestTypeBase<T>
 		T object = getObject();
 		String json = MAPPER.writeValueAsString(object);
 		T fromJson = MAPPER.readValue(json, type);
-		assertThat(getObject()).isEqualTo(fromJson);
+		assertThat(object).isEqualTo(fromJson);
 	}
 
 	protected abstract String getJson();

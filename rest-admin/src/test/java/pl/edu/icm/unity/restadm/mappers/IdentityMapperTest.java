@@ -17,11 +17,11 @@ import io.imunity.rest.api.types.confirmation.RestConfirmationInfo;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.types.basic.Identity;
 
-public class IdentityMapperTest extends MapperTestBase<Identity, RestIdentity>
+public class IdentityMapperTest extends MapperWithMinimalTestBase<Identity, RestIdentity>
 {
 
 	@Override
-	protected Identity getAPIObject()
+	protected Identity getFullAPIObject()
 	{
 		ObjectNode meta = Constants.MAPPER.createObjectNode();
 		Identity ret = new Identity("username", "name", 1, "name");
@@ -37,7 +37,7 @@ public class IdentityMapperTest extends MapperTestBase<Identity, RestIdentity>
 	}
 
 	@Override
-	protected RestIdentity getRestObject()
+	protected RestIdentity getFullRestObject()
 	{
 		return RestIdentity.builder()
 				.withCreationTs(new Date(1))
@@ -58,9 +58,33 @@ public class IdentityMapperTest extends MapperTestBase<Identity, RestIdentity>
 	}
 
 	@Override
+	protected Identity getMinAPIObject()
+	{
+		Identity ret = new Identity("username", "name", 1, "name");
+		ret.setUpdateTs(new Date(2));
+		ret.setCreationTs(new Date(1));
+		return ret;
+	}
+
+	@Override
+	protected RestIdentity getMinRestObject()
+	{
+		return RestIdentity.builder()
+				.withCreationTs(new Date(1))
+				.withUpdateTs(new Date(2))
+				.withComparableValue("name")
+				.withEntityId(1)
+				.withTypeId("username")
+				.withValue("name")
+				.withConfirmationInfo(RestConfirmationInfo.builder()
+						.withConfirmed(false)
+						.build())
+				.build();
+	}
+
+	@Override
 	protected Pair<Function<Identity, RestIdentity>, Function<RestIdentity, Identity>> getMapper()
 	{
 		return Pair.of(IdentityMapper::map, IdentityMapper::map);
 	}
-
 }

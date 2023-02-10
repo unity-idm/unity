@@ -5,14 +5,9 @@
 
 package pl.edu.icm.unity.engine.project;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -25,6 +20,11 @@ import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Authorizes group operations on the engine
  * 
@@ -32,6 +32,7 @@ import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
  *
  */
 @Component
+@Primary
 public class ProjectAuthorizationManager
 {
 

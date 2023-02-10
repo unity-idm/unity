@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.restadm.mappers.registration;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -13,8 +14,16 @@ import pl.edu.icm.unity.restadm.mappers.I18nStringMapper;
 import pl.edu.icm.unity.restadm.mappers.policyAgreement.PolicyAgreementConfigurationMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutSettingsMapper;
 import pl.edu.icm.unity.restadm.mappers.translation.TranslationProfileMapper;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
+import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
+import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class RegistrationFormMapper
 {
@@ -129,86 +138,86 @@ public class RegistrationFormMapper
 										.map(IdentityRegistrationParamMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withAttributeParams(Optional.ofNullable(restRegistrationForm.attributeParams)
 						.map(p -> p.stream()
 								.map(a -> Optional.ofNullable(a)
 										.map(AttributeRegistrationParamMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withGroupParams(Optional.ofNullable(restRegistrationForm.groupParams)
 						.map(p -> p.stream()
 								.map(g -> Optional.ofNullable(g)
 										.map(GroupRegistrationParamMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withCredentialParams(Optional.ofNullable(restRegistrationForm.credentialParams)
 						.map(p -> p.stream()
 								.map(c -> Optional.ofNullable(c)
 										.map(CredentialRegistrationParamMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withAgreements(Optional.ofNullable(restRegistrationForm.agreements)
 						.map(p -> p.stream()
 								.map(a -> Optional.ofNullable(a)
 										.map(AgreementRegistrationParamMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withCollectComments(restRegistrationForm.collectComments)
 				.withDisplayedName(Optional.ofNullable(restRegistrationForm.displayedName)
 						.map(I18nStringMapper::map)
-						.orElse(null))
-				.withFormInformation(Optional.ofNullable(restRegistrationForm.formInformation)
+						.orElse(new I18nString(restRegistrationForm.name)))
+				.withFormInformation(Optional.ofNullable(restRegistrationForm.i18nFormInformation)
 						.map(I18nStringMapper::map)
-						.orElse(null))
+						.orElse(new I18nString(restRegistrationForm.formInformation)))
 				.withPageTitle(Optional.ofNullable(restRegistrationForm.pageTitle)
 						.map(I18nStringMapper::map)
-						.orElse(null))
+						.orElse(new I18nString()))
 				.withTranslationProfile(Optional.ofNullable(restRegistrationForm.translationProfile)
 						.map(TranslationProfileMapper::map)
-						.orElse(null))
+						.orElse(new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>())))
 				.withLayouts(Optional.ofNullable(restRegistrationForm.formLayouts)
 						.map(RegistrationFormLayoutsMapper::map)
-						.orElse(null))
+						.orElse(new RegistrationFormLayouts()))
 				.withFormLayoutSettings(Optional.ofNullable(restRegistrationForm.layoutSettings)
 						.map(FormLayoutSettingsMapper::map)
-						.orElse(null))
+						.orElse(FormLayoutSettings.DEFAULT))
 				.withWrapUpConfig(Optional.ofNullable(restRegistrationForm.wrapUpConfig)
 						.map(p -> p.stream()
 								.map(a -> Optional.ofNullable(a)
 										.map(RegistrationWrapUpConfigMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withPolicyAgreements(Optional.ofNullable(restRegistrationForm.policyAgreements)
 						.map(p -> p.stream()
 								.map(a -> Optional.ofNullable(a)
 										.map(PolicyAgreementConfigurationMapper::map)
 										.orElse(null))
 								.collect(Collectors.toList()))
-						.orElse(null))
+						.orElse(new ArrayList<>()))
 				.withByInvitationOnly(restRegistrationForm.byInvitationOnly)
 				.withCheckIdentityOnSubmit(restRegistrationForm.checkIdentityOnSubmit)
 				.withPubliclyAvailable(restRegistrationForm.publiclyAvailable)
 				.withNotificationsConfiguration(Optional.ofNullable(restRegistrationForm.notificationsConfiguration)
 						.map(RegistrationFormNotificationsMapper::map)
-						.orElse(null))
+						.orElse(new RegistrationFormNotifications()))
 				.withCaptchaLength(restRegistrationForm.captchaLength)
 				.withRegistrationCode(restRegistrationForm.registrationCode)
 				.withDefaultCredentialRequirement(restRegistrationForm.defaultCredentialRequirement)
 				.withTitle2ndStage(Optional.ofNullable(restRegistrationForm.title2ndStage)
 						.map(I18nStringMapper::map)
-						.orElse(null))
+						.orElse(new I18nString()))
 				.withExternalGridSignupSpec(Optional.ofNullable(restRegistrationForm.externalSignupGridSpec)
 						.map(ExternalSignupGridSpecMapper::map)
-						.orElse(null))
+						.orElse(new ExternalSignupGridSpec()))
 				.withExternalSignupSpec(Optional.ofNullable(restRegistrationForm.externalSignupSpec)
 						.map(ExternalSignupSpecMapper::map)
-						.orElse(null))
+						.orElse(new ExternalSignupSpec()))
 				.withShowGotoSignIn(restRegistrationForm.showSignInLink, restRegistrationForm.signInLink)
 				.withSwitchToEnquiryInfo(Optional.ofNullable(restRegistrationForm.switchToEnquiryInfo)
 						.map(I18nStringMapper::map)

@@ -5,11 +5,14 @@
 
 package pl.edu.icm.unity.restadm.mappers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
 
 import io.imunity.rest.api.types.basic.RestAttributeStatement;
 import io.imunity.rest.api.types.basic.RestGroup;
@@ -23,10 +26,10 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.GroupProperty;
 
-public class GroupMapperTest extends MapperTestBase<Group, RestGroup>
+public class GroupMapperTest extends MapperWithMinimalTestBase<Group, RestGroup>
 {
 	@Override
-	protected Group getAPIObject()
+	protected Group getFullAPIObject()
 	{
 		Group group = new Group("/A/B/C");
 		group.setAttributesClasses(Set.of("attrClass1", "attrClass2"));
@@ -42,7 +45,7 @@ public class GroupMapperTest extends MapperTestBase<Group, RestGroup>
 	}
 
 	@Override
-	protected RestGroup getRestObject()
+	protected RestGroup getFullRestObject()
 	{
 		return RestGroup.builder()
 				.withPath("/A/B/C")
@@ -79,8 +82,35 @@ public class GroupMapperTest extends MapperTestBase<Group, RestGroup>
 	}
 
 	@Override
+	protected Group getMinAPIObject()
+	{
+		Group group = new Group("/A/B/C");
+		return group;
+	}
+
+	@Override
+	protected RestGroup getMinRestObject()
+	{
+		return RestGroup.builder()
+				.withPath("/A/B/C")
+				.build();
+	}
+
+	@Override
 	protected Pair<Function<Group, RestGroup>, Function<RestGroup, Group>> getMapper()
 	{
 		return Pair.of(GroupMapper::map, GroupMapper::map);
+	}
+	
+	@Test
+	public void shouldSupportStringDescription()
+	{
+		RestGroup group = RestGroup.builder()
+				.withPath("/A/B/C")
+				.withDescription("desc")
+				.build();
+		Group map = GroupMapper.map(group);
+		assertThat(map.getDescription()
+				.getDefaultValue()).isEqualTo("desc");
 	}
 }

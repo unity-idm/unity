@@ -20,13 +20,13 @@ public class ExternalSignupSpecMapperTest extends MapperTestBase<ExternalSignupS
 {
 
 	@Override
-	protected ExternalSignupSpec getAPIObject()
+	protected ExternalSignupSpec getFullAPIObject()
 	{
 		return new ExternalSignupSpec(List.of(new AuthenticationOptionsSelector("key", "option")));
 	}
 
 	@Override
-	protected RestExternalSignupSpec getRestObject()
+	protected RestExternalSignupSpec getFullRestObject()
 	{
 		return RestExternalSignupSpec.builder()
 				.withSpecs(List.of(RestAuthenticationOptionsSelector.builder()

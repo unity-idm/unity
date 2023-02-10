@@ -80,14 +80,104 @@ public class MetadataSourceHandlerTest
 				executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
-		MetadataConsumer consumer = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "1");
+		MetadataConsumer consumer = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "1", false);
 		handler.addConsumer(consumer);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
 		verify(uriAccessService).readURI(eq(new URI("http://url")), any());
 	}
-	
+
+
+	@Test
+	public void shouldRunAsyncLogoDownloadWhenFirstConsumerHasFlag() throws Exception
+	{
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
+		MetadataSourceHandler handler = new MetadataSourceHandler(src,
+			executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
+
+		AtomicBoolean gotEvent = new AtomicBoolean(false);
+		MetadataConsumer consumer = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "1", true);
+		handler.addConsumer(consumer);
+
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
+			() -> gotEvent.get());
+		verify(asyncExternalLogoFileDownloader).downloadLogoFilesAsync(any(), any());
+	}
+
+	@Test
+	public void shouldNotRunAsyncLogoDownloadWhenFirstConsumerHasntFlag() throws Exception
+	{
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
+		MetadataSourceHandler handler = new MetadataSourceHandler(src,
+			executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
+
+		AtomicBoolean gotEvent = new AtomicBoolean(false);
+		MetadataConsumer consumer = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "1", false);
+		handler.addConsumer(consumer);
+
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
+			() -> gotEvent.get());
+		verify(asyncExternalLogoFileDownloader, times(0)).downloadLogoFilesAsync(any(), any());
+	}
+
+	@Test
+	public void shouldRunAsyncLogoDownloadWhenSecondConsumerHasFlag()
+	{
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
+		MetadataSourceHandler handler = new MetadataSourceHandler(src,
+			executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
+
+		AtomicBoolean event1 = new AtomicBoolean(false);
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> event1.set(true), "1", false);
+		handler.addConsumer(consumer1);
+		AtomicBoolean event2 = new AtomicBoolean(false);
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(1500), (m,id) -> event2.set(true), "2", true);
+		handler.addConsumer(consumer2);
+
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
+			() -> event1.get() && event2.get());
+		verify(asyncExternalLogoFileDownloader).downloadLogoFilesAsync(any(), any());
+	}
+
+	@Test
+	public void shouldRunAsyncLogoDownloadOnceWhenBothConsumersHaveFlags()
+	{
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
+		MetadataSourceHandler handler = new MetadataSourceHandler(src,
+			executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
+
+		AtomicBoolean event1 = new AtomicBoolean(false);
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> event1.set(true), "1", true);
+		handler.addConsumer(consumer1);
+		AtomicBoolean event2 = new AtomicBoolean(false);
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(1500), (m,id) -> event2.set(true), "2", true);
+		handler.addConsumer(consumer2);
+
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
+			() -> event1.get() && event2.get());
+		verify(asyncExternalLogoFileDownloader).downloadLogoFilesAsync(any(), any());
+	}
+
+	@Test
+	public void shouldNotRunAsyncLogoDownloadWhenBothConsumersHaventFlag() throws Exception
+	{
+		CachedMetadataLoader downloader = new CachedMetadataLoader(uriAccessService, fileStorageService);
+		MetadataSourceHandler handler = new MetadataSourceHandler(src,
+			executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
+
+		AtomicBoolean event1 = new AtomicBoolean(false);
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> event1.set(true), "1", false);
+		handler.addConsumer(consumer1);
+		AtomicBoolean event2 = new AtomicBoolean(false);
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(1500), (m,id) -> event2.set(true), "2", false);
+		handler.addConsumer(consumer2);
+
+		Awaitility.await().atMost(Durations.ONE_SECOND).until(
+			() -> event1.get() && event2.get());
+		verify(asyncExternalLogoFileDownloader, times(0)).downloadLogoFilesAsync(any(), any());
+	}
+
 	@Test
 	public void shouldNotify2Consumers() throws Exception
 	{
@@ -96,10 +186,10 @@ public class MetadataSourceHandlerTest
 				executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
 		
 		AtomicBoolean event1 = new AtomicBoolean(false);
-		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> event1.set(true), "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> event1.set(true), "1", false);
 		handler.addConsumer(consumer1);
 		AtomicBoolean event2 = new AtomicBoolean(false);
-		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(1500), (m,id) -> event2.set(true), "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(1500), (m,id) -> event2.set(true), "2", false);
 		handler.addConsumer(consumer2);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
@@ -114,12 +204,12 @@ public class MetadataSourceHandlerTest
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
 		
-		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1", false);
 		handler.addConsumer(consumer1);
 		AtomicInteger event = new AtomicInteger(0);
 		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(100), 
 				(m,id) -> {handler.removeConsumer("2"); event.incrementAndGet();},
-				"2");
+				"2", false);
 		handler.addConsumer(consumer2);
 		
 		Thread.sleep(400);
@@ -141,7 +231,7 @@ public class MetadataSourceHandlerTest
 				executorsService, downloader, Duration.ofMillis(20), asyncExternalLogoFileDownloader);
 		
 		AtomicInteger invCount = new AtomicInteger(0);
-		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(20), (m,id) -> invCount.incrementAndGet(), "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(20), (m,id) -> invCount.incrementAndGet(), "1", false);
 		handler.addConsumer(consumer1);
 		handler.removeConsumer("1");
 		int inv = invCount.get()+1;
@@ -156,12 +246,12 @@ public class MetadataSourceHandlerTest
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, Duration.ofMillis(15), asyncExternalLogoFileDownloader);
 		
-		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(1500), (m,id) -> {}, "1", false);
 		handler.addConsumer(consumer1);
 		handler.removeConsumer("1");
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
-		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(1500), (m,id) -> gotEvent.set(true), "2", false);
 		handler.addConsumer(consumer2);
 		
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
@@ -176,11 +266,11 @@ public class MetadataSourceHandlerTest
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, Duration.ofMillis(1000), asyncExternalLogoFileDownloader);
 		
-		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1", false);
 		handler.addConsumer(consumer1);
 		assertThat(handler.getRefreshInterval(), is(ofMillis(15000)));
 
-		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(5000), (m,id) -> {}, "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(5000), (m,id) -> {}, "2", false);
 		handler.addConsumer(consumer2);
 		assertThat(handler.getRefreshInterval(), is(ofMillis(5000)));
 	}
@@ -192,11 +282,11 @@ public class MetadataSourceHandlerTest
 		MetadataSourceHandler handler = new MetadataSourceHandler(src, 
 				executorsService, downloader, Duration.ofMillis(1000), asyncExternalLogoFileDownloader);
 		
-		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> {}, "1", false);
 		handler.addConsumer(consumer1);
 		assertThat(handler.getRefreshInterval(), is(ofMillis(15000)));
 
-		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(5000), (m,id) -> {}, "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(5000), (m,id) -> {}, "2", false);
 		handler.addConsumer(consumer2);
 		assertThat(handler.getRefreshInterval(), is(ofMillis(5000)));
 		
@@ -212,14 +302,14 @@ public class MetadataSourceHandlerTest
 				executorsService, downloader, Duration.ofMillis(10000), asyncExternalLogoFileDownloader);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
-		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> gotEvent.set(true), "1");
+		MetadataConsumer consumer1 = new MetadataConsumer(ofMillis(15000), (m,id) -> gotEvent.set(true), "1", false);
 		handler.addConsumer(consumer1);
 		Awaitility.await().atMost(Durations.ONE_SECOND).until(
 				() -> gotEvent.get());
 
 		
 		AtomicBoolean gotEvent2 = new AtomicBoolean(false);
-		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(15000), (m,id) -> gotEvent2.set(true), "2");
+		MetadataConsumer consumer2 = new MetadataConsumer(ofMillis(15000), (m,id) -> gotEvent2.set(true), "2", false);
 		handler.addConsumer(consumer2);
 		Awaitility.await().pollDelay(10, TimeUnit.MILLISECONDS)
 				.atMost(Durations.ONE_SECOND).until(

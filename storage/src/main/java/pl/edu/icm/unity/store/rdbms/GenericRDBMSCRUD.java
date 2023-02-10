@@ -4,6 +4,15 @@
  */
 package pl.edu.icm.unity.store.rdbms;
 
+import pl.edu.icm.unity.store.ReferenceAwareDAO;
+import pl.edu.icm.unity.store.ReferenceRemovalHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
+import pl.edu.icm.unity.store.api.BasicCRUDDAO;
+import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
+import pl.edu.icm.unity.store.impl.StorageLimits;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,14 +20,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import pl.edu.icm.unity.store.ReferenceAwareDAO;
-import pl.edu.icm.unity.store.ReferenceRemovalHandler;
-import pl.edu.icm.unity.store.ReferenceUpdateHandler;
-import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
-import pl.edu.icm.unity.store.api.BasicCRUDDAO;
-import pl.edu.icm.unity.store.impl.StorageLimits;
-import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
 /**
  * Base implementation of RDBMS based CRUD DAO.
@@ -38,7 +39,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 			RDBMSObjectSerializer<T, DBT> jsonSerializer, String elementName)
 	{
 		this(mapperClass, jsonSerializer, elementName, 
-				id -> new IllegalArgumentException(elementName + " with key [" + id + 
+				id -> new EntityNotFoundException(elementName + " with key [" + id +
 						"] does not exist"));
 	}
 	

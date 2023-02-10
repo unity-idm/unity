@@ -13,11 +13,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import io.imunity.rest.api.types.basic.RestGroupMembership;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
-public class GroupMembershipMapperTest extends MapperTestBase<GroupMembership, RestGroupMembership>
+public class GroupMembershipMapperTest extends MapperWithMinimalTestBase<GroupMembership, RestGroupMembership>
 {
 
 	@Override
-	protected GroupMembership getAPIObject()
+	protected GroupMembership getFullAPIObject()
 	{
 		GroupMembership groupMembership = new GroupMembership("/", 1, new Date(1));
 		groupMembership.setTranslationProfile("profile");
@@ -26,7 +26,7 @@ public class GroupMembershipMapperTest extends MapperTestBase<GroupMembership, R
 	}
 
 	@Override
-	protected RestGroupMembership getRestObject()
+	protected RestGroupMembership getFullRestObject()
 	{
 		return RestGroupMembership.builder()
 				.withGroup("/")
@@ -34,6 +34,24 @@ public class GroupMembershipMapperTest extends MapperTestBase<GroupMembership, R
 				.withCreationTs(new Date(1))
 				.withRemoteIdp("remoteIdp")
 				.withTranslationProfile("profile")
+				.build();
+	}
+
+	@Override
+	protected GroupMembership getMinAPIObject()
+	{
+
+		return new GroupMembership("/", 1, new Date(1));
+	}
+
+	@Override
+	protected RestGroupMembership getMinRestObject()
+	{
+
+		return RestGroupMembership.builder()
+				.withGroup("/")
+				.withEntityId(1)
+				.withCreationTs(new Date(1))
 				.build();
 	}
 

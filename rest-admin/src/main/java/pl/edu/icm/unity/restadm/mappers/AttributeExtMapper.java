@@ -11,7 +11,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 
 public class AttributeExtMapper
 {
-	static RestAttributeExt map(AttributeExt attributeExt)
+	public static RestAttributeExt map(AttributeExt attributeExt)
 	{
 		return RestAttributeExt.builder()
 				.withDirect(attributeExt.isDirect())
@@ -26,7 +26,7 @@ public class AttributeExtMapper
 				.build();
 	}
 
-	static AttributeExt map(RestAttributeExt restAttributeExt)
+	public static AttributeExt map(RestAttributeExt restAttributeExt)
 	{
 
 		return new AttributeExt(

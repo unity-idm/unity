@@ -17,13 +17,13 @@ public class FormLayoutSettingsMapperTest extends MapperTestBase<FormLayoutSetti
 {
 
 	@Override
-	protected FormLayoutSettings getAPIObject()
+	protected FormLayoutSettings getFullAPIObject()
 	{
 		return new FormLayoutSettings(true, 10, "EM", true, "logo");
 	}
 
 	@Override
-	protected RestFormLayoutSettings getRestObject()
+	protected RestFormLayoutSettings getFullRestObject()
 	{
 		return RestFormLayoutSettings.builder()
 				.withCompactInputs(true)

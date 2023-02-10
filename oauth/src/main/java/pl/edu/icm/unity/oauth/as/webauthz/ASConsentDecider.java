@@ -12,6 +12,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.AccessMode;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.Type;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
@@ -96,7 +99,10 @@ class ASConsentDecider
 		EntityParam entity = new EntityParam(ae.getEntityId());
 		try
 		{
-			return !enquiryManagement.getPendingEnquires(entity).isEmpty();
+			return !enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
+					.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+					.withType(Type.REGULAR)
+					.build()).isEmpty();
 		} catch (EngineException e)
 		{
 			log.warn("Can't retrieve pending enquiries for user", e);

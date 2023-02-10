@@ -4,24 +4,16 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
-import pl.edu.icm.unity.engine.api.bulk.GroupsWithMembers;
-import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.GroupMember;
-import pl.edu.icm.unity.types.basic.MultiGroupMembers;
-import pl.edu.icm.unity.types.basic.MultiGroupMembers.EntityGroupAttributes;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -30,15 +22,31 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.imunity.rest.api.types.basic.RestEntityGroupAttributes;
+import io.imunity.rest.api.types.basic.RestGroupMember;
+import io.imunity.rest.api.types.basic.RestMultiGroupMembers;
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.bulk.EntityGroupAttributes;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.api.bulk.GroupsWithMembers;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.restadm.mappers.AttributeExtMapper;
+import pl.edu.icm.unity.restadm.mappers.EntityMapper;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.Entity;
+
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path(RESTAdminEndpoint.V1_PATH)
@@ -67,16 +75,33 @@ public class BulkQueryHandler implements RESTAdminHandler
 		Map<Long, Map<String, AttributeExt>> userAttributes = 
 				bulkQueryService.getGroupUsersAttributes(group, bulkMembershipData);
 		Map<Long, Entity> entitiesData = bulkQueryService.getGroupEntitiesNoContextWithoutTargeted(bulkMembershipData);
-		List<GroupMember> ret = new ArrayList<>(userAttributes.size());
+		List<RestGroupMember> ret = new ArrayList<>(userAttributes.size());
 		for (Long memberId: userAttributes.keySet())
 		{
 			Collection<AttributeExt> attributes = userAttributes.get(memberId).values(); 
 			Entity entity = entitiesData.get(memberId);
-			ret.add(new GroupMember(group, entity, attributes));
+			ret.add(createGroupMember(group, entity, attributes));
 		}
 		return mapper.writeValueAsString(ret);
 	}
 
+	private RestGroupMember createGroupMember(String group, Entity entity, Collection<AttributeExt> attributes)
+	{
+		return RestGroupMember.builder()
+		.withGroup(group)
+		.withAttributes(Optional.ofNullable(attributes)
+				.map(l -> l.stream()
+						.map(attr -> Optional.ofNullable(attr)
+								.map(AttributeExtMapper::map)
+								.orElse(null))
+						.collect(Collectors.toList()))
+				.orElse(null))
+		.withEntity(Optional.ofNullable(entity)
+				.map(EntityMapper::map)
+				.orElse(null))
+		.build();
+	}
+	
 	@Path("/group-members-multi/{rootGroupPath}")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -98,15 +123,47 @@ public class BulkQueryHandler implements RESTAdminHandler
 		
 		GroupsWithMembers members = bulkQueryService.getMembersWithAttributeForAllGroups(rootGroup, requestedGroups);
 		
-		Map<String, List<EntityGroupAttributes>> attributesByGroup = new HashMap<>();
+		Map<String, List<RestEntityGroupAttributes>> attributesByGroup = new HashMap<>();
 		
-		for (Entry<String, List<pl.edu.icm.unity.engine.api.bulk.EntityGroupAttributes>> groupData: members.membersByGroup.entrySet())
+		for (Entry<String, List<EntityGroupAttributes>> groupData: members.membersByGroup.entrySet())
 		{
-			List<EntityGroupAttributes> perGroupAttributes = groupData.getValue().stream()
-					.map(src -> new EntityGroupAttributes(src.entityId, src.attribtues.values()))
+			List<RestEntityGroupAttributes> perGroupAttributes = groupData.getValue().stream()
+					.map(src -> createEntityGroupAttributes(src))
 					.collect(Collectors.toList());
 			attributesByGroup.put(groupData.getKey(), perGroupAttributes);
 		}
-		return mapper.writeValueAsString(new MultiGroupMembers(members.entities.values(), attributesByGroup));
+		
+		return mapper.writeValueAsString(createMultiGroupMembers(members.entities.values(), attributesByGroup));
+	}
+	
+	private RestMultiGroupMembers createMultiGroupMembers(Collection<Entity> entities,
+			Map<String, List<RestEntityGroupAttributes>> members)
+	{
+
+		return RestMultiGroupMembers.builder()
+				.withEntities(Optional.ofNullable(entities)
+						.map(l -> l.stream()
+								.map(en -> Optional.ofNullable(en)
+										.map(EntityMapper::map)
+										.orElse(null))
+								.collect(Collectors.toList()))
+						.orElse(null))
+				.withMembers(members)
+				.build();
+	}
+
+	public static RestEntityGroupAttributes createEntityGroupAttributes(EntityGroupAttributes entityGroupAttributes)
+	{
+		return RestEntityGroupAttributes.builder()
+				.withEntityId(entityGroupAttributes.entityId)
+				.withAttributes(Optional.ofNullable(entityGroupAttributes.attribtues.values())
+						.map(l -> l.stream()
+								.map(attr -> Optional.ofNullable(attr)
+										.map(AttributeExtMapper::map)
+										.orElse(null))
+								.collect(Collectors.toList()))
+						.orElse(null))
+
+				.build();
 	}
 }

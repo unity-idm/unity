@@ -19,29 +19,6 @@ machine. The distribution's +extra/+ folder may provide a suitable script.
 It is also a good idea to add the +INSTALLATION_DIRECTORY/bin/+ folder to the +PATH+ environment variable,
 so the scripts are instantly available. This is assumed later on in all examples.  
 
-If the +.rpm+ version is used it should be installed with the package manager. The only dependency is Java JRE,
-which will be installed automatically if not yet available on the machine. The startup scripts are also installed
-automatically. 
-
-[NOTE]
-In case of RPM installation the standard Linux directory layout is used. This manual uses the names of Unity 
-subdirectories as found in the +.tar.gz+ distribution. The mapping of those folders to locations used in the case of 
-the RPM installation is as follows:
-
-[options="header"]
-|===
-|TAR.GZ			| RPM 
-|bin/			| /usr/sbin/
-|lib/			| /usr/share/unity-idm/lib/
-|logs/			| /var/log/unity-idm/
-|data/			| /var/lib/unity-idm/data/
-|conf/			| /etc/unity-idm/
-|===
-
-Unity can be started right away, but most probably the default setting should be changed. 
-Please refer to the <<quick_start>> or <<configuration>> sections for a short or detailed information how to 
-configure the system.
-
 === Starting and stopping the server
 
 Starting is simple:

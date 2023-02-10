@@ -13,11 +13,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import io.imunity.rest.api.types.basic.RestAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 
-public class AttributeMapperTest extends MapperTestBase<Attribute, RestAttribute>
+public class AttributeMapperTest extends MapperWithMinimalTestBase<Attribute, RestAttribute>
 {
 
 	@Override
-	protected Attribute getAPIObject()
+	protected Attribute getFullAPIObject()
 	{
 		Attribute attribute = new Attribute("name", "string", "/A/B", List.of("val1", "val2"));
 		attribute.setTranslationProfile("profile");
@@ -27,7 +27,7 @@ public class AttributeMapperTest extends MapperTestBase<Attribute, RestAttribute
 	}
 
 	@Override
-	protected RestAttribute getRestObject()
+	protected RestAttribute getFullRestObject()
 	{
 		return RestAttribute.builder()
 				.withGroupPath("/A/B")
@@ -43,6 +43,24 @@ public class AttributeMapperTest extends MapperTestBase<Attribute, RestAttribute
 	protected Pair<Function<Attribute, RestAttribute>, Function<RestAttribute, Attribute>> getMapper()
 	{
 		return Pair.of(AttributeMapper::map, AttributeMapper::map);
+	}
+
+	@Override
+	protected Attribute getMinAPIObject()
+	{
+
+		return new Attribute("name", "string", "/A/B", List.of("val1", "val2"));
+	}
+
+	@Override
+	protected RestAttribute getMinRestObject()
+	{
+		return RestAttribute.builder()
+				.withGroupPath("/A/B")
+				.withName("name")
+				.withValues(List.of("val1", "val2"))
+				.withValueSyntax("string")
+				.build();
 	}
 
 }

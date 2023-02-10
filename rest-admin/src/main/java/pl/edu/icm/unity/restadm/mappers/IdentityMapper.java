@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import io.imunity.rest.api.types.basic.RestIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 public class IdentityMapper
 {
@@ -38,7 +39,7 @@ public class IdentityMapper
 				restIdentity.comparableValue);
 		identity.setConfirmationInfo(Optional.ofNullable(restIdentity.confirmationInfo)
 				.map(ConfirmationInfoMapper::map)
-				.orElse(null));
+				.orElse(new ConfirmationInfo(false)));
 		identity.setCreationTs(restIdentity.creationTs);
 		identity.setMetadata(restIdentity.metadata);
 		identity.setRealm(restIdentity.realm);

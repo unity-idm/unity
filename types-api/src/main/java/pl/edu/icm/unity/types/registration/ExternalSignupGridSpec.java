@@ -28,7 +28,7 @@ public class ExternalSignupGridSpec extends ExternalSignupSpec
 		this.gridSettings = gridSettings;
 	}
 
-	ExternalSignupGridSpec()
+	public ExternalSignupGridSpec()
 	{
 	}
 

@@ -41,7 +41,7 @@ public class OpenIdProfileFetcher implements UserProfileFetcher
 		ServerHostnameCheckingMode checkingMode = providerConfig.getEnumValue(
 				CustomProviderProperties.CLIENT_HOSTNAME_CHECKING, 
 				ServerHostnameCheckingMode.class);
-		HTTPRequest httpsRequest = HttpRequestConfigurer.secureRequest(uiRequest.toHTTPRequest(), 
+		HTTPRequest httpsRequest = new HttpRequestConfigurer().secureRequest(uiRequest.toHTTPRequest(), 
 				providerConfig.getValidator(), checkingMode); 
 		HTTPResponse uiHttpResponse = httpsRequest.send();
 		UserInfoResponse uiResponse = UserInfoResponse.parse(uiHttpResponse);

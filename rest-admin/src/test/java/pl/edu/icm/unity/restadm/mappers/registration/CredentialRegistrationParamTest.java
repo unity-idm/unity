@@ -18,14 +18,14 @@ public class CredentialRegistrationParamTest
 {
 
 	@Override
-	protected CredentialRegistrationParam getAPIObject()
+	protected CredentialRegistrationParam getFullAPIObject()
 	{
 
 		return new CredentialRegistrationParam("name", "label", "desc");
 	}
 
 	@Override
-	protected RestCredentialRegistrationParam getRestObject()
+	protected RestCredentialRegistrationParam getFullRestObject()
 	{
 
 		return RestCredentialRegistrationParam.builder()

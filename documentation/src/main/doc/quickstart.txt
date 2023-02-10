@@ -31,9 +31,7 @@ one trusted CA. A real credential and truststore should be used for production.
 server's security (with +unityServer.core.httpServer.enableHsts=true+ ).
 - The server uses an embedded H2 database. Its performance is fine, however it is not recommended in production 
 deployments where DB backups and high availability may easily become a requirement.
-- The server should be started by an unprivileged user. It is not required in case of using 
-the system initialization scripts installed with RPM, which can be run by root 
-(the user will be automatically changed to +unity-idm+).
+- The server should be started by an unprivileged user.
 - If one wants to use a low port (e.g. 443) for Unity, then authbind is the suggested solution. It can be easily 
 enabled in +startup.properties+
 - The distribution can load some demo contents. If you need it enable the configuration module +demoContents.module+ 

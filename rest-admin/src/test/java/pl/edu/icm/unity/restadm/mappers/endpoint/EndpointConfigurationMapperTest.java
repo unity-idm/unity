@@ -12,23 +12,22 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
-import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
+import pl.edu.icm.unity.restadm.mappers.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
-public class EndpointConfigurationMapperTest extends MapperTestBase<EndpointConfiguration, RestEndpointConfiguration>
+public class EndpointConfigurationMapperTest extends MapperWithMinimalTestBase<EndpointConfiguration, RestEndpointConfiguration>
 {
 
 	@Override
-	protected EndpointConfiguration getAPIObject()
+	protected EndpointConfiguration getFullAPIObject()
 	{
 		return new EndpointConfiguration(new I18nString("disp"), "desc", List.of("ao1"), "conf", "realm", "tag1");
 	}
 
 	@Override
-	protected RestEndpointConfiguration getRestObject()
+	protected RestEndpointConfiguration getFullRestObject()
 	{
-
 		return RestEndpointConfiguration.builder()
 				.withDisplayedName(RestI18nString.builder()
 						.withDefaultValue("disp")
@@ -42,9 +41,22 @@ public class EndpointConfigurationMapperTest extends MapperTestBase<EndpointConf
 	}
 
 	@Override
+	protected EndpointConfiguration getMinAPIObject()
+	{
+		return new EndpointConfiguration(null, null, null, null, null);
+	}
+
+	@Override
+	protected RestEndpointConfiguration getMinRestObject()
+	{
+		return RestEndpointConfiguration.builder()		
+				.withTag("")
+				.build();
+	}
+
+	@Override
 	protected Pair<Function<EndpointConfiguration, RestEndpointConfiguration>, Function<RestEndpointConfiguration, EndpointConfiguration>> getMapper()
 	{
 		return Pair.of(EndpointConfigurationMapper::map, EndpointConfigurationMapper::map);
 	}
-
 }

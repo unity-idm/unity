@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.vaadin.risto.stepper.IntStepper;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm.Family;
@@ -31,6 +32,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid.Column;
+
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
@@ -80,6 +84,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private Binder<DefaultServiceDefinition> oauthTokenBinder;
 	private Binder<OAuthServiceConfiguration> configBinder;
 	private Set<String> credentials;
+	private Set<String> certificates; 
 	private Collection<IdentityType> idTypes;
 	private List<String> attrTypes;
 	private List<String> usedEndpointsPaths;
@@ -96,11 +101,13 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 	private TextField name;
 	private boolean editMode;
 	private List<OAuthScope> systemScopes;
+	private GridWithEditorInDetails<TrustedUpstreamASBean> trustedUpstreamAsGrid;
+	private Set<String> validators;
 
 	OAuthEditorGeneralTab(MessageSource msg, String serverPrefix, Set<String> serverContextPaths,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory, boolean editMode,
 			Set<String> credentials, Collection<IdentityType> identityTypes, List<String> attrTypes,
-			List<String> usedEndpointsPaths, List<OAuthScope> systemScopes)
+			List<String> usedEndpointsPaths, List<OAuthScope> systemScopes, Set<String> validators, Set<String> certificates)
 	{
 		this.msg = msg;
 
@@ -114,6 +121,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		this.serverPrefix = serverPrefix;
 		this.serverContextPaths = serverContextPaths;
 		this.systemScopes = List.copyOf(systemScopes);
+		this.validators = validators;
+		this.certificates = certificates;
 	}
 
 	void initUI(Binder<DefaultServiceDefinition> oauthWebAuthzBinder, Binder<DefaultServiceDefinition> oauthTokenBinder,
@@ -134,6 +143,7 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		main.addComponent(buildAdvancedSection());
 		main.addComponent(
 				profileFieldFactory.getWrappedFieldInstance(subViewSwitcher, configBinder, "translationProfile"));
+		main.addComponent(buildTrustedUpstremsSection());
 
 		setCompositionRoot(main);
 	}
@@ -145,19 +155,23 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 		ComboBox<String> idForSub = new ComboBox<>();
 		idForSub.setCaption(msg.getMessage("OAuthEditorGeneralTab.identityTypeForSubject"));
-		idForSub.setItems(idTypes.stream().map(t -> t.getName()));
+		idForSub.setItems(idTypes.stream()
+				.map(t -> t.getName()));
 		idForSub.setEmptySelectionAllowed(false);
-		configBinder.forField(idForSub).bind("identityTypeForSubject");
+		configBinder.forField(idForSub)
+				.bind("identityTypeForSubject");
 		advancedLayout.addComponent(idForSub);
 
 		CheckBox allowForWildcardsInAllowedURI = new CheckBox(
 				msg.getMessage("OAuthEditorGeneralTab.allowForWildcardsInAllowedURI"));
-		configBinder.forField(allowForWildcardsInAllowedURI).bind("allowForWildcardsInAllowedURI");
+		configBinder.forField(allowForWildcardsInAllowedURI)
+				.bind("allowForWildcardsInAllowedURI");
 		advancedLayout.addComponent(allowForWildcardsInAllowedURI);
 
 		CheckBox allowForUnauthenticatedRevocation = new CheckBox(
 				msg.getMessage("OAuthEditorGeneralTab.allowForUnauthenticatedRevocation"));
-		configBinder.forField(allowForUnauthenticatedRevocation).bind("allowForUnauthenticatedRevocation");
+		configBinder.forField(allowForUnauthenticatedRevocation)
+				.bind("allowForUnauthenticatedRevocation");
 		advancedLayout.addComponent(allowForUnauthenticatedRevocation);
 
 		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.advanced"), advancedLayout);
@@ -202,13 +216,16 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			metaPath.setStyleName(Styles.vButtonLink.toString());
 			l.addComponent(metaPath);
 			infoLayoutWrapper.addComponent(l);
-			metaPath.addClickListener(e -> Page.getCurrent().open(metaPath.getCaption(), "_blank", false));
+			metaPath.addClickListener(e -> Page.getCurrent()
+					.open(metaPath.getCaption(), "_blank", false));
 		}
 
 		name = new TextField();
 		name.setCaption(msg.getMessage("ServiceEditorBase.name"));
 		name.setReadOnly(editMode);
-		oauthWebAuthzBinder.forField(name).asRequired().bind("name");
+		oauthWebAuthzBinder.forField(name)
+				.asRequired()
+				.bind("name");
 		mainGeneralLayout.addComponent(name);
 
 		TextField tokenContextPath = new TextField();
@@ -218,77 +235,87 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		webAuthzContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.usersAuthnPath"));
 		webAuthzContextPath.setReadOnly(editMode);
 		webAuthzContextPath.setPlaceholder("/oauth");
-		oauthWebAuthzBinder.forField(webAuthzContextPath).withValidator((v, c) ->
-		{
+		oauthWebAuthzBinder.forField(webAuthzContextPath)
+				.withValidator((v, c) ->
+				{
 
-			ValidationResult r;
-			if (editMode)
-			{
-				r = validatePathForEdit(v);
-			} else
-			{
-				r = validatePathForAdd(v, tokenContextPath.getValue());
-			}
+					ValidationResult r;
+					if (editMode)
+					{
+						r = validatePathForEdit(v);
+					} else
+					{
+						r = validatePathForAdd(v, tokenContextPath.getValue());
+					}
 
-			if (r.isError())
-			{
-				userAuthnEndpointPath.setValue("");
-			} else
-			{
-				userAuthnEndpointPath.setValue(serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
-			}
-			return r;
+					if (r.isError())
+					{
+						userAuthnEndpointPath.setValue("");
+					} else
+					{
+						userAuthnEndpointPath
+								.setValue(serverPrefix + v + OAuthAuthzWebEndpoint.OAUTH_CONSUMER_SERVLET_PATH);
+					}
+					return r;
 
-		}).bind("address");
+				})
+				.bind("address");
 		mainGeneralLayout.addComponent(webAuthzContextPath);
 		tokenContextPath.setRequiredIndicatorVisible(true);
 		tokenContextPath.setCaption(msg.getMessage("OAuthEditorGeneralTab.clientTokenPath"));
 		tokenContextPath.setPlaceholder("/oauth-token");
 		tokenContextPath.setReadOnly(editMode);
-		oauthTokenBinder.forField(tokenContextPath).withValidator((v, c) ->
-		{
-			ValidationResult r;
-			if (editMode)
-			{
-				r = validatePathForEdit(v);
-			} else
-			{
-				r = validatePathForAdd(v, webAuthzContextPath.getValue());
-			}
+		oauthTokenBinder.forField(tokenContextPath)
+				.withValidator((v, c) ->
+				{
+					ValidationResult r;
+					if (editMode)
+					{
+						r = validatePathForEdit(v);
+					} else
+					{
+						r = validatePathForAdd(v, webAuthzContextPath.getValue());
+					}
 
-			if (r.isError())
-			{
-				tokenEndpointPath.setValue("");
-			} else
-			{
-				tokenEndpointPath.setValue(serverPrefix + v + OAuthTokenEndpoint.TOKEN_PATH);
-				metaPath.setCaption(serverPrefix + v + "/.well-known/openid-configuration");
-			}
-			return r;
+					if (r.isError())
+					{
+						tokenEndpointPath.setValue("");
+					} else
+					{
+						tokenEndpointPath.setValue(serverPrefix + v + OAuthTokenEndpoint.TOKEN_PATH);
+						metaPath.setCaption(serverPrefix + v + "/.well-known/openid-configuration");
+					}
+					return r;
 
-		}).bind("address");
+				})
+				.bind("address");
 		mainGeneralLayout.addComponent(tokenContextPath);
 
 		I18nTextField displayedName = new I18nTextField(msg);
 		displayedName.setCaption(msg.getMessage("ServiceEditorBase.displayedName"));
-		oauthWebAuthzBinder.forField(displayedName).bind("displayedName");
+		oauthWebAuthzBinder.forField(displayedName)
+				.bind("displayedName");
 		mainGeneralLayout.addComponent(displayedName);
 
 		TextField description = new DescriptionTextField(msg);
-		oauthWebAuthzBinder.forField(description).bind("description");
+		oauthWebAuthzBinder.forField(description)
+				.bind("description");
 		mainGeneralLayout.addComponent(description);
 
 		TextField issuerURI = new TextField();
 		issuerURI.setPlaceholder(msg.getMessage("OAuthEditorGeneralTab.issuerURIPlaceholder"));
 		issuerURI.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		issuerURI.setCaption(msg.getMessage("OAuthEditorGeneralTab.issuerURI"));
-		configBinder.forField(issuerURI).asRequired().bind("issuerURI");
+		configBinder.forField(issuerURI)
+				.asRequired()
+				.bind("issuerURI");
 		mainGeneralLayout.addComponent(issuerURI);
 
 		IntStepper idTokenExp = new IntStepper();
 		idTokenExp.setWidth(5, Unit.EM);
 		idTokenExp.setCaption(msg.getMessage("OAuthEditorGeneralTab.idTokenExpiration"));
-		configBinder.forField(idTokenExp).asRequired(msg.getMessage("notAPositiveNumber"))
+		configBinder.forField(idTokenExp)
+				.asRequired(msg.getMessage("notAPositiveNumber"))
 				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null))
 				.bind("idTokenExpiration");
 		mainGeneralLayout.addComponent(idTokenExp);
@@ -296,7 +323,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		IntStepper codeTokenExp = new IntStepper();
 		codeTokenExp.setWidth(5, Unit.EM);
 		codeTokenExp.setCaption(msg.getMessage("OAuthEditorGeneralTab.codeTokenExpiration"));
-		configBinder.forField(codeTokenExp).asRequired(msg.getMessage("notAPositiveNumber"))
+		configBinder.forField(codeTokenExp)
+				.asRequired(msg.getMessage("notAPositiveNumber"))
 				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null))
 				.bind("codeTokenExpiration");
 		mainGeneralLayout.addComponent(codeTokenExp);
@@ -304,7 +332,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		IntStepper accessTokenExp = new IntStepper();
 		accessTokenExp.setWidth(5, Unit.EM);
 		accessTokenExp.setCaption(msg.getMessage("OAuthEditorGeneralTab.accessTokenExpiration"));
-		configBinder.forField(accessTokenExp).asRequired(msg.getMessage("notAPositiveNumber"))
+		configBinder.forField(accessTokenExp)
+				.asRequired(msg.getMessage("notAPositiveNumber"))
 				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null))
 				.bind("accessTokenExpiration");
 		mainGeneralLayout.addComponent(accessTokenExp);
@@ -318,69 +347,78 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		refreshTokenIssuePolicy.setCaption(msg.getMessage("OAuthEditorGeneralTab.refreshTokenIssuePolicy"));
 		refreshTokenIssuePolicy.setEmptySelectionAllowed(false);
 
-		configBinder.forField(refreshTokenIssuePolicy).bind("refreshTokenIssuePolicy");
+		configBinder.forField(refreshTokenIssuePolicy)
+				.bind("refreshTokenIssuePolicy");
 		mainGeneralLayout.addComponent(refreshTokenIssuePolicy);
 		refreshTokenIssuePolicy.addValueChangeListener(e ->
 		{
-			refreshTokenExp.setEnabled(!e.getValue().equals(RefreshTokenIssuePolicy.NEVER));
-			refreshScope(e.getValue().equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED),
-					OIDCScopeValue.OFFLINE_ACCESS);
+			refreshTokenExp.setEnabled(!e.getValue()
+					.equals(RefreshTokenIssuePolicy.NEVER));
+			refreshScope(e.getValue()
+					.equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED), OIDCScopeValue.OFFLINE_ACCESS);
 
 		});
 
 		refreshTokenExp.setWidth(5, Unit.EM);
 		refreshTokenExp.setCaption(msg.getMessage("OAuthEditorGeneralTab.refreshTokenExpiration"));
-		configBinder.forField(refreshTokenExp).asRequired(msg.getMessage("notAPositiveNumber"))
+		configBinder.forField(refreshTokenExp)
+				.asRequired(msg.getMessage("notAPositiveNumber"))
 				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
 				.bind("refreshTokenExpiration");
 		refreshTokenExp.setEnabled(false);
 		mainGeneralLayout.addComponent(refreshTokenExp);
-		
-		
+
 		CheckBox refreshTokenRotationForPublicClients = new CheckBox(
 				msg.getMessage("OAuthEditorGeneralTab.refreshTokenRotationForPublicClients"));
-		configBinder.forField(refreshTokenRotationForPublicClients).bind("refreshTokenRotationForPublicClients");
-		mainGeneralLayout.addComponent(refreshTokenRotationForPublicClients);		
-				
+		configBinder.forField(refreshTokenRotationForPublicClients)
+				.bind("refreshTokenRotationForPublicClients");
+		mainGeneralLayout.addComponent(refreshTokenRotationForPublicClients);
+
 		IntStepper extendAccessTokenValidity = new IntStepper();
 
 		CheckBox supportExtendAccessTokenValidity = new CheckBox(
 				msg.getMessage("OAuthEditorGeneralTab.supportExtendTokenValidity"));
-		configBinder.forField(supportExtendAccessTokenValidity).bind("supportExtendTokenValidity");
+		configBinder.forField(supportExtendAccessTokenValidity)
+				.bind("supportExtendTokenValidity");
 		mainGeneralLayout.addComponent(supportExtendAccessTokenValidity);
 		supportExtendAccessTokenValidity
 				.addValueChangeListener(e -> extendAccessTokenValidity.setEnabled(e.getValue()));
 
 		extendAccessTokenValidity.setWidth(5, Unit.EM);
 		extendAccessTokenValidity.setCaption(msg.getMessage("OAuthEditorGeneralTab.maxExtendAccessTokenValidity"));
-		configBinder.forField(extendAccessTokenValidity).asRequired((v, c) ->
-		{
-			if (supportExtendAccessTokenValidity.getValue())
-			{
-				return new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null).apply(v, c);
-			}
-			return ValidationResult.ok();
-		}).bind("maxExtendAccessTokenValidity");
+		configBinder.forField(extendAccessTokenValidity)
+				.asRequired((v, c) ->
+				{
+					if (supportExtendAccessTokenValidity.getValue())
+					{
+						return new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null).apply(v, c);
+					}
+					return ValidationResult.ok();
+				})
+				.bind("maxExtendAccessTokenValidity");
 
 		extendAccessTokenValidity.setEnabled(false);
 		mainGeneralLayout.addComponent(extendAccessTokenValidity);
 
 		CheckBox skipConsentScreen = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.skipConsentScreen"));
-		configBinder.forField(skipConsentScreen).bind("skipConsentScreen");
+		configBinder.forField(skipConsentScreen)
+				.bind("skipConsentScreen");
 		mainGeneralLayout.addComponent(skipConsentScreen);
 
 		accessTokenFormat = createAccessTokenFormatCombo();
 		mainGeneralLayout.addComponent(accessTokenFormat);
 
 		openIDConnect = new CheckBox(msg.getMessage("OAuthEditorGeneralTab.openIDConnect"));
-		configBinder.forField(openIDConnect).bind("openIDConnect");
+		configBinder.forField(openIDConnect)
+				.bind("openIDConnect");
 		mainGeneralLayout.addComponent(openIDConnect);
 
 		signingAlg = new ComboBox<>();
 		signingAlg.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingAlgorithm"));
 		signingAlg.setEmptySelectionAllowed(false);
 		signingAlg.setItems(SigningAlgorithms.values());
-		configBinder.forField(signingAlg).bind("signingAlg");
+		configBinder.forField(signingAlg)
+				.bind("signingAlg");
 		mainGeneralLayout.addComponent(signingAlg);
 		signingAlg.addValueChangeListener(e -> refreshSigningControls());
 
@@ -388,17 +426,20 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		credential.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingCredential"));
 		credential.setEmptySelectionAllowed(false);
 		credential.setItems(credentials);
-		configBinder.forField(credential).asRequired((v, c) ->
-		{
-			if (credential.isEnabled() && (v == null || v.isEmpty())
-					&& !Family.HMAC_SHA.contains(JWSAlgorithm.parse(signingAlg.getValue().toString())))
-			{
-				return ValidationResult.error(msg.getMessage("fieldRequired"));
-			}
+		configBinder.forField(credential)
+				.asRequired((v, c) ->
+				{
+					if (credential.isEnabled() && (v == null || v.isEmpty())
+							&& !Family.HMAC_SHA.contains(JWSAlgorithm.parse(signingAlg.getValue()
+									.toString())))
+					{
+						return ValidationResult.error(msg.getMessage("fieldRequired"));
+					}
 
-			return ValidationResult.ok();
+					return ValidationResult.ok();
 
-		}).bind("credential");
+				})
+				.bind("credential");
 
 		credential.setEnabled(false);
 		mainGeneralLayout.addComponent(credential);
@@ -406,27 +447,30 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		signingSecret = new TextField();
 		signingSecret.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
 		signingSecret.setCaption(msg.getMessage("OAuthEditorGeneralTab.signingSecret"));
-		configBinder.forField(signingSecret).asRequired((v, c) ->
-		{
-			JWSAlgorithm alg = JWSAlgorithm.parse(signingAlg.getValue().toString());
+		configBinder.forField(signingSecret)
+				.asRequired((v, c) ->
+				{
+					JWSAlgorithm alg = JWSAlgorithm.parse(signingAlg.getValue()
+							.toString());
 
-			if (signingSecret.isEnabled() && Family.HMAC_SHA.contains(alg))
-			{
-				if (v == null || v.isEmpty())
-				{
-					return ValidationResult.error(msg.getMessage("fieldRequired"));
-				} else
-				{
-					if (v.getBytes(StandardCharsets.UTF_8).length * 8 < getBitsLenghtForAlg(alg))
+					if (signingSecret.isEnabled() && Family.HMAC_SHA.contains(alg))
 					{
-						return ValidationResult.error(msg.getMessage("toShortValue"));
+						if (v == null || v.isEmpty())
+						{
+							return ValidationResult.error(msg.getMessage("fieldRequired"));
+						} else
+						{
+							if (v.getBytes(StandardCharsets.UTF_8).length * 8 < getBitsLenghtForAlg(alg))
+							{
+								return ValidationResult.error(msg.getMessage("toShortValue"));
+							}
+						}
 					}
-				}
-			}
 
-			return ValidationResult.ok();
+					return ValidationResult.ok();
 
-		}).bind("signingSecret");
+				})
+				.bind("signingSecret");
 		signingSecret.setEnabled(false);
 		mainGeneralLayout.addComponent(signingSecret);
 
@@ -436,21 +480,30 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			refreshScope(e.getValue(), OIDCScopeValue.OPENID);
 		});
 
+		
 		return main;
 	}
 
 	private void refreshScope(boolean add, OIDCScopeValue value)
 	{
-		Optional<OAuthScopeBean> scope = configBinder.getBean().getScopes().stream()
-				.filter(s -> s.getName().equals(value.getValue())).findFirst();
+		Optional<OAuthScopeBean> scope = configBinder.getBean()
+				.getScopes()
+				.stream()
+				.filter(s -> s.getName()
+						.equals(value.getValue()))
+				.findFirst();
 		if (scope.isPresent())
 		{
 			OAuthScopeBean newScope = new OAuthScopeBean();
-			newScope.setAttributes(scope.get().getAttributes());
+			newScope.setAttributes(scope.get()
+					.getAttributes());
 			newScope.setEnabled(add);
-			newScope.setAttributes(scope.get().getAttributes());
-			newScope.setDescription(scope.get().getDescription());
-			newScope.setName(scope.get().getName());
+			newScope.setAttributes(scope.get()
+					.getAttributes());
+			newScope.setDescription(scope.get()
+					.getDescription());
+			newScope.setName(scope.get()
+					.getName());
 			scopesGrid.replaceElement(scope.get(), newScope);
 		}
 	}
@@ -461,7 +514,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		combo.setCaption(msg.getMessage("OAuthEditorGeneralTab.accessTokenFormat"));
 		combo.setEmptySelectionAllowed(false);
 		combo.setItems(AccessTokenFormat.values());
-		configBinder.forField(combo).bind("accessTokenFormat");
+		configBinder.forField(combo)
+				.bind("accessTokenFormat");
 		combo.addValueChangeListener(e ->
 		{
 			refreshSigningControls();
@@ -483,7 +537,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		VerticalLayout scopesLayout = new VerticalLayout();
 		scopesLayout.setMargin(false);
 
-		List<String> systemScopesNames = systemScopes.stream().map(s -> s.name).collect(Collectors.toList());
+		List<String> systemScopesNames = systemScopes.stream()
+				.map(s -> s.name)
+				.collect(Collectors.toList());
 		scopesGrid = new GridWithEditorInDetails<>(msg, OAuthScopeBean.class,
 				() -> new ScopeEditor(msg, attrTypes, systemScopesNames), s -> false,
 				s -> s != null && s.getName() != null && systemScopesNames.contains(s.getName()), false);
@@ -493,20 +549,46 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		addGotoEditColumn.setResizable(true);
 		addGotoEditColumn.setId("name");
 		scopesGrid.addCheckboxColumn(s -> s.isEnabled(), msg.getMessage("OAuthEditorGeneralTab.scopeEnabled"), 10)
-				.setResizable(true).setWidth(60);
+				.setResizable(true)
+				.setWidth(60);
 		scopesGrid.addTextColumn(s -> s.getDescription(), msg.getMessage("OAuthEditorGeneralTab.scopeDescription"), 30)
 				.setResizable(true);
-		scopesGrid.addTextColumn(s -> s.getAttributes() != null ? String.join(",", s.getAttributes()) : "",
-				msg.getMessage("OAuthEditorGeneralTab.scopeAttributes"), 30).setResizable(true);
+		scopesGrid
+				.addTextColumn(s -> s.getAttributes() != null ? String.join(",", s.getAttributes()) : "",
+						msg.getMessage("OAuthEditorGeneralTab.scopeAttributes"), 30)
+				.setResizable(true);
 		scopesGrid.setMinHeightByRow(12);
 		addGotoEditColumn.setComparator((s1, s2) -> compareScopes(systemScopesNames, s1, s2));
-		configBinder.forField(scopesGrid).bind("scopes");
+		configBinder.forField(scopesGrid)
+				.bind("scopes");
 		scopesLayout.addComponent(scopesGrid);
 		scopesGrid.addValueChangeListener(e ->
 		{
 			scopesGrid.sort(addGotoEditColumn.getId());
 		});
 		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.scopes"), scopesLayout);
+	}
+	
+	private CollapsibleLayout buildTrustedUpstremsSection()
+	{
+		VerticalLayout upstreamsLayout = new VerticalLayout();
+		upstreamsLayout.setMargin(false);
+
+		trustedUpstreamAsGrid = new GridWithEditorInDetails<>(msg, TrustedUpstreamASBean.class,
+				() -> new TrustedUpstreamEditor(msg, certificates, validators), s -> false, false);
+		trustedUpstreamAsGrid
+				.addTextColumn(
+						s -> !Strings.isNullOrEmpty(s.getMetadataURL()) ? s.getMetadataURL()
+								: s.getIntrospectionEndpointURL(),
+						msg.getMessage("OAuthEditorGeneralTab.trustedUpstreamASesURL"), 30)
+				.setResizable(true);
+		trustedUpstreamAsGrid.setMinHeightByRow(12);
+		
+		configBinder.forField(trustedUpstreamAsGrid)
+				.bind("trustedUpstreamAS");
+		upstreamsLayout.addComponent(trustedUpstreamAsGrid);
+
+		return new CollapsibleLayout(msg.getMessage("OAuthEditorGeneralTab.trustedUpstreamASes"), upstreamsLayout);
 	}
 
 	private int compareScopes(List<String> systemScopesNames, OAuthScopeBean s1, OAuthScopeBean s2)
@@ -518,7 +600,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		{
 			if (systemScopesNames.contains(s2.getName()))
 			{
-				return s1.getName().compareTo(s2.getName());
+				return s1.getName()
+						.compareTo(s2.getName());
 			} else
 			{
 				return -1;
@@ -528,7 +611,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 			if (!systemScopesNames.contains(s2.getName()))
 			{
-				return s1.getName().compareTo(s2.getName());
+				return s1.getName()
+						.compareTo(s2.getName());
 			} else
 			{
 				return 1;
@@ -548,7 +632,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		if (openid || jwtAT)
 		{
 			signingAlg.setEnabled(true);
-			if (alg.toString().startsWith("HS"))
+			if (alg.toString()
+					.startsWith("HS"))
 			{
 				signingSecret.setEnabled(true);
 				credential.setEnabled(false);
@@ -585,7 +670,10 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 
 	Set<String> getScopes()
 	{
-		return scopesGrid.getValue().stream().map(s -> s.getName()).collect(ImmutableSet.toImmutableSet());
+		return scopesGrid.getValue()
+				.stream()
+				.map(s -> s.getName())
+				.collect(ImmutableSet.toImmutableSet());
 	}
 
 	private ValidationResult validatePathForAdd(String path, String path2)
@@ -643,7 +731,9 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 			name = new TextField();
 			name.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 			name.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
-			binder.forField(name).asRequired().withValidator(new NoSpaceValidator(msg))
+			binder.forField(name)
+					.asRequired()
+					.withValidator(new NoSpaceValidator(msg))
 					.withValidator((value, context) ->
 					{
 						if (!blockedEdit && value != null && systemScopes.contains(value))
@@ -652,21 +742,25 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 									.error(msg.getMessage("OAuthEditorGeneralTab.scopeBlockedToAdd", value));
 						}
 						return ValidationResult.ok();
-					}).bind("name");
+					})
+					.bind("name");
 			enable = new CheckBox();
 			enable.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeEnabled"));
-			binder.forField(enable).bind("enabled");
+			binder.forField(enable)
+					.bind("enabled");
 
 			TextField desc = new TextField();
 			desc.setWidth(100, Unit.PERCENTAGE);
 
 			desc.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeDescription") + ":");
-			binder.forField(desc).bind("description");
+			binder.forField(desc)
+					.bind("description");
 
 			attributes = new ChipsWithFreeText(msg);
 			attributes.setCaption(msg.getMessage("OAuthEditorGeneralTab.scopeAttributes") + ":");
 			attributes.setItems(attrTypes);
-			binder.forField(attributes).bind("attributes");
+			binder.forField(attributes)
+					.bind("attributes");
 			FormLayout main = new FormLayout();
 			main.setMargin(new MarginInfo(false, true, false, false));
 			main.addComponent(name);
@@ -680,7 +774,8 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		@Override
 		public OAuthScopeBean getValue() throws FormValidationException
 		{
-			if (binder.validate().hasErrors())
+			if (binder.validate()
+					.hasErrors())
 			{
 				throw new FormValidationException();
 			}
@@ -693,12 +788,185 @@ class OAuthEditorGeneralTab extends CustomComponent implements EditorTab
 		{
 			binder.setBean(value.clone());
 			boolean enableDisableblock = value != null && value.getName() != null
-					&& OAuthSystemScopeProvider.getScopeNames().contains(value.getName());
+					&& OAuthSystemScopeProvider.getScopeNames()
+							.contains(value.getName());
 			boolean fullBlock = value != null && value.getName() != null && systemScopes.contains(value.getName());
 			enable.setReadOnly(enableDisableblock);
 			name.setReadOnly(fullBlock);
 			attributes.setEnabled(!fullBlock);
 			blockedEdit = fullBlock || enableDisableblock;
+		}
+	}
+
+	public static class TrustedUpstreamEditor extends CustomComponent implements EmbeddedEditor<TrustedUpstreamASBean>
+	{
+		private enum Mode
+		{
+			manual, metadata
+		};
+
+		private Binder<TrustedUpstreamASBean> binder;
+		private TextField clientId;
+		private TextField clientSecret;
+
+		private TextField issuerURI;
+		private TextField endpointURL;
+		private TextField metadataURL;
+		private ComboBox<String> certificate;
+		private ComboBox<Mode> mode;
+		private ComboBox<ServerHostnameCheckingMode> clientHostnameChecking;
+		private ComboBox<String> clientTrustStore; 
+		public TrustedUpstreamEditor(MessageSource msg, Set<String> certificates, Set<String> validators)
+		{
+			binder = new Binder<>(TrustedUpstreamASBean.class);
+			clientId = new TextField();
+
+			clientId.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+			clientId.setCaption(msg.getMessage("TrustedUpstreamEditor.clientId") + ":");
+			binder.forField(clientId)
+					.asRequired()
+					.withValidator(new NoSpaceValidator(msg))
+					.bind("clientId");
+
+			clientSecret = new TextField();
+			clientSecret.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+			clientSecret.setCaption(msg.getMessage("TrustedUpstreamEditor.clientSecret") + ":");
+			binder.forField(clientSecret)
+					.asRequired()
+					.bind("clientSecret");
+
+			certificate = new ComboBox<>();
+			certificate.setCaption(msg.getMessage("TrustedUpstreamEditor.certificate") + ":");
+			certificate.setEmptySelectionAllowed(false);
+			certificate.setItems(certificates);
+			certificate.setVisible(false);
+			binder.forField(certificate)
+					.asRequired((v, c) ->
+					{
+						if (certificate.isVisible() && (v == null || v.isEmpty()))
+						{
+							return ValidationResult.error(msg.getMessage("fieldRequired"));
+						}
+
+						return ValidationResult.ok();
+					})
+					.bind("certificate");
+
+			issuerURI = new TextField();
+			issuerURI.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+			issuerURI.setCaption(msg.getMessage("TrustedUpstreamEditor.issuerURI") + ":");
+			issuerURI.setVisible(false);
+
+			binder.forField(issuerURI)
+					.asRequired((v, c) ->
+					{
+						if (issuerURI.isVisible() && (v == null || v.isEmpty()))
+						{
+							return ValidationResult.error(msg.getMessage("fieldRequired"));
+						}
+
+						return ValidationResult.ok();
+					})
+					.bind("issuerURI");
+
+			endpointURL = new TextField();
+			endpointURL.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+			endpointURL.setCaption(msg.getMessage("TrustedUpstreamEditor.endpointURL") + ":");
+			endpointURL.setVisible(false);
+			binder.forField(endpointURL)
+					.asRequired((v, c) ->
+					{
+						if (endpointURL.isVisible() && (v == null || v.isEmpty()))
+						{
+							return ValidationResult.error(msg.getMessage("fieldRequired"));
+						}
+
+						return ValidationResult.ok();
+					})
+					.bind("introspectionEndpointURL");
+
+			clientHostnameChecking = new ComboBox<>(
+					msg.getMessage("TrustedUpstreamEditor.clientHostnameChecking")+ ":");
+			clientHostnameChecking.setItems(ServerHostnameCheckingMode.values());
+			clientHostnameChecking.setEmptySelectionAllowed(false);
+			binder.forField(clientHostnameChecking).bind("clientHostnameChecking");
+
+			clientTrustStore = new ComboBox<>(
+					msg.getMessage("TrustedUpstreamEditor.clientTrustStore")+ ":");
+			clientTrustStore.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+			clientTrustStore.setItems(validators);
+			clientTrustStore.setEmptySelectionCaption(msg.getMessage("TrustStore.default"));
+			binder.forField(clientTrustStore).bind("clientTrustStore");
+				
+			metadataURL = new TextField();
+			metadataURL.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+			metadataURL.setCaption(msg.getMessage("TrustedUpstreamEditor.metadataURL") + ":");
+			binder.forField(metadataURL)
+					.asRequired((v, c) ->
+					{
+						if (metadataURL.isVisible() && (v == null || v.isEmpty()))
+						{
+							return ValidationResult.error(msg.getMessage("fieldRequired"));
+						}
+
+						return ValidationResult.ok();
+					})
+					.bind("metadataURL");
+			mode = new EnumComboBox<>(msg, "TrustedUpstreamEditor.mode.", Mode.class, Mode.metadata);
+			mode.setCaption(msg.getMessage("TrustedUpstreamEditor.mode") + ":");
+			mode.addValueChangeListener(v ->
+			{
+				metadataURL.setVisible(v.getValue()
+						.equals(Mode.metadata));
+				issuerURI.setVisible(v.getValue()
+						.equals(Mode.manual));
+				endpointURL.setVisible(v.getValue()
+						.equals(Mode.manual));
+				certificate.setVisible(v.getValue()
+						.equals(Mode.manual));
+				metadataURL.clear();
+				issuerURI.clear();
+				endpointURL.clear();
+				certificate.clear();
+			});
+
+			FormLayout main = FormLayoutWithFixedCaptionWidth.withMediumCaptions();
+			main.setMargin(false);
+			main.addComponent(clientId);
+			main.addComponent(clientSecret);
+			main.addComponent(clientTrustStore);
+			main.addComponent(clientHostnameChecking);
+			main.addComponent(mode);
+			main.addComponent(metadataURL);
+			main.addComponent(issuerURI);
+			main.addComponent(endpointURL);
+			main.addComponent(certificate);
+
+			setCompositionRoot(main);
+			setSizeFull();
+		}
+
+		@Override
+		public TrustedUpstreamASBean getValue() throws FormValidationException
+		{
+			if (binder.validate()
+					.hasErrors())
+			{
+				throw new FormValidationException();
+			}
+
+			return binder.getBean();
+		}
+
+		@Override
+		public void setValue(TrustedUpstreamASBean value)
+		{
+			if (value != null && Strings.isNullOrEmpty(value.getMetadataURL()))
+			{
+				mode.setValue(Mode.manual);
+			}
+
+			binder.setBean(value.clone());
 		}
 	}
 }

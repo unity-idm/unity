@@ -31,6 +31,7 @@ import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.PlainProfileFetcher;
+import pl.edu.icm.unity.oauth.oidc.metadata.OIDCMetadataRequest;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
@@ -278,6 +279,21 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		if (!properties.containsKey(prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE) &&
 				!properties.containsKey(prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE))
 			properties.setProperty(prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, defaultProfile);
+	}
+	
+	public OIDCMetadataRequest generateMetadataRequest()
+	{
+		return OIDCMetadataRequest.builder()
+				.withHostnameChecking(getHostNameCheckingMode())
+				.withValidator(validator)
+				.withValidatorName(getValue(CLIENT_TRUSTSTORE))
+				.withUrl(getValue(OPENID_DISCOVERY))
+				.build();
+	}
+
+	public ServerHostnameCheckingMode getHostNameCheckingMode()
+	{
+		return getEnumValue(CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
 	}
 	
 }

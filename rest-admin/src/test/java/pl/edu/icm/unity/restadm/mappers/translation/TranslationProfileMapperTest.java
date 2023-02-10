@@ -25,14 +25,14 @@ public class TranslationProfileMapperTest extends MapperTestBase<TranslationProf
 {
 
 	@Override
-	protected TranslationProfile getAPIObject()
+	protected TranslationProfile getFullAPIObject()
 	{
 		return new TranslationProfile("name", "desc", ProfileType.REGISTRATION, ProfileMode.DEFAULT,
 				List.of(new TranslationRule("true", new TranslationAction("action", "p1", "p2"))));
 	}
 
 	@Override
-	protected RestTranslationProfile getRestObject()
+	protected RestTranslationProfile getFullRestObject()
 	{
 		return RestTranslationProfile.builder()
 				.withDescription("desc")

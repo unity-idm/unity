@@ -22,14 +22,14 @@ public class RegistrationWrapUpConfigMapperTest
 {
 
 	@Override
-	protected RegistrationWrapUpConfig getAPIObject()
+	protected RegistrationWrapUpConfig getFullAPIObject()
 	{
 		return new RegistrationWrapUpConfig(TriggeringState.AUTO_ACCEPTED, new I18nString("title"),
 				new I18nString("info"), new I18nString("redirect"), true, "redirectUrl", Duration.ofDays(1));
 	}
 
 	@Override
-	protected RestRegistrationWrapUpConfig getRestObject()
+	protected RestRegistrationWrapUpConfig getFullRestObject()
 	{
 		return RestRegistrationWrapUpConfig.builder()
 				.withAutomatic(true)

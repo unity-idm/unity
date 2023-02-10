@@ -17,7 +17,7 @@ public class TokenMapperTest extends MapperTestBase<Token, RestToken>
 {
 
 	@Override
-	protected Token getAPIObject()
+	protected Token getFullAPIObject()
 	{
 		Token token = new Token("tokenType", "tokenValue", 1L);
 		token.setContents("content".getBytes());
@@ -27,7 +27,7 @@ public class TokenMapperTest extends MapperTestBase<Token, RestToken>
 	}
 
 	@Override
-	protected RestToken getRestObject()
+	protected RestToken getFullRestObject()
 	{
 		return RestToken.builder()
 				.withCreated(new Date(100))

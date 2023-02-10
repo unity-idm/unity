@@ -26,6 +26,9 @@ import pl.edu.icm.unity.engine.AttributesAssertion;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.AccessMode;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.Type;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
@@ -226,7 +229,10 @@ public class TestEnquiries extends DBIntegrationTestBase
 		
 		setupUserContext(DEF_USER, null);
 		
-		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+				.withType(Type.REGULAR)
+				.build());
 		
 		assertThat(pendingEnquires.size(), is(1));
 		assertThat(pendingEnquires.get(0), is(form));
@@ -243,7 +249,10 @@ public class TestEnquiries extends DBIntegrationTestBase
 		enquiryManagement.addEnquiry(form);
 		
 		setupUserContext(DEF_USER, null);
-		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+				.withType(Type.REGULAR)
+				.build());
 
 		assertThat(pendingEnquires.size(), is(1));
 		assertThat(pendingEnquires.get(0), is(form));
@@ -261,7 +270,10 @@ public class TestEnquiries extends DBIntegrationTestBase
 		enquiryManagement.addEnquiry(form);
 	
 		setupUserContext(DEF_USER, null);
-		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+				.withType(Type.REGULAR)
+				.build());
 		assertThat(pendingEnquires.size(), is(0));	
 	}
 	
@@ -288,10 +300,43 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.build();
 			enquiryManagement.addEnquiry(form2);
 		
-		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+				.withType(Type.REGULAR)
+				.build());
 		
 		assertThat(pendingEnquires.size(), is(1));
 		assertThat(pendingEnquires.get(0), is(form2));
+	}
+	
+	@Test
+	public void byInvitationOrStickyEnquiryIsAlsoReturned() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid);
+		EntityParam entityParam = new EntityParam(identity);
+		groupsMan.addMemberFromParent("/A", entityParam);
+		
+		EnquiryForm form = new EnquiryFormBuilder()
+			.withTargetGroups(new String[] {"/A"})
+			.withType(EnquiryType.REQUESTED_OPTIONAL)
+			.withName("invenquiry")
+			.withByInvitationOnly(true)
+			.build();
+		enquiryManagement.addEnquiry(form);
+		
+		EnquiryForm form2 = new EnquiryFormBuilder()
+				.withTargetGroups(new String[] {"/A"})
+				.withType(EnquiryType.STICKY)
+				.withName("nenquiry")
+				.withByInvitationOnly(false)
+				.build();
+			enquiryManagement.addEnquiry(form2);
+		
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
+				.withType(Type.ALL).withAccessMode(AccessMode.ANY).build());
+		
+		assertThat(pendingEnquires.size(), is(2));
 	}
 
 	@Test
@@ -307,7 +352,10 @@ public class TestEnquiries extends DBIntegrationTestBase
 			.build();
 		enquiryManagement.addEnquiry(form);
 		
-		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+				.withType(Type.REGULAR)
+				.build());
 		
 		assertThat(pendingEnquires.isEmpty(), is(true));
 	}
@@ -333,7 +381,10 @@ public class TestEnquiries extends DBIntegrationTestBase
 				new RegistrationContext(false, TriggeringMode.manualStandalone));
 		setupAdmin();
 		
-		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+				.withType(Type.REGULAR)
+				.build());
 		
 		assertThat(pendingEnquires.isEmpty(), is(true));
 	}
@@ -352,7 +403,10 @@ public class TestEnquiries extends DBIntegrationTestBase
 		enquiryManagement.addEnquiry(form);
 		enquiryManagement.ignoreEnquiry("e1", entityParam);
 		
-		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
+				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
+				.withType(Type.REGULAR)
+				.build());
 		
 		assertThat(pendingEnquires.isEmpty(), is(true));
 	}

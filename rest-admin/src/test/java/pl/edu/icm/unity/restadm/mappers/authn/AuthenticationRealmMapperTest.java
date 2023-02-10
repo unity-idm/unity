@@ -18,13 +18,13 @@ public class AuthenticationRealmMapperTest extends MapperTestBase<Authentication
 {
 
 	@Override
-	protected AuthenticationRealm getAPIObject()
+	protected AuthenticationRealm getFullAPIObject()
 	{
 		return new AuthenticationRealm("realm", "desc", 1, 1, RememberMePolicy.allowFor2ndFactor, 1, 2);
 	}
 
 	@Override
-	protected RestAuthenticationRealm getRestObject()
+	protected RestAuthenticationRealm getFullRestObject()
 	{
 		return RestAuthenticationRealm.builder()
 				.withName("realm")

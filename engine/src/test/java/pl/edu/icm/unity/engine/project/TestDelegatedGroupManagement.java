@@ -5,30 +5,12 @@
 
 package pl.edu.icm.unity.engine.project;
 
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
@@ -65,6 +47,23 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDelegatedGroupManagement extends TestProjectBase
@@ -277,7 +276,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		when(mockAttrMan.getAttributes(any(), eq("/project"), eq("extraAttr")))
 				.thenReturn(Arrays.asList(getAttributeExt("extraValue")));
 
-		List<DelegatedGroupMember> delegatedGroupMemebers = dGroupManNoAuthz.getDelegatedGroupMemebers("/project",
+		List<DelegatedGroupMember> delegatedGroupMemebers = dGroupManNoAuthz.getDelegatedGroupMembers("/project",
 				"/project");
 
 		assertThat(delegatedGroupMemebers.size(), is(1));

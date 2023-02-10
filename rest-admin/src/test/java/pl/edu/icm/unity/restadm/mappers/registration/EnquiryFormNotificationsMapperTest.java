@@ -18,7 +18,7 @@ public class EnquiryFormNotificationsMapperTest
 {
 
 	@Override
-	protected EnquiryFormNotifications getAPIObject()
+	protected EnquiryFormNotifications getFullAPIObject()
 	{
 		EnquiryFormNotifications enquiryFormNotifications = new EnquiryFormNotifications();
 		enquiryFormNotifications.setAcceptedTemplate("acceptedTemplate");
@@ -34,7 +34,7 @@ public class EnquiryFormNotificationsMapperTest
 	}
 
 	@Override
-	protected RestEnquiryFormNotifications getRestObject()
+	protected RestEnquiryFormNotifications getFullRestObject()
 	{
 		return RestEnquiryFormNotifications.builder()
 				.withAcceptedTemplate("acceptedTemplate")
