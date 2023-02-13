@@ -8,16 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
-import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
-import pl.edu.icm.unity.engine.api.wellknown.SecuredWellKnownURLServlet;
-import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.DEFAULT_CONTEXT;
+import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.SEC_ENQUIRY_PATH;
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
 
@@ -42,53 +40,41 @@ public class PublicRegistrationURLSupportImpl implements PublicRegistrationURLSu
 	@Override
 	public String getWellknownEnquiryLink(String formName)
 	{
-		return sharedEndpointMan.getServletUrl(ENQUIRY_PATH) + urlEncodePath(formName);
+		return sharedEndpointMan.getServerAddress() + DEFAULT_CONTEXT
+				+ SEC_ENQUIRY_PATH + urlEncodePath(formName);
 	}
 	
 	@Override
 	public String getWellknownEnquiryLink(String formName, String code)
 	{
-		return sharedEndpointMan.getServerAddress() + SecuredWellKnownURLServlet.DEFAULT_CONTEXT
-				+ SecuredWellKnownURLServlet.SERVLET_PATH + "?" + CODE_PARAM + "=" + code + "&" + FORM_PARAM + "="
-				+ urlEncodePath(formName) + "#!" + ENQUIRY_VIEW;
+		return sharedEndpointMan.getServerAddress() + DEFAULT_CONTEXT
+				+ SEC_ENQUIRY_PATH + urlEncodePath(formName) + "?" + CODE_PARAM + "=" + code;
 	}
 
 	@Override
 	public String getPublicRegistrationLink(String form, String code)
 	{
-		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + "?" + CODE_PARAM + "="
-				+ code + "&" + FORM_PARAM + "=" + urlEncodePath(form) + "#!" + REGISTRATION_VIEW;
+		return sharedEndpointMan.getServletUrl(REGISTRATION_PATH) + urlEncodePath(form) + "?" + CODE_PARAM + "=" + code;
 	}
 
 	@Override
 	public String getPublicEnquiryLink(String form, String code)
 	{
-		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + "?" + CODE_PARAM + "="
-				+ code + "&" + FORM_PARAM + "=" + urlEncodePath(form) + "#!" + ENQUIRY_VIEW;
+		return sharedEndpointMan.getServletUrl(ENQUIRY_PATH) + urlEncodePath(form) + "?" + CODE_PARAM + "=" + code;
 	}
 
 	@Override
-	public String getPublicFormLink(String form, FormType formType, String code) throws IllegalFormTypeException
+	public String getPublicFormLink(String form, FormType formType, String code)
 	{
-		switch (formType)
-		{
-		case REGISTRATION:
-			return getPublicRegistrationLink(form, code);
-		case ENQUIRY:
-			return getPublicEnquiryLink(form, code);
-		default:
-			throw new IllegalFormTypeException("Invalid form type");
-		}
+		return switch (formType)
+				{
+					case REGISTRATION -> getPublicRegistrationLink(form, code);
+					case ENQUIRY -> getPublicEnquiryLink(form, code);
+				};
 	}
 
 	private String urlEncodePath(String pathElement)
 	{
-		try
-		{
-			return URLEncoder.encode(pathElement, StandardCharsets.UTF_8.name()).replaceAll("\\+", "%20");
-		} catch (UnsupportedEncodingException e)
-		{
-			throw new IllegalStateException(e);
-		}
+		return URLEncoder.encode(pathElement, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 	}
 }

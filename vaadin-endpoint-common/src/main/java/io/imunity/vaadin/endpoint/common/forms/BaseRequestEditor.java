@@ -14,6 +14,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.server.StreamResource;
 import io.imunity.vaadin.elements.CheckboxWithError;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.ReadOnlyField;
@@ -32,12 +33,14 @@ import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegist
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
 import pl.edu.icm.unity.exceptions.*;
@@ -58,6 +61,8 @@ import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 
+import java.io.ByteArrayInputStream;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,7 +83,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private final GroupsManagement groupsMan;
 	private final CredentialManagement credMan;
 	private final PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder;
-	
+	private final URIAccessService uriAccessService;
+
 	private final Map<String, IdentityTaV> remoteIdentitiesByType;
 	private final Map<String, Attribute> remoteAttributes;
 	private Map<Integer, IdentityEditor> identityParamEditors;
@@ -103,7 +109,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	                         AttributeHandlerRegistryV23 attributeHandlerRegistry,
 	                         AttributeTypeManagement atMan, CredentialManagement credMan,
 	                         GroupsManagement groupsMan, NotificationPresenter notificationPresenter,
-	                         PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder)
+	                         PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder,
+	                         URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.form = form;
@@ -116,10 +123,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.groupsMan = groupsMan;
 		this.notificationPresenter = notificationPresenter;
 		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
-		
 		this.remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remotelyAuthenticated);
 		this.remoteIdentitiesByType = RemoteDataRegistrationParser.parseRemoteIdentities(
 				form, remotelyAuthenticated);
+		this.uriAccessService = uriAccessService;
 	}
 	
 	protected void validateMandatoryRemoteInput() throws AuthenticationException
@@ -416,11 +423,19 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				params != null ? params : Collections.emptyMap(), template);
 	}
 	
-	private void addLogo(VerticalLayout main)
+	protected void addLogo(VerticalLayout main)
 	{
-		String logoURL = form.getLayoutSettings().getLogoURL();
-
-		Image image = new Image(logoURL, "");
+		String logoUri = form.getLayoutSettings().getLogoURL();
+		Image image;
+		if(logoUri.startsWith(uriAccessService.UNITY_FILE_URI_SCHEMA))
+		{
+			FileData fileData = uriAccessService.readURI(URI.create(logoUri));
+			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileData.getContents());
+			StreamResource streamResource = new StreamResource(fileData.getName(), () -> byteArrayInputStream);
+			image = new Image(streamResource, "");
+		}
+		else
+			image = new Image(logoUri, "");
 		main.add(image);
 	}
 	

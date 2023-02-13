@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
@@ -31,7 +32,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	private final PrefilledSet prefilled;
 	private final List<PolicyAgreementConfiguration> filteredPolicyAgreement;
 	private final Map<String, Object> messageParams;
-	
+
 	public EnquiryResponseEditor(MessageSource msg, EnquiryForm form,
 	                             RemotelyAuthenticatedPrincipal remotelyAuthenticated,
 	                             IdentityEditorRegistryV23 identityEditorRegistry,
@@ -41,12 +42,12 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	                             GroupsManagement groupsMan, NotificationPresenter notificationPresenter,
 	                             PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder,
 	                             List<PolicyAgreementConfiguration> filteredPolicyAgreement,
-	                             PrefilledSet prefilled,
+	                             PrefilledSet prefilled, URIAccessService uriAccessService,
 	                             Map<String, Object> messageParams) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan, notificationPresenter,
-				policyAgreementsRepresentationBuilder);
+				policyAgreementsRepresentationBuilder, uriAccessService);
 		this.enquiryForm = form;
 		this.filteredPolicyAgreement = filteredPolicyAgreement;
 		this.prefilled = prefilled;

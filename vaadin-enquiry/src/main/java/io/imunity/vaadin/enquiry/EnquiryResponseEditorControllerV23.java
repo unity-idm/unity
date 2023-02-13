@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -61,6 +62,7 @@ public class EnquiryResponseEditorControllerV23
 	private final PolicyAgreementManagement policyAgrMan;
 	private final InvitationManagement invitationManagement;
 	private final NotificationPresenter notificationPresenter;
+	private final URIAccessService uriAccessService;
 
 	@Autowired
 	public EnquiryResponseEditorControllerV23(MessageSource msg,
@@ -77,7 +79,8 @@ public class EnquiryResponseEditorControllerV23
 	                                          IdPLoginController idpLoginController,
 	                                          NotificationPresenter notificationPresenter,
 	                                          PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder,
-	                                          PolicyAgreementManagement policyAgrMan)
+	                                          PolicyAgreementManagement policyAgrMan,
+	                                          URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;
@@ -94,6 +97,7 @@ public class EnquiryResponseEditorControllerV23
 		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
 		this.policyAgrMan = policyAgrMan;
 		this.invitationManagement = invitationMan;
+		this.uriAccessService = uriAccessService;
 	}
 
 	private EnquiryResponseEditor getEditorInstance(EnquiryForm form, Map<String, Object> messageParams,
@@ -103,7 +107,7 @@ public class EnquiryResponseEditorControllerV23
 		return new EnquiryResponseEditor(msg, form, remoteContext,
 				identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan, notificationPresenter,
-				policyAgreementsRepresentationBuilder, filteredPolicyAgreement, set, messageParams);
+				policyAgreementsRepresentationBuilder, filteredPolicyAgreement, set, uriAccessService, messageParams);
 	}
 
 	public EnquiryResponseEditor getEditorInstanceForUnauthenticatedUser(EnquiryForm form, Map<String, Object> messageParams,

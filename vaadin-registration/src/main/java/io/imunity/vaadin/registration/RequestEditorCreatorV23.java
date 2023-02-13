@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -29,7 +30,6 @@ import pl.edu.icm.unity.webui.forms.InvitationResolver;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -58,6 +58,7 @@ public class RequestEditorCreatorV23
 	private String registrationCode;
 	private boolean enableRemoteSignup;
 	private AuthenticationOptionKey authenticationOptionKey;
+	private URIAccessService uriAccessService;
 
 	@Autowired
 	public RequestEditorCreatorV23(MessageSource msg,
@@ -73,8 +74,8 @@ public class RequestEditorCreatorV23
 	                               PublicRegistrationURLSupport publicRegistrationURLSupport,
 	                               InvitationResolver invitationResolver,
 	                               SwitchToEnquiryComponentProviderV23 toEnquirySwitchLabelProvider,
-                                   NotificationPresenter notificationPresenter
-			)
+                                   NotificationPresenter notificationPresenter,
+                                   URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -90,6 +91,7 @@ public class RequestEditorCreatorV23
 		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.toEnquirySwitchLabelProvider = toEnquirySwitchLabelProvider;
 		this.notificationPresenter = notificationPresenter;
+		this.uriAccessService = uriAccessService;
 	}
 
 
@@ -113,9 +115,6 @@ public class RequestEditorCreatorV23
 
 	public void createFirstStage(RequestEditorCreatedCallback callback, InvitationCodeConsumer onLocalSignupHandler)
 	{
-		if (registrationCode == null)
-			registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
-
 		if (registrationCode == null && form.isByInvitationOnly())
 		{
 			askForCode(callback, () -> doCreateFirstStage(callback, onLocalSignupHandler));
@@ -241,7 +240,7 @@ public class RequestEditorCreatorV23
 				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder,
 				toEnquirySwitchLabelProvider,
 				enableRemoteSignup,
-				authenticationOptionKey);
+				authenticationOptionKey, uriAccessService);
 	}
 
 	private Optional<ResolvedInvitationParam> getInvitationByCode(String registrationCode) throws RegCodeException

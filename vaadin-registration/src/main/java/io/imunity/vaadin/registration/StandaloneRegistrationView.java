@@ -51,6 +51,8 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,6 +73,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	private final AutoLoginAfterSignUpProcessorV23 autoLoginProcessor;
 	private final NotificationPresenter notificationPresenter;
 	private RegistrationForm form;
+	private String registrationCode;
 	private PostFillingHandler postFillHandler;
 	private final VerticalLayout main;
 	private Runnable customCancelHandler;
@@ -104,7 +107,8 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	@Override
 	public String getPageTitle()
 	{
-		return Optional.ofNullable(form.getPageTitle())
+		return Optional.ofNullable(form)
+				.flatMap(form -> Optional.ofNullable(form.getPageTitle()))
 				.map(title -> title.getValue(msg))
 				.orElse("");
 	}
@@ -115,15 +119,17 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		form = event.getRouteParameters().get(FORM_PARAM)
 				.map(this::getForm)
 				.orElse(null);
+		if(form == null)
+		{
+			notificationPresenter.showError(msg.getMessage("RegistrationErrorName.title"), msg.getMessage("RegistrationErrorName.description"));
+			return;
+		}
 
-		String pageTitle = Optional.ofNullable(form)
-						.map(BaseForm::getPageTitle)
-						.map(x -> x.getValue(msg))
-						.orElse(null);
+		String pageTitle = form.getPageTitle().getValue(msg);
 		postFillHandler = new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
 				pageTitle, form.getLayoutSettings().getLogoURL(), true);
 
-		String registrationCode = event.getLocation().getQueryParameters()
+		registrationCode = event.getLocation().getQueryParameters()
 				.getParameters()
 				.getOrDefault(REG_CODE_PARAM, List.of())
 				.stream().findFirst().orElse(null);
@@ -183,7 +189,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	{
 		main.removeAll();
 		
-		editorCreator.init(form, true, context, null, null);
+		editorCreator.init(form, true, context, registrationCode, null);
 		editorCreator.createFirstStage(new EditorCreatedCallback(mode), this::onLocalSignupClickHandler);
 	}
 
@@ -454,6 +460,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 
 	private RegistrationForm getForm(String name)
 	{
+		name = URLDecoder.decode(name, StandardCharsets.UTF_8);
 		try
 		{
 			List<RegistrationForm> forms = regMan.getForms();

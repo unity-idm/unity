@@ -6,5 +6,6 @@ package pl.edu.icm.unity.engine.api.endpoint;
 
 public interface SecuredSharedEndpointPaths
 {
+	String DEFAULT_CONTEXT = "/well-known";
 	String SEC_ENQUIRY_PATH = "/sec/enquiry/";
 }

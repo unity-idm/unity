@@ -36,7 +36,6 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.GroupSelection;
@@ -49,6 +48,8 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.*;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -118,11 +119,13 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		form = event.getRouteParameters().get(FORM_PARAM)
 				.map(this::getForm)
 				.orElse(null);
+		if(form == null)
+		{
+			notificationPresenter.showError(msg.getMessage("EnquiryErrorName.title"), msg.getMessage("EnquiryErrorName.description"));
+			return;
+		}
 
-		String pageTitle = Optional.ofNullable(form)
-				.map(BaseForm::getPageTitle)
-				.map(x -> x.getValue(msg))
-				.orElse(null);
+		String pageTitle = form.getPageTitle().getValue(msg);
 		postFillHandler = new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
 				pageTitle, form.getLayoutSettings().getLogoURL(), true);
 
@@ -135,6 +138,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 
 	private EnquiryForm getForm(String name)
 	{
+		name = URLDecoder.decode(name, StandardCharsets.UTF_8);
 		try
 		{
 			return enqMan.getEnquiry(name);
@@ -472,7 +476,8 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 	@Override
 	public String getPageTitle()
 	{
-		return Optional.ofNullable(form.getPageTitle())
+		return Optional.ofNullable(form)
+				.flatMap(form -> Optional.ofNullable(form.getPageTitle()))
 				.map(title -> title.getValue(msg))
 				.orElse("");
 	}

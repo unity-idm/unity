@@ -8,14 +8,13 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.BaseRequestEditor;
-import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
 import io.imunity.vaadin.endpoint.common.forms.RegistrationLayoutsContainer;
+import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilderV23;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistryV23;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistryV23;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -66,7 +66,6 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
 	private final SwitchToEnquiryComponentProviderV23 toEnquirySwitchLabelProvider;
 	private final AuthenticationOptionKey authnOptionKey;
-
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
 	 * what is possible for registration form.
@@ -85,11 +84,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	                                 PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder,
 	                                 SwitchToEnquiryComponentProviderV23 toEnquirySwitchLabelProvider,
 	                                 boolean enableRemoteRegistration,
-	                                 AuthenticationOptionKey authnOptionKey)
+	                                 AuthenticationOptionKey authnOptionKey,
+	                                 URIAccessService uriAccessService)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, notificationPresenter,
-				policyAgreementsRepresentationBuilder);
+				policyAgreementsRepresentationBuilder, uriAccessService);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
 		this.invitation = invitation;
@@ -212,10 +212,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		main.setWidthFull();
 		add(main);
 		
-		String logoUri = form.getLayoutSettings().getLogoURL();
-		Image image = new Image(logoUri, "");
-		main.add(image);
-
+		addLogo(main);
 		
 		I18nString title = stage == Stage.FIRST ? form.getDisplayedName() : form.getTitle2ndStage();
 		H1 formName = new H1(processFreeemarkerTemplate(params, title.getValue(msg)));
