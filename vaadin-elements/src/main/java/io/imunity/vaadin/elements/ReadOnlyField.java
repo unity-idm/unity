@@ -16,4 +16,9 @@ public class ReadOnlyField extends TextField
 		setWidth(width, widthUnit);
 		setReadOnly(true);
 	}
+
+	public ReadOnlyField(String value)
+	{
+		setValue(value);
+	}
 }
