@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 import java.util.Optional;
 
-public class VerifiableEmailAttributeHandler implements WebAttributeHandler
+class VerifiableEmailAttributeHandler implements WebAttributeHandler
 {
 	private final MessageSource msg;
 	private final ConfirmationInfoFormatter formatter;
@@ -59,9 +59,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	public String getValueAsString(String value)
 	{
 		VerifiableEmail domainValue = syntax.convertFromString(value);
-		StringBuilder rep = new StringBuilder(domainValue.getValue());
-		rep.append(formatter.getConfirmationStatusString(domainValue.getConfirmationInfo()));
-		return rep.toString();
+		return domainValue.getValue() + formatter.getConfirmationStatusString(domainValue.getConfirmationInfo());
 	}
 
 	
@@ -88,9 +86,9 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 	private static class VerifiableEmailSyntaxEditor implements AttributeSyntaxEditor<VerifiableEmail>
 	{
-		private VerifiableEmailAttributeSyntax initial;
-		private MessageSource msg;
-		private MessageTemplateManagement msgTemplateMan;
+		private final VerifiableEmailAttributeSyntax initial;
+		private final MessageSource msg;
+		private final MessageTemplateManagement msgTemplateMan;
 		private EmailConfirmationConfigurationEditor editor;
 		
 			
@@ -137,8 +135,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 	private class VerifiableEmailValueEditor implements AttributeValueEditor
 	{
-		private VerifiableEmail value;
-		private String label;
+		private final VerifiableEmail value;
+		private final String label;
 		private ConfirmationInfo confirmationInfo;
 		private TextFieldWithVerifyButton editor;
 		private boolean skipUpdate = false;
@@ -178,7 +176,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			}		
 			
 			if (confirmationInfo.isConfirmed() || context.getAttributeOwner() == null || value == null
-					|| !confirmationConfig.isPresent())
+					|| confirmationConfig.isEmpty())
 				editor.removeVerifyButton();
 
 			if (!context.getConfirmationMode().isShowVerifyButton())
@@ -316,17 +314,17 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	
 	
 	@org.springframework.stereotype.Component
-	public static class VerifiableEmailAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class VerifiableEmailAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
 	{
-		private MessageSource msg;
-		private ConfirmationInfoFormatter formatter;
-		private MessageTemplateManagement msgTemplateMan;
-		private EmailConfirmationManager emailConfirmationMan;
-		private NotificationPresenter notificationPresenter;
+		private final MessageSource msg;
+		private final ConfirmationInfoFormatter formatter;
+		private final MessageTemplateManagement msgTemplateMan;
+		private final EmailConfirmationManager emailConfirmationMan;
+		private final NotificationPresenter notificationPresenter;
 
 
 		@Autowired
-		public VerifiableEmailAttributeHandlerFactoryV23(MessageSource msg,
+		VerifiableEmailAttributeHandlerFactoryV23(MessageSource msg,
 		                                                 ConfirmationInfoFormatter formatter,
 		                                                 MessageTemplateManagement msgTemplateMan,
 		                                                 EmailConfirmationManager emailConfirmationMan,

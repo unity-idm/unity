@@ -25,12 +25,12 @@ import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 
 import java.util.*;
 
-public class EnumAttributeHandler implements WebAttributeHandler
+class EnumAttributeHandler implements WebAttributeHandler
 {
 	private final MessageSource msg;
 	private final EnumAttributeSyntax syntax;
 	
-	public EnumAttributeHandler(MessageSource msg, EnumAttributeSyntax syntax)
+	EnumAttributeHandler(MessageSource msg, EnumAttributeSyntax syntax)
 	{
 		this.msg = msg;
 		this.syntax = syntax;
@@ -50,8 +50,8 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	
 	private class EnumValueEditor implements AttributeValueEditor
 	{
-		private String value;
-		private String label;
+		private final String value;
+		private final String label;
 		private ComboBox<String> field;
 		private boolean required;
 		private AttributeEditContext context;
@@ -138,12 +138,11 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	
 	private static class EnumSyntaxEditor implements AttributeSyntaxEditor<String>
 	{
-		private EnumAttributeSyntax initial;
+		private final EnumAttributeSyntax initial;
+		private final MessageSource msg;
 		private TextField value;
-		private Button add;
 		private GenericElementsTable<String> current;
-		private MessageSource msg;
-		
+
 		public EnumSyntaxEditor(EnumAttributeSyntax initial, MessageSource msg)
 		{
 			this.initial = initial;
@@ -160,7 +159,7 @@ public class EnumAttributeHandler implements WebAttributeHandler
 			HorizontalLayout hl = new HorizontalLayout();
 			value = new TextField();
 			hl.add(value);
-			add = new Button();
+			Button add = new Button();
 			add.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
 			add.getElement().setProperty("title", msg.getMessage("StringAttributeHandler.add"));
 			add.addClickListener(event ->  {
@@ -200,8 +199,7 @@ public class EnumAttributeHandler implements WebAttributeHandler
 				throws IllegalAttributeTypeException
 		{
 			EnumAttributeSyntax ret = new EnumAttributeSyntax();
-			Set<String> allowed = new HashSet<>();
-			allowed.addAll(current.getElements());
+			Set<String> allowed = new HashSet<>(current.getElements());
 			
 			if (allowed.isEmpty())
 				throw new IllegalAttributeTypeException(
@@ -224,12 +222,12 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	}
 	
 	@org.springframework.stereotype.Component
-	public static class EnumAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class EnumAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
 	{
-		private MessageSource msg;
+		private final MessageSource msg;
 
 		@Autowired
-		public EnumAttributeHandlerFactoryV23(MessageSource msg)
+		EnumAttributeHandlerFactoryV23(MessageSource msg)
 		{
 			this.msg = msg;
 		}

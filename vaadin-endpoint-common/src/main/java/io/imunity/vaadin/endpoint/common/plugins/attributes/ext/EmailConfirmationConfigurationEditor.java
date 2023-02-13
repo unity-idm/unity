@@ -17,14 +17,14 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 
-public class EmailConfirmationConfigurationEditor extends FormLayout
+class EmailConfirmationConfigurationEditor extends FormLayout
 {
 	private final MessageSource msg;
 	private final MessageTemplateManagement msgTemplateMan;
 	private Binder<EmailConfirmationConfiguration> binder;
 	private final EmailConfirmationConfiguration initial;
 
-	public EmailConfirmationConfigurationEditor(EmailConfirmationConfiguration initial,
+	EmailConfirmationConfigurationEditor(EmailConfirmationConfiguration initial,
 	                                            MessageSource msg, MessageTemplateManagement msgTemplateMan)
 	{
 		this.initial = initial;

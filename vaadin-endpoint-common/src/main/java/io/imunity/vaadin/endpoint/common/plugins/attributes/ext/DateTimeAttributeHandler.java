@@ -19,13 +19,13 @@ import pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax;
 import java.time.LocalDateTime;
 
 
-public class DateTimeAttributeHandler implements WebAttributeHandler
+class DateTimeAttributeHandler implements WebAttributeHandler
 {
 
 	private final MessageSource msg;
 	private final DateTimeAttributeSyntax syntax;
 
-	public DateTimeAttributeHandler(AttributeValueSyntax<?> syntax, MessageSource msg)
+	DateTimeAttributeHandler(AttributeValueSyntax<?> syntax, MessageSource msg)
 	{
 
 		this.syntax = (DateTimeAttributeSyntax) syntax;
@@ -78,9 +78,9 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 
 	private class DateTimeValueEditor implements AttributeValueEditor
 	{
+		private final LocalDateTime value;
 		protected String label;
 		private DateTimePicker datetime;
-		private LocalDateTime value;
 		private AttributeEditContext context;
 
 		public DateTimeValueEditor(String valueRaw, String label)
@@ -103,8 +103,7 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 				datetime.setValue(value);
 			if (context.isCustomWidth())
 				datetime.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
-			ComponentsContainer ret = new ComponentsContainer(datetime);
-			return ret;
+			return new ComponentsContainer(datetime);
 		}
 
 		@Override
@@ -146,12 +145,12 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 	}
 
 	@org.springframework.stereotype.Component
-	public static class DateAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class DateAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
 	{
-		private MessageSource msg;
+		private final MessageSource msg;
 
 		@Autowired
-		public DateAttributeHandlerFactoryV23(MessageSource msg)
+		DateAttributeHandlerFactoryV23(MessageSource msg)
 		{
 			this.msg = msg;
 		}

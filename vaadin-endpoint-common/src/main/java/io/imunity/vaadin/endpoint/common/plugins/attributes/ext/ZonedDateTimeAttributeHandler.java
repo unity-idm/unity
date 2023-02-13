@@ -22,7 +22,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 
-public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
+class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 {
 
 	private final MessageSource msg;
@@ -83,9 +83,9 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 
 	private class ZonedDateTimeValueEditor implements AttributeValueEditor
 	{
-		private String label;
+		private final String label;
+		private final ZonedDateTime value;
 		private DateTimePicker datetime;
-		private ZonedDateTime value;
 		private ComboBox<String> zone;
 		private AttributeEditContext context;
 		
@@ -119,9 +119,8 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 				datetime.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 				zone.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			}
-			
-			ComponentsContainer ret = new ComponentsContainer(datetime, zone);
-			return ret;
+
+			return new ComponentsContainer(datetime, zone);
 		}
 
 		@Override
@@ -167,12 +166,12 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 	}
 
 	@org.springframework.stereotype.Component
-	public static class DateAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class DateAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
 	{
-		private MessageSource msg;
+		private final MessageSource msg;
 
 		@Autowired
-		public DateAttributeHandlerFactoryV23(MessageSource msg)
+		DateAttributeHandlerFactoryV23(MessageSource msg)
 		{
 			this.msg = msg;
 		}

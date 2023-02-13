@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 import java.util.Optional;
 
-public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
+class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 {	
 	private final MessageSource msg;
 	private final ConfirmationInfoFormatter formatter;
@@ -42,7 +42,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 	private final MobileNumberConfirmationManager  mobileConfirmationMan;
 	private final NotificationPresenter  notificationPresenter;
 
-	public VerifiableMobileNumberAttributeHandler(MessageSource msg,
+	VerifiableMobileNumberAttributeHandler(MessageSource msg,
 			ConfirmationInfoFormatter formatter, AttributeValueSyntax<?> syntax,
 			MobileNumberConfirmationManager mobileConfirmationMan,
 	        NotificationPresenter notificationPresenter)
@@ -58,10 +58,8 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 	public String getValueAsString(String value)
 	{
 		VerifiableMobileNumber domainValue = syntax.convertFromString(value);
-		StringBuilder rep = new StringBuilder(domainValue.getValue());
-		rep.append(formatter
-				.getConfirmationStatusString(domainValue.getConfirmationInfo()));
-		return rep.toString();
+		return domainValue.getValue() + formatter
+				.getConfirmationStatusString(domainValue.getConfirmationInfo());
 	}
 
 	@Override
@@ -94,10 +92,10 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 
 		validityTime.setText(msg.getMessage(
 				"MobileNumberConfirmationConfiguration.validityTime") + " "
-				+ (config.isPresent()? String.valueOf(config.get().getValidityTime()) : ""));
+				+ (config.map(mobileNumberConfirmationConfiguration -> String.valueOf(mobileNumberConfirmationConfiguration.getValidityTime())).orElse("")));
 		codeLength.setText(msg.getMessage(
 				"MobileNumberConfirmationConfiguration.codeLength") + " "
-				+ (config.isPresent() ? String.valueOf(config.get().getCodeLength()) : ""));
+				+ (config.map(mobileNumberConfirmationConfiguration -> String.valueOf(mobileNumberConfirmationConfiguration.getCodeLength())).orElse("")));
 		return ret;
 	}
 
@@ -105,9 +103,9 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			implements AttributeSyntaxEditor<VerifiableMobileNumber>
 	{
 
-		private VerifiableMobileNumberAttributeSyntax initial;
-		private MessageSource msg;
-		private MessageTemplateManagement msgTemplateMan;
+		private final VerifiableMobileNumberAttributeSyntax initial;
+		private final MessageSource msg;
+		private final MessageTemplateManagement msgTemplateMan;
 		private MobileNumberConfirmationConfigurationEditor editor;
 
 		public VerifiableMobileNumberSyntaxEditor(
@@ -157,8 +155,8 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 	private class VerifiableMobileNumberValueEditor implements AttributeValueEditor
 	{
 
-		private VerifiableMobileNumber value;
-		private String label;
+		private final VerifiableMobileNumber value;
+		private final String label;
 		private TextFieldWithVerifyButton editor;
 		private ConfirmationInfo confirmationInfo;
 		private boolean forceConfirmed = false;
@@ -197,7 +195,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				editor.setAdminCheckBoxValue(value.isConfirmed());
 			}
 			
-			if (!confirmationConfig.isPresent())
+			if (confirmationConfig.isEmpty())
 				editor.removeVerifyButton();
 			
 			if (context.getConfirmationMode() == ConfirmationEditMode.OFF)
@@ -326,17 +324,17 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 	}
 
 	@org.springframework.stereotype.Component
-	public static class VerifiableMobileNumberAttributeHandlerFactoryV23
+	static class VerifiableMobileNumberAttributeHandlerFactoryV23
 			implements WebAttributeHandlerFactory
 	{
-		private MessageSource msg;
-		private ConfirmationInfoFormatter formatter;
-		private MessageTemplateManagement msgTemplateMan;
-		private MobileNumberConfirmationManager smsConfirmationMan;
-		private NotificationPresenter notificationPresenter;
+		private final MessageSource msg;
+		private final ConfirmationInfoFormatter formatter;
+		private final MessageTemplateManagement msgTemplateMan;
+		private final MobileNumberConfirmationManager smsConfirmationMan;
+		private final NotificationPresenter notificationPresenter;
 
 		@Autowired
-		public VerifiableMobileNumberAttributeHandlerFactoryV23(MessageSource msg,
+		VerifiableMobileNumberAttributeHandlerFactoryV23(MessageSource msg,
 		                                                        ConfirmationInfoFormatter formatter,
 		                                                        MessageTemplateManagement msgTemplateMan,
 		                                                        MobileNumberConfirmationManager smsConfirmationMan,

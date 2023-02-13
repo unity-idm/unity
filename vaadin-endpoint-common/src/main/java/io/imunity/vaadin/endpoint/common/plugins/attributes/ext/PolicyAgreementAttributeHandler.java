@@ -5,8 +5,15 @@
 
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.elements.ReadOnlyField;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerFactory;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.components.TextOnlyAttributeHandler;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
@@ -18,16 +25,13 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.stdext.attr.PolicyAgreementAttributeSyntax;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ReadOnlyField;
-import pl.edu.icm.unity.webui.common.attributes.*;
 
 import java.util.Collections;
 import java.util.List;
 
 import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
 
-public class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
+class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PolicyAgreementAttributeHandler.class);
 
@@ -66,10 +70,9 @@ public class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 				msg.getMessage("PolicyAgreementAcceptanceStatus." + state.acceptanceStatus),
 				formatStandardInstant(state.decisionTs.toInstant()));
 
-		Component component;
 		if (!context.isShowAsLabel())
 		{
-			component = new ReadOnlyField(nvalue);
+			ReadOnlyField component = new ReadOnlyField(nvalue);
 			if (context.isCustomWidth())
 			{
 
@@ -78,7 +81,7 @@ public class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 					component.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 				} else
 				{
-					component.setWidthUndefined();
+					component.setWidth("unset");
 				}
 			}
 			if (context.isCustomHeight())
@@ -90,16 +93,15 @@ public class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 
 				else
 				{
-					component.setHeightUndefined();
+					component.setHeight("unset");
 				}
 			}
-
-		} else
-		{
-			component = new Label(nvalue);
+			return component;
 		}
-		return component;
-
+		else
+		{
+			return new Label(nvalue);
+		}
 	}
 
 	private static class PolicyAgreementSyntaxEditor implements AttributeSyntaxEditor<String>
@@ -107,7 +109,7 @@ public class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 		@Override
 		public Component getEditor()
 		{
-			return new CompactFormLayout();
+			return new VerticalLayout();
 		}
 
 		@Override
@@ -118,13 +120,13 @@ public class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 	}
 
 	@org.springframework.stereotype.Component
-	public static class PolicyAgreementAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class PolicyAgreementAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
 	{
-		private MessageSource msg;
-		private PolicyDocumentManagement docMan;
+		private final MessageSource msg;
+		private final PolicyDocumentManagement docMan;
 
 		@Autowired
-		public PolicyAgreementAttributeHandlerFactoryV23(MessageSource msg, PolicyDocumentManagement docMan)
+		PolicyAgreementAttributeHandlerFactoryV23(MessageSource msg, PolicyDocumentManagement docMan)
 		{
 			this.msg = msg;
 			this.docMan = docMan;

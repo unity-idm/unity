@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class IntegerAttributeHandler extends TextOnlyAttributeHandler
+class IntegerAttributeHandler extends TextOnlyAttributeHandler
 {
 	
 	public IntegerAttributeHandler(MessageSource msg, AttributeValueSyntax<?> syntax)
@@ -30,11 +30,10 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 		super(msg, syntax);
 	}
 
-
 	@Override
 	protected List<String> getHints()
 	{
-		List<String> sb = new ArrayList<String>(2);
+		List<String> sb = new ArrayList<>(2);
 		IntegerAttributeSyntax syntax = (IntegerAttributeSyntax) this.syntax;
 		
 		if (syntax.getMin() != Long.MIN_VALUE)
@@ -51,10 +50,8 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 	
 	private static class IntegerSyntaxEditor implements AttributeSyntaxEditor<Long>
 	{
-		private IntegerAttributeSyntax initial;
-		private LongBoundEditor max;
-		private LongBoundEditor min;
-		private MessageSource msg;
+		private final IntegerAttributeSyntax initial;
+		private final MessageSource msg;
 		private Binder<LongSyntaxBindingValue> binder;
 		
 		public IntegerSyntaxEditor(IntegerAttributeSyntax initial, MessageSource msg)
@@ -67,11 +64,11 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new FormLayout();
-			min = new LongBoundEditor(msg,
+			LongBoundEditor min = new LongBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.minUndef"),
 					msg.getMessage("NumericAttributeHandler.minE"),
 					Long.MIN_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
-			max = new LongBoundEditor(msg,
+			LongBoundEditor max = new LongBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.maxUndef"),
 					msg.getMessage("NumericAttributeHandler.maxE"),
 					Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
@@ -89,7 +86,7 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 			} else
 			{
 				value.setMax(Long.MAX_VALUE);
-				value.setMin(0l);
+				value.setMin(0L);
 			}
 			binder.setBean(value);
 			fl.add(min, max);
@@ -118,18 +115,18 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 			}
 		}
 		
-		public class LongSyntaxBindingValue extends MinMaxBindingValue<Long>
+		private static class LongSyntaxBindingValue extends MinMaxBindingValue<Long>
 		{}
 	}
 
 	
 	@org.springframework.stereotype.Component
-	public static class IntegerAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class IntegerAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
 	{
-		private MessageSource msg;
+		private final MessageSource msg;
 
 		@Autowired
-		public IntegerAttributeHandlerFactoryV23(MessageSource msg)
+		IntegerAttributeHandlerFactoryV23(MessageSource msg)
 		{
 			this.msg = msg;
 		}

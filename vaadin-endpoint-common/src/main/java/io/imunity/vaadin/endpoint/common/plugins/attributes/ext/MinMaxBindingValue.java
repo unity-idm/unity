@@ -5,30 +5,25 @@
 
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
-/**
- * Helper for vaadin binding
- * @author P.Piernik
- *
- * @param <T>
- */
-public class MinMaxBindingValue<T>
+
+class MinMaxBindingValue<T>
 {
 	private T min;
 	private T max;
 
-	public T getMin()
+	T getMin()
 	{
 		return min;
 	}
-	public void setMin(T min)
+	void setMin(T min)
 	{
 		this.min = min;
 	}
-	public T getMax()
+	T getMax()
 	{
 		return max;
 	}
-	public void setMax(T max)
+	void setMax(T max)
 	{
 		this.max = max;
 	}	

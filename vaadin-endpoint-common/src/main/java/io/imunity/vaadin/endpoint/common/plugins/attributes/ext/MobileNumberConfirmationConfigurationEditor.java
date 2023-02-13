@@ -17,7 +17,7 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
-public class MobileNumberConfirmationConfigurationEditor extends FormLayout
+class MobileNumberConfirmationConfigurationEditor extends FormLayout
 {
 	private final MessageSource msg;
 	private final MessageTemplateManagement msgTemplateMan;
@@ -26,13 +26,13 @@ public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 	private final String msgPrefix;
 	private final int defaultValidity;
 
-	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
+	MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
 	                                                   MessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix)
 	{
 		this(initial, msg, msgTemplateMan, msgPrefix, EmailConfirmationConfiguration.DEFAULT_VALIDITY);
 	}
 	
-	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
+	MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
 	                                                   MessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix, int defaultValidity)
 	{
 		this.initial = initial;
@@ -43,7 +43,7 @@ public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 		initUI();	
 	}
 	
-	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
+	MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
 	                                                   MessageSource msg, MessageTemplateManagement msgTemplateMan)
 	{
 		this(initial, msg, msgTemplateMan, "MobileNumberConfirmationConfiguration.");

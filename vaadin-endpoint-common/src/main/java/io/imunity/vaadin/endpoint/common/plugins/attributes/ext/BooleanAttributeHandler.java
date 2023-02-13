@@ -16,11 +16,11 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 
 
-public class BooleanAttributeHandler implements WebAttributeHandler
+class BooleanAttributeHandler implements WebAttributeHandler
 {
 	private final BooleanAttributeSyntax syntax;
 
-	public BooleanAttributeHandler(BooleanAttributeSyntax syntax)
+	BooleanAttributeHandler(BooleanAttributeSyntax syntax)
 	{
 		this.syntax = syntax;
 	}
@@ -40,9 +40,8 @@ public class BooleanAttributeHandler implements WebAttributeHandler
 		}
 	}
 
-	
 	@org.springframework.stereotype.Component
-	public static class BooleanAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class BooleanAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
 	{
 		@Override
 		public String getSupportedSyntaxId()
@@ -63,14 +62,13 @@ public class BooleanAttributeHandler implements WebAttributeHandler
 		}
 	}
 
-	private class BooleanValueEditor implements AttributeValueEditor
+	private static class BooleanValueEditor implements AttributeValueEditor
 	{
-		private boolean value;
+		private final boolean value;
 		private String label;
-		private AttributeValueSyntax<Boolean> syntax;
+		private final AttributeValueSyntax<Boolean> syntax;
 		private Checkbox field;
-		private boolean required;
-		
+
 		public BooleanValueEditor(boolean value, String label, AttributeValueSyntax<Boolean> syntax)
 		{
 			this.value = value;
@@ -83,11 +81,11 @@ public class BooleanAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = context.isRequired();
+			boolean required = context.isRequired();
 			field = new Checkbox();
 			field.setValue(value);
 			field.setLabel(label);
-			field.setRequiredIndicatorVisible(this.required);
+			field.setRequiredIndicatorVisible(required);
 			if (label != null)
 				field.setId("ValueEditor."+label);
 			return new ComponentsContainer(field);

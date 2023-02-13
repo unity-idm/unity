@@ -10,13 +10,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
-public class EmailConfirmationConfigurationViewer extends VerticalLayout
+class EmailConfirmationConfigurationViewer extends VerticalLayout
 {
 	private final MessageSource msg;
 	private final Label msgTemplate;
 	private final Label validityTime;
 
-	public EmailConfirmationConfigurationViewer(MessageSource msg)
+	EmailConfirmationConfigurationViewer(MessageSource msg)
 	{
 		super();
 		setSpacing(false);
@@ -28,7 +28,7 @@ public class EmailConfirmationConfigurationViewer extends VerticalLayout
 		add(validityTime);
 	}
 
-	public EmailConfirmationConfigurationViewer(MessageSource msg,
+	EmailConfirmationConfigurationViewer(MessageSource msg,
 	                                            EmailConfirmationConfiguration init)
 	{
 

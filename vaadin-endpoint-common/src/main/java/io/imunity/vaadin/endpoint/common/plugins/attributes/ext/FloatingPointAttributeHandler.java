@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
+class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 {	
 	
-	public FloatingPointAttributeHandler(MessageSource msg, AttributeValueSyntax<?> syntax)
+	FloatingPointAttributeHandler(MessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		super(msg, syntax);
 	}
@@ -33,7 +33,7 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 	@Override
 	protected List<String> getHints()
 	{
-		List<String> sb = new ArrayList<String>(3);
+		List<String> sb = new ArrayList<>(3);
 		FloatingPointAttributeSyntax syntax = (FloatingPointAttributeSyntax) this.syntax;
 		
 		if (syntax.getMin() != Double.MIN_VALUE)
@@ -50,10 +50,8 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 	
 	private static class FloatingPointSyntaxEditor implements AttributeSyntaxEditor<Double>
 	{
-		private FloatingPointAttributeSyntax initial;
-		private DoubleBoundEditor max;
-		private DoubleBoundEditor min;
-		private MessageSource msg;
+		private final FloatingPointAttributeSyntax initial;
+		private final MessageSource msg;
 		private Binder<DoubleSyntaxBindingValue> binder;
 		
 		public FloatingPointSyntaxEditor(FloatingPointAttributeSyntax initial, MessageSource msg)
@@ -66,11 +64,11 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new FormLayout();
-			min = new DoubleBoundEditor(msg,
+			DoubleBoundEditor min = new DoubleBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.minUndef"),
 					msg.getMessage("NumericAttributeHandler.minE"),
 					Double.MIN_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
-			max = new DoubleBoundEditor(msg,
+			DoubleBoundEditor max = new DoubleBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.maxUndef"),
 					msg.getMessage("NumericAttributeHandler.maxE"),
 					Double.MAX_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
@@ -119,18 +117,18 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 			}
 		}
 		
-		public class DoubleSyntaxBindingValue extends MinMaxBindingValue<Double>
+		private static class DoubleSyntaxBindingValue extends MinMaxBindingValue<Double>
 		{}
 	}
 	
 	
 	@org.springframework.stereotype.Component
-	public static class FloatingPointAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class FloatingPointAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
 	{
-		private MessageSource msg;
+		private final MessageSource msg;
 
 		@Autowired
-		public FloatingPointAttributeHandlerFactoryV23(MessageSource msg)
+		FloatingPointAttributeHandlerFactoryV23(MessageSource msg)
 		{
 			this.msg = msg;
 		}
