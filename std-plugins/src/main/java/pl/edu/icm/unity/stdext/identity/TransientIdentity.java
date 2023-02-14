@@ -4,22 +4,21 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import java.util.UUID;
-
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.identity.DynamicIdentityTypeDefinition;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.SessionIdentityModel.PerSessionEntry;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+
+import java.util.UUID;
 
 /**
  * Identity type which creates a different identifier for each target, which is valid only for a time span of a single
@@ -27,7 +26,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author K. Benedyczak
  */
 @Component
-public class TransientIdentity extends AbstractIdentityTypeProvider
+public class TransientIdentity extends AbstractIdentityTypeProvider implements DynamicIdentityTypeDefinition
 {
 	public static final String ID = "transient";
 	private ObjectMapper mapper = Constants.MAPPER;
@@ -84,12 +83,6 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	public String toPrettyStringNoPrefix(IdentityParam from)
 	{
 		return from.getValue();
-	}
-
-	@Override
-	public boolean isDynamic()
-	{
-		return true;
 	}
 	
 	@Override

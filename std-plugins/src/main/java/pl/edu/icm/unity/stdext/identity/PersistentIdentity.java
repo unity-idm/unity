@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.identity.DynamicIdentityTypeDefinition;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+
+import java.util.UUID;
 
 /**
  * Identity type definition holding a persistent id. It is associated with each and every entity. 
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author K. Benedyczak
  */
 @Component
-public class PersistentIdentity extends AbstractIdentityTypeProvider
+public class PersistentIdentity extends AbstractIdentityTypeProvider implements DynamicIdentityTypeDefinition
 {
 	public static final String ID = "persistent";
 	
@@ -33,7 +33,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	{
 		return "PersistentIdentity.description";
 	}
-	
+
 	@Override
 	public void validate(String value)
 	{
@@ -49,12 +49,6 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	public String toPrettyStringNoPrefix(IdentityParam from)
 	{
 		return from.getValue();
-	}
-
-	@Override
-	public boolean isDynamic()
-	{
-		return true;
 	}
 	
 	@Override

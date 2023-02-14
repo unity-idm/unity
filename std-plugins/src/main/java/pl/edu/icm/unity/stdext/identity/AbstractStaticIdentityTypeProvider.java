@@ -23,6 +23,12 @@ public abstract class AbstractStaticIdentityTypeProvider extends AbstractIdentit
 	{
 		return false;
 	}
+
+	@Override
+	public boolean isUserSettable()
+	{
+		return true;
+	}
 	
 	@Override
 	public boolean isTargeted()

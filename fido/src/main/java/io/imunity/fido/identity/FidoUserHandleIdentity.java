@@ -39,6 +39,12 @@ public class FidoUserHandleIdentity extends AbstractStaticIdentityTypeProvider
 	}
 
 	@Override
+	public boolean isUserSettable()
+	{
+		return false;
+	}
+
+	@Override
 	public Identity createNewIdentity(String realm, String target, long entityId)
 	{
 		throw new IllegalStateException("This identity type doesn't support dynamic identity creation.");

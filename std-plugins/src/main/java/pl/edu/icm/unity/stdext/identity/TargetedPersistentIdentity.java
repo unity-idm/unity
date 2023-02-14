@@ -4,16 +4,16 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import java.util.UUID;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.identity.DynamicIdentityTypeDefinition;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+
+import java.util.UUID;
 
 /**
  * Identity type which creates a different but persistent identifier for each target.
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  * @author K. Benedyczak
  */
 @Component
-public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
+public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider implements DynamicIdentityTypeDefinition
 {
 	static final Logger log = Log.getLogger(Log.U_SERVER_CORE, TargetedPersistentIdentity.class);
 	public static final String ID = "targetedPersistent";
@@ -49,11 +49,6 @@ public class TargetedPersistentIdentity extends AbstractIdentityTypeProvider
 		return from.getValue();
 	}
 
-	@Override
-	public boolean isDynamic()
-	{
-		return true;
-	}
 	
 	@Override
 	public Identity createNewIdentity(String realm, String target, long entityId)

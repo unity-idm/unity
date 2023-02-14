@@ -34,7 +34,12 @@ public interface IdentityTypeDefinition
 	 * Dynamic identities are created automatically.
 	 */
 	boolean isDynamic();
-	
+
+	/**
+	 * @return if true then the identity type can be set by user.
+	 */
+	boolean isUserSettable();
+
 	/**
 	 * @return false is returned only for dynamic identities, which can not be removed manually. This happens for 
 	 * volatile identities, for instance session-scoped. Those identities can be only reset, i.e. all instances
