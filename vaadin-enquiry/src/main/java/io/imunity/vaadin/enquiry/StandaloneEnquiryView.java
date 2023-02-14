@@ -77,6 +77,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 	private EnquiryResponseEditor editor;
 	private ResolvedInvitationParam invitation;
 	private Long selectedEntity;
+	private RewriteComboToEnquiryRequest comboToEnquiryRequest;
 
 	private final EnquiryManagement enqMan;
 	private final NotificationPresenter notificationPresenter;
@@ -167,22 +168,60 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 
 	private void showContentForLoggedInUser()
 	{
+		if (!editorController.isFormApplicableForLoggedEntity(form.getName(), registrationCode == null))
+		{
+			log.debug("Enquiry form {} is not applicable", form.getName());
+			handleError(ErrorCause.INVITATION_OF_OTHER_FORM);
+			return;
+		}
+
+		ResolvedInvitationParam resolvedInvitationParam = null;
+		PrefilledSet prefilledSet = new PrefilledSet();
+		if (registrationCode != null)
+		{
+			try
+			{
+				resolvedInvitationParam = invitationResolver.getInvitationByCode(registrationCode);
+				resolvedInvitationParam.assertMatchToForm(form);
+				prefilledSet = getPrefilledFromInvitation(resolvedInvitationParam.getAsEnquiryInvitationParam(
+						InvocationContext.getCurrent().getLoginSession().getEntityId()));
+
+			} catch (RegCodeException e)
+			{
+				log.error("Can not get invitation", e);
+				handleError(ErrorCause.MISSING_CODE);
+			}
+		}
+
 		try
 		{
-			editor = editorController.getEditorInstanceForAuthenticatedUser(form, new PrefilledSet(),
+			editor = editorController.getEditorInstanceForAuthenticatedUser(form, prefilledSet,
 					RemotelyAuthenticatedPrincipal.getLocalContext());
+			comboToEnquiryRequest = Optional.ofNullable(resolvedInvitationParam)
+					.map(param -> new RewriteComboToEnquiryRequest(param.code, InvocationContext.getCurrent().getLoginSession().getEntityId(), form))
+					.orElse(null);
 		} catch (Exception e)
 		{
 			log.error("Can not setup enquiry editor", e);
-			handleError(e, ErrorCause.MISCONFIGURED);
+			handleError(ErrorCause.MISCONFIGURED);
 			return;
 		}
 		showEditorContent();
 	}
 
+	private PrefilledSet getPrefilledFromInvitation(EnquiryInvitationParam invitation) throws RegCodeException
+	{
+		if (invitation != null)
+		{
+			FormPrefill formPrefill = invitation.getFormPrefill();
+			return new PrefilledSet(formPrefill.getIdentities(), formPrefill.getGroupSelections(),
+					formPrefill.getAttributes(), formPrefill.getAllowedGroups());
+		}
+		return new PrefilledSet();
+	}
+
 	private void doShowEditorOrSkipToFinalStep()
 	{
-
 		try
 		{
 			invitation = invitationResolver.getInvitationByCode(registrationCode);
@@ -190,22 +229,22 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		} catch (RegCodeException e)
 		{
 			log.error("Can not get invitation", e);
-			handleError(e, e.cause);
+			handleError(e.cause);
 			return;
 		}
 
 		if (invitation.entities.size() == 0)
 		{
-			log.error(
-					"Enquiry invitation without any entities matching to contact address " + invitation.contactAddress);
-			handleError(null, ErrorCause.UNRESOLVED_INVITATION);
+			log.error("Enquiry invitation without any entities matching to contact address " + invitation.contactAddress);
+			handleError(ErrorCause.UNRESOLVED_INVITATION);
 			return;
 		}
 
 		if (invitation.entities.size() == 1)
 		{
 			processInvitation(invitation.entities.iterator().next().getId());
-		} else
+		}
+		else
 		{
 			List<Entity> entitiesWitoutAnonymous = invitation.getEntitiesWithoutAnonymous();
 			if (entitiesWitoutAnonymous.size() > 1)
@@ -230,7 +269,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		{
 			PrefilledSet currentUserData = editorController.getPrefilledSetForSticky(form,
 					new EntityParam(enqInvitation.getEntity()));
-			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(enqInvitation, currentUserData, form);
+			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(enqInvitation, currentUserData);
 			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 
 			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
@@ -238,25 +277,26 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 							.getMessageParamsWithCustomVarObject(MessageTemplateDefinition.CUSTOM_VAR_PREFIX),
 					RemotelyAuthenticatedPrincipal.getLocalContext(), prefilled,
 					new EntityParam(enqInvitation.getEntity()));
+			comboToEnquiryRequest = Optional.ofNullable(invitation)
+					.map(param -> new RewriteComboToEnquiryRequest(invitation.code, selectedEntity, form))
+					.orElse(null);
 
 		} catch (Exception e)
 		{
 			log.error("Can not setup enquiry editor", e);
-			handleError(e, ErrorCause.MISCONFIGURED);
+			handleError(ErrorCause.MISCONFIGURED);
 			return;
 		}
 
 		showEditorContent();
 	}
 
-	private PrefilledSet mergeInvitationAndCurrentUserData(EnquiryInvitationParam invitation, PrefilledSet fromUser,
-			EnquiryForm form)
+	private PrefilledSet mergeInvitationAndCurrentUserData(EnquiryInvitationParam invitation, PrefilledSet fromUser)
 	{
 
 		FormPrefill formPrefill = invitation.getFormPrefill();
 		return new PrefilledSet(formPrefill.getIdentities(),
-				mergePreffiledGroups(formPrefill.getAllowedGroups(), formPrefill.getGroupSelections(),
-						fromUser.groupSelections, form),
+				mergePreffiledGroups(formPrefill.getGroupSelections(), fromUser.groupSelections),
 				mergePreffiledAttributes(formPrefill.getAttributes(), fromUser.attributes),
 				formPrefill.getAllowedGroups());
 	}
@@ -286,9 +326,8 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 	}
 
 	private Map<Integer, PrefilledEntry<GroupSelection>> mergePreffiledGroups(
-			Map<Integer, GroupSelection> allowedFromInvitiation,
 			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation,
-			Map<Integer, PrefilledEntry<GroupSelection>> fromUser, EnquiryForm form)
+			Map<Integer, PrefilledEntry<GroupSelection>> fromUser)
 	{
 
 		Map<Integer, PrefilledEntry<GroupSelection>> mergedGroups = new HashMap<>();
@@ -400,7 +439,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		return buttons;
 	}
 
-	private void handleError(Exception e, ErrorCause cause)
+	private void handleError(ErrorCause cause)
 	{
 		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
 				.getFinalRegistrationConfigurationOnError(cause.getTriggerState());
@@ -439,9 +478,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		request.setRegistrationCode(registrationCode);
 		try
 		{
-			return editorController.submitted(request, form, TriggeringMode.manualStandalone,
-					invitation == null ? Optional.empty()
-							: Optional.of(new RewriteComboToEnquiryRequest(invitation.code, selectedEntity, form)));
+			return editorController.submitted(request, form, TriggeringMode.manualStandalone, Optional.ofNullable(comboToEnquiryRequest));
 		} catch (WrongArgumentException e)
 		{
 			handleFormSubmissionError(e, msg, editor);

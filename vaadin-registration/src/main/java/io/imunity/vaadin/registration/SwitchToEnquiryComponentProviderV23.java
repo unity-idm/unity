@@ -5,6 +5,7 @@
 
 package io.imunity.vaadin.registration;
 
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
@@ -43,30 +44,31 @@ public class SwitchToEnquiryComponentProviderV23
 			return Optional.empty();
 		}
 
-		Map<String, Object> paramsWithSwitch = new HashMap<>();
-		paramsWithSwitch.putAll(params);
+		Map<String, Object> paramsWithSwitch = new HashMap<>(params);
 		paramsWithSwitch.put(SWITCH_TO_ENQUIRY_START_VAR, SwitchToEnquiryComponentProviderV23.SWITCH_START);
 		paramsWithSwitch.put(SWITCH_TO_ENQUIRY_END_VAR, SwitchToEnquiryComponentProviderV23.SWITCH_END);
-		String switchInfo = switchText == null ? null
-				: FreemarkerUtils.processStringTemplate(paramsWithSwitch, switchText.getValue(msg));
+		String switchInfo = FreemarkerUtils.processStringTemplate(paramsWithSwitch, switchText.getValue(msg));
 		if (switchInfo == null || switchInfo.isEmpty())
 			return Optional.empty();
 
-		String linkDisp = switchInfo.substring(switchInfo.indexOf(SWITCH_START),
-				switchInfo.indexOf(SWITCH_END) == -1 ? switchInfo.length() : switchInfo.indexOf(SWITCH_END));
-		switchInfo = switchInfo.replace(linkDisp, getLink(linkDisp, invitation));
-		switchInfo = switchInfo.replace(SWITCH_START, "");
-		switchInfo = switchInfo.replace(SWITCH_END, "");
-		Label label = new Label();
-		label.setText(switchInfo);
+		String linkText = switchInfo.substring(
+				switchInfo.indexOf(SWITCH_START),
+				!switchInfo.contains(SWITCH_END) ? switchInfo.length() : switchInfo.indexOf(SWITCH_END)
+		).replace(SWITCH_START, "");
+		String startText = switchInfo.substring(0, switchInfo.indexOf(SWITCH_START));
+		String endText = switchInfo.substring(
+				!switchInfo.contains(SWITCH_END) ? switchInfo.length() : switchInfo.indexOf(SWITCH_END) + SWITCH_END.length()
+		);
+		Label label = new Label(startText);
+		label.add(new Anchor(getLink(invitation), linkText));
+		label.add(endText);
 
 		return Optional.of(label);
 	}
 
-	private String getLink(String disp, ResolvedInvitationParam invitation)
+	private String getLink(ResolvedInvitationParam invitation)
 	{
-		String link = publicRegistrationURLSupport.getWellknownEnquiryLink(
+		return publicRegistrationURLSupport.getWellknownEnquiryLink(
 				invitation.getAsEnquiryInvitationParamWithAnonymousEntity().getFormPrefill().getFormId(), invitation.code);
-		return "<a href=\"" + link + "\">" + disp + "</a>";
 	}
 }

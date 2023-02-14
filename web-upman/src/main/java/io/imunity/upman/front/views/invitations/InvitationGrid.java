@@ -39,12 +39,12 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 				.setFlexGrow(5)
 				.setSortable(true)
 				.setResizable(true);
-		addColumn(model -> formatter.format(model.requestedTime))
+		addColumn(model -> format(model.requestedTime))
 				.setHeader(msg.getMessage("Invitation.lastSent"))
 				.setAutoWidth(true)
 				.setSortable(true)
 				.setResizable(true);
-		addColumn(model -> formatter.format(model.expirationTime))
+		addColumn(model -> format(model.expirationTime))
 				.setHeader(msg.getMessage("Invitation.expiration"))
 				.setAutoWidth(true)
 				.setSortable(true)
@@ -61,6 +61,13 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 				.setResizable(true);
 
 		setClassNameGenerator(model -> model.expirationTime.isBefore(Instant.now()) ? "light-red-row" : "usual-row");
+	}
+
+	private static String format(Instant instant)
+	{
+		if(instant == null)
+			return "";
+		return formatter.format(instant);
 	}
 
 	private Label createGroupsLabel(InvitationModel model, HtmlContainer container)

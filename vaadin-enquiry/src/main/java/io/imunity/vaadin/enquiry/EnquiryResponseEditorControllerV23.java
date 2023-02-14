@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
@@ -133,6 +134,22 @@ public class EnquiryResponseEditorControllerV23
 	private EntityParam getLoggedEntity()
 	{
 		return  new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());
+	}
+
+	public boolean isFormApplicableForLoggedEntity(String formName, boolean ignoreByIvitationForms)
+	{
+		EntityParam entity = getLoggedEntity();
+		try
+		{
+			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
+					.withType(EnquirySelector.Type.ALL)
+					.withAccessMode(ignoreByIvitationForms ? EnquirySelector.AccessMode.NOT_BY_INVITATION_ONLY : EnquirySelector.AccessMode.ANY)
+					.build()).stream().anyMatch(f -> f.getName().equals(formName));
+		} catch (EngineException e)
+		{
+			log.error("Can't load enquiry forms", e);
+		}
+		return false;
 	}
 
 	public PrefilledSet getPrefilledSetForSticky(EnquiryForm form, EntityParam entity) throws EngineException
