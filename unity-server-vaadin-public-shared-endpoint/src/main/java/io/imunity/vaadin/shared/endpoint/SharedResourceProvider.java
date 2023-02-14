@@ -13,6 +13,6 @@ public class SharedResourceProvider extends CustomResourceProvider
 {
 	public SharedResourceProvider()
 	{
-		super("vaadin-endpoint-common", "vaadin-enquiry", "vaadin-registration");
+		super("unity-server-vaadin-endpoint-common", "unity-server-vaadin-enquiry", "unity-server-vaadin-registration");
 	}
 }

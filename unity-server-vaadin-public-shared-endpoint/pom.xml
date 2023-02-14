@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+  ~ Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
   ~ See LICENCE.txt file for licensing information.
   -->
 
@@ -14,7 +14,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vaadin-enquiry</artifactId>
+    <artifactId>unity-server-vaadin-public-shared-endpoint</artifactId>
+    <name>UNITY Server vaadin public shared endpoint</name>
+    <description>Vaadin public shared endpoint</description>
 
     <properties>
         <vaadin.productionMode>true</vaadin.productionMode>
@@ -23,12 +25,12 @@
     <dependencies>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-endpoint-common</artifactId>
+            <artifactId>unity-server-vaadin-endpoint-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-elements</artifactId>
+            <artifactId>unity-vaadin-elements</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -40,6 +42,16 @@
                     <artifactId>vaadin-dev-server</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.imunity</groupId>
+            <artifactId>unity-server-vaadin-registration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.imunity</groupId>
+            <artifactId>unity-server-vaadin-enquiry</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

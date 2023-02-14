@@ -14,7 +14,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vaadin-registration</artifactId>
+    <artifactId>unity-server-vaadin-secured-shared-endpoint</artifactId>
+    <name>UNITY Server vaadin secured shared endpoint</name>
+    <description>Vaadin secured shared endpoint</description>
 
     <properties>
         <vaadin.productionMode>true</vaadin.productionMode>
@@ -23,12 +25,17 @@
     <dependencies>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-endpoint-common</artifactId>
+            <artifactId>unity-server-vaadin-endpoint-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-elements</artifactId>
+            <artifactId>unity-vaadin-elements</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.imunity</groupId>
+            <artifactId>unity-server-vaadin-enquiry</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -85,12 +85,12 @@
 		<module>web-attr-introspection</module>
 		<module>scim</module>
 		<module>unity-rest-api</module>
-		<module>vaadin-endpoint-common</module>
-		<module>vaadin-elements</module>
-		<module>vaadin-public-shared-endpoint</module>
-		<module>vaadin-registration</module>
-		<module>vaadin-enquiry</module>
-		<module>vaadin-secured-shared-endpoint</module>
+		<module>unity-server-vaadin-endpoint-common</module>
+		<module>unity-vaadin-elements</module>
+		<module>unity-server-vaadin-public-shared-endpoint</module>
+		<module>unity-server-vaadin-registration</module>
+		<module>unity-server-vaadin-enquiry</module>
+		<module>unity-server-vaadin-secured-shared-endpoint</module>
 	</modules>
 
 	<developers>
