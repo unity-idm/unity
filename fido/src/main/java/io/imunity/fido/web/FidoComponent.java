@@ -11,7 +11,7 @@ import io.imunity.fido.credential.FidoCredentialInfo;
 import io.imunity.fido.service.FidoException;
 import io.imunity.fido.service.NoEntityException;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.shared.endpoint.fido.FidoV23Component;
+import io.imunity.vaadin.shared.endpoint.fido.FidoBrowserCallableComponent;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -39,7 +39,7 @@ class FidoComponent
 	private final Consumer<FidoCredentialInfo> newCredentialListener;
 	private Consumer<AuthenticationResult> authenticationResultListener;
 	private final NotificationPresenter notificationPresenter;
-	private final FidoV23Component fidoV23Component;
+	private final FidoBrowserCallableComponent fidoBrowserCallableComponent;
 
 	private FidoComponent(final FidoRegistration fidoRegistration,
 	                      final FidoExchange fidoExchange,
@@ -63,7 +63,7 @@ class FidoComponent
 		this.newCredentialListener = newCredentialListener;
 		this.authenticationResultListener = authenticationResultListener;
 		this.notificationPresenter = notificationPresenter;
-		this.fidoV23Component = new FidoV23Component(msg, notificationPresenter, this::finalizeRegistration, this::finalizeAuthentication);
+		this.fidoBrowserCallableComponent = new FidoBrowserCallableComponent(msg, notificationPresenter, this::finalizeRegistration, this::finalizeAuthentication);
 	}
 
 	public Long getEntityId()
@@ -73,7 +73,7 @@ class FidoComponent
 
 	public Component getComponent()
 	{
-		return fidoV23Component;
+		return fidoBrowserCallableComponent;
 	}
 
 
@@ -136,7 +136,7 @@ class FidoComponent
 			AbstractMap.SimpleEntry<String, String> options = fidoRegistration.getRegistrationOptions(
 					credentialName, credentialConfiguration, entityId, username, useResidentKey);
 			log.debug("reqId={}", options.getKey());
-			fidoV23Component.getElement().executeJs("createCredentials('" + options.getKey() + "','" + options.getValue() + "',this)");
+			fidoBrowserCallableComponent.getElement().executeJs("createCredentials('" + options.getKey() + "','" + options.getValue() + "',this)");
 		} catch (FidoException e)
 		{
 			showError(msg.getMessage("Fido.registration"), e.getLocalizedMessage());
@@ -154,7 +154,7 @@ class FidoComponent
 			AbstractMap.SimpleEntry<String, String> options = fidoExchange.getAuthenticationOptions(
 					nonNull(entityId) ? entityId : this.entityId, username);
 			log.debug("reqId={}", options.getKey());
-			fidoV23Component.getElement().executeJs("getCredentials('" + options.getKey() + "','" + options.getValue() + "',this)");
+			fidoBrowserCallableComponent.getElement().executeJs("getCredentials('" + options.getKey() + "','" + options.getValue() + "',this)");
 		} catch (NoEntityException e)
 		{
 			if (nonNull(authenticationResultListener))

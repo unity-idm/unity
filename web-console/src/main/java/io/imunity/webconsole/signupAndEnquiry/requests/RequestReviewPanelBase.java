@@ -43,10 +43,10 @@ import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilderV8;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -62,12 +62,12 @@ class RequestReviewPanelBase extends CustomComponent
 	private static final int MAX_TEXT_LENGHT = 300;
 	
 	protected MessageSource msg;
-	private AttributeHandlerRegistry handlersRegistry;
+	private AttributeHandlerRegistryV8 handlersRegistry;
 	private UserRequestState<?> requestState;
 	private IdentityTypesRegistry idTypesRegistry;
 	private GroupsManagement groupMan;
 	private PolicyDocumentManagement policyDocMan;
-	private PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder;
+	private PolicyAgreementRepresentationBuilderV8 policyAgreementRepresentationBuilder;
 
 	private ListOfSelectableElements attributes;
 	private ListOfSelectableElements groups;
@@ -83,10 +83,10 @@ class RequestReviewPanelBase extends CustomComponent
 	private Panel identitiesP;
 	private IdentityFormatter idFormatter;
 
-	RequestReviewPanelBase(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	RequestReviewPanelBase(MessageSource msg, AttributeHandlerRegistryV8 handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan,
 			PolicyDocumentManagement policyDocMan,
-			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)
+			PolicyAgreementRepresentationBuilderV8 policyAgreementRepresentationBuilder)
 	{
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;

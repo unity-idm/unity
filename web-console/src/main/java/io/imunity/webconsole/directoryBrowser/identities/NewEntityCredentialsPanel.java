@@ -30,7 +30,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
@@ -42,7 +42,7 @@ class NewEntityCredentialsPanel extends VerticalLayout
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NewEntityCredentialsPanel.class);
 	private CredentialManagement credMan;
 	private CredentialRequirementManagement credReqMan;
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 	private MessageSource msg;
 	
 	private Map<String, CredentialDefinition> credentials;
@@ -53,7 +53,7 @@ class NewEntityCredentialsPanel extends VerticalLayout
 	private NewEntityCredentialsPanel(MessageSource msg, 
 			CredentialManagement credMan, 
 			CredentialRequirementManagement credReqMan,
-			CredentialEditorRegistry credEditorReg)
+			CredentialEditorRegistryV8 credEditorReg)
 	{
 		this.msg = msg;
 		this.credMan = credMan;

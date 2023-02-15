@@ -121,12 +121,12 @@ class IntegerAttributeHandler extends TextOnlyAttributeHandler
 
 	
 	@org.springframework.stereotype.Component
-	static class IntegerAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class IntegerAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
 		private final MessageSource msg;
 
 		@Autowired
-		IntegerAttributeHandlerFactoryV23(MessageSource msg)
+		IntegerAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

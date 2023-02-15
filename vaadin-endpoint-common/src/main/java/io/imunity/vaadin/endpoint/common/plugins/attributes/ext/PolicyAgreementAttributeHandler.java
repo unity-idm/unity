@@ -120,13 +120,13 @@ class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 	}
 
 	@org.springframework.stereotype.Component
-	static class PolicyAgreementAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class PolicyAgreementAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
 		private final MessageSource msg;
 		private final PolicyDocumentManagement docMan;
 
 		@Autowired
-		PolicyAgreementAttributeHandlerFactoryV23(MessageSource msg, PolicyDocumentManagement docMan)
+		PolicyAgreementAttributeHandlerFactory(MessageSource msg, PolicyDocumentManagement docMan)
 		{
 			this.msg = msg;
 			this.docMan = docMan;

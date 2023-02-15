@@ -37,9 +37,9 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 
 @PrototypeComponent
 class PrefillEntryEditor extends TabSheet
@@ -50,14 +50,14 @@ class PrefillEntryEditor extends TabSheet
 
 	private final List<Group> allGroups;
 	private final MessageSource msg;
-	private final IdentityEditorRegistry identityEditorRegistry;
-	private final AttributeHandlerRegistry attrHandlersRegistry;
+	private final IdentityEditorRegistryV8 identityEditorRegistry;
+	private final AttributeHandlerRegistryV8 attrHandlersRegistry;
 	private final Map<String, AttributeType> attrTypes;
 
 	@Autowired
-	PrefillEntryEditor(MessageSource msg, IdentityEditorRegistry identityEditorRegistry,
-			AttributeHandlerRegistry attrHandlersRegistry, AttributeTypeManagement attributeTypeManagement,
-			GroupsManagement groupsManagement) throws EngineException
+	PrefillEntryEditor(MessageSource msg, IdentityEditorRegistryV8 identityEditorRegistry,
+	                   AttributeHandlerRegistryV8 attrHandlersRegistry, AttributeTypeManagement attributeTypeManagement,
+	                   GroupsManagement groupsManagement) throws EngineException
 
 	{
 		this.msg = msg;

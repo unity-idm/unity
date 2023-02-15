@@ -4,17 +4,13 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.ValueContext;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -41,6 +37,8 @@ import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
+
+import java.util.Optional;
 
 /**
  * Verifiable mobile number attribute handler for the web
@@ -335,7 +333,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 	}
 
 	@org.springframework.stereotype.Component
-	public static class VerifiableMobileNumberAttributeHandlerFactory
+	public static class VerifiableMobileNumberAttributeHandlerFactoryV8
 			implements WebAttributeHandlerFactory
 	{
 		private MessageSource msg;
@@ -344,11 +342,11 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		private MobileNumberConfirmationManager smsConfirmationMan;
 
 		@Autowired
-		public VerifiableMobileNumberAttributeHandlerFactory(MessageSource msg,
-				ConfirmationInfoFormatter formatter,
-				MessageTemplateManagement msgTemplateMan,
-				MobileNumberConfirmationManager smsConfirmationMan,
-				AttributeTypeSupport attributeTypeSupport)
+		public VerifiableMobileNumberAttributeHandlerFactoryV8(MessageSource msg,
+		                                                       ConfirmationInfoFormatter formatter,
+		                                                       MessageTemplateManagement msgTemplateMan,
+		                                                       MobileNumberConfirmationManager smsConfirmationMan,
+		                                                       AttributeTypeSupport attributeTypeSupport)
 		{
 			this.msg = msg;
 			this.formatter = formatter;

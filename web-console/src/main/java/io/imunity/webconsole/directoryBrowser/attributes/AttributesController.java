@@ -36,7 +36,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -56,13 +56,13 @@ class AttributesController
 	private MessageSource msg;
 	private AttributesManagement attrMan;
 
-	private AttributeHandlerRegistry registry;
+	private AttributeHandlerRegistryV8 registry;
 	private AttributeTypeSupport atSupport;
 
 	@Autowired
 	AttributesController(AttributesManagement attrMan, AttributeClassManagement acMan,
-			AttributeTypeManagement aTypeManagement, GroupsManagement groupsManagement,
-			AttributeHandlerRegistry registry, AttributeTypeSupport atSupport, MessageSource msg)
+	                     AttributeTypeManagement aTypeManagement, GroupsManagement groupsManagement,
+	                     AttributeHandlerRegistryV8 registry, AttributeTypeSupport atSupport, MessageSource msg)
 	{
 		this.attrMan = attrMan;
 		this.acMan = acMan;

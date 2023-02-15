@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 
 /**
  * Editor of a prefilled invitation {@link IdentityParam}.
@@ -28,15 +28,15 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  */
 public class PresetIdentityEditor extends PresetEditorBase<IdentityParam>
 {
-	private IdentityEditorRegistry identityEditorRegistry;
+	private IdentityEditorRegistryV8 identityEditorRegistry;
 	private List<IdentityRegistrationParam> formParameters;
 	private IdentityRegistrationParam selectedParam;
 	
 	private FormLayout container;
 	private IdentityEditor editor;
 	
-	public PresetIdentityEditor(IdentityEditorRegistry identityEditorRegistry,
-			List<IdentityRegistrationParam> formParameters, MessageSource msg)
+	public PresetIdentityEditor(IdentityEditorRegistryV8 identityEditorRegistry,
+	                            List<IdentityRegistrationParam> formParameters, MessageSource msg)
 	{
 		super(msg);
 		this.identityEditorRegistry = identityEditorRegistry;

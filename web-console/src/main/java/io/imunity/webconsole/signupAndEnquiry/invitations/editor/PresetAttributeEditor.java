@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
 /**
  * Editor of a prefilled invitation {@link Attribute}.
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 {
 	private List<AttributeRegistrationParam> formParams;
-	private AttributeHandlerRegistry attrHandlersRegistry;
+	private AttributeHandlerRegistryV8 attrHandlersRegistry;
 	private Map<String, AttributeType> attrTypes;
 	
 	private FixedAttributeEditor fixedAttributeEditor;
@@ -39,7 +39,7 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 	
 	public PresetAttributeEditor(MessageSource msg,
 			List<AttributeRegistrationParam> formParams,
-			AttributeHandlerRegistry attrHandlersRegistry,
+			AttributeHandlerRegistryV8 attrHandlersRegistry,
 			Map<String, AttributeType> attrTypes)
 	{
 		super(msg);

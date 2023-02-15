@@ -4,15 +4,11 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
-import java.time.LocalDate;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.datefield.DateResolution;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -25,6 +21,8 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
+
+import java.time.LocalDate;
 
 /**
  * Date attribute handler for the web
@@ -153,12 +151,12 @@ public class DateAttributeHandler implements WebAttributeHandler
 	}
 
 	@org.springframework.stereotype.Component
-	public static class DateAttributeHandlerFactory implements WebAttributeHandlerFactory
+	public static class DateAttributeHandlerFactoryV8 implements WebAttributeHandlerFactory
 	{
 		private MessageSource msg;
 
 		@Autowired
-		public DateAttributeHandlerFactory(MessageSource msg)
+		public DateAttributeHandlerFactoryV8(MessageSource msg)
 		{
 			this.msg = msg;
 		}

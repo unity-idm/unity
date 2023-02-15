@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 
@@ -44,7 +44,7 @@ public class OutdatedCredentialController
 	private CredentialManagement credMan;
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 	private final AdditionalAuthnHandler additionalAuthnHandler;
 	private ImageAccessService imageAccessService;
 	
@@ -58,10 +58,10 @@ public class OutdatedCredentialController
 	
 	@Autowired
 	public OutdatedCredentialController(AdditionalAuthnHandler additionalAuthnHandler,
-			MessageSource msg, CredentialManagement credMan,
-			EntityCredentialManagement ecredMan, EntityManagement entityMan,
-			CredentialRequirementManagement credReqMan,
-			CredentialEditorRegistry credEditorReg, ImageAccessService imageAccessService)
+	                                    MessageSource msg, CredentialManagement credMan,
+	                                    EntityCredentialManagement ecredMan, EntityManagement entityMan,
+	                                    CredentialRequirementManagement credReqMan,
+	                                    CredentialEditorRegistryV8 credEditorReg, ImageAccessService imageAccessService)
 	{
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.msg = msg;

@@ -69,8 +69,8 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	private final MessageSource msg;
 	private final UnityServerConfiguration cfg;
 	private final IdPLoginController idpLoginController;
-	private final RequestEditorCreatorV23 editorCreator;
-	private final AutoLoginAfterSignUpProcessorV23 autoLoginProcessor;
+	private final RequestEditorCreator editorCreator;
+	private final AutoLoginAfterSignUpProcessor autoLoginProcessor;
 	private final NotificationPresenter notificationPresenter;
 	private RegistrationForm form;
 	private String registrationCode;
@@ -85,8 +85,8 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	                                  @Qualifier("insecure") RegistrationsManagement regMan,
 	                                  UnityServerConfiguration cfg,
 	                                  IdPLoginController idpLoginController,
-	                                  RequestEditorCreatorV23 editorCreator,
-	                                  AutoLoginAfterSignUpProcessorV23 autoLogin, ImageAccessService imageAccessService,
+	                                  RequestEditorCreator editorCreator,
+	                                  AutoLoginAfterSignUpProcessor autoLogin, ImageAccessService imageAccessService,
 	                                  NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
@@ -474,7 +474,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		return null;
 	}
 
-	private class EditorCreatedCallback implements RequestEditorCreatorV23.RequestEditorCreatedCallback
+	private class EditorCreatedCallback implements RequestEditorCreator.RequestEditorCreatedCallback
 	{
 		private final TriggeringMode mode;
 		

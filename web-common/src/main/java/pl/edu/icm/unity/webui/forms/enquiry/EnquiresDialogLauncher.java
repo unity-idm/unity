@@ -33,12 +33,12 @@ public class EnquiresDialogLauncher
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiresDialogLauncher.class);
 	private MessageSource msg;
-	private EnquiryResponseEditorController enquiryController;
+	private EnquiryResponseEditorControllerV8 enquiryController;
 	private StandardWebLogoutHandler authnProcessor;
 	
 	@Autowired
 	public EnquiresDialogLauncher(MessageSource msg,
-			EnquiryResponseEditorController enquiryController,
+			EnquiryResponseEditorControllerV8 enquiryController,
 			StandardWebLogoutHandler authnProcessor)
 	{
 		this.msg = msg;

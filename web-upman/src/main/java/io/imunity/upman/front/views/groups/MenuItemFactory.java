@@ -179,7 +179,7 @@ class MenuItemFactory
 	private Dialog createConfirmDialog(String txt, Runnable runnable)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
-		dialog.addClassName(Vaadin23ClassNames.DIALOG_CONFIRM.getName());
+		dialog.addClassName(VaadinClassNames.DIALOG_CONFIRM.getName());
 
 		Label label = new Label(txt);
 

@@ -5,17 +5,10 @@
 
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
-import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
-
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -27,11 +20,12 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.stdext.attr.PolicyAgreementAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ReadOnlyField;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
-import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
-import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
+import pl.edu.icm.unity.webui.common.attributes.*;
+
+import java.util.Collections;
+import java.util.List;
+
+import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
 
 public class PolicyAgreeementAttributeHandler extends TextOnlyAttributeHandler
 {
@@ -124,13 +118,13 @@ public class PolicyAgreeementAttributeHandler extends TextOnlyAttributeHandler
 	}
 
 	@org.springframework.stereotype.Component
-	public static class PolicyAgreementAttributeHandlerFactory implements WebAttributeHandlerFactory
+	public static class PolicyAgreementAttributeHandlerFactoryV8 implements WebAttributeHandlerFactory
 	{
 		private MessageSource msg;
 		private PolicyDocumentManagement docMan;
 
 		@Autowired
-		public PolicyAgreementAttributeHandlerFactory(MessageSource msg, PolicyDocumentManagement docMan)
+		public PolicyAgreementAttributeHandlerFactoryV8(MessageSource msg, PolicyDocumentManagement docMan)
 		{
 			this.msg = msg;
 			this.docMan = docMan;

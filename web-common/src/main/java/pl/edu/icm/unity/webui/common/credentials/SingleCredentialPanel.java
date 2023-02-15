@@ -53,7 +53,7 @@ public class SingleCredentialPanel extends CustomComponent
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SingleCredentialPanel.class);
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 	private CredentialManagement credMan;
 	private MessageSource msg;
 	private boolean changed = false;
@@ -76,7 +76,7 @@ public class SingleCredentialPanel extends CustomComponent
 	
 	public SingleCredentialPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId,
 			EntityCredentialManagement ecredMan, CredentialManagement credMan,
-			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
+			EntityManagement entityMan, CredentialEditorRegistryV8 credEditorReg,
 			CredentialDefinition toEdit, boolean enableAdminActions)
 			throws Exception
 	{

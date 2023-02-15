@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -39,14 +39,14 @@ class AttributeTypeController
 {
 	private MessageSource msg;
 	private AttributeTypeManagement attrTypeMan;
-	private AttributeHandlerRegistry attrHandlerRegistry;
+	private AttributeHandlerRegistryV8 attrHandlerRegistry;
 	private AttributeMetadataHandlerRegistry attrMetaHandlerRegistry;
 	private AttributeTypeSupport atSupport;
 	private UnityServerConfiguration serverConfig;
 
 	@Autowired
 	AttributeTypeController(MessageSource msg, AttributeTypeManagement attrTypeMan,
-			AttributeHandlerRegistry attrHandlerRegistry,
+			AttributeHandlerRegistryV8 attrHandlerRegistry,
 			AttributeMetadataHandlerRegistry attrMetaHandlerRegistry, AttributeTypeSupport atSupport,
 			UnityServerConfiguration serverConfig)
 	{

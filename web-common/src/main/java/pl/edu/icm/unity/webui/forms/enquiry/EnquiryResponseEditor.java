@@ -18,11 +18,11 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilderV8;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
@@ -41,12 +41,12 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	
 	public EnquiryResponseEditor(MessageSource msg, EnquiryForm form,
 			RemotelyAuthenticatedPrincipal remotelyAuthenticated,
-			IdentityEditorRegistry identityEditorRegistry,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
+			IdentityEditorRegistryV8 identityEditorRegistry,
+			CredentialEditorRegistryV8 credentialEditorRegistry,
+			AttributeHandlerRegistryV8 attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
 			GroupsManagement groupsMan, ImageAccessService imageAccessService,
-			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
+			PolicyAgreementRepresentationBuilderV8 policyAgreementsRepresentationBuilder,
 			List<PolicyAgreementConfiguration> filteredPolicyAgreement,
 			PrefilledSet prefilled,
 			Map<String, Object> messageParams) throws Exception

@@ -50,7 +50,7 @@ public class CredentialsPanel extends VerticalLayout
 	private CredentialRequirementManagement credReqMan;
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 	private TokensManagement tokenMan;
 	private MessageSource msg;
 	private Entity entity;
@@ -67,11 +67,11 @@ public class CredentialsPanel extends VerticalLayout
 	/**
 	 * @param disableAdminActions if true then admin-only action buttons (credential reset/outdate) are not shown.
 	 */
-	public CredentialsPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId, CredentialManagement credMan, 
-			EntityCredentialManagement ecredMan, EntityManagement entityMan,
-			CredentialRequirementManagement credReqMan,
-			CredentialEditorRegistry credEditorReg, TokensManagement tokenMan,
-			boolean disableAdminActions, boolean disable2ndFactorOptIn) 
+	public CredentialsPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId, CredentialManagement credMan,
+	                        EntityCredentialManagement ecredMan, EntityManagement entityMan,
+	                        CredentialRequirementManagement credReqMan,
+	                        CredentialEditorRegistryV8 credEditorReg, TokensManagement tokenMan,
+	                        boolean disableAdminActions, boolean disable2ndFactorOptIn)
 					throws Exception
 	{
 		this.additionalAuthnHandler = additionalAuthnHandler;

@@ -48,7 +48,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -63,7 +63,7 @@ public class AttributesGrid extends CustomComponent
 {
 	private MessageSource msg;
 	private AttributesController controller;
-	private AttributeHandlerRegistry registry;
+	private AttributeHandlerRegistryV8 registry;
 
 	private GridWithActionColumn<AttributeExt> attributesGrid;
 
@@ -77,7 +77,7 @@ public class AttributesGrid extends CustomComponent
 	private EventsBus bus;
 
 	@Autowired
-	AttributesGrid(MessageSource msg, AttributesController controller, AttributeHandlerRegistry registry)
+	AttributesGrid(MessageSource msg, AttributesController controller, AttributeHandlerRegistryV8 registry)
 	{
 		this.msg = msg;
 		this.controller = controller;

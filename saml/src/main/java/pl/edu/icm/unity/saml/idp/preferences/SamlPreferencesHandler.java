@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
 import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandler;
 
@@ -31,13 +31,13 @@ public class SamlPreferencesHandler implements PreferencesHandler
 	private MessageSource msg;
 	private EntityManagement idsMan;
 	private AttributeTypeManagement atsMan;
-	private AttributeHandlerRegistry handlerReg;
+	private AttributeHandlerRegistryV8 handlerReg;
 	private IdentityTypeSupport idTypeSupport;
 	
 	@Autowired
 	public SamlPreferencesHandler(MessageSource msg, EntityManagement idsMan,
-			AttributeTypeManagement atsMan, 
-			AttributeHandlerRegistry hadnlerReg, IdentityTypeSupport idTypeSupport)
+	                              AttributeTypeManagement atsMan,
+	                              AttributeHandlerRegistryV8 hadnlerReg, IdentityTypeSupport idTypeSupport)
 	{
 		super();
 		this.msg = msg;

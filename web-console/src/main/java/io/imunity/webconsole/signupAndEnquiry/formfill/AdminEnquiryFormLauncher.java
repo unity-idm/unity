@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditor;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorControllerV8;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 
 
@@ -50,7 +50,7 @@ public class AdminEnquiryFormLauncher
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdminEnquiryFormLauncher.class);
 	private MessageSource msg;
 	private EnquiryManagement enquiryManagement;
-	private EnquiryResponseEditorController responseController;
+	private EnquiryResponseEditorControllerV8 responseController;
 	
 	private EventsBus bus;
 	private IdPLoginController idpLoginController;
@@ -59,7 +59,7 @@ public class AdminEnquiryFormLauncher
 	public AdminEnquiryFormLauncher(MessageSource msg,
 			EnquiryManagement enquiryManagement,
 			IdPLoginController idpLoginController,
-			EnquiryResponseEditorController responseController)
+			EnquiryResponseEditorControllerV8 responseController)
 	{
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;

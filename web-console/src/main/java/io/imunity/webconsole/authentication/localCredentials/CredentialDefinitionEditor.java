@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 class CredentialDefinitionEditor extends CustomComponent
 {
 	private MessageSource msg;
-	private CredentialEditorRegistry credentialEditorReg;
+	private CredentialEditorRegistryV8 credentialEditorReg;
 	private TextField name;
 	private I18nTextField displayedName;
 	private I18nTextArea description;
@@ -47,7 +47,7 @@ class CredentialDefinitionEditor extends CustomComponent
 	
 	private Binder<CredentialDefinition> binder;
 	
-	CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistry credentialEditorReg,
+	CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistryV8 credentialEditorReg,
 			CredentialDefinition initial)
 	{
 		this.msg = msg;
@@ -55,12 +55,12 @@ class CredentialDefinitionEditor extends CustomComponent
 		init(initial, credentialEditorReg);
 	}
 	
-	CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistry credentialEditorReg)
+	CredentialDefinitionEditor(MessageSource msg, CredentialEditorRegistryV8 credentialEditorReg)
 	{
 		this(msg, credentialEditorReg, null);
 	}
 	
-	private void init(CredentialDefinition initial, final CredentialEditorRegistry credentialEditorReg)
+	private void init(CredentialDefinition initial, final CredentialEditorRegistryV8 credentialEditorReg)
 	{
 		setWidth(100, Unit.PERCENTAGE);
 		CompactFormLayout main = new CompactFormLayout();

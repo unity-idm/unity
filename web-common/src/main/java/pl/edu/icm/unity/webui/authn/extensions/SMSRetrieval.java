@@ -57,7 +57,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
@@ -74,11 +74,11 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	
 	private MessageSource msg;
 	private I18nString name;
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 	private String configuration;
 	
 	@Autowired
-	public SMSRetrieval(MessageSource msg, CredentialEditorRegistry credEditorReg)
+	public SMSRetrieval(MessageSource msg, CredentialEditorRegistryV8 credEditorReg)
 	{	
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;

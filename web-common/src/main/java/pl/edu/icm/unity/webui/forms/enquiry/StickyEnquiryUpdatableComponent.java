@@ -43,10 +43,10 @@ public class StickyEnquiryUpdatableComponent extends CustomComponent
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StickyEnquiryUpdatableComponent.class);
 
 	private MessageSource msg;
-	private EnquiryResponseEditorController controller;
+	private EnquiryResponseEditorControllerV8 controller;
 	private List<String> forms;
 
-	public StickyEnquiryUpdatableComponent(MessageSource msg, EnquiryResponseEditorController controller, 
+	public StickyEnquiryUpdatableComponent(MessageSource msg, EnquiryResponseEditorControllerV8 controller,
 			List<String> forms) throws WrongArgumentException
 	{
 		this.msg = msg;

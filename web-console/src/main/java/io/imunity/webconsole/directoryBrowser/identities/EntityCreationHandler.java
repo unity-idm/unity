@@ -22,8 +22,8 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 
 /**
  * Simplifies entity creation dialog instantiation, also provides handy action
@@ -43,11 +43,11 @@ class EntityCreationHandler
 	@Autowired
 	private AttributeTypeManagement attrMan;
 	@Autowired
-	private IdentityEditorRegistry identityEditorReg;
+	private IdentityEditorRegistryV8 identityEditorReg;
 	@Autowired
 	private AttributeSupport attributeSupport;
 	@Autowired
-	private AttributeHandlerRegistry attributeHandlerRegistry;
+	private AttributeHandlerRegistryV8 attributeHandlerRegistry;
 	@Autowired
 	private CredentialsPanelFactory credPanelFactory;
 	@Autowired

@@ -166,12 +166,12 @@ class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 	}
 
 	@org.springframework.stereotype.Component
-	static class DateAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class DateAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
 		private final MessageSource msg;
 
 		@Autowired
-		DateAttributeHandlerFactoryV23(MessageSource msg)
+		DateAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

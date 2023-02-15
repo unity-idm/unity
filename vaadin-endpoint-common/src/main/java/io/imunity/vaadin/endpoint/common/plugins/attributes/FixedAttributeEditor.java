@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class FixedAttributeEditor
 {
 	private MessageSource msg;
-	private AttributeHandlerRegistryV23 registry;
+	private AttributeHandlerRegistry registry;
 	private String caption;
 	private String description;
 	private boolean showGroup;
@@ -26,7 +26,7 @@ public class FixedAttributeEditor
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private List<String> originalValues;
 
-	public FixedAttributeEditor(MessageSource msg, AttributeHandlerRegistryV23 registry,
+	public FixedAttributeEditor(MessageSource msg, AttributeHandlerRegistry registry,
 	                            AttributeEditContext editContext, boolean showGroup,
 	                            String caption, String description)
 	{

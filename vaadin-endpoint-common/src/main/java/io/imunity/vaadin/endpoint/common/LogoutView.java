@@ -16,11 +16,11 @@ import com.vaadin.flow.server.VaadinServlet;
 class LogoutView extends Div implements AfterNavigationObserver
 {
 	public static final String LOGOUT_URL = "logout";
-	public final Vaddin23WebLogoutHandler vaddin23WebLogoutHandler;
+	public final VaddinWebLogoutHandler vaddinWebLogoutHandler;
 
-	public LogoutView(Vaddin23WebLogoutHandler vaddin23WebLogoutHandler)
+	public LogoutView(VaddinWebLogoutHandler vaddinWebLogoutHandler)
 	{
-		this.vaddin23WebLogoutHandler = vaddin23WebLogoutHandler;
+		this.vaddinWebLogoutHandler = vaddinWebLogoutHandler;
 	}
 
 	@Override
@@ -29,6 +29,6 @@ class LogoutView extends Div implements AfterNavigationObserver
 		UI.getCurrent().getPage().setLocation(
 				VaadinServlet.getFrontendMapping()
 		);
-		vaddin23WebLogoutHandler.logout();
+		vaddinWebLogoutHandler.logout();
 	}
 }

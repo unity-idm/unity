@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 
@@ -44,7 +44,7 @@ public class AttributeEditor extends CustomComponent
 	 * @param handlerRegistry
 	 */
 	public AttributeEditor(final MessageSource msg, Collection<AttributeType> attributeTypes, EntityParam owner, String groupPath,
-			final AttributeHandlerRegistry handlerRegistry, final boolean required)
+	                       final AttributeHandlerRegistryV8 handlerRegistry, final boolean required)
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeTypeSelection(attributeTypes, groupPath, msg);
@@ -99,7 +99,7 @@ public class AttributeEditor extends CustomComponent
 	 * @param handlerRegistry
 	 */
 	public AttributeEditor(MessageSource msg, AttributeType attributeType, Attribute attribute, EntityParam owner, 
-			AttributeHandlerRegistry handlerRegistry)
+			AttributeHandlerRegistryV8 handlerRegistry)
 	{
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeTypeSelection(attributeType, groupPath, msg);
@@ -128,7 +128,7 @@ public class AttributeEditor extends CustomComponent
 	 * @param handlerRegistry
 	 */
 	public AttributeEditor(MessageSource msg, AttributeType attributeType, EntityParam owner, String groupPath, 
-			AttributeHandlerRegistry handlerRegistry)
+			AttributeHandlerRegistryV8 handlerRegistry)
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeTypeSelection(attributeType, groupPath, msg);

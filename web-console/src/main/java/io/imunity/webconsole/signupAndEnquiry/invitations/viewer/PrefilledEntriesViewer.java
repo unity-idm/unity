@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 @PrototypeComponent
@@ -36,7 +36,7 @@ class PrefilledEntriesViewer extends CustomComponent
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PrefilledEntriesViewer.class);
 
 	private final MessageSource msg;
-	private final AttributeHandlerRegistry attrHandlersRegistry;
+	private final AttributeHandlerRegistryV8 attrHandlersRegistry;
 	private final GroupsManagement groupMan;
 
 	private ListOfElementsWithActions<PrefilledEntry<IdentityParam>> identities;
@@ -47,7 +47,7 @@ class PrefilledEntriesViewer extends CustomComponent
 	private SafePanel attributesPanel;
 	private SafePanel groupsPanel;
 
-	PrefilledEntriesViewer(MessageSource msg, AttributeHandlerRegistry attrHandlersRegistry, GroupsManagement groupMan)
+	PrefilledEntriesViewer(MessageSource msg, AttributeHandlerRegistryV8 attrHandlersRegistry, GroupsManagement groupMan)
 	{
 		this.msg = msg;
 		this.attrHandlersRegistry = attrHandlersRegistry;

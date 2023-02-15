@@ -314,7 +314,7 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	
 	
 	@org.springframework.stereotype.Component
-	static class VerifiableEmailAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class VerifiableEmailAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
 		private final MessageSource msg;
 		private final ConfirmationInfoFormatter formatter;
@@ -324,11 +324,11 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 
 		@Autowired
-		VerifiableEmailAttributeHandlerFactoryV23(MessageSource msg,
-		                                                 ConfirmationInfoFormatter formatter,
-		                                                 MessageTemplateManagement msgTemplateMan,
-		                                                 EmailConfirmationManager emailConfirmationMan,
-		                                                 NotificationPresenter notificationPresenter)
+		VerifiableEmailAttributeHandlerFactory(MessageSource msg,
+		                                       ConfirmationInfoFormatter formatter,
+		                                       MessageTemplateManagement msgTemplateMan,
+		                                       EmailConfirmationManager emailConfirmationMan,
+		                                       NotificationPresenter notificationPresenter)
 		{
 			this.msg = msg;
 			this.formatter = formatter;

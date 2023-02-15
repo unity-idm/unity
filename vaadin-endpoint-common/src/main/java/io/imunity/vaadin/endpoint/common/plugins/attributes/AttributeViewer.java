@@ -16,14 +16,14 @@ import java.util.List;
 public class AttributeViewer
 {
 	private MessageSource msg;
-	private AttributeHandlerRegistryV23 registry;
+	private AttributeHandlerRegistry registry;
 	private AttributeType attributeType;
 	private Attribute attribute;
 	private boolean showGroup;
 	private ComponentsGroup group;
 	private AttributeViewerContext context;
 	
-	public AttributeViewer(MessageSource msg, AttributeHandlerRegistryV23 registry,
+	public AttributeViewer(MessageSource msg, AttributeHandlerRegistry registry,
 	                       AttributeType attributeType, Attribute attribute, boolean showGroup,
 	                       AttributeViewerContext context)
 	{

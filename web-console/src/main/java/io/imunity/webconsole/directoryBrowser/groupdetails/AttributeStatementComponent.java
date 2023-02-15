@@ -37,7 +37,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 
@@ -54,7 +54,7 @@ class AttributeStatementComponent extends CustomComponent
 	private final MessageSource msg;
 	private final Set<String> groups;
 	private final Collection<AttributeType> attributeTypes;
-	private final AttributeHandlerRegistry attrHandlerRegistry;
+	private final AttributeHandlerRegistryV8 attrHandlerRegistry;
 	private final String group;
 	
 	private CheckBox extraAttributesGroupCB;
@@ -70,8 +70,8 @@ class AttributeStatementComponent extends CustomComponent
 	
 	
 	AttributeStatementComponent(MessageSource msg, GroupsManagement groupsMan,
-			Collection<AttributeType> attributeTypes,
-			AttributeHandlerRegistry attrHandlerRegistry, String group)
+	                            Collection<AttributeType> attributeTypes,
+	                            AttributeHandlerRegistryV8 attrHandlerRegistry, String group)
 	{
 		this.msg = msg;
 		this.groups = getGroupsOfHierarchy(groupsMan, group);

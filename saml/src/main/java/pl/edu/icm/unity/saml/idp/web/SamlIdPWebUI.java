@@ -44,7 +44,7 @@ import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
@@ -73,7 +73,7 @@ class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected MessageSource msg;
 	protected IdPEngine idpEngine;
 	protected FreemarkerAppHandler freemarkerHandler;
-	protected AttributeHandlerRegistry handlersRegistry;
+	protected AttributeHandlerRegistryV8 handlersRegistry;
 	protected IdentityTypeSupport identityTypeSupport;
 	protected PreferencesManagement preferencesMan;
 	protected StandardWebLogoutHandler authnProcessor;
@@ -93,17 +93,17 @@ class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	
 	@Autowired
 	public SamlIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
-			FreemarkerAppHandler freemarkerHandler,
-			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-			StandardWebLogoutHandler authnProcessor, IdPEngine idpEngine,
-			IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan, 
-			AttributeTypeManagement attrsMan, 
-			EnquiresDialogLauncher enquiryDialogLauncher,
-			AttributeTypeSupport aTypeSupport,
-			PolicyAgreementManagement policyAgreementsMan,
-			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
+	                    FreemarkerAppHandler freemarkerHandler,
+	                    AttributeHandlerRegistryV8 handlersRegistry, PreferencesManagement preferencesMan,
+	                    StandardWebLogoutHandler authnProcessor, IdPEngine idpEngine,
+	                    IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
+	                    AttributeTypeManagement attrsMan,
+	                    EnquiresDialogLauncher enquiryDialogLauncher,
+	                    AttributeTypeSupport aTypeSupport,
+	                    PolicyAgreementManagement policyAgreementsMan,
+	                    ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
+	                    SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+	                    LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.msg = msg;

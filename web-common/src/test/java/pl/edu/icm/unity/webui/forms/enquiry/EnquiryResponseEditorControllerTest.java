@@ -79,7 +79,7 @@ public class EnquiryResponseEditorControllerTest
 		
 		
 		initContext();
-		EnquiryResponseEditorController controller = new EnquiryResponseEditorController(null, null, null, null,
+		EnquiryResponseEditorControllerV8 controller = new EnquiryResponseEditorControllerV8(null, null, null, null,
 				null, null, null, mockGroupMan, mockIdMan, mockAttrMan, null, null, null, null, null);
 
 		
@@ -96,7 +96,7 @@ public class EnquiryResponseEditorControllerTest
 	public void shouldForwardGetStickyFormsToCoreManager() throws EngineException
 	{
 
-		EnquiryResponseEditorController controller = new EnquiryResponseEditorController(null, mockEnquiryMan,
+		EnquiryResponseEditorControllerV8 controller = new EnquiryResponseEditorControllerV8(null, mockEnquiryMan,
 				null, null, null, null, null, null, null, null, null, null, null, null, null);
 		initContext();
 		controller.isStickyFormApplicable("test");
@@ -107,7 +107,7 @@ public class EnquiryResponseEditorControllerTest
 	public void shouldVerifyAsApplicableSticky() throws EngineException
 	{
 
-		EnquiryResponseEditorController controller = new EnquiryResponseEditorController(null, mockEnquiryMan,
+		EnquiryResponseEditorControllerV8 controller = new EnquiryResponseEditorControllerV8(null, mockEnquiryMan,
 				null, null, null, null, null, null, null, null, null, null, null, null, null);
 
 		when(mockEnquiryMan.getAvailableEnquires(any(), any())).thenReturn(Arrays.asList(getForm()));
@@ -118,7 +118,7 @@ public class EnquiryResponseEditorControllerTest
 	@Test
 	public void shouldCheckIfRequestExistsOnlyForLoggedUser() throws EngineException
 	{
-		EnquiryResponseEditorController controller = new EnquiryResponseEditorController(null, mockEnquiryMan, null,
+		EnquiryResponseEditorControllerV8 controller = new EnquiryResponseEditorControllerV8(null, mockEnquiryMan, null,
 				null, null, null, null, null, null, null, null, null, null, null, null);
 		EnquiryResponse res = new EnquiryResponse();
 		res.setFormId("form1");

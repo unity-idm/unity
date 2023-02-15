@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 
 import java.util.Collection;
@@ -48,11 +48,11 @@ class SamlPreferencesEditor implements PreferencesEditor
 	
 	protected List<Identity> identities;
 	protected Collection<AttributeType> atTypes;
-	protected AttributeHandlerRegistry attributeHandlerRegistry;
+	protected AttributeHandlerRegistryV8 attributeHandlerRegistry;
 	protected IdentityTypeSupport idTpeSupport;
 
 	public SamlPreferencesEditor(MessageSource msg, SamlPreferences preferences, EntityManagement idsMan,
-			AttributeTypeManagement atsMan, AttributeHandlerRegistry attributeHandlerRegistry,
+			AttributeTypeManagement atsMan, AttributeHandlerRegistryV8 attributeHandlerRegistry,
 			IdentityTypeSupport idTpeSupport)
 	{
 		this.msg = msg;

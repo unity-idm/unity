@@ -123,12 +123,12 @@ class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 	
 	
 	@org.springframework.stereotype.Component
-	static class FloatingPointAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class FloatingPointAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
 		private final MessageSource msg;
 
 		@Autowired
-		FloatingPointAttributeHandlerFactoryV23(MessageSource msg)
+		FloatingPointAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

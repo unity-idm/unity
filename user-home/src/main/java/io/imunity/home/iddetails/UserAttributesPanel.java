@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResul
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -49,7 +49,7 @@ public class UserAttributesPanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UserAttributesPanel.class);
 	private MessageSource msg;
-	private AttributeHandlerRegistry attributeHandlerRegistry;
+	private AttributeHandlerRegistryV8 attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
 	private HomeEndpointProperties config;
 	private long entityId;
@@ -65,7 +65,7 @@ public class UserAttributesPanel
 	public UserAttributesPanel(
 			AdditionalAuthnHandler additionalAuthnHandler,
 			MessageSource msg,
-			AttributeHandlerRegistry attributeHandlerRegistry,
+			AttributeHandlerRegistryV8 attributeHandlerRegistry,
 			AttributesManagement attributesMan, EntityManagement idsMan,
 			AttributeSupport atMan,
 			HomeEndpointProperties config,

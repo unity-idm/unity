@@ -17,10 +17,10 @@ import pl.edu.icm.unity.types.basic.Attribute;
  */
 public class CachedAttributeHandlers
 {
-	private AttributeHandlerRegistry attributeHandlerRegistry;
+	private AttributeHandlerRegistryV8 attributeHandlerRegistry;
 	private Map<String, WebAttributeHandler> handlersByAttrName = new HashMap<>();
 	
-	public CachedAttributeHandlers(AttributeHandlerRegistry attributeHandlerRegistry)
+	public CachedAttributeHandlers(AttributeHandlerRegistryV8 attributeHandlerRegistry)
 	{
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 	}

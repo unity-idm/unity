@@ -19,7 +19,7 @@ import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.dom.Element;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.elements.TabComponent;
-import io.imunity.vaadin.endpoint.common.Vaddin23WebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,13 +30,13 @@ class UnityAppLayoutComponentsHolder
 	private final HorizontalLayout leftNavbarSite;
 	private final Tabs tabs;
 
-	private final Vaddin23WebLogoutHandler authnProcessor;
+	private final VaddinWebLogoutHandler authnProcessor;
 
 	private final VerticalLayout leftContainerWithNavigation;
 	private final VerticalLayout rightContainerWithNavbarAndViewContent;
 
 
-	UnityAppLayoutComponentsHolder(List<MenuComponent> menuContent, Vaddin23WebLogoutHandler authnProcessor, List<Component> additionalIcons)
+	UnityAppLayoutComponentsHolder(List<MenuComponent> menuContent, VaddinWebLogoutHandler authnProcessor, List<Component> additionalIcons)
 	{
 		this.authnProcessor = authnProcessor;
 		this.leftNavbarSite = createLeftNavbarSite();

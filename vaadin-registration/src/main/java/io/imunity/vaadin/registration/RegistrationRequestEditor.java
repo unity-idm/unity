@@ -15,10 +15,10 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.BaseRequestEditor;
 import io.imunity.vaadin.endpoint.common.forms.RegistrationLayoutsContainer;
 import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
-import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilderV23;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistryV23;
-import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistryV23;
-import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistryV23;
+import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -60,11 +60,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private CaptchaComponent captcha;
 	private final String regCodeProvided;
 	private final ResolvedInvitationParam invitation;
-	private RequestEditorCreatorV23.InvitationCodeConsumer onLocalSignupHandler;
+	private RequestEditorCreator.InvitationCodeConsumer onLocalSignupHandler;
 	private FormLayout effectiveLayout;
 	private Stage stage;
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
-	private final SwitchToEnquiryComponentProviderV23 toEnquirySwitchLabelProvider;
+	private final SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider;
 	private final AuthenticationOptionKey authnOptionKey;
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -73,16 +73,16 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	 */
 	public RegistrationRequestEditor(MessageSource msg, RegistrationForm form,
 	                                 RemotelyAuthenticatedPrincipal remotelyAuthenticated,
-	                                 IdentityEditorRegistryV23 identityEditorRegistry,
-	                                 CredentialEditorRegistryV23 credentialEditorRegistry,
-	                                 AttributeHandlerRegistryV23 attributeHandlerRegistry,
+	                                 IdentityEditorRegistry identityEditorRegistry,
+	                                 CredentialEditorRegistry credentialEditorRegistry,
+	                                 AttributeHandlerRegistry attributeHandlerRegistry,
 	                                 AttributeTypeManagement aTypeMan, CredentialManagement credMan,
 	                                 GroupsManagement groupsMan, NotificationPresenter notificationPresenter,
 	                                 String registrationCode, ResolvedInvitationParam invitation,
 	                                 AuthenticatorSupportService authnSupport,
 	                                 URLQueryPrefillCreator urlQueryPrefillCreator,
-	                                 PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder,
-	                                 SwitchToEnquiryComponentProviderV23 toEnquirySwitchLabelProvider,
+	                                 PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
+	                                 SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider,
 	                                 boolean enableRemoteRegistration,
 	                                 AuthenticationOptionKey authnOptionKey,
 	                                 URIAccessService uriAccessService)
@@ -98,7 +98,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		this.authnOptionKey = authnOptionKey;
 	}
 	
-	public void showFirstStage(RequestEditorCreatorV23.InvitationCodeConsumer onLocalSignupHandler) throws AuthenticationException
+	public void showFirstStage(RequestEditorCreator.InvitationCodeConsumer onLocalSignupHandler) throws AuthenticationException
 	{
 		this.effectiveLayout = form.getEffectivePrimaryFormLayout(msg);
 		this.onLocalSignupHandler = onLocalSignupHandler;

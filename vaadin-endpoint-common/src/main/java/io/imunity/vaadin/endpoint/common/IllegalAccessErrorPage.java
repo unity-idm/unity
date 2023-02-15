@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 public class IllegalAccessErrorPage extends Component implements HasErrorParameter<IllegalAccessException>
 {
 	private final MessageSource msg;
-	private final Vaddin23WebLogoutHandler logoutHandler;
-	public IllegalAccessErrorPage(MessageSource messageSource, Vaddin23WebLogoutHandler logoutHandler)
+	private final VaddinWebLogoutHandler logoutHandler;
+	public IllegalAccessErrorPage(MessageSource messageSource, VaddinWebLogoutHandler logoutHandler)
 	{
 		this.msg = messageSource;
 		this.logoutHandler = logoutHandler;

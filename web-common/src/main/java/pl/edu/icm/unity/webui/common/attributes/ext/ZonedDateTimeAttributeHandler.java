@@ -4,18 +4,12 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateTimeField;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -28,6 +22,10 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 
 /**
@@ -177,12 +175,12 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 	}
 
 	@org.springframework.stereotype.Component
-	public static class DateAttributeHandlerFactory implements WebAttributeHandlerFactory
+	public static class DateAttributeHandlerFactoryV8 implements WebAttributeHandlerFactory
 	{
 		private MessageSource msg;
 
 		@Autowired
-		public DateAttributeHandlerFactory(MessageSource msg)
+		public DateAttributeHandlerFactoryV8(MessageSource msg)
 		{
 			this.msg = msg;
 		}

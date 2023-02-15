@@ -84,7 +84,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.ReadOnlyField;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -93,15 +93,15 @@ import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentation;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilderV8;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
@@ -116,13 +116,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	protected ImageAccessService imageAccessService;
 	private BaseForm form;
 	protected RemotelyAuthenticatedPrincipal remotelyAuthenticated;
-	private IdentityEditorRegistry identityEditorRegistry;
-	private CredentialEditorRegistry credentialEditorRegistry;
-	private AttributeHandlerRegistry attributeHandlerRegistry;
+	private IdentityEditorRegistryV8 identityEditorRegistry;
+	private CredentialEditorRegistryV8 credentialEditorRegistry;
+	private AttributeHandlerRegistryV8 attributeHandlerRegistry;
 	private AttributeTypeManagement aTypeMan;
 	private GroupsManagement groupsMan;
 	private CredentialManagement credMan;
-	private PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
+	private PolicyAgreementRepresentationBuilderV8 policyAgreementsRepresentationBuilder;
 	
 	private Map<String, IdentityTaV> remoteIdentitiesByType;
 	private Map<String, Attribute> remoteAttributes;
@@ -143,12 +143,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	 */
 	public BaseRequestEditor(MessageSource msg, BaseForm form,
 			RemotelyAuthenticatedPrincipal remotelyAuthenticated,
-			IdentityEditorRegistry identityEditorRegistry,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
+			IdentityEditorRegistryV8 identityEditorRegistry,
+			CredentialEditorRegistryV8 credentialEditorRegistry,
+			AttributeHandlerRegistryV8 attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
 			GroupsManagement groupsMan, ImageAccessService imageAccessService,
-			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder)
+			PolicyAgreementRepresentationBuilderV8 policyAgreementsRepresentationBuilder)
 	{
 		this.msg = msg;
 		this.form = form;

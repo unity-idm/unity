@@ -52,7 +52,7 @@ import pl.edu.icm.unity.webui.forms.FormsUIHelper;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor.Stage;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreatorV8.RequestEditorCreatedCallback;
 
 /**
  * Used to display a standalone (not within a dialog) registration form.
@@ -67,8 +67,8 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private final MessageSource msg;
 	private final UnityServerConfiguration cfg;
 	private final IdPLoginController idpLoginController;
-	private final RequestEditorCreator editorCreator;
-	private final AutoLoginAfterSignUpProcessor autoLoginProcessor;
+	private final RequestEditorCreatorV8 editorCreator;
+	private final AutoLoginAfterSignUpProcessorV8 autoLoginProcessor;
 	private final ImageAccessService imageAccessService;
 
 	private RegistrationForm form;
@@ -84,11 +84,11 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	
 	@Autowired
 	public StandaloneRegistrationView(MessageSource msg,
-			@Qualifier("insecure") RegistrationsManagement regMan,
-			UnityServerConfiguration cfg, 
-			IdPLoginController idpLoginController,
-			RequestEditorCreator editorCreator,
-			AutoLoginAfterSignUpProcessor autoLogin, ImageAccessService imageAccessService)
+	                                  @Qualifier("insecure") RegistrationsManagement regMan,
+	                                  UnityServerConfiguration cfg,
+	                                  IdPLoginController idpLoginController,
+	                                  RequestEditorCreatorV8 editorCreator,
+	                                  AutoLoginAfterSignUpProcessorV8 autoLogin, ImageAccessService imageAccessService)
 	{
 		this.msg = msg;
 		this.regMan = regMan;

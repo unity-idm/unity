@@ -11,7 +11,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 /**
@@ -19,14 +19,14 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
  */
 class InternalAttributeValueEditor implements Editor<LabelledValue>
 {
-	private AttributeHandlerRegistry registry;
+	private AttributeHandlerRegistryV8 registry;
 	private AttributeValueEditor editor;
 	private LabelledValue editedValue;
 	private String baseLabel;
 	private AttributeEditContext editContext;
 	
-	public InternalAttributeValueEditor(AttributeHandlerRegistry registry,
-			AttributeEditContext editContext, String label)
+	public InternalAttributeValueEditor(AttributeHandlerRegistryV8 registry,
+	                                    AttributeEditContext editContext, String label)
 	{
 		this.registry = registry;
 		this.baseLabel = label;
@@ -90,12 +90,12 @@ class InternalAttributeValueEditor implements Editor<LabelledValue>
 	
 	static class Factory implements EditorProvider<LabelledValue>
 	{
-		private AttributeHandlerRegistry registry;
+		private AttributeHandlerRegistryV8 registry;
 		private String baseLabel;
 		private AttributeEditContext editContext;
 
-		Factory(AttributeHandlerRegistry registry,
-				String baseLabel, AttributeEditContext editContext)
+		Factory(AttributeHandlerRegistryV8 registry,
+		        String baseLabel, AttributeEditContext editContext)
 		{
 			this.registry = registry;
 			this.baseLabel = baseLabel;

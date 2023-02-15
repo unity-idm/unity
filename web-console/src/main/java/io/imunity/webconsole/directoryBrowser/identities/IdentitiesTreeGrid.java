@@ -58,7 +58,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 
@@ -80,7 +80,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	private final IdentityTypeSupport idTypeSupport;
 	private final MessageSource msg;
 	private final EntitiesLoader entitiesLoader;
-	private final AttributeHandlerRegistry attrHandlerRegistry;
+	private final AttributeHandlerRegistryV8 attrHandlerRegistry;
 
 	private boolean groupByEntity;
 	private boolean showTargeted;
@@ -114,18 +114,18 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	@SuppressWarnings("unchecked")
 	@Autowired
 	public IdentitiesTreeGrid(MessageSource msg, AttributeSupport attributeSupport,
-			IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
-			AttributeHandlerRegistry attrHandlerRegistry, PreferencesManagement preferencesMan,
-			CredentialManagement credentialManagement, EntityDetailsHandler entityDetailsHandler,
-			AddToGroupHandler addToGroupHandler, RemoveFromGroupHandler removeFromGroupHandler,
-			IdentityCreationDialogHandler identityCreationDialogHanlder,
-			ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory,
-			ChangeEntityStateHandler changeEntityStateHandler,
-			ChangeCredentialRequirementHandler credentialRequirementHandler,
-			EntityAttributeClassHandler entityAttributeClassHandler,
-			IdentityConfirmationResendHandler confirmationResendHandler,
-			IdentityConfirmHandler confirmHandler, DeleteIdentityHandler deleteIdentityHandler,
-			DeleteEntityHandler deleteEntityHandler)
+	                          IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
+	                          AttributeHandlerRegistryV8 attrHandlerRegistry, PreferencesManagement preferencesMan,
+	                          CredentialManagement credentialManagement, EntityDetailsHandler entityDetailsHandler,
+	                          AddToGroupHandler addToGroupHandler, RemoveFromGroupHandler removeFromGroupHandler,
+	                          IdentityCreationDialogHandler identityCreationDialogHanlder,
+	                          ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory,
+	                          ChangeEntityStateHandler changeEntityStateHandler,
+	                          ChangeCredentialRequirementHandler credentialRequirementHandler,
+	                          EntityAttributeClassHandler entityAttributeClassHandler,
+	                          IdentityConfirmationResendHandler confirmationResendHandler,
+	                          IdentityConfirmHandler confirmHandler, DeleteIdentityHandler deleteIdentityHandler,
+	                          DeleteEntityHandler deleteEntityHandler)
 
 	{
 		this.msg = msg;

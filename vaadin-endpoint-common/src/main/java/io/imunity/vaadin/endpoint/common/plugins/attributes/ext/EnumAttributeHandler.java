@@ -222,12 +222,12 @@ class EnumAttributeHandler implements WebAttributeHandler
 	}
 	
 	@org.springframework.stereotype.Component
-	static class EnumAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class EnumAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
 		private final MessageSource msg;
 
 		@Autowired
-		EnumAttributeHandlerFactoryV23(MessageSource msg)
+		EnumAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

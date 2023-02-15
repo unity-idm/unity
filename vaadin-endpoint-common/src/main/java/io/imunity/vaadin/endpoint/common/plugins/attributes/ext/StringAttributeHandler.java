@@ -170,12 +170,12 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 	
 	
 	@org.springframework.stereotype.Component
-	static class StringAttributeHandlerFactoryV23 implements WebAttributeHandlerFactory
+	static class StringAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
 		private final MessageSource msg;
 
 		@Autowired
-		public StringAttributeHandlerFactoryV23(MessageSource msg)
+		public StringAttributeHandlerFactory(MessageSource msg)
 		{
 			this.msg = msg;
 		}

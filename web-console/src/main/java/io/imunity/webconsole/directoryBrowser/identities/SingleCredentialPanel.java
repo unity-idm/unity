@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationRTException;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 
 /**
  * Single credential editor, assuming admin context and no initial credential.
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 class SingleCredentialPanel extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SingleCredentialPanel.class);
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 	private CredentialManagement credMan;
 	private MessageSource msg;
 	private CheckBox setTheCredential;
@@ -43,7 +43,7 @@ class SingleCredentialPanel extends VerticalLayout
 	
 	SingleCredentialPanel(MessageSource msg, 
 			CredentialManagement credMan,
-			CredentialEditorRegistry credEditorReg,
+			CredentialEditorRegistryV8 credEditorReg,
 			CredentialDefinition toEdit)
 	{
 		this.msg = msg;

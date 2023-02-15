@@ -4,17 +4,12 @@
  */
 package io.imunity.webconsole.signupAndEnquiry.requests;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -29,9 +24,12 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilderV8;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Shows enquiry response contents and provides a possibility to edit it.
@@ -48,10 +46,10 @@ class EnquiryReviewPanel extends RequestReviewPanelBase
 	private EntityManagement identitiesManagement;
 	
 	@Autowired
-	EnquiryReviewPanel(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	EnquiryReviewPanel(MessageSource msg, AttributeHandlerRegistryV8 handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, EntityManagement identitiesManagement, 
 			IdentityFormatter idFormatter, GroupsManagement groupMan, PolicyDocumentManagement policyDocMan,
-			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)
+			PolicyAgreementRepresentationBuilderV8 policyAgreementRepresentationBuilder)
 	{
 		super(msg, handlersRegistry, idTypesRegistry, idFormatter, groupMan, policyDocMan, policyAgreementRepresentationBuilder);
 		this.identitiesManagement = identitiesManagement;

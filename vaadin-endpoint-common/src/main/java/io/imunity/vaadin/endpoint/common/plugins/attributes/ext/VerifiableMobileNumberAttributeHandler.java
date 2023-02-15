@@ -324,8 +324,7 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 	}
 
 	@org.springframework.stereotype.Component
-	static class VerifiableMobileNumberAttributeHandlerFactoryV23
-			implements WebAttributeHandlerFactory
+	static class VerifiableMobileNumberAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
 		private final MessageSource msg;
 		private final ConfirmationInfoFormatter formatter;
@@ -334,11 +333,11 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 		private final NotificationPresenter notificationPresenter;
 
 		@Autowired
-		VerifiableMobileNumberAttributeHandlerFactoryV23(MessageSource msg,
-		                                                        ConfirmationInfoFormatter formatter,
-		                                                        MessageTemplateManagement msgTemplateMan,
-		                                                        MobileNumberConfirmationManager smsConfirmationMan,
-		                                                        NotificationPresenter notificationPresenter)
+		VerifiableMobileNumberAttributeHandlerFactory(MessageSource msg,
+		                                              ConfirmationInfoFormatter formatter,
+		                                              MessageTemplateManagement msgTemplateMan,
+		                                              MobileNumberConfirmationManager smsConfirmationMan,
+		                                              NotificationPresenter notificationPresenter)
 		{
 			this.msg = msg;
 			this.formatter = formatter;

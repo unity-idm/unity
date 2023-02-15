@@ -23,7 +23,7 @@ import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
 import java.util.List;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class TestGroupMembersService
 	@Mock
 	private DelegatedGroupManagement mockDelGroupMan;
 	@Mock
-	private AttributeHandlerRegistry mockAttrHandlerRegistry;
+	private AttributeHandlerRegistryV8 mockAttrHandlerRegistry;
 	@Mock
 	private NotificationPresenter notificationPresenter;
 

@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
 /**
  * Allows to create/edit/view an attribute statement of a group.
@@ -31,7 +31,7 @@ class AttributeStatementEditDialog extends AbstractDialog
 	
 	private AttributeStatementComponent component;
 
-	private AttributeHandlerRegistry attrHandlerRegistry;
+	private AttributeHandlerRegistryV8 attrHandlerRegistry;
 	private GroupsManagement groupsMan;
 	
 	/**
@@ -39,7 +39,7 @@ class AttributeStatementEditDialog extends AbstractDialog
 	 * null when a new statement should be created
 	 */
 	AttributeStatementEditDialog(MessageSource msg, AttributeStatement attributeStatement,
-			AttributeTypeManagement attrsMan, String group, AttributeHandlerRegistry attrHandlerRegistry, 
+			AttributeTypeManagement attrsMan, String group, AttributeHandlerRegistryV8 attrHandlerRegistry,
 			GroupsManagement groupsMan, Callback callback)
 	{
 		super(msg, msg.getMessage("AttributeStatementEditDialog.caption"));

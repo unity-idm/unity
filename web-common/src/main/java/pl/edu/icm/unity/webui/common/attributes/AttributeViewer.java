@@ -27,14 +27,14 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 public class AttributeViewer
 {
 	private MessageSource msg;
-	private AttributeHandlerRegistry registry;
+	private AttributeHandlerRegistryV8 registry;
 	private AttributeType attributeType;
 	private Attribute attribute;
 	private boolean showGroup;
 	private ComponentsGroup group;
 	private AttributeViewerContext context;
 	
-	public AttributeViewer(MessageSource msg, AttributeHandlerRegistry registry, 
+	public AttributeViewer(MessageSource msg, AttributeHandlerRegistryV8 registry,
 			AttributeType attributeType, Attribute attribute, boolean showGroup, 
 			AttributeViewerContext context)
 	{

@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
@@ -40,7 +40,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 public class ExposedSelectableAttributesComponent extends CustomComponent implements SelectableAttributesComponent
 {
 	private MessageSource msg;
-	private AttributeHandlerRegistry handlersRegistry;
+	private AttributeHandlerRegistryV8 handlersRegistry;
 	
 	private Map<String, DynamicAttribute> attributes;
 	private Map<String, SelectableAttributeWithValues> attributesHiding;
@@ -51,7 +51,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent implem
 	
 
 	public ExposedSelectableAttributesComponent(MessageSource msg,
-			IdentityTypeSupport idTypeSupport, AttributeHandlerRegistry handlersRegistry,
+			IdentityTypeSupport idTypeSupport, AttributeHandlerRegistryV8 handlersRegistry,
 			Map<String, AttributeType> attributeTypes, AttributeTypeSupport aTypeSupport,
 			Collection<DynamicAttribute> attributesCol,
 			Optional<IdentityParam> selectedIdentity)

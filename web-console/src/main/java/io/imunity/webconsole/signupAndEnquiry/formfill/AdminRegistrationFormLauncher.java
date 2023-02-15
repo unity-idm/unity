@@ -32,13 +32,13 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.forms.reg.AbstractRegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormFillDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreatorV8;
 
 
 
@@ -54,8 +54,8 @@ public class AdminRegistrationFormLauncher extends AbstractRegistrationFormDialo
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdminRegistrationFormLauncher.class);
 	protected RegistrationsManagement registrationsManagement;
-	protected CredentialEditorRegistry credentialEditorRegistry;
-	protected AttributeHandlerRegistry attributeHandlerRegistry;
+	protected CredentialEditorRegistryV8 credentialEditorRegistry;
+	protected AttributeHandlerRegistryV8 attributeHandlerRegistry;
 	protected AttributesManagement attrsMan;
 	protected CredentialManagement authnMan;
 	protected GroupsManagement groupsMan;
@@ -66,11 +66,11 @@ public class AdminRegistrationFormLauncher extends AbstractRegistrationFormDialo
 	@Autowired
 	public AdminRegistrationFormLauncher(MessageSource msg,
 			RegistrationsManagement registrationsManagement,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
+			CredentialEditorRegistryV8 credentialEditorRegistry,
+			AttributeHandlerRegistryV8 attributeHandlerRegistry,
 			AttributesManagement attrsMan, CredentialManagement authnMan,
 			GroupsManagement groupsMan, IdPLoginController idpLoginController,
-			ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory)
+			ObjectFactory<RequestEditorCreatorV8> requestEditorCreatorFactory)
 	{
 		super(msg, requestEditorCreatorFactory);
 		this.registrationsManagement = registrationsManagement;

@@ -23,9 +23,9 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilderV8;
 
 /**
  * Shows request contents and provides a possibility to edit it.
@@ -39,10 +39,10 @@ class RegistrationReviewPanel extends RequestReviewPanelBase
 	private Label code;
 	
 	@Autowired
-	RegistrationReviewPanel(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
+	RegistrationReviewPanel(MessageSource msg, AttributeHandlerRegistryV8 handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan,
 			PolicyDocumentManagement policyDocMan,
-			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder)
+			PolicyAgreementRepresentationBuilderV8 policyAgreementRepresentationBuilder)
 	{
 		super(msg, handlersRegistry, idTypesRegistry, idFormatter, groupMan, policyDocMan,
 				policyAgreementRepresentationBuilder);

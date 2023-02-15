@@ -11,7 +11,7 @@ import com.vaadin.ui.ListSelect;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,9 +30,9 @@ class SamlSPSettingsViewer extends FormLayout
 	protected Label autoConfirm;
 	protected ListSelect<String> hiddenAttributes;
 	protected Label defaultIdentity;
-	protected AttributeHandlerRegistry attrHandlerRegistry;
+	protected AttributeHandlerRegistryV8 attrHandlerRegistry;
 	
-	public SamlSPSettingsViewer(MessageSource msg, AttributeHandlerRegistry attrHandlerRegistry)
+	public SamlSPSettingsViewer(MessageSource msg, AttributeHandlerRegistryV8 attrHandlerRegistry)
 	{
 		this.msg = msg;
 		this.attrHandlerRegistry = attrHandlerRegistry;

@@ -4,16 +4,12 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.ValueContext;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -27,12 +23,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
-import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -44,6 +35,8 @@ import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer;
+
+import java.util.Optional;
 
 /**
  * VerifiableEmail attribute handler for the web
@@ -325,7 +318,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	
 	
 	@org.springframework.stereotype.Component
-	public static class VerifiableEmailAttributeHandlerFactory implements WebAttributeHandlerFactory
+	public static class VerifiableEmailAttributeHandlerFactoryV8 implements WebAttributeHandlerFactory
 	{
 		private MessageSource msg;
 		private ConfirmationInfoFormatter formatter;
@@ -333,10 +326,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		private EmailConfirmationManager emailConfirmationMan;
 
 		@Autowired
-		public VerifiableEmailAttributeHandlerFactory(MessageSource msg,
-				ConfirmationInfoFormatter formatter,
-				MessageTemplateManagement msgTemplateMan,
-				EmailConfirmationManager emailConfirmationMan)
+		public VerifiableEmailAttributeHandlerFactoryV8(MessageSource msg,
+		                                                ConfirmationInfoFormatter formatter,
+		                                                MessageTemplateManagement msgTemplateMan,
+		                                                EmailConfirmationManager emailConfirmationMan)
 		{
 			this.msg = msg;
 			this.formatter = formatter;

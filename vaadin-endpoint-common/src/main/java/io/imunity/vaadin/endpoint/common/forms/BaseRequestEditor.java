@@ -21,15 +21,15 @@ import io.imunity.vaadin.elements.ReadOnlyField;
 import io.imunity.vaadin.endpoint.common.forms.groups.GroupMultiComboBox;
 import io.imunity.vaadin.endpoint.common.forms.groups.GroupTreeNode;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentation;
-import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilderV23;
+import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
-import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistryV23;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditor;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorContext;
-import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistryV23;
+import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import pl.edu.icm.unity.MessageSource;
@@ -76,13 +76,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	protected NotificationPresenter notificationPresenter;
 	private final BaseForm form;
 	protected RemotelyAuthenticatedPrincipal remotelyAuthenticated;
-	private final IdentityEditorRegistryV23 identityEditorRegistry;
-	private final CredentialEditorRegistryV23 credentialEditorRegistry;
-	private final AttributeHandlerRegistryV23 attributeHandlerRegistry;
+	private final IdentityEditorRegistry identityEditorRegistry;
+	private final CredentialEditorRegistry credentialEditorRegistry;
+	private final AttributeHandlerRegistry attributeHandlerRegistry;
 	private final AttributeTypeManagement aTypeMan;
 	private final GroupsManagement groupsMan;
 	private final CredentialManagement credMan;
-	private final PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder;
+	private final PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder;
 	private final URIAccessService uriAccessService;
 
 	private final Map<String, IdentityTaV> remoteIdentitiesByType;
@@ -104,12 +104,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	 */
 	public BaseRequestEditor(MessageSource msg, BaseForm form,
 	                         RemotelyAuthenticatedPrincipal remotelyAuthenticated,
-	                         IdentityEditorRegistryV23 identityEditorRegistry,
-	                         CredentialEditorRegistryV23 credentialEditorRegistry,
-	                         AttributeHandlerRegistryV23 attributeHandlerRegistry,
+	                         IdentityEditorRegistry identityEditorRegistry,
+	                         CredentialEditorRegistry credentialEditorRegistry,
+	                         AttributeHandlerRegistry attributeHandlerRegistry,
 	                         AttributeTypeManagement atMan, CredentialManagement credMan,
 	                         GroupsManagement groupsMan, NotificationPresenter notificationPresenter,
-	                         PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder,
+	                         PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
 	                         URIAccessService uriAccessService)
 	{
 		this.msg = msg;

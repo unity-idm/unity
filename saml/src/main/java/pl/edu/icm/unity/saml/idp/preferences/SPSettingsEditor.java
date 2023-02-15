@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
 /**
  * Allows to edit settings for a single SAML Service Provider.
@@ -51,17 +51,17 @@ public class SPSettingsEditor extends FormLayout
 	protected RadioButtonGroup<Decision> decision;
 	protected RadioButtonGroup<Identity> identity;
 	protected GenericElementsTable<TableEntry> hidden;
-	private AttributeHandlerRegistry handlerReg;
+	private AttributeHandlerRegistryV8 handlerReg;
 	private IdentityTypeSupport idTypeSupport;
 	
-	public SPSettingsEditor(MessageSource msg, AttributeHandlerRegistry handlerReg, 
+	public SPSettingsEditor(MessageSource msg, AttributeHandlerRegistryV8 handlerReg,
 			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
 			Collection<AttributeType> atTypes, String sp, SPSettings initial)
 	{
 		this(msg, handlerReg, idTypeSupport, identities, atTypes, sp, initial, null);
 	}
 
-	public SPSettingsEditor(MessageSource msg, AttributeHandlerRegistry handlerReg, 
+	public SPSettingsEditor(MessageSource msg, AttributeHandlerRegistryV8 handlerReg,
 			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
 			Collection<AttributeType> atTypes,
 			Set<String> allSps)
@@ -69,7 +69,7 @@ public class SPSettingsEditor extends FormLayout
 		this(msg, handlerReg, idTypeSupport, identities, atTypes, null, null, allSps);
 	}
 
-	private SPSettingsEditor(MessageSource msg, AttributeHandlerRegistry handlerReg, 
+	private SPSettingsEditor(MessageSource msg, AttributeHandlerRegistryV8 handlerReg,
 			IdentityTypeSupport idTypeSupport, List<Identity> identities, 
 			Collection<AttributeType> atTypes, String sp, SPSettings initial, Set<String> allSps)
 	{

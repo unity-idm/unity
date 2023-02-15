@@ -11,13 +11,13 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 
 class InternalAttributeValueEditor implements ListOfEmbeddedElementsStub.Editor<LabelledValue>
 {
-	private AttributeHandlerRegistryV23 registry;
+	private AttributeHandlerRegistry registry;
 	private AttributeValueEditor editor;
 	private LabelledValue editedValue;
 	private String baseLabel;
 	private AttributeEditContext editContext;
 	
-	public InternalAttributeValueEditor(AttributeHandlerRegistryV23 registry,
+	public InternalAttributeValueEditor(AttributeHandlerRegistry registry,
 	                                    AttributeEditContext editContext, String label)
 	{
 		this.registry = registry;
@@ -82,11 +82,11 @@ class InternalAttributeValueEditor implements ListOfEmbeddedElementsStub.Editor<
 	
 	static class Factory implements ListOfEmbeddedElementsStub.EditorProvider<LabelledValue>
 	{
-		private AttributeHandlerRegistryV23 registry;
+		private AttributeHandlerRegistry registry;
 		private String baseLabel;
 		private AttributeEditContext editContext;
 
-		Factory(AttributeHandlerRegistryV23 registry,
+		Factory(AttributeHandlerRegistry registry,
 		        String baseLabel, AttributeEditContext editContext)
 		{
 			this.registry = registry;

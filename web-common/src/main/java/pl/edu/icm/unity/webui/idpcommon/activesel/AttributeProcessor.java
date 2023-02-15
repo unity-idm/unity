@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 /**
@@ -18,9 +18,9 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
  */
 class AttributeProcessor
 {
-	private AttributeHandlerRegistry handlerRegistry;
+	private AttributeHandlerRegistryV8 handlerRegistry;
 	
-	AttributeProcessor(AttributeHandlerRegistry handlerRegistry)
+	AttributeProcessor(AttributeHandlerRegistryV8 handlerRegistry)
 	{
 		this.handlerRegistry = handlerRegistry;
 	}

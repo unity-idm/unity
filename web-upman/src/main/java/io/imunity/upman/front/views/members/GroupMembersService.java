@@ -17,7 +17,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 
 import java.util.*;
@@ -34,7 +34,7 @@ class GroupMembersService
 	private final NotificationPresenter notificationPresenter;
 
 	public GroupMembersService(MessageSource msg,
-	                           AttributeHandlerRegistry attrHandlerRegistry, DelegatedGroupManagement delGroupMan,
+	                           AttributeHandlerRegistryV8 attrHandlerRegistry, DelegatedGroupManagement delGroupMan,
 	                           NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;

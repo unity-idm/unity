@@ -29,7 +29,7 @@ import io.imunity.upman.front.views.user_updates.UserUpdatesView;
 import io.imunity.upman.utils.HomeServiceLinkService;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.MenuComponent;
-import io.imunity.vaadin.endpoint.common.Vaddin23WebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -49,7 +49,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 	private Optional<UnityViewComponent> currentView = Optional.empty();
 
 	@Autowired
-	public UpManMenu(Vaddin23WebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg,
+	public UpManMenu(VaddinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg,
 	                 HomeServiceLinkService homeServiceLinkService)
 	{
 		super(Stream.of(

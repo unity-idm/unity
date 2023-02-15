@@ -27,14 +27,14 @@ import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 public class SingleTypeIdentityEditor 
 {
 	private IdentityType idType;
-	private IdentityEditorRegistry idEdRegistry;
+	private IdentityEditorRegistryV8 idEdRegistry;
 	private MessageSource msg;
 	private String userFriendlyName;
 	private ListOfEmbeddedElementsStub<IdentityParam> componentsList;
 
-	public SingleTypeIdentityEditor(IdentityType idType, Collection<Identity> initial, 
-			IdentityEditorRegistry idEdRegistry, MessageSource msg, 
-			IdentityTypeSupport idTypeSupport)
+	public SingleTypeIdentityEditor(IdentityType idType, Collection<Identity> initial,
+	                                IdentityEditorRegistryV8 idEdRegistry, MessageSource msg,
+	                                IdentityTypeSupport idTypeSupport)
 	{
 		this.idType = idType;
 		this.idEdRegistry = idEdRegistry;

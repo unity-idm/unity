@@ -52,7 +52,7 @@ public class BooleanAttributeHandler implements WebAttributeHandler
 
 	
 	@org.springframework.stereotype.Component
-	public static class BooleanAttributeHandlerFactory implements WebAttributeHandlerFactory
+	public static class BooleanAttributeHandlerFactoryV8 implements WebAttributeHandlerFactory
 	{
 		@Override
 		public String getSupportedSyntaxId()

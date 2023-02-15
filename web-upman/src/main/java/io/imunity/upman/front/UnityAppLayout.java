@@ -16,7 +16,7 @@ import com.vaadin.flow.router.RouterLayout;
 import io.imunity.vaadin.elements.ExtraLayoutPanel;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin823EndpointProperties;
-import io.imunity.vaadin.endpoint.common.Vaddin23WebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout
 	private VerticalLayout leftContainerContent;
 
 	public UnityAppLayout(List<MenuComponent> menuComponents,
-	                      Vaddin23WebLogoutHandler authnProcessor,
+	                      VaddinWebLogoutHandler authnProcessor,
 	                      List<Component> additionalIcons)
 	{
 		appLayoutComponents = new UnityAppLayoutComponentsHolder(menuComponents, authnProcessor, additionalIcons);

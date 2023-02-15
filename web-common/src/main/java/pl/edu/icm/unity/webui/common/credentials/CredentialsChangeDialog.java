@@ -31,7 +31,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private CredentialManagement credMan;
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 	private CredentialRequirementManagement credReqMan;
 	private TokensManagement tokenMan;
 	
@@ -42,10 +42,10 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private AdditionalAuthnHandler additionalAuthnHandler;
 	
 	@Autowired
-	public CredentialsChangeDialog(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, CredentialManagement credMan, 
-			EntityCredentialManagement ecredMan, EntityManagement entityMan,
-			CredentialRequirementManagement credReqMan,
-			CredentialEditorRegistry credEditorReg, TokensManagement tokenMan)
+	public CredentialsChangeDialog(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, CredentialManagement credMan,
+	                               EntityCredentialManagement ecredMan, EntityManagement entityMan,
+	                               CredentialRequirementManagement credReqMan,
+	                               CredentialEditorRegistryV8 credEditorReg, TokensManagement tokenMan)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
 		this.additionalAuthnHandler = additionalAuthnHandler;

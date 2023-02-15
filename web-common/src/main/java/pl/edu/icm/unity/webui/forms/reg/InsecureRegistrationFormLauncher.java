@@ -49,14 +49,14 @@ public class InsecureRegistrationFormLauncher extends AbstractRegistrationFormDi
 	private RegistrationsManagement registrationsManagement;
 	private IdPLoginController idpLoginController;
 	private EventsBus bus;
-	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
+	private AutoLoginAfterSignUpProcessorV8 autoLoginProcessor;
 	private ImageAccessService imageAccessService;
 	
 	@Autowired
 	public InsecureRegistrationFormLauncher(MessageSource msg, IdPLoginController idpLoginController,
-			ObjectFactory<RequestEditorCreator> requestEditorCreatorFatory, 
-			@Qualifier("insecure") RegistrationsManagement registrationsManagement,
-			AutoLoginAfterSignUpProcessor autoLoginProcessor, ImageAccessService imageAccessService)
+	                                        ObjectFactory<RequestEditorCreatorV8> requestEditorCreatorFatory,
+	                                        @Qualifier("insecure") RegistrationsManagement registrationsManagement,
+	                                        AutoLoginAfterSignUpProcessorV8 autoLoginProcessor, ImageAccessService imageAccessService)
 	{
 		super(msg, requestEditorCreatorFatory);
 		this.idpLoginController = idpLoginController;

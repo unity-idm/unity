@@ -73,11 +73,11 @@ import pl.edu.icm.unity.webui.authn.column.SearchComponent;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilder;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
+import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentationBuilderV8;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
@@ -85,13 +85,13 @@ import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.InvitationCodeConsumer;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreatorV8.InvitationCodeConsumer;
 
 /**
  * Generates a UI based on a given registration form. User can fill the form and a request is returned.
  * The class verifies if the data obtained from an upstream IdP is complete wrt requirements of the form.
  * <p>
- * Objects of this class should be typically created using {@link RequestEditorCreator}, so that the
+ * Objects of this class should be typically created using {@link RequestEditorCreatorV8}, so that the
  * registration code is collected appropriately.
  * @author K. Benedyczak
  */
@@ -116,7 +116,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private RegistrationLayoutsContainer layoutContainer;
 	private URLQueryPrefillCreator urlQueryPrefillCreator;
 	private final boolean enableRemoteRegistration;
-	private final SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider;
+	private final SwitchToEnquiryComponentProviderV8 toEnquirySwitchLabelProvider;
 	private final AuthenticationOptionKey authnOptionKey;
 
 	/**
@@ -126,16 +126,16 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	 */
 	public RegistrationRequestEditor(MessageSource msg, RegistrationForm form,
 			RemotelyAuthenticatedPrincipal remotelyAuthenticated,
-			IdentityEditorRegistry identityEditorRegistry,
-			CredentialEditorRegistry credentialEditorRegistry,
-			AttributeHandlerRegistry attributeHandlerRegistry,
+			IdentityEditorRegistryV8 identityEditorRegistry,
+			CredentialEditorRegistryV8 credentialEditorRegistry,
+			AttributeHandlerRegistryV8 attributeHandlerRegistry,
 			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
 			GroupsManagement groupsMan, ImageAccessService imageAccessService,
 			String registrationCode, ResolvedInvitationParam invitation, 
 			AuthenticatorSupportService authnSupport, 
 			URLQueryPrefillCreator urlQueryPrefillCreator, 
-			PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
-			SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider, 
+			PolicyAgreementRepresentationBuilderV8 policyAgreementsRepresentationBuilder,
+			SwitchToEnquiryComponentProviderV8 toEnquirySwitchLabelProvider,
 			boolean enableRemoteRegistration,
 			AuthenticationOptionKey authnOptionKey)
 	{

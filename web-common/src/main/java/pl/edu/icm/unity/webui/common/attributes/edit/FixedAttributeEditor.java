@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 
@@ -31,7 +31,7 @@ import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 public class FixedAttributeEditor
 {
 	private MessageSource msg;
-	private AttributeHandlerRegistry registry;
+	private AttributeHandlerRegistryV8 registry;
 	private String caption;
 	private String description;
 	private boolean showGroup;
@@ -39,7 +39,7 @@ public class FixedAttributeEditor
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private List<String> originalValues;
 
-	public FixedAttributeEditor(MessageSource msg, AttributeHandlerRegistry registry,
+	public FixedAttributeEditor(MessageSource msg, AttributeHandlerRegistryV8 registry,
 			AttributeEditContext editContext, boolean showGroup, 
 			String caption, String description)
 	{

@@ -40,7 +40,7 @@ public class PolicyAgreementScreen extends CustomComponent
 
 	private Button submitButton;
 	private List<PolicyAgreementRepresentation> agreements;
-	private PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder;
+	private PolicyAgreementRepresentationBuilderV8 policyAgreementRepresentationBuilder;
 	private Label titleLabel;
 	private Label infoLabel;
 	private VerticalLayout contents;
@@ -48,7 +48,7 @@ public class PolicyAgreementScreen extends CustomComponent
 	private VerticalLayout mainCenter;
 
 	public PolicyAgreementScreen(MessageSource msg,
-			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
+			PolicyAgreementRepresentationBuilderV8 policyAgreementRepresentationBuilder,
 			PolicyAgreementManagement policyAgreementDecider)
 	{
 		this.msg = msg;

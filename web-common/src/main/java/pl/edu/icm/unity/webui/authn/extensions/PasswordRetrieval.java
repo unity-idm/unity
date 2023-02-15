@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetCo
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 
 import java.io.StringReader;
 import java.util.*;
@@ -54,11 +54,11 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private I18nString name;
 	private String registrationFormForUnknown;
 	private boolean enableAssociation;
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 	private String configuration;
 
 	@Autowired
-	public PasswordRetrieval(MessageSource msg, CredentialEditorRegistry credEditorReg)
+	public PasswordRetrieval(MessageSource msg, CredentialEditorRegistryV8 credEditorReg)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;

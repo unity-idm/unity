@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
@@ -45,7 +45,7 @@ class CredentialChangePanel extends CustomComponent
 	private ImageAccessService imageAccessService;
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 	private MessageSource msg;
 	private boolean changed = false;
 	private Entity entity;
@@ -57,7 +57,7 @@ class CredentialChangePanel extends CustomComponent
 	
 	CredentialChangePanel(MessageSource msg, long entityId, ImageAccessService imageAccessService,
 			EntityCredentialManagement ecredMan, 
-			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
+			EntityManagement entityMan, CredentialEditorRegistryV8 credEditorReg,
 			CredentialDefinition toEdit, AdditionalAuthnHandler additionalAuthnHandler,
 			CredentialChangeConfiguration uiConfig, Runnable updatedCallback, Runnable cancelHandler)
 	{

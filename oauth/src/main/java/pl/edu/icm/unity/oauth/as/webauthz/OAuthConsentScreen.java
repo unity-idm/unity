@@ -47,7 +47,7 @@ import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.image.SimpleImageSource;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -67,7 +67,7 @@ class OAuthConsentScreen extends CustomComponent
 	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthConsentScreen.class);
 	private MessageSource msg;
 	
-	private final AttributeHandlerRegistry handlersRegistry;
+	private final AttributeHandlerRegistryV8 handlersRegistry;
 	private final PreferencesManagement preferencesMan;
 	private final StandardWebLogoutHandler authnProcessor;
 	private final OAuthResponseHandler oauthResponseHandler;
@@ -85,7 +85,7 @@ class OAuthConsentScreen extends CustomComponent
 	private CheckBox rememberCB;
 	
 	OAuthConsentScreen(MessageSource msg, 
-			AttributeHandlerRegistry handlersRegistry,
+			AttributeHandlerRegistryV8 handlersRegistry,
 			PreferencesManagement preferencesMan,
 			StandardWebLogoutHandler authnProcessor, 
 			IdentityTypeSupport idTypeSupport, 

@@ -16,8 +16,8 @@ import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.InvitationCodeConsumer;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreatorV8.InvitationCodeConsumer;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreatorV8.RequestEditorCreatedCallback;
 
 /**
  * Common boiler plate of registration form dialog provider which 
@@ -29,10 +29,10 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
 public abstract class AbstractRegistrationFormDialogProvider implements RegistrationFormDialogProvider
 {
 	protected final MessageSource msg;
-	protected final ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory;
+	protected final ObjectFactory<RequestEditorCreatorV8> requestEditorCreatorFactory;
 	
 	public AbstractRegistrationFormDialogProvider(MessageSource msg,
-			ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory)
+			ObjectFactory<RequestEditorCreatorV8> requestEditorCreatorFactory)
 	{
 		this.msg = msg;
 		this.requestEditorCreatorFactory = requestEditorCreatorFactory;
@@ -63,7 +63,7 @@ public abstract class AbstractRegistrationFormDialogProvider implements Registra
 			RemotelyAuthenticatedPrincipal remoteContext, TriggeringMode mode,
 			AsyncErrorHandler errorHandler)
 	{
-		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();
+		RequestEditorCreatorV8 editorCreator = requestEditorCreatorFactory.getObject();
 		editorCreator.init(form, remoteContext, null);
 		EditorCreatedCallbackImpl callback = new EditorCreatedCallbackImpl(
 				errorHandler, (editor) -> createDialog(form, editor, mode));
@@ -82,7 +82,7 @@ public abstract class AbstractRegistrationFormDialogProvider implements Registra
 			String registrationCode, 
 			AsyncErrorHandler errorHandler)
 	{
-		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();
+		RequestEditorCreatorV8 editorCreator = requestEditorCreatorFactory.getObject();
 		editorCreator.init(form, false, remoteContext, registrationCode, null);
 		EditorCreatedCallbackImpl callback = new EditorCreatedCallbackImpl(
 				errorHandler, (editor) -> createDialog(form, editor, mode));

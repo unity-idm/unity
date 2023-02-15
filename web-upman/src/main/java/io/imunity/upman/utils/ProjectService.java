@@ -19,7 +19,7 @@ import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.Vaddin23WebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -36,10 +36,10 @@ public class ProjectService
 	private final MessageSource msg;
 	private final DelegatedGroupManagement delGroupMan;
 	private final DelegatedGroupsHelper delGroupHelper;
-	private final Vaddin23WebLogoutHandler logoutHandler;
+	private final VaddinWebLogoutHandler logoutHandler;
 	private final NotificationPresenter notificationPresenter;
 
-	public ProjectService(MessageSource msg, DelegatedGroupManagement delGroupMan, Vaddin23WebLogoutHandler logoutHandler,
+	public ProjectService(MessageSource msg, DelegatedGroupManagement delGroupMan, VaddinWebLogoutHandler logoutHandler,
 	                      DelegatedGroupsHelper delGroupHelper, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;

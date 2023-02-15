@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
 /**
  * Utility class simplifies addition of an entity to a list of groups. If needed it asks for required attributes
@@ -47,7 +47,7 @@ public class GroupManagementHelper
 	private MessageSource msg;
 	private GroupsManagement groupsMan;
 	private AttributeTypeManagement attrMan; 
-	private AttributeHandlerRegistry attrHandlerRegistry;
+	private AttributeHandlerRegistryV8 attrHandlerRegistry;
 	private AttributeClassManagement acMan;
 	private EntityManagement identitiesMan;
 	
@@ -55,7 +55,7 @@ public class GroupManagementHelper
 	public GroupManagementHelper(MessageSource msg, GroupsManagement groupsMan,
 			AttributeTypeManagement attrMan, 
 			AttributeClassManagement acMan,
-			AttributeHandlerRegistry attrHandlerRegistry,
+			AttributeHandlerRegistryV8 attrHandlerRegistry,
 			EntityManagement identitiesMan)
 	{
 		this.msg = msg;
@@ -287,7 +287,7 @@ public class GroupManagementHelper
 	}
 	
 	
-	public AttributeHandlerRegistry getAttrHandlerRegistry()
+	public AttributeHandlerRegistryV8 getAttrHandlerRegistry()
 	{
 		return attrHandlerRegistry;
 	}

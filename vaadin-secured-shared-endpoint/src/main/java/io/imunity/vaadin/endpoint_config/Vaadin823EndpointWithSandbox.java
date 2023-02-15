@@ -37,7 +37,7 @@ class Vaadin823EndpointWithSandbox extends Vaadin823Endpoint
 	@Override
 	public synchronized ServletContextHandler getServletContextHandler()
 	{
-		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImplV23();
+		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
 		Vaadin23WebAppContextWithSandbox webAppContext = new Vaadin23WebAppContextWithSandbox(properties, genericEndpointProperties, msg, description, sandboxRouter);
 		context = getServletContextHandlerOverridable(webAppContext);
 		addSandboxUI(SANDBOX_PATH_ASSOCIATION, AccountAssociationSandboxUI.class.getSimpleName(), sandboxRouter);

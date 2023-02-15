@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
 /**
  * Shows a multi-add attribute dialog. The class is used to define attributes which are required.
@@ -34,7 +34,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 {
 	private MessageSource msg;
 	private Set<String> missingAttributes;
-	private AttributeHandlerRegistry attrHandlerRegistry;
+	private AttributeHandlerRegistryV8 attrHandlerRegistry;
 	private Collection<AttributeType> attributeTypes;
 	private String group;
 	private Callback callback;
@@ -43,7 +43,7 @@ public class RequiredAttributesDialog extends AbstractDialog
 	private String info;
 
 	public RequiredAttributesDialog(MessageSource msg, String info, 
-			Set<String> missingAttributes, AttributeHandlerRegistry attrHandlerRegistry,
+			Set<String> missingAttributes, AttributeHandlerRegistryV8 attrHandlerRegistry,
 			Collection<AttributeType> attributeTypes, String group, Callback callback)
 	{
 		super(msg, msg.getMessage("RequiredAttributesDialog.caption"));

@@ -43,7 +43,7 @@ import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
@@ -67,7 +67,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 
 	private final MessageSource msg;
 	private final OAuthIdPEngine idpEngine;
-	private final AttributeHandlerRegistry handlersRegistry;
+	private final AttributeHandlerRegistryV8 handlersRegistry;
 	private final PreferencesManagement preferencesMan;
 	private final StandardWebLogoutHandler authnProcessor;
 	private final IdentityTypeSupport idTypeSupport;
@@ -85,7 +85,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	@Autowired
 	public OAuthAuthzUI(MessageSource msg,
 			OAuthProcessor oauthProcessor,
-			AttributeHandlerRegistry handlersRegistry,
+			AttributeHandlerRegistryV8 handlersRegistry,
 			PreferencesManagement preferencesMan,
 			StandardWebLogoutHandler authnProcessor,
 			IdPEngine idpEngine,

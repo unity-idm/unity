@@ -4,25 +4,12 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
-import com.vaadin.ui.Button;
+import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -38,6 +25,8 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
+
+import java.util.*;
 
 /**
  * Enum attribute handler for the web
@@ -245,12 +234,12 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	}
 	
 	@org.springframework.stereotype.Component
-	public static class EnumAttributeHandlerFactory implements WebAttributeHandlerFactory
+	public static class EnumAttributeHandlerFactoryV8 implements WebAttributeHandlerFactory
 	{
 		private MessageSource msg;
 
 		@Autowired
-		public EnumAttributeHandlerFactory(MessageSource msg)
+		public EnumAttributeHandlerFactoryV8(MessageSource msg)
 		{
 			this.msg = msg;
 		}

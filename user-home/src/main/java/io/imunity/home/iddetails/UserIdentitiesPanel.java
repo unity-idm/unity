@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter.ComposableComponents;
 import pl.edu.icm.unity.webui.common.composite.GroupOfGroups;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.identities.SingleTypeIdentityEditor;
 
 /**
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.common.identities.SingleTypeIdentityEditor;
 public class UserIdentitiesPanel
 {
 	private MessageSource msg;
-	protected IdentityEditorRegistry identityEditorReg;
+	protected IdentityEditorRegistryV8 identityEditorReg;
 	protected EntityManagement idsManagement;
 	private long entityId;
 	private List<SingleTypeIdentityEditor> identityEditors;
@@ -48,7 +48,7 @@ public class UserIdentitiesPanel
 	private IdentityTypeSupport idTypeSupport;
 	private GroupOfGroups componentsGroup;
 	
-	public UserIdentitiesPanel(MessageSource msg, IdentityEditorRegistry identityEditorReg,
+	public UserIdentitiesPanel(MessageSource msg, IdentityEditorRegistryV8 identityEditorReg,
 			EntityManagement idsManagement, long entityId, IdentityTypeSupport idTypeSupport) 
 					throws EngineException
 	{

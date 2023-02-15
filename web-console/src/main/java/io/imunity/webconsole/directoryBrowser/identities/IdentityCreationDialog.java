@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 
 /**
  * Identity creation dialog. Adds the identity to an existing entity.
@@ -43,21 +43,21 @@ class IdentityCreationDialog extends AbstractDialog
 {
 	private long entityId;
 	protected EntityManagement identitiesMan;
-	protected IdentityEditorRegistry identityEditorReg;
+	protected IdentityEditorRegistryV8 identityEditorReg;
 	protected Consumer<Identity> callback;
 	
 	protected ComboBox<String> identityTypeSelector;
 	protected IdentityEditor identityEditor;
 	
 	IdentityCreationDialog(MessageSource msg, long entityId, EntityManagement identitiesMan,
-			IdentityEditorRegistry identityEditorReg, Consumer<Identity> callback)
+	                       IdentityEditorRegistryV8 identityEditorReg, Consumer<Identity> callback)
 	{
 		this(msg.getMessage("IdentityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);
 		this.entityId = entityId;
 	}
 
 	protected IdentityCreationDialog(String caption, MessageSource msg, EntityManagement identitiesMan,
-			IdentityEditorRegistry identityEditorReg, Consumer<Identity> callback)
+	                                 IdentityEditorRegistryV8 identityEditorReg, Consumer<Identity> callback)
 	{
 		super(msg, caption);
 		this.identityEditorReg = identityEditorReg;
@@ -73,7 +73,7 @@ class IdentityCreationDialog extends AbstractDialog
 		@Autowired
 		private EntityManagement identitiesMan;
 		@Autowired
-		private IdentityEditorRegistry identityEditorReg;
+		private IdentityEditorRegistryV8 identityEditorReg;
 		
 		SingleActionHandler<IdentityEntry> getAction(Consumer<Identity> callback)
 		{

@@ -55,10 +55,10 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidationRTException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.widgets.InfoLabel;
 
 /**
@@ -74,7 +74,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 	private GroupManagementHelper groupHelper;
 	private AttributeTypeManagement attrMan;
 	private final AttributeSupport attributeSupport;
-	private final AttributeHandlerRegistry reg;
+	private final AttributeHandlerRegistryV8 reg;
 	private Group initialGroup;
 	private CheckBox addToGroup;
 	private ComboBox<String> credentialRequirement;
@@ -90,11 +90,11 @@ class EntityCreationDialog extends IdentityCreationDialog
 	EntityCreationDialog(MessageSource msg, Group initialGroup, EntityManagement identitiesMan,
 			CredentialRequirementManagement credReqMan, 
 			AttributeTypeManagement attrMan,
-			IdentityEditorRegistry identityEditorReg, 
+			IdentityEditorRegistryV8 identityEditorReg,
 			GroupManagementHelper groupHelper,
 			Consumer<Identity> callback,
 			AttributeSupport attributeSupport,
-			AttributeHandlerRegistry reg,
+			AttributeHandlerRegistryV8 reg,
 			NewEntityCredentialsPanel.CredentialsPanelFactory credentialsPanelFactory,
 			EntityCredentialManagement ecredMan)
 	{

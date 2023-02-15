@@ -18,7 +18,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.idpcommon.ExposedAttributesComponent;
 import pl.edu.icm.unity.webui.idpcommon.ExposedSelectableAttributesComponent;
 import pl.edu.icm.unity.webui.idpcommon.SelectableAttributesComponent;
@@ -32,7 +32,7 @@ public class ROExposedAttributesComponent extends CustomComponent implements Sel
 	private final Collection<Attribute> attributes;
 	
 	public ROExposedAttributesComponent(MessageSource msg, IdentityTypeSupport idTypeSupport,
-			Collection<DynamicAttribute> attributes, AttributeHandlerRegistry handlersRegistry, 
+			Collection<DynamicAttribute> attributes, AttributeHandlerRegistryV8 handlersRegistry,
 			Optional<IdentityParam> selectedIdentity)
 	{
 		this.attributes = attributes.stream().map(da -> da.getAttribute()).collect(Collectors.toList());

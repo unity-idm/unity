@@ -55,7 +55,7 @@ import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryInvitationEntityChooserV8.InvitationEntityChooserComponentFactory;
 import pl.edu.icm.unity.webui.forms.reg.GetRegistrationCodeDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 
@@ -73,7 +73,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private ImageAccessService imageAccessService;
 
 	private String registrationCode;
-	private EnquiryResponseEditorController editorController;
+	private EnquiryResponseEditorControllerV8 editorController;
 	private InvitationResolver invitationResolver;
 	private PostFillingHandler postFillHandler;
 
@@ -86,10 +86,10 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private final InvitationEntityChooserComponentFactory entityChooserComponentFactory;
 
 	@Autowired
-	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
-			InvitationResolver invitationResolver, MessageSource msg, ImageAccessService imageAccessService,
-			URLQueryPrefillCreator urlQueryPrefillCreator,
-			InvitationEntityChooserComponentFactory entityChooserComponentFactory)
+	public StandalonePublicEnquiryView(EnquiryResponseEditorControllerV8 editorController,
+	                                   InvitationResolver invitationResolver, MessageSource msg, ImageAccessService imageAccessService,
+	                                   URLQueryPrefillCreator urlQueryPrefillCreator,
+	                                   InvitationEntityChooserComponentFactory entityChooserComponentFactory)
 	{
 		this.editorController = editorController;
 		this.urlQueryPrefillCreator = urlQueryPrefillCreator;
@@ -299,7 +299,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSizeFull();
-		EnquiryInvitationEntityChooser invitationEntityChooserComponent = entityChooserComponentFactory.get(invitation,
+		EnquiryInvitationEntityChooserV8 invitationEntityChooserComponent = entityChooserComponentFactory.get(invitation,
 				e -> processInvitation(e), () -> gotoFinalStep(cancel()));
 		main.addComponent(invitationEntityChooserComponent);
 		main.setComponentAlignment(invitationEntityChooserComponent, Alignment.MIDDLE_CENTER);

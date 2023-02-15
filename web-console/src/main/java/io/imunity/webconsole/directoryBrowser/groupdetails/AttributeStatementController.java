@@ -20,20 +20,20 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 @Component
 class AttributeStatementController
 {
-	private AttributeHandlerRegistry attributeHandlerRegistry;
+	private AttributeHandlerRegistryV8 attributeHandlerRegistry;
 	private GroupsManagement groupsMan;
 	private AttributeTypeManagement attrsMan;
 	private MessageSource msg;
 
 	@Autowired
-	AttributeStatementController(AttributeHandlerRegistry attributeHandlerRegistry, GroupsManagement groupsMan,
-			AttributeTypeManagement attrsMan, MessageSource msg)
+	AttributeStatementController(AttributeHandlerRegistryV8 attributeHandlerRegistry, GroupsManagement groupsMan,
+	                             AttributeTypeManagement attrsMan, MessageSource msg)
 	{
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.groupsMan = groupsMan;

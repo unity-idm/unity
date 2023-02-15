@@ -20,7 +20,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar;
 import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar.Action;
 
@@ -40,7 +40,7 @@ public class ActiveValueSelectionScreen extends CustomComponent
 	private Consumer<List<DynamicAttribute>> acceptHandler;
 	private List<DynamicAttribute> remainingAttributes;
 	
-	public ActiveValueSelectionScreen(MessageSource msg, AttributeHandlerRegistry attrHandlerRegistry, 
+	public ActiveValueSelectionScreen(MessageSource msg, AttributeHandlerRegistryV8 attrHandlerRegistry,
 			StandardWebLogoutHandler authnProcessor,
 			List<DynamicAttribute> singleSelectable,
 			List<DynamicAttribute> multiSelectable,

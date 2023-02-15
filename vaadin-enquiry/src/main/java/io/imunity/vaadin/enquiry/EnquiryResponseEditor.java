@@ -7,10 +7,10 @@ package io.imunity.vaadin.enquiry;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.BaseRequestEditor;
 import io.imunity.vaadin.endpoint.common.forms.RegistrationLayoutsContainer;
-import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilderV23;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistryV23;
-import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistryV23;
-import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistryV23;
+import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -35,12 +35,12 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 
 	public EnquiryResponseEditor(MessageSource msg, EnquiryForm form,
 	                             RemotelyAuthenticatedPrincipal remotelyAuthenticated,
-	                             IdentityEditorRegistryV23 identityEditorRegistry,
-	                             CredentialEditorRegistryV23 credentialEditorRegistry,
-	                             AttributeHandlerRegistryV23 attributeHandlerRegistry,
+	                             IdentityEditorRegistry identityEditorRegistry,
+	                             CredentialEditorRegistry credentialEditorRegistry,
+	                             AttributeHandlerRegistry attributeHandlerRegistry,
 	                             AttributeTypeManagement atMan, CredentialManagement credMan,
 	                             GroupsManagement groupsMan, NotificationPresenter notificationPresenter,
-	                             PolicyAgreementRepresentationBuilderV23 policyAgreementsRepresentationBuilder,
+	                             PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
 	                             List<PolicyAgreementConfiguration> filteredPolicyAgreement,
 	                             PrefilledSet prefilled, URIAccessService uriAccessService,
 	                             Map<String, Object> messageParams) throws Exception

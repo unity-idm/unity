@@ -55,12 +55,12 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.bigtab.BigTabPanel;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorControllerV8;
 import pl.edu.icm.unity.webui.forms.enquiry.StickyEnquiryUpdatableComponent;
 
 /**
@@ -76,13 +76,13 @@ public class UserAccountComponent extends VerticalLayout
 	private MessageSource msg;
 	private CredentialManagement credMan;
 	private EntityManagement idsMan;
-	private CredentialEditorRegistry credEditorReg;
+	private CredentialEditorRegistryV8 credEditorReg;
 
 	private AttributeSupport atSupport;
 	private StandardWebLogoutHandler authnProcessor;
-	private AttributeHandlerRegistry attributeHandlerRegistry;
+	private AttributeHandlerRegistryV8 attributeHandlerRegistry;
 	private AttributesManagement attributesMan;
-	private IdentityEditorRegistry identityEditorRegistry;
+	private IdentityEditorRegistryV8 identityEditorRegistry;
 	private SandboxAuthnNotifier sandboxNotifier;
 	private String sandboxURL;
 	private InputTranslationEngine inputTranslationEngine;
@@ -92,19 +92,19 @@ public class UserAccountComponent extends VerticalLayout
 	private EntityManagement insecureIdsMan;
 	private TokensManagement tokenMan;
 	private AdditionalAuthnHandler additionalAuthnHandler;
-	private EnquiryResponseEditorController enquiryResController;
+	private EnquiryResponseEditorControllerV8 enquiryResController;
 	private final ObjectFactory<TrustedApplicationTab> externalAppFactory;
 
 	@Autowired
 	public UserAccountComponent(MessageSource msg, CredentialManagement credMan, EntityManagement idsMan,
-			EntityCredentialManagement ecredMan, CredentialRequirementManagement credReqMan,
-			CredentialEditorRegistry credEditorReg, @Qualifier("insecure") EntityManagement insecureIdsMan,
-			AttributeSupport attrMan, StandardWebLogoutHandler authnProcessor,
-			AttributeHandlerRegistry attributeHandlerRegistry, AttributesManagement attributesMan,
-			IdentityEditorRegistry identityEditorRegistry, InputTranslationEngine inputTranslationEngine,
-			IdentityTypeSupport idTypeSupport, TokensManagement tokenMan, AdditionalAuthnHandler additionalAuthnHandler,
-			EnquiryResponseEditorController enquiryResController,
-			ObjectFactory<TrustedApplicationTab> externalAppFactory)
+	                            EntityCredentialManagement ecredMan, CredentialRequirementManagement credReqMan,
+	                            CredentialEditorRegistryV8 credEditorReg, @Qualifier("insecure") EntityManagement insecureIdsMan,
+	                            AttributeSupport attrMan, StandardWebLogoutHandler authnProcessor,
+	                            AttributeHandlerRegistryV8 attributeHandlerRegistry, AttributesManagement attributesMan,
+	                            IdentityEditorRegistryV8 identityEditorRegistry, InputTranslationEngine inputTranslationEngine,
+	                            IdentityTypeSupport idTypeSupport, TokensManagement tokenMan, AdditionalAuthnHandler additionalAuthnHandler,
+	                            EnquiryResponseEditorControllerV8 enquiryResController,
+	                            ObjectFactory<TrustedApplicationTab> externalAppFactory)
 	{
 		this.msg = msg;
 		this.credMan = credMan;

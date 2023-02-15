@@ -69,7 +69,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 
 	private final MessageSource msg;
 	private String registrationCode;
-	private final EnquiryResponseEditorControllerV23 editorController;
+	private final EnquiryResponseEditorController editorController;
 	private final InvitationResolver invitationResolver;
 	private PostFillingHandler postFillHandler;
 
@@ -84,13 +84,13 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 
 
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
-	private final EnquiryInvitationEntityChooserV23.InvitationEntityChooserComponentFactoryV23 entityChooserComponentFactory;
+	private final EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory entityChooserComponentFactory;
 
 	@Autowired
-	public StandaloneEnquiryView(EnquiryResponseEditorControllerV23 editorController,
+	public StandaloneEnquiryView(EnquiryResponseEditorController editorController,
 	                             InvitationResolver invitationResolver, MessageSource msg,
 	                             URLQueryPrefillCreator urlQueryPrefillCreator,
-	                             EnquiryInvitationEntityChooserV23.InvitationEntityChooserComponentFactoryV23 entityChooserComponentFactory,
+	                             EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory entityChooserComponentFactory,
 	                             EnquiryManagement enqMan,
 	                             NotificationPresenter notificationPresenter)
 	{
@@ -381,7 +381,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSizeFull();
-		EnquiryInvitationEntityChooserV23 invitationEntityChooserComponent = entityChooserComponentFactory.get(invitation,
+		EnquiryInvitationEntityChooser invitationEntityChooserComponent = entityChooserComponentFactory.get(invitation,
 				this::processInvitation, () -> gotoFinalStep(cancel()));
 		main.add(invitationEntityChooserComponent);
 		main.setAlignItems(FlexComponent.Alignment.CENTER);

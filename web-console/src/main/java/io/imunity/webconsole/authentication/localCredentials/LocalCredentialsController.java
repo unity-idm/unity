@@ -14,7 +14,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -28,10 +28,10 @@ class LocalCredentialsController
 {
 	private CredentialManagement credMan;
 	private MessageSource msg;
-	private CredentialEditorRegistry credentialEditorReg;
+	private CredentialEditorRegistryV8 credentialEditorReg;
 
 	LocalCredentialsController(CredentialManagement credMan, MessageSource msg,
-			CredentialEditorRegistry credentialEditorReg)
+			CredentialEditorRegistryV8 credentialEditorReg)
 	{
 		this.credMan = credMan;
 		this.msg = msg;

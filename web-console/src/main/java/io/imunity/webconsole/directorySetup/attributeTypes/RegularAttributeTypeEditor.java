@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEditor
 {
 	private MessageSource msg;
-	private AttributeHandlerRegistry registry;
+	private AttributeHandlerRegistryV8 registry;
 	private AttributeMetadataHandlerRegistry attrMetaHandlerReg;
 	
 	private Binder<AttributeType> binder;
@@ -61,14 +61,14 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 	private MetadataEditor metaEditor;
 	private AttributeTypeSupport atSupport;
 	
-	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistry registry, 
+	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistryV8 registry,
 			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
 		this(msg, registry, null, attrMetaHandlerReg, atSupport);
 	}
 
-	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistry registry, AttributeType toEdit, 
-			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
+	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistryV8 registry, AttributeType toEdit,
+	                           AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
 		super();
 		this.msg = msg;

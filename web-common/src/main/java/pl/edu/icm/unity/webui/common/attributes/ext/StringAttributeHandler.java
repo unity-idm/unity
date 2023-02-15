@@ -4,11 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.data.Binder;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
@@ -16,7 +11,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -27,6 +22,9 @@ import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -181,12 +179,12 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 	
 	
 	@org.springframework.stereotype.Component
-	public static class StringAttributeHandlerFactory implements WebAttributeHandlerFactory
+	public static class StringAttributeHandlerFactoryV8 implements WebAttributeHandlerFactory
 	{
 		private MessageSource msg;
 
 		@Autowired
-		public StringAttributeHandlerFactory(MessageSource msg)
+		public StringAttributeHandlerFactoryV8(MessageSource msg)
 		{
 			this.msg = msg;
 		}

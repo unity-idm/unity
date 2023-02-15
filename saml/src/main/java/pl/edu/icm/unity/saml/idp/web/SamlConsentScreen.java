@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Label100;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -48,7 +48,7 @@ class SamlConsentScreen extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlConsentScreen.class);
 	protected final MessageSource msg;
-	protected final AttributeHandlerRegistry handlersRegistry;
+	protected final AttributeHandlerRegistryV8 handlersRegistry;
 	protected final IdentityTypeSupport identityTypeSupport;
 	protected final PreferencesManagement preferencesMan;
 	protected final StandardWebLogoutHandler authnProcessor;
@@ -68,7 +68,7 @@ class SamlConsentScreen extends CustomComponent
 	protected CheckBox rememberCB;
 
 	public SamlConsentScreen(MessageSource msg, ImageAccessService imageAccessService,  
-			AttributeHandlerRegistry handlersRegistry, 
+			AttributeHandlerRegistryV8 handlersRegistry,
 			PreferencesManagement preferencesMan,
 			StandardWebLogoutHandler authnProcessor, 
 			IdentityTypeSupport identityTypeSupport, 

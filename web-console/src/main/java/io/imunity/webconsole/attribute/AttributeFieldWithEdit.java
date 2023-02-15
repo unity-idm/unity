@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
 /**
  * Custom component displaying a simple, textual attribute and its values, additionally 
@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 public class AttributeFieldWithEdit extends CustomField<Attribute>
 {
 	private MessageSource msg;
-	protected AttributeHandlerRegistry attrHandlerRegistry;
+	protected AttributeHandlerRegistryV8 attrHandlerRegistry;
 	protected Collection<AttributeType> attributeTypes;
 	protected String group;
 	private TextField attributeTF;
@@ -45,7 +45,7 @@ public class AttributeFieldWithEdit extends CustomField<Attribute>
 	private AttributeType fixedAttributeType;
 	
 	public AttributeFieldWithEdit(MessageSource msg, String caption, 
-			AttributeHandlerRegistry attrHandlerRegistry,
+			AttributeHandlerRegistryV8 attrHandlerRegistry,
 			Collection<AttributeType> attributeTypes, String group, Attribute initial,
 			boolean valuesRequired)
 	{
