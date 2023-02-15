@@ -52,13 +52,13 @@ public class RequestEditorCreator
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
 	private final SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider;
 	private final NotificationPresenter notificationPresenter;
+	private final URIAccessService uriAccessService;
 
 	private RegistrationForm form;
 	private RemotelyAuthenticatedPrincipal remotelyAuthenticated;
 	private String registrationCode;
 	private boolean enableRemoteSignup;
 	private AuthenticationOptionKey authenticationOptionKey;
-	private URIAccessService uriAccessService;
 
 	@Autowired
 	public RequestEditorCreator(MessageSource msg,

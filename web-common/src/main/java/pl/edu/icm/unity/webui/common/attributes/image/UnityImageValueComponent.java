@@ -4,20 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
-import java.util.Optional;
-
-import org.apache.logging.log4j.Logger;
-
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Image;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.ui.*;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.ImageType;
 import pl.edu.icm.unity.attr.UnityImage;
@@ -27,6 +16,8 @@ import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
+
+import java.util.Optional;
 
 interface ImageValidator
 {
@@ -76,7 +67,7 @@ class UnityImageValueComponent extends CustomComponent
 				field.setVisible(true);
 			} catch (Exception e)
 			{
-				LOG.warn("Problem getting value's image as resource for editing: " + e, e);
+				LOG.warn("Problem getting value's image as resource for editing: {0}", e);
 				errorImage.setVisible(true);
 				field.setVisible(false);
 			}

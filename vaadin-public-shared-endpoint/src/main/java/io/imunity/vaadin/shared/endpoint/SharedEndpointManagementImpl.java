@@ -29,6 +29,8 @@ import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 
 import javax.servlet.DispatcherType;
 import java.net.URL;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Properties;
@@ -44,7 +46,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, SharedEndpointManagementImpl.class);
 	private static final String ENDPOINT_ID = "sys:sharedV23";
-	private static final int SESSION_TIMEOUT_VALUE = 60 * 60;
+	private static final Duration SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
 	private final ServletContextHandler sharedHandler;
 	private final URL advertisedAddress;
 	private final Set<String> usedPaths;
@@ -72,7 +74,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		ServletHolder servletHolder = context.addServlet(SimpleVaadin23Servlet.class, "/*");
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
-		servletHolder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(SESSION_TIMEOUT_VALUE));
+		servletHolder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(SESSION_TIMEOUT_VALUE.getSeconds()));
 
 		httpServer.deployHandler(context, ENDPOINT_ID);
 

@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static pl.edu.icm.unity.webui.VaadinRequestTypeMatcher.isVaadinBackgroundRequest;
+import static pl.edu.icm.unity.webui.authn.PathElementRemover.removePathElementsUntil;
 
 /**
  * Servlet filter forwarding unauthenticated requests to the protected authentication servlet.
@@ -257,20 +258,6 @@ public class AuthenticationFilter implements Filter
 		}
 		RequestDispatcher dispatcher = httpRequest.getRequestDispatcher(forwardURI);
 		dispatcher.forward(httpRequest, response);
-	}
-
-	static String removePathElementsUntil(String path, Set<String> until)
-	{
-		boolean adding = false;
-		StringBuilder newPath = new StringBuilder();
-		for(String element : path.split("/"))
-		{
-			if(until.contains(element))
-				adding = true;
-			if(adding)
-				newPath.append("/").append(element);
-		}
-		return newPath.toString();
 	}
 
 	private void bindSessionAndGotoProtectedResource(HttpServletRequest httpRequest,
