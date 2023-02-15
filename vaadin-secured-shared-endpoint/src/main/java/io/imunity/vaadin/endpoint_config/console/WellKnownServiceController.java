@@ -3,9 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.secured.shared.endpoint.console;
+package io.imunity.vaadin.endpoint_config.console;
 
-import io.imunity.vaadin.secured.shared.endpoint.SecuredSharedEndpointFactory;
+import io.imunity.vaadin.endpoint_config.SecuredSharedEndpointFactory;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;

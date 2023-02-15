@@ -2,10 +2,10 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.secured.shared.endpoint;
+package io.imunity.vaadin.account_association_view;
 
 import com.vaadin.flow.component.html.Label;
-import io.imunity.vaadin.secured.shared.endpoint.wizard.WizardStep;
+import io.imunity.vaadin.account_association_view.wizard.WizardStep;
 import pl.edu.icm.unity.MessageSource;
 
 class IntroStep extends WizardStep

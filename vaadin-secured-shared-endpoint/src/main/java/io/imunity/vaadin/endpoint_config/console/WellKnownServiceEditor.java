@@ -3,10 +3,10 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.secured.shared.endpoint.console;
+package io.imunity.vaadin.endpoint_config.console;
 
 import com.vaadin.data.Binder;
-import io.imunity.vaadin.secured.shared.endpoint.SecuredSharedEndpointFactory;
+import io.imunity.vaadin.endpoint_config.SecuredSharedEndpointFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
@@ -24,19 +24,19 @@ class WellKnownServiceEditor implements ServiceEditor
 	private final List<String> allRealms;
 	private final List<AuthenticationFlowDefinition> flows;
 	private final List<AuthenticatorInfo> authenticators;
-	private WellKnownServiceEditorComponent editor;
 	private final List<String> usedEndpointsPaths;
 	private final Set<String> serverContextPaths;
+	private WellKnownServiceEditorComponent editor;
 
 	WellKnownServiceEditor(MessageSource msg, List<String> allRealms,
 	                       List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths,
 	                       Set<String> serverContextPaths)
 	{
 		this.msg = msg;
-		this.allRealms = allRealms;
-		this.authenticators = authenticators;
-		this.flows = flows;
-		this.usedEndpointsPaths = usedPaths;
+		this.allRealms = List.copyOf(allRealms);
+		this.authenticators = List.copyOf(authenticators);
+		this.flows = List.copyOf(flows);
+		this.usedEndpointsPaths = List.copyOf(usedPaths);
 		this.serverContextPaths = serverContextPaths;
 	}
 

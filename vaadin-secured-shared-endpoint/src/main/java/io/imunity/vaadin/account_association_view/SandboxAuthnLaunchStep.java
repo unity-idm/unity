@@ -3,13 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.secured.shared.endpoint;
+package io.imunity.vaadin.account_association_view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinService;
-import io.imunity.vaadin.secured.shared.endpoint.wizard.WizardStep;
+import io.imunity.vaadin.account_association_view.wizard.WizardStep;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;

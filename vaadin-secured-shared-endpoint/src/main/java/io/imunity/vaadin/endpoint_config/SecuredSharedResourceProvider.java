@@ -3,14 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.secured.shared.endpoint;
+package io.imunity.vaadin.endpoint_config;
 
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
 
 
-public class SecuredSharedResourceProvider extends CustomResourceProvider
+class SecuredSharedResourceProvider extends CustomResourceProvider
 {
-	public SecuredSharedResourceProvider()
+	SecuredSharedResourceProvider()
 	{
 		super("vaadin-endpoint-common", "vaadin-enquiry");
 	}

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.secured.shared.endpoint;
+package io.imunity.vaadin.endpoint_config;
 
 import io.imunity.vaadin.endpoint.common.Vaadin23WebAppContext;
 import io.imunity.vaadin.endpoint.common.Vaadin823EndpointProperties;
@@ -22,7 +22,7 @@ public class Vaadin23WebAppContextWithSandbox extends Vaadin23WebAppContext
 	public final ResolvedEndpoint description;
 	public final SandboxAuthnRouter sandboxRouter;
 
-	public Vaadin23WebAppContextWithSandbox(Properties properties, Vaadin823EndpointProperties vaadinEndpointProperties,
+	Vaadin23WebAppContextWithSandbox(Properties properties, Vaadin823EndpointProperties vaadinEndpointProperties,
 	                                        MessageSource messageSource, ResolvedEndpoint description, SandboxAuthnRouter sandboxRouter)
 	{
 		super(properties, vaadinEndpointProperties, messageSource, description);

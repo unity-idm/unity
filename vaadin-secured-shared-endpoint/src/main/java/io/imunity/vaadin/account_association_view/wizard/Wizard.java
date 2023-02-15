@@ -3,10 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.secured.shared.endpoint.wizard;
+package io.imunity.vaadin.account_association_view.wizard;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -23,6 +24,7 @@ public class Wizard extends VerticalLayout
 	private final Button finishButton = new Button();
 	private final Button nextButton = new Button();
 	private final Button backButton = new Button();
+	private final Button startOverButton = new Button();
 	private final ProgressBar progressBar = new ProgressBar();
 	private final double progressBarIncrementer;
 	private final VerticalLayout contentLayout = new VerticalLayout();
@@ -45,10 +47,12 @@ public class Wizard extends VerticalLayout
 		initLabelsLayout(labels, labelsLayout);
 
 		Button cancelButton = new Button(msg.getMessage("Wizard.cancel"), e -> cancelTask.run());
-		Button startOverButton = new Button(msg.getMessage("Wizard.start-over"), e -> init());
+		startOverButton.setText(msg.getMessage("Wizard.start-over"));
+		startOverButton.addClickListener(e -> init());
 
 		nextButton.setText(msg.getMessage("Wizard.next"));
 		nextButton.addClickListener(event -> nextStep());
+		nextButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 		backButton.setText(msg.getMessage("Wizard.back"));
 		backButton.addClickListener(event -> prevStep());
@@ -63,6 +67,7 @@ public class Wizard extends VerticalLayout
 			contentLayout.removeAll();
 			contentLayout.add(wizardStepController.getNext());
 		});
+		finishButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 		buttonsLayout.add(cancelButton, startOverButton, backButton, nextButton, finishButton);
 		buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -99,6 +104,7 @@ public class Wizard extends VerticalLayout
 		nextButton.setEnabled(true);
 		backButton.setEnabled(false);
 		finishButton.setEnabled(false);
+		startOverButton.setEnabled(false);
 	}
 
 	private void nextStep()
@@ -111,7 +117,6 @@ public class Wizard extends VerticalLayout
 		contentLayout.removeAll();
 		contentLayout.add(wizardStepController.getNext());
 
-		backButton.setEnabled(true);
 		if(progressBar.getValue() == 0)
 		{
 			progressBar.setValue(progressBarIncrementer / 2);
@@ -121,6 +126,8 @@ public class Wizard extends VerticalLayout
 		progressBar.setValue(Math.min(value, 1.0));
 
 		nextButton.setEnabled(false);
+		backButton.setEnabled(true);
+		startOverButton.setEnabled(true);
 	}
 	private void prevStep()
 	{
@@ -135,6 +142,7 @@ public class Wizard extends VerticalLayout
 		progressBar.setValue(Math.max(value, 0));
 
 		backButton.setEnabled(wizardStepController.hasPrev());
+		startOverButton.setEnabled(wizardStepController.hasPrev());
 	}
 
 	void refresh()

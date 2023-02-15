@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.secured.shared.endpoint.wizard;
+package io.imunity.vaadin.account_association_view.wizard;
 
 import java.util.function.BiConsumer;
 

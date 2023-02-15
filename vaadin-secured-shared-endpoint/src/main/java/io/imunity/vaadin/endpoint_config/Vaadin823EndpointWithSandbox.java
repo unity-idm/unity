@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.secured.shared.endpoint;
+package io.imunity.vaadin.endpoint_config;
 
 import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
@@ -23,9 +23,9 @@ import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.DEFAULT_HEARTBEAT;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
-public class Vaadin823EndpointWithSandbox extends Vaadin823Endpoint
+class Vaadin823EndpointWithSandbox extends Vaadin823Endpoint
 {
-	public Vaadin823EndpointWithSandbox(NetworkServer server, AdvertisedAddressProvider advertisedAddrProvider,
+	Vaadin823EndpointWithSandbox(NetworkServer server, AdvertisedAddressProvider advertisedAddrProvider,
 	                                    MessageSource msg, ApplicationContext applicationContext,
 	                                    CustomResourceProvider resourceProvider, String servletPath,
 	                                    RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,

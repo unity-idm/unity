@@ -4,7 +4,7 @@
  */
 
 
-package io.imunity.vaadin.secured.shared.endpoint;
+package io.imunity.vaadin.endpoint_config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -37,7 +37,7 @@ public class SecuredSharedEndpointFactory implements EndpointFactory
 	private final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 
 	@Autowired
-	public SecuredSharedEndpointFactory(ApplicationContext applicationContext,
+	SecuredSharedEndpointFactory(ApplicationContext applicationContext,
 	                                    NetworkServer server,
 	                                    AdvertisedAddressProvider advertisedAddrProvider,
 	                                    MessageSource msg,
