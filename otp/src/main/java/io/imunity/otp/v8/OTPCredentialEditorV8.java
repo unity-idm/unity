@@ -8,6 +8,8 @@ package io.imunity.otp.v8;
 import com.google.common.base.Strings;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
+import io.imunity.otp.OTPCredentialDefinition;
+import io.imunity.otp.OTPExtraInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
@@ -38,7 +40,7 @@ class OTPCredentialEditorV8 implements CredentialEditor
 	public ComponentsContainer getEditor(CredentialEditorContext context) 
 	{
 		config = JsonUtil.parse(context.getCredentialConfiguration(), 
-				OTPCredentialDefinition.class); 
+				OTPCredentialDefinition.class);
 		editor = new OTPEditorComponent(msg, context, config);
 		return new ComponentsContainer(editor);
 	}

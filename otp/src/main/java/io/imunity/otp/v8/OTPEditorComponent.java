@@ -4,23 +4,14 @@
  */
 package io.imunity.otp.v8;
 
-import java.util.Map;
-
 import com.google.common.collect.ImmutableMap;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.ui.*;
 import fi.jasoft.qrcode.QRCode;
 import io.imunity.otp.HashFunction;
+import io.imunity.otp.OTPCredential;
+import io.imunity.otp.OTPCredentialDefinition;
 import io.imunity.otp.TOTPKeyGenerator;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
@@ -30,6 +21,8 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
+
+import java.util.Map;
 
 class OTPEditorComponent extends CustomComponent implements Component.Focusable, ComponentWithLabel
 {

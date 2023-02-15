@@ -4,14 +4,8 @@
  */
 package io.imunity.fido.web.v8;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Layout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
+import io.imunity.fido.web.FidoCredentialInfoWrapper;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 

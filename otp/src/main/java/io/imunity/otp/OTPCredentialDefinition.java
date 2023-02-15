@@ -12,16 +12,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Optional;
 
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-class OTPCredentialDefinition
+public class OTPCredentialDefinition
 {
-	final OTPGenerationParams otpParams;
-	final String issuerName;
-	final int allowedTimeDriftSteps;
-	final OTPResetSettings resetSettings;
-	final Optional<String> logoURI;
+	public final OTPGenerationParams otpParams;
+	public final String issuerName;
+	public final int allowedTimeDriftSteps;
+	public final OTPResetSettings resetSettings;
+	public final Optional<String> logoURI;
 	
 	@JsonCreator
-	OTPCredentialDefinition(
+	public OTPCredentialDefinition(
 			@JsonProperty("otpParams") OTPGenerationParams otpParams, 
 			@JsonProperty("issuerName") String issuerName, 
 			@JsonProperty("allowedTimeDriftSteps") int allowedTimeDriftSeconds,

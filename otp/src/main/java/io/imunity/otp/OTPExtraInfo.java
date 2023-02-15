@@ -12,12 +12,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-class OTPExtraInfo
+public class OTPExtraInfo
 {
-	final Date lastModification;
+	public final Date lastModification;
 
 	@JsonCreator
-	OTPExtraInfo(@JsonProperty("lastModification") Date lastModification)
+	public OTPExtraInfo(@JsonProperty("lastModification") Date lastModification)
 	{
 		this.lastModification = lastModification;
 	}

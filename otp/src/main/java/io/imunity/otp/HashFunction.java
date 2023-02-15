@@ -10,8 +10,8 @@ public enum HashFunction
 	SHA256("HmacSHA256", 256), 
 	SHA512("HmacSHA512", 512);
 	
-	public String alg;
-	int bitLength;
+	public final String alg;
+	final int bitLength;
 
 	private HashFunction(String alg, int bitLength)
 	{

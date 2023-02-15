@@ -10,6 +10,7 @@ import com.vaadin.data.Validator;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.*;
 import io.imunity.otp.HashFunction;
+import io.imunity.otp.OTPCredentialDefinition;
 import io.imunity.otp.OTPGenerationParams;
 import io.imunity.otp.OTPResetSettings;
 import io.imunity.otp.OTPResetSettings.ConfirmationMode;
@@ -150,7 +151,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		
 		if (credentialDefinitionConfiguration != null)
 		{
-			OTPCredentialDefinition editedValue = JsonUtil.parse(credentialDefinitionConfiguration, 
+			OTPCredentialDefinition editedValue = JsonUtil.parse(credentialDefinitionConfiguration,
 				OTPCredentialDefinition.class);
 			binder.setBean(OTPDefinitionBean.fromOTPDefinition(editedValue));
 		} else

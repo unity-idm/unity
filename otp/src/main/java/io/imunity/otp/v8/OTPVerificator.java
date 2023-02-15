@@ -4,24 +4,20 @@
  */
 package io.imunity.otp.v8;
 
-import java.util.Date;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
+import io.imunity.otp.OTP;
+import io.imunity.otp.OTPCredential;
+import io.imunity.otp.OTPCredentialDefinition;
+import io.imunity.otp.OTPExtraInfo;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Strings;
-
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
-import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
@@ -35,6 +31,8 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.EntityParam;
+
+import java.util.Date;
 
 @PrototypeComponent
 class OTPVerificator extends AbstractLocalVerificator implements OTPExchange 

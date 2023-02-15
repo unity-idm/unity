@@ -4,27 +4,13 @@
  */
 package io.imunity.fido.web.v8;
 
-import static io.imunity.tooltip.TooltipExtension.tooltip;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.vaadin.server.VaadinService;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.ui.*;
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.component.FidoComponent;
 import io.imunity.fido.credential.FidoCredential;
 import io.imunity.fido.credential.FidoCredentialInfo;
+import io.imunity.fido.web.FidoCredentialInfoWrapper;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -32,6 +18,15 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static io.imunity.tooltip.TooltipExtension.tooltip;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Editor integrating FidoComponent and displays current Fido keys with status.

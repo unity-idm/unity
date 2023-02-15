@@ -4,17 +4,13 @@
  */
 package io.imunity.otp.v8;
 
-import java.util.Properties;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
-
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.otp.OTP;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
@@ -30,6 +26,9 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 @PrototypeComponent
 class OTPAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor

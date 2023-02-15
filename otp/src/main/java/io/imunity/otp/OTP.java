@@ -4,7 +4,7 @@
  */
 package io.imunity.otp;
 
-class OTP
+public class OTP
 {
-	static final String NAME = "otp";
+	public static final String NAME = "otp";
 }

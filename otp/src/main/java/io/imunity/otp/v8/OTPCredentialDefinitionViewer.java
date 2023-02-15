@@ -5,12 +5,11 @@
 
 package io.imunity.otp.v8;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-
+import io.imunity.otp.OTPCredentialDefinition;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -30,7 +29,7 @@ class OTPCredentialDefinitionViewer implements CredentialDefinitionViewer
 	@Override
 	public Component getViewer(String credentialDefinitionConfiguration)
 	{
-		OTPCredentialDefinition credentialDef = JsonUtil.parse(credentialDefinitionConfiguration, 
+		OTPCredentialDefinition credentialDef = JsonUtil.parse(credentialDefinitionConfiguration,
 				OTPCredentialDefinition.class);
 		
 		Label issuer = new Label();
