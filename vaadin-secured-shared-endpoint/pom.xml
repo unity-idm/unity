@@ -14,26 +14,35 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vaadin-secured-shared-endpoint</artifactId>
+    <artifactId>unity-server-vaadin-secured-shared-endpoint</artifactId>
+    <name>UNITY Server vaadin secured shared endpoint</name>
+    <description>Vaadin secured shared endpoint</description>
 
     <properties>
         <vaadin.productionMode>true</vaadin.productionMode>
+        <m.name>vaadin-secured-shared-endpoint</m.name>
     </properties>
+
+    <scm>
+        <connection>${scm.base}/${m.name}</connection>
+        <developerConnection>${scm.base}/${m.name}</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-endpoint-common</artifactId>
+            <artifactId>unity-server-vaadin-endpoint-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-elements</artifactId>
+            <artifactId>unity-vaadin-elements</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-enquiry</artifactId>
+            <artifactId>unity-server-vaadin-enquiry</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

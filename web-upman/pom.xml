@@ -49,12 +49,12 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>vaadin-endpoint-common</artifactId>
+			<artifactId>unity-server-vaadin-endpoint-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>vaadin-elements</artifactId>
+			<artifactId>unity-vaadin-elements</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	    <dependency>

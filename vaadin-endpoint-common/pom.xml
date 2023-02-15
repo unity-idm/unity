@@ -12,7 +12,19 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vaadin-endpoint-common</artifactId>
+    <artifactId>unity-server-vaadin-endpoint-common</artifactId>
+    <name>UNITY Server vaadin endpoint common module</name>
+    <description>Common Vaadin endpoint components</description>
+
+    <properties>
+        <m.name>vaadin-endpoint-common</m.name>
+    </properties>
+
+    <scm>
+        <connection>${scm.base}/${m.name}</connection>
+        <developerConnection>${scm.base}/${m.name}</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -27,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-elements</artifactId>
+            <artifactId>unity-vaadin-elements</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

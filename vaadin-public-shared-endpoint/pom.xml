@@ -14,21 +14,30 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>vaadin-public-shared-endpoint</artifactId>
+    <artifactId>unity-server-vaadin-public-shared-endpoint</artifactId>
+    <name>UNITY Server vaadin public shared endpoint</name>
+    <description>Vaadin public shared endpoint</description>
 
     <properties>
         <vaadin.productionMode>true</vaadin.productionMode>
+        <m.name>vaadin-public-shared-endpoint</m.name>
     </properties>
+
+    <scm>
+        <connection>${scm.base}/${m.name}</connection>
+        <developerConnection>${scm.base}/${m.name}</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-endpoint-common</artifactId>
+            <artifactId>unity-server-vaadin-endpoint-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-elements</artifactId>
+            <artifactId>unity-vaadin-elements</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -43,12 +52,12 @@
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-registration</artifactId>
+            <artifactId>unity-server-vaadin-registration</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>vaadin-enquiry</artifactId>
+            <artifactId>unity-server-vaadin-enquiry</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
