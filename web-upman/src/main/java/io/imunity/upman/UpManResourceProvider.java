@@ -12,6 +12,6 @@ public class UpManResourceProvider extends CustomResourceProvider
 {
 	public UpManResourceProvider()
 	{
-		super("unity-server-vaadin-endpoint-common");
+		super("vaadin-endpoint-common");
 	}
 }

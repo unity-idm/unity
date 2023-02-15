@@ -14,9 +14,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>unity-server-vaadin-enquiry</artifactId>
-    <name>UNITY Server vaadin enquiry module</name>
-    <description>Vaadin enquiry views</description>
+    <artifactId>vaadin-secured-shared-endpoint</artifactId>
 
     <properties>
         <vaadin.productionMode>true</vaadin.productionMode>
@@ -25,12 +23,17 @@
     <dependencies>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>unity-server-vaadin-endpoint-common</artifactId>
+            <artifactId>vaadin-endpoint-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>unity-vaadin-elements</artifactId>
+            <artifactId>vaadin-elements</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.imunity</groupId>
+            <artifactId>vaadin-enquiry</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

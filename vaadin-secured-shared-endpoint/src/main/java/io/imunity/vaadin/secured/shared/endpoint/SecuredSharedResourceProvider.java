@@ -12,6 +12,6 @@ public class SecuredSharedResourceProvider extends CustomResourceProvider
 {
 	public SecuredSharedResourceProvider()
 	{
-		super("unity-server-vaadin-endpoint-common", "unity-server-vaadin-enquiry");
+		super("vaadin-endpoint-common", "vaadin-enquiry");
 	}
 }
