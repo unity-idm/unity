@@ -3,13 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.account_association_view;
+package io.imunity.vaadin.account_association;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinService;
-import io.imunity.vaadin.account_association_view.wizard.WizardStep;
+import io.imunity.vaadin.account_association.wizard.WizardStep;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
@@ -23,6 +23,7 @@ class SandboxAuthnLaunchStep extends WizardStep
 	private final Runnable sandboxNewWindowOpener;
 	private SandboxAuthnNotifier.AuthnResultListener listener;
 	SandboxAuthnEvent event;
+	Long sessionEntityId;
 
 	public SandboxAuthnLaunchStep(String label, Component component, SandboxAuthnNotifier sandboxAuthnNotifier, Runnable sandboxNewWindowOpener)
 	{
@@ -35,6 +36,7 @@ class SandboxAuthnLaunchStep extends WizardStep
 	protected void initialize()
 	{
 		this.event = null;
+		this.sessionEntityId = null;
 		sandboxNewWindowOpener.run();
 		if(this.listener != null)
 			sandboxAuthnNotifier.removeListener(this.listener);
@@ -53,6 +55,7 @@ class SandboxAuthnLaunchStep extends WizardStep
 						try
 						{
 							this.event = event;
+							this.sessionEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
 							stepRequiredNewStep();
 							refreshWizard();
 						} finally

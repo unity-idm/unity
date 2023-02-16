@@ -4,7 +4,7 @@
  */
 
 
-package io.imunity.vaadin.endpoint_config;
+package io.imunity.vaadin.secured_shared_endpoint;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

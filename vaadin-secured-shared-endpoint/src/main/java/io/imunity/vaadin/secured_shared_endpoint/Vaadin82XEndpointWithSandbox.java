@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.endpoint_config;
+package io.imunity.vaadin.secured_shared_endpoint;
 
 import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;

@@ -3,10 +3,10 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.endpoint_config.console;
+package io.imunity.vaadin.secured_shared_endpoint.console;
 
 import com.vaadin.data.Binder;
-import io.imunity.vaadin.endpoint_config.SecuredSharedEndpointFactory;
+import io.imunity.vaadin.secured_shared_endpoint.SecuredSharedEndpointFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;

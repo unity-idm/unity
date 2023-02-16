@@ -5,5 +5,5 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config/>
-	<context:component-scan base-package="io.imunity.vaadin.endpoint_config, io.imunity.vaadin.account_association_view"/>
+	<context:component-scan base-package="io.imunity.vaadin.secured_shared_endpoint, io.imunity.vaadin.account_association"/>
 </beans>

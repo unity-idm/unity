@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.account_association_view;
+package io.imunity.vaadin.account_association;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.H3;
@@ -55,6 +55,6 @@ class StatusView extends Composite<VerticalLayout> implements BeforeEnterObserve
 	@Override
 	public String getPageTitle()
 	{
-		return msg.getMessage("AssociationAccount.title");
+		return msg.getMessage("AssociationAccount.status.title");
 	}
 }

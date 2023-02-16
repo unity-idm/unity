@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.account_association_view.wizard;
+package io.imunity.vaadin.account_association.wizard;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;

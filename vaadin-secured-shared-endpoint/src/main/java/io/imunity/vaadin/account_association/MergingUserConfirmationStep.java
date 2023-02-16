@@ -2,18 +2,16 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.account_association_view;
+package io.imunity.vaadin.account_association;
 
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import io.imunity.vaadin.account_association_view.wizard.WizardStep;
+import io.imunity.vaadin.account_association.wizard.WizardStep;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
@@ -28,6 +26,8 @@ class MergingUserConfirmationStep extends WizardStep
 	private final MessageSource msg;
 	private final InputTranslationEngine translationEngine;
 	SandboxAuthnContext ctx;
+	Long sessionEntityId;
+
 
 
 	public MergingUserConfirmationStep(String label, MessageSource msg, InputTranslationEngine translationEngine)
@@ -59,8 +59,7 @@ class MergingUserConfirmationStep extends WizardStep
 				try
 				{
 					existingEntity = translationEngine.resolveMappedIdentity(existingIdentity);
-					LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
-					if (existingEntity.getId() == loginSession.getEntityId())
+					if (existingEntity.getId().equals(sessionEntityId))
 						setError(msg.getMessage("ConnectId.ConfirmStep.errorSameIdentity"));
 					else
 						setError(msg.getMessage("ConnectId.ConfirmStep.errorExistingIdentity"));
@@ -87,8 +86,9 @@ class MergingUserConfirmationStep extends WizardStep
 		((HorizontalLayout)component).setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
-	void prepareStep(SandboxAuthnEvent event)
+	void prepareStep(SandboxAuthnEvent event, Long sessionEntityId)
 	{
 		this.ctx = event.ctx;
+		this.sessionEntityId = sessionEntityId;
 	}
 }

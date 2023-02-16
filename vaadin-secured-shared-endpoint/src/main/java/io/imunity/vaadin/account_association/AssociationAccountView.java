@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.account_association_view;
+package io.imunity.vaadin.account_association;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
@@ -15,9 +15,9 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint_config.Vaadin2XWebAppContextWithSandbox;
-import io.imunity.vaadin.account_association_view.wizard.Wizard;
-import io.imunity.vaadin.account_association_view.wizard.WizardStepPreparer;
+import io.imunity.vaadin.secured_shared_endpoint.Vaadin2XWebAppContextWithSandbox;
+import io.imunity.vaadin.account_association.wizard.Wizard;
+import io.imunity.vaadin.account_association.wizard.WizardStepPreparer;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
@@ -60,7 +60,7 @@ class AssociationAccountView extends Composite<VerticalLayout> implements HasDyn
 				.addNextStepPreparer(new WizardStepPreparer<>(
 						SandboxAuthnLaunchStep.class,
 						MergingUserConfirmationStep.class,
-						(step1, step2) -> step2.prepareStep(step1.event))
+						(step1, step2) -> step2.prepareStep(step1.event, step1.sessionEntityId))
 				)
 				.addStep(new MergingUserConfirmationStep(msg.getMessage("ConnectId.ConfirmStep.caption"), msg, inputTranslationEngine))
 				.addNextStepPreparer(new WizardStepPreparer<>(
@@ -79,6 +79,6 @@ class AssociationAccountView extends Composite<VerticalLayout> implements HasDyn
 	@Override
 	public String getPageTitle()
 	{
-		return msg.getMessage("AssociationAccount.status.title");
+		return msg.getMessage("AssociationAccount.title");
 	}
 }
