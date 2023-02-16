@@ -15,12 +15,12 @@ import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
 import io.imunity.vaadin.elements.ExtraLayoutPanel;
 import io.imunity.vaadin.elements.MenuComponent;
-import io.imunity.vaadin.endpoint.common.Vaadin823EndpointProperties;
+import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 
 import java.util.List;
 
-import static io.imunity.vaadin.endpoint.common.Vaadin23WebAppContext.getCurrentWebAppVaadinProperties;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppVaadinProperties;
 
 @CssImport("./styles/views/main-layout.css")
 @CssImport("./styles/custom-lumo-theme.css")
@@ -29,7 +29,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout
 {
 
 	private final UnityAppLayoutComponentsHolder appLayoutComponents;
-	private final Vaadin823EndpointProperties vaadinEndpointProperties;
+	private final Vaadin82XEndpointProperties vaadinEndpointProperties;
 	private VerticalLayout leftContainerContent;
 
 	public UnityAppLayout(List<MenuComponent> menuComponents,

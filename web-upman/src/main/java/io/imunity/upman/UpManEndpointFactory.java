@@ -6,7 +6,7 @@
 
 package io.imunity.upman;
 
-import io.imunity.vaadin.endpoint.common.Vaadin823Endpoint;
+import io.imunity.vaadin.endpoint.common.Vaadin82XEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -65,7 +65,7 @@ public class UpManEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new Vaadin823Endpoint(server, advertisedAddrProvider, msg, applicationContext,
+		return new Vaadin82XEndpoint(server, advertisedAddrProvider, msg, applicationContext,
 				new UpManResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, UpManServlet.class);
 	}
 }

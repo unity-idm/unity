@@ -15,7 +15,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint_config.Vaadin23WebAppContextWithSandbox;
+import io.imunity.vaadin.endpoint_config.Vaadin2XWebAppContextWithSandbox;
 import io.imunity.vaadin.account_association_view.wizard.Wizard;
 import io.imunity.vaadin.account_association_view.wizard.WizardStepPreparer;
 import pl.edu.icm.unity.MessageSource;
@@ -43,7 +43,7 @@ class AssociationAccountView extends Composite<VerticalLayout> implements HasDyn
 		String contextPath = VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath();
 		Runnable sandBoxNewPageOpener = () -> UI.getCurrent().getPage()
 				.executeJs("window.open('"+ contextPath + SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
-		SandboxAuthnRouter router = Vaadin23WebAppContextWithSandbox.getCurrentWebAppSandboxAuthnRouter();
+		SandboxAuthnRouter router = Vaadin2XWebAppContextWithSandbox.getCurrentWebAppSandboxAuthnRouter();
 
 		Wizard wizard = Wizard.builder()
 				.addStep(new IntroStep(msg))

@@ -46,9 +46,9 @@ import java.util.*;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.*;
 
-public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
+public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, Vaadin823Endpoint.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, Vaadin82XEndpoint.class);
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	protected ApplicationContext applicationContext;
 	protected CustomResourceProvider resourceProvider;
@@ -62,11 +62,11 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 	protected MessageSource msg;
 
 	protected InvocationContextSetupFilter contextSetupFilter;
-	protected Vaadin823EndpointProperties genericEndpointProperties;
+	protected Vaadin82XEndpointProperties genericEndpointProperties;
 	protected final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 	protected final Class<? extends com.vaadin.flow.server.VaadinServlet> servletClass;
 
-	public Vaadin823Endpoint(NetworkServer server,
+	public Vaadin82XEndpoint(NetworkServer server,
 	                         AdvertisedAddressProvider advertisedAddrProvider,
 	                         MessageSource msg,
 	                         ApplicationContext applicationContext,
@@ -92,7 +92,7 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 		try
 		{
 			properties.load(new StringReader(cfg));
-			genericEndpointProperties = new Vaadin823EndpointProperties(properties, serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH));
+			genericEndpointProperties = new Vaadin82XEndpointProperties(properties, serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH));
 
 		} catch (Exception e)
 		{
@@ -212,8 +212,8 @@ public class Vaadin823Endpoint extends AbstractWebEndpoint implements WebAppEndp
 	@Override
 	public synchronized ServletContextHandler getServletContextHandler()
 	{
-		Vaadin23WebAppContext vaadin23WebAppContext = new Vaadin23WebAppContext(properties, genericEndpointProperties, msg, description);
-		context = getServletContextHandlerOverridable(vaadin23WebAppContext);
+		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description);
+		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);
 		return context;
 	}
 

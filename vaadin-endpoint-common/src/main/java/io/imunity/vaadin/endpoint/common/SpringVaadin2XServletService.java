@@ -16,11 +16,11 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Optional;
 
-public class SpringVaadin23ServletService extends VaadinServletService
+public class SpringVaadin2XServletService extends VaadinServletService
 {
 	private final ApplicationContext context;
 
-	public SpringVaadin23ServletService(VaadinServlet servlet, DeploymentConfiguration deploymentConfiguration, ApplicationContext applicationContext)
+	public SpringVaadin2XServletService(VaadinServlet servlet, DeploymentConfiguration deploymentConfiguration, ApplicationContext applicationContext)
 	{
 		super(servlet, deploymentConfiguration);
 		this.context = applicationContext;

@@ -7,8 +7,8 @@ package io.imunity.vaadin.shared.endpoint;
 import com.vaadin.flow.server.InitParameters;
 import com.vaadin.flow.server.startup.ServletContextListeners;
 import io.imunity.vaadin.endpoint.common.JarGetter;
-import io.imunity.vaadin.endpoint.common.Vaadin23WebAppContext;
-import io.imunity.vaadin.endpoint.common.Vaadin823EndpointProperties;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -59,8 +59,8 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	                                    MessageSource msg) throws EngineException
 	{
 		Properties properties = config.getProperties();
-		Vaadin823EndpointProperties vaadinEndpointProperties = new Vaadin823EndpointProperties(properties, config.getValue(DEFAULT_WEB_CONTENT_PATH));
-		WebAppContext context = new Vaadin23WebAppContext(properties, vaadinEndpointProperties, msg, null);
+		Vaadin82XEndpointProperties vaadinEndpointProperties = new Vaadin82XEndpointProperties(properties, config.getValue(DEFAULT_WEB_CONTENT_PATH));
+		WebAppContext context = new Vaadin2XWebAppContext(properties, vaadinEndpointProperties, msg, null);
 		context.setResourceBase(getWebContentsDir(config));
 		context.setContextPath(CONTEXT_PATH);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(sharedResourceProvider.getChosenClassPathElement()));
@@ -71,7 +71,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		context.addFilter(new FilterHolder(new InvocationContextSetupFilter(config, null, null, emptyList())), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		ServletHolder servletHolder = context.addServlet(SimpleVaadin23Servlet.class, "/*");
+		ServletHolder servletHolder = context.addServlet(SimpleVaadin2XServlet.class, "/*");
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
 		servletHolder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(SESSION_TIMEOUT_VALUE.getSeconds()));

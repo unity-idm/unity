@@ -14,7 +14,7 @@ import java.util.Properties;
 
 import static java.util.Optional.ofNullable;
 
-public class Vaadin823EndpointProperties extends VaadinEndpointProperties
+public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 {
 	public static final String EXTRA_LEFT_PANEL = "extraLeftPanel";
 
@@ -46,7 +46,7 @@ public class Vaadin823EndpointProperties extends VaadinEndpointProperties
 				setDescription("Seconds before showing session expiration warning notification"));
 	}
 
-	public Vaadin823EndpointProperties(Properties properties, String defaultWebContentPath)
+	public Vaadin82XEndpointProperties(Properties properties, String defaultWebContentPath)
 	{
 		super(properties);
 		this.defaultWebContentPath = defaultWebContentPath;

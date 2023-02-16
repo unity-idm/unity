@@ -23,7 +23,7 @@ import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
 import java.util.Optional;
 
-import static io.imunity.vaadin.endpoint.common.Vaadin23WebAppContext.getCurrentWebAppVaadinProperties;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppVaadinProperties;
 import static java.lang.String.format;
 
 @Component
@@ -34,7 +34,7 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 	@Override
 	public void serviceInit(ServiceInitEvent serviceInitEvent)
 	{
-		Vaadin823EndpointProperties currentWebAppVaadinProperties = getCurrentWebAppVaadinProperties();
+		Vaadin82XEndpointProperties currentWebAppVaadinProperties = getCurrentWebAppVaadinProperties();
 		File externalCSSResource = currentWebAppVaadinProperties.getCustomCssFile().orElse(null);
 
 		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(externalCSSResource));

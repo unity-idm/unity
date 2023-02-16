@@ -6,7 +6,7 @@ package io.imunity.vaadin.endpoint_config;
 
 import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
-import io.imunity.vaadin.endpoint.common.Vaadin823Endpoint;
+import io.imunity.vaadin.endpoint.common.Vaadin82XEndpoint;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
@@ -23,13 +23,13 @@ import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.DEFAULT_HEARTBEAT;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
-class Vaadin823EndpointWithSandbox extends Vaadin823Endpoint
+class Vaadin82XEndpointWithSandbox extends Vaadin82XEndpoint
 {
-	Vaadin823EndpointWithSandbox(NetworkServer server, AdvertisedAddressProvider advertisedAddrProvider,
-	                                    MessageSource msg, ApplicationContext applicationContext,
-	                                    CustomResourceProvider resourceProvider, String servletPath,
-	                                    RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
-	                                    Class<? extends VaadinServlet> servletClass)
+	Vaadin82XEndpointWithSandbox(NetworkServer server, AdvertisedAddressProvider advertisedAddrProvider,
+	                             MessageSource msg, ApplicationContext applicationContext,
+	                             CustomResourceProvider resourceProvider, String servletPath,
+	                             RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
+	                             Class<? extends VaadinServlet> servletClass)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, resourceProvider, servletPath, remoteAuthnResponseProcessingFilter, servletClass);
 	}
@@ -38,7 +38,7 @@ class Vaadin823EndpointWithSandbox extends Vaadin823Endpoint
 	public synchronized ServletContextHandler getServletContextHandler()
 	{
 		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
-		Vaadin23WebAppContextWithSandbox webAppContext = new Vaadin23WebAppContextWithSandbox(properties, genericEndpointProperties, msg, description, sandboxRouter);
+		Vaadin2XWebAppContextWithSandbox webAppContext = new Vaadin2XWebAppContextWithSandbox(properties, genericEndpointProperties, msg, description, sandboxRouter);
 		context = getServletContextHandlerOverridable(webAppContext);
 		addSandboxUI(SANDBOX_PATH_ASSOCIATION, AccountAssociationSandboxUI.class.getSimpleName(), sandboxRouter);
 		return context;

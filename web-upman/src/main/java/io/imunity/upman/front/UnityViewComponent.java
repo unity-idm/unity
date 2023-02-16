@@ -11,7 +11,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.*;
 import io.imunity.upman.front.model.ProjectGroup;
 
-import static io.imunity.vaadin.endpoint.common.Vaadin23WebAppContext.getCurrentWebAppDisplayedName;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppDisplayedName;
 
 public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>, AfterNavigationObserver, HasDynamicTitle
 {

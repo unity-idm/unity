@@ -59,7 +59,7 @@ public class SecuredSharedEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new Vaadin823EndpointWithSandbox(server, advertisedAddrProvider, msg, applicationContext,
-				new SecuredSharedResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, SharedVaadin23Servlet.class);
+		return new Vaadin82XEndpointWithSandbox(server, advertisedAddrProvider, msg, applicationContext,
+				new SecuredSharedResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, SharedVaadin2XServlet.class);
 	}
 }

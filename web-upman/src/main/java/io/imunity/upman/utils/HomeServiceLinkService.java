@@ -6,7 +6,7 @@
 package io.imunity.upman.utils;
 
 import io.imunity.upman.UpmanEndpointProperties;
-import io.imunity.vaadin.endpoint.common.Vaadin23WebAppContext;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class HomeServiceLinkService
 
 	public Optional<String> getHomeLinkIfAvailable()
 	{
-		UpmanEndpointProperties upmanEndpointProperties = new UpmanEndpointProperties(Vaadin23WebAppContext.getCurrentWebAppContextProperties());
+		UpmanEndpointProperties upmanEndpointProperties = new UpmanEndpointProperties(Vaadin2XWebAppContext.getCurrentWebAppContextProperties());
 
 		if (!upmanEndpointProperties.isHomeIsEnabled())
 			return Optional.empty();
