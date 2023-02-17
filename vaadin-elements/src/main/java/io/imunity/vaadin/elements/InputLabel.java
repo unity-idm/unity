@@ -16,6 +16,7 @@ public class InputLabel extends Label
 	{
 		add(label);
 		addClassName("input-label");
+		getStyle().set("padding-top" ,"var(--lumo-space-m)");
 	}
 
 	public void setRequired(boolean required)

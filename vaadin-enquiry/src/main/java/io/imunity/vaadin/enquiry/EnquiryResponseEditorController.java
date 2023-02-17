@@ -6,6 +6,7 @@ package io.imunity.vaadin.enquiry;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.WebSession;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -63,7 +63,7 @@ public class EnquiryResponseEditorController
 	private final PolicyAgreementManagement policyAgrMan;
 	private final InvitationManagement invitationManagement;
 	private final NotificationPresenter notificationPresenter;
-	private final URIAccessService uriAccessService;
+	private final VaadinLogoImageLoader logoImageLoader;
 
 	@Autowired
 	public EnquiryResponseEditorController(MessageSource msg,
@@ -81,7 +81,7 @@ public class EnquiryResponseEditorController
 	                                       NotificationPresenter notificationPresenter,
 	                                       PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
 	                                       PolicyAgreementManagement policyAgrMan,
-	                                       URIAccessService uriAccessService)
+	                                       VaadinLogoImageLoader logoImageLoader)
 	{
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;
@@ -98,7 +98,7 @@ public class EnquiryResponseEditorController
 		this.policyAgreementsRepresentationBuilder = policyAgreementsRepresentationBuilder;
 		this.policyAgrMan = policyAgrMan;
 		this.invitationManagement = invitationMan;
-		this.uriAccessService = uriAccessService;
+		this.logoImageLoader = logoImageLoader;
 	}
 
 	private EnquiryResponseEditor getEditorInstance(EnquiryForm form, Map<String, Object> messageParams,
@@ -108,7 +108,7 @@ public class EnquiryResponseEditorController
 		return new EnquiryResponseEditor(msg, form, remoteContext,
 				identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan, notificationPresenter,
-				policyAgreementsRepresentationBuilder, filteredPolicyAgreement, set, uriAccessService, messageParams);
+				policyAgreementsRepresentationBuilder, filteredPolicyAgreement, set, logoImageLoader, messageParams);
 	}
 
 	public EnquiryResponseEditor getEditorInstanceForUnauthenticatedUser(EnquiryForm form, Map<String, Object> messageParams,

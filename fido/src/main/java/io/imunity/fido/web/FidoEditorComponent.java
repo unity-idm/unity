@@ -6,7 +6,6 @@ package io.imunity.fido.web;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -35,18 +34,17 @@ import static java.util.Objects.nonNull;
 
 class FidoEditorComponent extends VerticalLayout
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	private final List<FidoCredentialInfoWrapper> credentials = new ArrayList<>();
 	private final FidoComponent fidoComponent;
 	private final VerticalLayout credentialsLayout;
-	private Button addButton;
-	private TextField username;
-	private Div advancedOptionsButton;
-	private boolean loginLessSupported;
-	private VerticalLayout buttons;
+	private final Button addButton;
+	private final TextField username;
+	private final Div advancedOptionsButton;
+	private final boolean loginLessSupported;
+	private final boolean required;
 	private VerticalLayout advancedOptions;
 	private Checkbox loginLessAllowed;
-	private boolean required;
 
 	public FidoEditorComponent(FidoRegistration fidoRegistration, CredentialEditorContext context,
 	                           MessageSource msg, NotificationPresenter notificationPresenter)
@@ -70,18 +68,20 @@ class FidoEditorComponent extends VerticalLayout
 
 		username = new TextField(msg.getMessage("Fido.username"));
 		username.setValue(credential.map(c -> c.getHostName() + " " + msg.getMessage("Fido.defaultUser")).orElse(msg.getMessage("Fido.defaultUser")));
-		username.setWidth(100, Unit.PERCENTAGE);
+		username.setWidthFull();
 
 		credentialsLayout = new VerticalLayout();
 		credentialsLayout.setPadding(false);
 		credentialsLayout.setMargin(false);
-		credentialsLayout.setSpacing(false);
+		credentialsLayout.getStyle().set("flex-direction", "row");
+		credentialsLayout.getStyle().set("gap", "0");
 
 		addButton = new Button();
 		addButton.getElement().setProperty("title", msg.getMessage("Fido.newRegistration"));
 		addButton.setText(msg.getMessage("Fido.register"));
 		addButton.setWidthFull();
 		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue(), loginLessAllowed.getValue()));
+		addButton.getStyle().set("margin-top", "var(--lumo-space-m)");
 
 		Label advancedOptionsLabel = new Label(msg.getMessage("Fido.advancedOptions"));
 		advancedOptionsButton = new Div(advancedOptionsLabel);
@@ -97,7 +97,7 @@ class FidoEditorComponent extends VerticalLayout
 		loginLessAllowed.getElement().setProperty("title", msg.getMessage("Fido.credEditor.loginLess.tip"));
 		loginLessAllowed.setValue(loginLessSupported);
 
-		buttons = new VerticalLayout(addButton, advancedOptionsButton);
+		VerticalLayout buttons = new VerticalLayout(addButton, advancedOptionsButton);
 		buttons.setSpacing(false);
 		buttons.setMargin(false);
 		buttons.setPadding(false);

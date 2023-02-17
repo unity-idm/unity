@@ -136,6 +136,7 @@ public class CaptchaComponent
 		if (attempt == null)
 		{
 			reset();
+			answer.setInvalid(true);
 			answer.setErrorMessage(msg.getMessage("CaptchaComponent.wrongAnswer"));
 			throw new WrongArgumentException("");
 		}
@@ -144,10 +145,11 @@ public class CaptchaComponent
 		if (!rightAnswer.equals(attempt))
 		{
 			reset();
+			answer.setInvalid(true);
 			answer.setErrorMessage(msg.getMessage("CaptchaComponent.wrongAnswer"));
 			throw new WrongArgumentException("");
 		}
-		answer.setErrorMessage(null);
+		answer.setInvalid(false);
 	}
 	
 	

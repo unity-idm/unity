@@ -33,8 +33,9 @@ public class PasswordQualityComponent extends VerticalLayout
 	{
 		qualityMeter = new PasswordProgressBar(config.getMinLength() > 1, config.getMinClassesNum() > 1, config.isDenySequences());
 		qualityMeter.setTitle(msg.getMessage("PasswordCredentialEditor.qualityMeter"));
-		qualityMeter.setWidth("15em");
+		qualityMeter.setWidth("17em");
 		qualityMeter.addClassName("u-password-quality");
+		qualityMeter.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
 
 		add(qualityMeter);
 		getStyle().set("position", "absolute");

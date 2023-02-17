@@ -5,7 +5,6 @@
 
 package io.imunity.vaadin.endpoint.common.forms.policy_agreements;
 
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.vaadin.elements.CheckboxWithError;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
@@ -27,7 +26,7 @@ public class PolicyAgreementRepresentation extends HorizontalLayout
 	                                     PolicyAgreementPresentationType presentationType, boolean mandatory)
 	{
 		this.documentsIdsToAccept = documentsToAccept;
-		this.decisionCheckBox = new CheckboxWithError();
+		this.decisionCheckBox = new CheckboxWithError(representation);
 		this.representation = representation;
 		this.mandatory = mandatory;
 		this.presentationType = presentationType;
@@ -36,8 +35,6 @@ public class PolicyAgreementRepresentation extends HorizontalLayout
 
 	private void initUI()
 	{
-		Html caption = new Html("<div style='margin-top:auto;margin-bottom:auto;'>" + representation + "</dvi>");
-
 		if (presentationType == PolicyAgreementPresentationType.INFORMATIVE_ONLY)
 		{
 			decisionCheckBox.setValue(true);
@@ -51,20 +48,20 @@ public class PolicyAgreementRepresentation extends HorizontalLayout
 		setWidthFull();
 		setMargin(false);
 		setPadding(false);
-		add(decisionCheckBox, caption);
+		add(decisionCheckBox);
 	}
 
 	public PolicyAgreementDecision getDecision()
 	{
 		return new PolicyAgreementDecision(
-				decisionCheckBox.getValue() ? PolicyAgreementAcceptanceStatus.ACCEPTED
+				decisionCheckBox.getState() ? PolicyAgreementAcceptanceStatus.ACCEPTED
 						: PolicyAgreementAcceptanceStatus.NOT_ACCEPTED,
 				documentsIdsToAccept);
 	}
 
 	public boolean isValid()
 	{
-		return mandatory ? mandatory && decisionCheckBox.getValue() : true;
+		return mandatory ? decisionCheckBox.getState() : true;
 	}
 
 	public void addValueChangeListener(Runnable valueChangeListener)

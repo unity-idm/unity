@@ -14,7 +14,6 @@ import com.vaadin.flow.component.shared.SlotUtils;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletResponse;
-import com.vaadin.flow.server.VaadinSession;
 import io.imunity.vaadin.elements.FlagIcon;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -46,9 +45,6 @@ public class LocaleChoiceComponent extends Div
 				Locale l = event.getValue();
 				Cookie languageCookie = new LanguageCookie(l.toString());
 				((VaadinServletResponse)VaadinService.getCurrentResponse()).addCookie(languageCookie);
-
-				VaadinSession vSession = VaadinSession.getCurrent();
-				VaadinService.getCurrent().closeSession(vSession);
 				UI.getCurrent().getPage().reload();
 			});
 			chooser.setRenderer(new ComponentRenderer<>(

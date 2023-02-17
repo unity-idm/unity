@@ -14,9 +14,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.Optional;
-import java.util.function.Consumer;
-
-import static java.util.Objects.isNull;
 
 class FidoPreviewComponent extends VerticalLayout
 {
@@ -24,36 +21,34 @@ class FidoPreviewComponent extends VerticalLayout
 	private final MessageSource msg;
 	private final FidoCredentialInfoWrapper credential;
 
-	public FidoPreviewComponent(final MessageSource msg,
-	                            final FidoCredentialInfoWrapper credential,
-	                            final Runnable deleteCallback)
+	public FidoPreviewComponent(MessageSource msg,
+	                            FidoCredentialInfoWrapper credential,
+	                            Runnable deleteCallback)
 	{
 		this.msg = msg;
 		this.credential = credential;
 
-		add(getMainForm(deleteCallback));
+		setMargin(false);
+		setPadding(false);
+		init(deleteCallback);
 	}
 
-	private VerticalLayout getMainForm(final Runnable deleteCallback)
+	private void init(Runnable deleteCallback)
 	{
-		VerticalLayout root = new VerticalLayout();
-		root.setSpacing(false);
-		root.setMargin(false);
+		TextField textField = new TextField(msg.getMessage("Fido.authenticatorInfo"));
+		textField.setValue(Optional.ofNullable(credential.getCredential().getDescription()).orElse(""));
+		textField.addValueChangeListener(event -> credential.setDescription(event.getValue()));
+		textField.setWidthFull();
+		textField.setRequired(true);
+		add(textField);
 
-		root.add(addLine(msg.getMessage("Fido.authenticatorInfo"),
-				Optional.ofNullable(credential.getCredential().getDescription()).orElse(""),
-				0,
-				credential::setDescription));
+		add(addLine(msg.getMessage("Fido.attestationType"),
+				msg.getMessage("Fido." + credential.getCredential().getAttestationFormat())
+		));
 
-		root.add(addLine(msg.getMessage("Fido.attestationType"),
-				msg.getMessage("Fido." + credential.getCredential().getAttestationFormat()),
-				CAPTION_WIDTH,
-				null));
-
-		root.add(addLine(msg.getMessage("Fido.created"),
-				msg.getMessage("Fido.createdFormat", credential.getRegistrationTimestamp()),
-				CAPTION_WIDTH,
-				null));
+		add(addLine(msg.getMessage("Fido.created"),
+				msg.getMessage("Fido.createdFormat", credential.getRegistrationTimestamp())
+		));
 
 		Button action = new Button(msg.getMessage("Fido.deleteKey"));
 		action.addClickListener(event ->
@@ -61,13 +56,11 @@ class FidoPreviewComponent extends VerticalLayout
 			credential.setState(credential.isDeleted() ? FidoCredentialInfoWrapper.CredentialState.NEW : FidoCredentialInfoWrapper.CredentialState.DELETED);
 			deleteCallback.run();
 		});
-		root.add(action);
-		root.setAlignItems(FlexComponent.Alignment.CENTER);
-
-		return root;
+		add(action);
+		setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
-	private HorizontalLayout addLine(String name, String value, int width, Consumer<String> setter)
+	private HorizontalLayout addLine(String name, String value)
 	{
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setMargin(false);
@@ -75,25 +68,13 @@ class FidoPreviewComponent extends VerticalLayout
 		Label caption = new Label();
 		caption.setText(name);
 		caption.getStyle().set("font-weight", "bold");
-		if (width > 0)
-		{
-			caption.setWidth(width, Unit.PIXELS);
-		}
+		caption.setWidth(FidoPreviewComponent.CAPTION_WIDTH, Unit.PIXELS);
+
 		layout.add(caption);
-		if (isNull(setter))
-		{
-			Label label = new Label();
-			label.setText(value);
-			layout.add(label);
-			layout.setAlignItems(Alignment.CENTER);
-		} else
-		{
-			TextField textField = new TextField();
-			textField.setValue(value);
-			layout.add(textField);
-			layout.setAlignItems(Alignment.CENTER);
-			textField.addValueChangeListener(event -> setter.accept(event.getValue()));
-		}
+		Label label = new Label();
+		label.setText(value);
+		layout.add(label);
+		layout.setAlignItems(Alignment.CENTER);
 
 		layout.setAlignItems(FlexComponent.Alignment.CENTER);
 		return layout;

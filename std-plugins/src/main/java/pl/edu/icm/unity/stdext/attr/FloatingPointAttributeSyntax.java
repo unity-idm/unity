@@ -106,7 +106,14 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 	@Override
 	public Double convertFromString(String stringRepresentation)
 	{
-		return Double.parseDouble(stringRepresentation);
+		try
+		{
+			return Double.parseDouble(stringRepresentation);
+		}
+		catch (NumberFormatException e)
+		{
+			throw new IllegalArgumentException("Wrong number format");
+		}
 	}
 
 	@Override

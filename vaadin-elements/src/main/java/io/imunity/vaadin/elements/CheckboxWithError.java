@@ -5,66 +5,30 @@
 
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.dom.Style;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 
-public class CheckboxWithError extends CustomField<Boolean> implements HasStyle
+import java.util.Set;
+
+public class CheckboxWithError extends CheckboxGroup<String>
 {
-	private final Checkbox checkbox;
-
-	public CheckboxWithError()
+	private final String label;
+	public CheckboxWithError(String label)
 	{
-		checkbox = new Checkbox();
-		add(checkbox);
+		super(null, Set.of(label));
+		this.label = label;
+		addValueChangeListener(e -> setInvalid(false));
 	}
 
-	public CheckboxWithError(String labelText)
+	public boolean getState()
 	{
-		checkbox = new Checkbox(labelText);
-		add(checkbox);
+		return getValue().contains(label);
 	}
 
-	@Override
-	protected Boolean generateModelValue()
+	public void setValue(boolean value)
 	{
-		return checkbox.getValue();
+		if(value)
+			setValue(Set.of(label));
+		else
+			deselect(label);
 	}
-
-	@Override
-	protected void setPresentationValue(Boolean newPresentationValue)
-	{
-		checkbox.setValue(newPresentationValue);
-	}
-
-	@Override
-	public void addClassNames(String... classNames)
-	{
-		checkbox.addClassNames(classNames);
-	}
-
-	@Override
-	public Style getStyle()
-	{
-		return checkbox.getStyle();
-	}
-
-	public void setLabel(String newLabelText)
-	{
-		checkbox.setLabel(newLabelText);
-	}
-
-	@Override
-	public void setEnabled(boolean enabled)
-	{
-		checkbox.setEnabled(enabled);
-	}
-
-	@Override
-	public boolean isEnabled()
-	{
-		return checkbox.isEnabled();
-	}
-
 }

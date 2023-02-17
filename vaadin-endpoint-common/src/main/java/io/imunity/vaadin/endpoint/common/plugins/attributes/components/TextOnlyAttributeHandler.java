@@ -92,7 +92,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
-				sb.append(hint).append("<br>");
+				sb.append(hint).append("\n");
 			field.getElement().setProperty("title", sb.toString());
 			if (label != null)
 				field.setId("ValueEditor."+label);

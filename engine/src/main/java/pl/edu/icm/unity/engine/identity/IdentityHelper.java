@@ -4,21 +4,9 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import static java.lang.String.join;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
@@ -37,15 +25,15 @@ import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.store.types.StoredIdentity;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.lang.String.join;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
 
 /**
  * Shared code related to handling entities and identities
@@ -193,6 +181,9 @@ public class IdentityHelper
 		if (idTypeDef.isDynamic() && !allowSystem)
 			throw new IllegalIdentityValueException("The identity type " + idTypeDef.getId() + 
 					" is created automatically and can not be added manually");
+		if (!idTypeDef.isUserSettable())
+			throw new IllegalIdentityValueException("The identity type " + idTypeDef.getId() +
+					" cannot be set by user");
 		idTypeDef.validate(toAdd.getValue());
 		if (idTypeDef.isTargeted())
 		{

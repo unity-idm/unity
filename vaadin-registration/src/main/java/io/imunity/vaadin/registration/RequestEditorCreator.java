@@ -6,6 +6,7 @@ package io.imunity.vaadin.registration;
 
 import com.vaadin.server.Page;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
@@ -20,7 +21,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -52,7 +52,7 @@ public class RequestEditorCreator
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
 	private final SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider;
 	private final NotificationPresenter notificationPresenter;
-	private final URIAccessService uriAccessService;
+	private final VaadinLogoImageLoader logoImageLoader;
 
 	private RegistrationForm form;
 	private RemotelyAuthenticatedPrincipal remotelyAuthenticated;
@@ -75,7 +75,7 @@ public class RequestEditorCreator
 	                            InvitationResolver invitationResolver,
 	                            SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider,
 	                            NotificationPresenter notificationPresenter,
-	                            URIAccessService uriAccessService)
+	                            VaadinLogoImageLoader logoImageLoader)
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -91,7 +91,7 @@ public class RequestEditorCreator
 		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 		this.toEnquirySwitchLabelProvider = toEnquirySwitchLabelProvider;
 		this.notificationPresenter = notificationPresenter;
-		this.uriAccessService = uriAccessService;
+		this.logoImageLoader = logoImageLoader;
 	}
 
 
@@ -240,7 +240,7 @@ public class RequestEditorCreator
 				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder,
 				toEnquirySwitchLabelProvider,
 				enableRemoteSignup,
-				authenticationOptionKey, uriAccessService);
+				authenticationOptionKey, logoImageLoader);
 	}
 
 	private Optional<ResolvedInvitationParam> getInvitationByCode(String registrationCode) throws RegCodeException

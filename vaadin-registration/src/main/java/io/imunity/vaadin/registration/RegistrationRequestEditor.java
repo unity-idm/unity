@@ -14,6 +14,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.BaseRequestEditor;
 import io.imunity.vaadin.endpoint.common.forms.RegistrationLayoutsContainer;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
@@ -27,7 +28,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -85,11 +85,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	                                 SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider,
 	                                 boolean enableRemoteRegistration,
 	                                 AuthenticationOptionKey authnOptionKey,
-	                                 URIAccessService uriAccessService)
+	                                 VaadinLogoImageLoader logoImageLoader)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, notificationPresenter,
-				policyAgreementsRepresentationBuilder, uriAccessService);
+				policyAgreementsRepresentationBuilder, logoImageLoader);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
 		this.invitation = invitation;
@@ -174,10 +174,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			ret.setRegistrationCode(registrationCode.getValue());
 			if (registrationCode.getValue().isEmpty())
 			{
+				registrationCode.setInvalid(true);
 				registrationCode.setErrorMessage(msg.getMessage("fieldRequired"));
 				status.hasFormException = true;
 			} else
-				registrationCode.setErrorMessage(null);
+				registrationCode.setInvalid(false);
 		}
 		
 		if (invitation != null)

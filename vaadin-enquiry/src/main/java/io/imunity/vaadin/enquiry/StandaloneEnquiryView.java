@@ -18,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.router.*;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import org.apache.logging.log4j.Logger;
@@ -63,35 +64,31 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 {
 	public static final String FORM_PARAM = "form";
 	public static final String REG_CODE_PARAM = "regcode";
-
-
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneEnquiryView.class);
 
+	private final EnquiryManagement enqMan;
+	private final NotificationPresenter notificationPresenter;
+	private final VaadinLogoImageLoader logoImageLoader;
 	private final MessageSource msg;
+	private final URLQueryPrefillCreator urlQueryPrefillCreator;
+	private final EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory entityChooserComponentFactory;
+
 	private String registrationCode;
 	private final EnquiryResponseEditorController editorController;
 	private final InvitationResolver invitationResolver;
 	private PostFillingHandler postFillHandler;
-
 	private EnquiryForm form;
 	private EnquiryResponseEditor editor;
 	private ResolvedInvitationParam invitation;
 	private Long selectedEntity;
 	private RewriteComboToEnquiryRequest comboToEnquiryRequest;
 
-	private final EnquiryManagement enqMan;
-	private final NotificationPresenter notificationPresenter;
-
-
-	private final URLQueryPrefillCreator urlQueryPrefillCreator;
-	private final EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory entityChooserComponentFactory;
-
 	@Autowired
 	public StandaloneEnquiryView(EnquiryResponseEditorController editorController,
 	                             InvitationResolver invitationResolver, MessageSource msg,
 	                             URLQueryPrefillCreator urlQueryPrefillCreator,
 	                             EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory entityChooserComponentFactory,
-	                             EnquiryManagement enqMan,
+	                             EnquiryManagement enqMan, VaadinLogoImageLoader logoImageLoader,
 	                             NotificationPresenter notificationPresenter)
 	{
 		this.editorController = editorController;
@@ -99,6 +96,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		this.invitationResolver = invitationResolver;
 		this.msg = msg;
 		this.enqMan = enqMan;
+		this.logoImageLoader = logoImageLoader;
 		this.notificationPresenter = notificationPresenter;
 		this.entityChooserComponentFactory = entityChooserComponentFactory;
 		getContent().setClassName("u-standalone-public-form");
@@ -460,7 +458,8 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 	{
 		getContent().removeAll();
 		log.debug("Enquiry is finalized, status: {}", config);
-		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, new Image(config.logoURL, ""));
+		Image logo = logoImageLoader.loadImageFromUri(config.logoURL).orElse(null);
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, logo);
 		getContent().add(finalScreen);
 	}
 

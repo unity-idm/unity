@@ -112,7 +112,14 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 	@Override
 	public Long convertFromString(String stringRepresentation)
 	{
-		return Long.parseLong(stringRepresentation);
+		try
+		{
+			return Long.parseLong(stringRepresentation);
+		}
+		catch (NumberFormatException e)
+		{
+			throw new IllegalArgumentException("Wrong number format");
+		}
 	}
 
 	@Override

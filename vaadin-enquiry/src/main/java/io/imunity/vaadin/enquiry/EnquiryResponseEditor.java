@@ -7,6 +7,7 @@ package io.imunity.vaadin.enquiry;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.BaseRequestEditor;
 import io.imunity.vaadin.endpoint.common.forms.RegistrationLayoutsContainer;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
@@ -16,7 +17,6 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
@@ -42,12 +42,12 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	                             GroupsManagement groupsMan, NotificationPresenter notificationPresenter,
 	                             PolicyAgreementRepresentationBuilder policyAgreementsRepresentationBuilder,
 	                             List<PolicyAgreementConfiguration> filteredPolicyAgreement,
-	                             PrefilledSet prefilled, URIAccessService uriAccessService,
+	                             PrefilledSet prefilled, VaadinLogoImageLoader logoImageLoader,
 	                             Map<String, Object> messageParams) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan, notificationPresenter,
-				policyAgreementsRepresentationBuilder, uriAccessService);
+				policyAgreementsRepresentationBuilder, logoImageLoader);
 		this.enquiryForm = form;
 		this.filteredPolicyAgreement = filteredPolicyAgreement;
 		this.prefilled = prefilled;

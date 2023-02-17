@@ -23,6 +23,7 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -48,7 +49,6 @@ import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringSt
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 
 import java.net.URLDecoder;
@@ -72,6 +72,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	private final RequestEditorCreator editorCreator;
 	private final AutoLoginAfterSignUpProcessor autoLoginProcessor;
 	private final NotificationPresenter notificationPresenter;
+	private final VaadinLogoImageLoader logoImageLoader;
 	private RegistrationForm form;
 	private String registrationCode;
 	private PostFillingHandler postFillHandler;
@@ -86,7 +87,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	                                  UnityServerConfiguration cfg,
 	                                  IdPLoginController idpLoginController,
 	                                  RequestEditorCreator editorCreator,
-	                                  AutoLoginAfterSignUpProcessor autoLogin, ImageAccessService imageAccessService,
+	                                  AutoLoginAfterSignUpProcessor autoLogin, VaadinLogoImageLoader logoImageLoader,
 	                                  NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
@@ -95,6 +96,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		this.idpLoginController = idpLoginController;
 		this.editorCreator = editorCreator;
 		this.autoLoginProcessor = autoLogin;
+		this.logoImageLoader = logoImageLoader;
 		this.notificationPresenter = notificationPresenter;
 
 		main = new VerticalLayout();
@@ -246,11 +248,8 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 			formButtons.add(okButton);
 			formButtons.setMargin(false);
 			main.add(formButtons);
-		} else
-		{
-			formButtons = null;
 		}
-		
+
 		if (cancelButton != null)
 		{
 			main.add(cancelButton);
@@ -432,7 +431,8 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		wrapper.setMargin(false);
 		wrapper.setSizeFull();
 
-		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, new Image(config.logoURL, ""));
+		Image logo = logoImageLoader.loadImageFromUri(config.logoURL).orElse(null);
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, logo);
 		wrapper.add(finalScreen);
 		finalScreen.setFontSize("2em");
 		wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
