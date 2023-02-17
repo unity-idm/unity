@@ -118,13 +118,12 @@ public class Wizard extends VerticalLayout
 		contentLayout.add(wizardStepController.getNext());
 
 		if(progressBar.getValue() == 0)
-		{
 			progressBar.setValue(progressBarIncrementer / 2);
-			return;
+		else
+		{
+			double value = progressBar.getValue() + progressBarIncrementer;
+			progressBar.setValue(Math.min(value, 1.0));
 		}
-		double value = progressBar.getValue() + progressBarIncrementer;
-		progressBar.setValue(Math.min(value, 1.0));
-
 		nextButton.setEnabled(false);
 		backButton.setEnabled(true);
 		startOverButton.setEnabled(true);
@@ -134,15 +133,16 @@ public class Wizard extends VerticalLayout
 		contentLayout.removeAll();
 		contentLayout.add(wizardStepController.getPrev());
 		if(progressBar.getValue() == 1.0)
-		{
 			progressBar.setValue(1.0 - (progressBarIncrementer / 2));
-			return;
+		else
+		{
+			double value = progressBar.getValue() - progressBarIncrementer;
+			progressBar.setValue(Math.max(value, 0));
 		}
-		double value = progressBar.getValue() - progressBarIncrementer;
-		progressBar.setValue(Math.max(value, 0));
 
 		backButton.setEnabled(wizardStepController.hasPrev());
 		startOverButton.setEnabled(wizardStepController.hasPrev());
+		finishButton.setEnabled(false);
 	}
 
 	void refresh()
