@@ -340,15 +340,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		
 		if (stage == Stage.FIRST)
 		{
-			String info = form.getFormInformation() == null ? null
-					: processFreeemarkerTemplate(params, form.getFormInformation().getValue(msg));
-			if (info != null)
-			{
-				HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
-				formInformation.addStyleName("u-reg-info");
+			getFormInformationComponent(form.getFormInformation(), params).ifPresent(formInformation -> {
 				main.addComponent(formInformation);
 				main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
-			}
+			});
+			
 
 			Optional<Label> switchToEnquiryLabel = toEnquirySwitchLabelProvider
 					.getSwitchToEnquiryLabel(form.getSwitchToEnquiryInfoFallbackToDefault(msg), invitation, params);
@@ -357,11 +353,31 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				main.addComponent(switchToEnquiryLabel.get());
 				main.setComponentAlignment(switchToEnquiryLabel.get(), Alignment.MIDDLE_CENTER);
 			}
+		} else if (stage == Stage.SECOND)
+		{
+			getFormInformationComponent(form.getFormInformation2ndStage(), params).ifPresent(formInformation -> {
+				main.addComponent(formInformation);
+				main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
+			});
+			
 		}
 		
 		RegistrationLayoutsContainer container = new RegistrationLayoutsContainer(formWidth(), formWidthUnit());
 		container.addFormLayoutToRootLayout(main);
 		return container;
+	}
+	
+	private Optional<HtmlConfigurableLabel> getFormInformationComponent(I18nString formInfo, Map<String, Object> params)
+	{
+		String info = formInfo == null ? null
+				: processFreeemarkerTemplate(params, formInfo.getValue(msg));
+		if (info != null)
+		{
+			HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
+			formInformation.addStyleName("u-reg-info");
+			return Optional.of(formInformation);
+		}
+		return Optional.empty();
 	}
 	
 	private void resolveRemoteSignupOptions()

@@ -97,6 +97,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private Slider captcha;
 	
 	private I18nTextField title2ndStage;
+	private I18nTextArea formInformation2ndStage;
 	private CheckBox showGotoSignin;
 	private TextField signInUrl;
 	private TextField registrationCode;
@@ -219,6 +220,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		settings.setShowCancel(showCancel.getValue());
 		builder.withFormLayoutSettings(settings);
 		builder.withTitle2ndStage(title2ndStage.getValue());
+		builder.withFormInformation2ndStage(formInformation2ndStage.getValue());
 		builder.withSwitchToEnquiryInfo(switchToEnquiryInfo.getValue());
 		builder.withShowGotoSignIn(showGotoSignin.getValue(), signInUrl.getValue());
 		RegistrationFormLayouts layouts = new RegistrationFormLayouts(); //FIXME
@@ -239,6 +241,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 			registrationCode.setValue(toEdit.getRegistrationCode());
 		if (toEdit.getTitle2ndStage() != null)
 			title2ndStage.setValue(toEdit.getTitle2ndStage());
+		if (toEdit.getFormInformation2ndStage() != null)
+			formInformation2ndStage.setValue(toEdit.getFormInformation2ndStage());
 		credentialRequirementAssignment.setValue(toEdit.getDefaultCredentialRequirement());
 		TranslationProfile profile = new TranslationProfile(
 				toEdit.getTranslationProfile().getName(), "",
@@ -339,6 +343,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		
 		initCommonDisplayedFields();
 		title2ndStage = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.title2ndStage"));
+		formInformation2ndStage = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.formInformation2ndStage"));
 		showGotoSignin = new CheckBox(msg.getMessage("RegistrationFormViewer.showGotoSignin"));
 		showGotoSignin.addValueChangeListener(v -> signInUrl.setEnabled(showGotoSignin.getValue()));
 		signInUrl = new TextField(msg.getMessage("RegistrationFormEditor.signinURL"));
@@ -350,7 +355,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		switchToEnquiryInfo.setValue(RegistrationForm.getDefaultSwitchToEnquiryInfo(msg));
 		tooltip(switchToEnquiryInfo, msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo.tip"));	
 		
-		main.addComponents(displayedName, title2ndStage, formInformation, switchToEnquiryInfo, pageTitle, 
+		main.addComponents(displayedName, title2ndStage, formInformation, formInformation2ndStage, switchToEnquiryInfo, pageTitle, 
 				showGotoSignin, signInUrl, showCancel, localSignupEmbeddedAsButton);
 
 		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService, 
