@@ -66,10 +66,10 @@ public class AuditEventListener implements EventListener
 		{
 			return;
 		}
-		initEntityNameAttribute();
+		initEntityNameAttributeFromDB();
 	}
 
-	private void initEntityNameAttribute()
+	private void initEntityNameAttributeFromDB()
 	{
 		AttributeType attr = null;
 		try
@@ -82,6 +82,15 @@ public class AuditEventListener implements EventListener
 		}
 		entityNameAttribute = attr != null ? attr.getName() : null;
 		log.debug("Entity name attribute set to: '" + entityNameAttribute + "'");
+	}
+	
+	private void upateEntityNameAttributeIfNeeded(AttributeType attributeType)
+	{
+		if (attributeType.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
+		{
+			entityNameAttribute = attributeType.getName();
+		}
+		
 	}
 
 	@Override
@@ -145,20 +154,22 @@ public class AuditEventListener implements EventListener
 		if (event.oldAT == null) 
 		{
 			// New attribute created
-			if (event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME)) 
-				initEntityNameAttribute();
+			upateEntityNameAttributeIfNeeded(event.newAT);
+				
 		} else if (event.newAT == null) 
 		{
 			// Attribute was removed
 			if (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
-				initEntityNameAttribute();
-		} else if ((!event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
-			|| (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && !event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))) 
+				initEntityNameAttributeFromDB();
+		} else if (!event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME)) 
 		{
-			// EntityNameMetadataProvider.NAME was added or removed from attribute
-			initEntityNameAttribute();
+			//EntityNameMetadataProvider.NAME was added to attribute
+			upateEntityNameAttributeIfNeeded(event.newAT);
+		} else if (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && !event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
+		{
+			//EntityNameMetadataProvider.NAME was removed from attribute
+			initEntityNameAttributeFromDB();
 		}
-
 		return true;
 	}
 
