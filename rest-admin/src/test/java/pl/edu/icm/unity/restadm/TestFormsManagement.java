@@ -115,6 +115,7 @@ public class TestFormsManagement extends RESTAdminTestBase
 			.withCollectComments(true)
 			.withDefaultCredentialRequirement(CRED_REQ_PASS)
 			.withFormInformation(RestI18nString.builder().build())
+			.withFormInformation2ndStage(RestI18nString.builder().build())
 			.withLayoutSettings(FormLayoutSettingsMapper.map(FormLayoutSettings.DEFAULT))
 			.build();
 	}
@@ -133,6 +134,7 @@ public class TestFormsManagement extends RESTAdminTestBase
 			.withCollectComments(true)
 			.withDefaultCredentialRequirement(CRED_REQ_PASS)
 			.withFormInformation(RestI18nString.builder().build())
+			.withFormInformation2ndStage(RestI18nString.builder().build())
 			.withLayoutSettings(FormLayoutSettingsMapper.map(FormLayoutSettings.DEFAULT))
 			.build();
 	}
