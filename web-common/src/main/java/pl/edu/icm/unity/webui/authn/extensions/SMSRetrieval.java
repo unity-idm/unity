@@ -35,6 +35,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
@@ -128,6 +129,11 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	public boolean isMultiOption()
 	{
 		return false;
+	}
+	
+	private AuthenticationRetrievalContext getContext()
+	{
+		return AuthenticationRetrievalContext.builder().withSupportOnlySecondFactorReseting(true).build();
 	}
 
 	private class SMSRetrievalComponent extends CustomComponent implements Focusable
@@ -294,7 +300,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 						"WebSMSRetrieval.sentCodeLimit"));
 				capchaComponent.setVisible(true);
 				capcha.resetFull();
-				usernameLabel.setValue("");
+				usernameLabel.resetValue();
 				sendCodeButton.setVisible(true);
 				log.info("Too many authn sms code sent to the user, turn on capcha");
 				return;
@@ -353,16 +359,16 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			{
 				clear();
 				setEnabled(false);
-				callback.onCompletedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult, getContext());
 			} else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal)
 			{
 				clear();
-				callback.onCompletedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult, getContext());
 			} else
 			{
 				setError();
 				usernameField.focus();
-				callback.onCompletedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult, getContext());
 			}
 		}
 		

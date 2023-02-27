@@ -15,6 +15,7 @@ import com.vaadin.ui.UI;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
@@ -61,7 +62,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 
 
 	@Override
-	public void onCompletedAuthentication(AuthenticationResult result)
+	public void onCompletedAuthentication(AuthenticationResult result, AuthenticationRetrievalContext authenticationRetrievalContext)
 	{
 		log.trace("Received authentication result of the primary authenticator " + result);
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();

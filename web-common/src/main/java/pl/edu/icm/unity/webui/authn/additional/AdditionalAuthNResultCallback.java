@@ -13,6 +13,7 @@ import com.vaadin.server.VaadinSession;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
@@ -44,7 +45,7 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 	}
 
 	@Override
-	public void onCompletedAuthentication(AuthenticationResult result)
+	public void onCompletedAuthentication(AuthenticationResult result, AuthenticationRetrievalContext retrivalContext)
 	{
 		log.trace("Received authentication result of the additional authentication {}", result);
 		if (result.getStatus() == Status.success)

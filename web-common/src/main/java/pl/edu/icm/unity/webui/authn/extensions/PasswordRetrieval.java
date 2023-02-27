@@ -112,6 +112,11 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		return false;
 	}
 
+	private AuthenticationRetrievalContext getContext()
+	{
+		return AuthenticationRetrievalContext.builder().withSupportOnlySecondFactorReseting(true).build();
+	}
+	
 	private class PasswordRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private CredentialEditor credEditor;
@@ -195,7 +200,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			{
 				callback.onStartedAuthentication();
 				AuthenticationResult authenticationResult = getAuthenticationResult(username, password);
-				callback.onCompletedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult, getContext());
 			}
 		}
 		
