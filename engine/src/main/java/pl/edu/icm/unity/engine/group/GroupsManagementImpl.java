@@ -388,7 +388,15 @@ public class GroupsManagementImpl implements GroupsManagement
 					+ "unsupported. Only displayed name can be changed.");
 		groupHelper.validateGroupStatements(group);
 		AttributeClassUtil.validateAttributeClasses(group.getAttributesClasses(), acDB);
-		List<GroupMembership> gc = membershipDAO.getMembers(path);
+		List<GroupMembership> gc;
+		try
+		{
+			gc = membershipDAO.getMembers(path);
+		}
+		catch (EntityNotFoundException e)
+		{
+			throw new GroupNotFoundException(e.getMessage());
+		}
 		Map<String, AttributeType> allTypes = attributeTypeDAO.getAllAsMap();
 
 		for (GroupMembership membership : gc)

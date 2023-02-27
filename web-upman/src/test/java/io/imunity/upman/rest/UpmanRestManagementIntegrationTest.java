@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
+public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 {
 	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 
@@ -49,7 +49,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withRegistrationForm(null)
 			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
 			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
 			.build();
@@ -68,11 +68,10 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 		assertThat(project.isPublic).isEqualTo(false);
 		assertThat(project.displayedName).isEqualTo(Map.of("en", "superGroup"));
 		assertThat(project.description).isEqualTo(Map.of("en", "description"));
-		assertThat(project.enableDelegation).isEqualTo(true);
 		assertThat(project.logoUrl).isEqualTo("/image.png");
 		assertThat(project.enableSubprojects).isEqualTo(true);
 		assertThat(project.readOnlyAttributes).isEqualTo(List.of());
-		assertThat(project.registrationForm).isEqualTo("superGroupRegistration");
+		assertThat(project.registrationForm).isEqualTo(null);
 		assertThat(project.signUpEnquiry).isEqualTo("superGroupJoinEnquiry");
 		assertThat(project.membershipUpdateEnquiry).isEqualTo("superGroupUpdateEnquiry");
 	}
@@ -233,7 +232,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
 			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withSignUpEnquiry(null)
 			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
 			.build();
 		update.setEntity(new StringEntity(mapper.writeValueAsString(updateBuild)));
@@ -253,12 +252,11 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 		assertThat(project.isPublic).isEqualTo(false);
 		assertThat(project.displayedName).isEqualTo(Map.of("en", "superGroup2"));
 		assertThat(project.description).isEqualTo(Map.of("en", "description2"));
-		assertThat(project.enableDelegation).isEqualTo(true);
 		assertThat(project.logoUrl).isEqualTo("/image2.png");
 		assertThat(project.enableSubprojects).isEqualTo(true);
 		assertThat(project.readOnlyAttributes).isEqualTo(List.of());
 		assertThat(project.registrationForm).isEqualTo("superGroupRegistration1");
-		assertThat(project.signUpEnquiry).isEqualTo("superGroupJoinEnquiry1");
+		assertThat(project.signUpEnquiry).isEqualTo(null);
 		assertThat(project.membershipUpdateEnquiry).isEqualTo("superGroupUpdateEnquiry1");
 	}
 
@@ -331,7 +329,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
 		{
-			assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getCode());
+			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
 		}
 	}
 
@@ -374,6 +372,40 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 		RestAuthorizationRole role = JsonUtil.parse(contents, RestAuthorizationRole.class);
 
 		assertThat(role.role).isEqualTo("manager");
+	}
+
+	@Test
+	public void addedMembershipReturnedDefaultRegularRole() throws Exception
+	{
+		HttpPost add = new HttpPost("/restupm/v1/projects");
+		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+			.withProjectId("A")
+			.withPublic(false)
+			.withDisplayedName(Map.of("en", "superGroup"))
+			.withDescription(Map.of("en", "description"))
+			.withLogoUrl("/image.png")
+			.withEnableSubprojects(true)
+			.withReadOnlyAttributes(List.of())
+			.withRegistrationForm(new RestRegistrationForm(null, true))
+			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
+			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			.build();
+		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
+		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
+		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
+		{
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		String contents = client.execute(host, getProject, getClientContext(host),
+			new BasicHttpClientResponseHandler());
+		RestAuthorizationRole role = JsonUtil.parse(contents, RestAuthorizationRole.class);
+
+		assertThat(role.role).isEqualTo("regular");
 	}
 
 	@Test
@@ -424,4 +456,14 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTBaseTest
 		assertThat(role.role).isEqualTo("projectsAdmin");
 	}
 
+
+	@Test
+	public void notAddedMemberRoleIsNotReturned() throws Exception
+	{
+		HttpGet getMemberRole = new HttpGet("/restupm/v1/projects/" + "test" + "/members/" + entityEmail + "/role");
+		try(ClassicHttpResponse response = client.executeOpen(host, getMemberRole, getClientContext(host)))
+		{
+			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+		}
+	}
 }

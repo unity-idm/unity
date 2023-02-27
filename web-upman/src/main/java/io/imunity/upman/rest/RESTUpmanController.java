@@ -13,7 +13,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -24,6 +23,7 @@ import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -76,7 +76,7 @@ public class RESTUpmanController
 		throws EngineException, JsonProcessingException
 	{
 		log.info("addProject {}", projectJson);
-		RestProjectCreateRequest project = JsonUtil.parse(projectJson, RestProjectCreateRequest.class);
+		RestProjectCreateRequest project = parse(projectJson, RestProjectCreateRequest.class);
 		RestProjectId restProjectId = restProjectService.addProject(project);
 		return mapper.writeValueAsString(restProjectId);
 	}
@@ -87,7 +87,7 @@ public class RESTUpmanController
 		throws EngineException
 	{
 		log.info("updateProject {}", projectJson);
-		RestProjectUpdateRequest project = JsonUtil.parse(projectJson, RestProjectUpdateRequest.class);
+		RestProjectUpdateRequest project = parse(projectJson, RestProjectUpdateRequest.class);
 		restProjectService.updateProject(projectId, project);
 	}
 
@@ -145,8 +145,7 @@ public class RESTUpmanController
 		throws EngineException, JsonProcessingException
 	{
 		log.debug("getProjectMemberAuthorizationRole {}, {}", projectId, userId);
-		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole(
-			projectId, userId);
+		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole(projectId, userId);
 		return mapper.writeValueAsString(role);
 	}
 
@@ -157,9 +156,23 @@ public class RESTUpmanController
 		throws EngineException
 	{
 		log.info("addProjectMemberAuthorizationRole {}, {}", projectId, userId);
-		RestAuthorizationRole role = JsonUtil.parse(roleJson, RestAuthorizationRole.class);
+		RestAuthorizationRole role = parse(roleJson, RestAuthorizationRole.class);
 		restProjectService.setProjectAuthorizationRole(
 			projectId, userId, role);
+	}
+
+	public <T> T parse(String contents, Class<T> clazz)
+	{
+		try
+		{
+			return mapper.readValue(contents, clazz);
+		}
+		catch (Exception e)
+		{
+			if(e.getCause() instanceof BadRequestException)
+				throw (BadRequestException)e.getCause();
+			throw new BadRequestException("Can't perform JSON deserialization", e);
+		}
 	}
 
 	@Component

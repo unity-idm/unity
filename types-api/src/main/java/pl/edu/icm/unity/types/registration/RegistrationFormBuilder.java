@@ -104,6 +104,12 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		return this;
 	}
 	
+	public RegistrationFormBuilder withFormInformation2ndStage(I18nString value)
+	{
+		instance.setFormInformation2ndStage(value);
+		return this;
+	}
+	
 	public RegistrationFormBuilder withSwitchToEnquiryInfo(I18nString aValue)
 	{
 		instance.setSwitchToEnquiryInfo(aValue);

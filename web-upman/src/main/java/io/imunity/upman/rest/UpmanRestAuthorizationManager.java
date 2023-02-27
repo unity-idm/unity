@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static io.imunity.upman.rest.ProjectManagerRestRoleAttributeTypeProvider.AUTHORIZATION_ROLE;
+
 @Component
 class UpmanRestAuthorizationManager
 {
@@ -66,8 +68,7 @@ class UpmanRestAuthorizationManager
 				|| roles.contains(GroupAuthorizationRole.projectsAdmin)))
 		{
 			throw new AuthorizationException(
-					"Access is denied. The operation requires unity rest manager capability in " + authorizationPath
-							+ " group");
+					"Access is denied. The operation requires unity rest manager capability");
 		}
 	}
 
@@ -80,7 +81,7 @@ class UpmanRestAuthorizationManager
 				attrDao.getAttributes(
 					new EntityParam(entity),
 					authorizationPath,
-				"sys:ProjectManagementRESTAPIRole")
+					AUTHORIZATION_ROLE)
 			);
 
 		} catch (EngineException e)

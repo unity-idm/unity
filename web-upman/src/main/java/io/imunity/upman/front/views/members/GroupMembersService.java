@@ -51,7 +51,7 @@ class GroupMembersService
 		List<DelegatedGroupMember> members = null;
 		try
 		{
-			members = delGroupMan.getDelegatedGroupMemebers(projectGroup.path, group.path);
+			members = delGroupMan.getDelegatedGroupMembers(projectGroup.path, group.path);
 		} catch (Exception e)
 		{
 			log.warn("Can not get memebers of group " + projectGroup.path, e);

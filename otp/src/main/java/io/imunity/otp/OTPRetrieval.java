@@ -32,6 +32,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
@@ -109,6 +110,11 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 	public boolean isMultiOption()
 	{
 		return false;
+	}
+	
+	private AuthenticationRetrievalContext getContext()
+	{
+		return AuthenticationRetrievalContext.builder().withSupportOnlySecondFactorReseting(true).build();
 	}
 
 	private class OTPRetrievalComponent extends CustomComponent implements Focusable
@@ -214,11 +220,11 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			if (authenticationResult.getStatus() == Status.success)
 			{
 				setEnabled(false);
-				callback.onCompletedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult, getContext());
 			} else if (authenticationResult.getStatus() == Status.deny)
 			{
 				usernameField.focus();
-				callback.onCompletedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult, getContext());
 			} else
 			{
 				throw new IllegalStateException("Got unsupported status from verificator: " 

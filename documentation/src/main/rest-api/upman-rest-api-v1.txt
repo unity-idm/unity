@@ -1,5 +1,5 @@
-RESTful Upman API
-==========================
+RESTful UpMan API
+=================
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
 //Set to override automated version, which is the project version
 //:revnumber: 9.9.9-FIXED
@@ -10,7 +10,7 @@ Unity Team <unity-idm-discuss@lists.sourceforge.net>
 :icons: font
 
 
-The Unity Upman REST API may be exposed (or disabled) as a regular Unity endpoint. See the
+The Unity UpMan REST API may be exposed (or disabled) as a regular Unity endpoint. See the
 <<manual.txt#endp-rest-upman,main Unity documentation>> for endpoints configuration details.
 
 All paths must be naturally prefixed with the server's base URL, endpoint deployment's path
@@ -27,14 +27,16 @@ All paths must be naturally prefixed with the server's base URL, endpoint deploy
 +@POST+ +
 
 Adds a new project.
-If "registrationForm" or "signUpEnquiry" or "membershipUpdateEnquiry" has property "autogenerate" set to true, "name" property can be just skipped.
-If "projectId" is null or skipped, it will be auto generated.
+
+If +registrationForm+, +signUpEnquiry+ or +membershipUpdateEnquiry+ has property +autogenerate+ set to +true+, the +name+ property should be skipped.
+
+If +projectId+ is +null+ or skipped, it will be auto generated.
 
 Example input:
 ----
 {
     "projectId": "my-project-id",
-    "isPublic": false,
+    "public": false,
     "displayedName": {
         "en": "displayedName"
     },
@@ -72,12 +74,13 @@ Example output:
 +@PUT+ +
 
 Updates the project.
-If "registrationForm" or "signUpEnquiry" or "membershipUpdateEnquiry" has property "autogenerate" set to true, "name" property can be just skipped.
+
+If +registrationForm+, +signUpEnquiry+ or +membershipUpdateEnquiry+ has property +autogenerate+ set to +true+, the +name+ property should be skipped.
 
 Example input:
 ----
 {
-    "isPublic": false,
+    "public": false,
     "displayedName": {
         "en": "displayedName"
     },
@@ -144,7 +147,7 @@ Example output:
 +@Path("/projects")+ +
 +@GET+ +
 
-Receives all groups under root group.
+Retrieves all projects.
 
 Example output:
 ----
@@ -175,7 +178,8 @@ Example output:
 +@POST+ +
 
 Adds a user to the specified project.
-Property "userId" should be provided as user's email.
+
+Property +userId+ should be provided as user's email.
 
 
 === Remove member
@@ -247,7 +251,8 @@ Example output:
 +@PUT+ +
 
 Updates user's authorization role.
-Property +role+ can be one of ("manager", "projectsAdmin", "regular")
+Property +role+ can be one of (+manager+, +projectsAdmin+, +regular+).
+
 Example output:
 ----
 {
