@@ -12,6 +12,7 @@ import com.vaadin.ui.JavaScript;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
@@ -23,6 +24,7 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener;
+import pl.edu.icm.unity.webui.authn.column.UnsuccessfulAuthenticationHelper;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
@@ -55,12 +57,12 @@ class SecondFactorSandboxAuthnCallback implements AuthenticationCallback
 	}
 
 	@Override
-	public void onCompletedAuthentication(AuthenticationResult result)
+	public void onCompletedAuthentication(AuthenticationResult result, AuthenticationRetrievalContext retrievalContext)
 	{
-		processAuthn(result);
+		processAuthn(result, retrievalContext);
 	}
 	
-	private void processAuthn(AuthenticationResult result)
+	private void processAuthn(AuthenticationResult result, AuthenticationRetrievalContext retrievalContext)
 	{
 		log.trace("Received sandbox authentication result of the 2nd authenticator" + result);
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
@@ -78,7 +80,10 @@ class SecondFactorSandboxAuthnCallback implements AuthenticationCallback
 			return;
 		case ERROR:
 			handleError(postSecondFactorDecision.getErrorDetail().error.resovle(msg));
-			switchToPrimaryAuthentication();
+			if (!retrievalContext.supportOnlySecondFactorReseting || UnsuccessfulAuthenticationHelper.failedAttemptsExceeded())
+			{
+				switchToPrimaryAuthentication();
+			}
 			return;
 		case GO_TO_2ND_FACTOR:
 			log.error("2nd factor required after 2nd factor? {}", result);

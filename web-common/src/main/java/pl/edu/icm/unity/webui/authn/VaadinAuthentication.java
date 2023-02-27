@@ -11,6 +11,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
@@ -160,7 +161,7 @@ public interface VaadinAuthentication extends BindingAuthn
 		/**
 		 * Should be called after authentication result is obtained
 		 */
-		void onCompletedAuthentication(AuthenticationResult result);
+		void onCompletedAuthentication(AuthenticationResult result, AuthenticationRetrievalContext retrivalContext);
 
 		/**
 		 * Should be called to signal the framework that authentication was cancelled/failed/stopped etc 
@@ -169,5 +170,6 @@ public interface VaadinAuthentication extends BindingAuthn
 		void onCancelledAuthentication();
 		
 		AuthenticationTriggeringContext getTriggeringContext();
+
 	}
 }

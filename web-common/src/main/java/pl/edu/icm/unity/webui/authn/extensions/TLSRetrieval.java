@@ -30,6 +30,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
@@ -111,6 +112,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	public boolean isMultiOption()
 	{
 		return false;
+	}
+	
+	private AuthenticationRetrievalContext getContext()
+	{
+		return AuthenticationRetrievalContext.builder().withSupportOnlySecondFactorReseting(false).build();
 	}
 	
 	public static X509Certificate[] getTLSCertificate()
@@ -196,7 +202,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			if (authenticationResult.getStatus() == Status.success)
 				component.setEnabled(false);
 			
-			callback.onCompletedAuthentication(authenticationResult);
+			callback.onCompletedAuthentication(authenticationResult, getContext());
 		}
 		
 		@Override
