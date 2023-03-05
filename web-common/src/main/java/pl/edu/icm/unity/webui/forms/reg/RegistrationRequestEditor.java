@@ -375,6 +375,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		{
 			HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
 			formInformation.addStyleName("u-reg-info");
+			formInformation.setWidth(formWidth(), formWidthUnit());
 			return Optional.of(formInformation);
 		}
 		return Optional.empty();

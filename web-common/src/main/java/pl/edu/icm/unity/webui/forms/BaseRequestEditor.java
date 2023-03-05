@@ -461,6 +461,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		{
 			HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
 			formInformation.addStyleName("u-reg-info");
+			formInformation.setWidth(formWidth(), formWidthUnit());
 			main.addComponent(formInformation);
 			main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 		}
