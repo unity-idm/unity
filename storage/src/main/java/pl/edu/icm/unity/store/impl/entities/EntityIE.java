@@ -6,11 +6,15 @@ package pl.edu.icm.unity.store.impl.entities;
 
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -23,7 +27,8 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 public class EntityIE extends AbstractIEBase<EntityInformation>
 {
 	public static final String ENTITIES_OBJECT_TYPE = "entities";
-	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, EntityIE.class);	
+
 	private final EntityDAO dbIds;
 	
 	@Autowired
@@ -42,7 +47,7 @@ public class EntityIE extends AbstractIEBase<EntityInformation>
 	@Override
 	protected ObjectNode toJsonSingle(EntityInformation exportedObj)
 	{
-		return exportedObj.toJson();
+		return Constants.MAPPER.valueToTree(EntityInformationMapper.map(exportedObj));
 	}
 
 	@Override
@@ -54,7 +59,12 @@ public class EntityIE extends AbstractIEBase<EntityInformation>
 	@Override
 	protected EntityInformation fromJsonSingle(ObjectNode src)
 	{
-		return new EntityInformation(src);
+		try {
+			return EntityInformationMapper.map(Constants.MAPPER.treeToValue(src, DBEntityInformation.class));
+		} catch (JsonProcessingException e) {
+			log.error("Failed to deserialize EntityInformation object:", e);
+		}
+		return null;
 	}
 }
 
