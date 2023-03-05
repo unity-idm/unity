@@ -170,7 +170,6 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			mainLayout.addComponent(authenticateButton);
 			authenticateButton.addClickListener(event -> {
-				authenticateButton.removeClickShortcut();
 				triggerAuthentication();
 			});
 			authenticateButton.addStyleName(Styles.signInButton.toString());
