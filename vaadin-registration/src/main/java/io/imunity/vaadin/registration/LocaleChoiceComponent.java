@@ -48,7 +48,7 @@ public class LocaleChoiceComponent extends Div
 				UI.getCurrent().getPage().reload();
 			});
 			chooser.setRenderer(new ComponentRenderer<>(
-					locale -> new Span(new FlagIcon(locale.getLanguage()), new Label(collect.get(locale))))
+					locale -> new Span(new FlagIcon(locale.getLanguage()), getLabel(collect, locale)))
 			);
 			chooser.setItemLabelGenerator(collect::get);
 			chooser.setItems(selectableLocales.values());
@@ -57,6 +57,13 @@ public class LocaleChoiceComponent extends Div
 
 			add(chooser);
 		}
+	}
+
+	private static Label getLabel(Map<Locale, String> collect, Locale locale)
+	{
+		Label label = new Label(collect.get(locale));
+		label.getStyle().set("margin-left", "0.3em");
+		return label;
 	}
 
 	void setPrefixComponent(Component main, Component component) {

@@ -227,7 +227,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 					: processFreeemarkerTemplate(params, form.getFormInformation().getValue(msg));
 			if (info != null)
 			{
-				main.add(new Html(info));
+				main.add(new Html("<div>" + info + "</div>"));
 			}
 
 			Optional<Label> switchToEnquiryLabel = toEnquirySwitchLabelProvider
@@ -276,6 +276,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	{
 		registrationCode = new TextField(msg.getMessage("RegistrationRequest.registrationCode"));
 		registrationCode.setRequiredIndicatorVisible(true);
+		registrationCode.setWidthFull();
 		layout.add(registrationCode);
 		return true;
 	}

@@ -10,7 +10,6 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
-import pl.edu.icm.unity.webui.common.Styles;
 
 
 public class PasswordQualityComponent extends VerticalLayout
@@ -41,9 +40,9 @@ public class PasswordQualityComponent extends VerticalLayout
 		getStyle().set("position", "absolute");
 		getStyle().set("margin-left", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
 
-		if (!context.isShowLabelInline())
-			addClassName(Styles.nonCompactTopMargin.toString());
-		
+		if (context.isShowLabelInline())
+			getStyle().set("padding-top", "0");
+
 		onNewPassword("");
 	}
 

@@ -3,48 +3,24 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.front;
+package io.imunity.vaadin.endpoint.common;
+
+import com.vaadin.flow.component.page.Inline.Wrapping;
+import com.vaadin.flow.server.AppShellSettings;
+import org.apache.logging.log4j.Logger;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.vaadin.flow.component.page.AppShellConfigurator;
-import com.vaadin.flow.component.page.Inline.Wrapping;
-import com.vaadin.flow.component.page.Push;
-import com.vaadin.flow.server.AppShellSettings;
-import com.vaadin.flow.shared.ui.Transport;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
-
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-
-@Push(transport = Transport.LONG_POLLING)
-@Theme(themeClass = Lumo.class)
-public class UnityShellConfigurator implements AppShellConfigurator
+public class FaviconSetuper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnityShellConfigurator.class);
-	private final UnityServerConfiguration config;
-	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, FaviconSetuper.class);
 
-	@Autowired
-	UnityShellConfigurator(UnityServerConfiguration config)
-	{
-		this.config = config;
-	}
-
-	@Override
-	public void configurePage(AppShellSettings settings)
-	{
-		setupFavicon(settings);
-	}
-
-	private void setupFavicon(AppShellSettings settings)
+	public static void setupFavicon(AppShellSettings settings, UnityServerConfiguration config)
 	{
 		File webContentsFile = config.getFileValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH, true);
 		Path faviconDefFile = webContentsFile.toPath().resolve(Path.of("VAADIN", "favicon.html"));
@@ -57,7 +33,7 @@ public class UnityShellConfigurator implements AppShellConfigurator
 		}
 	}
 
-	private String readFile(Path faviconDefFile)
+	private static String readFile(Path faviconDefFile)
 	{
 		try
 		{

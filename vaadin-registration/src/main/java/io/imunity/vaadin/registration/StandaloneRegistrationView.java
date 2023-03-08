@@ -262,6 +262,8 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 				msg.getMessage("RegistrationRequestEditorDialog.submitRequest"),
 				event -> onSubmit(editor, mode));
 		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		if(form.getLayoutSettings().isCompactInputs())
+			button.getStyle().set("margin-top", "-1.5em");
 		return button;
 	}
 

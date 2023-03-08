@@ -8,6 +8,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
@@ -177,8 +178,8 @@ public class ListOfEmbeddedElementsStub<T>
 	
 	public class Entry
 	{
-		private Button add;
-		private Button remove;
+		private Icon add;
+		private Icon remove;
 		private Hr hr;
 		private Editor<T> editor;
 		private ComponentsContainer cc;
@@ -197,12 +198,12 @@ public class ListOfEmbeddedElementsStub<T>
 			ComponentsContainer c = editor.getEditorComponent(elementV, position);
 			cc.add(c.getComponents());
 			
-			add = new Button();
-			add.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
+			add = VaadinIcon.PLUS_CIRCLE_O.create();
+			add.setSize("var(--lumo-icon-size-s)");
 			add.getElement().setProperty("title", msg.getMessage("add"));
 			add.addClickListener(event -> addEntry(null, Entry.this));
-			remove = new Button();
-			remove.setIcon(VaadinIcon.TRASH.create());
+			remove = VaadinIcon.TRASH.create();
+			remove.setSize("var(--lumo-icon-size-s)");
 			remove.getElement().setProperty("title", msg.getMessage("remove"));
 			remove.addClickListener(event -> remove(Entry.this));
 			

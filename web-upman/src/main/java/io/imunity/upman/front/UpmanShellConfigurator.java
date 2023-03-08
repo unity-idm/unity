@@ -1,32 +1,35 @@
 /*
- * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.secured_shared_endpoint;
+package io.imunity.upman.front;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.shared.ui.Transport;
+import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
 import io.imunity.vaadin.endpoint.common.FaviconSetuper;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 @Push(transport = Transport.LONG_POLLING)
-class SecuredSharedShellConfigurator implements AppShellConfigurator
+@Theme(themeClass = Lumo.class)
+public class UpmanShellConfigurator implements AppShellConfigurator
 {
 	private final UnityServerConfiguration config;
 
 	@Autowired
-	SecuredSharedShellConfigurator(UnityServerConfiguration config)
+	UpmanShellConfigurator(UnityServerConfiguration config)
 	{
 		this.config = config;
 	}
-
 	@Override
 	public void configurePage(AppShellSettings settings)
 	{
 		FaviconSetuper.setupFavicon(settings, config);
 	}
+
 }

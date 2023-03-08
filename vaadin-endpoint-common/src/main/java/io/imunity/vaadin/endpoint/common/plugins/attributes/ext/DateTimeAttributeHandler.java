@@ -96,7 +96,7 @@ class DateTimeAttributeHandler implements WebAttributeHandler
 			datetime = new DateTimePicker();
 			setLabel(label);
 			DatePicker.DatePickerI18n datePickerI18n = new DatePicker.DatePickerI18n();
-			datePickerI18n.setDateFormat("yyyy-MM-dd HH:mm:ss");
+			datePickerI18n.setDateFormat("yyyy-MM-dd");
 			datetime.setDatePickerI18n(datePickerI18n);
 			datetime.setRequiredIndicatorVisible(context.isRequired());
 			if (value != null)
