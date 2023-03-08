@@ -5,8 +5,18 @@ html {
 /*
  * --_lumo-button-primary-background-color: red; - uncomment to set color for call for action button
  */
+  --fido-top-margin: var(--lumo-space-m);
+  --input-label-top-padding: var(--lumo-space-m);
+  --border-radius: var(--lumo-border-radius-m);
+  --contrast: var(--lumo-contrast-5pct);
+}
+
+.u-fido-layout {
+    flex-direction: row;
+    gap: 0;
 }
 
 .u-password-quality {
     background-color: #F5F5F5;
+    border-radius: var(--border-radius);
 }

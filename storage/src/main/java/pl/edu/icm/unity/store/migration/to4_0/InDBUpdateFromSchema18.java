@@ -16,6 +16,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class InDBUpdateFromSchema18 implements InDBContentsUpdater
@@ -49,9 +50,18 @@ public class InDBUpdateFromSchema18 implements InDBContentsUpdater
 		{
 			List<IdentityRegistrationParam> toRemove = registrationForm.getIdentityParams().stream()
 					.filter(param -> param.getIdentityType().equals("fidoUserHandle"))
+					.filter(param -> param.getIdentityType().equals("persistent"))
+					.filter(param -> param.getIdentityType().equals("targetedPersistent"))
+					.filter(param -> param.getIdentityType().equals("transient"))
 					.toList();
 			if (registrationForm.getIdentityParams().removeAll(toRemove))
+			{
 				formsDB.update(registrationForm);
+				log.info("Those identity params {} has been removed from registration form {}",
+						toRemove.stream().map(IdentityRegistrationParam::getIdentityType).collect(Collectors.toList()),
+						registrationForm.getName()
+				);
+			}
 		}
 	}
 }

@@ -112,7 +112,7 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 		}
 		catch (NumberFormatException e)
 		{
-			throw new IllegalArgumentException("Wrong number format");
+			throw new IllegalArgumentException("Wrong number format", e);
 		}
 	}
 

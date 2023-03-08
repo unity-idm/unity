@@ -118,7 +118,7 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 		}
 		catch (NumberFormatException e)
 		{
-			throw new IllegalArgumentException("Wrong number format");
+			throw new IllegalArgumentException("Wrong number format", e);
 		}
 	}
 

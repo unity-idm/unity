@@ -73,15 +73,14 @@ class FidoEditorComponent extends VerticalLayout
 		credentialsLayout = new VerticalLayout();
 		credentialsLayout.setPadding(false);
 		credentialsLayout.setMargin(false);
-		credentialsLayout.getStyle().set("flex-direction", "row");
-		credentialsLayout.getStyle().set("gap", "0");
+		credentialsLayout.setClassName("u-fido-layout");
 
 		addButton = new Button();
 		addButton.getElement().setProperty("title", msg.getMessage("Fido.newRegistration"));
 		addButton.setText(msg.getMessage("Fido.register"));
 		addButton.setWidthFull();
 		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue(), loginLessAllowed.getValue()));
-		addButton.getStyle().set("margin-top", "var(--lumo-space-m)");
+		addButton.getStyle().set("margin-top", "var(--fido-top-margin)");
 
 		Label advancedOptionsLabel = new Label(msg.getMessage("Fido.advancedOptions"));
 		advancedOptionsButton = new Div(advancedOptionsLabel);
