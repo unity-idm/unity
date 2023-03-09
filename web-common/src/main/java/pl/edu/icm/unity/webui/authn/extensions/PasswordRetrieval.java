@@ -128,7 +128,8 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		private int tabIndex;
 		private Button reset;
 		private CredentialResetLauncher credResetLauncher;
-
+		private Button authenticateButton;
+		
 		public PasswordRetrievalComponent(CredentialEditor credEditor)
 		{
 			this.credEditor = credEditor;
@@ -156,7 +157,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			ret.addComponent(passwordField);
 			
 			
-			Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			authenticateButton.addStyleName(Styles.signInButton.toString());
 			authenticateButton.addStyleName("u-passwordSignInButton");
 			authenticateButton.addClickListener(event -> triggerAuthentication());
@@ -201,6 +202,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 				callback.onStartedAuthentication();
 				AuthenticationResult authenticationResult = getAuthenticationResult(username, password);
 				callback.onCompletedAuthentication(authenticationResult, getContext());
+				
 			}
 		}
 		
@@ -231,6 +233,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			if (authenticationResult.getStatus() == Status.success || 
 					authenticationResult.getStatus() == Status.unknownRemotePrincipal)
 			{
+				authenticateButton.removeClickShortcut();
 				clear();
 			} else
 			{
@@ -258,6 +261,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		public void focus()
 		{
 			if (presetAuthenticatedIdentity == null && usernameField.isEmpty())
+
 				usernameField.focus();
 			else
 				passwordField.focus();

@@ -220,6 +220,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			{
 				setEnabled(false);
 				callback.onCompletedAuthentication(authenticationResult, getContext());
+				authenticateButton.removeClickShortcut();
 			} else if (authenticationResult.getStatus() == Status.deny)
 			{
 				usernameField.focus();
