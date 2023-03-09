@@ -16,12 +16,15 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 public class InDBUpdateFromSchema18 implements InDBContentsUpdater
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema18.class);
+
+	private static final Set<String> unwantedIdentityTypes = Set.of("fidoUserHandle", "persistent", "targetedPersistent", "transient");
 
 	private final RegistrationFormDB formsDB;
 
@@ -49,10 +52,7 @@ public class InDBUpdateFromSchema18 implements InDBContentsUpdater
 		for (RegistrationForm registrationForm : all)
 		{
 			List<IdentityRegistrationParam> toRemove = registrationForm.getIdentityParams().stream()
-					.filter(param -> param.getIdentityType().equals("fidoUserHandle"))
-					.filter(param -> param.getIdentityType().equals("persistent"))
-					.filter(param -> param.getIdentityType().equals("targetedPersistent"))
-					.filter(param -> param.getIdentityType().equals("transient"))
+					.filter(param -> unwantedIdentityTypes.contains(param.getIdentityType()))
 					.toList();
 			if (registrationForm.getIdentityParams().removeAll(toRemove))
 			{
