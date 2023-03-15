@@ -18,7 +18,6 @@ public class PolicyAgreementRepresentation extends HorizontalLayout
 {
 	private final List<Long> documentsIdsToAccept;
 	private final CheckboxWithError decisionCheckBox;
-	private final String representation;
 	private final PolicyAgreementPresentationType presentationType;
 	private final boolean mandatory;
 
@@ -27,7 +26,6 @@ public class PolicyAgreementRepresentation extends HorizontalLayout
 	{
 		this.documentsIdsToAccept = documentsToAccept;
 		this.decisionCheckBox = new CheckboxWithError(representation);
-		this.representation = representation;
 		this.mandatory = mandatory;
 		this.presentationType = presentationType;
 		initUI();

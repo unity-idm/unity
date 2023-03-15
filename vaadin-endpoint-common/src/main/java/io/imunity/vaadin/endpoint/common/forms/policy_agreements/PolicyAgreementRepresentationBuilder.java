@@ -43,7 +43,6 @@ public class PolicyAgreementRepresentationBuilder
 	}
 
 	public PolicyAgreementRepresentation getAgreementRepresentation(PolicyAgreementConfiguration agreementConfig)
-
 	{
 		List<PolicyDocumentWithRevision> resolvedDocs = resolvePolicyDoc(agreementConfig.documentsIdsToAccept);
 		return new PolicyAgreementRepresentation(agreementConfig.documentsIdsToAccept,
