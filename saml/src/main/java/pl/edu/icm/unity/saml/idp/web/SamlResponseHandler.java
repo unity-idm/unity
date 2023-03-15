@@ -4,22 +4,13 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.logging.log4j.Logger;
-
-import com.vaadin.server.Page;
-import com.vaadin.server.SynchronizedRequestHandler;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinResponse;
-import com.vaadin.server.VaadinSession;
-
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.SynchronizedRequestHandler;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinResponse;
+import com.vaadin.flow.server.VaadinSession;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
@@ -32,6 +23,13 @@ import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Code used by various components to produce and initialize sending of SAML
@@ -74,18 +72,18 @@ public class SamlResponseHandler
 	public void returnSamlErrorResponse(ResponseDocument respDoc, SAMLServerException error, boolean destroySession)
 	{
 		VaadinSession session = VaadinSession.getCurrent();
-		SamlSessionService.setAttribute(session, SessionDisposal.class, new SessionDisposal(error, destroySession));
-		SamlSessionService.setAttribute(session, SAMLServerException.class, error); // TODO: is this needed?
+		session.getSession().setAttribute(SessionDisposal.class.getName(), new SessionDisposal(error, destroySession));
+		session.getSession().setAttribute(SAMLServerException.class.getName(), error); // TODO: is this needed?
 		returnSamlResponse(respDoc, Status.FAILED);
 	}
 
 	public void returnSamlResponse(ResponseDocument respDoc, Status status)
 	{
 		VaadinSession session = VaadinSession.getCurrent();
-		SamlSessionService.setAttribute(session, ResponseDocument.class, respDoc);
+		session.getSession().setAttribute(ResponseDocument.class.getName(), respDoc);
 		session.addRequestHandler(new SendResponseRequestHandler());
 		reporter.reportStatus(SamlSessionService.getVaadinContext(), status);
-		Page.getCurrent().reload();
+		UI.getCurrent().getPage().reload();
 	}
 
 	/**
@@ -99,12 +97,12 @@ public class SamlResponseHandler
 		public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response)
 				throws IOException
 		{
-			ResponseDocument samlResponse = SamlSessionService.getAttribute(session, ResponseDocument.class);
+			ResponseDocument samlResponse = (ResponseDocument)session.getSession().getAttribute(ResponseDocument.class.getName());
 			if (samlResponse == null)
 				return false;
 			String assertion = samlResponse.xmlText();
 			String encodedAssertion = Base64.getEncoder().encodeToString(assertion.getBytes(StandardCharsets.UTF_8));
-			SessionDisposal error = SamlSessionService.getAttribute(session, SessionDisposal.class);
+			SessionDisposal error = (SessionDisposal)session.getSession().getAttribute(SessionDisposal.class.getName());
 
 			VaadinContextSessionWithRequest signInContextSession = new VaadinContextSessionWithRequest(session,
 					request);

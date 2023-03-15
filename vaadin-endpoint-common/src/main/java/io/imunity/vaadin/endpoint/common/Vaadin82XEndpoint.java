@@ -185,7 +185,15 @@ public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndp
 			"pl.edu.icm.unity.webui.customWidgetset");
 		return holder;
 	}
-	private UnityBootstrapHandler getBootstrapHandler4Authn(String uiPath)
+
+	protected int getHeartbeatInterval(int sessionTimeout)
+	{
+		if (sessionTimeout >= 3*DEFAULT_HEARTBEAT)
+			return DEFAULT_HEARTBEAT;
+		int ret = sessionTimeout/3;
+		return Math.max(ret, 2);
+	}
+	protected UnityBootstrapHandler getBootstrapHandler4Authn(String uiPath)
 	{
 		return getBootstrapHandlerGeneric(uiPath, LONG_HEARTBEAT, genericEndpointProperties.getEffectiveAuthenticationTheme());
 	}
@@ -217,7 +225,7 @@ public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndp
 		return context;
 	}
 
-	WebAppContext getWebAppContext(WebAppContext context, String contextPath, Set<String> classPathElements, String webResourceRootUri,
+	protected WebAppContext getWebAppContext(WebAppContext context, String contextPath, Set<String> classPathElements, String webResourceRootUri,
 	                               EventListener eventListener) {
 		context.setResourceBase(webResourceRootUri);
 		context.setContextPath(contextPath);
@@ -244,7 +252,7 @@ public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndp
 		}
 	}
 
-	class ForwardServlet extends HttpServlet
+	public class ForwardServlet extends HttpServlet
 	{
 		@Override
 		protected void service(HttpServletRequest req, HttpServletResponse res)

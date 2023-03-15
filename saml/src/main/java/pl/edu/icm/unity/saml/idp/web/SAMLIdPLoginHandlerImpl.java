@@ -5,9 +5,8 @@
 package pl.edu.icm.unity.saml.idp.web;
 
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController.IdPLoginHandler;
-import pl.edu.icm.unity.webui.LoginInProgressService.VaadinContextSession;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 
 @Component
 public class SAMLIdPLoginHandlerImpl implements IdPLoginHandler
@@ -21,6 +20,6 @@ public class SAMLIdPLoginHandlerImpl implements IdPLoginHandler
 	@Override
 	public void breakLogin()
 	{
-		VaadinContextSession.getCurrent().ifPresent(SamlSessionService::cleanContext);
+		LoginInProgressService.VaadinContextSession.getCurrent().ifPresent(SamlSessionService::cleanContext);
 	}
 }
