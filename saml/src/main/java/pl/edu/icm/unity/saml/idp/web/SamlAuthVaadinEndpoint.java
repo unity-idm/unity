@@ -69,13 +69,9 @@ import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-
-import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
 
 /**
  * Extends a simple {@link VaadinEndpoint} with configuration of SAML authn filter. Also SAML configuration
@@ -94,8 +90,6 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 	public static final String SAML_META_SERVLET_PATH = "/metadata";
 	public static final String SAML_SLO_ASYNC_SERVLET_PATH = "/SLO-WEB";
 	public static final String SAML_SLO_SOAP_SERVLET_PATH = "/SLO-SOAP";
-
-	private static final Duration SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
 
 
 	protected String publicEntryPointPath;
@@ -292,9 +286,6 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 				null, getAuthenticationFlows());
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
-
-//		context.addFilter(new FilterHolder(new UrlEnderFilter()), "/*",
-//				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
 		EndpointRegistrationConfiguration registrationConfiguration = genericEndpointProperties.getRegistrationConfiguration();
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
@@ -319,27 +310,6 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 		}
 		return context;
 	}
-
-	protected ServletHolder createServletHolder(Servlet servlet, boolean unrestrictedSessionTime)
-	{
-		ServletHolder holder = new ServletHolder(servlet);
-		holder.setInitParameter("closeIdleSessions", "true");
-
-		if (unrestrictedSessionTime)
-		{
-			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(SESSION_TIMEOUT_VALUE.getSeconds()));
-		} else
-		{
-			int sessionTimeout = description.getRealm().getMaxInactivity();
-			int heartBeat = getHeartbeatInterval(sessionTimeout);
-			sessionTimeout = sessionTimeout - heartBeat;
-			if (sessionTimeout < 2)
-				sessionTimeout = 2;
-			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
-		}
-		return holder;
-	}
-
 	protected Servlet getSamlParseServlet(String endpointURL, String dispatcherUrl)
 	{
 		return new SamlParseServlet(myMetadataManager, 
@@ -414,18 +384,5 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 				trustProvider, 
 				endpointDescription.getRealm().getName());
 	}
-
-//	public class UrlEnderFilter implements Filter
-//	{
-//		@Override
-//		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
-//		{
-//			String s = ((HttpServletRequest) request).getRequestURL().toString();
-//			if(s.endsWith("/"))
-//				chain.doFilter(request, response);
-//			else
-//				request.getRequestDispatcher(s + "/").forward(request, response);
-//		}
-//	}
 
 }

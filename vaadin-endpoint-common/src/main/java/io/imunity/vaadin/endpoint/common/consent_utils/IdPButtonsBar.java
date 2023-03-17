@@ -11,7 +11,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
+import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 
 /**
  * Bar with buttons: Accept, Decline, Login as another user. The login as another user action is 
@@ -23,10 +23,10 @@ public class IdPButtonsBar extends VerticalLayout
 	public enum Action {ACCEPT, DENY, LOGIN_AS_ANOTHER}
 
 	private final MessageSource msg;
-	private final StandardWebLogoutHandler authnProcessor;
+	private final WebLogoutHandler authnProcessor;
 	private final ActionListener listener;
 
-	public IdPButtonsBar(MessageSource msg, StandardWebLogoutHandler authnProcessor,
+	public IdPButtonsBar(MessageSource msg, WebLogoutHandler authnProcessor,
 	                     ActionListener listener)
 	{
 		this.msg = msg;

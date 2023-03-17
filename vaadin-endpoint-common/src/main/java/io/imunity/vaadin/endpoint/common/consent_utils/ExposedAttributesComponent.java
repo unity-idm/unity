@@ -6,7 +6,6 @@ package io.imunity.vaadin.endpoint.common.consent_utils;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.details.Details;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -65,38 +64,36 @@ public class ExposedAttributesComponent extends VerticalLayout
 
 	private void initUI()
 	{
-		VerticalLayout contents = new VerticalLayout();
-		contents.setMargin(false);
-
-		VerticalLayout details = new VerticalLayout();
-		details.setMargin(false);
-		details.setSpacing(false);
-		Details showDetails = new Details(
+		setMargin(false);
+		setPadding(false);
+		VerticalLayout content = new VerticalLayout();
+		content.setMargin(false);
+		content.setPadding(false);
+		Details details = new Details(
 				msg.getMessage("ExposedAttributesComponent.attributes"),
-				details);
-		showDetails.setId("ExposedAttributes.showDetails");
+				content);
+		details.setId("ExposedAttributes.showDetails");
 		
 		Label credInfo = new Label(msg.getMessage("ExposedAttributesComponent.credInfo"));
 		credInfo.setWidthFull();
 
-		FormLayout attribtuesFL = new FormLayout();
-		addIdentity(attribtuesFL);
-		addAttributesList(attribtuesFL);
-		details.add(attribtuesFL);
-		details.add(credInfo);
-
+		addIdentity(content);
+		addAttributesList(content);
+		content.add(credInfo);
+		add(details);
 	}
 
-	private void addAttributesList(FormLayout attribtuesFL)
+	private void addAttributesList(VerticalLayout attribtuesFL)
 	{
 		for (DynamicAttribute dat : attributes.values())
 		{
 			List<Component> components = getAttributeComponent(dat);
 			components.forEach(attribtuesFL::add);
+			components.forEach(component -> component.getElement().getStyle().set("width", "40%"));
 		}
 	}
 
-	private void addIdentity(FormLayout attribtuesFL)
+	private void addIdentity(VerticalLayout attribtuesFL)
 	{
 		if (selectedIdentity.isEmpty())
 			return;
@@ -107,6 +104,7 @@ public class ExposedAttributesComponent extends VerticalLayout
 	private Component getIdentityTF(IdentityParam identity)
 	{
 		TextField identityField = new TextField(msg.getMessage("IdentitySelectorComponent.identity"));
+		identityField.setWidth("40%");
 		identityField.setValue(identityPresenter.getIdentityVisualValue(identity));
 		identityField.setReadOnly(true);
 		if (!identityField.getValue().equals(identity.getValue()))
@@ -116,9 +114,6 @@ public class ExposedAttributesComponent extends VerticalLayout
 		}
 		return identityField;
 	}
-	
-	
-
 	
 	private List<Component> getAttributeComponent(DynamicAttribute dat)
 	{

@@ -7,15 +7,19 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.vaadin.annotations.Theme;
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.router.Route;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
+import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
+import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -41,65 +45,51 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
-import pl.edu.icm.unity.webui.idpcommon.activesel.ActiveValueSelectionScreen;
 
 import java.util.*;
 
-/**
- * UI of the authorization endpoint. Presents active value selection for
- * attributes if configured. When attributes are obtained then consent screen is
- * presented.
- * 
- * @author K. Benedyczak
- */
-@Component("OAuthAuthzUI")
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityThemeValo")
-public class OAuthAuthzUI extends UnityEndpointUIBase
+
+@Route(value = "/")
+public class OAuthAuthzView extends Composite<Div>
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzUI.class);
+	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzView.class);
 
 	private final MessageSource msg;
 	private final OAuthIdPEngine idpEngine;
-	private final AttributeHandlerRegistryV8 handlersRegistry;
+	private final AttributeHandlerRegistry handlersRegistry;
 	private final PreferencesManagement preferencesMan;
-	private final StandardWebLogoutHandler authnProcessor;
+	private final VaddinWebLogoutHandler authnProcessor;
 	private final IdentityTypeSupport idTypeSupport;
 	private final AttributeTypeSupport aTypeSupport;
 	private final OAuthSessionService oauthSessionService;
 	private final OAuthProcessor oauthProcessor;
 	private final PolicyAgreementManagement policyAgreementsMan;
+	private final PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder;
+	private final NotificationPresenter notificationPresenter;
 
 	private OAuthResponseHandler oauthResponseHandler;
 	private IdentityParam identity;
-	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
 	private final OAuthIdpStatisticReporterFactory idpStatisticReporterFactory;
 	private final FreemarkerAppHandler freemarkerHandler;
 
 	@Autowired
-	public OAuthAuthzUI(MessageSource msg,
-			OAuthProcessor oauthProcessor,
-			AttributeHandlerRegistryV8 handlersRegistry,
-			PreferencesManagement preferencesMan,
-			StandardWebLogoutHandler authnProcessor,
-			IdPEngine idpEngine,
-			EnquiresDialogLauncher enquiryDialogLauncher,
-			IdentityTypeSupport idTypeSupport,
-			AttributeTypeSupport aTypeSupport,
-			OAuthSessionService oauthSessionService,
-			PolicyAgreementManagement policyAgreementsMan,
-			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-			OAuthIdpStatisticReporterFactory idpStatisticReporterFactory,
-			FreemarkerAppHandler freemarkerHandler
-			)
+	public OAuthAuthzView(MessageSource msg,
+	                      OAuthProcessor oauthProcessor,
+	                      AttributeHandlerRegistry handlersRegistry,
+	                      PreferencesManagement preferencesMan,
+	                      VaddinWebLogoutHandler authnProcessor,
+	                      IdPEngine idpEngine,
+	                      IdentityTypeSupport idTypeSupport,
+	                      AttributeTypeSupport aTypeSupport,
+	                      OAuthSessionService oauthSessionService,
+	                      PolicyAgreementManagement policyAgreementsMan,
+	                      OAuthIdpStatisticReporterFactory idpStatisticReporterFactory,
+	                      FreemarkerAppHandler freemarkerHandler,
+	                      PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
+	                      NotificationPresenter notificationPresenter
+	)
 	{
-		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
 		this.oauthProcessor = oauthProcessor;
 		this.handlersRegistry = handlersRegistry;
@@ -110,13 +100,14 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		this.idTypeSupport = idTypeSupport;
 		this.aTypeSupport = aTypeSupport;
 		this.policyAgreementsMan = policyAgreementsMan;
-		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.freemarkerHandler = freemarkerHandler;
+		this.policyAgreementRepresentationBuilder = policyAgreementRepresentationBuilder;
+		this.notificationPresenter = notificationPresenter;
+		enter();
 	}
 
-	@Override
-	protected void enter(VaadinRequest request)
+	protected void enter()
 	{
 		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
 		OAuthASProperties config = ctx.getConfig();
@@ -149,13 +140,14 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private void policyAgreementsStage(OAuthAuthzContext ctx, OAuthASProperties config,
 			List<PolicyAgreementConfiguration> filterAgreementToPresent)
 	{
-		setContent(policyAgreementScreenObjectFactory.getObject()
+		getContent().removeAll();
+		getContent().add(new PolicyAgreementScreen(msg, policyAgreementRepresentationBuilder, policyAgreementsMan, notificationPresenter)
 				.withTitle(config.getLocalizedStringWithoutFallbackToDefault(msg,
 						CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
 				.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
 						CommonIdPProperties.POLICY_AGREEMENTS_INFO))
 				.withAgreements(filterAgreementToPresent)
-				.withWidht(config.getLongValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH),
+				.withWidth(config.getLongValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH),
 						config.getValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH_UNIT))
 				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
 	}
@@ -205,7 +197,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
 				authnProcessor, idTypeSupport, aTypeSupport, identity, attributes,
 				this::onDecline, this::onFinalConfirm, oauthResponseHandler);
-		setContent(consentScreen);
+		getContent().removeAll();
+		getContent().add(consentScreen);
 	}
 	
 	private void sendNonePromptError(OAuthAuthzContext oauthCtx)
@@ -232,13 +225,14 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, handlersRegistry,
 				authnProcessor, config.singleSelectableAttributes, config.multiSelectableAttributes,
 				config.remainingAttributes, this::onDecline, this::gotoConsentStage);
-		setContent(valueSelectionScreen);
+		getContent().removeAll();
+		getContent().add(valueSelectionScreen);
 	}
 
 	private TranslationResult getTranslationResult(OAuthAuthzContext ctx) throws EopException
 	{
 		oauthResponseHandler = new OAuthResponseHandler(oauthSessionService, 
-				idpStatisticReporterFactory.getForEndpoint(endpointDescription.getEndpoint()), freemarkerHandler);
+				idpStatisticReporterFactory.getForEndpoint(Vaadin2XWebAppContext.getCurrentWebAppEndpoint()), freemarkerHandler);
 		try
 		{
 			return idpEngine.getUserInfo(ctx);
@@ -265,7 +259,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		String redirectURL = userInfo.getRedirectURL();
 		if (redirectURL != null)
 		{
-			Page.getCurrent().open(redirectURL, null);
+			UI.getCurrent().getPage().open(redirectURL, null);
 			throw new EopException();
 		}
 	}

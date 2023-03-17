@@ -4,28 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.stream.Collectors;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.hc.core5.net.URIBuilder;
-import org.apache.logging.log4j.Logger;
-
 import com.google.common.collect.Sets;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
@@ -39,7 +17,10 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
-
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -51,9 +32,19 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.authn.LanguageCookie;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * Low level servlet performing the initial OAuth handling.
@@ -84,7 +75,7 @@ public class OAuthParseServlet extends HttpServlet
 			UnityServerConfiguration serverConfig)
 	{
 		this.oauthConfig = oauthConfig;
-		this.oauthUiServletPath = oauthUiServletPath;
+		this.oauthUiServletPath = oauthUiServletPath.endsWith("/") ? oauthUiServletPath : oauthUiServletPath + "/";
 		this.errorHandler = errorHandler;
 		this.validator = new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan, scopeService);
 		this.serverConfig = serverConfig;
@@ -196,7 +187,7 @@ public class OAuthParseServlet extends HttpServlet
 			return;
 		}
 
-		SignInContextKey contextKey = OAuthSessionService.setContext(request.getSession(), context);
+		LoginInProgressService.SignInContextKey contextKey = OAuthSessionService.setContext(request.getSession(), context);
 		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
@@ -269,7 +260,7 @@ public class OAuthParseServlet extends HttpServlet
 	 * We are passing all unknown to OAuth query parameters to downstream servlet.
 	 * This may help to build extended UIs, which can interpret those parameters.
 	 */
-	private String getQueryToAppend(AuthorizationRequest authzRequest, SignInContextKey contextKey)
+	private String getQueryToAppend(AuthorizationRequest authzRequest, LoginInProgressService.SignInContextKey contextKey)
 	{
 		Map<String, List<String>> customParameters = authzRequest.getCustomParameters();
 		URIBuilder b = new URIBuilder();
@@ -278,7 +269,7 @@ public class OAuthParseServlet extends HttpServlet
 			for (String value : entry.getValue())
 				b.addParameter(entry.getKey(), value);
 		}
-		if (!SignInContextKey.DEFAULT.equals(contextKey))
+		if (!LoginInProgressService.SignInContextKey.DEFAULT.equals(contextKey))
 		{
 			b.addParameter(OAuthSessionService.URL_PARAM_CONTEXT_KEY, contextKey.key);
 		}

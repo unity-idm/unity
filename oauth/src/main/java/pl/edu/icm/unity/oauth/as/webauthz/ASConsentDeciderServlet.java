@@ -4,25 +4,9 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Optional;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.nimbusds.oauth2.sdk.*;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import org.apache.logging.log4j.Logger;
-
-import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
-import com.nimbusds.oauth2.sdk.AuthorizationResponse;
-import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
-import com.nimbusds.oauth2.sdk.OAuth2Error;
-import com.nimbusds.oauth2.sdk.SerializeException;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -41,10 +25,18 @@ import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSetting
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
-import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
-import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextSession;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Optional;
+
+import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
 
 /**
  * Invoked after authentication, main OAuth AS servlet. It decides whether the
@@ -226,7 +218,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		if (redirectURL != null)
 		{
 			response.sendRedirect(redirectURL);
-			oauthSessionService.cleanupComplete(Optional.of(new HttpContextSession(request)), false);
+			oauthSessionService.cleanupComplete(Optional.of(new LoginInProgressService.HttpContextSession(request)), false);
 			throw new EopException();
 		}
 	}
@@ -239,7 +231,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private void sendReturnRedirect(AuthorizationResponse oauthResponse, HttpServletRequest request,
 			HttpServletResponse response, boolean invalidateSession) throws IOException
 	{
-		SignInContextSession session = new HttpContextSession(request);
+		LoginInProgressService.SignInContextSession session = new LoginInProgressService.HttpContextSession(request);
 		oauthSessionService.cleanupBeforeResponseSent(session);
 		try
 		{

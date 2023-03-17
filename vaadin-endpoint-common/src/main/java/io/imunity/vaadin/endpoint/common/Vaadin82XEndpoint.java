@@ -34,6 +34,7 @@ import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -41,14 +42,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.*;
 
 public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, Vaadin82XEndpoint.class);
+	private static final Duration SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
+
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	protected ApplicationContext applicationContext;
 	protected CustomResourceProvider resourceProvider;
@@ -215,6 +221,26 @@ public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndp
 		if (serverConfig.isSet(DEFAULT_WEB_CONTENT_PATH))
 			return serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH);
 		return null;
+	}
+
+	protected ServletHolder createServletHolder(Servlet servlet, boolean unrestrictedSessionTime)
+	{
+		ServletHolder holder = new ServletHolder(servlet);
+		holder.setInitParameter("closeIdleSessions", "true");
+
+		if (unrestrictedSessionTime)
+		{
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(SESSION_TIMEOUT_VALUE.getSeconds()));
+		} else
+		{
+			int sessionTimeout = description.getRealm().getMaxInactivity();
+			int heartBeat = getHeartbeatInterval(sessionTimeout);
+			sessionTimeout = sessionTimeout - heartBeat;
+			if (sessionTimeout < 2)
+				sessionTimeout = 2;
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
+		}
+		return holder;
 	}
 
 	@Override

@@ -6,11 +6,11 @@ package io.imunity.vaadin.endpoint.common.active_value_select;
 
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.MessageSource;
-import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
-import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
+import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 {
 	private final AttributeProcessor attrProcessor;
 	private final MessageSource msg;
-	private final StandardWebLogoutHandler authnProcessor;
+	private final WebLogoutHandler authnProcessor;
 
 	private Map<DynamicAttribute, ValueSelector> selectors;
 	private final Runnable declineHandler;
@@ -33,7 +33,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 	private final List<DynamicAttribute> remainingAttributes;
 	
 	public ActiveValueSelectionScreen(MessageSource msg, AttributeHandlerRegistry attrHandlerRegistry,
-			StandardWebLogoutHandler authnProcessor,
+	        WebLogoutHandler authnProcessor,
 			List<DynamicAttribute> singleSelectable,
 			List<DynamicAttribute> multiSelectable,
 			List<DynamicAttribute> remainingAttributes,
