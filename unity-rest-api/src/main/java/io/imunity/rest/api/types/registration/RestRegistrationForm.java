@@ -41,6 +41,8 @@ public class RestRegistrationForm extends RestBaseForm
 	public final RestI18nString switchToEnquiryInfo;
 	@JsonProperty("AutoLoginToRealm")
 	public final String autoLoginToRealm;
+	@JsonProperty("FormInformation2ndStage")
+	public final RestI18nString formInformation2ndStage;
 
 	private RestRegistrationForm(Builder builder)
 	{
@@ -58,6 +60,7 @@ public class RestRegistrationForm extends RestBaseForm
 		this.signInLink = builder.signInLink;
 		this.switchToEnquiryInfo = builder.switchToEnquiryInfo;
 		this.autoLoginToRealm = builder.autoLoginToRealm;
+		this.formInformation2ndStage = builder.formInformation2ndStage;
 	}
 
 	@Override
@@ -67,7 +70,7 @@ public class RestRegistrationForm extends RestBaseForm
 		int result = super.hashCode();
 		result = prime * result + Objects.hash(autoLoginToRealm, captchaLength, defaultCredentialRequirement,
 				externalSignupGridSpec, externalSignupSpec, formLayouts, notificationsConfiguration, publiclyAvailable,
-				registrationCode, showSignInLink, signInLink, switchToEnquiryInfo, title2ndStage);
+				registrationCode, showSignInLink, signInLink, switchToEnquiryInfo, title2ndStage, formInformation2ndStage);
 		return result;
 	}
 
@@ -91,7 +94,8 @@ public class RestRegistrationForm extends RestBaseForm
 				&& Objects.equals(registrationCode, other.registrationCode) && showSignInLink == other.showSignInLink
 				&& Objects.equals(signInLink, other.signInLink)
 				&& Objects.equals(switchToEnquiryInfo, other.switchToEnquiryInfo)
-				&& Objects.equals(title2ndStage, other.title2ndStage);
+				&& Objects.equals(title2ndStage, other.title2ndStage)
+				&& Objects.equals(formInformation2ndStage, other.formInformation2ndStage);
 	}
 
 	public static Builder builder()
@@ -133,6 +137,8 @@ public class RestRegistrationForm extends RestBaseForm
 		private RestI18nString switchToEnquiryInfo;
 		@JsonProperty("AutoLoginToRealm")
 		private String autoLoginToRealm;
+		@JsonProperty("FormInformation2ndStage")
+		private RestI18nString formInformation2ndStage;
 
 		private Builder()
 		{
@@ -171,6 +177,12 @@ public class RestRegistrationForm extends RestBaseForm
 		public Builder withTitle2ndStage(RestI18nString title2ndStage)
 		{
 			this.title2ndStage = title2ndStage;
+			return this;
+		}
+		
+		public Builder withFormInformation2ndStage(RestI18nString formInformation2ndStage)
+		{
+			this.formInformation2ndStage = formInformation2ndStage;
 			return this;
 		}
 

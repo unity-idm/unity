@@ -141,6 +141,7 @@ public class RestRegistrationFormMapperTest extends MapperWithMinimalTestBase<Re
 				.withAcceptedTemplate("accept")
 				.endNotificationsConfiguration()
 				.withTitle2ndStage(new I18nString("secStage"))
+				.withFormInformation2ndStage(new I18nString("secStageInfo"))
 				.withExternalSignupSpec(
 						new ExternalSignupSpec(List.of(new AuthenticationOptionsSelector("key", "option"))))
 				.withExternalGridSignupSpec(new ExternalSignupGridSpec(
@@ -241,6 +242,9 @@ public class RestRegistrationFormMapperTest extends MapperWithMinimalTestBase<Re
 						.build())
 				.withTitle2ndStage(RestI18nString.builder()
 						.withDefaultValue("secStage")
+						.build())
+				.withFormInformation2ndStage(RestI18nString.builder()
+						.withDefaultValue("secStageInfo")
 						.build())
 				.withExternalSignupSpec(RestExternalSignupSpec.builder()
 						.withSpecs(List.of(RestAuthenticationOptionsSelector.builder()

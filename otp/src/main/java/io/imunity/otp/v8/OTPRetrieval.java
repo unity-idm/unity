@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -98,6 +98,11 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 		return false;
 	}
 
+	private AuthenticationRetrievalContext getContext()
+	{
+		return AuthenticationRetrievalContext.builder().withSupportOnlySecondFactorReseting(true).build();
+	}
+
 	private class OTPRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private AuthenticationCallback callback;
@@ -151,7 +156,6 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			mainLayout.addComponent(authenticateButton);
 			authenticateButton.addClickListener(event -> {
-				authenticateButton.removeClickShortcut();
 				triggerAuthentication();
 			});
 			authenticateButton.addStyleName(Styles.signInButton.toString());
@@ -201,11 +205,12 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			if (authenticationResult.getStatus() == Status.success)
 			{
 				setEnabled(false);
-				callback.onCompletedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult, getContext());
+				authenticateButton.removeClickShortcut();
 			} else if (authenticationResult.getStatus() == Status.deny)
 			{
 				usernameField.focus();
-				callback.onCompletedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult, getContext());
 			} else
 			{
 				throw new IllegalStateException("Got unsupported status from verificator: " 

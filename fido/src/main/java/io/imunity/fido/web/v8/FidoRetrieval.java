@@ -33,6 +33,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
@@ -117,6 +118,11 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		return false;
 	}
 
+	private AuthenticationRetrievalContext getContext()
+	{
+		return AuthenticationRetrievalContext.builder().build();
+	}
+	
 	private class FidoRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private AuthenticationCallback callback;
@@ -184,20 +190,20 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 			{
 				clear();
 				setEnabled(false);
-				callback.onCompletedAuthentication(authenticationResult);
+				callback.onCompletedAuthentication(authenticationResult, getContext());
 			} else if (authenticationResult.getStatus() == Status.notApplicable)
 			{
 				clear();
 				usernameField.focus();
 				AuthenticationResult exposedError = LocalAuthenticationResult.failed(
 						new ResolvableError("Fido.invalidUsername"));
-				callback.onCompletedAuthentication(exposedError);
+				callback.onCompletedAuthentication(exposedError, getContext());
 			} else
 			{
 				usernameField.focus();
 				AuthenticationResult exposedError = LocalAuthenticationResult.failed(
 						new ResolvableError("Fido.authFailed"));
-				callback.onCompletedAuthentication(exposedError);
+				callback.onCompletedAuthentication(exposedError, getContext());
 			}
 		}
 

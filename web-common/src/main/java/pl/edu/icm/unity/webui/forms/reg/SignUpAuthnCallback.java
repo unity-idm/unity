@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.forms.reg;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -29,7 +30,7 @@ public class SignUpAuthnCallback implements AuthenticationCallback
 	}
 
 	@Override
-	public void onCompletedAuthentication(AuthenticationResult result)
+	public void onCompletedAuthentication(AuthenticationResult result, AuthenticationRetrievalContext retrievalContext)
 	{
 	}
 

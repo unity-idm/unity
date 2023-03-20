@@ -55,6 +55,7 @@ public class RegistrationForm extends BaseForm
 	private String registrationCode;
 	private String defaultCredentialRequirement;
 	private I18nString title2ndStage = new I18nString();
+	private I18nString formInformation2ndStage = new I18nString();
 	private ExternalSignupSpec externalSignupSpec = new ExternalSignupSpec();
 	private ExternalSignupGridSpec externalSignupGridSpec = new ExternalSignupGridSpec();
 	private RegistrationFormLayouts formLayouts = new RegistrationFormLayouts();
@@ -229,9 +230,20 @@ public class RegistrationForm extends BaseForm
 	{
 		return new I18nString(msg.getLocaleCode(), msg.getMessage("RegistrationForm.defaultSwitchToEnquiryInfo"));
 	}
+	
 	public void setSwitchToEnquiryInfo(I18nString switchToEnquiryInfo)
 	{
 		this.switchToEnquiryInfo = switchToEnquiryInfo;
+	}
+	
+	public I18nString getFormInformation2ndStage()
+	{
+		return formInformation2ndStage;
+	}
+
+	public void setFormInformation2ndStage(I18nString formInformation2ndStage)
+	{
+		this.formInformation2ndStage = formInformation2ndStage;
 	}
 
 	@Override
@@ -374,6 +386,7 @@ public class RegistrationForm extends BaseForm
 		root.set("ExternalSignupGridSpec", jsonMapper.valueToTree(getExternalSignupGridSpec()));
 		root.set("RegistrationFormLayouts", jsonMapper.valueToTree(getFormLayouts()));
 		root.set("Title2ndStage", I18nStringJsonUtil.toJson(title2ndStage));
+		root.set("FormInformation2ndStage", I18nStringJsonUtil.toJson(formInformation2ndStage));
 		root.put("ShowSignInLink", showSignInLink);
 		root.put("SignInLink", signInLink);
 		root.put("AutoLoginToRealm", autoLoginToRealm);
@@ -441,6 +454,9 @@ public class RegistrationForm extends BaseForm
 			if (n != null && !n.isNull())
 				setSwitchToEnquiryInfo(I18nStringJsonUtil.fromJson(n));
 			
+			n = root.get("FormInformation2ndStage");
+			if (n != null && !n.isNull())
+				setFormInformation2ndStage(I18nStringJsonUtil.fromJson(n));
 			
 		} catch (Exception e)
 		{
@@ -468,7 +484,8 @@ public class RegistrationForm extends BaseForm
 				&& Objects.equals(showSignInLink, castOther.showSignInLink)
 				&& Objects.equals(autoLoginToRealm, castOther.autoLoginToRealm)
 				&& Objects.equals(signInLink, castOther.signInLink)
-				&& Objects.equals(switchToEnquiryInfo, castOther.switchToEnquiryInfo);
+				&& Objects.equals(switchToEnquiryInfo, castOther.switchToEnquiryInfo)
+				&& Objects.equals(formInformation2ndStage, castOther.formInformation2ndStage);
 
 	}
 
@@ -478,6 +495,6 @@ public class RegistrationForm extends BaseForm
 		return Objects.hash(super.hashCode(), name, description, publiclyAvailable, notificationsConfiguration,
 				captchaLength, registrationCode, defaultCredentialRequirement,
 				title2ndStage, externalSignupSpec, formLayouts, showSignInLink, signInLink, 
-				autoLoginToRealm, switchToEnquiryInfo);
+				autoLoginToRealm, switchToEnquiryInfo, formInformation2ndStage);
 	}
 }

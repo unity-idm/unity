@@ -15,6 +15,7 @@ import com.vaadin.ui.UI;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
@@ -60,12 +61,12 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	}
 
 	@Override
-	public void onCompletedAuthentication(AuthenticationResult result)
+	public void onCompletedAuthentication(AuthenticationResult result, AuthenticationRetrievalContext retrievalContext)
 	{
-		processAuthn(result);
+		processAuthn(result, retrievalContext);
 	}
 	
-	private void processAuthn(AuthenticationResult result)
+	private void processAuthn(AuthenticationResult result, AuthenticationRetrievalContext retrievalContext)
 	{
 		log.trace("Received authentication result of the 2nd authenticator" + result);
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
@@ -83,7 +84,10 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 			return;
 		case ERROR:
 			handleError(postSecondFactorDecision.getErrorDetail().error.resovle(msg));
-			switchToPrimaryAuthentication();
+			if (!retrievalContext.supportOnlySecondFactorReseting || UnsuccessfulAuthenticationHelper.failedAttemptsExceeded())
+			{
+				switchToPrimaryAuthentication();
+			}
 			return;
 		case GO_TO_2ND_FACTOR:
 			log.error("2nd factor required after 2nd factor? {}", result);
