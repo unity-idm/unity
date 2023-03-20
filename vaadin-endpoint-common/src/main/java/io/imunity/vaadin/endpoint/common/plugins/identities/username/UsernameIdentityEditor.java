@@ -40,7 +40,11 @@ public class UsernameIdentityEditor implements IdentityEditor
 		field.setId("UsernameIdentityEditor.username");
 		if (context.isCustomWidth())
 			field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
-		
+		if(context.isRequired())
+		{
+			field.setRequiredIndicatorVisible(true);
+			field.getElement().setProperty("title", msg.getMessage("fieldRequired"));
+		}
 		binder = new SingleStringFieldBinder(msg);
 		binder.forField(field, context.isRequired()).bind("value");
 		binder.setBean(new StringBindingValue(""));

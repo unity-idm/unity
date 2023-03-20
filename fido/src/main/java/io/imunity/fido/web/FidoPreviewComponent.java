@@ -56,8 +56,8 @@ class FidoPreviewComponent extends VerticalLayout
 			credential.setState(credential.isDeleted() ? FidoCredentialInfoWrapper.CredentialState.NEW : FidoCredentialInfoWrapper.CredentialState.DELETED);
 			deleteCallback.run();
 		});
+		action.getStyle().set("align-self", "center");
 		add(action);
-		setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
 	private HorizontalLayout addLine(String name, String value)

@@ -83,7 +83,11 @@ public class PasswordFieldsComponent extends VerticalLayout implements Focusable
 		root.add(password1, password2);
 		
 		if (context.isRequired())
+		{
+			password1.getElement().setProperty("title", msg.getMessage("fieldRequired"));
+			password2.getElement().setProperty("title", msg.getMessage("fieldRequired"));
 			password2.setRequiredIndicatorVisible(true);
+		}
 		
 		PasswordCredentialResetSettings resetSettings = config.getPasswordResetSettings();
 		requireQA = resetSettings.isEnabled() && resetSettings.isRequireSecurityQuestion(); 

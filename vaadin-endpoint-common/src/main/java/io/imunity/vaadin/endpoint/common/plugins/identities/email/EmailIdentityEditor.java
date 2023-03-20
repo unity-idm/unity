@@ -120,7 +120,10 @@ public class EmailIdentityEditor implements IdentityEditor
 		updateConfirmationStatusIcon();
 
 		if(context.isRequired())
+		{
 			editor.setRequiredIndicatorVisible(true);
+			editor.getElement().setProperty("title", msg.getMessage("fieldRequired"));
+		}
 
 		binder.forField(editor, context.isRequired())
 			.withValidator((value1, context1) -> validate(value1, context1, context.isRequired()))

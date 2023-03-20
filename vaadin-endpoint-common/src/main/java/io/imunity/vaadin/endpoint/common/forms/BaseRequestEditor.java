@@ -140,6 +140,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		{
 			if (e.hasMessage())
 				notificationPresenter.showError(e.getMessage(), "");
+			else
+				notificationPresenter.showError(msg.getMessage("Generic.formErrorHint"), "");
 			return Optional.empty();
 		} catch (Exception e) 
 		{

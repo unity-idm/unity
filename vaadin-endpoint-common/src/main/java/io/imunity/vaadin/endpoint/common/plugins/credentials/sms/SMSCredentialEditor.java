@@ -189,7 +189,9 @@ public class SMSCredentialEditor implements CredentialEditor
 		
 		if (context.isCustomWidth())
 			editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
-		
+		if(context.isRequired())
+			editor.getElement().setProperty("title", msg.getMessage("fieldRequired"));
+
 		binder.forField(editor, context.isRequired()).bind("value");
 		binder.setBean(new StringBindingValue(""));
 		return ret;
