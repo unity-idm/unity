@@ -25,18 +25,18 @@ import java.util.List;
  */
 public class IdentitySelectorComponent extends VerticalLayout
 {
-	private MessageSource msg;
-	private IdentityTypeSupport idTypeSupport;
-	private List<IdentityParam> validIdentities;
-	
-	protected IdentityParam selectedIdentity;
-	protected ComboBox<IdentityParam> identitiesCB;
+	private final MessageSource msg;
+	private final IdentityTypeSupport idTypeSupport;
+	private final List<IdentityParam> validIdentities;
+
+	private IdentityParam selectedIdentity;
+	private ComboBox<IdentityParam> identitiesCB;
 	
 	public IdentitySelectorComponent(MessageSource msg, IdentityTypeSupport idTypeSupport,
 	                                 List<IdentityParam> validIdentities)
 	{
 		this.msg = msg;
-		this.validIdentities = validIdentities;
+		this.validIdentities = List.copyOf(validIdentities);
 		this.idTypeSupport = idTypeSupport;
 		initUI();
 	}

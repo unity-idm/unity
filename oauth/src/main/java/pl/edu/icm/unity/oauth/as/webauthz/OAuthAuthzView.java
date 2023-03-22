@@ -51,9 +51,9 @@ import java.util.*;
 
 
 @Route(value = "/")
-public class OAuthAuthzView extends Composite<Div>
+class OAuthAuthzView extends Composite<Div>
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzView.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzView.class);
 
 	private final MessageSource msg;
 	private final OAuthIdPEngine idpEngine;
@@ -141,7 +141,11 @@ public class OAuthAuthzView extends Composite<Div>
 			List<PolicyAgreementConfiguration> filterAgreementToPresent)
 	{
 		getContent().removeAll();
-		getContent().add(new PolicyAgreementScreen(msg, policyAgreementRepresentationBuilder, policyAgreementsMan, notificationPresenter)
+		getContent().add(PolicyAgreementScreen.builder()
+				.withMsg(msg)
+				.withPolicyAgreementDecider(policyAgreementsMan)
+				.withNotificationPresenter(notificationPresenter)
+				.withPolicyAgreementRepresentationBuilder(policyAgreementRepresentationBuilder)
 				.withTitle(config.getLocalizedStringWithoutFallbackToDefault(msg,
 						CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
 				.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
@@ -149,7 +153,9 @@ public class OAuthAuthzView extends Composite<Div>
 				.withAgreements(filterAgreementToPresent)
 				.withWidth(config.getLongValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH),
 						config.getValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH_UNIT))
-				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
+				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config))
+				.build()
+		);
 	}
 
 	private void activeValueSelectionAndConsentStage(OAuthAuthzContext ctx, OAuthASProperties config)

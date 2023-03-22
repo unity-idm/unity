@@ -14,6 +14,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
@@ -69,9 +71,8 @@ import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * Extends a simple {@link VaadinEndpoint} with configuration of SAML authn filter. Also SAML configuration
@@ -83,6 +84,8 @@ import java.util.EnumSet;
 @Primary
 public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SamlAuthVaadinEndpoint.class);
+
 	public static final String SAML_ENTRY_SERVLET_PATH = "/saml2idp-web-entry";
 	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2idp-web";
 	public static final String SAML_UI_SERVLET_PATH = "/saml2idp-web-ui";
@@ -99,18 +102,18 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 	protected ExecutorsService executorsService;
 	protected IdpRemoteMetaManager myMetadataManager;
 	protected IdpConsentDeciderServletFactory dispatcherServletFactory;
-	private SAMLLogoutProcessorFactory logoutProcessorFactory;
-	private SLOReplyInstaller sloReplyInstaller;
-	private MessageSource msg;
-	protected AttributeTypeSupport aTypeSupport;
-	private RemoteMetadataService metadataService;
-	private URIAccessService uriAccessService;
-
-	protected SAMLIdPConfigurationParser samlIdPConfigurationParser;
+	private final SAMLLogoutProcessorFactory logoutProcessorFactory;
+	private final SLOReplyInstaller sloReplyInstaller;
+	private final RemoteMetadataService metadataService;
 	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 
-	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
-	
+	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
+	private final URIAccessService uriAccessService;
+	private final MessageSource msg;
+	private final AttributeTypeSupport aTypeSupport;
+	private final SAMLIdPConfigurationParser samlIdPConfigurationParser;
+
+
 	@Autowired
 	public SamlAuthVaadinEndpoint(NetworkServer server,
 	                              ApplicationContext applicationContext,
@@ -224,6 +227,7 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 			);
 		} catch (Exception e)
 		{
+			log.error(e);
 			return this.context;
 		}
 		context.setContextPath(description.getEndpoint().getContextAddress());
@@ -266,11 +270,10 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
-				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH,
-						SAML_CONSENT_DECIDER_SERVLET_PATH)))),
+						List.of(AUTHENTICATION_PATH, SAML_CONSENT_DECIDER_SERVLET_PATH))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
-				Arrays.asList(SAML_ENTRY_SERVLET_PATH), 
+				List.of(SAML_ENTRY_SERVLET_PATH),
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));

@@ -57,29 +57,30 @@ import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrent
 
 
 @Route(value = "/")
-public class SamlIdPWebView extends Composite<Div>
+class SamlIdPWebView extends Composite<Div>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebView.class);
-	protected MessageSource msg;
-	protected IdPEngine idpEngine;
-	protected FreemarkerAppHandler freemarkerHandler;
-	protected AttributeHandlerRegistry handlersRegistry;
-	protected IdentityTypeSupport identityTypeSupport;
-	protected PreferencesManagement preferencesMan;
-	protected StandardWebLogoutHandler authnProcessor;
-	protected SessionManagement sessionMan;
-	protected VaadinLogoImageLoader imageAccessService;
-	protected PolicyAgreementManagement policyAgreementsMan;
-	protected AuthnResponseProcessor samlProcessor;
-	protected SamlResponseHandler samlResponseHandler;
-	protected AttributeTypeManagement attrTypeMan;
-	protected AttributeTypeSupport aTypeSupport;
-	protected List<IdentityParam> validIdentities;
-	protected Map<String, AttributeType> attributeTypes;
-	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
-	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
-	protected final PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder;
-	protected final NotificationPresenter notificationPresenter;
+	private final MessageSource msg;
+	private final IdPEngine idpEngine;
+	private final FreemarkerAppHandler freemarkerHandler;
+	private final AttributeHandlerRegistry handlersRegistry;
+	private final IdentityTypeSupport identityTypeSupport;
+	private final PreferencesManagement preferencesMan;
+	private final StandardWebLogoutHandler authnProcessor;
+	private final SessionManagement sessionMan;
+	private final VaadinLogoImageLoader imageAccessService;
+	private final PolicyAgreementManagement policyAgreementsMan;
+	private AuthnResponseProcessor samlProcessor;
+	private SamlResponseHandler samlResponseHandler;
+	private final AttributeTypeManagement attrTypeMan;
+	private final AttributeTypeSupport aTypeSupport;
+	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
+	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
+	private final PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder;
+	private final NotificationPresenter notificationPresenter;
+
+	private List<IdentityParam> validIdentities;
+	private Map<String, AttributeType> attributeTypes;
 
 	@Autowired
 	public SamlIdPWebView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
@@ -159,12 +160,18 @@ public class SamlIdPWebView extends Composite<Div>
 			List<PolicyAgreementConfiguration> filterAgreementToPresent)
 	{
 		getContent().removeAll();
-		getContent().add(new PolicyAgreementScreen(msg, policyAgreementRepresentationBuilder, policyAgreementsMan, notificationPresenter)
+		getContent().add(PolicyAgreementScreen.builder()
+				.withMsg(msg)
+				.withPolicyAgreementDecider(policyAgreementsMan)
+				.withNotificationPresenter(notificationPresenter)
+				.withPolicyAgreementRepresentationBuilder(policyAgreementRepresentationBuilder)
 				.withTitle(config.policyAgreements.title)
 				.withInfo(config.policyAgreements.information)
 				.withWidth(config.policyAgreements.width, config.policyAgreements.widthUnit)
 				.withAgreements(filterAgreementToPresent)
-				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
+				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config))
+				.build()
+		);
 	}
 	
 	private void activeValueSelectionAndConsentStage(SAMLAuthnContext samlCtx, SAMLIdPConfiguration samlIdPConfiguration)

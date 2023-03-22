@@ -29,6 +29,7 @@ import java.util.*;
  */
 public class ExposedAttributesComponent extends VerticalLayout
 {
+	private static final String INPUT_WIDTH = "40%";
 	private final MessageSource msg;
 	private final IdentityPresentationUtil identityPresenter;
 	
@@ -89,7 +90,7 @@ public class ExposedAttributesComponent extends VerticalLayout
 		{
 			List<Component> components = getAttributeComponent(dat);
 			components.forEach(attribtuesFL::add);
-			components.forEach(component -> component.getElement().getStyle().set("width", "40%"));
+			components.forEach(component -> component.getElement().getStyle().set("width", INPUT_WIDTH));
 		}
 	}
 
@@ -104,7 +105,7 @@ public class ExposedAttributesComponent extends VerticalLayout
 	private Component getIdentityTF(IdentityParam identity)
 	{
 		TextField identityField = new TextField(msg.getMessage("IdentitySelectorComponent.identity"));
-		identityField.setWidth("40%");
+		identityField.setWidth(INPUT_WIDTH);
 		identityField.setValue(identityPresenter.getIdentityVisualValue(identity));
 		identityField.setReadOnly(true);
 		if (!identityField.getValue().equals(identity.getValue()))

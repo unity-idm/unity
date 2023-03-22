@@ -68,6 +68,8 @@ import java.util.EnumSet;
 @PrototypeComponent
 public class OAuthAuthzWebEndpoint extends Vaadin82XEndpoint
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, OAuthAuthzWebEndpoint.class);
+
 	public static final String NAME = "OAuth2Authz";
 
 	public static final String OAUTH_UI_SERVLET_PATH = "/oauth2-authz-web-ui";
@@ -147,6 +149,7 @@ public class OAuthAuthzWebEndpoint extends Vaadin82XEndpoint
 			);
 		} catch (Exception e)
 		{
+			log.error(e);
 			return this.context;
 		}
 		context.setContextPath(description.getEndpoint().getContextAddress());

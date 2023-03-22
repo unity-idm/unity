@@ -9,9 +9,9 @@ import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SamlResourceProvider extends CustomResourceProvider
+class SamlResourceProvider extends CustomResourceProvider
 {
-	public SamlResourceProvider()
+	SamlResourceProvider()
 	{
 		super("vaadin-endpoint-common");
 	}

@@ -53,7 +53,7 @@ import static pl.edu.icm.unity.webui.VaadinEndpoint.*;
 public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, Vaadin82XEndpoint.class);
-	private static final Duration SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
+	private static final Duration UNRESTRICTED_SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
 
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	protected ApplicationContext applicationContext;
@@ -230,15 +230,15 @@ public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndp
 
 		if (unrestrictedSessionTime)
 		{
-			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(SESSION_TIMEOUT_VALUE.getSeconds()));
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(UNRESTRICTED_SESSION_TIMEOUT_VALUE.getSeconds()));
 		} else
 		{
-			int sessionTimeout = description.getRealm().getMaxInactivity();
-			int heartBeat = getHeartbeatInterval(sessionTimeout);
-			sessionTimeout = sessionTimeout - heartBeat;
-			if (sessionTimeout < 2)
-				sessionTimeout = 2;
-			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
+			int sessionTimeoutInSeconds = description.getRealm().getMaxInactivity();
+			int heartBeatInSeconds = getHeartbeatInterval(sessionTimeoutInSeconds);
+			sessionTimeoutInSeconds = sessionTimeoutInSeconds - heartBeatInSeconds;
+			if (sessionTimeoutInSeconds < 2)
+				sessionTimeoutInSeconds = 2;
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeoutInSeconds));
 		}
 		return holder;
 	}
