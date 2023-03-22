@@ -20,7 +20,6 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 
-import static pl.edu.icm.unity.webui.VaadinEndpoint.DEFAULT_HEARTBEAT;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
 class Vaadin82XEndpointWithSandbox extends Vaadin82XEndpoint
@@ -54,14 +53,6 @@ class Vaadin82XEndpointWithSandbox extends Vaadin82XEndpoint
 		sandboxServletHolder.setInitParameter("closeIdleSessions", "true");
 		context.addServlet(sandboxServletHolder, path + path + "/*");
 		context.addServlet(sandboxServletHolder, path + "/*");
-	}
-
-	private int getHeartbeatInterval(int sessionTimeout)
-	{
-		if (sessionTimeout >= 3*DEFAULT_HEARTBEAT)
-			return DEFAULT_HEARTBEAT;
-		int ret = sessionTimeout/3;
-		return Math.max(ret, 2);
 	}
 
 	private UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath, int heartBeat, String theme)

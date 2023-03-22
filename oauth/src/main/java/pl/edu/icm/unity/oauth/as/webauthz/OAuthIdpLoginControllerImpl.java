@@ -4,11 +4,10 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController.IdPLoginHandler;
-import pl.edu.icm.unity.webui.LoginInProgressService.VaadinContextSession;
 
 @Component
 public class OAuthIdpLoginControllerImpl implements IdPLoginHandler
@@ -30,6 +29,6 @@ public class OAuthIdpLoginControllerImpl implements IdPLoginHandler
 	@Override
 	public void breakLogin()
 	{
-		oauthSessionService.cleanupComplete(VaadinContextSession.getCurrent(), false);
+		oauthSessionService.cleanupComplete(LoginInProgressService.VaadinContextSession.getCurrent(), false);
 	}
 }

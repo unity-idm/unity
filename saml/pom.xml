@@ -12,6 +12,7 @@
 	<description>Module with SAML support</description>
 	<properties>
 		<m.name>saml</m.name>
+		<vaadin.productionMode>true</vaadin.productionMode>
 	</properties>
 
 	<scm>
@@ -77,12 +78,6 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-vaadin-endpoint-common</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
 		
 		<!-- compile -->
 		<dependency>
@@ -119,6 +114,21 @@
 		<dependency>
 			<groupId>io.imunity.samly</groupId>
 			<artifactId>samly2-metadatatypes</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-vaadin-endpoint-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin</groupId>
+					<artifactId>vaadin-dev-server</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	
@@ -160,6 +170,19 @@
 								<descriptor>src/main/assembly/assembly-i18n.xml</descriptor>
 							</descriptors>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>${vaadin.version.new}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-frontend</goal>
+							<goal>build-frontend</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

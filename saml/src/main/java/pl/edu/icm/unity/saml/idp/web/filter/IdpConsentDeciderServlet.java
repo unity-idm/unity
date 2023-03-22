@@ -4,33 +4,16 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
-import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import eu.unicore.security.dsig.DSigException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.security.dsig.DSigException;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -60,16 +43,25 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+
+import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
 
 /**
  * Invoked after authentication, main SAML web IdP servlet. It decides whether the request should be
@@ -325,7 +317,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		if (redirectURL != null)
 		{
 			response.sendRedirect(redirectURL);
-			SamlSessionService.cleanContext(new HttpContextSession(request));
+			SamlSessionService.cleanContext(new LoginInProgressService.HttpContextSession(request));
 			throw new EopException();
 		}
 	}

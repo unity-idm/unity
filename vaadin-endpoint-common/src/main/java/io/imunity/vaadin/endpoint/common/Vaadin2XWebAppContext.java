@@ -7,6 +7,7 @@ package io.imunity.vaadin.endpoint.common;
 
 import org.eclipse.jetty.webapp.WebAppContext;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 import java.util.Optional;
@@ -53,6 +54,14 @@ public class Vaadin2XWebAppContext extends WebAppContext
 						.getDisplayedName()
 						.getValue(context.messageSource)
 				)
+				.orElse(null);
+	}
+
+	public static Endpoint getCurrentWebAppEndpoint()
+	{
+		return Optional.ofNullable(getCurrentWebAppContext())
+				.map(context -> (Vaadin2XWebAppContext) context)
+				.map(context -> context.description.getEndpoint())
 				.orElse(null);
 	}
 }

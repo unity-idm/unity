@@ -4,25 +4,20 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import com.nimbusds.oauth2.sdk.AuthorizationResponse;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-
-import com.nimbusds.oauth2.sdk.AuthorizationResponse;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.webui.LoginInProgressService;
-import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
-import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextSession;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.Optional;
 
 /**
  * Provides unified API to perform OAuth session bootstrap and cleanup.
@@ -46,7 +41,7 @@ class OAuthSessionService
 		this.sessionMan = sessionMan;
 	}
 
-	static SignInContextKey setContext(HttpSession session, OAuthAuthzContext context)
+	static LoginInProgressService.SignInContextKey setContext(HttpSession session, OAuthAuthzContext context)
 	{
 		return LOGIN_IN_PROGRESS_SERVICE.setContext(session, context);
 	}
@@ -66,29 +61,29 @@ class OAuthSessionService
 		return LOGIN_IN_PROGRESS_SERVICE.hasVaadinContext();
 	}
 	
-	void cleanupComplete(Optional<SignInContextSession> session, boolean invalidateSSOSession)
+	void cleanupComplete(Optional<LoginInProgressService.SignInContextSession> session, boolean invalidateSSOSession)
 	{
 		cleanupBeforeResponseSent(session);
 		cleanupAfterResponseSent(session, invalidateSSOSession);
 	}
 	
-	void cleanupBeforeResponseSent(Optional<SignInContextSession> session)
+	void cleanupBeforeResponseSent(Optional<LoginInProgressService.SignInContextSession> session)
 	{
 		session.ifPresent(ses -> cleanupBeforeResponseSent(ses));
 	}
 	
-	void cleanupAfterResponseSent(Optional<SignInContextSession> session, boolean invalidateSSOSession)
+	void cleanupAfterResponseSent(Optional<LoginInProgressService.SignInContextSession> session, boolean invalidateSSOSession)
 	{
 		cleanupAfterResponseSent(session.orElse(null), invalidateSSOSession);
 	}
 	
-	void cleanupBeforeResponseSent(SignInContextSession session)
+	void cleanupBeforeResponseSent(LoginInProgressService.SignInContextSession session)
 	{
 		LOG.trace("Cleaning OAuth session auto-proxy state");
 		session.removeAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED);
 	}
 	
-	void cleanupAfterResponseSent(SignInContextSession session, boolean invalidateSSOSession)
+	void cleanupAfterResponseSent(LoginInProgressService.SignInContextSession session, boolean invalidateSSOSession)
 	{
 		LOG.trace("Cleaning OAuth session (sso logout={})", invalidateSSOSession);
 		LOGIN_IN_PROGRESS_SERVICE.cleanUpSignInContextAttribute(session);

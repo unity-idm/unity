@@ -4,27 +4,21 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import com.nimbusds.oauth2.sdk.AuthorizationResponse;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.*;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
+import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import com.nimbusds.oauth2.sdk.AuthorizationResponse;
-import com.vaadin.server.Page;
-import com.vaadin.server.SynchronizedRequestHandler;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinResponse;
-import com.vaadin.server.VaadinServletResponse;
-import com.vaadin.server.VaadinSession;
-
-import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
-import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextSession;
-import pl.edu.icm.unity.webui.LoginInProgressService.VaadinContextSession;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Redirects the client's browser creating URL with Vaadin response (or error).
@@ -63,7 +57,7 @@ public class OAuthResponseHandler
 		VaadinSession session = VaadinSession.getCurrent();
 		session.addRequestHandler(new SendResponseRequestHandler(destroySession));
 		session.getSession().setAttribute(AuthorizationResponse.class.getName(), oauthResponse);
-		Page.getCurrent().reload();
+		UI.getCurrent().getPage().reload();
 	}
 
 	public void returnOauthResponseNotThrowingAndReportStatistic(AuthorizationResponse oauthResponse,
@@ -91,7 +85,7 @@ public class OAuthResponseHandler
 					.getAttribute(AuthorizationResponse.class.getName());
 			if (oauthResponse != null)
 			{
-				Optional<SignInContextSession> sessionAttributes = VaadinContextSession.getCurrent();
+				Optional<LoginInProgressService.SignInContextSession> sessionAttributes = LoginInProgressService.VaadinContextSession.getCurrent();
 				oauthSessionService.cleanupBeforeResponseSent(sessionAttributes);
 				try
 				{

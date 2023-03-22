@@ -4,32 +4,22 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
+import com.nimbusds.oauth2.sdk.SerializeException;
+import com.nimbusds.openid.connect.sdk.OIDCError;
+import com.vaadin.flow.server.startup.ServletContextListeners;
+import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.vaadin.endpoint.common.Vaadin82XEndpoint;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
-import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
-import com.nimbusds.oauth2.sdk.SerializeException;
-import com.nimbusds.openid.connect.sdk.OIDCError;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -56,25 +46,30 @@ import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
-import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
+import pl.edu.icm.unity.webui.authn.*;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter.NoSessionFilter;
-import pl.edu.icm.unity.webui.authn.AuthenticationUI;
-import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
+import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
+import javax.servlet.Servlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+
 /**
  * OAuth2 authorization endpoint, Vaadin based.
- * 
- * @author K. Benedyczak
  */
 @PrototypeComponent
-public class OAuthAuthzWebEndpoint extends VaadinEndpoint
+public class OAuthAuthzWebEndpoint extends Vaadin82XEndpoint
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, OAuthAuthzWebEndpoint.class);
+
 	public static final String NAME = "OAuth2Authz";
 
 	public static final String OAUTH_UI_SERVLET_PATH = "/oauth2-authz-web-ui";
@@ -109,8 +104,8 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 			OAuthIdpStatisticReporterFactory idpReporterFactory,
 			OAuthScopesService scopeService)
 	{
-		super(server, advertisedAddrProvider, msg, applicationContext, OAuthAuthzUI.class.getSimpleName(),
-				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter);
+		super(server, advertisedAddrProvider, msg, applicationContext, new OAuthResourceProvider(),
+				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter, SimpleVaadin2XServlet.class);
 		this.freemarkerHandler = freemarkerHandler;
 		this.attributesManagement = attributesManagement;
 		this.identitiesManagement = identitiesManagement;
@@ -139,9 +134,24 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	}
 
 	@Override
-	protected ServletContextHandler getServletContextHandlerOverridable()
+	protected ServletContextHandler getServletContextHandlerOverridable(WebAppContext webAppContext)
 	{
-		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		if (context != null)
+			return context;
+
+		ServletContextHandler context;
+		try
+		{
+			context = getWebAppContext(webAppContext, uiServletPath,
+					resourceProvider.getChosenClassPathElement(),
+					getWebContentsDir(),
+					new ServletContextListeners()
+			);
+		} catch (Exception e)
+		{
+			log.error(e);
+			return this.context;
+		}
 		context.setContextPath(description.getEndpoint().getContextAddress());
 
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_ROUTING_SERVLET_PATH),
@@ -173,7 +183,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 
 		context.addFilter(
 				new FilterHolder(new HiddenResourcesFilter(Collections.unmodifiableList(Arrays
-						.asList(AUTHENTICATION_PATH, OAUTH_CONSENT_DECIDER_SERVLET_PATH, OAUTH_UI_SERVLET_PATH)))),
+						.asList(AUTHENTICATION_PATH, OAUTH_CONSENT_DECIDER_SERVLET_PATH)))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 
 		authnFilter = new AuthenticationFilter(Collections.singletonList(OAUTH_ROUTING_SERVLET_PATH),
@@ -204,13 +214,11 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 						idpReporterFactory.getForEndpoint(description.getEndpoint()), freemarkerHandler));
 		authenticationServlet.setCancelHandler(oAuthCancelHandler);
 
-		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
-		context.addServlet(authnServletHolder, AUTHENTICATION_PATH + "/*");
-		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
-
-		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName, description, authenticationFlows,
-				registrationConfiguration, properties, getBootstrapHandler(OAUTH_ROUTING_SERVLET_PATH));
-		context.addServlet(createVaadinServletHolder(theServlet, false), OAUTH_UI_SERVLET_PATH + "/*");
+		ServletHolder authnServletHolder = createVaadin8ServletHolder(authenticationServlet);
+		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
+		context.addServlet(authnServletHolder, "/VAADIN/vaadinBootstrap.js*");
+		context.addServlet(authnServletHolder, "/VAADIN/widgetsets/*");
+		context.addServlet(authnServletHolder, "/VAADIN/themes/*");
 
 		return context;
 	}

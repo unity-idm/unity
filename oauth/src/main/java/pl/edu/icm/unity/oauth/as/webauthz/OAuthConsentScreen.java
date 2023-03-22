@@ -4,29 +4,26 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.client.ClientType;
-import com.vaadin.server.Resource;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.flow.component.HtmlComponent;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.server.StreamResource;
+import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.consent_utils.ExposedAttributesComponent;
+import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
+import io.imunity.vaadin.endpoint.common.consent_utils.IdentitySelectorComponent;
+import io.imunity.vaadin.endpoint.common.consent_utils.SPInfoComponent;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.attr.UnityImage;
 import pl.edu.icm.unity.base.utils.Log;
@@ -44,32 +41,25 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
-import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
-import pl.edu.icm.unity.webui.common.Label100;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
-import pl.edu.icm.unity.webui.common.attributes.image.SimpleImageSource;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
-import pl.edu.icm.unity.webui.idpcommon.ExposedAttributesComponent;
-import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar;
-import pl.edu.icm.unity.webui.idpcommon.IdPButtonsBar.Action;
-import pl.edu.icm.unity.webui.idpcommon.IdentitySelectorComponent;
-import pl.edu.icm.unity.webui.idpcommon.SPInfoComponent;
 import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
+
+import java.io.ByteArrayInputStream;
+import java.time.Instant;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 /**
  * Consent screen after resource owner login and obtaining set of effective attributes.
- * 
- * @author K. Benedyczak
  */
-class OAuthConsentScreen extends CustomComponent 
+@CssImport("./styles/consent-screen.css")
+class OAuthConsentScreen extends VerticalLayout
 {
-	private static Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthConsentScreen.class);
-	private MessageSource msg;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthConsentScreen.class);
+	private final MessageSource msg;
 	
-	private final AttributeHandlerRegistryV8 handlersRegistry;
+	private final AttributeHandlerRegistry handlersRegistry;
 	private final PreferencesManagement preferencesMan;
-	private final StandardWebLogoutHandler authnProcessor;
+	private final VaddinWebLogoutHandler authnProcessor;
 	private final OAuthResponseHandler oauthResponseHandler;
 	private final IdentityTypeSupport idTypeSupport;
 	private final AttributeTypeSupport aTypeSupport; 
@@ -82,12 +72,12 @@ class OAuthConsentScreen extends CustomComponent
 	
 	private IdentitySelectorComponent idSelector;
 	private ExposedAttributesComponent attrsPresenter;
-	private CheckBox rememberCB;
+	private Checkbox rememberCB;
 	
 	OAuthConsentScreen(MessageSource msg, 
-			AttributeHandlerRegistryV8 handlersRegistry,
+			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan,
-			StandardWebLogoutHandler authnProcessor, 
+			VaddinWebLogoutHandler authnProcessor,
 			IdentityTypeSupport idTypeSupport, 
 			AttributeTypeSupport aTypeSupport,
 			IdentityParam identity,
@@ -113,16 +103,15 @@ class OAuthConsentScreen extends CustomComponent
 	private void initUI()
 	{
 		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
-		
-		VerticalLayout vmain = new VerticalLayout();
-		vmain.setMargin(false);
-		vmain.setSpacing(false);
+		setMargin(false);
+		setSpacing(false);
+		setAlignItems(Alignment.CENTER);
 		
 		VerticalLayout contents = new VerticalLayout();
-		contents.addStyleName("u-consentMainColumn");
-		vmain.addComponent(contents);
-		vmain.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);
-		
+		contents.addClassName("u-consentMainColumn");
+		contents.setAlignItems(Alignment.CENTER);
+		add(contents);
+
 		String oauthRequester = ctx.getClientName();
 		if (oauthRequester == null)
 			oauthRequester = ctx.getRequest().getClientID().getValue();
@@ -133,8 +122,6 @@ class OAuthConsentScreen extends CustomComponent
 
 		createButtonsPart(contents);
 
-		setCompositionRoot(vmain);
-
 		loadPreferences(ctx);
 	}
 
@@ -142,59 +129,54 @@ class OAuthConsentScreen extends CustomComponent
 	{
 		String returnAddress = oauthCtx.getReturnURI().toASCIIString();
 
-		Resource clientLogo = null;
+		Image clientLogo = null;
 		Attribute logoAttr = oauthCtx.getClientLogo();
 		if (logoAttr != null && ImageAttributeSyntax.ID.equals(logoAttr.getValueSyntax()))
 		{
 			ImageAttributeSyntax syntax = (ImageAttributeSyntax) aTypeSupport.getSyntax(logoAttr);
 			UnityImage image = syntax.convertFromString(logoAttr.getValues().get(0));
-			clientLogo = new SimpleImageSource(image).getResource();
+			clientLogo = new Image(new StreamResource(UUID.randomUUID() + "." + image.getType().toExt(), () -> new ByteArrayInputStream(image.getImage())), "");
 		}
 		SPInfoComponent spInfo = new SPInfoComponent(msg, clientLogo, oauthRequester, returnAddress);
 		
-		contents.addComponents(spInfo);
+		contents.add(spInfo);
 	}
 
 	private void createExposedDataPart(OAuthAuthzContext ctx, String oauthRequester, VerticalLayout contents,
 			Collection<DynamicAttribute> attributes, IdentityParam identity)
 	{
-		SafePanel exposedInfoPanel = new SafePanel();
-		contents.addComponent(exposedInfoPanel);
+		Div exposedInfoPanel = new Div();
+		exposedInfoPanel.setClassName("u-consent-screen");
+		contents.add(exposedInfoPanel);
 		VerticalLayout eiLayout = new VerticalLayout();
-		eiLayout.setMargin(true);
-		eiLayout.setSpacing(true);
-		exposedInfoPanel.setContent(eiLayout);
+		eiLayout.setMargin(false);
+		eiLayout.setSpacing(false);
+		exposedInfoPanel.add(eiLayout);
 
 		for (OAuthScope si : ctx.getEffectiveRequestedScopes())
 		{
 			
 			String label = Strings.isNullOrEmpty(si.description) ? si.name : si.description;
-			Label scope = new Label100("\u25CF " + label);
-			eiLayout.addComponents(scope);
+			Label scope = new Label("\u25CF " + label);
+			eiLayout.add(scope);
+			eiLayout.add(new HtmlComponent("br"));
 		}
-		eiLayout.addComponent(getSpacer());
-		
+
 		if (!ctx.getAdditionalAudience().isEmpty())
 		{
-			eiLayout.addComponent(new AudienceInfoComponent(msg, ctx.getAdditionalAudience(), oauthRequester));
-			eiLayout.addComponent(getSpacer());			
+			eiLayout.add(new AudienceInfoComponent(msg, ctx.getAdditionalAudience(), oauthRequester));
+			eiLayout.add(new HtmlComponent("br"));
 		}
 		
 		createIdentityPart(identity, eiLayout);
 		attrsPresenter = new ExposedAttributesComponent(msg, idTypeSupport, handlersRegistry, attributes,
 				Optional.of(identity));
-		eiLayout.addComponent(attrsPresenter);
+		eiLayout.add(attrsPresenter);
 
-		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
-		contents.addComponent(rememberCB);
+		rememberCB = new Checkbox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
+		contents.add(rememberCB);
+		rememberCB.addClassName("u-consent-screen-checkbox");
 		rememberCB.setVisible(!(ctx.getClientType() == ClientType.PUBLIC) && !ctx.getPrompts().contains(Prompt.CONSENT));
-	}
-	
-	private Label getSpacer()
-	{
-		Label spacer = HtmlTag.br();
-		spacer.addStyleName(Styles.vLabelSmall.toString());
-		return spacer;
 	}
 	
 	private void createIdentityPart(IdentityParam validIdentity, VerticalLayout contents)
@@ -206,13 +188,14 @@ class OAuthConsentScreen extends CustomComponent
 	{
 		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, action ->
 		{
-			if (Action.ACCEPT == action)
+			if (IdPButtonsBar.Action.ACCEPT == action)
 				confirm();
-			else if (Action.DENY == action)
+			else if (IdPButtonsBar.Action.DENY == action)
 				decline();
 		});
-		contents.addComponent(buttons);
-		contents.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
+		contents.add(buttons);
+		buttons.setClassName("u-consent-screen-buttons");
+		buttons.setAlignItems(Alignment.CENTER);
 	}
 
 	private void loadPreferences(OAuthAuthzContext ctx)
@@ -246,7 +229,6 @@ class OAuthConsentScreen extends CustomComponent
 						.containsAll(Arrays.asList(ctx.getEffectiveRequestedScopesList()))
 				&& settings.getAudience().containsAll(ctx.getAdditionalAudience()) && !ctx.getPrompts().contains(Prompt.CONSENT))
 		{
-			setCompositionRoot(new VerticalLayout());
 			if (settings.isDefaultAccept())
 				confirm();
 			else
@@ -305,7 +287,7 @@ class OAuthConsentScreen extends CustomComponent
 	}
 	
 	
-	public static class AudienceInfoComponent extends CustomComponent
+	public static class AudienceInfoComponent extends VerticalLayout
 	{
 		private final MessageSource msg;
 		
@@ -317,17 +299,16 @@ class OAuthConsentScreen extends CustomComponent
 
 		private void init(List<String> audience, String clientName)
 		{
-			VerticalLayout main = new VerticalLayout();
-			main.setMargin(false);
-			main.addComponent(new Label(msg.getMessage("AudienceInfoComponent.infoHeader", clientName)));
+			setMargin(false);
+			setPadding(false);
+			add(new Label(msg.getMessage("AudienceInfoComponent.infoHeader", clientName)));
 
 			for (String si : audience)
 			{
 				String label = URIPresentationHelper.getHumanReadableDomain(si);
-				Label aud = new Label100("\u25CF " + label);
-				main.addComponent(aud);
+				Label aud = new Label("\u25CF " + label);
+				add(aud);
 			}
-			setCompositionRoot(main);
 		}
 	}
 }

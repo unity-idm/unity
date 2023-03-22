@@ -4,16 +4,10 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.security.dsig.DSigException;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
@@ -21,15 +15,19 @@ import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.saml.slo.SamlRoutableUnsignedMessage;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.webui.LoginInProgressService.HttpContextSession;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Helper to send responses in SSO authn case, when working in non-Vaadin
@@ -88,7 +86,7 @@ public class SSOResponseHandler
 
 	private void cleanContext(HttpServletRequest httpRequest, boolean invalidate)
 	{
-		SamlSessionService.cleanContext(new HttpContextSession(httpRequest));
+		SamlSessionService.cleanContext(new LoginInProgressService.HttpContextSession(httpRequest));
 		if (invalidate)
 			httpRequest.getSession().invalidate();
 	}

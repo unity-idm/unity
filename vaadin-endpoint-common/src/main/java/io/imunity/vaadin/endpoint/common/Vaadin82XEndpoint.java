@@ -34,6 +34,7 @@ import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -41,14 +42,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.*;
 
 public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, Vaadin82XEndpoint.class);
+	private static final Duration UNRESTRICTED_SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
+
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	protected ApplicationContext applicationContext;
 	protected CustomResourceProvider resourceProvider;
@@ -185,7 +191,15 @@ public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndp
 			"pl.edu.icm.unity.webui.customWidgetset");
 		return holder;
 	}
-	private UnityBootstrapHandler getBootstrapHandler4Authn(String uiPath)
+
+	protected int getHeartbeatInterval(int sessionTimeout)
+	{
+		if (sessionTimeout >= 3*DEFAULT_HEARTBEAT)
+			return DEFAULT_HEARTBEAT;
+		int ret = sessionTimeout/3;
+		return Math.max(ret, 2);
+	}
+	protected UnityBootstrapHandler getBootstrapHandler4Authn(String uiPath)
 	{
 		return getBootstrapHandlerGeneric(uiPath, LONG_HEARTBEAT, genericEndpointProperties.getEffectiveAuthenticationTheme());
 	}
@@ -209,6 +223,26 @@ public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndp
 		return null;
 	}
 
+	protected ServletHolder createServletHolder(Servlet servlet, boolean unrestrictedSessionTime)
+	{
+		ServletHolder holder = new ServletHolder(servlet);
+		holder.setInitParameter("closeIdleSessions", "true");
+
+		if (unrestrictedSessionTime)
+		{
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(UNRESTRICTED_SESSION_TIMEOUT_VALUE.getSeconds()));
+		} else
+		{
+			int sessionTimeoutInSeconds = description.getRealm().getMaxInactivity();
+			int heartBeatInSeconds = getHeartbeatInterval(sessionTimeoutInSeconds);
+			sessionTimeoutInSeconds = sessionTimeoutInSeconds - heartBeatInSeconds;
+			if (sessionTimeoutInSeconds < 2)
+				sessionTimeoutInSeconds = 2;
+			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeoutInSeconds));
+		}
+		return holder;
+	}
+
 	@Override
 	public synchronized ServletContextHandler getServletContextHandler()
 	{
@@ -217,7 +251,7 @@ public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndp
 		return context;
 	}
 
-	WebAppContext getWebAppContext(WebAppContext context, String contextPath, Set<String> classPathElements, String webResourceRootUri,
+	protected WebAppContext getWebAppContext(WebAppContext context, String contextPath, Set<String> classPathElements, String webResourceRootUri,
 	                               EventListener eventListener) {
 		context.setResourceBase(webResourceRootUri);
 		context.setContextPath(contextPath);
@@ -244,7 +278,7 @@ public class Vaadin82XEndpoint extends AbstractWebEndpoint implements WebAppEndp
 		}
 	}
 
-	class ForwardServlet extends HttpServlet
+	public class ForwardServlet extends HttpServlet
 	{
 		@Override
 		protected void service(HttpServletRequest req, HttpServletResponse res)

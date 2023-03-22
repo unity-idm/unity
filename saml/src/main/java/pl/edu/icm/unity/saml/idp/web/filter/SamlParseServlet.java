@@ -4,34 +4,32 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.hc.core5.net.URIBuilder;
-import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
-
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.RedirectedMessage;
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
-import pl.edu.icm.unity.webui.LoginInProgressService.SignInContextKey;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Low level servlet performing the initial SAML handling. Supports both POST and HTTP-Redirect (GET) 
@@ -58,7 +56,7 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		super(false);
 		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
-		this.samlDispatcherServletPath = samlDispatcherServletPath;
+		this.samlDispatcherServletPath = samlDispatcherServletPath.endsWith("/") ? samlDispatcherServletPath : samlDispatcherServletPath + "/";
 		this.errorHandler = errorHandler;
 	}
 
@@ -136,7 +134,7 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 			return;
 		}
 		
-		SignInContextKey contextKey = SamlSessionService.setContext(request.getSession(), context);
+		LoginInProgressService.SignInContextKey contextKey = SamlSessionService.setContext(request.getSession(), context);
 		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with SAML input handled successfully");
@@ -146,10 +144,10 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		response.sendRedirect(samlDispatcherServletPath + getQueryToAppend(contextKey));
 	}
 	
-	private String getQueryToAppend(SignInContextKey contextKey)
+	private String getQueryToAppend(LoginInProgressService.SignInContextKey contextKey)
 	{
 		URIBuilder b = new URIBuilder();
-		if (!SignInContextKey.DEFAULT.equals(contextKey))
+		if (!LoginInProgressService.SignInContextKey.DEFAULT.equals(contextKey))
 		{
 			b.addParameter(SamlSessionService.URL_PARAM_CONTEXT_KEY, contextKey.key);
 		}

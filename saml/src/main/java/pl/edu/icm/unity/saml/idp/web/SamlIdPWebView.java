@@ -4,17 +4,18 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import com.vaadin.annotations.Theme;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.router.Route;
 import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
 import eu.unicore.samly2.SAMLConstants;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -36,20 +37,15 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
+import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
-import pl.edu.icm.unity.webui.idpcommon.activesel.ActiveValueSelectionScreen;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -57,55 +53,49 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * The main UI of the SAML web IdP. Fairly simple: shows who asks, what is going to be sent,
- * and optionally allows for some customization. This UI is shown always after the user was authenticated
- * and when the SAML request was properly pre-processed.
- *  
- * @author K. Benedyczak
- */
-@Component("SamlIdPWebUI")
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityThemeValo")
-class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppEndpoint;
+
+
+@Route(value = "/")
+class SamlIdPWebView extends Composite<Div>
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebUI.class);
-	protected MessageSource msg;
-	protected IdPEngine idpEngine;
-	protected FreemarkerAppHandler freemarkerHandler;
-	protected AttributeHandlerRegistryV8 handlersRegistry;
-	protected IdentityTypeSupport identityTypeSupport;
-	protected PreferencesManagement preferencesMan;
-	protected StandardWebLogoutHandler authnProcessor;
-	protected SessionManagement sessionMan;
-	protected ImageAccessService imageAccessService;
-	protected PolicyAgreementManagement policyAgreementsMan;
-	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
-	
-	protected AuthnResponseProcessor samlProcessor;
-	protected SamlResponseHandler samlResponseHandler;
-	protected AttributeTypeManagement attrTypeMan;
-	protected AttributeTypeSupport aTypeSupport;
-	protected List<IdentityParam> validIdentities;
-	protected Map<String, AttributeType> attributeTypes;
-	protected final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
-	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
-	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebView.class);
+	private final MessageSource msg;
+	private final IdPEngine idpEngine;
+	private final FreemarkerAppHandler freemarkerHandler;
+	private final AttributeHandlerRegistry handlersRegistry;
+	private final IdentityTypeSupport identityTypeSupport;
+	private final PreferencesManagement preferencesMan;
+	private final StandardWebLogoutHandler authnProcessor;
+	private final SessionManagement sessionMan;
+	private final VaadinLogoImageLoader imageAccessService;
+	private final PolicyAgreementManagement policyAgreementsMan;
+	private AuthnResponseProcessor samlProcessor;
+	private SamlResponseHandler samlResponseHandler;
+	private final AttributeTypeManagement attrTypeMan;
+	private final AttributeTypeSupport aTypeSupport;
+	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
+	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
+	private final PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder;
+	private final NotificationPresenter notificationPresenter;
+
+	private List<IdentityParam> validIdentities;
+	private Map<String, AttributeType> attributeTypes;
+
 	@Autowired
-	public SamlIdPWebUI(MessageSource msg, ImageAccessService imageAccessService,
-	                    FreemarkerAppHandler freemarkerHandler,
-	                    AttributeHandlerRegistryV8 handlersRegistry, PreferencesManagement preferencesMan,
-	                    StandardWebLogoutHandler authnProcessor, IdPEngine idpEngine,
-	                    IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
-	                    AttributeTypeManagement attrsMan,
-	                    EnquiresDialogLauncher enquiryDialogLauncher,
-	                    AttributeTypeSupport aTypeSupport,
-	                    PolicyAgreementManagement policyAgreementsMan,
-	                    ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
-	                    SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-	                    LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement)
+	public SamlIdPWebView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
+	                      FreemarkerAppHandler freemarkerHandler,
+	                      AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
+	                      StandardWebLogoutHandler authnProcessor, IdPEngine idpEngine,
+	                      IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
+	                      AttributeTypeManagement attrsMan,
+	                      AttributeTypeSupport aTypeSupport,
+	                      PolicyAgreementManagement policyAgreementsMan,
+	                      PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
+	                      SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+	                      LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+	                      NotificationPresenter notificationPresenter)
 	{
-		super(msg, enquiryDialogLauncher);
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
 		this.freemarkerHandler = freemarkerHandler;
@@ -118,9 +108,11 @@ class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		this.attrTypeMan = attrsMan;
 		this.aTypeSupport = aTypeSupport;
 		this.policyAgreementsMan = policyAgreementsMan;
-		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
+		this.policyAgreementRepresentationBuilder = policyAgreementRepresentationBuilder;
+		this.notificationPresenter = notificationPresenter;
+		enter();
 	}
 
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
@@ -135,8 +127,7 @@ class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 				samlCtx.getSamlConfiguration().userImportConfigs);
 	}
 
-	@Override
-	protected void enter(VaadinRequest request)
+	void enter()
 	{
 		SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext();
 		SAMLIdPConfiguration samlIdPConfiguration = samlCtx.getSamlConfiguration();
@@ -168,19 +159,26 @@ class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	private void policyAgreementsStage(SAMLAuthnContext ctx, SAMLIdPConfiguration config,
 			List<PolicyAgreementConfiguration> filterAgreementToPresent)
 	{
-		setContent(policyAgreementScreenObjectFactory.getObject()
+		getContent().removeAll();
+		getContent().add(PolicyAgreementScreen.builder()
+				.withMsg(msg)
+				.withPolicyAgreementDecider(policyAgreementsMan)
+				.withNotificationPresenter(notificationPresenter)
+				.withPolicyAgreementRepresentationBuilder(policyAgreementRepresentationBuilder)
 				.withTitle(config.policyAgreements.title)
 				.withInfo(config.policyAgreements.information)
-				.withWidht(config.policyAgreements.width, config.policyAgreements.widthUnit)
+				.withWidth(config.policyAgreements.width, config.policyAgreements.widthUnit)
 				.withAgreements(filterAgreementToPresent)
-				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config)));
+				.withSubmitHandler(() -> activeValueSelectionAndConsentStage(ctx, config))
+				.build()
+		);
 	}
 	
 	private void activeValueSelectionAndConsentStage(SAMLAuthnContext samlCtx, SAMLIdPConfiguration samlIdPConfiguration)
 	{
 		samlProcessor = new AuthnResponseProcessor(aTypeSupport, lastAccessAttributeManagement, samlCtx, 
 				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, idpStatisticReporterFactory, endpointDescription.getEndpoint());
+		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor, idpStatisticReporterFactory, getCurrentWebAppEndpoint());
 
 		TranslationResult translationResult;
 		try
@@ -216,7 +214,7 @@ class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		if (SamlSessionService.getVaadinContext().getSamlConfiguration().skipConsent)
 		{
 			onAccepted(validIdentities.get(0), attributes.stream()
-					.map(da -> da.getAttribute())
+					.map(DynamicAttribute::getAttribute)
 					.collect(Collectors.toList()));
 			return;
 		}
@@ -232,18 +230,20 @@ class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 				attributeTypes, 
 				this::onDecline, 
 				this::onAccepted);
-		setContent(consentScreen);
+		getContent().removeAll();
+		getContent().add(consentScreen);
 	}
 
 	private void showActiveValueSelectionScreen(ActiveValueSelectionConfig config)
 	{
-		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, 
+		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg,
 				handlersRegistry, authnProcessor, 
 				config.singleSelectableAttributes, config.multiSelectableAttributes,
 				config.remainingAttributes,
 				this::onDecline,
 				this::gotoConsentStage);
-		setContent(valueSelectionScreen);
+		getContent().removeAll();
+		getContent().add(valueSelectionScreen);
 	}
 	
 	private void handleRedirectIfNeeded(TranslationResult userInfo) 

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import com.vaadin.server.Resource;
+import com.vaadin.flow.component.html.Image;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
@@ -12,6 +12,7 @@ import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.*;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -21,7 +22,6 @@ import pl.edu.icm.unity.engine.api.idp.UserImportConfigs;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
@@ -348,15 +348,13 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		return config.name.getDefaultLocaleValue(msg);
 	}
 
-	public Resource getLogoForRequesterOrNull(NameIDType id, MessageSource msg, ImageAccessService imageAccessService)
+	public Optional<Image> getLogoForRequesterOrNull(NameIDType id, MessageSource msg, VaadinLogoImageLoader imageAccessService)
 	{
 		TrustedServiceProvider config = getSPConfig(id);
 		if (config == null || config.logoUri == null)
-			return null;
-
+			return Optional.empty();
 		String logoURI = config.logoUri.getDefaultLocaleValue(msg);
-		return imageAccessService.getConfiguredImageResourceFromNullableUri(logoURI)
-				.orElse(null);
+		return imageAccessService.loadImageFromUri(logoURI);
 	}
 
 	public TrustedServiceProvider getSPConfig(NameIDType requester)
