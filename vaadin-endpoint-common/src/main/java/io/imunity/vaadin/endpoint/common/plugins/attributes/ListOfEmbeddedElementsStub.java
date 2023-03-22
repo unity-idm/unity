@@ -199,11 +199,11 @@ public class ListOfEmbeddedElementsStub<T>
 			cc.add(c.getComponents());
 			
 			add = VaadinIcon.PLUS_CIRCLE_O.create();
-			add.setSize("var(--lumo-icon-size-s)");
+			add.setClassName("small-icon");
 			add.getElement().setProperty("title", msg.getMessage("add"));
 			add.addClickListener(event -> addEntry(null, Entry.this));
 			remove = VaadinIcon.TRASH.create();
-			remove.setSize("var(--lumo-icon-size-s)");
+			remove.setClassName("small-icon");
 			remove.getElement().setProperty("title", msg.getMessage("remove"));
 			remove.addClickListener(event -> remove(Entry.this));
 			

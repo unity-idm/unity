@@ -781,7 +781,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		groupMultiComboBox.setLabel(groupParam.getLabel());
 		groupMultiComboBox.setRequired(isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
 		if (form.getLayoutSettings().isCompactInputs())
-			groupMultiComboBox.getStyle().set("padding-top", "0");
+			groupMultiComboBox.setClassName("no-padding-top");
 
 		if (hasPrefilledROSelected)
 		{
