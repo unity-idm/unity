@@ -5,10 +5,10 @@
 
 package pl.edu.icm.unity.test.headlessui;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.openqa.selenium.By;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test login via Local OAuth with output profile which create dynamic attribute
@@ -24,7 +24,7 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 		driver.get(baseUrl + "/home");
 		waitForPageLoad(By.className("u-idpAuthentication-oauth-local")).click();	
 		
-		waitForPageLoadByURL("/oauth2-as/oauth2-authz-web-entry");
+		waitForPageLoadByURL("/oauth2-as/oauth2-authz-web-entry/");
 		waitForElement(By.className("u-passwordUsernameField")).clear();
 		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user");
 		waitForElement(By.className("u-passwordField")).clear();

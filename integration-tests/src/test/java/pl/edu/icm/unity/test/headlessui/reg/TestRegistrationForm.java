@@ -4,12 +4,11 @@
  */
 package pl.edu.icm.unity.test.headlessui.reg;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.openqa.selenium.By;
-
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestRegistrationForm extends SeleniumTestBase
 {
@@ -19,7 +18,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 		driver.get(baseUrl + "/home2");
 		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		
-		waitForPageLoadByURL("/saml-idp/saml2idp-web-entry");
+		waitForPageLoadByURL("/saml-idp/saml2idp-web-entry/");
 		waitForElement(By.className("u-passwordUsernameField")).clear();
 		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user");
 		waitForElement(By.className("u-passwordField")).clear();
