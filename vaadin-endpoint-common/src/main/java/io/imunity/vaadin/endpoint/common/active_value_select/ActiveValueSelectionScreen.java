@@ -31,12 +31,14 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 	private final Runnable declineHandler;
 	private final Consumer<List<DynamicAttribute>> acceptHandler;
 	private final List<DynamicAttribute> remainingAttributes;
-	
+	private final String logoutRedirectPath;
+
 	public ActiveValueSelectionScreen(MessageSource msg, AttributeHandlerRegistry attrHandlerRegistry,
 	        WebLogoutHandler authnProcessor,
 			List<DynamicAttribute> singleSelectable,
 			List<DynamicAttribute> multiSelectable,
 			List<DynamicAttribute> remainingAttributes,
+			String logoutRedirectPath,
 			Runnable declineHandler,
 			Consumer<List<DynamicAttribute>> acceptHandler)
 	{
@@ -46,6 +48,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 		this.acceptHandler = acceptHandler;
 		this.attrProcessor = new AttributeProcessor(attrHandlerRegistry);
 		this.authnProcessor = authnProcessor;
+		this.logoutRedirectPath = logoutRedirectPath;
 		initUI(singleSelectable, multiSelectable);
 	}
 
@@ -79,7 +82,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 			centered.add(selector);
 		}
 		
-		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, action ->
+		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, logoutRedirectPath, action ->
 		{
 			if (action == IdPButtonsBar.Action.ACCEPT)
 				acceptHandler.accept(getFilteredAttributes());

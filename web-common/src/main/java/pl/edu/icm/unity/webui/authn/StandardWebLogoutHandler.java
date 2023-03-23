@@ -4,26 +4,13 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import java.io.IOException;
-import java.net.URI;
-
-import javax.servlet.http.HttpSession;
-
+import com.vaadin.server.*;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.vaadin.server.Page;
-import com.vaadin.server.SynchronizedRequestHandler;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinResponse;
-import com.vaadin.server.VaadinServletRequest;
-import com.vaadin.server.VaadinServletResponse;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedHttpSession;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -32,6 +19,10 @@ import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.URI;
 
 /**
  * Handles logouts in Vaadin way
@@ -84,7 +75,13 @@ public class StandardWebLogoutHandler implements WebLogoutHandler
 		logoutSessionPeers(p.getLocation(), soft);
 		p.reload();
 	}
-	
+
+	@Override
+	public void logout(boolean soft, String logoutRedirectPath)
+	{
+		throw new NotImplementedException("This class is deprecated and will be removed. Use: VaddinWebLogoutHandler");
+	}
+
 	private void logoutSessionPeers(URI currentLocation, boolean soft)
 	{
 		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE,

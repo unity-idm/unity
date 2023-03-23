@@ -9,4 +9,5 @@ public interface WebLogoutHandler
 	void logout();
 
 	void logout(boolean soft);
+	void logout(boolean soft, String logoutRedirectPath);
 }

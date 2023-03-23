@@ -13,6 +13,10 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.endpoint.common.consent_utils.ExposedSelectableAttributesComponent;
+import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
+import io.imunity.vaadin.endpoint.common.consent_utils.IdentitySelectorComponent;
+import io.imunity.vaadin.endpoint.common.consent_utils.SPInfoComponent;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import org.apache.logging.log4j.Logger;
@@ -25,15 +29,11 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import io.imunity.vaadin.endpoint.common.consent_utils.ExposedSelectableAttributesComponent;
-import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
-import io.imunity.vaadin.endpoint.common.consent_utils.IdentitySelectorComponent;
-import io.imunity.vaadin.endpoint.common.consent_utils.SPInfoComponent;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
+import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 import pl.edu.icm.unity.webui.idpcommon.SelectableAttributesComponent;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
@@ -43,6 +43,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH;
 
 /**
  * Consent screen of the SAML web IdP. Fairly simple: shows who asks, what is going to be sent,
@@ -56,7 +58,7 @@ class SamlConsentScreen extends VerticalLayout
 	protected final AttributeHandlerRegistry handlersRegistry;
 	protected final IdentityTypeSupport identityTypeSupport;
 	protected final PreferencesManagement preferencesMan;
-	protected final StandardWebLogoutHandler authnProcessor;
+	protected final WebLogoutHandler authnProcessor;
 	protected final AttributeTypeSupport aTypeSupport;
 	protected final VaadinLogoImageLoader imageAccessService;
 
@@ -75,7 +77,7 @@ class SamlConsentScreen extends VerticalLayout
 	public SamlConsentScreen(MessageSource msg, VaadinLogoImageLoader imageAccessService,
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan,
-			StandardWebLogoutHandler authnProcessor, 
+			WebLogoutHandler authnProcessor,
 			IdentityTypeSupport identityTypeSupport, 
 			AttributeTypeSupport aTypeSupport,
 			List<IdentityParam> validIdentities,
@@ -176,7 +178,7 @@ class SamlConsentScreen extends VerticalLayout
 	
 	private void createButtonsPart(final SAMLAuthnContext samlCtx, VerticalLayout contents)
 	{
-		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, action ->
+		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, SAML_ENTRY_SERVLET_PATH, action ->
 		{
 			if (IdPButtonsBar.Action.ACCEPT == action)
 				confirm(samlCtx);

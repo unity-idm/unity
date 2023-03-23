@@ -25,13 +25,15 @@ public class IdPButtonsBar extends VerticalLayout
 	private final MessageSource msg;
 	private final WebLogoutHandler authnProcessor;
 	private final ActionListener listener;
+	private final String logoutRedirectPath;
 
-	public IdPButtonsBar(MessageSource msg, WebLogoutHandler authnProcessor,
+	public IdPButtonsBar(MessageSource msg, WebLogoutHandler authnProcessor, String logoutRedirectPath,
 	                     ActionListener listener)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.listener = listener;
+		this.logoutRedirectPath = logoutRedirectPath;
 		initUI();
 	}
 
@@ -62,7 +64,7 @@ public class IdPButtonsBar extends VerticalLayout
 		LinkButton reloginButton = new LinkButton(msg.getMessage("IdPButtonsBar.logAsAnother"), event ->
 		{
 			listener.buttonClicked(Action.LOGIN_AS_ANOTHER);
-			authnProcessor.logout(true);
+			authnProcessor.logout(true, logoutRedirectPath);
 		});
 
 		add(buttonsLayout, reloginButton);

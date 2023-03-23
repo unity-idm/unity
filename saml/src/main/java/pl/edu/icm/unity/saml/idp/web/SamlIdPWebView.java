@@ -11,6 +11,9 @@ import com.vaadin.server.Page;
 import eu.unicore.samly2.SAMLConstants;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
+import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
@@ -37,14 +40,12 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
-import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.*;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
+import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -54,6 +55,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppEndpoint;
+import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH;
 
 
 @Route(value = "/")
@@ -66,7 +68,7 @@ class SamlIdPWebView extends Composite<Div>
 	private final AttributeHandlerRegistry handlersRegistry;
 	private final IdentityTypeSupport identityTypeSupport;
 	private final PreferencesManagement preferencesMan;
-	private final StandardWebLogoutHandler authnProcessor;
+	private final WebLogoutHandler authnProcessor;
 	private final SessionManagement sessionMan;
 	private final VaadinLogoImageLoader imageAccessService;
 	private final PolicyAgreementManagement policyAgreementsMan;
@@ -86,7 +88,7 @@ class SamlIdPWebView extends Composite<Div>
 	public SamlIdPWebView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
 	                      FreemarkerAppHandler freemarkerHandler,
 	                      AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-	                      StandardWebLogoutHandler authnProcessor, IdPEngine idpEngine,
+	                      VaddinWebLogoutHandler authnProcessor, IdPEngine idpEngine,
 	                      IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
 	                      AttributeTypeManagement attrsMan,
 	                      AttributeTypeSupport aTypeSupport,
@@ -240,6 +242,7 @@ class SamlIdPWebView extends Composite<Div>
 				handlersRegistry, authnProcessor, 
 				config.singleSelectableAttributes, config.multiSelectableAttributes,
 				config.remainingAttributes,
+				SAML_ENTRY_SERVLET_PATH,
 				this::onDecline,
 				this::gotoConsentStage);
 		getContent().removeAll();

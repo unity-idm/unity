@@ -49,6 +49,8 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 import java.util.*;
 
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROUTING_SERVLET_PATH;
+
 
 @Route(value = "/")
 class OAuthAuthzView extends Composite<Div>
@@ -230,7 +232,7 @@ class OAuthAuthzView extends Composite<Div>
 	{
 		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, handlersRegistry,
 				authnProcessor, config.singleSelectableAttributes, config.multiSelectableAttributes,
-				config.remainingAttributes, this::onDecline, this::gotoConsentStage);
+				config.remainingAttributes, OAUTH_ROUTING_SERVLET_PATH, this::onDecline, this::gotoConsentStage);
 		getContent().removeAll();
 		getContent().add(valueSelectionScreen);
 	}

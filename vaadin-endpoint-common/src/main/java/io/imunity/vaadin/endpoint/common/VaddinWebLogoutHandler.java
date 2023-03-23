@@ -15,14 +15,12 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.webui.authn.LogoutProcessorsManager;
 import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URI;
 
@@ -77,7 +75,18 @@ public class VaddinWebLogoutHandler implements WebLogoutHandler
 		logoutSessionPeers(URI.create(contextPath), soft);
 		p.reload();
 	}
-	
+
+	@Override
+	public void logout(boolean soft, String logoutRedirectPath)
+	{
+		Page p = UI.getCurrent().getPage();
+		String contextPath = VaadinServlet.getCurrent().getServletContext().getContextPath();
+		if(!logoutRedirectPath.endsWith("/"))
+			logoutRedirectPath += "/";
+		logoutSessionPeers(URI.create(contextPath + logoutRedirectPath), soft);
+		p.reload();
+	}
+
 	private void logoutSessionPeers(URI currentLocation, boolean soft)
 	{
 		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE,
@@ -113,13 +122,6 @@ public class VaddinWebLogoutHandler implements WebLogoutHandler
 				VaadinServletRequest.getCurrent(),
 				VaadinServletResponse.getCurrent());
 
-	}
-	
-	public static UnsuccessfulAuthenticationCounter getLoginCounter()
-	{
-		HttpSession httpSession = ((WrappedHttpSession)VaadinSession.getCurrent().getSession()).getHttpSession();
-		return (UnsuccessfulAuthenticationCounter) httpSession.getServletContext().getAttribute(
-				UnsuccessfulAuthenticationCounter.class.getName());
 	}
 	
 	private class LogoutRedirectHandler extends SynchronizedRequestHandler
