@@ -59,9 +59,11 @@ public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 	@Override
 	protected AttributeType fromJsonSingle(ObjectNode src)
 	{
-		try {
+		try
+		{
 			return AttributeTypeMapper.map(Constants.MAPPER.treeToValue(src, DBAttributeType.class));
-		} catch (JsonProcessingException e) {
+		} catch (JsonProcessingException e)
+		{
 			log.error("Failed to deserialize Group object:", e);
 		}
 		return null;

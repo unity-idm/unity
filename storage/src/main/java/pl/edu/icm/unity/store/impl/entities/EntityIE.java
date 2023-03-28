@@ -59,9 +59,11 @@ public class EntityIE extends AbstractIEBase<EntityInformation>
 	@Override
 	protected EntityInformation fromJsonSingle(ObjectNode src)
 	{
-		try {
+		try
+		{
 			return EntityInformationMapper.map(Constants.MAPPER.treeToValue(src, DBEntityInformation.class));
-		} catch (JsonProcessingException e) {
+		} catch (JsonProcessingException e)
+		{
 			log.error("Failed to deserialize EntityInformation object:", e);
 		}
 		return null;

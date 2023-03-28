@@ -35,8 +35,7 @@ public class CredentialRequirementHandler extends DefaultEntityHandler<Credentia
 	{
 		try
 		{
-			byte[] contents = jsonMapper.writeValueAsBytes(value);
-			return new GenericObjectBean(value.getName(), contents, supportedType);
+			return new GenericObjectBean(value.getName(), jsonMapper.writeValueAsBytes(CredentialRequirementsMapper.map(value)), supportedType);
 		} catch (JsonProcessingException e)
 		{
 			throw new InternalException("Can't serialize credential requirements to JSON", e);
@@ -48,7 +47,7 @@ public class CredentialRequirementHandler extends DefaultEntityHandler<Credentia
 	{
 		try
 		{
-			return jsonMapper.readValue(blob.getContents(), CredentialRequirements.class);
+			return CredentialRequirementsMapper.map(jsonMapper.readValue(blob.getContents(), DBCredentialRequirements.class));
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize credential requirements from JSON", e);

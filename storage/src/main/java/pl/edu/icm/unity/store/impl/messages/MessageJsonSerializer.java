@@ -42,14 +42,14 @@ class MessageJsonSerializer implements RDBMSObjectSerializer<Message, MessageBea
 
 	ObjectNode toJson(Message exportedObj)
 	{
-		return Constants.MAPPER.valueToTree(exportedObj);
+		return Constants.MAPPER.valueToTree(MessageMapper.map(exportedObj));
 	}
 
 	Message fromJson(ObjectNode src)
 	{
 		try
 		{
-			return Constants.MAPPER.treeToValue(src, Message.class);
+			return MessageMapper.map(Constants.MAPPER.treeToValue(src, DBMessage.class));
 		} catch (JsonProcessingException e)
 		{
 			log.error("Failed to deserialize StoredMessage object:", e);

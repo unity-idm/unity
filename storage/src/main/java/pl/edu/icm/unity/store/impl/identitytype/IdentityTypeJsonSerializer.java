@@ -28,28 +28,28 @@ class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<IdentityType, 
 	{
 		try
 		{
-			return
-					IdentityTypeBaseMapper.map(Constants.MAPPER.readValue(raw.getContents(), DBIdentityTypeBase.class), raw.getName());
+			return IdentityTypeBaseMapper.map(Constants.MAPPER.readValue(raw.getContents(), DBIdentityTypeBase.class),
+					raw.getName());
 		} catch (IOException e)
 		{
 			throw new IllegalStateException("Error parsing identity type from DB", e);
 		}
 	}
-	
+
 	@Override
 	public BaseBean toDB(IdentityType idType)
 	{
 		BaseBean toAdd = new BaseBean();
 		toAdd.setName(idType.getName());
 		try
-		{		
+		{
 			toAdd.setContents(Constants.MAPPER.writeValueAsBytes(IdentityTypeBaseMapper.map(idType)));
-		
+
 		} catch (JsonProcessingException e)
 		{
 			throw new IllegalStateException("Error saving identity type to DB", e);
 		}
-		
+
 		return toAdd;
 	}
 }

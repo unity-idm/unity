@@ -8,10 +8,11 @@ package pl.edu.icm.unity.store.objstore.capacityLimit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 
@@ -35,12 +36,26 @@ public class CapacityLimitHandler extends DefaultEntityHandler<CapacityLimit>
 	@Override
 	public GenericObjectBean toBlob(CapacityLimit value)
 	{
-		return new GenericObjectBean(value.getName(), JsonUtil.serialize2Bytes(value.toJson()), supportedType);
+		try
+		{
+			return new GenericObjectBean(value.getName(), jsonMapper.writeValueAsBytes(CapacityLimitMapper.map(value)),
+					supportedType);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize capacity limit to JSON", e);
+
+		}
 	}
 
 	@Override
 	public CapacityLimit fromBlob(GenericObjectBean blob)
 	{
-		return new CapacityLimit(JsonUtil.parse(blob.getContents()));
+		try
+		{
+			return CapacityLimitMapper.map(jsonMapper.readValue(blob.getContents(), DBCapacityLimit.class));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize capacity limit from JSON", e);
+		}
 	}
 }

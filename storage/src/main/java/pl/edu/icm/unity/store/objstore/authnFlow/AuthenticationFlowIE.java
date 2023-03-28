@@ -8,9 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 
 /**
@@ -18,12 +19,24 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
  * @author P.Piernik
  */
 @Component
-public class AuthenticationFlowIE extends GenericObjectIEBase<AuthenticationFlowDefinition>
+public class AuthenticationFlowIE extends GenericObjectIEBase2<AuthenticationFlowDefinition>
 {
 	@Autowired
 	public AuthenticationFlowIE(AuthenticationFlowDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, AuthenticationFlowDefinition.class, 117, AuthenticationFlowHandler.AUTHENTICATION_FLOW_OBJECT_TYPE);
+		super(dao, jsonMapper, 117, AuthenticationFlowHandler.AUTHENTICATION_FLOW_OBJECT_TYPE);
+	}
+
+	@Override
+	protected AuthenticationFlowDefinition convert(ObjectNode src)
+	{
+		return AuthenticationFlowMapper.map(jsonMapper.convertValue(src, DBAuthenticationFlow.class));
+	}
+
+	@Override
+	protected ObjectNode convert(AuthenticationFlowDefinition src)
+	{
+		return jsonMapper.convertValue(AuthenticationFlowMapper.map(src), ObjectNode.class);
 	}
 }
 

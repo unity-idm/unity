@@ -8,9 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 
 /**
@@ -18,12 +19,24 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeClassIE extends GenericObjectIEBase<AttributesClass>
+public class AttributeClassIE extends GenericObjectIEBase2<AttributesClass>
 {
 	@Autowired
 	public AttributeClassIE(AttributeClassDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, AttributesClass.class, 100, AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE);
+		super(dao, jsonMapper, 100, AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE);
+	}
+
+	@Override
+	protected AttributesClass convert(ObjectNode src)
+	{
+		return AttributeClassMapper.map(jsonMapper.convertValue(src, DBAttributesClass.class));
+	}
+
+	@Override
+	protected ObjectNode convert(AttributesClass src)
+	{
+		return jsonMapper.convertValue(AttributeClassMapper.map(src), ObjectNode.class);
 	}
 }
 

@@ -7,9 +7,10 @@ package pl.edu.icm.unity.store.objstore.reg.eform;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -29,16 +30,30 @@ public class EnquiryFormHandler extends DefaultEntityHandler<EnquiryForm>
 		super(jsonMapper, ENQUIRY_FORM_OBJECT_TYPE, EnquiryForm.class);
 	}
 
+	
 	@Override
 	public GenericObjectBean toBlob(EnquiryForm value)
 	{
-		return new GenericObjectBean(value.getName(), 
-				JsonUtil.serialize2Bytes(value.toJson()), supportedType);
+		try
+		{
+			return new GenericObjectBean(value.getName(),
+					jsonMapper.writeValueAsBytes(EnquiryFormMapper.map(value)), supportedType);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize enquiry form to JSON", e);
+		}
 	}
 
 	@Override
 	public EnquiryForm fromBlob(GenericObjectBean blob)
 	{
-		return new EnquiryForm(JsonUtil.parse(blob.getContents()));
+		try
+		{
+			return EnquiryFormMapper
+					.map(jsonMapper.readValue(blob.getContents(), DBEnquiryForm.class));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize enquiry form from JSON", e);
+		}
 	}
 }
