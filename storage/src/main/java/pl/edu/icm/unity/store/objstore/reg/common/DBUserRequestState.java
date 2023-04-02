@@ -62,7 +62,9 @@ public abstract class DBUserRequestState<T extends DBBaseRegistrationInput>
 		return Objects.equals(adminComments, other.adminComments)
 				&& Objects.equals(registrationContext, other.registrationContext)
 				&& Objects.equals(request, other.request) && Objects.equals(requestId, other.requestId)
-				&& Objects.equals(status, other.status) && Objects.equals(timestamp, other.timestamp);
+				&& Objects.equals(timestamp, other.timestamp)
+				&& Objects.equals(status, other.status);
+			
 	}
 
 	protected static class RestUserRequestStateBuilder<T extends DBBaseRegistrationInput, S extends RestUserRequestStateBuilder<?, ?>>

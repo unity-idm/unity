@@ -40,7 +40,7 @@ public class DBRegistrationRequest extends DBBaseRegistrationInput
 		return new Builder();
 	}
 
-	public static final class Builder extends RestBaseRegistrationInputBuilder<Builder>
+	public static final class Builder extends DBBaseRegistrationInputBuilder<Builder>
 	{
 		public Builder()
 		{

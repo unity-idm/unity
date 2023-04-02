@@ -5,9 +5,11 @@
 
 package pl.edu.icm.unity.store.impl.identitytype;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBIdentityType.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DBIdentityType extends DBIdentityTypeBase
 {
 	public final String name;
@@ -23,7 +25,8 @@ class DBIdentityType extends DBIdentityTypeBase
 	{
 		return new Builder();
 	}
-
+	
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder extends DBIdentityTypeBaseBuilder<Builder>
 	{
 		private String name;

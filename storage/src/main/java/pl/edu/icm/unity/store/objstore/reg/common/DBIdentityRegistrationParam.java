@@ -10,7 +10,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBIdentityRegistrationParam.Builder.class)
-public class DBIdentityRegistrationParam extends DBRegistrationParam
+class DBIdentityRegistrationParam extends DBRegistrationParam
 {
 	public final String identityType;
 	public final String confirmationMode;

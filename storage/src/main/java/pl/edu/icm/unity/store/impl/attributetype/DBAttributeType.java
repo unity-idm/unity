@@ -7,9 +7,11 @@ package pl.edu.icm.unity.store.impl.attributetype;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBAttributeType.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DBAttributeType extends DBAttributeTypeBase
 {
 	public final String name;
@@ -49,6 +51,7 @@ class DBAttributeType extends DBAttributeTypeBase
 		return Objects.equals(name, other.name) && Objects.equals(syntaxId, other.syntaxId);
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder extends DBAttributeTypeBaseBuilder<Builder>
 	{
 

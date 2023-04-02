@@ -164,10 +164,7 @@ public class DBIdentityBase
 		}
 
 		public DBIdentityBase build()
-		{
-			if (comparableValue == null)
-				throw new IllegalArgumentException("Got identity without comparable value, what is invalid");
-			
+		{			
 			return new DBIdentityBase(this);
 		}
 	}

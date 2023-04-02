@@ -7,11 +7,13 @@ package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import pl.edu.icm.unity.store.impl.attribute.DBAttribute;
 
 @JsonDeserialize(builder = DBAttributeStatement.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DBAttributeStatement
 {
 	public final String condition;
@@ -60,6 +62,7 @@ class DBAttributeStatement
 		return new Builder();
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	static final class Builder
 	{
 		private String condition;

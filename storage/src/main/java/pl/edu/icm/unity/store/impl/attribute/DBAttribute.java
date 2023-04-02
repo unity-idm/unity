@@ -7,9 +7,11 @@ package pl.edu.icm.unity.store.impl.attribute;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBAttribute.DBAttributeBuilder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBAttribute extends DBAttributeBase
 {
 	public final String name;
@@ -52,7 +54,8 @@ public class DBAttribute extends DBAttributeBase
 	{
 		return new DBAttributeBuilder<>();
 	}
-
+	
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class DBAttributeBuilder<S extends DBAttributeBuilder<S>>
 			extends DBAttributeBaseBuilder<S>
 	{

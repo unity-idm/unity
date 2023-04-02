@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import pl.edu.icm.unity.store.types.DBI18nString;
 
 @JsonDeserialize(builder = DBAgreementRegistrationParam.Builder.class)
-public class DBAgreementRegistrationParam
+class DBAgreementRegistrationParam
 {
 	@JsonProperty("i18nText")
 	public final DBI18nString text;

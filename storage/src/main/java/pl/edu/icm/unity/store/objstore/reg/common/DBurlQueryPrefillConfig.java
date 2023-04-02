@@ -10,7 +10,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBurlQueryPrefillConfig.Builder.class)
-public class DBurlQueryPrefillConfig
+class DBurlQueryPrefillConfig
 {
 	public final String paramName;
 	public final String mode;

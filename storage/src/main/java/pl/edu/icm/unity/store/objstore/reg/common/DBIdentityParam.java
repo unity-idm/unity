@@ -7,6 +7,7 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -15,6 +16,7 @@ import pl.edu.icm.unity.store.types.DBConfirmationInfo;
 
 @JsonDeserialize(builder = DBIdentityParam.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBIdentityParam
 {
 	public final String translationProfile;
@@ -65,6 +67,7 @@ public class DBIdentityParam
 		return new Builder();
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder
 	{
 		private String translationProfile;

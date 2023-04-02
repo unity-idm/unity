@@ -7,9 +7,11 @@ package pl.edu.icm.unity.store.objstore.endpoint;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBEndpoint.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DBEndpoint
 {
 	public final String name;
@@ -55,7 +57,8 @@ class DBEndpoint
 	{
 		return new Builder();
 	}
-
+	
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder
 	{
 		private String name;

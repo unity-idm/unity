@@ -24,6 +24,7 @@ import pl.edu.icm.unity.store.objstore.reg.common.DBIdentityParam;
 public class DBFormPrefill
 {
 	public final String formId;
+	public final String formType;
 	public final Map<Integer, DBPrefilledEntry<DBIdentityParam>> identities;
 	public final Map<Integer, DBPrefilledEntry<DBGroupSelection>> groupSelections;
 	public final Map<Integer, DBGroupSelection> allowedGroups;
@@ -33,6 +34,7 @@ public class DBFormPrefill
 	private DBFormPrefill(Builder builder)
 	{
 		this.formId = builder.formId;
+		this.formType = builder.formType;
 		this.identities = Optional.ofNullable(builder.identities)
 				.map(HashMap::new)
 				.map(Collections::unmodifiableMap)
@@ -84,6 +86,7 @@ public class DBFormPrefill
 	public static final class Builder
 	{
 		private String formId;
+		private String formType;
 		private Map<Integer, DBPrefilledEntry<DBIdentityParam>> identities = Collections.emptyMap();
 		private Map<Integer, DBPrefilledEntry<DBGroupSelection>> groupSelections = Collections.emptyMap();
 		private Map<Integer, DBGroupSelection> allowedGroups = Collections.emptyMap();
@@ -97,6 +100,12 @@ public class DBFormPrefill
 		public Builder withFormId(String formId)
 		{
 			this.formId = formId;
+			return this;
+		}
+		
+		public Builder withFormType(String formType)
+		{
+			this.formType = formType;
 			return this;
 		}
 

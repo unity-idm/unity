@@ -14,13 +14,13 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.store.objstore.reg.common.DBAgreementRegistrationParam;
-import pl.edu.icm.unity.store.objstore.reg.common.DBAttributeRegistrationParam;
-import pl.edu.icm.unity.store.objstore.reg.common.DBCredentialRegistrationParam;
-import pl.edu.icm.unity.store.objstore.reg.common.DBGroupRegistrationParam;
-import pl.edu.icm.unity.store.objstore.reg.common.DBIdentityRegistrationParam;
-import pl.edu.icm.unity.store.objstore.reg.common.DBPolicyAgreementConfiguration;
-import pl.edu.icm.unity.store.objstore.reg.common.DBRegistrationWrapUpConfig;
+import pl.edu.icm.unity.store.objstore.reg.common.DBAgreementRegistrationParamProvider;
+import pl.edu.icm.unity.store.objstore.reg.common.DBAttributeRegistrationParamProvider;
+import pl.edu.icm.unity.store.objstore.reg.common.DBCredentialRegistrationParamProvider;
+import pl.edu.icm.unity.store.objstore.reg.common.DBGroupRegistrationParamProvider;
+import pl.edu.icm.unity.store.objstore.reg.common.DBIdentityRegistrationParamProvider;
+import pl.edu.icm.unity.store.objstore.reg.common.DBPolicyAgreementConfigurationProvider;
+import pl.edu.icm.unity.store.objstore.reg.common.DBRegistrationWrapUpConfigProvider;
 import pl.edu.icm.unity.store.objstore.reg.layout.DBBasicFormElement;
 import pl.edu.icm.unity.store.objstore.reg.layout.DBFormCaptionElement;
 import pl.edu.icm.unity.store.objstore.reg.layout.DBFormLayout;
@@ -58,7 +58,7 @@ import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
-public class RestEnquiryFormMapperTest extends MapperWithMinimalTestBase<EnquiryForm, DBEnquiryForm>
+public class EnquiryFormMapperTest extends MapperWithMinimalTestBase<EnquiryForm, DBEnquiryForm>
 {
 
 	@Override
@@ -92,7 +92,7 @@ public class RestEnquiryFormMapperTest extends MapperWithMinimalTestBase<Enquiry
 				.withCollectComments(true)
 				.withFormInformation(new I18nString("formInformation"))
 				.withAddedCredentialParam(
-						new CredentialRegistrationParam("cred", null, null))
+						new CredentialRegistrationParam("sys:password", null, null))
 				.withAddedAgreement(new AgreementRegistrationParam(new I18nString("a"), false))
 				.withAddedIdentityParam()
 				.withIdentityType("userName")
@@ -154,34 +154,11 @@ public class RestEnquiryFormMapperTest extends MapperWithMinimalTestBase<Enquiry
 				.withFormInformation(DBI18nString.builder()
 						.withDefaultValue("formInformation")
 						.build())
-				.withCredentialParams(List.of(DBCredentialRegistrationParam.builder()
-						.withCredentialName("cred")
-						.build()))
-				.withAgreements(List.of(DBAgreementRegistrationParam.builder()
-						.withMandatory(false)
-						.withText(DBI18nString.builder()
-								.withDefaultValue("a")
-								.build())
-						.build()))
-				.withIdentityParams(List.of(DBIdentityRegistrationParam.builder()
-						.withIdentityType("userName")
-						.withRetrievalSettings("automaticHidden")
-						.withConfirmationMode("ON_SUBMIT")
-						.build()))
-				.withAttributeParams(List.of(DBAttributeRegistrationParam.builder()
-						.withAttributeType("email")
-						.withGroup("/")
-						.withOptional(true)
-						.withRetrievalSettings("interactive")
-						.withShowGroups(true)
-						.withConfirmationMode("ON_SUBMIT")
-						.build()))
-				.withGroupParams(List.of(DBGroupRegistrationParam.builder()
-						.withGroupPath("/B")
-						.withRetrievalSettings("automatic")
-						.withIncludeGroupsMode("all")
-						.withMultiSelect(false)
-						.build()))
+				.withCredentialParams(List.of(DBCredentialRegistrationParamProvider.getParam()))
+				.withAgreements(List.of(DBAgreementRegistrationParamProvider.getRegistrationParam()))
+				.withIdentityParams(List.of(DBIdentityRegistrationParamProvider.getParam()))
+				.withAttributeParams(List.of(DBAttributeRegistrationParamProvider.getParam()))
+				.withGroupParams(List.of(DBGroupRegistrationParamProvider.getParam()))
 				.withCollectComments(true)
 				.withDisplayedName(DBI18nString.builder()
 						.withDefaultValue("displayedName")
@@ -199,16 +176,8 @@ public class RestEnquiryFormMapperTest extends MapperWithMinimalTestBase<Enquiry
 						.withLogoURL("logoUrl")
 						.withShowCancel(true)
 						.build())
-				.withWrapUpConfig(List.of(DBRegistrationWrapUpConfig.builder()
-						.withState("AUTO_ACCEPTED")
-						.build()))
-				.withPolicyAgreements(List.of(DBPolicyAgreementConfiguration.builder()
-						.withDocumentsIdsToAccept(List.of(1L))
-						.withPresentationType("CHECKBOX_SELECTED")
-						.withText(DBI18nString.builder()
-								.withDefaultValue("text")
-								.build())
-						.build()))
+				.withWrapUpConfig(List.of(DBRegistrationWrapUpConfigProvider.getParam()))
+				.withPolicyAgreements(List.of(DBPolicyAgreementConfigurationProvider.getParam()))
 				.withByInvitationOnly(true)
 				.withCheckIdentityOnSubmit(true)
 				.withLayout(DBFormLayout.builder()

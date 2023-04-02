@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.Objects;
 
-public class DBRegistrationParam
+class DBRegistrationParam
 {
 	public final String label;
 	public final String description;

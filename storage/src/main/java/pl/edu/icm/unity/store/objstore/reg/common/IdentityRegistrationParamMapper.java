@@ -11,13 +11,12 @@ import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 
-public class IdentityRegistrationParamMapper
+class IdentityRegistrationParamMapper
 {
-	public static DBIdentityRegistrationParam map(IdentityRegistrationParam identityRegistrationParam)
+	static DBIdentityRegistrationParam map(IdentityRegistrationParam identityRegistrationParam)
 	{
 		return DBIdentityRegistrationParam.builder()
-				.withConfirmationMode(identityRegistrationParam.getConfirmationMode()
-						.name())
+				.withConfirmationMode(Optional.ofNullable(identityRegistrationParam.getConfirmationMode()).map(Enum::name).orElse(null))
 				.withDescription(identityRegistrationParam.getDescription())
 				.withIdentityType(identityRegistrationParam.getIdentityType())
 				.withLabel(identityRegistrationParam.getLabel())
@@ -30,10 +29,10 @@ public class IdentityRegistrationParamMapper
 				.build();
 	}
 
-	public static IdentityRegistrationParam map(DBIdentityRegistrationParam registrationParam)
+	static IdentityRegistrationParam map(DBIdentityRegistrationParam registrationParam)
 	{
 		IdentityRegistrationParam identityRegistrationParam = new IdentityRegistrationParam();
-		identityRegistrationParam.setConfirmationMode(ConfirmationMode.valueOf(registrationParam.confirmationMode));
+		identityRegistrationParam.setConfirmationMode(Optional.ofNullable(registrationParam.confirmationMode).map(ConfirmationMode::valueOf).orElse(null));
 		identityRegistrationParam.setDescription(registrationParam.description);
 		identityRegistrationParam.setIdentityType(registrationParam.identityType);
 		identityRegistrationParam.setLabel(registrationParam.label);

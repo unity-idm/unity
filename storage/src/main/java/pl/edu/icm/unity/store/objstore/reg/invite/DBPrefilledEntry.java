@@ -7,9 +7,11 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBPrefilledEntry.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBPrefilledEntry<T>
 {
 	public final T entry;
@@ -40,6 +42,7 @@ public class DBPrefilledEntry<T>
 		return Objects.equals(entry, other.entry) && Objects.equals(mode, other.mode);
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder<T>
 	{
 		private T entry;

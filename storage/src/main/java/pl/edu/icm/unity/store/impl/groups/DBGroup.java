@@ -7,9 +7,11 @@ package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBGroup.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DBGroup extends DBGroupBase
 {
 	public final String path;
@@ -46,7 +48,8 @@ class DBGroup extends DBGroupBase
 	{
 		return new Builder();
 	}
-
+	
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder extends DBGroupBaseBuilder<Builder>
 	{
 		private String path;

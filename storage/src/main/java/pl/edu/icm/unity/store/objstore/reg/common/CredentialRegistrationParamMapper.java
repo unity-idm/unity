@@ -7,9 +7,9 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 
-public class CredentialRegistrationParamMapper
+class CredentialRegistrationParamMapper
 {
-	public static DBCredentialRegistrationParam map(CredentialRegistrationParam credentialRegistrationParam)
+	static DBCredentialRegistrationParam map(CredentialRegistrationParam credentialRegistrationParam)
 	{
 		return DBCredentialRegistrationParam.builder()
 				.withCredentialName(credentialRegistrationParam.getCredentialName())
@@ -19,7 +19,7 @@ public class CredentialRegistrationParamMapper
 
 	}
 
-	public static CredentialRegistrationParam map(DBCredentialRegistrationParam registrationParam)
+	static CredentialRegistrationParam map(DBCredentialRegistrationParam registrationParam)
 	{
 		return new CredentialRegistrationParam(registrationParam.credentialName, registrationParam.label,
 				registrationParam.description);

@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -61,6 +62,7 @@ public class InvitationWithCodeMapperTest extends MapperTestBase<InvitationWithC
 		formPrefill.setAllowedGroups(Map.of(1, groupSelection));
 		formPrefill.setAttributes(Map.of(1, new PrefilledEntry<Attribute>(attr, PrefilledEntryMode.READ_ONLY)));
 		formPrefill.setFormId("formId");
+		formPrefill.setFormType(FormType.REGISTRATION);
 		formPrefill.setGroupSelections(
 				Map.of(1, new PrefilledEntry<GroupSelection>(groupSelection, PrefilledEntryMode.READ_ONLY)));
 		formPrefill.setIdentities(Map.of(1, new PrefilledEntry<IdentityParam>(idParam1, PrefilledEntryMode.HIDDEN)));

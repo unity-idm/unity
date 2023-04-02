@@ -25,5 +25,4 @@ public class DBCredentialRegistrationParamTest extends DBTypeTestBase<DBCredenti
 				.withLabel("label")
 				.build();
 	}
-
 }

@@ -11,9 +11,9 @@ import pl.edu.icm.unity.store.types.I18nStringMapper;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 
-public class RegistrationWrapUpConfigMapper
+class RegistrationWrapUpConfigMapper
 {
-	public static DBRegistrationWrapUpConfig map(RegistrationWrapUpConfig registrationWrapUpConfig)
+	static DBRegistrationWrapUpConfig map(RegistrationWrapUpConfig registrationWrapUpConfig)
 	{
 		return DBRegistrationWrapUpConfig.builder()
 				.withAutomatic(registrationWrapUpConfig.isAutomatic())
@@ -33,7 +33,7 @@ public class RegistrationWrapUpConfigMapper
 				.build();
 	}
 
-	public static RegistrationWrapUpConfig map(DBRegistrationWrapUpConfig registrationWrapUpConfig)
+	static RegistrationWrapUpConfig map(DBRegistrationWrapUpConfig registrationWrapUpConfig)
 	{
 		return new RegistrationWrapUpConfig(TriggeringState.valueOf(registrationWrapUpConfig.state),
 				Optional.ofNullable(registrationWrapUpConfig.title)

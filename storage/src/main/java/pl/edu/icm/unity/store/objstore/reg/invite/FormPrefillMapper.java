@@ -17,6 +17,7 @@ import pl.edu.icm.unity.store.objstore.reg.common.GroupSelectionMapper;
 import pl.edu.icm.unity.store.objstore.reg.common.IdentityParamMapper;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 
@@ -31,6 +32,9 @@ public class FormPrefillMapper
 								.collect(Collectors.toMap(e -> e.getKey(), e -> Optional.ofNullable(e.getValue())
 										.map(GroupSelectionMapper::map)
 										.orElse(null))))
+						.orElse(null))
+				.withFormType(Optional.ofNullable(formPrefill.getFormType())
+						.map(FormType::name)
 						.orElse(null))
 				.withFormId(formPrefill.getFormId())
 				.withMessageParams(formPrefill.getMessageParams())
@@ -61,8 +65,8 @@ public class FormPrefillMapper
 								.stream()
 								.collect(Collectors.toMap(groupEntry -> groupEntry.getKey(),
 										groupEntry -> Optional.ofNullable(groupEntry.getValue())
-												.map(e -> PrefilledEntryMapper.<GroupSelection, DBGroupSelection>map(
-														e, GroupSelectionMapper::map))
+												.map(e -> PrefilledEntryMapper.<GroupSelection, DBGroupSelection>map(e,
+														GroupSelectionMapper::map))
 												.orElse(null))
 
 								))
@@ -70,19 +74,20 @@ public class FormPrefillMapper
 				.build();
 	}
 
-	public static FormPrefill map(DBFormPrefill restFormPrefill)
+	public static FormPrefill map(DBFormPrefill dbFormPrefill)
 	{
 		FormPrefill formPrefill = new FormPrefill();
-		formPrefill.setFormId(restFormPrefill.formId);
-		formPrefill.setMessageParams(Optional.ofNullable(restFormPrefill.messageParams).orElse(new HashMap<>()));
-		formPrefill.setAllowedGroups(Optional.ofNullable(restFormPrefill.allowedGroups)
+		formPrefill.setFormId(dbFormPrefill.formId);
+		formPrefill.setMessageParams(Optional.ofNullable(dbFormPrefill.messageParams)
+				.orElse(new HashMap<>()));
+		formPrefill.setAllowedGroups(Optional.ofNullable(dbFormPrefill.allowedGroups)
 				.map(allowedGroupsMap -> allowedGroupsMap.entrySet()
 						.stream()
 						.collect(Collectors.toMap(e -> e.getKey(), e -> Optional.ofNullable(e.getValue())
 								.map(GroupSelectionMapper::map)
 								.orElse(null))))
 				.orElse(new HashMap<>()));
-		formPrefill.setAttributes(Optional.ofNullable(restFormPrefill.attributes)
+		formPrefill.setAttributes(Optional.ofNullable(dbFormPrefill.attributes)
 				.map(attributes -> attributes.entrySet()
 						.stream()
 						.collect(Collectors.toMap(attributeEntry -> attributeEntry.getKey(), attributeEntry -> Optional
@@ -90,7 +95,7 @@ public class FormPrefillMapper
 								.map(e -> PrefilledEntryMapper.<DBAttribute, Attribute>map(e, AttributeMapper::map))
 								.orElse(null))))
 				.orElse(new HashMap<>()));
-		formPrefill.setIdentities(Optional.ofNullable(restFormPrefill.identities)
+		formPrefill.setIdentities(Optional.ofNullable(dbFormPrefill.identities)
 				.map(attributes -> attributes.entrySet()
 						.stream()
 						.collect(Collectors.toMap(identityEntry -> identityEntry.getKey(),
@@ -101,7 +106,7 @@ public class FormPrefillMapper
 
 						))
 				.orElse(new HashMap<>()));
-		formPrefill.setGroupSelections(Optional.ofNullable(restFormPrefill.groupSelections)
+		formPrefill.setGroupSelections(Optional.ofNullable(dbFormPrefill.groupSelections)
 				.map(attributes -> attributes.entrySet()
 						.stream()
 						.collect(Collectors.toMap(groupEntry -> groupEntry.getKey(),
@@ -112,6 +117,9 @@ public class FormPrefillMapper
 
 						))
 				.orElse(new HashMap<>()));
+		formPrefill.setFormType(Optional.ofNullable(dbFormPrefill.formType)
+				.map(FormType::valueOf)
+				.orElse(null));
 
 		return formPrefill;
 	}

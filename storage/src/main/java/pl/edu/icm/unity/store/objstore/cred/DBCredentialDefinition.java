@@ -7,11 +7,13 @@ package pl.edu.icm.unity.store.objstore.cred;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import pl.edu.icm.unity.store.types.DBI18nString;
 
 @JsonDeserialize(builder = DBCredentialDefinition.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DBCredentialDefinition
 {
 	public final String name;
@@ -57,6 +59,7 @@ class DBCredentialDefinition
 		return new Builder();
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder
 	{
 		private String name;

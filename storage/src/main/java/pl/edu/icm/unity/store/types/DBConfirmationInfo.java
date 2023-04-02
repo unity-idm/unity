@@ -7,9 +7,11 @@ package pl.edu.icm.unity.store.types;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBConfirmationInfo.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBConfirmationInfo
 {
 	public final boolean confirmed;
@@ -48,6 +50,7 @@ public class DBConfirmationInfo
 		return new Builder();
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder
 	{
 		private boolean confirmed;

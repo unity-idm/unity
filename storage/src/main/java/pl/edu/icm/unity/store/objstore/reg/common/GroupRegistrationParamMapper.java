@@ -11,9 +11,9 @@ import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 
-public class GroupRegistrationParamMapper
+class GroupRegistrationParamMapper
 {
-	public static DBGroupRegistrationParam map(GroupRegistrationParam groupRegistrationParam)
+	static DBGroupRegistrationParam map(GroupRegistrationParam groupRegistrationParam)
 	{
 		return DBGroupRegistrationParam.builder()
 				.withGroupPath(groupRegistrationParam.getGroupPath())
@@ -28,7 +28,7 @@ public class GroupRegistrationParamMapper
 				.build();
 	}
 
-	public static GroupRegistrationParam map(DBGroupRegistrationParam restGroupRegistrationParam)
+	static GroupRegistrationParam map(DBGroupRegistrationParam restGroupRegistrationParam)
 	{
 		GroupRegistrationParam groupRegistrationParam = new GroupRegistrationParam();
 		groupRegistrationParam.setGroupPath(restGroupRegistrationParam.groupPath);

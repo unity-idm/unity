@@ -39,7 +39,7 @@ public class DBEnquiryResponseStateTest extends DBTypeTestBase<DBEnquiryResponse
 				+ "\"metadata\":{\"1\":\"v\"},\"typeId\":\"email\"}],\"UserLocale\":\"en\",\"RegistrationCode\":\"Code\","
 				+ "\"AdminComments\":[{\"date\":1,\"contents\":\"comment\",\"authorEntityId\":1,"
 				+ "\"publicComment\":true}],\"RequestId\":\"id\",\"Status\":\"pending\",\"Timestamp\":1,"
-				+ "\"Context\":{\"isOnIdpEndpoint\":true,\"triggeringMode\":\"manualAtLogin\"},\"CreatedEntityId\":1}\n";
+				+ "\"Context\":{\"isOnIdpEndpoint\":true,\"triggeringMode\":\"manualAtLogin\"},\"EntityId\":1}\n";
 	}
 
 	@Override

@@ -55,7 +55,7 @@ public class DBBaseForm
 	@JsonProperty("CheckIdentityOnSubmit")
 	public final boolean checkIdentityOnSubmit;
 
-	protected DBBaseForm(RestBaseFormBuilder<?> builder)
+	protected DBBaseForm(DBBaseFormBuilder<?> builder)
 	{
 		this.name = builder.name;
 		this.description = builder.description;
@@ -125,7 +125,7 @@ public class DBBaseForm
 				&& Objects.equals(formInformation, other.formInformation);
 	}
 
-	public static class RestBaseFormBuilder<T extends RestBaseFormBuilder<?>>
+	public static class DBBaseFormBuilder<T extends DBBaseFormBuilder<?>>
 	{
 		@JsonProperty("Name")
 		private String name;
@@ -171,7 +171,7 @@ public class DBBaseForm
 		@JsonProperty("CheckIdentityOnSubmit")
 		private boolean checkIdentityOnSubmit;
 
-		protected RestBaseFormBuilder()
+		protected DBBaseFormBuilder()
 		{
 		}
 

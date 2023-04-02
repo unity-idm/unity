@@ -8,9 +8,9 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import pl.edu.icm.unity.types.registration.URLQueryPrefillConfig;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
-public class URLQueryPrefillConfigMapper
+class URLQueryPrefillConfigMapper
 {
-	public static DBurlQueryPrefillConfig map(URLQueryPrefillConfig urlQueryPrefillConfig)
+	static DBurlQueryPrefillConfig map(URLQueryPrefillConfig urlQueryPrefillConfig)
 	{
 		return DBurlQueryPrefillConfig.builder()
 				.withMode(urlQueryPrefillConfig.mode.name())
@@ -19,7 +19,7 @@ public class URLQueryPrefillConfigMapper
 
 	}
 
-	public static URLQueryPrefillConfig map(DBurlQueryPrefillConfig restUrlQueryPrefillConfig)
+	static URLQueryPrefillConfig map(DBurlQueryPrefillConfig restUrlQueryPrefillConfig)
 	{
 		return new URLQueryPrefillConfig(restUrlQueryPrefillConfig.paramName,
 				PrefilledEntryMode.valueOf(restUrlQueryPrefillConfig.mode));

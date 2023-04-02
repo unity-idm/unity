@@ -24,9 +24,11 @@ public class RegistrationContextMapper
 
 	public static RegistrationContext map(DBRegistrationContext restRegistrationContext)
 	{
-		return new RegistrationContext(restRegistrationContext.isOnIdpEndpoint,
-				Optional.ofNullable(restRegistrationContext.triggeringMode)
+		return new RegistrationContext(Optional.ofNullable(restRegistrationContext)
+				.map(c -> c.isOnIdpEndpoint)
+				.orElse(false),
+				restRegistrationContext != null ? Optional.ofNullable(restRegistrationContext.triggeringMode)
 						.map(TriggeringMode::valueOf)
-						.orElse(null));
+						.orElse(null) : null);
 	}
 }

@@ -7,11 +7,13 @@ package pl.edu.icm.unity.store.impl.identities;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBIdentity.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBIdentity extends DBIdentityBase
 {
 	public final long entityId;
@@ -51,7 +53,8 @@ public class DBIdentity extends DBIdentityBase
 	{
 		return new Builder();
 	}
-
+	
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder extends DBIdentityBaseBuilder<Builder>
 	{
 		private long entityId;

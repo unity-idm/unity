@@ -5,11 +5,13 @@
 
 package pl.edu.icm.unity.store.objstore.reg.eresp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import pl.edu.icm.unity.store.objstore.reg.common.DBBaseRegistrationInput;
 
 @JsonDeserialize(builder = DBEnquiryResponse.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBEnquiryResponse extends DBBaseRegistrationInput
 {
 	private DBEnquiryResponse(Builder builder)
@@ -40,7 +42,8 @@ public class DBEnquiryResponse extends DBBaseRegistrationInput
 		return new Builder();
 	}
 
-	public static final class Builder extends RestBaseRegistrationInputBuilder<Builder>
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public static final class Builder extends DBBaseRegistrationInputBuilder<Builder>
 	{
 		public Builder()
 		{

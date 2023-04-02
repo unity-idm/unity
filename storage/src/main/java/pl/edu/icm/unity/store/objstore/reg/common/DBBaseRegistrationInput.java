@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import pl.edu.icm.unity.store.impl.attribute.DBAttribute;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBBaseRegistrationInput
 {
 	@JsonProperty("FormId")
@@ -38,7 +40,7 @@ public class DBBaseRegistrationInput
 	@JsonProperty("RegistrationCode")
 	public final String registrationCode;
 
-	protected DBBaseRegistrationInput(RestBaseRegistrationInputBuilder<?> builder)
+	protected DBBaseRegistrationInput(DBBaseRegistrationInputBuilder<?> builder)
 	{
 		this.formId = builder.formId;
 		this.identities = Optional.ofNullable(builder.identities)
@@ -96,7 +98,8 @@ public class DBBaseRegistrationInput
 				&& Objects.equals(userLocale, other.userLocale);
 	}
 
-	public static class RestBaseRegistrationInputBuilder<T extends RestBaseRegistrationInputBuilder<?>>
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public static class DBBaseRegistrationInputBuilder<T extends DBBaseRegistrationInputBuilder<?>>
 	{
 		@JsonProperty("FormId")
 		private String formId;
@@ -119,7 +122,7 @@ public class DBBaseRegistrationInput
 		@JsonProperty("RegistrationCode")
 		private String registrationCode;
 
-		protected RestBaseRegistrationInputBuilder()
+		protected DBBaseRegistrationInputBuilder()
 		{
 		}
 

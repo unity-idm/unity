@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import pl.edu.icm.unity.store.types.DBI18nString;
 
 @JsonDeserialize(builder = DBRegistrationWrapUpConfig.Builder.class)
-public class DBRegistrationWrapUpConfig
+class DBRegistrationWrapUpConfig
 {
 	public final String state;
 	public final DBI18nString title;

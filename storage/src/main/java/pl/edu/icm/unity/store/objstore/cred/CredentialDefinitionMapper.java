@@ -8,6 +8,7 @@ package pl.edu.icm.unity.store.objstore.cred;
 import java.util.Optional;
 
 import pl.edu.icm.unity.store.types.I18nStringMapper;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 class CredentialDefinitionMapper
@@ -38,7 +39,7 @@ class CredentialDefinitionMapper
 				.orElse(null));
 		credentialDefinition.setDisplayedName(Optional.ofNullable(dbCredentialDefinition.displayedName)
 				.map(I18nStringMapper::map)
-				.orElse(null));
+				.orElse(new I18nString(dbCredentialDefinition.name)));
 		credentialDefinition.setReadOnly(dbCredentialDefinition.readOnly);
 
 		return credentialDefinition;

@@ -11,18 +11,17 @@ import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 
-public class AttributeRegistrationParamMapper
+class AttributeRegistrationParamMapper
 {
 	@SuppressWarnings("deprecation")
-	public static DBAttributeRegistrationParam map(AttributeRegistrationParam attribueRegistrationParam)
+	static DBAttributeRegistrationParam map(AttributeRegistrationParam attribueRegistrationParam)
 	{
 		return DBAttributeRegistrationParam.builder()
 				.withAttributeType(attribueRegistrationParam.getAttributeType())
 				.withGroup(attribueRegistrationParam.getGroup())
 				.withShowGroups(attribueRegistrationParam.isShowGroups())
 				.withUseDescription(attribueRegistrationParam.isUseDescription())
-				.withConfirmationMode(attribueRegistrationParam.getConfirmationMode()
-						.name())
+				.withConfirmationMode(Optional.ofNullable(attribueRegistrationParam.getConfirmationMode()).map(Enum::name).orElse(null))
 				.withDescription(attribueRegistrationParam.getDescription())
 				.withLabel(attribueRegistrationParam.getLabel())
 				.withOptional(attribueRegistrationParam.isOptional())
@@ -35,14 +34,14 @@ public class AttributeRegistrationParamMapper
 	}
 
 	@SuppressWarnings("deprecation")
-	public static AttributeRegistrationParam map(DBAttributeRegistrationParam registrationParam)
+	static AttributeRegistrationParam map(DBAttributeRegistrationParam registrationParam)
 	{
 		AttributeRegistrationParam attributeRegistrationParam = new AttributeRegistrationParam();
 		attributeRegistrationParam.setAttributeType(registrationParam.attributeType);
 		attributeRegistrationParam.setUseDescription(registrationParam.useDescription);
 		attributeRegistrationParam.setShowGroups(registrationParam.showGroups);
 		attributeRegistrationParam.setGroup(registrationParam.group);
-		attributeRegistrationParam.setConfirmationMode(ConfirmationMode.valueOf(registrationParam.confirmationMode));
+		attributeRegistrationParam.setConfirmationMode(Optional.ofNullable(registrationParam.confirmationMode).map(ConfirmationMode::valueOf).orElse(null));
 		attributeRegistrationParam.setDescription(registrationParam.description);
 		attributeRegistrationParam.setLabel(registrationParam.label);
 		attributeRegistrationParam.setOptional(registrationParam.optional);

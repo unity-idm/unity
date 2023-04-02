@@ -11,9 +11,9 @@ import pl.edu.icm.unity.store.types.I18nStringMapper;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 
-public class PolicyAgreementConfigurationMapper
+class PolicyAgreementConfigurationMapper
 {
-	public static DBPolicyAgreementConfiguration map(PolicyAgreementConfiguration policyAgreementConfiguration)
+	static DBPolicyAgreementConfiguration map(PolicyAgreementConfiguration policyAgreementConfiguration)
 	{
 		return DBPolicyAgreementConfiguration.builder()
 				.withDocumentsIdsToAccept(Optional.ofNullable(policyAgreementConfiguration.documentsIdsToAccept)
@@ -25,7 +25,7 @@ public class PolicyAgreementConfigurationMapper
 				.build();
 	}
 
-	public static PolicyAgreementConfiguration map(DBPolicyAgreementConfiguration restPolicyAgreementConfiguration)
+	static PolicyAgreementConfiguration map(DBPolicyAgreementConfiguration restPolicyAgreementConfiguration)
 	{
 		return new PolicyAgreementConfiguration(restPolicyAgreementConfiguration.documentsIdsToAccept,
 				PolicyAgreementPresentationType.valueOf(restPolicyAgreementConfiguration.presentationType),

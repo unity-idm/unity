@@ -43,7 +43,7 @@ public class TranslationProfileMapper
 	public static TranslationProfile map(DBTranslationProfile restTranslationProfile)
 	{
 		return new TranslationProfile(restTranslationProfile.name, restTranslationProfile.description,
-				ProfileType.valueOf(restTranslationProfile.type), ProfileMode.valueOf(restTranslationProfile.mode),
+				ProfileType.valueOf(restTranslationProfile.type), getProfileMode(restTranslationProfile.mode),
 				Optional.ofNullable(restTranslationProfile.rules)
 						.map(r -> r.stream()
 								.map(sr -> new TranslationRule(sr.condition.conditionValue,
@@ -52,4 +52,16 @@ public class TranslationProfileMapper
 						.orElse(new ArrayList<>()));
 
 	}
+
+	private static ProfileMode getProfileMode(String mode)
+	{
+		try
+		{
+			return ProfileMode.valueOf(mode);
+		} catch (Exception e)
+		{
+			return ProfileMode.DEFAULT;
+		}
+	}
+
 }

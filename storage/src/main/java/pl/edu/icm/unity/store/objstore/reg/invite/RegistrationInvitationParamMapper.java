@@ -8,6 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 import java.time.Instant;
 import java.util.Optional;
 
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class RegistrationInvitationParamMapper
@@ -43,6 +44,11 @@ public class RegistrationInvitationParamMapper
 				.withExpiration(Instant.ofEpochMilli(restRegistrationInvitationParam.expiration))
 				.withForm(Optional.ofNullable(restRegistrationInvitationParam.formPrefill)
 						.map(FormPrefillMapper::map)
+						.map(fp ->
+						{
+							fp.setFormType(FormType.REGISTRATION);
+							return fp;
+						})
 						.orElse(null))
 				.build();
 

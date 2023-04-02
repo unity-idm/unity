@@ -10,7 +10,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBCredentialRegistrationParam.Builder.class)
-public class DBCredentialRegistrationParam
+class DBCredentialRegistrationParam
 {
 	public final String credentialName;
 	public final String label;

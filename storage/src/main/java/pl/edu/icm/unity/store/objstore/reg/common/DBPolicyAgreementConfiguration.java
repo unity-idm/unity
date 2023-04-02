@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import pl.edu.icm.unity.store.types.DBI18nString;
 
 @JsonDeserialize(builder = DBPolicyAgreementConfiguration.Builder.class)
-public class DBPolicyAgreementConfiguration
+class DBPolicyAgreementConfiguration
 {
 	public final List<Long> documentsIdsToAccept;
 	public final String presentationType;

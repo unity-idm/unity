@@ -6,7 +6,6 @@
 package pl.edu.icm.unity.store.objstore.reg.common;
 
 import pl.edu.icm.unity.store.DBTypeTestBase;
-import pl.edu.icm.unity.store.types.DBI18nString;
 
 public class DBAgreementRegistrationParamTest extends DBTypeTestBase<DBAgreementRegistrationParam>
 {
@@ -14,18 +13,12 @@ public class DBAgreementRegistrationParamTest extends DBTypeTestBase<DBAgreement
 	@Override
 	protected String getJson()
 	{
-		return "{\"i18nText\":{\"DefaultValue\":\"testV\",\"Map\":{}},\"manatory\":true}";
+		return "{\"i18nText\":{\"DefaultValue\":\"a\",\"Map\":{}},\"manatory\":false}";
 	}
 
 	@Override
 	protected DBAgreementRegistrationParam getObject()
 	{
-		return DBAgreementRegistrationParam.builder()
-				.withMandatory(true)
-				.withText(DBI18nString.builder()
-						.withDefaultValue("testV")
-						.build())
-				.build();
+		return DBAgreementRegistrationParamProvider.getRegistrationParam();
 	}
-
 }

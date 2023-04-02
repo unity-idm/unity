@@ -63,7 +63,7 @@ class DBEnquiryForm extends DBBaseForm
 		return new Builder();
 	}
 
-	public static final class Builder extends RestBaseFormBuilder<Builder>
+	public static final class Builder extends DBBaseFormBuilder<Builder>
 	{
 		private String type;
 		private List<String> targetGroups = Collections.emptyList();

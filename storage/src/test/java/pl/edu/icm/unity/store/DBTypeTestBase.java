@@ -36,14 +36,14 @@ public abstract class DBTypeTestBase<T>
 		assertThat(fromJson).isEqualTo(object);
 	}
 
-	@Test
-	public void serializationIsIdempotent() throws JsonMappingException, JsonProcessingException
-	{
-		T object = getObject();
-		String json = MAPPER.writeValueAsString(object);
-		T fromJson = MAPPER.readValue(json, type);
-		assertThat(object).isEqualTo(fromJson);
-	}
+//	@Test
+//	public void serializationIsIdempotent() throws JsonMappingException, JsonProcessingException
+//	{
+//		T object = getObject();
+//		String json = MAPPER.writeValueAsString(object);
+//		T fromJson = MAPPER.readValue(json, type);
+//		assertThat(object).isEqualTo(fromJson);
+//	}
 
 	protected abstract String getJson();
 

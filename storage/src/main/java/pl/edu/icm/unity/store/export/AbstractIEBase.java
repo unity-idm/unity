@@ -89,7 +89,10 @@ public abstract class AbstractIEBase<T>
 		while(input.nextToken() == JsonToken.START_OBJECT)
 		{
 			T obj = deserializeFromJson(input);
-			createSingle(obj);
+			if (obj != null)
+			{
+				createSingle(obj);
+			}
 		}
 		JsonUtils.expect(input, JsonToken.END_ARRAY);
 	}

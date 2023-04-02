@@ -10,9 +10,9 @@ import java.util.Optional;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 
-public class EndpointMapper
+class EndpointMapper
 {
-	public static DBEndpoint map(Endpoint endpoint)
+	static DBEndpoint map(Endpoint endpoint)
 	{
 		return DBEndpoint.builder()
 				.withName(endpoint.getName())
@@ -27,7 +27,7 @@ public class EndpointMapper
 				.build();
 	}
 
-	public static Endpoint map(DBEndpoint restEndpoint)
+	static Endpoint map(DBEndpoint restEndpoint)
 	{
 		return new Endpoint(restEndpoint.name, restEndpoint.typeId, restEndpoint.contextAddress,
 				Optional.ofNullable(restEndpoint.configuration)

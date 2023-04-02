@@ -7,6 +7,7 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -14,6 +15,7 @@ import pl.edu.icm.unity.store.objstore.reg.common.DBBaseForm;
 import pl.edu.icm.unity.store.types.DBI18nString;
 
 @JsonDeserialize(builder = DBRegistrationForm.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DBRegistrationForm extends DBBaseForm
 {
 	@JsonProperty("PubliclyAvailable")
@@ -103,8 +105,9 @@ class DBRegistrationForm extends DBBaseForm
 	{
 		return new Builder();
 	}
-
-	public static final class Builder extends RestBaseFormBuilder<Builder>
+	
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public static final class Builder extends DBBaseFormBuilder<Builder>
 	{
 		@JsonProperty("PubliclyAvailable")
 		private boolean publiclyAvailable;

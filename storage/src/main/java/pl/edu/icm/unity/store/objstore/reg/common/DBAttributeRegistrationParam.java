@@ -10,7 +10,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBAttributeRegistrationParam.Builder.class)
-public class DBAttributeRegistrationParam extends DBRegistrationParam
+class DBAttributeRegistrationParam extends DBRegistrationParam
 {
 	public final String attributeType;
 	public final String group;
