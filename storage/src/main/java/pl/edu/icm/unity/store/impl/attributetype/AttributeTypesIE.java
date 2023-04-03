@@ -6,11 +6,15 @@ package pl.edu.icm.unity.store.impl.attributetype;
 
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -23,7 +27,8 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 {
 	public static final String ATTRIBUTES_TYPE_OBJECT_TYPE = "attributeTypes";
-	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, AttributeTypesIE.class);	
+
 	private AttributeTypeDAO dbAttributes;
 	
 	@Autowired
@@ -42,7 +47,7 @@ public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 	@Override
 	protected ObjectNode toJsonSingle(AttributeType exportedObj)
 	{
-		return exportedObj.toJson();
+		return Constants.MAPPER.valueToTree(AttributeTypeMapper.map(exportedObj));
 	}
 
 	@Override
@@ -54,7 +59,14 @@ public class AttributeTypesIE extends AbstractIEBase<AttributeType>
 	@Override
 	protected AttributeType fromJsonSingle(ObjectNode src)
 	{
-		return new AttributeType(src);
+		try
+		{
+			return AttributeTypeMapper.map(Constants.MAPPER.treeToValue(src, DBAttributeType.class));
+		} catch (JsonProcessingException e)
+		{
+			log.error("Failed to deserialize Group object:", e);
+		}
+		return null;
 	}
 }
 

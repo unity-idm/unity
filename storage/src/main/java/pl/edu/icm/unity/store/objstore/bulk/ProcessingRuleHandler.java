@@ -7,22 +7,24 @@ package pl.edu.icm.unity.store.objstore.bulk;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 
 /**
  * Handler for {@link ScheduledProcessingRule}
+ * 
  * @author K. Benedyczak
  */
 @Component
 public class ProcessingRuleHandler extends DefaultEntityHandler<ScheduledProcessingRule>
 {
 	public static final String PROCESSING_RULE_OBJECT_TYPE = "processingRule";
-	
+
 	@Autowired
 	public ProcessingRuleHandler(ObjectMapper jsonMapper)
 	{
@@ -32,12 +34,27 @@ public class ProcessingRuleHandler extends DefaultEntityHandler<ScheduledProcess
 	@Override
 	public GenericObjectBean toBlob(ScheduledProcessingRule value)
 	{
-		return new GenericObjectBean(value.getId(), JsonUtil.serialize2Bytes(value.toJson()), supportedType);
+		try
+		{
+			return new GenericObjectBean(value.getId(),
+					jsonMapper.writeValueAsBytes(ScheduledProcessingRuleMapper.map(value)), supportedType);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize scheduled processing rule to JSON", e);
+
+		}
 	}
 
 	@Override
 	public ScheduledProcessingRule fromBlob(GenericObjectBean blob)
 	{
-		return new ScheduledProcessingRule(JsonUtil.parse(blob.getContents()));
+		try
+		{
+			return ScheduledProcessingRuleMapper
+					.map(jsonMapper.readValue(blob.getContents(), DBScheduledProcessingRule.class));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize scheduled processing rule from JSON", e);
+		}
 	}
 }

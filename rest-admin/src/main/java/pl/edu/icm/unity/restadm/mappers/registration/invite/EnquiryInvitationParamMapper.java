@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.invite.RestEnquiryInvitationParam;
+import pl.edu.icm.unity.types.registration.FormType;
 import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 
 public class EnquiryInvitationParamMapper
@@ -40,6 +41,11 @@ public class EnquiryInvitationParamMapper
 				.withExpiration(Instant.ofEpochMilli(restEnquiryInvitationParam.expiration))
 				.withForm(Optional.ofNullable(restEnquiryInvitationParam.formPrefill)
 						.map(FormPrefillMapper::map)
+						.map(fp ->
+						{
+							fp.setFormType(FormType.ENQUIRY);
+							return fp;
+						})
 						.orElse(null))
 				.build();
 

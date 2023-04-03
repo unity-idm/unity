@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
@@ -23,8 +24,20 @@ public class AuthenticatorConfigurationIE extends GenericObjectIEBase<Authentica
 	@Autowired
 	public AuthenticatorConfigurationIE(AuthenticatorConfigurationDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, AuthenticatorConfiguration.class, 101, 
+		super(dao, jsonMapper, 101, 
 				AuthenticatorConfigurationHandler.AUTHENTICATOR_OBJECT_TYPE);
+	}
+	
+	@Override
+	protected AuthenticatorConfiguration convert(ObjectNode src)
+	{
+		return jsonMapper.convertValue(src, AuthenticatorConfiguration.class);
+	}
+
+	@Override
+	protected ObjectNode convert(AuthenticatorConfiguration src)
+	{
+		return jsonMapper.convertValue(src, ObjectNode.class);
 	}
 }
 

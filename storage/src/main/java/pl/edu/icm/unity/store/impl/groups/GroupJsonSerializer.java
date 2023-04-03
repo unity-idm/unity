@@ -4,17 +4,16 @@
  */
 package pl.edu.icm.unity.store.impl.groups;
 
+import java.io.IOException;
 import java.time.Duration;
-import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.Group;
 
@@ -32,7 +31,13 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 	public GroupBean toDB(Group object)
 	{
 		GroupBean gb = new GroupBean(object.toString(), object.getParentPath());
-		gb.setContents(JsonUtil.serialize2Bytes(object.toJsonBase()));
+		try
+		{
+			gb.setContents(Constants.MAPPER.writeValueAsBytes(GroupMapper.mapBaseGroup(object)));
+		} catch (JsonProcessingException e)
+		{
+			throw new IllegalStateException("Error saving group to DB", e);
+		}
 		return gb;
 	}
 
@@ -42,7 +47,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		try
 		{
 			return resolvedGroupsCache.get(bean, () -> parse(bean)).clone();
-		} catch (ExecutionException e)
+		} catch (Exception e)
 		{
 			throw new IllegalStateException("Error parsing group from DB", e);
 		}
@@ -50,22 +55,32 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 	
 	private Group parse(GroupBean bean)
 	{
-		Group ret = new Group(bean.getName());
-		ret.fromJsonBase(JsonUtil.parse(bean.getContents()));
-		return ret;
+		DBGroupBase dbGroup;
+
+		try
+		{
+			dbGroup = Constants.MAPPER.readValue(bean.getContents(), DBGroupBase.class);
+		} catch (IOException e)
+		{
+			throw new IllegalStateException("Error parsing group from DB", e);
+		}
+
+		return GroupMapper.mapFromBaseGroup(dbGroup, bean.getName());
 	}
 	
 	/**
 	 * @return minimal contents for the initialization of the root group '/'.
 	 * Needs to be static as it is created early on startup when real DAO infrastructure is not ready.
 	 */
-	public static ObjectNode createRootGroupContents()
+	public static byte[] createRootGroupContents()
 	{
-		ObjectNode main = new ObjectMapper().createObjectNode();
-		main.set("i18nDescription", null);
-		main.set("displayedName", null);
-		main.putArray("attributeStatements");
-		main.putArray("attributesClasses");
-		return main;
+		try
+		{
+			return Constants.MAPPER.writeValueAsBytes(DBGroupBase.builder().build());
+		} catch (JsonProcessingException e)
+		{
+			throw new IllegalStateException("Error parsing group", e);
+		}
+		
 	}
 }

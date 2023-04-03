@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.CertificateDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
@@ -23,7 +24,19 @@ public class CertificateIE extends GenericObjectIEBase<StoredCertificate>
 	@Autowired
 	public CertificateIE(CertificateDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, StoredCertificate.class, 118, CertificateHandler.CERTIFICATE_OBJECT_TYPE);
+		super(dao, jsonMapper, 118, CertificateHandler.CERTIFICATE_OBJECT_TYPE);
+	}
+	
+	@Override
+	protected StoredCertificate convert(ObjectNode src)
+	{
+		return jsonMapper.convertValue(src, StoredCertificate.class);
+	}
+
+	@Override
+	protected ObjectNode convert(StoredCertificate src)
+	{
+		return jsonMapper.convertValue(src, ObjectNode.class);
 	}
 }
 

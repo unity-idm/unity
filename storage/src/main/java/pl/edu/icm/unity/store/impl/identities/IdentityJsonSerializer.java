@@ -1,12 +1,16 @@
 /*
- * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
+N * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.store.impl.identities;
 
+import java.io.IOException;
+
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.types.StoredIdentity;
@@ -36,14 +40,26 @@ class IdentityJsonSerializer implements RDBMSObjectSerializer<StoredIdentity, Id
 		idB.setName(sobject.getName());
 		long typeKey = idTypeDAO.getKeyForName(object.getTypeId());
 		idB.setTypeId(typeKey);
-		idB.setContents(JsonUtil.serialize2Bytes(object.toJsonBase()));
+		try
+		{
+			idB.setContents(Constants.MAPPER.writeValueAsBytes(IdentityBaseMapper.map(object)));
+		} catch (JsonProcessingException e)
+		{
+			throw new IllegalStateException("Error saving identity to DB", e);
+		}
 		return idB;
 	}
 
 	@Override
 	public StoredIdentity fromDB(IdentityBean bean)
 	{
-		return new StoredIdentity(new Identity(bean.getTypeName(), bean.getEntityId(),
-				JsonUtil.parse(bean.getContents())));
+		try
+		{
+			return new StoredIdentity(
+					IdentityBaseMapper.map(Constants.MAPPER.readValue(bean.getContents(), DBIdentityBase.class), bean.getTypeName(),bean.getEntityId()));
+		} catch (IOException e)
+		{
+			throw new IllegalStateException("Error parsing identity from DB", e);
+		}
 	}
 }

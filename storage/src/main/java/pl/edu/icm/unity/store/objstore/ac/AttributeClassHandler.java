@@ -35,7 +35,7 @@ public class AttributeClassHandler extends DefaultEntityHandler<AttributesClass>
 	{
 		try
 		{
-			byte[] contents = jsonMapper.writeValueAsBytes(value);
+			byte[] contents = jsonMapper.writeValueAsBytes(AttributeClassMapper.map(value));
 			return new GenericObjectBean(value.getName(), contents, supportedType);
 		} catch (JsonProcessingException e)
 		{
@@ -48,7 +48,7 @@ public class AttributeClassHandler extends DefaultEntityHandler<AttributesClass>
 	{
 		try
 		{
-			return jsonMapper.readValue(blob.getContents(), AttributesClass.class);
+			return AttributeClassMapper.map(jsonMapper.readValue(blob.getContents(), DBAttributesClass.class));
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize attribute class from JSON", e);

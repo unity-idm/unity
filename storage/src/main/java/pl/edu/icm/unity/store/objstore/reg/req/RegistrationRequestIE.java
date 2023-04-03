@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
@@ -23,8 +24,20 @@ public class RegistrationRequestIE extends GenericObjectIEBase<RegistrationReque
 	@Autowired
 	public RegistrationRequestIE(RegistrationRequestDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, RegistrationRequestState.class, 114, 
+		super(dao, jsonMapper, 114, 
 				RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE);
+	}
+	
+	@Override
+	protected RegistrationRequestState convert(ObjectNode src)
+	{
+		return RegistrationRequestStateMapper.map(jsonMapper.convertValue(src, DBRegistrationRequestState.class));
+	}
+
+	@Override
+	protected ObjectNode convert(RegistrationRequestState src)
+	{
+		return jsonMapper.convertValue(RegistrationRequestStateMapper.map(src), ObjectNode.class);
 	}
 }
 
