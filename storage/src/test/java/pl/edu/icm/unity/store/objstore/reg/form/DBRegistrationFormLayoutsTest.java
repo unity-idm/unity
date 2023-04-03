@@ -15,7 +15,7 @@ import pl.edu.icm.unity.store.objstore.reg.layout.DBFormLayout;
 import pl.edu.icm.unity.store.objstore.reg.layout.DBFormLocalSignupButtonElement;
 import pl.edu.icm.unity.store.objstore.reg.layout.DBFormParameterElement;
 import pl.edu.icm.unity.store.objstore.reg.layout.DBFormSeparatorElement;
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 public class DBRegistrationFormLayoutsTest extends DBTypeTestBase<DBRegistrationFormLayouts>
 {

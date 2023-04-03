@@ -14,7 +14,7 @@ import java.util.function.Function;
 import org.junit.Test;
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;

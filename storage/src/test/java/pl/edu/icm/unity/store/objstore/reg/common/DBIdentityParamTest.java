@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.DBTypeTestBase;
-import pl.edu.icm.unity.store.types.DBConfirmationInfo;
+import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
 
 public class DBIdentityParamTest extends DBTypeTestBase<DBIdentityParam>
 {

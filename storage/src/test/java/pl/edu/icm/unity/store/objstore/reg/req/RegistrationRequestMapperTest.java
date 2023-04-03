@@ -19,7 +19,7 @@ import pl.edu.icm.unity.store.objstore.reg.common.DBGroupSelection;
 import pl.edu.icm.unity.store.objstore.reg.common.DBIdentityParam;
 import pl.edu.icm.unity.store.objstore.reg.common.DBPolicyAgreementDecision;
 import pl.edu.icm.unity.store.objstore.reg.common.DBSelection;
-import pl.edu.icm.unity.store.types.DBConfirmationInfo;
+import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;

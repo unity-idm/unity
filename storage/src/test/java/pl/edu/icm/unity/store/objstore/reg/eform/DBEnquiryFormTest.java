@@ -25,7 +25,7 @@ import pl.edu.icm.unity.store.objstore.reg.layout.DBFormSeparatorElement;
 import pl.edu.icm.unity.store.objstore.tprofile.DBTranslationAction;
 import pl.edu.icm.unity.store.objstore.tprofile.DBTranslationProfile;
 import pl.edu.icm.unity.store.objstore.tprofile.DBTranslationProfile.DBTranslationProfileRule;
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 public class DBEnquiryFormTest extends DBTypeTestBase<DBEnquiryForm>
 {

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.ProcessingRuleDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 
 /**
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
  * @author K. Benedyczak
  */
 @Component
-public class ProcessingRuleIE extends GenericObjectIEBase2<ScheduledProcessingRule>
+public class ProcessingRuleIE extends GenericObjectIEBase<ScheduledProcessingRule>
 {
 	@Autowired
 	public ProcessingRuleIE(ProcessingRuleDB dao, ObjectMapper jsonMapper)

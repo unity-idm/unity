@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import pl.edu.icm.unity.store.types.I18nStringMapper;
+import pl.edu.icm.unity.store.types.common.I18nStringMapper;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;

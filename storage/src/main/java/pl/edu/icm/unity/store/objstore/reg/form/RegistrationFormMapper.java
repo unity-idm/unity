@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 import java.util.Optional;
 
 import pl.edu.icm.unity.store.objstore.reg.common.BaseFormMapper;
-import pl.edu.icm.unity.store.types.I18nStringMapper;
+import pl.edu.icm.unity.store.types.common.I18nStringMapper;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
 import pl.edu.icm.unity.types.registration.ExternalSignupSpec;

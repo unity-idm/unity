@@ -10,7 +10,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 @JsonDeserialize(builder = DBCredentialDefinition.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

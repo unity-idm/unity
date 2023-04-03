@@ -8,6 +8,7 @@ package pl.edu.icm.unity.store.types;
 import java.util.Map;
 
 import pl.edu.icm.unity.store.DBTypeTestBase;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 public class DBI18nStringTest extends DBTypeTestBase<DBI18nString>
 {

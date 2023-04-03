@@ -6,7 +6,7 @@ package pl.edu.icm.unity.store.objstore.msgtemplate;
 
 import java.util.Objects;
 
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 class DBI18nMessage
 {

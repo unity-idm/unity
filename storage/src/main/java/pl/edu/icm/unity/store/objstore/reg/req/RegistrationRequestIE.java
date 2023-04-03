@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
  * @author K. Benedyczak
  */
 @Component
-public class RegistrationRequestIE extends GenericObjectIEBase2<RegistrationRequestState>
+public class RegistrationRequestIE extends GenericObjectIEBase<RegistrationRequestState>
 {
 	@Autowired
 	public RegistrationRequestIE(RegistrationRequestDB dao, ObjectMapper jsonMapper)

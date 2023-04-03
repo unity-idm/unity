@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.types.I18nStringMapper;
+import pl.edu.icm.unity.store.types.common.I18nStringMapper;
 import pl.edu.icm.unity.types.I18nString;
 
 class DBMessageTemplate

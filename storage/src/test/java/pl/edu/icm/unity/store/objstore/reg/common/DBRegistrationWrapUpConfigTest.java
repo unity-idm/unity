@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import java.time.Duration;
 
 import pl.edu.icm.unity.store.DBTypeTestBase;
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 public class DBRegistrationWrapUpConfigTest extends DBTypeTestBase<DBRegistrationWrapUpConfig>
 {

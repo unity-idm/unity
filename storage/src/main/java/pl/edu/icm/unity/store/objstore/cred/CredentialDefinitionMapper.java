@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.objstore.cred;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.store.types.I18nStringMapper;
+import pl.edu.icm.unity.store.types.common.I18nStringMapper;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 

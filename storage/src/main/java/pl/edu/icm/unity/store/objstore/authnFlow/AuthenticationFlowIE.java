@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 
 /**
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
  * @author P.Piernik
  */
 @Component
-public class AuthenticationFlowIE extends GenericObjectIEBase2<AuthenticationFlowDefinition>
+public class AuthenticationFlowIE extends GenericObjectIEBase<AuthenticationFlowDefinition>
 {
 	@Autowired
 	public AuthenticationFlowIE(AuthenticationFlowDB dao, ObjectMapper jsonMapper)

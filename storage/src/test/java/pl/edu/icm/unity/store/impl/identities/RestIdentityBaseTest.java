@@ -10,7 +10,7 @@ import java.util.Date;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.DBTypeTestBase;
-import pl.edu.icm.unity.store.types.DBConfirmationInfo;
+import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
 
 public class RestIdentityBaseTest extends DBTypeTestBase<DBIdentityBase>
 {

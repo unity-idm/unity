@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.store.types;
 
 import pl.edu.icm.unity.store.DBTypeTestBase;
+import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
 
 public class DBConfirmationInfoTest extends DBTypeTestBase<DBConfirmationInfo>
 {

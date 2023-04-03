@@ -10,8 +10,8 @@ import java.util.function.Function;
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.store.types.DBI18nString;
 import pl.edu.icm.unity.store.types.StoredPolicyDocument;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 import pl.edu.icm.unity.types.I18nString;
 
 public class PolicyDocumentBaseMapperTest extends MapperTestBase<StoredPolicyDocument, DBPolicyDocumentBase>

@@ -8,8 +8,8 @@ package pl.edu.icm.unity.store.impl.policyDocuments;
 import java.util.Optional;
 
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
-import pl.edu.icm.unity.store.types.I18nStringMapper;
 import pl.edu.icm.unity.store.types.StoredPolicyDocument;
+import pl.edu.icm.unity.store.types.common.I18nStringMapper;
 
 class PolicyDocumentMapper
 {

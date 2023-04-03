@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
  * @author K. Benedyczak
  */
 @Component
-public class InvitationIE extends GenericObjectIEBase2<InvitationWithCode>
+public class InvitationIE extends GenericObjectIEBase<InvitationWithCode>
 {
 	@Autowired
 	public InvitationIE(InvitationDB dao, ObjectMapper jsonMapper)

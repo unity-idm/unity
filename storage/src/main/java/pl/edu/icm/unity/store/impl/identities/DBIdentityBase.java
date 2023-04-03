@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import pl.edu.icm.unity.store.types.DBConfirmationInfo;
+import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
 
 @JsonDeserialize(builder = DBIdentityBase.DBIdentityBaseBuilder.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)

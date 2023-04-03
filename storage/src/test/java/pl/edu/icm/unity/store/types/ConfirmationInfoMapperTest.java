@@ -10,6 +10,8 @@ import java.util.function.Function;
 
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
+import pl.edu.icm.unity.store.types.common.ConfirmationInfoMapper;
+import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 public class ConfirmationInfoMapperTest extends MapperTestBase<ConfirmationInfo, DBConfirmationInfo>

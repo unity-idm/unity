@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 /**
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
  * @author K. Benedyczak
  */
 @Component
-public class RegistrationFormIE extends GenericObjectIEBase2<RegistrationForm>
+public class RegistrationFormIE extends GenericObjectIEBase<RegistrationForm>
 {
 	@Autowired
 	public RegistrationFormIE(RegistrationFormDB dao, ObjectMapper jsonMapper)

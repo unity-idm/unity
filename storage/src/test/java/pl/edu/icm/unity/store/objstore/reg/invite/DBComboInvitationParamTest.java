@@ -14,7 +14,7 @@ import pl.edu.icm.unity.store.DBTypeTestBase;
 import pl.edu.icm.unity.store.impl.attribute.DBAttribute;
 import pl.edu.icm.unity.store.objstore.reg.common.DBGroupSelection;
 import pl.edu.icm.unity.store.objstore.reg.common.DBIdentityParam;
-import pl.edu.icm.unity.store.types.DBConfirmationInfo;
+import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
 
 public class DBComboInvitationParamTest extends DBTypeTestBase<DBComboInvitationParam>
 {

@@ -14,7 +14,7 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 @JsonDeserialize(builder = DBEndpointConfiguration.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)

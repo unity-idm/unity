@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.store.objstore.msgtemplate;
 
 import pl.edu.icm.unity.store.DBTypeTestBase;
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 public class DBMessageTemplateTest extends DBTypeTestBase<DBMessageTemplate>
 {

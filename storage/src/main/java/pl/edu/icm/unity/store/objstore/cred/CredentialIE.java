@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
  * @author K. Benedyczak
  */
 @Component
-public class CredentialIE extends GenericObjectIEBase2<CredentialDefinition>
+public class CredentialIE extends GenericObjectIEBase<CredentialDefinition>
 {
 	@Autowired
 	public CredentialIE(CredentialDB dao, ObjectMapper jsonMapper)

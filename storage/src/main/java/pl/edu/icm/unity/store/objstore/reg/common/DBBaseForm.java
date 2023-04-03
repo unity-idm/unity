@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import pl.edu.icm.unity.store.objstore.reg.layout.DBFormLayoutSettings;
 import pl.edu.icm.unity.store.objstore.tprofile.DBTranslationProfile;
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 public class DBBaseForm
 {

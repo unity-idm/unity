@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import pl.edu.icm.unity.store.objstore.reg.common.DBBaseForm.DBBaseFormBuilder;
 import pl.edu.icm.unity.store.objstore.reg.layout.FormLayoutSettingsMapper;
 import pl.edu.icm.unity.store.objstore.tprofile.TranslationProfileMapper;
-import pl.edu.icm.unity.store.types.I18nStringMapper;
+import pl.edu.icm.unity.store.types.common.I18nStringMapper;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseFormBuilder;

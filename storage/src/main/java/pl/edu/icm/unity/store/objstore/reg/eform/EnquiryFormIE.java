@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 
 /**
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
  * @author K. Benedyczak
  */
 @Component
-public class EnquiryFormIE extends GenericObjectIEBase2<EnquiryForm>
+public class EnquiryFormIE extends GenericObjectIEBase<EnquiryForm>
 {
 	@Autowired
 	public EnquiryFormIE(EnquiryFormDB dao, ObjectMapper jsonMapper)

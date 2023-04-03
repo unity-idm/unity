@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 /**
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.endpoint.Endpoint;
  * @author K. Benedyczak
  */
 @Component
-public class EndpointIE extends GenericObjectIEBase2<Endpoint>
+public class EndpointIE extends GenericObjectIEBase<Endpoint>
 {
 	@Autowired
 	public EndpointIE(EndpointDB dao, ObjectMapper jsonMapper)

@@ -12,7 +12,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import pl.edu.icm.unity.store.types.DBI18nString;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 @JsonDeserialize(builder = DBPolicyAgreementConfiguration.Builder.class)
 class DBPolicyAgreementConfiguration

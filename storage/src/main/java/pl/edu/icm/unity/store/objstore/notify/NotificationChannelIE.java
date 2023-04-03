@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.NotificationChannelDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 /**
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
  * @author K. Benedyczak
  */
 @Component
-public class NotificationChannelIE extends GenericObjectIEBase2<NotificationChannel>
+public class NotificationChannelIE extends GenericObjectIEBase<NotificationChannel>
 {
 	@Autowired
 	public NotificationChannelIE(NotificationChannelDB dao, ObjectMapper jsonMapper)

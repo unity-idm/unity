@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.InputTranslationProfileDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
  * @author K. Benedyczak
  */
 @Component
-public class InputTranslationProfileIE extends GenericObjectIEBase2<TranslationProfile>
+public class InputTranslationProfileIE extends GenericObjectIEBase<TranslationProfile>
 {
 	@Autowired
 	public InputTranslationProfileIE(InputTranslationProfileDB dao, ObjectMapper jsonMapper)

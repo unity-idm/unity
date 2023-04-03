@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
+import pl.edu.icm.unity.store.types.common.DBI18nString;
+import pl.edu.icm.unity.store.types.common.I18nStringMapper;
 import pl.edu.icm.unity.types.I18nString;
 
 public class I18nStringMapperTest extends MapperTestBase<I18nString, DBI18nString>

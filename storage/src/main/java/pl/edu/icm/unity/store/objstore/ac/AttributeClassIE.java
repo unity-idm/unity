@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
-import pl.edu.icm.unity.store.objstore.GenericObjectIEBase2;
+import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 
 /**
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeClassIE extends GenericObjectIEBase2<AttributesClass>
+public class AttributeClassIE extends GenericObjectIEBase<AttributesClass>
 {
 	@Autowired
 	public AttributeClassIE(AttributeClassDB dao, ObjectMapper jsonMapper)

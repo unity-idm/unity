@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.types;
+package pl.edu.icm.unity.store.types.common;
 
 import java.util.Collections;
 import java.util.HashMap;
