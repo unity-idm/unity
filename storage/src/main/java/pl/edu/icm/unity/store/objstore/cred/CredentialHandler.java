@@ -7,22 +7,24 @@ package pl.edu.icm.unity.store.objstore.cred;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
  * Handler for {@link CredentialDefinition}
+ * 
  * @author K. Benedyczak
  */
 @Component
 public class CredentialHandler extends DefaultEntityHandler<CredentialDefinition>
 {
 	public static final String CREDENTIAL_OBJECT_TYPE = "credential";
-	
+
 	@Autowired
 	public CredentialHandler(ObjectMapper jsonMapper)
 	{
@@ -32,13 +34,26 @@ public class CredentialHandler extends DefaultEntityHandler<CredentialDefinition
 	@Override
 	public GenericObjectBean toBlob(CredentialDefinition value)
 	{
-		byte[] contents = JsonUtil.serialize2Bytes(value.toJson());
-		return new GenericObjectBean(value.getName(), contents, supportedType);
+		try
+		{
+			return new GenericObjectBean(value.getName(),
+					jsonMapper.writeValueAsBytes(CredentialDefinitionMapper.map(value)), supportedType);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize credential definition to JSON", e);
+		}
 	}
 
 	@Override
 	public CredentialDefinition fromBlob(GenericObjectBean blob)
 	{
-		return new CredentialDefinition(JsonUtil.parse(blob.getContents()));
+		try
+		{
+			return CredentialDefinitionMapper
+					.map(jsonMapper.readValue(blob.getContents(), DBCredentialDefinition.class));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize credential definition from JSON", e);
+		}
 	}
 }

@@ -6,13 +6,18 @@ package pl.edu.icm.unity.store.impl.policyDocuments;
 
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.PolicyDocumentDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
+import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeIE;
 import pl.edu.icm.unity.store.types.StoredPolicyDocument;
 
 /**
@@ -25,7 +30,8 @@ import pl.edu.icm.unity.store.types.StoredPolicyDocument;
 public class PolicyDocucentIE extends AbstractIEBase<StoredPolicyDocument>
 {
 	public static final String POLICY_DOCUMENTS_OBJECT_TYPE = "policyDocuments";
-
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, IdentityTypeIE.class);
+	
 	private PolicyDocumentDAO dbIds;
 
 	@Autowired
@@ -44,7 +50,7 @@ public class PolicyDocucentIE extends AbstractIEBase<StoredPolicyDocument>
 	@Override
 	protected ObjectNode toJsonSingle(StoredPolicyDocument exportedObj)
 	{
-		return exportedObj.toJson();
+		return Constants.MAPPER.valueToTree(PolicyDocumentMapper.map(exportedObj));
 	}
 
 	@Override
@@ -56,6 +62,15 @@ public class PolicyDocucentIE extends AbstractIEBase<StoredPolicyDocument>
 	@Override
 	protected StoredPolicyDocument fromJsonSingle(ObjectNode src)
 	{
-		return new StoredPolicyDocument(src);
+		try
+		{
+			return PolicyDocumentMapper.map(Constants.MAPPER.treeToValue(src, DBPolicyDocument.class));
+
+		} catch (JsonProcessingException e)
+		{
+			log.error("Failed to deserialize policy document object:", e);
+		}
+
+		return null;
 	}
 }

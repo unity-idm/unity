@@ -7,13 +7,13 @@ package pl.edu.icm.unity.store.objstore.msgtemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
-
 
 /**
  * Handler for {@link MessageTemplate}.
@@ -24,22 +24,35 @@ import pl.edu.icm.unity.types.basic.MessageTemplate;
 public class MessageTemplateHandler extends DefaultEntityHandler<MessageTemplate>
 {
 	public static final String MESSAGE_TEMPLATE_OBJECT_TYPE = "messageTemplate";
-	
+
 	@Autowired
 	public MessageTemplateHandler(ObjectMapper jsonMapper)
 	{
-		super(jsonMapper,  MESSAGE_TEMPLATE_OBJECT_TYPE, MessageTemplate.class);
+		super(jsonMapper, MESSAGE_TEMPLATE_OBJECT_TYPE, MessageTemplate.class);
 	}
 
 	@Override
 	public GenericObjectBean toBlob(MessageTemplate value)
 	{
-		return new GenericObjectBean(value.getName(), JsonUtil.serialize2Bytes(value.toJson()), supportedType);
+		try
+		{
+			return new GenericObjectBean(value.getName(),
+					jsonMapper.writeValueAsBytes(MessageTemplateMapper.map(value)), supportedType);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize message template to JSON", e);
+		}
 	}
 
 	@Override
 	public MessageTemplate fromBlob(GenericObjectBean blob)
 	{
-		return new MessageTemplate(JsonUtil.parse(blob.getContents()));
+		try
+		{
+			return MessageTemplateMapper.map(jsonMapper.readValue(blob.getContents(), DBMessageTemplate.class));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize message template from JSON", e);
+		}
 	}
 }

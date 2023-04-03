@@ -4,9 +4,13 @@
  */
 package pl.edu.icm.unity.store.impl.identitytype;
 
+import java.io.IOException;
+
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -22,18 +26,30 @@ class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<IdentityType, 
 	@Override
 	public IdentityType fromDB(BaseBean raw)
 	{
-		IdentityType it = new IdentityType(raw.getName());
-		it.fromJsonBase(JsonUtil.parse(raw.getContents()));
-		return it;
+		try
+		{
+			return IdentityTypeBaseMapper.map(Constants.MAPPER.readValue(raw.getContents(), DBIdentityTypeBase.class),
+					raw.getName());
+		} catch (IOException e)
+		{
+			throw new IllegalStateException("Error parsing identity type from DB", e);
+		}
 	}
-	
+
 	@Override
 	public BaseBean toDB(IdentityType idType)
 	{
 		BaseBean toAdd = new BaseBean();
-
 		toAdd.setName(idType.getName());
-		toAdd.setContents(JsonUtil.serialize2Bytes(idType.toJsonBase()));
+		try
+		{
+			toAdd.setContents(Constants.MAPPER.writeValueAsBytes(IdentityTypeBaseMapper.map(idType)));
+
+		} catch (JsonProcessingException e)
+		{
+			throw new IllegalStateException("Error saving identity type to DB", e);
+		}
+
 		return toAdd;
 	}
 }

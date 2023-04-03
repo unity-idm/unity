@@ -7,9 +7,10 @@ package pl.edu.icm.unity.store.objstore.reg.eresp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
@@ -28,17 +29,29 @@ public class EnquiryResponseHandler extends DefaultEntityHandler<EnquiryResponse
 	{
 		super(jsonMapper, ENQUIRY_RESPONSE_OBJECT_TYPE, EnquiryResponseState.class);
 	}
-
+	
 	@Override
 	public GenericObjectBean toBlob(EnquiryResponseState value)
 	{
-		return new GenericObjectBean(value.getName(), 
-				JsonUtil.serialize2Bytes(value.toJson()), supportedType);
+		try
+		{
+			return new GenericObjectBean(value.getName(),
+					jsonMapper.writeValueAsBytes(EnquiryResponseStateMapper.map(value)), supportedType);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize registration request to JSON", e);
+		}
 	}
 
 	@Override
 	public EnquiryResponseState fromBlob(GenericObjectBean blob)
 	{
-		return new EnquiryResponseState(JsonUtil.parse(blob.getContents()));
+		try
+		{
+			return EnquiryResponseStateMapper.map(jsonMapper.readValue(blob.getContents(), DBEnquiryResponseState.class));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize registration request from JSON", e);
+		}
 	}
 }

@@ -21,19 +21,18 @@ import pl.edu.icm.unity.types.NamedObject;
  * and properly call super-constructor.
  * @author K. Benedyczak
  */
-public class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<Entry<T, Date>>
+public abstract class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<Entry<T, Date>>
 {
 	private NamedCRUDDAOWithTS<T> dao;
-	private ObjectMapper jsonMapper;
-	private Class<T> clazz;
+	protected ObjectMapper jsonMapper;
 	
-	public GenericObjectIEBase(NamedCRUDDAOWithTS<T> dao, ObjectMapper jsonMapper, Class<T> clazz,
+	public GenericObjectIEBase(NamedCRUDDAOWithTS<T> dao, ObjectMapper jsonMapper,
 			int sortKey, String name)
 	{
 		super(sortKey, name);
 		this.dao = dao;
 		this.jsonMapper = jsonMapper;
-		this.clazz = clazz;
+		
 	}
 
 	@Override
@@ -46,7 +45,7 @@ public class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<E
 	protected ObjectNode toJsonSingle(Entry<T, Date> exportedObj)
 	{
 		ObjectNode wrapper = jsonMapper.createObjectNode();
-		ObjectNode obj = jsonMapper.convertValue(exportedObj.getKey(), ObjectNode.class);
+		ObjectNode obj = convert(exportedObj.getKey());
 		wrapper.put("_updateTS", exportedObj.getValue().getTime());
 		wrapper.set("obj", obj);
 		return wrapper;
@@ -55,6 +54,7 @@ public class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<E
 	@Override
 	protected void createSingle(Entry<T, Date> toCreate)
 	{
+		
 		dao.createWithTS(toCreate.getKey(), toCreate.getValue());
 	}
 
@@ -63,9 +63,12 @@ public class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<E
 	{
 		Date updateTS = new Date(src.get("_updateTS").asLong());
 		ObjectNode obj = (ObjectNode) src.get("obj");
-		T val = jsonMapper.convertValue(obj, clazz);
+		T val = convert(obj);
 		return new SimpleEntry<T, Date>(val, updateTS);
 	}
+	
+	protected abstract T convert(ObjectNode src);
+	protected abstract ObjectNode convert(T src);
 }
 
 

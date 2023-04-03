@@ -4,9 +4,13 @@
  */
 package pl.edu.icm.unity.store.impl.policyDocuments;
 
+import java.io.IOException;
+
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.types.StoredPolicyDocument;
@@ -22,16 +26,31 @@ class PolicyDocumentJsonSerializer implements RDBMSObjectSerializer<StoredPolicy
 	@Override
 	public BaseBean toDB(StoredPolicyDocument object)
 	{
-		BaseBean ret = new BaseBean(object.getName(), JsonUtil.serialize2Bytes(object.toJsonBase()));
-		ret.setId(object.getId());
-		return ret;
+		BaseBean toAdd = new BaseBean();
+		toAdd.setName(object.getName());
+		toAdd.setId(object.getId());
+		try
+		{		
+			toAdd.setContents(Constants.MAPPER.writeValueAsBytes(PolicyDocumentBaseMapper.map(object)));
+		
+		} catch (JsonProcessingException e)
+		{
+			throw new IllegalStateException("Error saving policy document to DB", e);
+		}
+		return toAdd;
 	}
 
 	@Override
 	public StoredPolicyDocument fromDB(BaseBean bean)
 	{
-		StoredPolicyDocument ret = new StoredPolicyDocument(bean.getId(), bean.getName());
-		ret.fromJsonBase(JsonUtil.parse(bean.getContents()));
-		return ret;
+		try
+		{
+			return
+					PolicyDocumentBaseMapper.map(Constants.MAPPER.readValue(bean.getContents(), DBPolicyDocumentBase.class), bean.getId(), bean.getName());
+		} catch (IOException e)
+		{
+			throw new IllegalStateException("Error parsing policy document from DB", e);
+		}
+		
 	}
 }

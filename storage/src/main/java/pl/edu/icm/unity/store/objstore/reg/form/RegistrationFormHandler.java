@@ -7,9 +7,10 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -32,13 +33,26 @@ public class RegistrationFormHandler extends DefaultEntityHandler<RegistrationFo
 	@Override
 	public GenericObjectBean toBlob(RegistrationForm value)
 	{
-		return new GenericObjectBean(value.getName(), 
-				JsonUtil.serialize2Bytes(value.toJson()), supportedType);
+		try
+		{
+			return new GenericObjectBean(value.getName(),
+					jsonMapper.writeValueAsBytes(RegistrationFormMapper.map(value)), supportedType);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize registration form to JSON", e);
+		}
 	}
 
 	@Override
 	public RegistrationForm fromBlob(GenericObjectBean blob)
 	{
-		return new RegistrationForm(JsonUtil.parse(blob.getContents()));
+		try
+		{
+			return RegistrationFormMapper
+					.map(jsonMapper.readValue(blob.getContents(), DBRegistrationForm.class));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize registration form from JSON", e);
+		}
 	}
 }
