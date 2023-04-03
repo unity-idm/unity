@@ -15,10 +15,10 @@ import java.util.Objects;
 @JsonDeserialize(builder = DBCredentialRequirements.Builder.class)
 class DBCredentialRequirements
 {
-	public final String name;
-	public final String description;
-	public final Set<String> requiredCredentials;
-	public final boolean readOnly;
+	final String name;
+	final String description;
+	final Set<String> requiredCredentials;
+	final boolean readOnly;
 
 	private DBCredentialRequirements(Builder builder)
 	{

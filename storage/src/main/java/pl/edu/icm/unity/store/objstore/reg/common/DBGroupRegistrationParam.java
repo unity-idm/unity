@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 class DBGroupRegistrationParam extends DBRegistrationParam
 {
 
-	public final String groupPath;
-	public final boolean multiSelect;
-	public final String includeGroupsMode;
+	final String groupPath;
+	final boolean multiSelect;
+	final String includeGroupsMode;
 
 	private DBGroupRegistrationParam(Builder builder)
 	{

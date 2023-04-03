@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBPolicyDocument.DBPolicyDocumentBuilder.class)
 class DBPolicyDocument extends DBPolicyDocumentBase
 {
-	public final Long id;
-	public final String name;
+	final Long id;
+	final String name;
 
 	DBPolicyDocument(DBPolicyDocumentBuilder builder)
 	{

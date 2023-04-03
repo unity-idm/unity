@@ -7,9 +7,11 @@ package pl.edu.icm.unity.store.impl.groups;
 import java.io.IOException;
 import java.time.Duration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -26,6 +28,8 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 {
 	private final Cache<GroupBean, Group> resolvedGroupsCache = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofDays(1)).build();
+	@Autowired
+	private ObjectMapper jsonMapper;
 	
 	@Override
 	public GroupBean toDB(Group object)
@@ -33,7 +37,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 		GroupBean gb = new GroupBean(object.toString(), object.getParentPath());
 		try
 		{
-			gb.setContents(Constants.MAPPER.writeValueAsBytes(GroupMapper.mapBaseGroup(object)));
+			gb.setContents(jsonMapper.writeValueAsBytes(GroupMapper.mapBaseGroup(object)));
 		} catch (JsonProcessingException e)
 		{
 			throw new IllegalStateException("Error saving group to DB", e);
@@ -59,7 +63,7 @@ public class GroupJsonSerializer implements RDBMSObjectSerializer<Group, GroupBe
 
 		try
 		{
-			dbGroup = Constants.MAPPER.readValue(bean.getContents(), DBGroupBase.class);
+			dbGroup = jsonMapper.readValue(bean.getContents(), DBGroupBase.class);
 		} catch (IOException e)
 		{
 			throw new IllegalStateException("Error parsing group from DB", e);

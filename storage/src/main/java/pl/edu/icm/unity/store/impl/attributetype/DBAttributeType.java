@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DBAttributeType extends DBAttributeTypeBase
 {
-	public final String name;
-	public final String syntaxId;
+	final String name;
+	final String syntaxId;
 
 	private DBAttributeType(Builder builder)
 	{

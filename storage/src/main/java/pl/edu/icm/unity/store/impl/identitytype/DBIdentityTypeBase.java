@@ -12,14 +12,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBIdentityTypeBase.DBIdentityTypeBaseBuilder.class)
 class DBIdentityTypeBase
 {
-	public final String identityTypeProvider;
-	public final String identityTypeProviderSettings;
-	public final String description;
-	public final boolean selfModificable;
-	public final int minInstances;
-	public final int maxInstances;
-	public final int minVerifiedInstances;
-	public final DBEmailConfirmationConfiguration emailConfirmationConfiguration;
+	final String identityTypeProvider;
+	final String identityTypeProviderSettings;
+	final String description;
+	final boolean selfModificable;
+	final int minInstances;
+	final int maxInstances;
+	final int minVerifiedInstances;
+	final DBEmailConfirmationConfiguration emailConfirmationConfiguration;
 
 	protected DBIdentityTypeBase(DBIdentityTypeBaseBuilder<?> builder)
 	{

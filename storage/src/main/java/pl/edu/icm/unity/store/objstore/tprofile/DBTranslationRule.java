@@ -10,10 +10,10 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBTranslationRule.Builder.class)
-public class DBTranslationRule
+class DBTranslationRule
 {
-	public final String condition;
-	public final DBTranslationAction action;
+	final String condition;
+	final DBTranslationAction action;
 
 	private DBTranslationRule(Builder builder)
 	{

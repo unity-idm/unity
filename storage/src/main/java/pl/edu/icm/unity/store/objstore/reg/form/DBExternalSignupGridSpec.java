@@ -16,8 +16,8 @@ import java.util.Collections;
 @JsonDeserialize(builder = DBExternalSignupGridSpec.Builder.class)
 class DBExternalSignupGridSpec
 {
-	public final List<DBAuthenticationOptionsSelector> specs;
-	public final DBAuthnGridSettings gridSettings;
+	final List<DBAuthenticationOptionsSelector> specs;
+	final DBAuthnGridSettings gridSettings;
 
 	private DBExternalSignupGridSpec(Builder builder)
 	{

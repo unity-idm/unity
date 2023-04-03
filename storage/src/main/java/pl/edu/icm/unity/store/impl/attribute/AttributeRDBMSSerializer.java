@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeRDBMSStore;
 import pl.edu.icm.unity.store.impl.groups.GroupRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
@@ -31,6 +31,8 @@ public class AttributeRDBMSSerializer implements RDBMSObjectSerializer<StoredAtt
 	private AttributeTypeRDBMSStore atDAO;
 	@Autowired
 	private GroupRDBMSStore groupDAO;
+	@Autowired
+	private ObjectMapper jsonMapper;
 	
 	@Override
 	public AttributeBean toDB(StoredAttribute object)
@@ -45,7 +47,7 @@ public class AttributeRDBMSSerializer implements RDBMSObjectSerializer<StoredAtt
 		bean.setTypeId(typeId);
 		try
 		{
-			bean.setValues(Constants.MAPPER.writeValueAsBytes(AttributeExtBaseMapper.map(object.getAttribute())));
+			bean.setValues(jsonMapper.writeValueAsBytes(AttributeExtBaseMapper.map(object.getAttribute())));
 		} catch (JsonProcessingException e)
 		{
 			throw new IllegalStateException("Error saving attribute to DB", e);
@@ -61,7 +63,7 @@ public class AttributeRDBMSSerializer implements RDBMSObjectSerializer<StoredAtt
 
 		try
 		{
-			attr = AttributeExtBaseMapper.map(Constants.MAPPER.readValue(bean.getValues(), DBAttributeExtBase.class),
+			attr = AttributeExtBaseMapper.map(jsonMapper.readValue(bean.getValues(), DBAttributeExtBase.class),
 					bean.getName(), bean.getValueSyntaxId(), bean.getGroup());
 		} catch (IOException e)
 		{

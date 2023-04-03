@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBurlQueryPrefillConfig.Builder.class)
 class DBurlQueryPrefillConfig
 {
-	public final String paramName;
-	public final String mode;
+	final String paramName;
+	final String mode;
 
 	private DBurlQueryPrefillConfig(Builder builder)
 	{

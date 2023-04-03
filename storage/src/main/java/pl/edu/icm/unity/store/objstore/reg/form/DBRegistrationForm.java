@@ -19,33 +19,33 @@ import pl.edu.icm.unity.store.types.common.DBI18nString;
 class DBRegistrationForm extends DBBaseForm
 {
 	@JsonProperty("PubliclyAvailable")
-	public final boolean publiclyAvailable;
+	final boolean publiclyAvailable;
 	@JsonProperty("NotificationsConfiguration")
-	public final DBRegistrationFormNotifications notificationsConfiguration;
+	final DBRegistrationFormNotifications notificationsConfiguration;
 	@JsonProperty("CaptchaLength")
-	public final int captchaLength;
+	final int captchaLength;
 	@JsonProperty("RegistrationCode")
-	public final String registrationCode;
+	final String registrationCode;
 	@JsonProperty("DefaultCredentialRequirement")
-	public final String defaultCredentialRequirement;
+	final String defaultCredentialRequirement;
 	@JsonProperty("Title2ndStage")
-	public final DBI18nString title2ndStage;
+	final DBI18nString title2ndStage;
 	@JsonProperty("ExternalSignupSpec")
-	public final DBExternalSignupSpec externalSignupSpec;
+	final DBExternalSignupSpec externalSignupSpec;
 	@JsonProperty("ExternalSignupGridSpec")
-	public final DBExternalSignupGridSpec externalSignupGridSpec;
+	final DBExternalSignupGridSpec externalSignupGridSpec;
 	@JsonProperty("RegistrationFormLayouts")
-	public final DBRegistrationFormLayouts formLayouts;
+	final DBRegistrationFormLayouts formLayouts;
 	@JsonProperty("ShowSignInLink")
-	public final boolean showSignInLink;
+	final boolean showSignInLink;
 	@JsonProperty("SignInLink")
-	public final String signInLink;
+	final String signInLink;
 	@JsonProperty("SwitchToEnquiryInfo")
-	public final DBI18nString switchToEnquiryInfo;
+	final DBI18nString switchToEnquiryInfo;
 	@JsonProperty("AutoLoginToRealm")
-	public final String autoLoginToRealm;
+	final String autoLoginToRealm;
 	@JsonProperty("FormInformation2ndStage")
-	public final DBI18nString formInformation2ndStage;
+	final DBI18nString formInformation2ndStage;
 
 	private DBRegistrationForm(Builder builder)
 	{

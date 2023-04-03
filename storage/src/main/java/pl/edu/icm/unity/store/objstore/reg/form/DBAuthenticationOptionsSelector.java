@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 class DBAuthenticationOptionsSelector
 {
-	public final String authenticatorKey;
-	public final String optionKey;
+	final String authenticatorKey;
+	final String optionKey;
 
 	private DBAuthenticationOptionsSelector(Builder builder)
 	{

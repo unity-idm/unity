@@ -14,9 +14,9 @@ import pl.edu.icm.unity.store.objstore.reg.layout.DBFormLayout;
 @JsonDeserialize(builder = DBRegistrationFormLayouts.Builder.class)
 class DBRegistrationFormLayouts
 {
-	public final DBFormLayout primaryLayout;
-	public final DBFormLayout secondaryLayout;
-	public final boolean localSignupEmbeddedAsButton;
+	final DBFormLayout primaryLayout;
+	final DBFormLayout secondaryLayout;
+	final boolean localSignupEmbeddedAsButton;
 
 	private DBRegistrationFormLayouts(Builder builder)
 	{

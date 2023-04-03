@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class DBGroupMembership extends DBGroupMembershipBase
 {
-	public final String group;
-	public final long entityId;
+	final String group;
+	final long entityId;
 
 	private DBGroupMembership(Builder builder)
 	{

@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
@@ -33,9 +33,9 @@ public class MembershipIE extends AbstractIEBase<GroupMembership>
 	private final MembershipDAO dao;
 	
 	@Autowired
-	public MembershipIE(MembershipDAO dao)
+	public MembershipIE(MembershipDAO dao, ObjectMapper objectMapper)
 	{
-		super(5, GROUP_MEMBERS_OBJECT_TYPE);
+		super(5, GROUP_MEMBERS_OBJECT_TYPE, objectMapper);
 		this.dao = dao;
 	}
 
@@ -48,7 +48,7 @@ public class MembershipIE extends AbstractIEBase<GroupMembership>
 	@Override
 	protected ObjectNode toJsonSingle(GroupMembership exportedObj)
 	{
-		return Constants.MAPPER.valueToTree(GroupMembershipMapper.map(exportedObj));
+		return jsonMapper.valueToTree(GroupMembershipMapper.map(exportedObj));
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class MembershipIE extends AbstractIEBase<GroupMembership>
 	{
 		try
 		{
-			return GroupMembershipMapper.map(Constants.MAPPER.treeToValue(src, DBGroupMembership.class));
+			return GroupMembershipMapper.map(jsonMapper.treeToValue(src, DBGroupMembership.class));
 
 		} catch (JsonProcessingException e)
 		{

@@ -15,13 +15,13 @@ import pl.edu.icm.unity.store.types.common.DBI18nString;
 @JsonDeserialize(builder = DBRegistrationWrapUpConfig.Builder.class)
 class DBRegistrationWrapUpConfig
 {
-	public final String state;
-	public final DBI18nString title;
-	public final DBI18nString info;
-	public final DBI18nString redirectCaption;
-	public final boolean automatic;
-	public final String redirectURL;
-	public final Duration redirectAfterTime;
+	final String state;
+	final DBI18nString title;
+	final DBI18nString info;
+	final DBI18nString redirectCaption;
+	final boolean automatic;
+	final String redirectURL;
+	final Duration redirectAfterTime;
 
 	private DBRegistrationWrapUpConfig(Builder builder)
 	{

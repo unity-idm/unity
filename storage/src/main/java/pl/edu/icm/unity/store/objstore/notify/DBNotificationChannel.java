@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBNotificationChannel.Builder.class)
 class DBNotificationChannel
 {
-	public final String name;
-	public final String description;
-	public final String configuration;
-	public final String facilityId;
+	final String name;
+	final String description;
+	final String configuration;
+	final String facilityId;
 
 	private DBNotificationChannel(Builder builder)
 	{

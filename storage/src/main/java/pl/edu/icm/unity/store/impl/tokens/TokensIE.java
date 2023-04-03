@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.TokenDAO;
@@ -32,9 +32,9 @@ public class TokensIE extends AbstractIEBase<Token>
 	private TokenDAO dbTokens;
 	
 	@Autowired
-	public TokensIE(TokenDAO dbTokens)
+	public TokensIE(TokenDAO dbTokens, ObjectMapper objectMapper)
 	{
-		super(9, TOKEN_OBJECT_TYPE);
+		super(9, TOKEN_OBJECT_TYPE, objectMapper);
 		this.dbTokens = dbTokens;
 	}
 	
@@ -47,7 +47,7 @@ public class TokensIE extends AbstractIEBase<Token>
 	@Override
 	protected ObjectNode toJsonSingle(Token exportedObj)
 	{
-		return Constants.MAPPER.valueToTree(exportedObj);
+		return jsonMapper.valueToTree(exportedObj);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class TokensIE extends AbstractIEBase<Token>
 	protected Token fromJsonSingle(ObjectNode src)
 	{
 		try {
-			return Constants.MAPPER.treeToValue(src, Token.class);
+			return jsonMapper.treeToValue(src, Token.class);
 		} catch (JsonProcessingException e) {
 			log.error("Failed to deserialize Token object:", e);
 		}

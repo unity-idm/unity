@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import pl.edu.icm.unity.store.objstore.reg.common.DBBaseRegistrationInput;
 
 @JsonDeserialize(builder = DBRegistrationRequest.Builder.class)
-public class DBRegistrationRequest extends DBBaseRegistrationInput
+class DBRegistrationRequest extends DBBaseRegistrationInput
 {
 	private DBRegistrationRequest(Builder builder)
 	{

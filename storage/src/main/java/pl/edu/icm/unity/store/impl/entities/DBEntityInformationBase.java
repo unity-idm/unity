@@ -16,13 +16,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class DBEntityInformationBase
 {
-	public final String state;
+	final String state;
 	@JsonProperty("ScheduledOperationTime")
-	public final Date scheduledOperationTime;
+	final Date scheduledOperationTime;
 	@JsonProperty("ScheduledOperation")
-	public final String scheduledOperation;
+	final String scheduledOperation;
 	@JsonProperty("RemovalByUserTime")
-	public final Date removalByUserTime;
+	final Date removalByUserTime;
 
 	protected DBEntityInformationBase(DBEntityInformationBaseBuilder<?> builder)
 	{

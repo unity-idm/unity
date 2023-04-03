@@ -23,12 +23,12 @@ class DBMessageTemplate
 {
 	private static final String DEFAULT_TYPE = "PLAIN";
 
-	public final String name;
-	public final String description;
-	public final DBI18nMessage message;
-	public final String consumer;
-	public final String type;
-	public final String notificationChannel;
+	final String name;
+	final String description;
+	final DBI18nMessage message;
+	final String consumer;
+	final String type;
+	final String notificationChannel;
 
 	private DBMessageTemplate(Builder builder)
 	{

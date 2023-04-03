@@ -19,14 +19,14 @@ import pl.edu.icm.unity.store.types.common.DBI18nString;
 @JsonDeserialize(builder = DBGroupBase.DBGroupBaseBuilder.class)
 class DBGroupBase
 {
-	public final DBI18nString displayedName;
-	public final DBI18nString i18nDescription;
-	public final String description;
-	public final DBAttributeStatement[] attributeStatements;
-	public final Set<String> attributesClasses;
-	public final DBGroupDelegationConfiguration delegationConfiguration;
-	public final boolean publicGroup;
-	public final List<DBGroupProperty> properties;
+	final DBI18nString displayedName;
+	final DBI18nString i18nDescription;
+	final String description;
+	final DBAttributeStatement[] attributeStatements;
+	final Set<String> attributesClasses;
+	final DBGroupDelegationConfiguration delegationConfiguration;
+	final boolean publicGroup;
+	final List<DBGroupProperty> properties;
 
 	protected DBGroupBase(DBGroupBaseBuilder<?> builder)
 	{

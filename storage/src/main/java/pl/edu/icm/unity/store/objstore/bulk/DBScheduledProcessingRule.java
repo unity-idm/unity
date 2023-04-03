@@ -17,11 +17,11 @@ import java.util.Collections;
 @JsonDeserialize(builder = DBScheduledProcessingRule.Builder.class)
 class DBScheduledProcessingRule
 {
-	public final String id;
-	public final String cronExpression;
-	public final String condition;
-	public final String action;
-	public final List<String> actionParams;
+	final String id;
+	final String cronExpression;
+	final String condition;
+	final String action;
+	final List<String> actionParams;
 
 	private DBScheduledProcessingRule(Builder builder)
 	{

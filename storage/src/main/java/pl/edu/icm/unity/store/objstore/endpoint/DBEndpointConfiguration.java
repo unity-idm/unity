@@ -20,12 +20,12 @@ import pl.edu.icm.unity.store.types.common.DBI18nString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class DBEndpointConfiguration
 {
-	public final DBI18nString displayedName;
-	public final String description;
-	public final List<String> authenticationOptions;
-	public final String configuration;
-	public final String realm;
-	public final String tag;
+	final DBI18nString displayedName;
+	final String description;
+	final List<String> authenticationOptions;
+	final String configuration;
+	final String realm;
+	final String tag;
 
 	private DBEndpointConfiguration(Builder builder)
 	{

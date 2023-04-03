@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBAuthnGridSettings.Builder.class)
 class DBAuthnGridSettings
 {
-	public final boolean searchable;
-	public final int height;
+	final boolean searchable;
+	final int height;
 
 	private DBAuthnGridSettings(DBAuthnGridSettings.Builder builder)
 	{

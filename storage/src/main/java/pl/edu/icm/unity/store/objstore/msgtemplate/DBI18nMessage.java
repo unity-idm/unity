@@ -10,8 +10,8 @@ import pl.edu.icm.unity.store.types.common.DBI18nString;
 
 class DBI18nMessage
 {
-	public final DBI18nString body;
-	public final DBI18nString subject;
+	final DBI18nString body;
+	final DBI18nString subject;
 
 	@Override
 	public int hashCode()

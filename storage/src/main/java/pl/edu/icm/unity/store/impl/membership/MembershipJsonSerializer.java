@@ -6,11 +6,12 @@ package pl.edu.icm.unity.store.impl.membership;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.impl.groups.GroupRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.GroupMembership;
@@ -24,7 +25,9 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 class MembershipJsonSerializer implements RDBMSObjectSerializer<GroupMembership, GroupElementBean>
 {
 	private final GroupRDBMSStore groupDAO;
-
+	@Autowired
+	private ObjectMapper jsonMapper;
+	
 	MembershipJsonSerializer(GroupRDBMSStore groupDAO)
 	{
 		this.groupDAO = groupDAO;
@@ -37,7 +40,7 @@ class MembershipJsonSerializer implements RDBMSObjectSerializer<GroupMembership,
 		GroupElementBean geb = new GroupElementBean(groupId, object.getEntityId());
 		try
 		{
-			geb.setContents(Constants.MAPPER.writeValueAsBytes(GroupMembershipBaseMapper.map(object)));
+			geb.setContents(jsonMapper.writeValueAsBytes(GroupMembershipBaseMapper.map(object)));
 
 		} catch (JsonProcessingException e)
 		{
@@ -52,7 +55,7 @@ class MembershipJsonSerializer implements RDBMSObjectSerializer<GroupMembership,
 		try
 		{
 			return GroupMembershipBaseMapper.map(
-					Constants.MAPPER.readValue(bean.getContents(), DBGroupMembershipBase.class), bean.getGroup(),
+					jsonMapper.readValue(bean.getContents(), DBGroupMembershipBase.class), bean.getGroup(),
 					bean.getElementId());
 		} catch (IOException e)
 		{
