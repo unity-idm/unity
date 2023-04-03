@@ -197,6 +197,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void shouldAuthnWithTLSWhenPasswordIncorrect() throws Exception
 	{
+		Thread.sleep(2000);
 		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
 		DefaultClientConfiguration clientCfg = getClientCfg();
