@@ -14,13 +14,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBGroupDelegationConfiguration.Builder.class)
 class DBGroupDelegationConfiguration
 {
-	public final boolean enabled;
-	public final String logoUrl;
-	public final String registrationForm;
-	public final String signupEnquiryForm;
-	public final String membershipUpdateEnquiryForm;
-	public final List<String> attributes;
-	public final boolean enableSubprojects;
+	final boolean enabled;
+	final String logoUrl;
+	final String registrationForm;
+	final String signupEnquiryForm;
+	final String membershipUpdateEnquiryForm;
+	final List<String> attributes;
+	final boolean enableSubprojects;
 
 	private DBGroupDelegationConfiguration(Builder builder)
 	{

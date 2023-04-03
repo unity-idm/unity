@@ -6,11 +6,12 @@ package pl.edu.icm.unity.store.impl.entities;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -23,13 +24,16 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 @Component
 class EntityJsonSerializer implements RDBMSObjectSerializer<EntityInformation, BaseBean>
 {
+	@Autowired
+	private ObjectMapper jsonMapper;
+	
 	@Override
 	public BaseBean toDB(EntityInformation object)
 	{
 		try
 		{
 			BaseBean bean = new BaseBean(null,
-					Constants.MAPPER.writeValueAsBytes(EntityInformationBaseMapper.map(object)));
+					jsonMapper.writeValueAsBytes(EntityInformationBaseMapper.map(object)));
 			bean.setId(object.getId());
 			return bean;
 		} catch (JsonProcessingException e)
@@ -45,7 +49,7 @@ class EntityJsonSerializer implements RDBMSObjectSerializer<EntityInformation, B
 		DBEntityInformationBase entityInformationBase;
 		try
 		{
-			entityInformationBase = Constants.MAPPER.readValue(bean.getContents(), DBEntityInformationBase.class);
+			entityInformationBase = jsonMapper.readValue(bean.getContents(), DBEntityInformationBase.class);
 		} catch (IOException e)
 		{
 			throw new IllegalStateException("Error parsing entity information from DB", e);

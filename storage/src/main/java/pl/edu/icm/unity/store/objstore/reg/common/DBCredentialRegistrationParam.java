@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBCredentialRegistrationParam.Builder.class)
 class DBCredentialRegistrationParam
 {
-	public final String credentialName;
-	public final String label;
-	public final String description;
+	final String credentialName;
+	final String label;
+	final String description;
 
 	private DBCredentialRegistrationParam(Builder builder)
 	{

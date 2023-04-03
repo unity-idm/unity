@@ -6,11 +6,12 @@ package pl.edu.icm.unity.store.impl.identities;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypeRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.store.types.StoredIdentity;
@@ -25,6 +26,9 @@ import pl.edu.icm.unity.types.basic.Identity;
 class IdentityJsonSerializer implements RDBMSObjectSerializer<StoredIdentity, IdentityBean>
 {
 	private final IdentityTypeRDBMSStore idTypeDAO;
+	
+	@Autowired
+	private ObjectMapper jsonMapper;
 	
 	IdentityJsonSerializer(IdentityTypeRDBMSStore idTypeDAO)
 	{
@@ -42,7 +46,7 @@ class IdentityJsonSerializer implements RDBMSObjectSerializer<StoredIdentity, Id
 		idB.setTypeId(typeKey);
 		try
 		{
-			idB.setContents(Constants.MAPPER.writeValueAsBytes(IdentityBaseMapper.map(object)));
+			idB.setContents(jsonMapper.writeValueAsBytes(IdentityBaseMapper.map(object)));
 		} catch (JsonProcessingException e)
 		{
 			throw new IllegalStateException("Error saving identity to DB", e);
@@ -56,7 +60,7 @@ class IdentityJsonSerializer implements RDBMSObjectSerializer<StoredIdentity, Id
 		try
 		{
 			return new StoredIdentity(
-					IdentityBaseMapper.map(Constants.MAPPER.readValue(bean.getContents(), DBIdentityBase.class), bean.getTypeName(),bean.getEntityId()));
+					IdentityBaseMapper.map(jsonMapper.readValue(bean.getContents(), DBIdentityBase.class), bean.getTypeName(),bean.getEntityId()));
 		} catch (IOException e)
 		{
 			throw new IllegalStateException("Error parsing identity from DB", e);

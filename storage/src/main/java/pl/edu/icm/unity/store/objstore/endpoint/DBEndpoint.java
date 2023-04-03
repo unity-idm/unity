@@ -14,12 +14,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DBEndpoint
 {
-	public final String name;
-	public final String typeId;
-	public final String contextAddress;
-	public final DBEndpointConfiguration configuration;
-	public final long revision;
-	public final String status;
+	final String name;
+	final String typeId;
+	final String contextAddress;
+	final DBEndpointConfiguration configuration;
+	final long revision;
+	final String status;
 
 	private DBEndpoint(Builder builder)
 	{

@@ -12,13 +12,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBAuthenticationRealm.Builder.class)
 class DBAuthenticationRealm
 {
-	public final String name;
-	public final String description;
-	public final int blockAfterUnsuccessfulLogins;
-	public final int blockFor;
-	public final int allowForRememberMeDays;
-	public final String rememberMePolicy;
-	public final int maxInactivity;
+	final String name;
+	final String description;
+	final int blockAfterUnsuccessfulLogins;
+	final int blockFor;
+	final int allowForRememberMeDays;
+	final String rememberMePolicy;
+	final int maxInactivity;
 
 	private DBAuthenticationRealm(Builder builder)
 	{

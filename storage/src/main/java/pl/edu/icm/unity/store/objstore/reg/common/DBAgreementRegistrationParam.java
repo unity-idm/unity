@@ -16,9 +16,9 @@ import pl.edu.icm.unity.store.types.common.DBI18nString;
 class DBAgreementRegistrationParam
 {
 	@JsonProperty("i18nText")
-	public final DBI18nString text;
+	final DBI18nString text;
 	@JsonProperty("manatory")
-	public final boolean mandatory;
+	final boolean mandatory;
 
 	private DBAgreementRegistrationParam(Builder builder)
 	{

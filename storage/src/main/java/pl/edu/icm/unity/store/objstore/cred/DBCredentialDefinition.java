@@ -16,12 +16,12 @@ import pl.edu.icm.unity.store.types.common.DBI18nString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DBCredentialDefinition
 {
-	public final String name;
-	public final String typeId;
-	public final String configuration;
-	public final boolean readOnly;
-	public final DBI18nString displayedName;
-	public final DBI18nString i18nDescription;
+	final String name;
+	final String typeId;
+	final String configuration;
+	final boolean readOnly;
+	final DBI18nString displayedName;
+	final DBI18nString i18nDescription;
 
 	private DBCredentialDefinition(Builder builder)
 	{

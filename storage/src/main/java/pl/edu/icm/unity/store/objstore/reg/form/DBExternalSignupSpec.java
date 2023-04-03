@@ -16,7 +16,7 @@ import java.util.Collections;
 @JsonDeserialize(builder = DBExternalSignupSpec.Builder.class)
 class DBExternalSignupSpec
 {
-	public final List<DBAuthenticationOptionsSelector> specs;
+	final List<DBAuthenticationOptionsSelector> specs;
 
 	private DBExternalSignupSpec(Builder builder)
 	{

@@ -18,13 +18,13 @@ import pl.edu.icm.unity.store.objstore.reg.layout.DBFormLayout;
 @JsonDeserialize(builder = DBEnquiryForm.Builder.class)
 class DBEnquiryForm extends DBBaseForm
 {
-	public final String type;
-	public final List<String> targetGroups;
-	public final String targetCondition;
+	final String type;
+	final List<String> targetGroups;
+	final String targetCondition;
 	@JsonProperty("NotificationsConfiguration")
-	public final DBEnquiryFormNotifications notificationsConfiguration;
+	final DBEnquiryFormNotifications notificationsConfiguration;
 	@JsonProperty("FormLayout")
-	public final DBFormLayout layout;
+	final DBFormLayout layout;
 
 	private DBEnquiryForm(Builder builder)
 	{

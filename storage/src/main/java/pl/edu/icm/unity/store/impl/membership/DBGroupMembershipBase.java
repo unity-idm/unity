@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 class DBGroupMembershipBase
 {
 	
-	public final Date creationTs;
-	public final String translationProfile;
-	public final String remoteIdp;
+	final Date creationTs;
+	final String translationProfile;
+	final String remoteIdp;
 
 	protected DBGroupMembershipBase(DBGroupMembershipBaseBuilder<?> builder)
 	{

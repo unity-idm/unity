@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DBGroup extends DBGroupBase
 {
-	public final String path;
+	final String path;
 
 	private DBGroup(Builder builder)
 	{

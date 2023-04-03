@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBMessage.Builder.class)
 class DBMessage
 {
-	public final String name;
-	public final String locale;
-	public final String value;
+	final String name;
+	final String locale;
+	final String value;
 
 	private DBMessage(Builder builder)
 	{

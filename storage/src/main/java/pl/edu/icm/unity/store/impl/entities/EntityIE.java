@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
@@ -32,9 +32,9 @@ public class EntityIE extends AbstractIEBase<EntityInformation>
 	private final EntityDAO dbIds;
 	
 	@Autowired
-	public EntityIE(EntityDAO dbIds)
+	public EntityIE(EntityDAO dbIds, ObjectMapper objectMapper)
 	{
-		super(2, ENTITIES_OBJECT_TYPE);
+		super(2, ENTITIES_OBJECT_TYPE, objectMapper);
 		this.dbIds = dbIds;
 	}
 
@@ -47,7 +47,7 @@ public class EntityIE extends AbstractIEBase<EntityInformation>
 	@Override
 	protected ObjectNode toJsonSingle(EntityInformation exportedObj)
 	{
-		return Constants.MAPPER.valueToTree(EntityInformationMapper.map(exportedObj));
+		return jsonMapper.valueToTree(EntityInformationMapper.map(exportedObj));
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class EntityIE extends AbstractIEBase<EntityInformation>
 	{
 		try
 		{
-			return EntityInformationMapper.map(Constants.MAPPER.treeToValue(src, DBEntityInformation.class));
+			return EntityInformationMapper.map(jsonMapper.treeToValue(src, DBEntityInformation.class));
 		} catch (JsonProcessingException e)
 		{
 			log.error("Failed to deserialize EntityInformation object:", e);

@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -25,11 +26,13 @@ public abstract class AbstractIEBase<T>
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, AbstractIEBase.class);
 	private int sortKey;
 	private String storeKey;
+	protected ObjectMapper jsonMapper;
 	
-	public AbstractIEBase(int sortKey, String storeKey)
+	public AbstractIEBase(int sortKey, String storeKey, ObjectMapper objectMapper)
 	{
 		this.sortKey = sortKey;
 		this.storeKey = storeKey;
+		this.jsonMapper = objectMapper;
 	}
 
 	/**

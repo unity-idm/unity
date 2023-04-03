@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBGroupProperty.Builder.class)
 class DBGroupProperty
 {
-	public final String key;
-	public final String value;
+	final String key;
+	final String value;
 
 	private DBGroupProperty(Builder builder)
 	{

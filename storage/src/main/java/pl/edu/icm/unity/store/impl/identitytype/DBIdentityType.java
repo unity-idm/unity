@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DBIdentityType extends DBIdentityTypeBase
 {
-	public final String name;
+	final String name;
 
 	private DBIdentityType(Builder builder)
 	{

@@ -6,11 +6,12 @@ package pl.edu.icm.unity.store.impl.identitytype;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -23,12 +24,15 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 @Component
 class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<IdentityType, BaseBean>
 {
+	@Autowired
+	private ObjectMapper jsonMapper;
+	
 	@Override
 	public IdentityType fromDB(BaseBean raw)
 	{
 		try
 		{
-			return IdentityTypeBaseMapper.map(Constants.MAPPER.readValue(raw.getContents(), DBIdentityTypeBase.class),
+			return IdentityTypeBaseMapper.map(jsonMapper.readValue(raw.getContents(), DBIdentityTypeBase.class),
 					raw.getName());
 		} catch (IOException e)
 		{
@@ -43,7 +47,7 @@ class IdentityTypeJsonSerializer implements RDBMSObjectSerializer<IdentityType, 
 		toAdd.setName(idType.getName());
 		try
 		{
-			toAdd.setContents(Constants.MAPPER.writeValueAsBytes(IdentityTypeBaseMapper.map(idType)));
+			toAdd.setContents(jsonMapper.writeValueAsBytes(IdentityTypeBaseMapper.map(idType)));
 
 		} catch (JsonProcessingException e)
 		{

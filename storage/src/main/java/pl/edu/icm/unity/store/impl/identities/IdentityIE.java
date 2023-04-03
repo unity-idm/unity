@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
@@ -32,9 +32,9 @@ public class IdentityIE extends AbstractIEBase<StoredIdentity>
 	private final IdentityDAO dbIds;
 	
 	@Autowired
-	public IdentityIE(IdentityDAO dbIds)
+	public IdentityIE(IdentityDAO dbIds, ObjectMapper objectMapper)
 	{
-		super(3, IDENTITIES_OBJECT_TYPE);
+		super(3, IDENTITIES_OBJECT_TYPE, objectMapper);
 		this.dbIds = dbIds;
 	}
 
@@ -47,7 +47,7 @@ public class IdentityIE extends AbstractIEBase<StoredIdentity>
 	@Override
 	protected ObjectNode toJsonSingle(StoredIdentity exportedObj)
 	{
-		return Constants.MAPPER.valueToTree(IdentityMapper.map(exportedObj.getIdentity()));
+		return jsonMapper.valueToTree(IdentityMapper.map(exportedObj.getIdentity()));
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class IdentityIE extends AbstractIEBase<StoredIdentity>
 	{
 		try
 		{
-			return new StoredIdentity(IdentityMapper.map(Constants.MAPPER.treeToValue(src, DBIdentity.class)));
+			return new StoredIdentity(IdentityMapper.map(jsonMapper.treeToValue(src, DBIdentity.class)));
 		} catch (IllegalArgumentException e)
 		{
 			if (log.isDebugEnabled())

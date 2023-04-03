@@ -24,14 +24,14 @@ import pl.edu.icm.unity.types.NamedObject;
 public abstract class GenericObjectIEBase<T extends NamedObject> extends AbstractIEBase<Entry<T, Date>>
 {
 	private NamedCRUDDAOWithTS<T> dao;
-	protected ObjectMapper jsonMapper;
+	
 	
 	public GenericObjectIEBase(NamedCRUDDAOWithTS<T> dao, ObjectMapper jsonMapper,
 			int sortKey, String name)
 	{
-		super(sortKey, name);
+		super(sortKey, name, jsonMapper);
 		this.dao = dao;
-		this.jsonMapper = jsonMapper;
+		
 		
 	}
 

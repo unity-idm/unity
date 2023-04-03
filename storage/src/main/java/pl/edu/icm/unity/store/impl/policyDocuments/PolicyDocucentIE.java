@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.PolicyDocumentDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
@@ -35,9 +35,9 @@ public class PolicyDocucentIE extends AbstractIEBase<StoredPolicyDocument>
 	private PolicyDocumentDAO dbIds;
 
 	@Autowired
-	public PolicyDocucentIE(PolicyDocumentDAO dbIds)
+	public PolicyDocucentIE(PolicyDocumentDAO dbIds, ObjectMapper objectMapper)
 	{
-		super(10, POLICY_DOCUMENTS_OBJECT_TYPE);
+		super(10, POLICY_DOCUMENTS_OBJECT_TYPE, objectMapper);
 		this.dbIds = dbIds;
 	}
 
@@ -50,7 +50,7 @@ public class PolicyDocucentIE extends AbstractIEBase<StoredPolicyDocument>
 	@Override
 	protected ObjectNode toJsonSingle(StoredPolicyDocument exportedObj)
 	{
-		return Constants.MAPPER.valueToTree(PolicyDocumentMapper.map(exportedObj));
+		return jsonMapper.valueToTree(PolicyDocumentMapper.map(exportedObj));
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class PolicyDocucentIE extends AbstractIEBase<StoredPolicyDocument>
 	{
 		try
 		{
-			return PolicyDocumentMapper.map(Constants.MAPPER.treeToValue(src, DBPolicyDocument.class));
+			return PolicyDocumentMapper.map(jsonMapper.treeToValue(src, DBPolicyDocument.class));
 
 		} catch (JsonProcessingException e)
 		{

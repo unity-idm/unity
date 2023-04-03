@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DBEntityInformation extends DBEntityInformationBase
 {
-	public final Long entityId;
+	final Long entityId;
 
 	private DBEntityInformation(Builder builder)
 	{

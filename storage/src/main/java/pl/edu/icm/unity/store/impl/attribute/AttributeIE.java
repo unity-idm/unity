@@ -11,11 +11,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
@@ -34,9 +34,9 @@ public class AttributeIE extends AbstractIEBase<StoredAttributeWithKeywords>
 	private final AttributeJsonSerializer serializer;
 	
 	@Autowired
-	public AttributeIE(AttributeDAO dao, AttributeJsonSerializer serializer)
+	public AttributeIE(AttributeDAO dao, AttributeJsonSerializer serializer, ObjectMapper objectMapper)
 	{
-		super(6, ATTRIBUTES_OBJECT_TYPE);
+		super(6, ATTRIBUTES_OBJECT_TYPE, objectMapper);
 		this.dao = dao;
 		this.serializer = serializer;
 	}
@@ -61,7 +61,7 @@ public class AttributeIE extends AbstractIEBase<StoredAttributeWithKeywords>
 	protected ObjectNode toJsonSingle(StoredAttributeWithKeywords exportedObj)
 	{
 		ObjectNode attr = serializer.toJson(exportedObj.getStoredAttribute());
-		ArrayNode keywords = Constants.MAPPER.createArrayNode();
+		ArrayNode keywords = jsonMapper.createArrayNode();
 		exportedObj.getKeywords().forEach(keywords::add);
 		attr.set("keywords", keywords);
 		return attr;

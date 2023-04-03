@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBIdentityRegistrationParam.Builder.class)
 class DBIdentityRegistrationParam extends DBRegistrationParam
 {
-	public final String identityType;
-	public final String confirmationMode;
-	public final DBurlQueryPrefillConfig urlQueryPrefill;
-	public final boolean optional;
+	final String identityType;
+	final String confirmationMode;
+	final DBurlQueryPrefillConfig urlQueryPrefill;
+	final boolean optional;
 
 	private DBIdentityRegistrationParam(Builder builder)
 	{

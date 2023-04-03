@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
@@ -33,9 +33,9 @@ public class IdentityTypeIE extends AbstractIEBase<IdentityType>
 	private final IdentityTypeDAO dbIdTypes;
 
 	@Autowired
-	public IdentityTypeIE(IdentityTypeDAO dbIdTypes)
+	public IdentityTypeIE(IdentityTypeDAO dbIdTypes, ObjectMapper objectMapper)
 	{
-		super(1, IDENTITY_TYPE_OBJECT_TYPE);
+		super(1, IDENTITY_TYPE_OBJECT_TYPE, objectMapper);
 		this.dbIdTypes = dbIdTypes;
 	}
 
@@ -48,7 +48,7 @@ public class IdentityTypeIE extends AbstractIEBase<IdentityType>
 	@Override
 	protected ObjectNode toJsonSingle(IdentityType exportedObj)
 	{
-		return Constants.MAPPER.valueToTree(IdentityTypeMapper.map(exportedObj));
+		return jsonMapper.valueToTree(IdentityTypeMapper.map(exportedObj));
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class IdentityTypeIE extends AbstractIEBase<IdentityType>
 	{
 		try
 		{
-			return IdentityTypeMapper.map(Constants.MAPPER.treeToValue(src, DBIdentityType.class));
+			return IdentityTypeMapper.map(jsonMapper.treeToValue(src, DBIdentityType.class));
 
 		} catch (JsonProcessingException e)
 		{

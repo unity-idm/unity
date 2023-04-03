@@ -7,6 +7,8 @@ package pl.edu.icm.unity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -19,6 +21,10 @@ public class ObjectMapperSpringProvider
 	@Bean
 	public ObjectMapper defaultObjectMapper()
 	{
-		return new ObjectMapper().findAndRegisterModules();
+		
+		ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.NON_PRIVATE);
+		return mapper;
+		
 	}
 }

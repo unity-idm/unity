@@ -8,12 +8,13 @@ package pl.edu.icm.unity.store.impl.messages;
 import java.util.Locale;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.msg.Message;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
@@ -28,6 +29,9 @@ class MessageJsonSerializer implements RDBMSObjectSerializer<Message, MessageBea
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, MessageJsonSerializer.class);
 
+	@Autowired
+	private ObjectMapper jsonMapper;
+	
 	@Override
 	public MessageBean toDB(Message from)
 	{
@@ -42,14 +46,14 @@ class MessageJsonSerializer implements RDBMSObjectSerializer<Message, MessageBea
 
 	ObjectNode toJson(Message exportedObj)
 	{
-		return Constants.MAPPER.valueToTree(MessageMapper.map(exportedObj));
+		return jsonMapper.valueToTree(MessageMapper.map(exportedObj));
 	}
 
 	Message fromJson(ObjectNode src)
 	{
 		try
 		{
-			return MessageMapper.map(Constants.MAPPER.treeToValue(src, DBMessage.class));
+			return MessageMapper.map(jsonMapper.treeToValue(src, DBMessage.class));
 		} catch (JsonProcessingException e)
 		{
 			log.error("Failed to deserialize StoredMessage object:", e);

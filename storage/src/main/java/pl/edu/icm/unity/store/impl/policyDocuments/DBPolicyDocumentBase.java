@@ -14,11 +14,11 @@ import pl.edu.icm.unity.store.types.common.DBI18nString;
 @JsonDeserialize(builder = DBPolicyDocumentBase.DBPolicyDocumentBaseBuilder.class)
 class DBPolicyDocumentBase
 {
-	public final DBI18nString displayedName;
-	public final boolean mandatory;
-	public final String contentType;
-	public final int revision;
-	public final DBI18nString content;
+	final DBI18nString displayedName;
+	final boolean mandatory;
+	final String contentType;
+	final int revision;
+	final DBI18nString content;
 
 	protected DBPolicyDocumentBase(DBPolicyDocumentBaseBuilder<?> builder)
 	{

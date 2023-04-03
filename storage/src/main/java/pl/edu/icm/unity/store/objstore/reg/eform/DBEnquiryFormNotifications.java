@@ -14,8 +14,8 @@ import pl.edu.icm.unity.store.objstore.reg.common.DBBaseFormNotifications;
 @JsonDeserialize(builder = DBEnquiryFormNotifications.Builder.class)
 class DBEnquiryFormNotifications extends DBBaseFormNotifications
 {
-	public final String enquiryToFillTemplate;
-	public final String submittedTemplate;
+	final String enquiryToFillTemplate;
+	final String submittedTemplate;
 
 	private DBEnquiryFormNotifications(Builder builder)
 	{

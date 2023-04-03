@@ -12,13 +12,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBAttributeRegistrationParam.Builder.class)
 class DBAttributeRegistrationParam extends DBRegistrationParam
 {
-	public final String attributeType;
-	public final String group;
-	public final boolean showGroups;
-	public final boolean useDescription;
-	public final String confirmationMode;
-	public final DBurlQueryPrefillConfig urlQueryPrefill;
-	public final boolean optional;
+	final String attributeType;
+	final String group;
+	final boolean showGroups;
+	final boolean useDescription;
+	final String confirmationMode;
+	final DBurlQueryPrefillConfig urlQueryPrefill;
+	final boolean optional;
 
 	private DBAttributeRegistrationParam(Builder builder)
 	{

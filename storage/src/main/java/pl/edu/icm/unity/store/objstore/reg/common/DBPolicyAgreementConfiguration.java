@@ -17,9 +17,9 @@ import pl.edu.icm.unity.store.types.common.DBI18nString;
 @JsonDeserialize(builder = DBPolicyAgreementConfiguration.Builder.class)
 class DBPolicyAgreementConfiguration
 {
-	public final List<Long> documentsIdsToAccept;
-	public final String presentationType;
-	public final DBI18nString text;
+	final List<Long> documentsIdsToAccept;
+	final String presentationType;
+	final DBI18nString text;
 
 	private DBPolicyAgreementConfiguration(Builder builder)
 	{

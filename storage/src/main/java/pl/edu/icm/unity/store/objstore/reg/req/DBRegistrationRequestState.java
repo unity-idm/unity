@@ -14,11 +14,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import pl.edu.icm.unity.store.objstore.reg.common.DBUserRequestState;
 
 @JsonDeserialize(builder = DBRegistrationRequestState.Builder.class)
-public class DBRegistrationRequestState extends DBUserRequestState<DBRegistrationRequest>
+class DBRegistrationRequestState extends DBUserRequestState<DBRegistrationRequest>
 {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	@JsonProperty("CreatedEntityId")
-	public final Long createdEntityId;
+	final Long createdEntityId;
 
 	private DBRegistrationRequestState(Builder builder)
 	{

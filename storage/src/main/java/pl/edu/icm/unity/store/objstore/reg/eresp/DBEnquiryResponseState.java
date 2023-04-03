@@ -18,7 +18,7 @@ public class DBEnquiryResponseState extends DBUserRequestState<DBEnquiryResponse
 {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	@JsonProperty("EntityId")
-	public final Long entityId;
+	final Long entityId;
 
 	private DBEnquiryResponseState(Builder builder)
 	{

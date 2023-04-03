@@ -14,12 +14,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBAttributesClass.Builder.class)
 class DBAttributesClass
 {
-	public final String name;
-	public final String description;
-	public final Set<String> allowed;
-	public final Set<String> mandatory;
-	public final boolean allowArbitrary;
-	public final Set<String> parentClasses;
+	final String name;
+	final String description;
+	final Set<String> allowed;
+	final Set<String> mandatory;
+	final boolean allowArbitrary;
+	final Set<String> parentClasses;
 
 	private DBAttributesClass(Builder builder)
 	{

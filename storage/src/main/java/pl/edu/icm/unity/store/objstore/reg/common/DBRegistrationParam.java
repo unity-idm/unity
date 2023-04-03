@@ -9,9 +9,9 @@ import java.util.Objects;
 
 class DBRegistrationParam
 {
-	public final String label;
-	public final String description;
-	public final String retrievalSettings;
+	final String label;
+	final String description;
+	final String retrievalSettings;
 
 	public DBRegistrationParam(RestRegistrationParamBuilder<?> builder)
 	{

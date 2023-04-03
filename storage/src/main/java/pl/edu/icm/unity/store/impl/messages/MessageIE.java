@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.msg.Message;
@@ -29,9 +30,9 @@ public class MessageIE extends AbstractIEBase<Message>
 	private final MessageJsonSerializer serializer;
 
 	@Autowired
-	public MessageIE(MessagesDAO dao, MessageJsonSerializer serializer)
+	public MessageIE(MessagesDAO dao, MessageJsonSerializer serializer, ObjectMapper objectMapper)
 	{
-		super(11, MESSAGES_OBJECT_TYPE);
+		super(11, MESSAGES_OBJECT_TYPE, objectMapper);
 		this.dao = dao;
 		this.serializer = serializer;
 	}

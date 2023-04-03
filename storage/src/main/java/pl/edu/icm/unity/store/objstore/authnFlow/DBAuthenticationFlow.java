@@ -16,11 +16,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = DBAuthenticationFlow.Builder.class)
 class DBAuthenticationFlow
 {
-	public final String name;
-	public final Set<String> firstFactorAuthenticators;
-	public final List<String> secondFactorAuthenticators;
-	public final String policy;
-	public final long revision;
+	final String name;
+	final Set<String> firstFactorAuthenticators;
+	final List<String> secondFactorAuthenticators;
+	final String policy;
+	final long revision;
+	
 	private DBAuthenticationFlow(Builder builder)
 	{
 		this.name = builder.name;
