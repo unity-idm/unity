@@ -26,8 +26,8 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
-import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8.AuthnResult;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -53,12 +53,12 @@ class CredentialChangePanel extends CustomComponent
 	private CredentialEditor credEditor;
 	private ComponentsContainer credEditorComp;
 	private CredentialDefinition toEdit;
-	private final AdditionalAuthnHandler additionalAuthnHandler;
+	private final AdditionalAuthnHandlerV8 additionalAuthnHandler;
 	
 	CredentialChangePanel(MessageSource msg, long entityId, ImageAccessService imageAccessService,
 			EntityCredentialManagement ecredMan, 
 			EntityManagement entityMan, CredentialEditorRegistryV8 credEditorReg,
-			CredentialDefinition toEdit, AdditionalAuthnHandler additionalAuthnHandler,
+			CredentialDefinition toEdit, AdditionalAuthnHandlerV8 additionalAuthnHandler,
 			CredentialChangeConfiguration uiConfig, Runnable updatedCallback, Runnable cancelHandler)
 	{
 		this.msg = msg;

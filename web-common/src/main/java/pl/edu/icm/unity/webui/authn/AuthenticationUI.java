@@ -4,31 +4,15 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.function.Function;
-
+import com.vaadin.annotations.Theme;
+import com.vaadin.server.*;
+import com.vaadin.ui.Component;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-
-import com.vaadin.annotations.Theme;
-import com.vaadin.server.Page;
-import com.vaadin.server.Resource;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.Component;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -49,13 +33,19 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
-import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialController;
+import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialControllerV8;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
+
+import java.util.*;
+import java.util.function.Function;
+
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
 
 /**
  * Vaadin UI of the authentication application. Displays configured authentication UI and 
@@ -77,7 +67,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private ExecutorsService execService;
 	private EntityManagement idsMan;
 	private InputTranslationEngine inputTranslationEngine;
-	private ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory;
+	private ObjectFactory<OutdatedCredentialControllerV8> outdatedCredentialDialogFactory;
 	private List<AuthenticationFlow> authnFlows;
 	
 	private AuthenticationScreen authenticationUI;
@@ -91,7 +81,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 			InputTranslationEngine inputTranslationEngine,
-			ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory)
+			ObjectFactory<OutdatedCredentialControllerV8> outdatedCredentialDialogFactory)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -183,7 +173,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				getFirstColumnWidth(), 
 				config.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT));
 
-		OutdatedCredentialController outdatedCredentialController = outdatedCredentialDialogFactory.getObject();
+		OutdatedCredentialControllerV8 outdatedCredentialController = outdatedCredentialDialogFactory.getObject();
 		outdatedCredentialController.init(uiConfig, authnProcessor, this::resetToFreshAuthenticationScreen);
 		setContent(outdatedCredentialController.getComponent());
 	}

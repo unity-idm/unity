@@ -5,13 +5,6 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -21,6 +14,13 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 public class OAuthConfiguration
 {
@@ -55,7 +55,7 @@ public class OAuthConfiguration
 			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), key.length() - 1);
 
 			OAuthProviderConfiguration provider = new OAuthProviderConfiguration();
-			CustomProviderProperties providerProps = oauthProp.getProvider(key);
+			CustomProviderProperties providerProps = oauthProp.getV8Provider(key);
 			provider.fromProperties(msg, imageAccessService,  providerProps, idpKey);
 			providers.add(provider);
 		}

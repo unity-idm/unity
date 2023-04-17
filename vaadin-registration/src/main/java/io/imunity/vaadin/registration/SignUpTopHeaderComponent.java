@@ -7,6 +7,7 @@ package io.imunity.vaadin.registration;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 

@@ -1,20 +1,18 @@
 /*
- * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import java.io.IOException;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinResponse;
+import com.vaadin.flow.server.VaadinServletResponse;
+import com.vaadin.flow.server.VaadinSession;
+import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
+import io.imunity.vaadin.auth.idp.AbstractRedirectRequestHandler;
 
 import javax.servlet.http.HttpServletResponse;
-
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinResponse;
-import com.vaadin.server.VaadinServletResponse;
-import com.vaadin.server.VaadinSession;
-
-import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
-import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;
+import java.io.IOException;
 
 /**
  * Used to trigger authn request redirect. 
@@ -24,7 +22,7 @@ import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;
  */
 public class VaadinRedirectRequestHandler extends AbstractRedirectRequestHandler
 {
-	static final String REMOTE_AUTHN_CONTEXT = SAMLRetrieval.class.getName() + ".REMOTE_AUTHN_CONTEXT";
+	public static final String REMOTE_AUTHN_CONTEXT = SAMLRetrieval.class.getName() + ".REMOTE_AUTHN_CONTEXT";
 	
 	public VaadinRedirectRequestHandler()
 	{
@@ -33,7 +31,7 @@ public class VaadinRedirectRequestHandler extends AbstractRedirectRequestHandler
 	
 	@Override
 	protected boolean handleRequestInternal(Object contextO, VaadinSession vaadinSession,
-			VaadinRequest request, VaadinResponse response) throws IOException
+	                                        VaadinRequest request, VaadinResponse response) throws IOException
 	{
 		RemoteAuthnContext context = (RemoteAuthnContext)contextO;
 		HttpServletResponse proxiedResponse = VaadinResponseToServletProxy

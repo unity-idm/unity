@@ -47,12 +47,14 @@ import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
+import javax.annotation.security.PermitAll;
 import java.util.*;
 
 import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROUTING_SERVLET_PATH;
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_UI_SERVLET_PATH;
 
-
-@Route(value = "/")
+@PermitAll
+@Route(value = OAUTH_UI_SERVLET_PATH)
 class OAuthAuthzView extends Composite<Div>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzView.class);

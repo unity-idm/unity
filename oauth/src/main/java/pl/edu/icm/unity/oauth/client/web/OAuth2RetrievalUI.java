@@ -1,77 +1,70 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.server.RequestHandler;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
-
-import com.vaadin.server.Page;
-import com.vaadin.server.RequestHandler;
-import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.Component;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.webui.UrlHelper;
-import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
-import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
-import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import io.imunity.vaadin.auth.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
+import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * UI part of OAuth retrieval. Shows a single provider, redirects to it if requested.
  * @author K. Benedyczak
  */
-public class OAuth2RetrievalUI implements VaadinAuthenticationUI
+public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
 	
 	private final MessageSource msg;
-	private final ImageAccessService imageAccessService;
+	private final VaadinLogoImageLoader imageAccessService;
 	private final OAuthExchange credentialExchange;
 	private final String configKey;
 	private final String idpKey;
-	private final Context context;
+	private final VaadinAuthentication.Context context;
 	private final AuthenticationStepContext authenticationStepContext;
-	
-	private AuthenticationCallback callback;
+	private final NotificationPresenter notificationPresenter;
+
+	private VaadinAuthentication.AuthenticationCallback callback;
 	private String redirectParam;
 
-	private Component main;
+	private VerticalLayout main;
 
 	private IdPAuthNComponent idpComponent;
 
 	private ExpectedIdentity expectedIdentity;
 
 
-	public OAuth2RetrievalUI(MessageSource msg, ImageAccessService imageAccessService, OAuthExchange credentialExchange,
-			ExecutorsService executorsService, 
-			String configKey, Context context, 
-			AuthenticationStepContext authenticationStepContext)
+	public OAuth2RetrievalUI(MessageSource msg, VaadinLogoImageLoader imageAccessService, OAuthExchange credentialExchange,
+	                         String configKey, VaadinAuthentication.Context context,
+	                         AuthenticationStepContext authenticationStepContext,
+	                         NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
@@ -80,6 +73,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		this.configKey = configKey;
 		this.context = context;
 		this.authenticationStepContext = authenticationStepContext;
+		this.notificationPresenter = notificationPresenter;
 		initUI();
 	}
 
@@ -96,8 +90,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), name);
-		idpComponent.addClickListener(event -> startLogin());
-		idpComponent.setWidth(100, Unit.PERCENTAGE);
+		idpComponent.addButtonClickListener(event -> startLogin());
+		idpComponent.setWidthFull();
 		return idpComponent;
 	}
 	
@@ -111,11 +105,13 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
 
-		Resource logo = imageAccessService.getConfiguredImageResourceFromNullableUri(logoURI)
-				.orElse(Images.empty.getResource());
+		Image logo = imageAccessService.loadImageFromUri(logoURI)
+				.orElse(new Image());
+		logo.getStyle().set("max-height", "1.5rem");
+		logo.getStyle().set("padding-top", "0.25em");
 
 		String signInLabel;
-		if (context == Context.LOGIN)
+		if (context == VaadinAuthentication.Context.LOGIN)
 			signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
 		else
 			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", name);
@@ -130,7 +126,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	}
 	
 	@Override
-	public void setAuthenticationCallback(AuthenticationCallback callback)
+	public void setAuthenticationCallback(VaadinAuthentication.AuthenticationCallback callback)
 	{
 		this.callback = callback;
 	}
@@ -144,12 +140,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public Resource getImage()
+	public Image getImage()
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
-		return imageAccessService.getConfiguredImageResourceFromNullableUri(logoURI).orElse(null);
+		return imageAccessService.loadImageFromUri(logoURI).orElse(null);
 	}
 
 	@Override
@@ -183,28 +179,28 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	private void startFreshLogin(WrappedSession session)
 	{
-		try
+		UI.getCurrent().getPage().fetchCurrentURL(currentRelativeURI ->
 		{
-			String currentRelativeURI = UrlHelper.getCurrentVaadingRelativeURI();
-			LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
-			OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
-					authenticationStepContext, loginMachineDetails,  
-					currentRelativeURI, callback.getTriggeringContext());
-			idpComponent.setEnabled(false);
-			callback.onStartedAuthentication();
-			context.setReturnUrl(currentRelativeURI);
-			session.setAttribute(RedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
-		} catch (Exception e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
-			log.error("Can not create OAuth2 request", e);
-			clear();
-			return;
-		}
-		
-		URI requestURI = Page.getCurrent().getLocation();
-		String servletPath = requestURI.getPath();
-		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
+			try
+			{
+				LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
+				OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
+						authenticationStepContext, loginMachineDetails,
+						currentRelativeURI.getPath(), callback.getTriggeringContext());
+				idpComponent.setEnabled(false);
+				callback.onStartedAuthentication();
+				String path = currentRelativeURI.getPath() + (currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "");
+				context.setReturnUrl(path);
+				session.setAttribute(RedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
+			} catch (Exception e)
+			{
+				notificationPresenter.showError(msg.getMessage("OAuth2Retrieval.configurationError"), e.getMessage());
+				log.error("Can not create OAuth2 request", e);
+				clear();
+				return;
+			}
+			UI.getCurrent().getPage().open(currentRelativeURI.getPath() + "?" + redirectParam, null);
+	});
 	}
 
 	@Override

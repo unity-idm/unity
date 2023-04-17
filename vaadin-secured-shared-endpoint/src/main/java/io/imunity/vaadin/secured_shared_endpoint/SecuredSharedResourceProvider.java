@@ -7,11 +7,10 @@ package io.imunity.vaadin.secured_shared_endpoint;
 
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
 
-
-class SecuredSharedResourceProvider extends CustomResourceProvider
+public class SecuredSharedResourceProvider extends CustomResourceProvider
 {
-	SecuredSharedResourceProvider()
+	public SecuredSharedResourceProvider()
 	{
-		super("vaadin-endpoint-common", "vaadin-enquiry");
+		super("vaadin-endpoint-common", "vaadin-authentication", "vaadin-enquiry");
 	}
 }

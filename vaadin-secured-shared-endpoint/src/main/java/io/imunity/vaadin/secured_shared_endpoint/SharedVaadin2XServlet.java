@@ -5,19 +5,21 @@
 
 package io.imunity.vaadin.secured_shared_endpoint;
 
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
+import io.imunity.vaadin.auth.SecuredSpringVaadin2XServletService;
 import io.imunity.vaadin.endpoint.common.SpringContextProvider;
-import io.imunity.vaadin.endpoint.common.SpringVaadin2XServletService;
 
+@CssImport("./styles/custom-lumo-theme.css")
 public class SharedVaadin2XServlet extends VaadinServlet
 {
 	@Override
 	protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) throws ServiceException
 	{
-		SpringVaadin2XServletService service = new SpringVaadin2XServletService(this, deploymentConfiguration, SpringContextProvider.getContext());
+		SecuredSpringVaadin2XServletService service = new SecuredSpringVaadin2XServletService(this, deploymentConfiguration, SpringContextProvider.getContext());
 		service.init();
 		return service;
 	}

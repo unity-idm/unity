@@ -50,15 +50,17 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
+import javax.annotation.security.PermitAll;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppEndpoint;
 import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH;
+import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_UI_SERVLET_PATH;
 
-
-@Route(value = "/")
+@PermitAll
+@Route(value = SAML_UI_SERVLET_PATH)
 class SamlIdPWebView extends Composite<Div>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebView.class);

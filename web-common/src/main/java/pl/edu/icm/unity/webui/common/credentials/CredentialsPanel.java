@@ -35,7 +35,7 @@ import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -54,7 +54,7 @@ public class CredentialsPanel extends VerticalLayout
 	private TokensManagement tokenMan;
 	private MessageSource msg;
 	private Entity entity;
-	private final AdditionalAuthnHandler additionalAuthnHandler;
+	private final AdditionalAuthnHandlerV8 additionalAuthnHandler;
 	private final long entityId;
 	private final boolean enableAdminActions;
 	private final boolean disable2ndFactorOptIn;
@@ -67,7 +67,7 @@ public class CredentialsPanel extends VerticalLayout
 	/**
 	 * @param disableAdminActions if true then admin-only action buttons (credential reset/outdate) are not shown.
 	 */
-	public CredentialsPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId, CredentialManagement credMan,
+	public CredentialsPanel(AdditionalAuthnHandlerV8 additionalAuthnHandler, MessageSource msg, long entityId, CredentialManagement credMan,
 	                        EntityCredentialManagement ecredMan, EntityManagement entityMan,
 	                        CredentialRequirementManagement credReqMan,
 	                        CredentialEditorRegistryV8 credEditorReg, TokensManagement tokenMan,

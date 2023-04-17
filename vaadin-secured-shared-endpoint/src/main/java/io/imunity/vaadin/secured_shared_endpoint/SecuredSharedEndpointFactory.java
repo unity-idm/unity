@@ -6,6 +6,7 @@
 
 package io.imunity.vaadin.secured_shared_endpoint;
 
+import io.imunity.vaadin.auth.VaadinAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,6 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import java.util.Collections;
@@ -59,7 +59,7 @@ public class SecuredSharedEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new Vaadin82XEndpointWithSandbox(server, advertisedAddrProvider, msg, applicationContext,
+		return new Vaadin2XEndpointWithSandbox(server, advertisedAddrProvider, msg, applicationContext,
 				new SecuredSharedResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, SharedVaadin2XServlet.class);
 	}
 }

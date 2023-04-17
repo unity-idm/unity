@@ -1,19 +1,10 @@
 /*
- * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
@@ -28,12 +19,19 @@ import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.Set;
+
 /**
  * Support for automatic proxy authentication. Automatically redirects to external AS.
  * 
  * @author K. Benedyczak
  */
-class OAuthProxyAuthnHandler
+public class OAuthProxyAuthnHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH,
 			OAuthProxyAuthnHandler.class);
@@ -41,7 +39,7 @@ class OAuthProxyAuthnHandler
 	private final OAuthExchange credentialExchange;
 	private final String authenticatorId;
 	
-	OAuthProxyAuthnHandler(OAuthExchange credentialExchange, String authenticatorId)
+	public OAuthProxyAuthnHandler(OAuthExchange credentialExchange, String authenticatorId)
 	{
 		this.credentialExchange = credentialExchange;
 		this.authenticatorId = authenticatorId;
@@ -73,7 +71,7 @@ class OAuthProxyAuthnHandler
 		return authnOption;
 	}
 
-	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
+	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
 		String idpKey = getIdpConfigKey(httpRequest);

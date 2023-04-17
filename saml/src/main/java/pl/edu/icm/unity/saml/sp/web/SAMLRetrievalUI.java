@@ -1,24 +1,17 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.server.RequestHandler;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
-
-import com.vaadin.server.Page;
-import com.vaadin.server.RequestHandler;
-import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.Component;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
@@ -28,15 +21,14 @@ import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.webui.UrlHelper;
-import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
-import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
-import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
+import io.imunity.vaadin.auth.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
+import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The UI part of the remote SAML authn. Shows widget with a single, chosen IdP,
@@ -46,7 +38,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  * 
  * @author K. Benedyczak
  */
-public class SAMLRetrievalUI implements VaadinAuthenticationUI
+public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
 
@@ -57,18 +49,20 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private final String idpKey;
 	private final SamlContextManagement samlContextManagement;
 	private final LogoExposingService logoExposingService;
-	
-	private IdPVisalSettings configuration;
+	private final NotificationPresenter notificationPresenter;
+
+	private final IdPVisalSettings configuration;
 	private Set<String> tags;
 	private Component main;
-	private final Context context;
+	private final VaadinAuthentication.Context context;
 	private IdPAuthNComponent idpComponent;
-	private AuthenticationCallback callback;
+	private VaadinAuthentication.AuthenticationCallback callback;
 	private String redirectParam;
 
 	public SAMLRetrievalUI(MessageSource msg, SAMLExchange credentialExchange,
-			SamlContextManagement samlContextManagement, TrustedIdPKey configKey,
-			Context context, AuthenticationStepContext authenticationStepContext, LogoExposingService logoExposingService)
+	                       SamlContextManagement samlContextManagement, TrustedIdPKey configKey,
+	                       VaadinAuthentication.Context context, AuthenticationStepContext authenticationStepContext,
+	                       LogoExposingService logoExposingService, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
@@ -79,6 +73,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		this.configuration = credentialExchange.getVisualSettings(configKey, msg.getLocale());
 		this.context = context;
 		this.logoExposingService = logoExposingService;
+		this.notificationPresenter = notificationPresenter;
 		initUI();
 	}
 
@@ -94,31 +89,29 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(),
 				configuration.name);
 		idpComponent.addClickListener(event -> startLogin());
-		idpComponent.setWidth(100, Unit.PERCENTAGE);
+		idpComponent.setWidthFull();
 		return idpComponent;
 	}
 
 	private void initUI()
 	{
 		redirectParam = installRequestHandler();
-		Resource logo;
-		if (configuration.logoURI == null)
-		{
-			logo = Images.empty.getResource();
-		}
+		Image logo;
+		if (configuration.getLogoURI() == null)
+			logo = new Image();
 		else
-		{
 			logo = getImage();
-		}
-		
+		logo.getStyle().set("max-height", "1.5rem");
+		logo.getStyle().set("padding-top", "0.25em");
+
 		String signInLabel;
-		if (context == Context.LOGIN)
+		if (context == VaadinAuthentication.Context.LOGIN)
 			signInLabel = msg.getMessage("AuthenticationUI.signInWith", configuration.name);
 		else
 			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", configuration.name);
 		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
 		idpComponent.addClickListener(event -> startLogin());
-		idpComponent.setWidth(100, Unit.PERCENTAGE);	
+		idpComponent.setWidthFull();
 					
 		this.tags = new HashSet<>(configuration.tags);
 		this.tags.remove(configuration.name);
@@ -155,34 +148,35 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	private void startFreshLogin(WrappedSession session)
 	{
-		String currentRelativeURI = UrlHelper.getCurrentVaadingRelativeURI();
-		RemoteAuthnContext context;
-		try
+		UI.getCurrent().getPage().fetchCurrentURL(currentRelativeURI ->
 		{
-			LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
-			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI, 
-					authenticationStepContext, 
-					loginMachineDetails, currentRelativeURI, callback.getTriggeringContext());
-		} catch (Exception e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
-			log.error("Can not create SAML request", e);
-			clear();
-			return;
-		}
-		log.info("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
-		idpComponent.setEnabled(false);
-		callback.onStartedAuthentication();
-		session.setAttribute(VaadinRedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
-		samlContextManagement.addAuthnContext(context);
+			RemoteAuthnContext context;
+			String path = currentRelativeURI.getPath() + (currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "");
+			try
+			{
+				LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
+				context = credentialExchange.createSAMLRequest(configKey, path,
+						authenticationStepContext,
+						loginMachineDetails, path, callback.getTriggeringContext());
+			} catch (Exception e)
+			{
+				notificationPresenter.showError(msg.getMessage("WebSAMLRetrieval.configurationError"), e.getMessage());
+				log.error("Can not create SAML request", e);
+				clear();
+				return;
+			}
+			log.info("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
+			idpComponent.setEnabled(false);
+			callback.onStartedAuthentication();
+			session.setAttribute(VaadinRedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
+			samlContextManagement.addAuthnContext(context);
 
-		URI requestURI = Page.getCurrent().getLocation();
-		String servletPath = requestURI.getPath();
-		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
+			UI.getCurrent().getPage().open(path + "?" + redirectParam, null);
+		});
 	}
 
 	@Override
-	public void setAuthenticationCallback(AuthenticationCallback callback)
+	public void setAuthenticationCallback(VaadinAuthentication.AuthenticationCallback callback)
 	{
 		this.callback = callback;
 	}
@@ -194,7 +188,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public Resource getImage()
+	public Image getImage()
 	{
 		return logoExposingService.getAsResource(configuration, configKey);
 	}

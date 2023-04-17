@@ -9,7 +9,11 @@ import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.openid.connect.sdk.OIDCError;
 import com.vaadin.flow.server.startup.ServletContextListeners;
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.vaadin.endpoint.common.Vaadin82XEndpoint;
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.endpoint.common.AuthenticationFilter;
+import io.imunity.vaadin.endpoint.common.EopException;
+import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -44,13 +48,10 @@ import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
-import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.*;
-import pl.edu.icm.unity.webui.authn.AuthenticationFilter.NoSessionFilter;
+import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -66,7 +67,7 @@ import java.util.EnumSet;
  * OAuth2 authorization endpoint, Vaadin based.
  */
 @PrototypeComponent
-public class OAuthAuthzWebEndpoint extends Vaadin82XEndpoint
+public class OAuthAuthzWebEndpoint extends Vaadin2XEndpoint
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, OAuthAuthzWebEndpoint.class);
 
@@ -105,7 +106,7 @@ public class OAuthAuthzWebEndpoint extends Vaadin82XEndpoint
 			OAuthScopesService scopeService)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, new OAuthResourceProvider(),
-				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter, SimpleVaadin2XServlet.class);
+				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter, OAuthVaadin2XServlet.class);
 		this.freemarkerHandler = freemarkerHandler;
 		this.attributesManagement = attributesManagement;
 		this.identitiesManagement = identitiesManagement;
@@ -134,6 +135,17 @@ public class OAuthAuthzWebEndpoint extends Vaadin82XEndpoint
 	}
 
 	@Override
+	public synchronized ServletContextHandler getServletContextHandler()
+	{
+		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows,
+				new OAuthCancelHandler(
+						new OAuthResponseHandler(applicationContext.getBean(OAuthSessionService.class),
+								idpReporterFactory.getForEndpoint(description.getEndpoint()), freemarkerHandler)));
+		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);
+		return context;
+	}
+
+	@Override
 	protected ServletContextHandler getServletContextHandlerOverridable(WebAppContext webAppContext)
 	{
 		if (context != null)
@@ -156,22 +168,19 @@ public class OAuthAuthzWebEndpoint extends Vaadin82XEndpoint
 
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_ROUTING_SERVLET_PATH),
 				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, scopeService, serverConfig);
-		ServletHolder samlParseHolder = createServletHolder(samlParseServlet, true);
+		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
 		context.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
-		OAuthSessionService oauthSessionService = applicationContext.getBean(OAuthSessionService.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 
-		ServletHolder routingServletHolder = createServletHolder(new RoutingServlet(OAUTH_CONSENT_DECIDER_SERVLET_PATH),
-				true);
+		ServletHolder routingServletHolder = createServletHolder(new RoutingServlet(OAUTH_CONSENT_DECIDER_SERVLET_PATH));
 		context.addServlet(routingServletHolder, OAUTH_ROUTING_SERVLET_PATH + "/*");
 
-		Servlet oauthConsentDeciderServlet = dispatcherServletFactory.getInstance(OAUTH_UI_SERVLET_PATH,
-				AUTHENTICATION_PATH, description);
-		ServletHolder oauthConsentDeciderHolder = createServletHolder(oauthConsentDeciderServlet, true);
+		Servlet oauthConsentDeciderServlet = dispatcherServletFactory.getInstance(getServletUrl(OAUTH_UI_SERVLET_PATH), description);
+		ServletHolder oauthConsentDeciderHolder = createServletHolder(oauthConsentDeciderServlet);
 		context.addServlet(oauthConsentDeciderHolder, OAUTH_CONSENT_DECIDER_SERVLET_PATH + "/*");
 
 		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
@@ -186,9 +195,7 @@ public class OAuthAuthzWebEndpoint extends Vaadin82XEndpoint
 						.asList(AUTHENTICATION_PATH, OAUTH_CONSENT_DECIDER_SERVLET_PATH)))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 
-		authnFilter = new AuthenticationFilter(Collections.singletonList(OAUTH_ROUTING_SERVLET_PATH),
-				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor,
-				new NoSessionFilterImpl());
+		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor, new NoSessionFilterImpl());
 		context.addFilter(new FilterHolder(authnFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
@@ -203,27 +210,10 @@ public class OAuthAuthzWebEndpoint extends Vaadin82XEndpoint
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		EndpointRegistrationConfiguration registrationConfiguration = genericEndpointProperties
-				.getRegistrationConfiguration();
-		authenticationServlet = new UnityVaadinServlet(applicationContext, AuthenticationUI.class.getSimpleName(),
-				description, authenticationFlows, registrationConfiguration, properties,
-				getBootstrapHandler4Authn(OAUTH_ROUTING_SERVLET_PATH));
-	
-		OAuthCancelHandler oAuthCancelHandler = new OAuthCancelHandler(
-				new OAuthResponseHandler(oauthSessionService, 
-						idpReporterFactory.getForEndpoint(description.getEndpoint()), freemarkerHandler));
-		authenticationServlet.setCancelHandler(oAuthCancelHandler);
-
-		ServletHolder authnServletHolder = createVaadin8ServletHolder(authenticationServlet);
-		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
-		context.addServlet(authnServletHolder, "/VAADIN/vaadinBootstrap.js*");
-		context.addServlet(authnServletHolder, "/VAADIN/widgetsets/*");
-		context.addServlet(authnServletHolder, "/VAADIN/themes/*");
-
 		return context;
 	}
 	
-	private static class NoSessionFilterImpl implements NoSessionFilter
+	private static class NoSessionFilterImpl implements io.imunity.vaadin.endpoint.common.AuthenticationFilter.NoSessionFilter
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NoSessionFilterImpl.class);
 		

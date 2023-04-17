@@ -14,8 +14,10 @@ import com.vaadin.flow.router.HasErrorParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.MessageSource;
 
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletResponse;
 
+@PermitAll
 @Tag(Tag.DIV)
 public class IllegalAccessErrorPage extends Component implements HasErrorParameter<IllegalAccessException>
 {

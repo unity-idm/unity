@@ -21,11 +21,12 @@ import static java.util.Arrays.stream;
 public abstract class CustomResourceProvider implements ResourceProvider
 {
 	private final Map<String, CachedStreamData> cache = new ConcurrentHashMap<>();
+	private final String currentClassPathElement;
 	private final Set<String> chosenClassPathElement;
 
 	public CustomResourceProvider(String... chosenModules)
 	{
-		String currentClassPathElement = getCurrentClassPathElement();
+		this.currentClassPathElement = getCurrentClassPathElement();
 
 		Set<String> classPathElements = stream(System.getProperty("java.class.path").split(File.pathSeparator))
 			.filter(classPathElement -> stream(chosenModules).anyMatch(classPathElement::contains))
@@ -69,8 +70,18 @@ public abstract class CustomResourceProvider implements ResourceProvider
 		Iterable<URL> iterable = getUrls(path);
 		return StreamSupport.stream(iterable.spliterator(), false)
 				.filter(url -> chosenClassPathElement.stream()
-						.anyMatch(classPathElement -> url.toString().replace("jar:", "").startsWith(classPathElement)))
-			.collect(Collectors.toList());
+						.anyMatch(classPathElement -> url.toString().replace("jar:", "").startsWith(classPathElement))
+				)
+				.sorted(Comparator.comparing(url -> url.toString().replace("jar:", ""), (arg1, arg2) ->
+						{
+							if(arg1.startsWith(currentClassPathElement))
+								return -1;
+							if(arg2.startsWith(currentClassPathElement))
+								return 1;
+							return 0;
+						}
+				))
+				.collect(Collectors.toList());
 	}
 
 	private Iterable<URL> getUrls(String path)

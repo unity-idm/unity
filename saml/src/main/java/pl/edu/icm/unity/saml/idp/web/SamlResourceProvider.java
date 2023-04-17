@@ -6,13 +6,11 @@
 package pl.edu.icm.unity.saml.idp.web;
 
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
-import org.springframework.stereotype.Component;
 
-@Component
-class SamlResourceProvider extends CustomResourceProvider
+public class SamlResourceProvider extends CustomResourceProvider
 {
-	SamlResourceProvider()
+	public SamlResourceProvider()
 	{
-		super("vaadin-endpoint-common");
+		super("vaadin-endpoint-common", "vaadin-authentication");
 	}
 }

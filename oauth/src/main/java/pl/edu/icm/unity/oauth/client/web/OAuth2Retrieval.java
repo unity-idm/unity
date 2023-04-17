@@ -4,34 +4,28 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import io.imunity.vaadin.auth.ProxyAuthenticationCapable;
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
-import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
-import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * OAuth2 authn retrieval. It is responsible for browser redirection to the OAuth provider with an authorization
@@ -39,23 +33,23 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange> 
+public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	implements VaadinAuthentication, ProxyAuthenticationCapable
 {
-	public static final String NAME = "web-oauth2";
+	public static final String NAME = "vaadin-oauth2";
 	public static final String DESC = "OAuth2RetrievalFactory.desc";
-	private MessageSource msg;
-	private ImageAccessService imageService;
-	private ExecutorsService executorsService;
+	private final MessageSource msg;
+	private final VaadinLogoImageLoader imageService;
+	private final NotificationPresenter notificationPresenter;
 	private OAuthProxyAuthnHandler oAuthProxyAuthnHandler;
-	
+
 	@Autowired
-	public OAuth2Retrieval(MessageSource msg, ImageAccessService imageService, 
-			ExecutorsService executorsService)
+	public OAuth2Retrieval(MessageSource msg, VaadinLogoImageLoader imageService,
+	                       NotificationPresenter notificationPresenter)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
-		this.executorsService = executorsService;
+		this.notificationPresenter = notificationPresenter;
 		this.imageService = imageService;
 	}
 
@@ -89,9 +83,10 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 					key.length()-1);
 			AuthenticationOptionKey authenticationOptionKey = 
 					new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
-			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange,  
-					executorsService, key, context,
-					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey)));
+			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange,
+					key, context,
+					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey),
+					notificationPresenter));
 		}
 		return ret;
 	}

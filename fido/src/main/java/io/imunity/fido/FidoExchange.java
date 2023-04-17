@@ -5,14 +5,14 @@
 package io.imunity.fido;
 
 import io.imunity.fido.service.FidoException;
-import io.imunity.fido.web.v8.FidoRetrieval;
+import io.imunity.fido.web.v8.FidoRetrievalV8;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 
 import java.util.AbstractMap;
 
 /**
- * Handles interaction between Credential Retrieval {@link FidoRetrieval} and Credential Verificator {@link io.imunity.fido.service.FidoCredentialVerificator}.
+ * Handles interaction between Credential Retrieval {@link FidoRetrievalV8} and Credential Verificator {@link io.imunity.fido.service.FidoCredentialVerificator}.
  * Performs authentication validation.
  *
  * @author R. Ledzinski

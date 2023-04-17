@@ -46,11 +46,10 @@ class ASConsentDeciderServletFactory
 		this.msg = msg;
 	}
 
-	ASConsentDeciderServlet getInstance(String oauthUiServletPath, String authenticationUIServletPath,
-			ResolvedEndpoint endpoint)
+	ASConsentDeciderServlet getInstance(String oauthUiServletPath, ResolvedEndpoint endpoint)
 	{
 		return new ASConsentDeciderServlet(preferencesMan, idpEngine, processor, oauthSessionService,
-				oauthUiServletPath, authenticationUIServletPath, enquiryManagement, policyAgreementManagement,
+				oauthUiServletPath, enquiryManagement, policyAgreementManagement,
 				idpStatisticReporterFactory.getForEndpoint(endpoint.getEndpoint()), msg);
 	}
 }

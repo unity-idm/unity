@@ -22,8 +22,11 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 
+import javax.annotation.security.PermitAll;
+
 import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
+@PermitAll
 @Route("/sec/account-association")
 class AssociationAccountView extends Composite<VerticalLayout> implements HasDynamicTitle
 {

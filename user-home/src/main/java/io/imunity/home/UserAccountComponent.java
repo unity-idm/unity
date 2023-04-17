@@ -4,11 +4,11 @@
  */
 package io.imunity.home;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import io.imunity.home.externalApplication.TrustedApplicationTab;
+import io.imunity.home.iddetails.*;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,24 +16,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-
-import io.imunity.home.externalApplication.TrustedApplicationTab;
-import io.imunity.home.iddetails.EntityDetailsWithActions;
-import io.imunity.home.iddetails.EntityRemovalButton;
-import io.imunity.home.iddetails.UserAttributesPanel;
-import io.imunity.home.iddetails.UserDetailsPanel;
-import io.imunity.home.iddetails.UserIdentitiesPanel;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
-import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -50,7 +35,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
-import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -62,6 +47,11 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorControllerV8;
 import pl.edu.icm.unity.webui.forms.enquiry.StickyEnquiryUpdatableComponent;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Component with user's account management UI.
@@ -91,7 +81,7 @@ public class UserAccountComponent extends VerticalLayout
 	private IdentityTypeSupport idTypeSupport;
 	private EntityManagement insecureIdsMan;
 	private TokensManagement tokenMan;
-	private AdditionalAuthnHandler additionalAuthnHandler;
+	private AdditionalAuthnHandlerV8 additionalAuthnHandler;
 	private EnquiryResponseEditorControllerV8 enquiryResController;
 	private final ObjectFactory<TrustedApplicationTab> externalAppFactory;
 
@@ -102,7 +92,7 @@ public class UserAccountComponent extends VerticalLayout
 	                            AttributeSupport attrMan, StandardWebLogoutHandler authnProcessor,
 	                            AttributeHandlerRegistryV8 attributeHandlerRegistry, AttributesManagement attributesMan,
 	                            IdentityEditorRegistryV8 identityEditorRegistry, InputTranslationEngine inputTranslationEngine,
-	                            IdentityTypeSupport idTypeSupport, TokensManagement tokenMan, AdditionalAuthnHandler additionalAuthnHandler,
+	                            IdentityTypeSupport idTypeSupport, TokensManagement tokenMan, AdditionalAuthnHandlerV8 additionalAuthnHandler,
 	                            EnquiryResponseEditorControllerV8 enquiryResController,
 	                            ObjectFactory<TrustedApplicationTab> externalAppFactory)
 	{

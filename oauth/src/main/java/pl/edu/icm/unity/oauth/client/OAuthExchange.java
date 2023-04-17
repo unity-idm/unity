@@ -4,19 +4,18 @@
  */
 package pl.edu.icm.unity.oauth.client;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Optional;
-
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.SerializeException;
-
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
 
 /**
  * Defines comunication of a OAuth verificator and retrieval.

@@ -1,16 +1,15 @@
 /*
- * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import com.vaadin.flow.server.VaadinServletResponse;
+
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
-import javax.servlet.http.HttpServletResponse;
-
-import com.vaadin.server.VaadinServletResponse;
 
 public class VaadinResponseToServletProxy implements InvocationHandler
 {

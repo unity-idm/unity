@@ -4,15 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import java.io.IOException;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
@@ -28,12 +20,18 @@ import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.Set;
+
 /**
  * Support for automatic proxy authentication. Automatically redirects to external IdP.
  * 
  * @author K. Benedyczak
  */
-class SAMLProxyAuthnHandler
+public class SAMLProxyAuthnHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
 			SAMLProxyAuthnHandler.class);
@@ -42,7 +40,7 @@ class SAMLProxyAuthnHandler
 	private final SamlContextManagement samlContextManagement;
 	private final String authenticatorId;
 
-	SAMLProxyAuthnHandler(SAMLExchange credentialExchange, SamlContextManagement samlContextManagement, 
+	public SAMLProxyAuthnHandler(SAMLExchange credentialExchange, SamlContextManagement samlContextManagement,
 			String authenticatorId)
 	{
 		this.credentialExchange = credentialExchange;
@@ -50,7 +48,7 @@ class SAMLProxyAuthnHandler
 		this.authenticatorId = authenticatorId;
 	}
 	
-	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
+	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
 		TrustedIdPKey idpKey = getIdpConfigKey(httpRequest);

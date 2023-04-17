@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,8 @@ import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import io.imunity.vaadin.auth.ProxyAuthenticationCapable;
+import io.imunity.vaadin.auth.VaadinAuthentication;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,29 +29,31 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Vaadin part of the SAML authn, creates the UI component driving the SAML auth, the {@link SAMLRetrievalUI}. 
+ * Vaadin part of the SAML authn, creates the UI component driving the SAML auth, the {@link SAMLRetrievalUI}.
  * @see SAMLRetrievalFactory
  */
 @PrototypeComponent
-public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> 
+public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 		implements VaadinAuthentication, ProxyAuthenticationCapable
 {
-	public static final String NAME = "web-saml2";
+	public static final String NAME = "vaadin-saml2";
 	public static final String DESC = "WebSAMLRetrievalFactory.desc";
-	
-	private MessageSource msg;
-	private SamlContextManagement samlContextManagement;
+
+	private final MessageSource msg;
+	private final SamlContextManagement samlContextManagement;
+	private final NotificationPresenter notificationPresenter;
+	private final LogoExposingService logoExposingService;
 	private SAMLProxyAuthnHandler proxyAuthnHandler;
-	private LogoExposingService logoExposingService;
 
 	@Autowired
 	public SAMLRetrieval(MessageSource msg, SamlContextManagement samlContextManagement,
-			LogoExposingService logoExposingService)
+	                     LogoExposingService logoExposingService, NotificationPresenter notificationPresenter)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.samlContextManagement = samlContextManagement;
 		this.logoExposingService = logoExposingService;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
@@ -82,7 +85,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 						samlContextManagement, 
 						idp.key, context,
 						new AuthenticationStepContext(authnStepContext, authenticationOptionKey),
-						logoExposingService));
+						logoExposingService, notificationPresenter));
 			}
 		}
 		return ret;

@@ -24,6 +24,7 @@ import io.imunity.vaadin.elements.MenuButton;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
+import javax.annotation.security.PermitAll;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static java.util.stream.Collectors.toSet;
 
+@PermitAll
 @Route(value = "/groups", layout = UpManMenu.class)
 public class GroupsView extends UnityViewComponent
 {

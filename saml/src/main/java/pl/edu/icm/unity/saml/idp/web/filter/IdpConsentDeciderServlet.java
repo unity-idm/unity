@@ -8,7 +8,10 @@ import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.security.dsig.DSigException;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.server.Authentication;
+import org.eclipse.jetty.server.Request;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +34,6 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
@@ -43,14 +45,12 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
@@ -81,9 +81,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected SSOResponseHandler ssoResponseHandler;
 	protected SessionManagement sessionMan;
 	protected String samlUiServletPath;
-	private String authenticationUIServletPath;
 	protected AttributeTypeSupport aTypeSupport;
-	private EnquiryManagement enquiryManagement;
+	private final EnquiryManagement enquiryManagement;
 	private final PolicyAgreementManagement policyAgreementsMan;
 	private final FreemarkerAppHandler freemarker;
 	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
@@ -111,10 +110,9 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 	}
 
-	protected void init(String samlUiServletPath, String authenticationUIServletPath, Endpoint endpoint)
+	protected void init(String samlUiServletPath, Endpoint endpoint)
 	{
 		this.samlUiServletPath = samlUiServletPath;
-		this.authenticationUIServletPath = authenticationUIServletPath;
 		this.ssoResponseHandler = new SSOResponseHandler(freemarker, idpStatisticReporterFactory, endpoint);
 	}
 	
@@ -122,15 +120,9 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException
 	{
-		//if we got this request here it means that this is a request from Authentication UI
-		// which was not reloaded with something new - either regular endpoint UI or navigated away with a redirect. 
-		if (VaadinRequestMatcher.isVaadinRequest(req))
+		if (((Request) req).getAuthentication().equals(Authentication.UNAUTHENTICATED))
 		{
-			String forwardURI = authenticationUIServletPath;
-			if (req.getPathInfo() != null) 
-				forwardURI += req.getPathInfo();
-			log.debug("Request to Vaadin internal address will be forwarded to authN {}", req.getRequestURI());
-			req.getRequestDispatcher(forwardURI).forward(req, resp);
+			resp.sendRedirect(samlUiServletPath);
 			return;
 		}
 		super.service(req, resp);
@@ -163,7 +155,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	}
 	
 	protected void serviceInterruptible(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException, EopException
+			throws IOException, EopException
 	{
 		SAMLAuthnContext samlCtx = getSamlContext(req);
 		SPSettings preferences;
@@ -183,8 +175,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		}
 		if (isInteractiveUIRequired(preferences, samlCtx))
 		{
-			log.trace("Interactive step is required for SAML request, forwarding to UI");
-			RoutingServlet.forwardTo(samlUiServletPath, req, resp);
+			log.trace("Interactive step is required for SAML request, redirect to UI");
+			resp.sendRedirect(samlUiServletPath);
 		} else
 		{
 			log.trace("Consent is not required for SAML request, processing immediatelly");
@@ -381,10 +373,10 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		private ObjectFactory<IdpConsentDeciderServlet> factory;
 		
 		@Override
-		public IdpConsentDeciderServlet getInstance(String uiServletPath, String authenticationUIServletPath, Endpoint endpoint)
+		public IdpConsentDeciderServlet getInstance(String uiServletPath, Endpoint endpoint)
 		{
 			IdpConsentDeciderServlet ret = factory.getObject();
-			ret.init(uiServletPath, authenticationUIServletPath, endpoint);
+			ret.init(uiServletPath, endpoint);
 			return ret;
 		}
 	}

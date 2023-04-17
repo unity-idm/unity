@@ -27,8 +27,8 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
-import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8.AuthnResult;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -59,11 +59,11 @@ public class UserAttributesPanel
 	private List<AttributeViewer> viewers;
 	private EntityManagement idsMan;
 	private AttributeSupport atMan;
-	private final AdditionalAuthnHandler additionalAuthnHandler;
+	private final AdditionalAuthnHandlerV8 additionalAuthnHandler;
 	private GroupOfGroups componentsGroup;
 	
 	public UserAttributesPanel(
-			AdditionalAuthnHandler additionalAuthnHandler,
+			AdditionalAuthnHandlerV8 additionalAuthnHandler,
 			MessageSource msg,
 			AttributeHandlerRegistryV8 attributeHandlerRegistry,
 			AttributesManagement attributesMan, EntityManagement idsMan,

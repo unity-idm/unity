@@ -9,7 +9,9 @@ import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import io.imunity.vaadin.endpoint.common.Vaadin82XEndpoint;
+import io.imunity.vaadin.endpoint.common.AuthenticationFilter;
+import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
@@ -58,11 +60,10 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
-import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
-import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.*;
+import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
@@ -82,7 +83,7 @@ import java.util.List;
  */
 @PrototypeComponent
 @Primary
-public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
+public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SamlAuthVaadinEndpoint.class);
 
@@ -158,8 +159,8 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
 			SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
-		super(server, advertisedAddrProvider, msg, applicationContext, new SamlResourceProvider(), SAML_UI_SERVLET_PATH,
-				remoteAuthnResponseProcessingFilter, SimpleVaadin2XServlet.class);
+		super(server, advertisedAddrProvider, msg, applicationContext, new SamlResourceProvider(), SAML_ENTRY_SERVLET_PATH,
+				remoteAuthnResponseProcessingFilter, SamlVaadin2XServlet.class);
 		this.publicEntryPointPath = publicEntryServletPath;
 		this.freemarkerHandler = freemarkerHandler;
 		this.dispatcherServletFactory = dispatcherServletFactory;
@@ -210,7 +211,17 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 	{
 		myMetadataManager.unregisterAll();
 	}
-	
+
+	@Override
+	public synchronized ServletContextHandler getServletContextHandler()
+	{
+		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows,
+				new SamlAuthnCancelHandler(freemarkerHandler, aTypeSupport, idpStatisticReporterFactory,
+						lastAccessAttributeManagement, description.getEndpoint()));
+		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);
+		return context;
+	}
+
 	@Override
 	protected ServletContextHandler getServletContextHandlerOverridable(WebAppContext webAppContext)
 	{
@@ -235,7 +246,7 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 		String samlPublicEntryPointUrl = getServletUrl(publicEntryPointPath);
 		Servlet samlParseServlet = getSamlParseServlet(samlPublicEntryPointUrl, 
 				getServletUrl(SAML_ENTRY_SERVLET_PATH));
-		ServletHolder samlParseHolder = createServletHolder(samlParseServlet, true);
+		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
 		context.addServlet(samlParseHolder, publicEntryPointPath + "/*");
 
 		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*", 
@@ -246,22 +257,22 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		ServletHolder routingServletHolder = createServletHolder(
-				new RoutingServlet(SAML_CONSENT_DECIDER_SERVLET_PATH), true);
+				new RoutingServlet(SAML_CONSENT_DECIDER_SERVLET_PATH));
 		context.addServlet(routingServletHolder, SAML_ENTRY_SERVLET_PATH + "/*");
 		
 		Servlet samlConsentDeciderServlet = dispatcherServletFactory.getInstance(
-				SAML_UI_SERVLET_PATH, AUTHENTICATION_PATH, description.getEndpoint());
-		ServletHolder samlConsentDeciderHolder = createServletHolder(samlConsentDeciderServlet, true);
+				getServletUrl(SAML_UI_SERVLET_PATH), description.getEndpoint());
+		ServletHolder samlConsentDeciderHolder = createServletHolder(samlConsentDeciderServlet);
 		context.addServlet(samlConsentDeciderHolder, SAML_CONSENT_DECIDER_SERVLET_PATH + "/*");
 		
 		String sloAsyncURL = getServletUrl(SAML_SLO_ASYNC_SERVLET_PATH);
 		Servlet samlSLOAsyncServlet = getSLOAsyncServlet(sloAsyncURL);
-		ServletHolder samlSLOAsyncHolder = createServletHolder(samlSLOAsyncServlet, true);
+		ServletHolder samlSLOAsyncHolder = createServletHolder(samlSLOAsyncServlet);
 		context.addServlet(samlSLOAsyncHolder, SAML_SLO_ASYNC_SERVLET_PATH + "/*");
 
 		String sloSyncURL = getServletUrl(SAML_SLO_SOAP_SERVLET_PATH);
 		Servlet samlSLOSyncServlet = getSLOSyncServlet(sloSyncURL);
-		ServletHolder samlSLOSyncHolder = createServletHolder(samlSLOSyncServlet, true);
+		ServletHolder samlSLOSyncHolder = createServletHolder(samlSLOSyncServlet);
 		context.addServlet(samlSLOSyncHolder, SAML_SLO_SOAP_SERVLET_PATH + "/*");
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
@@ -272,13 +283,11 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
 						List.of(AUTHENTICATION_PATH, SAML_CONSENT_DECIDER_SERVLET_PATH))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
-		authnFilter = new AuthenticationFilter(
-				List.of(SAML_ENTRY_SERVLET_PATH),
-				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
+		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows, 
+		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows,
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN),
 				description.getRealm());
@@ -289,27 +298,11 @@ public class SamlAuthVaadinEndpoint extends Vaadin82XEndpoint
 				null, getAuthenticationFlows());
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
-		
-		EndpointRegistrationConfiguration registrationConfiguration = genericEndpointProperties.getRegistrationConfiguration();
-		authenticationServlet = new UnityVaadinServlet(applicationContext, 
-				AuthenticationUI.class.getSimpleName(), description, authenticationFlows,
-				registrationConfiguration, properties, 
-				getBootstrapHandler4Authn(SAML_ENTRY_SERVLET_PATH));
-		
-		CancelHandler cancelHandler = new SamlAuthnCancelHandler(freemarkerHandler, aTypeSupport, idpStatisticReporterFactory,
-				lastAccessAttributeManagement, description.getEndpoint());
-		authenticationServlet.setCancelHandler(cancelHandler);
-		
-		ServletHolder authnServletHolder = createVaadin8ServletHolder(authenticationServlet);
-		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
-		context.addServlet(authnServletHolder, "/VAADIN/vaadinBootstrap.js*");
-		context.addServlet(authnServletHolder, "/VAADIN/widgetsets/*");
-		context.addServlet(authnServletHolder, "/VAADIN/themes/*");
 
 		if (samlConfiguration.publishMetadata)
 		{
 			Servlet metadataServlet = getMetadataServlet(samlPublicEntryPointUrl, sloAsyncURL, sloSyncURL);
-			context.addServlet(createServletHolder(metadataServlet, true), SAML_META_SERVLET_PATH + "/*");
+			context.addServlet(createServletHolder(metadataServlet), SAML_META_SERVLET_PATH + "/*");
 		}
 		return context;
 	}

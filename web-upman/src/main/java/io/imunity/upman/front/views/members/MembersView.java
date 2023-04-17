@@ -25,12 +25,14 @@ import io.imunity.vaadin.elements.SearchField;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
+import javax.annotation.security.PermitAll;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@PermitAll
 @Route(value = "/members", layout = UpManMenu.class)
 @RouteAlias(value = "/", layout = UpManMenu.class)
 public class MembersView extends UnityViewComponent

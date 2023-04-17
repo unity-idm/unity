@@ -14,9 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.MessageSource;
 
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.invoke.MethodHandles;
 
+@PermitAll
 @ParentLayout(UpManMenu.class)
 public class UpmanErrorPage extends UnityViewComponent implements HasErrorParameter<Exception>
 {

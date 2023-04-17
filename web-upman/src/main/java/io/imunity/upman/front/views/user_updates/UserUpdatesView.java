@@ -23,6 +23,7 @@ import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.SearchField;
 import pl.edu.icm.unity.MessageSource;
 
+import javax.annotation.security.PermitAll;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 import static com.vaadin.flow.component.icon.VaadinIcon.BAN;
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE_O;
 
+@PermitAll
 @Route(value = "/user-updates", layout = UpManMenu.class)
 public class UserUpdatesView extends UnityViewComponent
 {

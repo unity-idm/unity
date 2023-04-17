@@ -5,55 +5,23 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.ui.*;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.*;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
-import pl.edu.icm.unity.oauth.client.config.DropboxProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.FacebookProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.GitHubProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.GoogleProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.IntuitProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.LinkedInProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.MicrosoftAzureV2ProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.MicrosoftLiveProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
-import pl.edu.icm.unity.oauth.client.config.OrcidProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.UnityProviderProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.EnableDisableCombo;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GridWithEditor;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.binding.NameValuePairBinding;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -62,6 +30,9 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
+
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * SubView for editing oauth authenticator provider

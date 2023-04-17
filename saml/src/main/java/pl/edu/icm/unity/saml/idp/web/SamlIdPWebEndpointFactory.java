@@ -4,19 +4,18 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
-import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
  * Factory creating {@link SamlAuthVaadinEndpoint} endpoints.

@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
-import java.util.Properties;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+
+import java.util.Properties;
 
 /**
  * Preset configuration for LinkedIn OAuth provider.
@@ -35,7 +35,7 @@ public class LinkedInProviderProperties extends CustomProviderProperties
 				"https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))");
 		setIfUnset(properties, prefix + SCOPES, "r_liteprofile r_basicprofile r_emailaddress");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
-		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/linkedin-small.png");
+		setIfUnset(properties, prefix + ICON_URL, "../unitygw/img/external/linkedin-small.png");
 		setDefaultProfileIfUnset(properties, prefix, "sys:linkedin");
 		return properties;
 	}

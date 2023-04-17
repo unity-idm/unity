@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
@@ -39,10 +39,10 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private long entityId;
 	private boolean simpleMode;
 	private CredentialsPanel ui;
-	private AdditionalAuthnHandler additionalAuthnHandler;
+	private AdditionalAuthnHandlerV8 additionalAuthnHandler;
 	
 	@Autowired
-	public CredentialsChangeDialog(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, CredentialManagement credMan,
+	public CredentialsChangeDialog(AdditionalAuthnHandlerV8 additionalAuthnHandler, MessageSource msg, CredentialManagement credMan,
 	                               EntityCredentialManagement ecredMan, EntityManagement entityMan,
 	                               CredentialRequirementManagement credReqMan,
 	                               CredentialEditorRegistryV8 credEditorReg, TokensManagement tokenMan)

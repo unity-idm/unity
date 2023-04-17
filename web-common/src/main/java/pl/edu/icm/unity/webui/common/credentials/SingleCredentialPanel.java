@@ -34,8 +34,8 @@ import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
-import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8.AuthnResult;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -70,14 +70,14 @@ public class SingleCredentialPanel extends CustomComponent
 	private SingleCredentialEditComponent credEditorPanel;
 	private CredentialDefinition toEdit;
 	private LocalCredentialState credentialState;
-	private final AdditionalAuthnHandler additionalAuthnHandler;
+	private final AdditionalAuthnHandlerV8 additionalAuthnHandler;
 	private Component actionsBar;
 	
 	
-	public SingleCredentialPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId,
-			EntityCredentialManagement ecredMan, CredentialManagement credMan,
-			EntityManagement entityMan, CredentialEditorRegistryV8 credEditorReg,
-			CredentialDefinition toEdit, boolean enableAdminActions)
+	public SingleCredentialPanel(AdditionalAuthnHandlerV8 additionalAuthnHandler, MessageSource msg, long entityId,
+	                             EntityCredentialManagement ecredMan, CredentialManagement credMan,
+	                             EntityManagement entityMan, CredentialEditorRegistryV8 credEditorReg,
+	                             CredentialDefinition toEdit, boolean enableAdminActions)
 			throws Exception
 	{
 		this.additionalAuthnHandler = additionalAuthnHandler;

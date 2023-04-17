@@ -8,5 +8,5 @@ import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 public interface IdpConsentDeciderServletFactory
 {
-	IdpConsentDeciderServlet getInstance(String uiServletPath, String authenticationUIServletPath, Endpoint endpoint);
+	IdpConsentDeciderServlet getInstance(String uiServletPath, Endpoint endpoint);
 }

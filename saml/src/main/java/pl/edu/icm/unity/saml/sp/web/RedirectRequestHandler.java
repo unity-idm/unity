@@ -4,29 +4,27 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.samly2.binding.HttpPostBindingSupport;
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 import eu.unicore.samly2.binding.SAMLMessageType;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Final redirection code. Universal, can be used from both UI/vaadin and filter.
  * 
  * @author K. Benedyczak
  */
-class RedirectRequestHandler
+public class RedirectRequestHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RedirectRequestHandler.class);
 	
-	static boolean handleRequest(RemoteAuthnContext context, HttpServletResponse response) throws IOException
+	public static boolean handleRequest(RemoteAuthnContext context, HttpServletResponse response) throws IOException
 	{
 		Binding binding = context.getRequestBinding();
 		if (binding == Binding.HTTP_POST)

@@ -83,7 +83,9 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
-	
+
+	private static final String DEFAULT_V8_AUTH_LOGO = "file:../common/img/other/logo.png";
+
 	static
 	{
 		META.put(PRODUCTION_MODE, new PropertyMD("true").setHidden().
@@ -110,7 +112,7 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 				+ "option will be activated automatically, without presenting (or even loading) "
 				+ "the authentication screen."));
 
-		META.put(AUTHN_LOGO, new PropertyMD("file:../common/img/other/logo.png").
+		META.put(AUTHN_LOGO, new PropertyMD(DEFAULT_V8_AUTH_LOGO).
 				setDescription("Sets URL of image that should be shown above all authentication options."));
 		META.put(AUTHN_TITLE, new PropertyMD().setCanHaveSubkeys()
 				.setDescription("Message (can be localized) which will be displayed above "
@@ -238,6 +240,14 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	{
 		String configuredTheme = getConfiguredTheme(VaadinEndpointProperties.THEME);
 		return configuredTheme != null ? configuredTheme : VaadinEndpoint.DEFAULT_THEME;
+	}
+
+	public String getAuthnLogo()
+	{
+		String value = getValue(VaadinEndpointProperties.AUTHN_LOGO);
+		if(value.equals(DEFAULT_V8_AUTH_LOGO))
+			return "../unitygw/img/other/logo.png";
+		return value;
 	}
 
 	public String getEffectiveAuthenticationTheme()

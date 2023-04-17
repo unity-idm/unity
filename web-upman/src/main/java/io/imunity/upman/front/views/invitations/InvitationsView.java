@@ -22,6 +22,7 @@ import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.*;
 import pl.edu.icm.unity.MessageSource;
 
+import javax.annotation.security.PermitAll;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ENVELOPE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-
+@PermitAll
 @Route(value = "/invitations", layout = UpManMenu.class)
 public class InvitationsView extends UnityViewComponent
 {

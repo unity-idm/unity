@@ -41,6 +41,13 @@ public class NotificationPresenter
 		new ErrorNotification(caption, description).open();
 	}
 
+	public void showErrorAutoClosing(String caption, String description)
+	{
+		ErrorNotification errorNotification = new ErrorNotification(caption, description);
+		errorNotification.setDuration(5000);
+		errorNotification.open();
+	}
+
 	public void showWarning(String caption, String description)
 	{
 		ErrorNotification errorNotification = new ErrorNotification(caption, description);

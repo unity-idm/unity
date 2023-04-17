@@ -4,18 +4,16 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import java.io.IOException;
-
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinResponse;
+import com.vaadin.flow.server.VaadinServletResponse;
+import com.vaadin.flow.server.VaadinSession;
 import org.apache.logging.log4j.Logger;
-
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinResponse;
-import com.vaadin.server.VaadinServletResponse;
-import com.vaadin.server.VaadinSession;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
-import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;
+import io.imunity.vaadin.auth.idp.AbstractRedirectRequestHandler;
+
+import java.io.IOException;
 
 
 /**
@@ -34,7 +32,7 @@ public class RedirectRequestHandler extends AbstractRedirectRequestHandler
 
 	@Override
 	protected boolean handleRequestInternal(Object contextO, VaadinSession vaadinSession,
-			VaadinRequest request, VaadinResponse response) throws IOException
+	                                        VaadinRequest request, VaadinResponse response) throws IOException
 	{
 		OAuthContext context = (OAuthContext) contextO;
 		VaadinServletResponse rr = (VaadinServletResponse) response;

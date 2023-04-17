@@ -7,6 +7,8 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import com.nimbusds.oauth2.sdk.*;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.server.Authentication;
+import org.eclipse.jetty.server.Request;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -14,7 +16,6 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
@@ -25,7 +26,6 @@ import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSetting
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
-import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 import javax.servlet.ServletException;
@@ -50,24 +50,22 @@ public class ASConsentDeciderServlet extends HttpServlet
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ASConsentDeciderServlet.class);
 
-	private PreferencesManagement preferencesMan;
-	private OAuthIdPEngine idpEngine;
-	private OAuthSessionService oauthSessionService;
-	private String oauthUiServletPath;
-	private String authenticationUIServletPath;
+	private final PreferencesManagement preferencesMan;
+	private final OAuthIdPEngine idpEngine;
+	private final OAuthSessionService oauthSessionService;
+	private final String oauthUiServletPath;
 	private final OAuthProcessor oauthProcessor;
 	private final OAuthIdpStatisticReporter statReporter;
 	private final ASConsentDecider consentDecider;
 
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			OAuthProcessor oauthProcessor, OAuthSessionService oauthSessionService, String oauthUiServletPath,
-			String authenticationUIServletPath, EnquiryManagement enquiryManagement,
+			EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan, OAuthIdpStatisticReporter idpStatisticReporter, MessageSource msg)
 	{
 		this.oauthProcessor = oauthProcessor;
 		this.preferencesMan = preferencesMan;
 		this.oauthSessionService = oauthSessionService;
-		this.authenticationUIServletPath = authenticationUIServletPath;
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.oauthUiServletPath = oauthUiServletPath;
 		this.statReporter = idpStatisticReporter;
@@ -77,17 +75,9 @@ public class ASConsentDeciderServlet extends HttpServlet
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		// if we got this request here it means that this is a request from
-		// Authnentication UI
-		// which was not reloaded with something new - either regular endpoint UI or
-		// navigated away with a redirect.
-		if (VaadinRequestMatcher.isVaadinRequest(req))
+		if (((Request) req).getAuthentication().equals(Authentication.UNAUTHENTICATED))
 		{
-			String forwardURI = authenticationUIServletPath;
-			if (req.getPathInfo() != null)
-				forwardURI += req.getPathInfo();
-			log.debug("Request to Vaadin internal address will be forwarded to authN {}", req.getRequestURI());
-			req.getRequestDispatcher(forwardURI).forward(req, resp);
+			resp.sendRedirect(oauthUiServletPath);
 			return;
 		}
 		super.service(req, resp);
@@ -126,8 +116,8 @@ public class ASConsentDeciderServlet extends HttpServlet
 		}
 		if (consentDecider.forceConsentIfConsentPrompt(oauthCtx))
 		{
-			log.trace("Consent is required for OAuth request, 'consent' prompt was given , forwarding to consent UI");
-			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
+			log.trace("Consent is required for OAuth request, 'consent' prompt was given , redirect to consent UI");
+			resp.sendRedirect(oauthUiServletPath);
 		} 
 		else if (consentDecider.isInteractiveUIRequired(preferences, oauthCtx))
 		{
@@ -138,7 +128,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			}
 			
 			log.trace("Consent is required for OAuth request, forwarding to consent UI");
-			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
+			resp.sendRedirect(oauthUiServletPath);
 		} else
 		{
 			log.trace("Consent is not required for OAuth request, processing immediatelly");

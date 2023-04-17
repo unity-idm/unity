@@ -91,6 +91,7 @@
 		<module>vaadin-registration</module>
 		<module>vaadin-enquiry</module>
 		<module>vaadin-secured-shared-endpoint</module>
+		<module>vaadin-authentication</module>
 	</modules>
 
 	<developers>
@@ -324,6 +325,11 @@
 				<groupId>org.vaadin.barcodes</groupId>
 				<artifactId>barcode-bwipjs</artifactId>
 				<version>1.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>in.virit</groupId>
+				<artifactId>viritin</artifactId>
+				<version>2.0.0</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>

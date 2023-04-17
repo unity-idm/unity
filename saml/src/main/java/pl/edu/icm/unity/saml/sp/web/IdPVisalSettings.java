@@ -14,6 +14,8 @@ import java.util.Set;
  */
 public class IdPVisalSettings
 {
+	private final String DEFAULT_V8_LOGO = "file:../common/img/other/logo-hand.png";
+
 	public final String logoURI;
 	public final Set<String> tags;
 	public final String name;
@@ -25,5 +27,12 @@ public class IdPVisalSettings
 		this.tags = Set.copyOf(tags);
 		this.name = name;
 		this.federationId = federationId;
+	}
+
+	public String getLogoURI()
+	{
+		if(DEFAULT_V8_LOGO.equals(logoURI))
+			return "../unitygw/img/other/logo-hand.png";
+		return logoURI;
 	}
 }

@@ -49,6 +49,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.*;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 
+import javax.annotation.security.PermitAll;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -58,6 +59,7 @@ import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyConte
 import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.SEC_ENQUIRY_PATH;
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
 
+@PermitAll
 @RouteAlias(SEC_ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
 @Route(value = ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
 public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, BeforeEnterObserver
