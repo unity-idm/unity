@@ -5,7 +5,6 @@
 
 package io.imunity.vaadin.secured_shared_endpoint;
 
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.VaadinServlet;
@@ -13,7 +12,6 @@ import com.vaadin.flow.server.VaadinServletService;
 import io.imunity.vaadin.auth.SecuredSpringVaadin2XServletService;
 import io.imunity.vaadin.endpoint.common.SpringContextProvider;
 
-@CssImport("./styles/custom-lumo-theme.css")
 public class SharedVaadin2XServlet extends VaadinServlet
 {
 	@Override

@@ -9,6 +9,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.elements.LinkButton;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -351,8 +352,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 	
 	private ComponentWithId getExpandAllOptionsButton()
 	{
-		Button expand = new Button(msg.getMessage("AuthenticationUI.showAllOptions"));
-		expand.addClickListener(event -> showAllOptions());
+		LinkButton expand = new LinkButton(msg.getMessage("AuthenticationUI.showAllOptions"), event -> showAllOptions());
 		return createNonLoginComponent(SPECIAL_ENTRY_EXPAND, expand);
 	}
 
