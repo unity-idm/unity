@@ -1,7 +1,3 @@
-window.testCall = function() { window.alert('Works!') }
-
-window.testCall2 = function(self) { self.$server.showError('Fido registration failed', 'ABC') }
-
 /**
  * Triggers FIDO authenticator registration process on client side. Called from BE.
  * @param key Registration request ID

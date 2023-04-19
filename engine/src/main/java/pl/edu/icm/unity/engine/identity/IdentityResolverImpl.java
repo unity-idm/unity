@@ -4,15 +4,10 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
@@ -33,13 +28,11 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.basic.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of the identity resolver. Immutable.
@@ -211,7 +204,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	public Identity insertIdentity(IdentityParam toAdd, EntityParam entity)
 			throws IllegalIdentityValueException
 	{
-		return idHelper.insertIdentity(toAdd, dbResolver.getEntityId(entity), false);
+		return idHelper.insertIdentity(toAdd, dbResolver.getEntityId(entity), true);
 	}
 
 	@Transactional

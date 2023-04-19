@@ -10,8 +10,8 @@ import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredentialInfo;
 import io.imunity.fido.service.FidoException;
 import io.imunity.fido.service.NoEntityException;
+import io.imunity.vaadin.elements.FidoBrowserCallableComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.shared.endpoint.fido.FidoBrowserCallableComponent;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -63,7 +63,7 @@ class FidoComponent
 		this.newCredentialListener = newCredentialListener;
 		this.authenticationResultListener = authenticationResultListener;
 		this.notificationPresenter = notificationPresenter;
-		this.fidoBrowserCallableComponent = new FidoBrowserCallableComponent(msg, notificationPresenter, this::finalizeRegistration, this::finalizeAuthentication);
+		this.fidoBrowserCallableComponent = new FidoBrowserCallableComponent(txt -> msg.getMessage(txt), Log.getLogger(Log.U_SERVER_FIDO, FidoBrowserCallableComponent.class), notificationPresenter, this::finalizeRegistration, this::finalizeAuthentication);
 	}
 
 	public Long getEntityId()

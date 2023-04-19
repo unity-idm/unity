@@ -181,7 +181,7 @@ public class IdentityHelper
 		if (idTypeDef.isDynamic() && !allowSystem)
 			throw new IllegalIdentityValueException("The identity type " + idTypeDef.getId() + 
 					" is created automatically and can not be added manually");
-		if (!idTypeDef.isUserSettable())
+		if ((!idTypeDef.isUserSettable()) && !allowSystem)
 			throw new IllegalIdentityValueException("The identity type " + idTypeDef.getId() +
 					" cannot be set by user");
 		idTypeDef.validate(toAdd.getValue());

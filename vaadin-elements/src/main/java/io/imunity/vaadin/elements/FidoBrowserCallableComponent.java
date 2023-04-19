@@ -2,35 +2,35 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.shared.endpoint.fido;
+package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.base.utils.Log;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 @JsModule("./fido.js")
 @Tag("div")
 public class FidoBrowserCallableComponent extends Component
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_FIDO, FidoBrowserCallableComponent.class);
-	private final MessageSource msg;
+	private final Logger log;
+	private final Function<String, String> msg;
 	private final NotificationPresenter notificationPresenter;
 	private final BiConsumer<String, String> finalizeRegistration;
 	private final BiConsumer<String, String> finalizeAuthentication;
 
-	public FidoBrowserCallableComponent(MessageSource msg,
+	public FidoBrowserCallableComponent(Function<String, String> msg,
+	                                    Logger log,
 	                                    NotificationPresenter notificationPresenter,
 	                                    BiConsumer<String, String> finalizeRegistration,
 	                                    BiConsumer<String, String> finalizeAuthentication)
 	{
 		this.msg = msg;
+		this.log = log;
 		this.notificationPresenter = notificationPresenter;
 		this.finalizeRegistration = finalizeRegistration;
 		this.finalizeAuthentication = finalizeAuthentication;
@@ -64,7 +64,7 @@ public class FidoBrowserCallableComponent extends Component
 	void showInternalError(String caused, String error)
 	{
 		log.error("Showing internal error caused by {}: {}", caused, error);
-		showErrorNotification(msg.getMessage("Fido.internalError"), msg.getMessage("FidoExc.internalErrorMsg"));
+		showErrorNotification(msg.apply("Fido.internalError"), msg.apply("FidoExc.internalErrorMsg"));
 	}
 
 	public void showErrorNotification(final String title, final String errorMsg)
