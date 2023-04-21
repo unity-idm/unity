@@ -156,45 +156,50 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	
 	protected void createUsers() throws Exception
 	{
-		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1"), 
-				"cr-pass", EntityState.valid);
-		EntityParam e1 = new EntityParam(added1);
-		eCredMan.setEntityCredential(e1, "credential1", new PasswordToken("mockPassword1").toJson());
-		
-		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
-				"cr-certpass", EntityState.valid);
-		EntityParam e2 = new EntityParam(added2);
-		idsMan.addIdentity(new IdentityParam(X500Identity.ID, DBIntegrationTestBase.DEMO_SERVER_DN), 
-				e2);
-		eCredMan.setEntityCredential(new EntityParam(added2), "credential1", 
-				new PasswordToken("mockPassword2").toJson());
-		
 		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID));
 		AttributeType fAT = new AttributeType("floatA", FloatingPointAttributeSyntax.ID);
 		fAT.setMaxElements(100);
 		aTypeMan.addAttributeType(fAT);
+
+		createEntityWithPassword();
+		createEntityWithDN();
+	}
+	
+	protected void createEntityWithPassword() throws Exception
+	{
+		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user1"), 
+				"cr-pass", EntityState.valid);
+		EntityParam e1 = new EntityParam(added1);
+		eCredMan.setEntityCredential(e1, "credential1", new PasswordToken("mockPassword1").toJson());
 		
 		attrsMan.createAttribute(e1, StringAttribute.of("stringA", "/", "value"));
 		attrsMan.createAttribute(e1, IntegerAttribute.of("intA", "/", 123));
-		List<Double> vals = new ArrayList<Double>();
-		vals.add(123.1);
-		vals.add(124.1);
-		vals.add(14.2);
-		attrsMan.createAttribute(e1, FloatingPointAttribute.of("floatA", "/", vals));
+
+		attrsMan.createAttribute(e1, FloatingPointAttribute.of("floatA", "/", List.of(123.1, 124.1, 14.2)));
 		attrsMan.createAttribute(e1, VerifiableEmailAttribute.of("emailA", "/", "example@example.com"));
 
-		attrsMan.createAttribute(e2, StringAttribute.of("stringA", "/"));
-		attrsMan.createAttribute(e2, IntegerAttribute.of("intA", "/", 1));
-		attrsMan.createAttribute(e2, FloatingPointAttribute.of("floatA", "/", vals));
-		
 		attrsMan.createAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", "Inspector"));
+	}
+
+	protected void createEntityWithDN() throws Exception
+	{
+		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
+				"cr-certpass", EntityState.valid);
+		EntityParam e2 = new EntityParam(added2);
+		idsMan.addIdentity(new IdentityParam(X500Identity.ID, DBIntegrationTestBase.DEMO_SERVER_DN), 
+				e2);
+		
+		attrsMan.createAttribute(e2, StringAttribute.of("stringA", "/"));
+		attrsMan.createAttribute(e2, IntegerAttribute.of("intA", "/", 1));
+		attrsMan.createAttribute(e2, FloatingPointAttribute.of("floatA", "/", List.of(123.1, 124.1, 14.2)));
+		
 		attrsMan.createAttribute(e2, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", "Regular User"));
 	}
-	
+
 	protected void setupMockAuthn() throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(
