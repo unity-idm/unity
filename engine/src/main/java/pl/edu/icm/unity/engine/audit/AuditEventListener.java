@@ -84,7 +84,7 @@ public class AuditEventListener implements EventListener
 		log.debug("Entity name attribute set to: '" + entityNameAttribute + "'");
 	}
 	
-	private void upateEntityNameAttributeIfNeeded(AttributeType attributeType)
+	private void updateEntityNameAttributeIfNeeded(AttributeType attributeType)
 	{
 		if (attributeType.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
 		{
@@ -154,7 +154,7 @@ public class AuditEventListener implements EventListener
 		if (event.oldAT == null) 
 		{
 			// New attribute created
-			upateEntityNameAttributeIfNeeded(event.newAT);
+			updateEntityNameAttributeIfNeeded(event.newAT);
 				
 		} else if (event.newAT == null) 
 		{
@@ -164,7 +164,7 @@ public class AuditEventListener implements EventListener
 		} else if (!event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME)) 
 		{
 			//EntityNameMetadataProvider.NAME was added to attribute
-			upateEntityNameAttributeIfNeeded(event.newAT);
+			updateEntityNameAttributeIfNeeded(event.newAT);
 		} else if (event.oldAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME) && !event.newAT.getMetadata().containsKey(EntityNameMetadataProvider.NAME))
 		{
 			//EntityNameMetadataProvider.NAME was removed from attribute
