@@ -7,10 +7,12 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBRegistrationInvitationParam.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBRegistrationInvitationParam extends DBInvitationParam
 {
 	public static final String type = "REGISTRATION";
@@ -54,6 +56,7 @@ public class DBRegistrationInvitationParam extends DBInvitationParam
 		return new Builder();
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder extends RestInvitationParamBuilder<Builder>
 	{
 

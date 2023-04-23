@@ -7,9 +7,11 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DBComboInvitationParam.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBComboInvitationParam extends DBInvitationParam
 {
 	public static final String type = "COMBO";
@@ -51,7 +53,8 @@ public class DBComboInvitationParam extends DBInvitationParam
 	{
 		return new Builder();
 	}
-
+	
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class Builder extends RestInvitationParamBuilder<Builder>
 	{
 		private DBFormPrefill registrationFormPrefill;
