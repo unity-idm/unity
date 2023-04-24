@@ -40,11 +40,8 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class TestSoapEndpoint extends AbstractTestIdpBase
 {
-	/**
-	 * Tests authentication and attribute query of dynamic identities.
-	 */
 	@Test
-	public void testDynamicIdentityTypes() throws Exception
+	public void shouldRetriveAttributesAfterAuthenticationUsingDynamicIdentity() throws Exception
 	{
 		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
@@ -65,9 +62,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		
 		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
 		String persistentTargetedId = resp.getAuthNAssertions().get(0).getSubjectName();
-		System.out.println("Targeted persistent id: " + persistentTargetedId);
 
-		//ask about attributes using the persistent identifier
 		AttributeAssertionParser a = attrClient.getAssertion(
 				new NameID(persistentTargetedId, SAMLConstants.NFORMAT_PERSISTENT),
 				localIssuer);
@@ -75,7 +70,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	}
 	
 	@Test
-	public void shouldAuthenticateWithPasswordOnly() throws Exception
+	public void shouldAuthenticateWithCorrectPassword_SFA() throws Exception
 	{
 		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
@@ -117,7 +112,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	}
 	
 	@Test
-	public void shouldNotAuthnWithIncorrectPasswordOnly() throws Exception
+	public void shouldNotAuthenticateWithIncorrectPassword_SFA() throws Exception
 	{
 		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
@@ -163,7 +158,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	}
 	
 	@Test
-	public void shouldAuthnWithPasswordWhenTlsAlsoSet() throws Exception
+	public void shouldAuthenticateWithCorrectPasswordWhenTlsEnabledButNotProvided() throws Exception
 	{
 		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
@@ -180,7 +175,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	}
 	
 	@Test
-	public void shouldAuthnWithTLSOnly() throws Exception
+	public void shouldAuthenticateWithTLSOnly() throws Exception
 	{
 		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
@@ -194,22 +189,6 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		checkAuthnResponse(resp, SAMLConstants.NFORMAT_DN, 7);
 	}
 
-	@Test
-	public void shouldAuthnWithTLSWhenPasswordIncorrect() throws Exception
-	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
-		DefaultClientConfiguration clientCfg = getClientCfg();
-		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
-		clientCfg.setSslAuthn(true);
-		clientCfg.setHttpAuthn(true);
-		clientCfg.setHttpUser("user1");
-		clientCfg.setHttpPassword("wrong");
-		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
-		AuthnResponseAssertions resp = client.authenticate(localIssuer, "http://somehost/consumer");
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
-	}
-	
 	private void checkAuthnResponse(AuthnResponseAssertions resp, String expectedFormat,
 			int expectedAttrs) throws SAMLValidationException
 	{

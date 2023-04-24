@@ -4,9 +4,14 @@
  */
 package pl.edu.icm.unity.store.impl.attributetype;
 
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
@@ -17,20 +22,34 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 @Component
 public class AttributeTypeRDBMSSerializer implements RDBMSObjectSerializer<AttributeType, AttributeTypeBean>
 {
+	@Autowired
+	private ObjectMapper jsonMapper;
+	
 	@Override
 	public AttributeType fromDB(AttributeTypeBean raw)
 	{
-		AttributeType at = new AttributeType();
-		at.setName(raw.getName());
-		at.setValueSyntax(raw.getValueSyntaxId());
-		at.fromJsonBase(JsonUtil.parse(raw.getContents()));
-		return at;
+		DBAttributeTypeBase dbAttribute;
+		try
+		{
+			dbAttribute = jsonMapper.readValue(raw.getContents(), DBAttributeTypeBase.class);
+		} catch (IOException e)
+		{
+			throw new IllegalStateException("Error parsing attribute type from DB", e);
+		}
+		return AttributeTypeBaseMapper.map(dbAttribute, raw.getName(), raw.getValueSyntaxId());
 	}
 
 	@Override
-	public AttributeTypeBean toDB(AttributeType at) 
+	public AttributeTypeBean toDB(AttributeType at)
 	{
-		return new AttributeTypeBean(at.getName(), JsonUtil.serialize2Bytes(at.toJsonBase()), 
-				at.getValueSyntax());
+		try
+		{
+			return new AttributeTypeBean(at.getName(), jsonMapper.writeValueAsBytes(AttributeTypeBaseMapper.map(at)),
+					at.getValueSyntax());
+		} catch (JsonProcessingException e)
+		{
+			throw new IllegalStateException("Error saving attribute type to DB", e);
+
+		}
 	}
 }

@@ -35,7 +35,7 @@ public class AuthenticationFlowHandler extends DefaultEntityHandler<Authenticati
 	{
 		try
 		{
-			byte[] contents = jsonMapper.writeValueAsBytes(value);
+			byte[] contents = jsonMapper.writeValueAsBytes(AuthenticationFlowMapper.map(value));
 			return new GenericObjectBean(value.getName(), contents, supportedType);
 		} catch (JsonProcessingException e)
 		{
@@ -48,10 +48,10 @@ public class AuthenticationFlowHandler extends DefaultEntityHandler<Authenticati
 	{
 		try
 		{
-			return jsonMapper.readValue(blob.getContents(), AuthenticationFlowDefinition.class);
+			return AuthenticationFlowMapper.map(jsonMapper.readValue(blob.getContents(), DBAuthenticationFlow.class));
 		} catch (Exception e)
 		{
-			throw new InternalException("Can't deserialize authentication from JSON", e);
+			throw new InternalException("Can't deserialize authentication flow from JSON", e);
 		}
 	}
 }

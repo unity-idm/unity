@@ -39,7 +39,7 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
  * @author K. Benedyczak
  */
 @Component
-public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationForm> implements RegistrationFormDB
+class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationForm> implements RegistrationFormDB
 {
 	@Autowired
 	public RegistrationFormDBImpl(RegistrationFormHandler handler, ObjectStoreDAO dbGeneric,

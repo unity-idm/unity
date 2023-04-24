@@ -6,8 +6,10 @@ package pl.edu.icm.unity.store.impl.attribute;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -24,14 +26,22 @@ class AttributeJsonSerializer
 	{
 		if (main == null)
 			return null;
-		AttributeExt ret = new AttributeExt(main);
+		AttributeExt ret;
+		try
+		{
+			ret = AttributeExtMapper
+					.map(Constants.MAPPER.treeToValue(main, DBAttributeExt.class));
+		} catch (JsonProcessingException | IllegalArgumentException e)
+		{
+			throw new IllegalStateException("Error parsing attribute from json", e);
+		}
 		long entityId = main.get("entityId").asLong();
 		return new StoredAttribute(ret, entityId);
 	}
 	
 	ObjectNode toJson(StoredAttribute src)
 	{
-		ObjectNode root = src.getAttribute().toJson();
+		ObjectNode root = Constants.MAPPER.valueToTree(AttributeExtMapper.map(src.getAttribute()));
 		root.put("entityId", src.getEntityId());
 		return root;
 	}

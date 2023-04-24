@@ -19,6 +19,7 @@ import pl.edu.icm.unity.MessageSource;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.function.Function;
 
 @CssImport(value = "./styles/components/invitations-grid.css", themeFor = "vaadin-grid")
@@ -39,8 +40,10 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 				.setFlexGrow(5)
 				.setSortable(true)
 				.setResizable(true);
-		addColumn(model -> format(model.requestedTime))
-				.setHeader(msg.getMessage("Invitation.lastSent"))
+		addColumn(model -> Optional.ofNullable(model.requestedTime)
+				.map(formatter::format)
+				.orElse(null))
+						.setHeader(msg.getMessage("Invitation.lastSent"))
 				.setAutoWidth(true)
 				.setSortable(true)
 				.setResizable(true);

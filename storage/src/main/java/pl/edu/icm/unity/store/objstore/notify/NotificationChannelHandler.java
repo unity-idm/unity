@@ -7,22 +7,24 @@ package pl.edu.icm.unity.store.objstore.notify;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 /**
  * Handler for {@link NotificationChannel}
+ * 
  * @author K. Benedyczak
  */
 @Component
 public class NotificationChannelHandler extends DefaultEntityHandler<NotificationChannel>
 {
 	public static final String NOTIFICATION_CHANNEL_ID = "notificationChannel";
-	
+
 	@Autowired
 	public NotificationChannelHandler(ObjectMapper jsonMapper)
 	{
@@ -32,13 +34,26 @@ public class NotificationChannelHandler extends DefaultEntityHandler<Notificatio
 	@Override
 	public GenericObjectBean toBlob(NotificationChannel value)
 	{
-		return new GenericObjectBean(value.getName(), 
-				JsonUtil.serialize2Bytes(value.toJson()), supportedType);
+		try
+		{
+			return new GenericObjectBean(value.getName(),
+					jsonMapper.writeValueAsBytes(NotifiacationChannelMapper.map(value)), supportedType);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize notification channel to JSON", e);
+		}
 	}
 
 	@Override
 	public NotificationChannel fromBlob(GenericObjectBean blob)
 	{
-		return new NotificationChannel(JsonUtil.parse(blob.getContents()));
+		try
+		{
+			return NotifiacationChannelMapper
+					.map(jsonMapper.readValue(blob.getContents(), DBNotificationChannel.class));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize notification channel from JSON", e);
+		}
 	}
 }

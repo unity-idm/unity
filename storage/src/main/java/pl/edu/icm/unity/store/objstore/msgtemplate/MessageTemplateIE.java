@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
@@ -23,8 +24,20 @@ public class MessageTemplateIE extends GenericObjectIEBase<MessageTemplate>
 	@Autowired
 	public MessageTemplateIE(MessageTemplateDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, MessageTemplate.class, 105, 
+		super(dao, jsonMapper, 105, 
 				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE);
+	}
+	
+	@Override
+	protected MessageTemplate convert(ObjectNode src)
+	{
+		return MessageTemplateMapper.map(jsonMapper.convertValue(src, DBMessageTemplate.class));
+	}
+
+	@Override
+	protected ObjectNode convert(MessageTemplate src)
+	{
+		return jsonMapper.convertValue(MessageTemplateMapper.map(src), ObjectNode.class);
 	}
 }
 

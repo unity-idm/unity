@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
@@ -23,8 +24,20 @@ public class EnquiryFormIE extends GenericObjectIEBase<EnquiryForm>
 	@Autowired
 	public EnquiryFormIE(EnquiryFormDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, EnquiryForm.class, 113, 
+		super(dao, jsonMapper, 113, 
 				EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE);
+	}
+	
+	@Override
+	protected EnquiryForm convert(ObjectNode src)
+	{
+		return EnquiryFormMapper.map(jsonMapper.convertValue(src, DBEnquiryForm.class));
+	}
+
+	@Override
+	protected ObjectNode convert(EnquiryForm src)
+	{
+		return jsonMapper.convertValue(EnquiryFormMapper.map(src), ObjectNode.class);
 	}
 }
 

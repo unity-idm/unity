@@ -7,12 +7,13 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Handler for {@link InvitationWithCode}s storage.
@@ -32,13 +33,26 @@ public class InvitationHandler extends DefaultEntityHandler<InvitationWithCode>
 	@Override
 	public GenericObjectBean toBlob(InvitationWithCode value)
 	{
-		return new GenericObjectBean(value.getName(), 
-				JsonUtil.serialize2Bytes(value.toJson()), supportedType);
+		try
+		{
+			return new GenericObjectBean(value.getName(),
+					jsonMapper.writeValueAsBytes(InvitationWithCodeMapper.map(value)), supportedType);
+		} catch (JsonProcessingException e)
+		{
+			throw new InternalException("Can't serialize invitation to JSON", e);
+		}
 	}
 
 	@Override
 	public InvitationWithCode fromBlob(GenericObjectBean blob)
 	{
-		return new InvitationWithCode(JsonUtil.parse(blob.getContents()));
+		try
+		{
+			return InvitationWithCodeMapper
+					.map(jsonMapper.readValue(blob.getContents(), DBInvitationWithCode.class));
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't deserialize invitation from JSON", e);
+		}
 	}
 }

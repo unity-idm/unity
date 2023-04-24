@@ -24,7 +24,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -199,8 +198,7 @@ public class InitDB
 	{
 		GroupsMapper groups = session.getMapper(GroupsMapper.class);
 		GroupBean root = new GroupBean("/", null);
-		root.setContents(JsonUtil.serialize2Bytes(
-				GroupJsonSerializer.createRootGroupContents()));
+		root.setContents(GroupJsonSerializer.createRootGroupContents());
 		groups.createRoot(root);
 	}
 	

@@ -111,7 +111,7 @@ public class TestMigrationFrom1_9
 			assertThat(atDAO.getAll().size(), is(25));
 			assertThat(itDAO.getAll().size(), is(7));
 			assertThat(attrDAO.getAll().size(), is(58));
-			assertThat(identityDAO.getAll().size(), is(45));
+			assertThat(identityDAO.getAll().size(), is(46));
 			assertThat(entDAO.getAll().size(), is(14));
 			assertThat(groupDAO.getAll().size(), is(14));
 			assertThat(memberDAO.getAll().size(), is(26));

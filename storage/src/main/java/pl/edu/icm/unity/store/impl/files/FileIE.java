@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.file.FileData;
@@ -28,9 +29,9 @@ public class FileIE extends AbstractIEBase<FileData>
 	private FileJsonSerializer serializer;
 	
 	@Autowired
-	public FileIE(FileDAO dao, FileJsonSerializer serializer)
+	public FileIE(FileDAO dao, FileJsonSerializer serializer, ObjectMapper objectMapper)
 	{
-		super(7, FILES_OBJECT_TYPE);
+		super(7, FILES_OBJECT_TYPE, objectMapper);
 		this.dao = dao;
 		this.serializer = serializer;
 	}

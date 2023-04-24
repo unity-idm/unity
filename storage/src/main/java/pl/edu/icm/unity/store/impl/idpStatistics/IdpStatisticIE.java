@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.IdpStatisticDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
@@ -29,9 +29,9 @@ public class IdpStatisticIE extends AbstractIEBase<IdpStatistic>
 	private IdpStatisticDAO dao;
 
 	@Autowired
-	public IdpStatisticIE(IdpStatisticDAO dao)
+	public IdpStatisticIE(IdpStatisticDAO dao, ObjectMapper objectMapper)
 	{
-		super(12, IDP_STATISTIC_OBJECT_TYPE);
+		super(12, IDP_STATISTIC_OBJECT_TYPE, objectMapper);
 		this.dao = dao;
 	}
 
@@ -44,7 +44,7 @@ public class IdpStatisticIE extends AbstractIEBase<IdpStatistic>
 	@Override
 	protected ObjectNode toJsonSingle(IdpStatistic exportedObj)
 	{
-		return Constants.MAPPER.valueToTree(exportedObj);
+		return jsonMapper.valueToTree(exportedObj);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class IdpStatisticIE extends AbstractIEBase<IdpStatistic>
 	protected IdpStatistic fromJsonSingle(ObjectNode src)
 	{
 		try {
-			return Constants.MAPPER.treeToValue(src, IdpStatistic.class);
+			return jsonMapper.treeToValue(src, IdpStatistic.class);
 		} catch (JsonProcessingException e) {
 			log.error("Failed to deserialize IdpStatistic object:", e);
 		}
