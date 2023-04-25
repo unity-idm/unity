@@ -11,13 +11,16 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.router.*;
+import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
@@ -74,6 +77,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 	private final MessageSource msg;
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
 	private final EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory entityChooserComponentFactory;
+	private final VaddinWebLogoutHandler authnProcessor;
 
 	private String registrationCode;
 	private final EnquiryResponseEditorController editorController;
@@ -91,6 +95,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 	                             URLQueryPrefillCreator urlQueryPrefillCreator,
 	                             EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory entityChooserComponentFactory,
 	                             EnquiryManagement enqMan, VaadinLogoImageLoader logoImageLoader,
+	                             VaddinWebLogoutHandler authnProcessor,
 	                             NotificationPresenter notificationPresenter)
 	{
 		this.editorController = editorController;
@@ -101,6 +106,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		this.logoImageLoader = logoImageLoader;
 		this.notificationPresenter = notificationPresenter;
 		this.entityChooserComponentFactory = entityChooserComponentFactory;
+		this.authnProcessor = authnProcessor;
 		getContent().setClassName("u-standalone-public-form");
 	}
 
@@ -128,7 +134,7 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 
 		String pageTitle = form.getPageTitle().getValue(msg);
 		postFillHandler = new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
-				pageTitle, form.getLayoutSettings().getLogoURL(), true);
+				pageTitle, form.getLayoutSettings().getLogoURL(), false);
 
 		registrationCode = event.getLocation().getQueryParameters()
 				.getParameters()
@@ -152,7 +158,6 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 
 	public void enter()
 	{
-
 		if(InvocationContext.getCurrent().getLoginSession() != null)
 		{
 			showContentForLoggedInUser();
@@ -205,6 +210,21 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 			log.error("Can not setup enquiry editor", e);
 			handleError(ErrorCause.MISCONFIGURED);
 			return;
+		}
+
+		if (form.getType().equals(EnquiryForm.EnquiryType.STICKY))
+		{
+			try
+			{
+				if(editorController.checkIfRequestExistsForLoggedUser(form.getName()))
+				{
+					showRemoveLastRequestQuestionScreen();
+					return;
+				}
+			} catch (Exception e)
+			{
+				log.warn("Can't check if enquiry request exists", e);
+			}
 		}
 		showEditorContent();
 	}
@@ -377,6 +397,47 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		getContent().add(main);
 	}
 
+	private void showRemoveLastRequestQuestionScreen()
+	{
+		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
+		main.setAlignItems(FlexComponent.Alignment.CENTER);
+		main.setJustifyContentMode(CENTER);
+
+		H3 info = new H3(msg.getMessage("StandaloneStickyEnquiryView.overwriteRequestInfo"));
+		info.addClassName("u-reg-title");
+		main.add(info);
+
+		HorizontalLayout buttons = new HorizontalLayout();
+		main.add(buttons);
+
+		Button removeLast = new Button(msg.getMessage("StandaloneStickyEnquiryView.removeLastRequest"));
+		removeLast.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		removeLast.getStyle().set("width", "17em");
+		removeLast.addClickListener(event ->
+		{
+			try
+			{
+				editorController.removePendingRequest(form.getName());
+			} catch (Exception e)
+			{
+				// ok, we remove request before submit
+				log.warn("Can not remove pending request for form " + form.getName());
+			}
+			getContent().removeAll();
+			showEditorContent();
+		});
+
+		Button cancelButton = getCancelButton();
+		cancelButton.setSizeUndefined();
+		buttons.add(cancelButton, removeLast);
+		buttons.setMargin(false);
+		buttons.setPadding(false);
+
+		getContent().add(main);
+		getContent().setSizeFull();
+	}
+
 	private void showEntityChooser()
 	{
 		VerticalLayout main = new VerticalLayout();
@@ -425,18 +486,24 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		okButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		okButton.setWidthFull();
 
-		Button cancelButton = new Button(msg.getMessage("cancel"), event ->
-		{
-			WorkflowFinalizationConfiguration config = cancel();
-			gotoFinalStep(config);
-		});
-		cancelButton.setWidthFull();
+		Button cancelButton = getCancelButton();
 
 		buttons.add(cancelButton, okButton);
 		buttons.setMargin(false);
 		buttons.setPadding(false);
 		buttons.setJustifyContentMode(CENTER);
 		return buttons;
+	}
+
+	private Button getCancelButton()
+	{
+		Button cancelButton = new Button(msg.getMessage("cancel"), event ->
+		{
+			WorkflowFinalizationConfiguration config = cancel();
+			gotoFinalStep(config);
+		});
+		cancelButton.setWidthFull();
+		return cancelButton;
 	}
 
 	private void handleError(ErrorCause cause)
@@ -462,7 +529,26 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 		log.debug("Enquiry is finalized, status: {}", config);
 		Image logo = logoImageLoader.loadImageFromUri(config.logoURL).orElse(null);
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, logo);
+		if(InvocationContext.getCurrent().getLoginSession() != null)
+		{
+			addLogoutButton(finalScreen);
+		}
 		getContent().add(finalScreen);
+	}
+
+	private void addLogoutButton(WorkflowCompletedComponent finalScreen)
+	{
+		VerticalLayout layout = new VerticalLayout(
+				new LinkButton(
+						msg.getMessage("MainHeader.logout"),
+						e -> authnProcessor.logout(true, SEC_ENQUIRY_PATH + form.getName())
+				)
+		);
+		layout.setAlignItems(FlexComponent.Alignment.END);
+		layout.setMargin(false);
+		layout.setPadding(false);
+		layout.setWidthFull();
+		finalScreen.addComponentAsFirst(layout);
 	}
 
 	private void redirect(Page page, String redirectUrl)
@@ -515,8 +601,10 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 	public String getPageTitle()
 	{
 		return Optional.ofNullable(form)
-				.flatMap(form -> Optional.ofNullable(form.getPageTitle()))
-				.map(title -> title.getValue(msg))
+				.map(form -> Optional.ofNullable(form.getPageTitle())
+						.map(title -> title.getValue(msg))
+						.orElse(form.getName())
+				)
 				.orElse("");
 	}
 }

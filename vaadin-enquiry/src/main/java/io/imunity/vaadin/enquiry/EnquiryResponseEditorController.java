@@ -220,7 +220,27 @@ public class EnquiryResponseEditorController
 			log.error("Can't mark form as ignored", e);
 		}
 	}
-	
+
+	public boolean checkIfRequestExistsForLoggedUser(String formName) throws EngineException
+	{
+		long entityId = getLoggedEntity().getEntityId();
+		return checkIfRequestExists(formName, entityId);
+	}
+
+	private boolean checkIfRequestExists(String formName, long entity) throws EngineException
+	{
+		return enquiryManagement.getEnquiryResponses().stream().anyMatch(responseState ->
+				responseState.getRequest().getFormId().equals(formName)
+				&& responseState.getEntityId() == entity
+				&& responseState.getStatus().equals(RegistrationRequestStatus.pending)
+		);
+	}
+
+	public void removePendingRequest(String form) throws EngineException
+	{
+		enquiryManagement.removePendingStickyRequest(form, getLoggedEntity());
+	}
+
 	public WorkflowFinalizationConfiguration submitted(EnquiryResponse response, EnquiryForm form, 
 			TriggeringMode mode, Optional<RewriteComboToEnquiryRequest> rewriteInvitationRequest) throws WrongArgumentException
 	{

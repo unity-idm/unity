@@ -50,7 +50,7 @@ public class GetRegistrationCodeDialog extends ConfirmDialog
 			.asRequired(msg.getMessage("fieldRequired"))
 			.bind("code");
 		binder.setBean(new CodeBean());
-		
+
 		sub.add(codeTextField);
 		main.add(sub);
 		return main;
@@ -60,7 +60,8 @@ public class GetRegistrationCodeDialog extends ConfirmDialog
 	{
 		if (!binder.isValid())
 		{
-			binder.validate();			
+			binder.validate();
+			open();
 			return;
 		}
 		callback.onCodeGiven(binder.getBean().getCode());

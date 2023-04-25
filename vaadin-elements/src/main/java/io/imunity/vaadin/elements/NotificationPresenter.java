@@ -6,6 +6,7 @@
 package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Label;
@@ -16,6 +17,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.DomListenerRegistration;
 
 import static com.vaadin.flow.component.notification.Notification.Position.MIDDLE;
 import static com.vaadin.flow.component.notification.Notification.Position.TOP_END;
@@ -38,7 +40,15 @@ public class NotificationPresenter
 
 	public void showError(String caption, String description)
 	{
-		new ErrorNotification(caption, description).open();
+		ErrorNotification errorNotification = new ErrorNotification(caption, description);
+		errorNotification.open();
+		DomListenerRegistration clickListener = UI.getCurrent().getElement()
+				.addEventListener("click", e -> errorNotification.close());
+		errorNotification.addOpenedChangeListener(e ->
+		{
+			if(!e.isOpened())
+				clickListener.remove();
+		});
 	}
 
 	public void showErrorAutoClosing(String caption, String description)

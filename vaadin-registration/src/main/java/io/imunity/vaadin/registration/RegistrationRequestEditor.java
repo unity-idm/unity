@@ -223,21 +223,31 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		
 		if (stage == Stage.FIRST)
 		{
-			String info = form.getFormInformation() == null ? null
-					: processFreeemarkerTemplate(params, form.getFormInformation().getValue(msg));
-			if (info != null)
-			{
-				main.add(new Html("<div>" + info + "</div>"));
-			}
-
+			getFormInformationComponent(form.getFormInformation(), params).ifPresent(main::add);
 			Optional<Label> switchToEnquiryLabel = toEnquirySwitchLabelProvider
 					.getSwitchToEnquiryLabel(form.getSwitchToEnquiryInfoFallbackToDefault(msg), invitation, params);
 			switchToEnquiryLabel.ifPresent(main::add);
+		}
+		else if (stage == RegistrationRequestEditor.Stage.SECOND)
+		{
+			getFormInformationComponent(form.getFormInformation2ndStage(), params).ifPresent(main::add);
 		}
 		
 		RegistrationLayoutsContainer container = new RegistrationLayoutsContainer(formWidth(), formWidthUnit());
 		container.addFormLayoutToRootLayout(main);
 		return container;
+	}
+
+	private Optional<Html> getFormInformationComponent(I18nString formInfo, Map<String, Object> params)
+	{
+		String info = formInfo == null ? null
+				: processFreeemarkerTemplate(params, formInfo.getValue(msg));
+		if (info != null)
+		{
+			Html formInformation = new Html("<div>" + info + "</div>");
+			return Optional.of(formInformation);
+		}
+		return Optional.empty();
 	}
 	
 	@Override

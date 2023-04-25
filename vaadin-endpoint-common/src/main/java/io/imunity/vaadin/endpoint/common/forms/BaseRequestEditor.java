@@ -9,6 +9,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -395,8 +396,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		add(main);
 		
 		addLogo(main);
-		
-		Label formName = new Label(processFreeemarkerTemplate(params, form.getDisplayedName().getValue(msg)));
+
+		H1 formName = new H1(processFreeemarkerTemplate(params, form.getDisplayedName().getValue(msg)));
 		formName.addClassName("u-reg-title");
 		main.add(formName);
 		main.setAlignItems(Alignment.CENTER);
@@ -404,7 +405,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		String info = form.getFormInformation() == null ? null : processFreeemarkerTemplate(params, form.getFormInformation().getValue(msg));
 		if (info != null)
 		{
-			Html formInformation = new Html(info);
+			Html formInformation = new Html("<div>" + info + "</div>");
 			main.add(formInformation);
 		}
 		

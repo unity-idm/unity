@@ -8,6 +8,7 @@ package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,6 +32,7 @@ public class AutoClickButton extends Button
 		currentUI.setPollInterval(UI_POOL_INTERVAL);
 		ui.addDetachListener(e -> timer.cancel());
 		startCountdown();
+		addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 	}
 
 	public void startCountdown()

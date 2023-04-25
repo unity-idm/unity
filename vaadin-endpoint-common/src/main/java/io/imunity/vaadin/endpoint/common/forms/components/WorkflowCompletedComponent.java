@@ -8,6 +8,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.AutoClickButton;
@@ -17,15 +18,16 @@ import pl.edu.icm.unity.webui.common.Styles;
 
 public class WorkflowCompletedComponent extends VerticalLayout
 {
-	private final Label infoL;
+	private final H2 infoL;
 	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Component logo)
 	{
 		setMargin(true);
 		setSpacing(true);
+		setWidth("unset");
 		if(logo != null)
 			add(logo);
 
-		infoL = new Label(config.mainInformation);
+		infoL = new H2(config.mainInformation);
 		infoL.addClassName(Styles.vLabelH1.toString());
 		infoL.addClassName(config.success ? "u-final-info" : "u-final-error");
 		add(infoL);
