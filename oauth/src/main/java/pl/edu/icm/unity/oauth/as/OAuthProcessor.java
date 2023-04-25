@@ -111,6 +111,7 @@ public class OAuthProcessor
 		internalToken.setAudience(Stream.concat(Stream.of(ctx.getClientUsername()), ctx.getAdditionalAudience().stream()).collect(Collectors.toList()));
 		internalToken.setIssuerUri(config.getIssuerName());
 		internalToken.setClientType(ctx.getClientType());
+		internalToken.setClaimsInTokenAttribute(ctx.getClaimsInTokenAttribute());
 		
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();
@@ -285,7 +286,7 @@ public class OAuthProcessor
 		ResponseType responseType = request.getResponseType();
 		boolean onlyAccessTokenRequested = responseType.contains(ID_TOKEN) && responseType.size() == 1; 
 
-		if (onlyAccessTokenRequested)
+		if (onlyAccessTokenRequested || context.hasSupportAttributesInIdToken())
 			idToken.putAll(regularAttributes);
 		
 		if (request.getNonce() != null)

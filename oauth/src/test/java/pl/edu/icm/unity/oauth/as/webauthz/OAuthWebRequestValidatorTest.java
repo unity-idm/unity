@@ -236,6 +236,52 @@ public class OAuthWebRequestValidatorTest
 	}
 	
 	@Test
+	public void shouldErrorWhenIdTokenClaimsSetAndOpenidIsNotConfigured()
+			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
+	{
+		Properties config = new Properties();
+		config.setProperty("unity.oauth2.as.scopes.99.name", "profile");
+		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
+	
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.scope(Scope.parse(OIDCScopeValue.PROFILE.getValue()))
+						.customParameter("claims_in_tokens", "id_token")
+						.build();
+		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
+		Throwable error = catchThrowable(() -> validator.validate(context));
+		assertThat(error).isNotNull();
+	}
+	
+	@Test
+	public void shouldErrorWhenTokenClaimsSetAndJWTIsNotConfigured()
+			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
+	{
+		Properties config = new Properties();
+		config.setProperty("unity.oauth2.as.scopes.99.name", "profile");
+		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
+		config.setProperty("unity.oauth2.as.tokenFormat", "PLAIN");
+		
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.scope(Scope.parse(OIDCScopeValue.PROFILE.getValue()))
+						.customParameter("claims_in_tokens", "token")
+						.build();
+		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
+		Throwable error = catchThrowable(() -> validator.validate(context));
+		assertThat(error).isNotNull();
+	}
+	
+	
+	@Test
 	public void shouldTrimScopesToAllowedByIdpAndClient()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
 	{

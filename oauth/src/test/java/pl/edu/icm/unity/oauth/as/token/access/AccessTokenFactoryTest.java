@@ -11,6 +11,9 @@ import java.security.interfaces.ECPublicKey;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -18,9 +21,11 @@ import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
+import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
 import pl.edu.icm.unity.oauth.as.MockPKIMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
@@ -50,6 +55,41 @@ public class AccessTokenFactoryTest
 		AccessToken accessToken = factory.create(getFakeToken(), new Date(1000));
 		
 		assertThat(isJWTToken(accessToken)).isTrue();
+	}
+	
+	@Test
+	public void shouldCreateJWTTokenWithUserInfoAttrWhenClaimsInTokenIsUsed() throws OAuthErrorException, ParseException
+	{
+		AccessTokenFactory factory = getFactory(AccessTokenFormat.JWT);
+		OAuthToken fakeToken = getFakeToken();
+		fakeToken.setUserInfo(new UserInfo(JWTClaimsSet.parse(Map.of("attr1", "v1", "sub", "sub"))).toJSONObject()
+				.toJSONString());
+		fakeToken.setClaimsInTokenAttribute(Optional.of(ClaimsInTokenAttribute.builder()
+				.withValues(Set.of(ClaimsInTokenAttribute.Value.token))
+				.build()));
+
+		AccessToken accessToken = factory.create(fakeToken, new Date(1000));
+		SignedJWT parse = SignedJWT.parse(accessToken.getValue());
+		assertThat(parse.getJWTClaimsSet()
+				.getClaims()
+				.get("attr1")).isEqualTo("v1");
+	}
+	
+	@Test
+	public void shouldCreateJWTTokenWithoutUserInfoAttrWhenClaimsInTokenIsNotUsed()
+			throws OAuthErrorException, ParseException
+	{
+		AccessTokenFactory factory = getFactory(AccessTokenFormat.JWT);
+		OAuthToken fakeToken = getFakeToken();
+		fakeToken.setUserInfo(new UserInfo(JWTClaimsSet.parse(Map.of("attr1", "v1", "sub", "sub"))).toJSONObject()
+				.toJSONString());
+		fakeToken.setClaimsInTokenAttribute(Optional.empty());
+
+		AccessToken accessToken = factory.create(fakeToken, new Date(1000));
+		SignedJWT parse = SignedJWT.parse(accessToken.getValue());
+		assertThat(parse.getJWTClaimsSet()
+				.getClaims()
+				.get("attr1")).isNull();
 	}
 
 	@Test
