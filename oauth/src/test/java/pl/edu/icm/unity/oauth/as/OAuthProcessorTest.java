@@ -17,6 +17,8 @@ import static pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository.
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -35,6 +37,7 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -65,6 +68,39 @@ public class OAuthProcessorTest
 				authzCode.getValue().toString());
 		verifyToken(codeToken, start, end, 200);
 	}
+	
+	@Test
+	public void shouldRecorIdTokenWithUserInfoWhenIdTokenClaimsInContext() throws Exception
+	{
+		Collection<DynamicAttribute> attributes = new ArrayList<>();
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
+		IdentityParam identity = new IdentityParam("username", "userA");
+		TokensManagement tokensMan = new MockTokensMan();
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(OAuthTestUtils.getOIDCConfig(),
+				new ResponseType(ResponseType.Value.CODE), GrantFlow.authorizationCode, 100, "nonce");
+		ctx.setClaimsInTokenAttribute(Optional.of(ClaimsInTokenAttribute.builder()
+				.withValues(Set.of(ClaimsInTokenAttribute.Value.id_token))
+				.build()));
+
+		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
+		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(attributes, identity,
+				ctx, null);
+
+		assertNull(resp.getAccessToken());
+		assertNotNull(resp.getAuthorizationCode());
+		AuthorizationCode authzCode = resp.getAuthorizationCode();
+		Token codeToken = tokensMan.getTokenById(OAuthProcessor.INTERNAL_CODE_TOKEN, authzCode.getValue()
+				.toString());
+
+		OAuthToken internalToken = OAuthToken.getInstanceFromJson(codeToken.getContents());
+		assertNotNull(internalToken.getOpenidInfo());
+		SignedJWT openidToken = SignedJWT.parse(internalToken.getOpenidInfo());
+		JWTClaimsSet openidClaims = openidToken.getJWTClaimsSet();
+
+		assertNotNull(openidClaims.getClaim("email"));
+	}
+	
+	
 	
 	@Test
 	public void checkImplicitFlowResponse() throws Exception

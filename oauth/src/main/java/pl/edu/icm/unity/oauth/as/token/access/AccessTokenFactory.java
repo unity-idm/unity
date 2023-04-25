@@ -11,11 +11,14 @@ import javax.ws.rs.core.Response;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet.Builder;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
@@ -70,7 +73,7 @@ public class AccessTokenFactory
 	private AccessToken createJWTAccessToken(OAuthToken token, Date issueTime) throws OAuthErrorException
 	{
 		Scope scope = new Scope(token.getEffectiveScope());
-		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+		Builder claimsSetBuilder = new JWTClaimsSet.Builder()
 				.subject(token.getSubject())
 				.issueTime(issueTime)
 				.issuer(token.getIssuerUri())
@@ -78,11 +81,32 @@ public class AccessTokenFactory
 				.expirationTime(new Date(issueTime.getTime() + token.getTokenValidity()*1000))
 				.jwtID(UUID.randomUUID().toString())
 				.claim("scope", scope.toString())
-				.claim("client_id", token.getClientUsername())
-				.build();
+				.claim("client_id", token.getClientUsername());
+
+		addAttributesToClaimIfNeeded(claimsSetBuilder, token);
+		JWTClaimsSet claimsSet = claimsSetBuilder.build();
 		SignedJWT signedJWT = sign(claimsSet);
 		int tokenValidity = token.getTokenValidity();
 		return new BearerJWTAccessToken(signedJWT.serialize(), tokenValidity, scope, claimsSet);
+	}
+	
+	private void addAttributesToClaimIfNeeded(Builder claimsSetBuilder, OAuthToken token) throws OAuthErrorException
+	{
+		if (token.hasSupportAttributesInToken())
+		{
+			UserInfo userInfo;
+			try
+			{
+				userInfo = UserInfo.parse(token.getUserInfo());
+				userInfo.toJWTClaimsSet().getClaims().forEach(claimsSetBuilder::claim);
+			} catch (ParseException e)
+			{
+				Response errorResponse = BaseTokenResource.makeError(OAuth2Error.INVALID_REQUEST, 
+						"Invalid user info claim set");
+				throw new OAuthErrorException(errorResponse);
+			}
+			
+		}
 	}
 	
 	private SignedJWT sign(JWTClaimsSet claimsSet) throws OAuthErrorException
