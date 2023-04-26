@@ -6,11 +6,14 @@ package pl.edu.icm.unity.saml.idp.web;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.server.Page;
 import eu.unicore.samly2.SAMLConstants;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.EnquiresDialogLauncher;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
 import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
@@ -61,7 +64,7 @@ import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_UI_SERVL
 
 @PermitAll
 @Route(value = SAML_UI_SERVLET_PATH)
-class SamlIdPWebView extends Composite<Div>
+class SamlIdPWebView extends Composite<Div> implements HasDynamicTitle
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebView.class);
 	private final MessageSource msg;
@@ -98,6 +101,7 @@ class SamlIdPWebView extends Composite<Div>
 	                      PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
 	                      SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
 	                      LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+	                      EnquiresDialogLauncher enquiresDialogLauncher,
 	                      NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
@@ -116,7 +120,7 @@ class SamlIdPWebView extends Composite<Div>
 		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 		this.policyAgreementRepresentationBuilder = policyAgreementRepresentationBuilder;
 		this.notificationPresenter = notificationPresenter;
-		enter();
+		enquiresDialogLauncher.showEnquiryDialogIfNeeded(this::enter);
 	}
 
 	protected TranslationResult getUserInfo(SAMLAuthnContext samlCtx, AuthnResponseProcessor processor) 
@@ -292,5 +296,11 @@ class SamlIdPWebView extends Composite<Div>
 			String sessionId)
 	{
 		IdpConsentDeciderServlet.addSessionParticipant(samlCtx, returnedSubject, sessionId, sessionMan);
+	}
+
+	@Override
+	public String getPageTitle()
+	{
+		return Vaadin2XWebAppContext.getCurrentWebAppDisplayedName();
 	}
 }

@@ -131,6 +131,33 @@ public class EnquiryResponseEditorController
 				filteredPolicyAgreement);
 	}
 
+	public List<EnquiryForm> getRegularFormsToFill()
+	{
+		EntityParam entity = getLoggedEntity();
+		try
+		{
+			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
+					.withAccessMode(EnquirySelector.AccessMode.NOT_BY_INVITATION_ONLY)
+					.withType(EnquirySelector.Type.REGULAR)
+					.build());
+		} catch (EngineException e)
+		{
+			log.error("Can't load pending enquiry forms", e);
+		}
+		return Collections.emptyList();
+	}
+
+	public EnquiryResponseEditor getEditorInstanceForAuthenticatedUser(EnquiryForm form,
+	                                                                   RemotelyAuthenticatedPrincipal remoteContext) throws Exception
+	{
+		EntityParam loggedEntity = getLoggedEntity();
+		List<PolicyAgreementConfiguration> filteredPolicyAgreement = policyAgrMan.filterAgreementToPresent(
+				loggedEntity,
+				form.getPolicyAgreements());
+		return getEditorInstance(form, Collections.emptyMap(), remoteContext, getPrefilledSetForSticky(form, loggedEntity),
+				filteredPolicyAgreement);
+	}
+
 	private EntityParam getLoggedEntity()
 	{
 		return  new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());

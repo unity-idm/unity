@@ -78,7 +78,7 @@ public class Vaadin2XWebAppContext extends WebAppContext
 						.getDisplayedName()
 						.getValue(context.messageSource)
 				)
-				.orElse(null);
+				.orElse("");
 	}
 
 	public static Endpoint getCurrentWebAppEndpoint()

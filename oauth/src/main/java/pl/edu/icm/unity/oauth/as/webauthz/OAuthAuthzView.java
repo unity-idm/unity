@@ -10,8 +10,10 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
@@ -55,7 +57,7 @@ import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_UI_
 
 @PermitAll
 @Route(value = OAUTH_UI_SERVLET_PATH)
-class OAuthAuthzView extends Composite<Div>
+class OAuthAuthzView extends Composite<Div> implements HasDynamicTitle
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzView.class);
 
@@ -91,6 +93,7 @@ class OAuthAuthzView extends Composite<Div>
 	                      OAuthIdpStatisticReporterFactory idpStatisticReporterFactory,
 	                      FreemarkerAppHandler freemarkerHandler,
 	                      PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
+	                      EnquiresDialogLauncher enquiresDialogLauncher,
 	                      NotificationPresenter notificationPresenter
 	)
 	{
@@ -108,7 +111,7 @@ class OAuthAuthzView extends Composite<Div>
 		this.freemarkerHandler = freemarkerHandler;
 		this.policyAgreementRepresentationBuilder = policyAgreementRepresentationBuilder;
 		this.notificationPresenter = notificationPresenter;
-		enter();
+		enquiresDialogLauncher.showEnquiryDialogIfNeeded(this::enter);
 	}
 
 	protected void enter()
@@ -302,5 +305,11 @@ class OAuthAuthzView extends Composite<Div>
 			
 			oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
 		}
+	}
+
+	@Override
+	public String getPageTitle()
+	{
+		return Vaadin2XWebAppContext.getCurrentWebAppDisplayedName();
 	}
 }

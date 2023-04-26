@@ -1,15 +1,15 @@
 .u-consent-screen {
     background-color: #F5F5F5;
     border-radius: var(--border-radius);
-    width: 60%;
+    width: 30em;
 }
 
 .u-consent-screen-checkbox {
-    align-self: baseline;
-    margin-left: 20%;
+    align-self: center;
+    margin-right: 8.5em;
 }
 
 .u-consent-screen-buttons {
-    align-self: end;
-    margin-right: 20%;
+    align-self: center;
+    margin-left: 20em;
 }

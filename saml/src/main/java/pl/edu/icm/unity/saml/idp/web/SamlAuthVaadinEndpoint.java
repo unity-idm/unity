@@ -238,7 +238,7 @@ public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
 			);
 		} catch (Exception e)
 		{
-			log.error(e);
+			log.error(String.format("Creating of web context for endpoint %s failed", description.getEndpoint().getName()), e);
 			return this.context;
 		}
 		context.setContextPath(description.getEndpoint().getContextAddress());
