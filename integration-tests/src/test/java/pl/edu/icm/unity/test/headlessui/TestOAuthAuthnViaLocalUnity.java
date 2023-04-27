@@ -8,7 +8,7 @@ package pl.edu.icm.unity.test.headlessui;
 import org.junit.Test;
 import org.openqa.selenium.By;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test login via Local OAuth with output profile which create dynamic attribute
@@ -24,10 +24,8 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 		driver.get(baseUrl + "/home");
 		waitForPageLoad(By.className("u-idpAuthentication-oauth-local")).click();	
 		
-		waitForPageLoadByURL("/oauth2-as/oauth2-authz-web-entry/");
-		waitForElement(By.className("u-passwordUsernameField")).clear();
+		waitForPageLoadByURL("/oauth2-as/authentication");
 		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user");
-		waitForElement(By.className("u-passwordField")).clear();
 		waitForElement(By.className("u-passwordField")).sendKeys("the!test12");
 		waitForElement(By.className("u-passwordSignInButton")).click();
 		
@@ -35,7 +33,7 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();	
 		
 		waitForPageLoad(By.id("MainHeader.logout"));
-		assertTrue(waitForElement(By.id("MainHeader.loggedAs")) != null);
+		assertNotNull(waitForElement(By.id("MainHeader.loggedAs")));
 		waitForElement(By.id("MainHeader.logout")).click();
 	}
 }

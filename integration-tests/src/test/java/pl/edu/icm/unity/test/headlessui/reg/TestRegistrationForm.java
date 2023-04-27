@@ -8,20 +8,19 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class TestRegistrationForm extends SeleniumTestBase
 {
 	@Test
-	public void registrationTest() throws Exception
+	public void registrationTest()
 	{
 		driver.get(baseUrl + "/home2");
 		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		
-		waitForPageLoadByURL("/saml-idp/saml2idp-web-entry/");
-		waitForElement(By.className("u-passwordUsernameField")).clear();
+		waitForPageLoadByURL("/saml-idp/authentication");
 		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user");
-		waitForElement(By.className("u-passwordField")).clear();
 		waitForElement(By.className("u-passwordField")).sendKeys("the!test12");
 		waitForElement(By.className("u-passwordSignInButton")).click();
 		
@@ -38,8 +37,8 @@ public class TestRegistrationForm extends SeleniumTestBase
 				
 		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();
-		
-		assertTrue(waitForElement(By.id("MainHeader.loggedAs")) != null);
+
+		assertNotNull(waitForElement(By.id("MainHeader.loggedAs")));
 		waitForElement(By.id("MainHeader.logout"));			
 	}	
 }

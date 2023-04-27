@@ -5,10 +5,10 @@
 
 package pl.edu.icm.unity.test.headlessui;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.openqa.selenium.By;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestAttributeIntrospectionEndpoint extends SeleniumTestBase
 {
@@ -20,9 +20,7 @@ public class TestAttributeIntrospectionEndpoint extends SeleniumTestBase
 		waitForElement(By.className("u-idpAuthentication-saml-7")).click();
 		
 		//saml login
-		waitForPageLoad(By.className("u-passwordUsernameField")).clear();
 		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user");
-		waitForElement(By.className("u-passwordField")).clear();
 		waitForElement(By.className("u-passwordField")).sendKeys("the!test12");
 		waitForElement(By.className("u-passwordSignInButton")).click();
 		
