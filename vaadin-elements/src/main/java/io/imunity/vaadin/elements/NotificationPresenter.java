@@ -24,6 +24,9 @@ import static com.vaadin.flow.component.notification.Notification.Position.TOP_E
 
 public class NotificationPresenter
 {
+
+	private static final int DEFAULT_NOTIFICATION_DURATION = 5000;
+
 	public static void showCriticalError(Runnable logout, String header, String description)
 	{
 		ErrorNotification errorNotification = new ErrorNotification(header, description);
@@ -33,7 +36,7 @@ public class NotificationPresenter
 
 	public void showSuccess(String txt)
 	{
-		Notification notification = new Notification(txt, 5000, TOP_END);
+		Notification notification = new Notification(txt, DEFAULT_NOTIFICATION_DURATION, TOP_END);
 		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		notification.open();
 	}
@@ -54,7 +57,7 @@ public class NotificationPresenter
 	public void showErrorAutoClosing(String caption, String description)
 	{
 		ErrorNotification errorNotification = new ErrorNotification(caption, description);
-		errorNotification.setDuration(5000);
+		errorNotification.setDuration(DEFAULT_NOTIFICATION_DURATION);
 		errorNotification.open();
 	}
 

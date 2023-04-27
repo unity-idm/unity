@@ -28,15 +28,10 @@ public class Vaadin2XWebAppContext extends WebAppContext
 	public Vaadin2XWebAppContext(Properties properties, Vaadin82XEndpointProperties vaadinEndpointProperties,
 	                             MessageSource messageSource, ResolvedEndpoint description)
 	{
-		this.properties = properties;
-		this.vaadin23Properties = vaadinEndpointProperties;
-		this.messageSource = messageSource;
-		this.description = description;
-		this.authenticationFlows = List.of();
-		this.cancelHandler = null;
+		this(properties, vaadinEndpointProperties, messageSource, description, List.of(), null);
 	}
 
-	private synchronized void setAuthenticationFlows(List<AuthenticationFlow> authenticationFlows)
+	private void setAuthenticationFlows(List<AuthenticationFlow> authenticationFlows)
 	{
 		this.authenticationFlows = authenticationFlows;
 	}

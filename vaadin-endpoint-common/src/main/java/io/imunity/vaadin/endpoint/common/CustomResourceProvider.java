@@ -72,16 +72,20 @@ public abstract class CustomResourceProvider implements ResourceProvider
 				.filter(url -> chosenClassPathElement.stream()
 						.anyMatch(classPathElement -> url.toString().replace("jar:", "").startsWith(classPathElement))
 				)
-				.sorted(Comparator.comparing(url -> url.toString().replace("jar:", ""), (arg1, arg2) ->
-						{
-							if(arg1.startsWith(currentClassPathElement))
-								return -1;
-							if(arg2.startsWith(currentClassPathElement))
-								return 1;
-							return 0;
-						}
-				))
+				.sorted(Comparator.comparing(
+						url -> url.toString().replace("jar:", ""),
+						(arg1, arg2) -> compareResources(arg1, arg2, currentClassPathElement))
+				)
 				.collect(Collectors.toList());
+	}
+
+	static int compareResources(String arg1, String arg2, String currentClassPathElement)
+	{
+		if(arg1.startsWith(currentClassPathElement))
+			return -1;
+		if(arg2.startsWith(currentClassPathElement))
+			return 1;
+		return 0;
 	}
 
 	private Iterable<URL> getUrls(String path)

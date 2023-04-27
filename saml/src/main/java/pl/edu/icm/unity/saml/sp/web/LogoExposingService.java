@@ -13,6 +13,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -46,23 +47,25 @@ class LogoExposingService
 		try
 		{
 			return externalLogoFileLoader.getFile(configuration.federationId, configKey, getCurrentRequest().getLocale())
-				.map(file ->
-				{
-					try(FileInputStream byteArrayInputStream = new FileInputStream(file))
-					{
-						StreamResource streamResource = new StreamResource(file.getName(), () -> byteArrayInputStream);
-						return new Image(streamResource, "");
-					} catch (IOException  e)
-					{
-						log.warn(e);
-						return new Image();
-					}
-				})
+				.map(LogoExposingService::createImage)
 				.orElse(null);
 		} catch (Exception e)
 		{
 			log.debug("Can not load logo fetched from URI " + configuration.getLogoURI(), e);
 			return null;
+		}
+	}
+
+	private static Image createImage(File file)
+	{
+		try(FileInputStream byteArrayInputStream = new FileInputStream(file))
+		{
+			StreamResource streamResource = new StreamResource(file.getName(), () -> byteArrayInputStream);
+			return new Image(streamResource, "");
+		} catch (IOException  e)
+		{
+			log.warn(e);
+			return new Image();
 		}
 	}
 

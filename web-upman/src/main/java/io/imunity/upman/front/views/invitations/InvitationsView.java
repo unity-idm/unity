@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ENVELOPE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+
 @PermitAll
 @Route(value = "/invitations", layout = UpManMenu.class)
 public class InvitationsView extends UnityViewComponent

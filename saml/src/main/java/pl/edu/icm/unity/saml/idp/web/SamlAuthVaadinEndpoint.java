@@ -213,7 +213,7 @@ public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
 	}
 
 	@Override
-	public synchronized ServletContextHandler getServletContextHandler()
+	public ServletContextHandler getServletContextHandler()
 	{
 		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows,
 				new SamlAuthnCancelHandler(freemarkerHandler, aTypeSupport, idpStatisticReporterFactory,

@@ -57,6 +57,7 @@ public class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpo
 	protected Vaadin82XEndpointProperties genericEndpointProperties;
 	protected final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 	protected final Class<? extends com.vaadin.flow.server.VaadinServlet> servletClass;
+
 	public Vaadin2XEndpoint(NetworkServer server,
 	                        AdvertisedAddressProvider advertisedAddrProvider,
 	                        MessageSource msg,
@@ -160,7 +161,7 @@ public class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpo
 	}
 
 	@Override
-	public synchronized ServletContextHandler getServletContextHandler()
+	public ServletContextHandler getServletContextHandler()
 	{
 		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows, null);
 		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);

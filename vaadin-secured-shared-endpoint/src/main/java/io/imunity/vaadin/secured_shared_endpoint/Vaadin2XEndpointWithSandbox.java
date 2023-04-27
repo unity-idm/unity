@@ -40,7 +40,7 @@ class Vaadin2XEndpointWithSandbox extends Vaadin2XEndpoint
 	}
 
 	@Override
-	public synchronized ServletContextHandler getServletContextHandler()
+	public ServletContextHandler getServletContextHandler()
 	{
 		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
 		Vaadin2XWebAppContextWithSandbox webAppContext = new Vaadin2XWebAppContextWithSandbox(

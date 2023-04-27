@@ -63,7 +63,11 @@ class FidoComponent
 		this.newCredentialListener = newCredentialListener;
 		this.authenticationResultListener = authenticationResultListener;
 		this.notificationPresenter = notificationPresenter;
-		this.fidoBrowserCallableComponent = new FidoBrowserCallableComponent(txt -> msg.getMessage(txt), Log.getLogger(Log.U_SERVER_FIDO, FidoBrowserCallableComponent.class), notificationPresenter, this::finalizeRegistration, this::finalizeAuthentication);
+		this.fidoBrowserCallableComponent = new FidoBrowserCallableComponent(
+				msg::getMessage,
+				Log.getLogger(Log.U_SERVER_FIDO, FidoBrowserCallableComponent.class),
+				notificationPresenter, this::finalizeRegistration, this::finalizeAuthentication
+		);
 	}
 
 	public Long getEntityId()

@@ -97,7 +97,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		redirectParam = installRequestHandler();
 		Resource logo;
-		if (configuration.logoURI == null)
+		if (configuration.getV8LogoURI() == null)
 		{
 			logo = Images.empty.getResource();
 		}

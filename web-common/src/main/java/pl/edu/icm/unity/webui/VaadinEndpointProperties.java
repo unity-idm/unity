@@ -25,7 +25,7 @@ import java.util.Properties;
 public class VaadinEndpointProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
-	
+
 	enum ScaleMode {
 		none, 
 		heightSmall, 
@@ -84,6 +84,7 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
 
+	private static final String DEFAULT_AUTH_LOGO = "../unitygw/img/other/logo.png";
 	private static final String DEFAULT_V8_AUTH_LOGO = "file:../common/img/other/logo.png";
 
 	static
@@ -246,7 +247,7 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	{
 		String value = getValue(VaadinEndpointProperties.AUTHN_LOGO);
 		if(value.equals(DEFAULT_V8_AUTH_LOGO))
-			return "../unitygw/img/other/logo.png";
+			return DEFAULT_AUTH_LOGO;
 		return value;
 	}
 

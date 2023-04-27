@@ -184,7 +184,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			sendCodeButton.setWidthFull();
 			sendCodeButton.addClickListener(e ->
 			{
-//				sendCodeButton.removeClickShortcut();
 				sendCode();
 			});
 			usernameField.addFocusListener(event ->
@@ -200,8 +199,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			resetButton.setWidthFull();
 			resetButton.addClassName("u-smsResetButton");
 			resetButton.addClickListener(e -> {
-//				sendCodeButton.removeClickShortcut();
-//				authenticateButton.removeClickShortcut();
 				callback.onCancelledAuthentication();
 				resetSentCode();
 				usernameField.focus();
@@ -222,8 +219,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			add(authenticateButton);
 			authenticateButton.addClickListener(event -> {
-//				sendCodeButton.removeClickShortcut();
-//				authenticateButton.removeClickShortcut();
 				triggerAuthentication();
 			});
 			authenticateButton.addClassName("u-smsSignInButton");

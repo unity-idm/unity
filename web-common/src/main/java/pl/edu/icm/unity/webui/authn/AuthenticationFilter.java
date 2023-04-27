@@ -155,17 +155,15 @@ public class AuthenticationFilter implements Filter
 			{
 				if (!isVaadinBackgroundRequest(httpRequest))
 				{
-					log.trace("Update session activity for " + loginSessionId);
+					log.trace("Update session activity for {}", loginSessionId);
 					sessionMan.updateSessionActivity(loginSessionId);
 				}
 				gotoProtectedResource(httpRequest, response, chain, loginSession);
 				throw new EopException();
 			} catch (IllegalArgumentException e)
 			{
-				log.debug("Can't update session activity ts for " + loginSessionId
-						+ " - expired(?), HTTP session "
-						+ httpSession.getId(), e);
-				return;
+				log.debug("Can't update session activity ts for {} - expired(?), HTTP session {}",
+						loginSessionId, httpSession.getId(), e);
 			}
 		} else
 		{

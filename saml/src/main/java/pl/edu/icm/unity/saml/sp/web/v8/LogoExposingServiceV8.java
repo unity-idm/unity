@@ -38,9 +38,9 @@ class LogoExposingServiceV8
 
 	Resource getAsResource(IdPVisalSettings configuration, TrustedIdPKey configKey)
 	{
-		if (configuration.logoURI == null)
+		if (configuration.getV8LogoURI() == null)
 			return null;
-		return (configuration.federationId == null || configuration.logoURI.startsWith("file:")) ?
+		return (configuration.federationId == null || configuration.getV8LogoURI().startsWith("file:")) ?
 			getDirectlyDefinedImage(configuration) :
 			getPrefetchedFederationLogo(configuration, configKey);
 	}
@@ -55,7 +55,7 @@ class LogoExposingServiceV8
 				.orElse(null);
 		} catch (Exception e)
 		{
-			log.debug("Can not load logo fetched from URI " + configuration.logoURI, e);
+			log.debug("Can not load logo fetched from URI " + configuration.getV8LogoURI(), e);
 			return null;
 		}
 	}
@@ -64,14 +64,14 @@ class LogoExposingServiceV8
 	{
 		try
 		{
-			URI uri = URIHelper.parseURI(configuration.logoURI);
+			URI uri = URIHelper.parseURI(configuration.getV8LogoURI());
 			return URIHelper.isWebReady(uri) ? 
 					new ExternalResource(uri.toString()) : 
 					new FileStreamResource(uriAccessService.readImageURI(uri, UI.getCurrent().getTheme()))
 						.getResource();
 		} catch (IllegalURIException e)
 		{
-			log.warn("Invalid logo URI {}", configuration.logoURI, e);
+			log.warn("Invalid logo URI {}", configuration.getV8LogoURI(), e);
 			return null;
 		}
 	}
