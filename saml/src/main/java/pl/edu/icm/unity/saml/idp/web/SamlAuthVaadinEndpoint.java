@@ -228,10 +228,10 @@ public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
 		if (context != null)
 			return context;
 
-		ServletContextHandler context;
+		ServletContextHandler servletContextHandler;
 		try
 		{
-			context = getWebAppContext(webAppContext, uiServletPath,
+			servletContextHandler = getWebAppContext(webAppContext, uiServletPath,
 					resourceProvider.getChosenClassPathElement(),
 					getWebContentsDir(),
 					new ServletContextListeners()
@@ -239,72 +239,72 @@ public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
 		} catch (Exception e)
 		{
 			log.error(String.format("Creating of web context for endpoint %s failed", description.getEndpoint().getName()), e);
-			return this.context;
+			return context;
 		}
-		context.setContextPath(description.getEndpoint().getContextAddress());
+		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		String samlPublicEntryPointUrl = getServletUrl(publicEntryPointPath);
 		Servlet samlParseServlet = getSamlParseServlet(samlPublicEntryPointUrl, 
 				getServletUrl(SAML_ENTRY_SERVLET_PATH));
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
-		context.addServlet(samlParseHolder, publicEntryPointPath + "/*");
+		servletContextHandler.addServlet(samlParseHolder, publicEntryPointPath + "/*");
 
-		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*", 
+		servletContextHandler.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST));
 		
 		Filter samlGuardFilter = new SamlGuardFilter(new ErrorHandler(aTypeSupport, lastAccessAttributeManagement, freemarkerHandler));
-		context.addFilter(new FilterHolder(samlGuardFilter), SAML_ENTRY_SERVLET_PATH, 
+		servletContextHandler.addFilter(new FilterHolder(samlGuardFilter), SAML_ENTRY_SERVLET_PATH,
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		ServletHolder routingServletHolder = createServletHolder(
 				new RoutingServlet(SAML_CONSENT_DECIDER_SERVLET_PATH));
-		context.addServlet(routingServletHolder, SAML_ENTRY_SERVLET_PATH + "/*");
+		servletContextHandler.addServlet(routingServletHolder, SAML_ENTRY_SERVLET_PATH + "/*");
 		
 		Servlet samlConsentDeciderServlet = dispatcherServletFactory.getInstance(
 				getServletUrl(SAML_UI_SERVLET_PATH), description.getEndpoint());
 		ServletHolder samlConsentDeciderHolder = createServletHolder(samlConsentDeciderServlet);
-		context.addServlet(samlConsentDeciderHolder, SAML_CONSENT_DECIDER_SERVLET_PATH + "/*");
+		servletContextHandler.addServlet(samlConsentDeciderHolder, SAML_CONSENT_DECIDER_SERVLET_PATH + "/*");
 		
 		String sloAsyncURL = getServletUrl(SAML_SLO_ASYNC_SERVLET_PATH);
 		Servlet samlSLOAsyncServlet = getSLOAsyncServlet(sloAsyncURL);
 		ServletHolder samlSLOAsyncHolder = createServletHolder(samlSLOAsyncServlet);
-		context.addServlet(samlSLOAsyncHolder, SAML_SLO_ASYNC_SERVLET_PATH + "/*");
+		servletContextHandler.addServlet(samlSLOAsyncHolder, SAML_SLO_ASYNC_SERVLET_PATH + "/*");
 
 		String sloSyncURL = getServletUrl(SAML_SLO_SOAP_SERVLET_PATH);
 		Servlet samlSLOSyncServlet = getSLOSyncServlet(sloSyncURL);
 		ServletHolder samlSLOSyncHolder = createServletHolder(samlSLOSyncServlet);
-		context.addServlet(samlSLOSyncHolder, SAML_SLO_SOAP_SERVLET_PATH + "/*");
+		servletContextHandler.addServlet(samlSLOSyncHolder, SAML_SLO_SOAP_SERVLET_PATH + "/*");
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		
-		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
+		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(
 						List.of(AUTHENTICATION_PATH, SAML_CONSENT_DECIDER_SERVLET_PATH))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
-		context.addFilter(new FilterHolder(authnFilter), "/*", 
+		servletContextHandler.addFilter(new FilterHolder(authnFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows,
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN),
 				description.getRealm());
-		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
+		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(),
 				null, getAuthenticationFlows());
-		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
+		servletContextHandler.addFilter(new FilterHolder(contextSetupFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		if (samlConfiguration.publishMetadata)
 		{
 			Servlet metadataServlet = getMetadataServlet(samlPublicEntryPointUrl, sloAsyncURL, sloSyncURL);
-			context.addServlet(createServletHolder(metadataServlet), SAML_META_SERVLET_PATH + "/*");
+			servletContextHandler.addServlet(createServletHolder(metadataServlet), SAML_META_SERVLET_PATH + "/*");
 		}
-		return context;
+		return servletContextHandler;
 	}
 	protected Servlet getSamlParseServlet(String endpointURL, String dispatcherUrl)
 	{

@@ -151,10 +151,10 @@ public class OAuthAuthzWebEndpoint extends Vaadin2XEndpoint
 		if (context != null)
 			return context;
 
-		ServletContextHandler context;
+		ServletContextHandler servletContextHandler;
 		try
 		{
-			context = getWebAppContext(webAppContext, uiServletPath,
+			servletContextHandler = getWebAppContext(webAppContext, uiServletPath,
 					resourceProvider.getChosenClassPathElement(),
 					getWebContentsDir(),
 					new ServletContextListeners()
@@ -162,14 +162,14 @@ public class OAuthAuthzWebEndpoint extends Vaadin2XEndpoint
 		} catch (Exception e)
 		{
 			log.error(String.format("Creating of web context for endpoint %s failed", description.getEndpoint().getName()), e);
-			return this.context;
+			return context;
 		}
-		context.setContextPath(description.getEndpoint().getContextAddress());
+		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_ROUTING_SERVLET_PATH),
 				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, scopeService, serverConfig);
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
-		context.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
+		servletContextHandler.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
@@ -177,40 +177,40 @@ public class OAuthAuthzWebEndpoint extends Vaadin2XEndpoint
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 
 		ServletHolder routingServletHolder = createServletHolder(new RoutingServlet(OAUTH_CONSENT_DECIDER_SERVLET_PATH));
-		context.addServlet(routingServletHolder, OAUTH_ROUTING_SERVLET_PATH + "/*");
+		servletContextHandler.addServlet(routingServletHolder, OAUTH_ROUTING_SERVLET_PATH + "/*");
 
 		Servlet oauthConsentDeciderServlet = dispatcherServletFactory.getInstance(getServletUrl(OAUTH_UI_SERVLET_PATH), description);
 		ServletHolder oauthConsentDeciderHolder = createServletHolder(oauthConsentDeciderServlet);
-		context.addServlet(oauthConsentDeciderHolder, OAUTH_CONSENT_DECIDER_SERVLET_PATH + "/*");
+		servletContextHandler.addServlet(oauthConsentDeciderHolder, OAUTH_CONSENT_DECIDER_SERVLET_PATH + "/*");
 
-		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
+		servletContextHandler.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST));
 
 		Filter oauthGuardFilter = new OAuthGuardFilter(new ErrorHandler(freemarkerHandler));
-		context.addFilter(new FilterHolder(oauthGuardFilter), OAUTH_ROUTING_SERVLET_PATH + "/*",
+		servletContextHandler.addFilter(new FilterHolder(oauthGuardFilter), OAUTH_ROUTING_SERVLET_PATH + "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		context.addFilter(
+		servletContextHandler.addFilter(
 				new FilterHolder(new HiddenResourcesFilter(Collections.unmodifiableList(Arrays
 						.asList(AUTHENTICATION_PATH, OAUTH_CONSENT_DECIDER_SERVLET_PATH)))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 
 		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor, new NoSessionFilterImpl());
-		context.addFilter(new FilterHolder(authnFilter), "/*",
+		servletContextHandler.addFilter(new FilterHolder(authnFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows,
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN), description.getRealm());
-		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
+		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(), null,
 				getAuthenticationFlows());
-		context.addFilter(new FilterHolder(contextSetupFilter), "/*",
+		servletContextHandler.addFilter(new FilterHolder(contextSetupFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		return context;
+		return servletContextHandler;
 	}
 	
 	private static class NoSessionFilterImpl implements io.imunity.vaadin.endpoint.common.AuthenticationFilter.NoSessionFilter

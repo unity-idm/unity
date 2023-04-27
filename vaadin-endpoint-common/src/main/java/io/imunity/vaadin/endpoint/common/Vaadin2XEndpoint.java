@@ -98,48 +98,48 @@ public class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpo
 		if (context != null)
 			return context;
 
-		ServletContextHandler context;
+		ServletContextHandler servletContextHandler;
 		try
 		{
-			context = getWebAppContext(webAppContext, uiServletPath,
+			servletContextHandler = getWebAppContext(webAppContext, uiServletPath,
 					resourceProvider.getChosenClassPathElement(),
 					getWebContentsDir(),
 					new ServletContextListeners()
 			);
 		} catch (Exception e)
 		{
-			return this.context;
+			return context;
 		}
 
-		context.setContextPath(description.getEndpoint().getContextAddress());
+		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 
-		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
+		servletContextHandler.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
 			EnumSet.of(DispatcherType.REQUEST));
-		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
+		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(
 				List.of(AUTHENTICATION_PATH))),
 			"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
 			description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
-		context.addFilter(new FilterHolder(authnFilter), "/*",
+		servletContextHandler.addFilter(new FilterHolder(authnFilter), "/*",
 			EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows,
 			description.getEndpoint().getContextAddress(),
 			false,
 			description.getRealm());
-		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
+		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
 			EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		contextSetupFilter = new InvocationContextSetupFilter(serverConfig, description.getRealm(),
 			getServletUrl(uiServletPath), getAuthenticationFlows());
-		context.addFilter(new FilterHolder(contextSetupFilter), "/*",
+		servletContextHandler.addFilter(new FilterHolder(contextSetupFilter), "/*",
 			EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		return context;
+		return servletContextHandler;
 	}
 
 	protected ServletHolder createServletHolder(Servlet servlet)
