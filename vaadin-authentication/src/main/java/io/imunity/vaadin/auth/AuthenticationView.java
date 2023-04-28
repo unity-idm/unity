@@ -17,10 +17,12 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
+import com.vaadin.server.Page;
 import io.imunity.vaadin.auth.outdated.CredentialChangeConfiguration;
 import io.imunity.vaadin.auth.outdated.OutdatedCredentialController;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
+import io.imunity.vaadin.endpoint.common.RegistrationFormsLayoutService;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +39,10 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
@@ -62,6 +67,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	private final InputTranslationEngine inputTranslationEngine;
 	private final ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory;
 	private final List<AuthenticationFlow> authnFlows;
+	private final RegistrationFormsLayoutService registrationFormsLayoutService;
 	private final NotificationPresenter notificationPresenter;
 
 	private final VaadinEndpointProperties config;
@@ -77,6 +83,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	                          ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 	                          InputTranslationEngine inputTranslationEngine,
 	                          ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
+	                          RegistrationFormsLayoutService registrationFormsLayoutService,
 	                          NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
@@ -88,10 +95,12 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.outdatedCredentialDialogFactory = outdatedCredentialDialogFactory;
 		this.imageAccessService = imageAccessService;
+		this.registrationFormsLayoutService = registrationFormsLayoutService;
 		this.notificationPresenter = notificationPresenter;
 		this.endpointDescription = getCurrentWebAppResolvedEndpoint();
-		this.config = new VaadinEndpointProperties(getCurrentWebAppContextProperties());
+		this.config = getCurrentWebAppVaadinProperties();
 		this.authnFlows = List.copyOf(getCurrentWebAppAuthenticationFlows());
+		this.registrationFormsLayoutService.configure(config.getRegistrationConfiguration());
 	}
 	
 	protected void init()
@@ -120,7 +129,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 			if (postAuthnStepDecision.triggeringContext.isRegistrationTriggered())
 			{
 				//note that reg view will clean the session attribute on its own.
-//				formSelected(postAuthnStepDecision.triggeringContext.form);
+				formSelected(postAuthnStepDecision.triggeringContext.form);
 			} else
 			{
 				session.removeAttribute(RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
@@ -182,12 +191,62 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	
 	private boolean isRegistrationEnabled()
 	{
-		return false;
-	}
+		try
+		{
+			return registrationFormsLayoutService.isRegistrationEnabled();
+		} catch (EngineException e)
+		{
+			LOG.error("Failed to determine whether registration is enabled or not on "
+					+ "authentication screen.", e);
+			return false;
+		}	}
 	
 	private void showRegistration()
 	{
+		if (config.getRegistrationConfiguration().getExternalRegistrationURL().isPresent())
+		{
+			String redirectURL = config.getRegistrationConfiguration().getExternalRegistrationURL().get();
+			Page.getCurrent().open(redirectURL, null);
+		} else
+		{
+			showRegistrationLayout();
+		}
+	}
 
+	private void showRegistrationLayout()
+	{
+		try
+		{
+			List<RegistrationForm> forms = registrationFormsLayoutService.getDisplayedForms();
+			if (forms.isEmpty())
+			{
+				notificationPresenter.showError(msg.getMessage("error"),
+						msg.getMessage("RegistrationFormsChooserComponent.noFormsInfo"));
+			} else if (forms.size() == 1)
+			{
+				formSelected(forms.get(0));
+			} else
+			{
+				RegistrationFormsChooserComponent chooser = new RegistrationFormsChooserComponent(
+						forms, this::formSelected, this::resetToFreshAuthenticationScreen, msg);
+				getContent().removeAll();
+				getContent().add(chooser);
+			}
+		} catch (EngineException e)
+		{
+			notificationPresenter.showError(msg.getMessage("error"),
+					msg.getMessage("AuthenticationUI.registrationFormInitError"));
+		}
+	}
+
+	private void formSelected(RegistrationForm form)
+	{
+		Component view = registrationFormsLayoutService.createRegistrationView(
+				form, RegistrationContext.TriggeringMode.manualAtLogin, this::resetToFreshAuthenticationScreen,
+				() -> UI.getCurrent().getPage().reload(), () -> UI.getCurrent().getPage().reload()
+		);
+		getContent().removeAll();
+		getContent().add(view);
 	}
 
 	@Override

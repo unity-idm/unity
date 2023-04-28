@@ -3,14 +3,14 @@
  */ 
 html {
   --lumo-font-size: 1rem;
-  --lumo-font-size-xxxl: 3rem;
-  --lumo-font-size-xxl: 2.25rem;
-  --lumo-font-size-xl: 1.75rem;
-  --lumo-font-size-l: 1.375rem;
-  --lumo-font-size-m: 1.125rem;
-  --lumo-font-size-xs: 0.875rem;
-  --lumo-font-size-xxs: 0.8125rem;
-  --lumo-font-size-s: 1rem;
+  --lumo-font-size-xxxl: 2.5rem;
+  --lumo-font-size-xxl: 1.75rem;
+  --lumo-font-size-xl: 1.375rem;
+  --lumo-font-size-l: 1.125rem;
+  --lumo-font-size-m: 1rem;
+  --lumo-font-size-s: 0.875rem;
+  --lumo-font-size-xs: 0.8125rem;
+  --lumo-font-size-xxs: 0.75rem;
   --lumo-font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
   --lumo-size-xl: 4rem;
   --lumo-size-l: 3rem;
@@ -30,6 +30,11 @@ html {
   --unity-font-weight: 500;
 
   --vaadin-text-field-default-width: 16em;
+
+  --fido-top-margin: var(--lumo-space-m);
+  --input-label-top-padding: var(--lumo-space-m);
+  --border-radius: var(--lumo-border-radius-m);
+  --contrast: var(--lumo-contrast-5pct);
 }
 
 h1, h2, h3, h4, h5, h6, b, strong {
@@ -90,4 +95,14 @@ vaadin-text-field > label {
 
 .disable-icon-color {
     color: #cfd4db;
+}
+
+.u-fido-layout {
+    flex-direction: row;
+    gap: 0;
+}
+
+.u-password-quality {
+    background-color: #F5F5F5;
+    border-radius: var(--border-radius);
 }

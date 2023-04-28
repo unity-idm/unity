@@ -59,7 +59,7 @@ import java.util.Optional;
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
 
 @Route(value = REGISTRATION_PATH + ":" + StandaloneRegistrationView.FORM_PARAM)
-public class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTitle, BeforeEnterObserver
+class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTitle, BeforeEnterObserver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneRegistrationView.class);
 
@@ -82,7 +82,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 	private Runnable gotoSignInRedirector;
 	
 	@Autowired
-	public StandaloneRegistrationView(MessageSource msg,
+	StandaloneRegistrationView(MessageSource msg,
 	                                  @Qualifier("insecure") RegistrationsManagement regMan,
 	                                  UnityServerConfiguration cfg,
 	                                  IdPLoginController idpLoginController,
@@ -115,6 +115,16 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 				.orElse("");
 	}
 
+	void init(RegistrationForm form, TriggeringMode mode, Runnable customCancelHandler, Runnable completedRegistrationHandler,
+	          Runnable gotoSignInRedirector)
+	{
+		this.form = form;
+		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
+		this.postFillHandler = new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
+				pageTitle, form.getLayoutSettings().getLogoURL(), true);
+		enter(mode, customCancelHandler, completedRegistrationHandler, gotoSignInRedirector);
+	}
+
 	@Override
 	public void beforeEnter(BeforeEnterEvent event)
 	{
@@ -139,7 +149,7 @@ public class StandaloneRegistrationView extends Composite<Div> implements HasDyn
 		enter(TriggeringMode.manualStandalone, null, null, null);
 	}
 
-	public void enter(TriggeringMode mode, Runnable customCancelHandler, Runnable completedRegistrationHandler,
+	private void enter(TriggeringMode mode, Runnable customCancelHandler, Runnable completedRegistrationHandler,
 			Runnable gotoSignInRedirector)
 	{
 		this.customCancelHandler = customCancelHandler;

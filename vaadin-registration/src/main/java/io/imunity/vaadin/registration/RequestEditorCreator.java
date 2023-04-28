@@ -12,7 +12,6 @@ import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreement
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -36,7 +35,7 @@ import java.util.function.Consumer;
 
 
 @PrototypeComponent
-public class RequestEditorCreator
+class RequestEditorCreator
 {
 	private final MessageSource msg;
 	private final IdentityEditorRegistry identityEditorRegistry;
@@ -60,8 +59,7 @@ public class RequestEditorCreator
 	private boolean enableRemoteSignup;
 	private AuthenticationOptionKey authenticationOptionKey;
 
-	@Autowired
-	public RequestEditorCreator(MessageSource msg,
+	RequestEditorCreator(MessageSource msg,
 	                            IdentityEditorRegistry identityEditorRegistry,
 	                            CredentialEditorRegistry credentialEditorRegistry,
 	                            AttributeHandlerRegistry attributeHandlerRegistry,

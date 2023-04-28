@@ -13,7 +13,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 import java.util.Optional;
 
-public class SignUpTopHeaderComponent extends VerticalLayout
+class SignUpTopHeaderComponent extends VerticalLayout
 {
 	public SignUpTopHeaderComponent(UnityServerConfiguration cfg, MessageSource msg,
 	                                Optional<Runnable> signInRedirector)

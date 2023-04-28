@@ -48,7 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
+class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 {
 	private static final String INVITATION_EMAIL_VAR = "invitationEmail";
 	
