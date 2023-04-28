@@ -14,9 +14,7 @@ import java.util.UUID;
 
 /**
  * Custom Vaadin {@link RequestHandler} which is used to produce a proper response to the browser, 
- * redirecting it to IdP. This class should be extended with protocol specific implementation. 
- * 
- * @author K. Benedyczak
+ * redirecting it to IdP. This class should be extended with protocol specific implementation.
  */
 public abstract class AbstractRedirectRequestHandler implements RequestHandler
 {

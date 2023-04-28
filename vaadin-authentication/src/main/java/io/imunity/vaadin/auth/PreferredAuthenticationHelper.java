@@ -11,7 +11,6 @@ import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 
 /**
  * Provides access to the last used IDP or the one requested with request parameter
- * @author K. Benedyczak
  */
 public class PreferredAuthenticationHelper
 {

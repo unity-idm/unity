@@ -14,8 +14,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
  * Small widget showing a clickable component presenting a remote IdP. Implemented as Button.
  * Suitable as an authenticate button.
  * Logo + Sing in with ...
- *  
- * @author K. Benedyczak
  */
 public class IdPAuthNComponent extends VerticalLayout
 {

@@ -17,8 +17,6 @@ import java.util.*;
 
 /**
  * Helps to find and create UIs matching given spec
- * 
- * @author K. Benedyczak
  */
 public class AuthenticationOptionsHandler
 {

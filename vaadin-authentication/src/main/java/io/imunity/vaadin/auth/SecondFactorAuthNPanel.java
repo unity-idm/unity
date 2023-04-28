@@ -21,9 +21,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
- * The login component used for the 2nd factor authentication 
- * 
- * @author K. Benedyczak
+ * The login component used for the 2nd factor authentication
  */
 public class SecondFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIController
 {

@@ -23,8 +23,6 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 /**
  * Shows a dialog box with information about temporarily blocked access. After the timer goes off, 
  * the dialog disappears.
- * 
- * @author K. Benedyczak
  */
 public class AccessBlockedDialog extends Dialog
 {

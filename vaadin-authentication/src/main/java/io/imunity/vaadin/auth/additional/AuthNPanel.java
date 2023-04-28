@@ -13,8 +13,6 @@ import io.imunity.vaadin.auth.VaadinAuthentication;
 /**
  * The login component of the additional authentication. Wraps a single Vaadin retrieval UI and connects 
  * it to the additional authentication dialog.
- * 
- * @author K. Benedyczak
  */
 class AuthNPanel extends VerticalLayout
 {

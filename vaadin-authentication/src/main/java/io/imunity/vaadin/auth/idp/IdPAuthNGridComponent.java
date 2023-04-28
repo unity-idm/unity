@@ -13,8 +13,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Simplified version of {@link IdPAuthNComponent} - no logo, other style, same otherwise
- *   
- * @author K. Benedyczak
  */
 public class IdPAuthNGridComponent extends VerticalLayout
 {

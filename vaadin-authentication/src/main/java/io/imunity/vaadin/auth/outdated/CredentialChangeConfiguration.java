@@ -6,8 +6,6 @@ package io.imunity.vaadin.auth.outdated;
 
 /**
  * Configuration of credential change UI
- * 
- * @author K. Benedyczak
  */
 public class CredentialChangeConfiguration
 {

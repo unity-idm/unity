@@ -45,8 +45,6 @@ import java.util.*;
 
 /**
  * Retrieves passwords using a Vaadin widget.
- * 
- * @author K. Benedyczak
  */
 @PrototypeComponent
 public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExchange> implements VaadinAuthentication

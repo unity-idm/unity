@@ -11,8 +11,6 @@ import java.util.Optional;
 
 /**
  * Implementation allows individual credential retrievals to launch credential reset process (of their choice).
- * 
- * @author K. Benedyczak
  */
 public interface CredentialResetLauncher
 {

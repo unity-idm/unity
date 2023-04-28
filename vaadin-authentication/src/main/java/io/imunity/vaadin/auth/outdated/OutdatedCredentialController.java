@@ -33,8 +33,6 @@ import java.util.Collection;
 
 /**
  * Controls and creates UI to change outdated credential.
- *  
- * @author K. Benedyczak
  */
 @PrototypeComponent
 public class OutdatedCredentialController

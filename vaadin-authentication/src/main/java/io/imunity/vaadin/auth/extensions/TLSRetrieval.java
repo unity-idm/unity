@@ -36,8 +36,6 @@ import java.util.Set;
 /**
  * Retrieves the authenticated user from the TLS. The login happens on the HTTP connection level 
  * and so the component is not interactive.
- * 
- * @author K. Benedyczak
  */
 @org.springframework.stereotype.Component("WebTLSRetrieval")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)

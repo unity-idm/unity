@@ -17,8 +17,6 @@ import java.util.function.Function;
 
 /**
  * UI widget with column of authentication options.
- * 
- * @author K. Benedyczak
  */
 @Tag("div")
 class AuthnOptionsColumn extends Component implements HasComponents, HasStyle

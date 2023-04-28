@@ -21,7 +21,6 @@ import java.util.Set;
 /**
  * Defines a contract which must be implemented by {@link CredentialRetrieval}s in order to be used 
  * with the {@link VaadinEndpoint}.
- * @author K. Benedyczak
  */
 public interface VaadinAuthentication extends BindingAuthn
 {
@@ -147,7 +146,7 @@ public interface VaadinAuthentication extends BindingAuthn
 
 	/**
 	 * Retrieval must provide an authentication result via this callback ASAP, after it is triggered.
-	 * @author K. Benedyczak
+	 
 	 */
 	interface AuthenticationCallback
 	{

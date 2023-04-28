@@ -22,9 +22,7 @@ import java.util.function.Consumer;
 
 /**
  * Collects authN result from an authenticator and merely forwards a simplified information to the holding 
- * code: whether authentication was successful, canceled or failed. 
- * 
- * @author K. Benedyczak
+ * code: whether authentication was successful, canceled or failed.
  */
 class AdditionalAuthNResultCallback implements VaadinAuthentication.AuthenticationCallback
 {

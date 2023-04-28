@@ -44,8 +44,6 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
 
 /**
  * Organizes authentication options in columns, making them instantly usable.
- * 
- * @author K. Benedyczak
  */
 public class ColumnInstantAuthenticationScreen extends VerticalLayout
 {

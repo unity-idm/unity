@@ -26,8 +26,6 @@ import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createSi
 /**
  * Core component maintaining set of columns with authentication options.
  * Allow for general operations like disabling or hiding.
- * 
- * @author K. Benedyczak
  */
 public class AuthnOptionsColumns extends VerticalLayout
 {

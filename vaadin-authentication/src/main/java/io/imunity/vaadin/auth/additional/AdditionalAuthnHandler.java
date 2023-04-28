@@ -28,8 +28,6 @@ import java.util.function.Consumer;
 
 /**
  * Performs additional authentication in effect of exception signaling such need.
- * 
- * @author K. Benedyczak
  */
 @Component
 public class AdditionalAuthnHandler

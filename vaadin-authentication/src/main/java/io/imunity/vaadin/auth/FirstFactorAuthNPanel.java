@@ -15,9 +15,7 @@ import java.util.function.Function;
 
 /**
  * The login component of the 1st factor authentication. Wraps a single Vaadin retrieval UI and connects 
- * it to the authentication screen.  
- * 
- * @author K. Benedyczak
+ * it to the authentication screen.
  */
 public class FirstFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIController
 {
