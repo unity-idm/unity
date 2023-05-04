@@ -1,33 +1,29 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.otp.resetui;
+package io.imunity.otp.credential_reset;
 
-import java.util.Optional;
-
-import org.apache.logging.log4j.Logger;
-
-import com.vaadin.ui.Component;
-
-import io.imunity.otp.v8.OTPCredentialReset;
+import com.vaadin.flow.component.Component;
 import io.imunity.otp.OTPResetSettings;
 import io.imunity.otp.OTPResetSettings.ConfirmationMode;
+import io.imunity.vaadin.auth.CredentialResetLauncher;
+import io.imunity.vaadin.auth.extensions.credreset.CredentialResetFinalMessage;
+import io.imunity.vaadin.auth.extensions.credreset.CredentialResetFlowConfig;
+import io.imunity.vaadin.auth.extensions.credreset.CredentialResetScreen;
+import io.imunity.vaadin.auth.extensions.credreset.CredentialResetStateVariable;
+import io.imunity.vaadin.auth.extensions.credreset.CredentialResetStateVariable.ResetPrerequisite;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFinalMessage;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialResetScreen;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialResetStateVariable;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialResetStateVariable.ResetPrerequisite;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+
+import java.util.Optional;
 
 /**
  * Entry point and controller of the OTP reset flow. Oversees changes of various UI steps in the flow.
@@ -44,19 +40,22 @@ public class OTPCredentialResetController
 	private final Runnable finishHandler;
 	private final OTPResetSettings settings;
 	private final CredentialResetFlowConfig credResetUIConfig;
+	private final NotificationPresenter notificationPresenter;
 
 	private CredentialResetScreen mainWrapper;
 	private Optional<AuthenticationSubject> presetEntity;
 	
 	public OTPCredentialResetController(MessageSource msg, OTPCredentialReset backend,
-			CredentialEditor credEditor, CredentialResetLauncher.CredentialResetUIConfig uiConfig)
+	                                    CredentialEditor credEditor, CredentialResetLauncher.CredentialResetUIConfig uiConfig,
+	                                    NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.backend = backend;
 		this.settings = backend.getResetSettings();
 		this.credEditor = credEditor;
 		this.finishHandler = uiConfig.finishCallback;
-		credResetUIConfig = new CredentialResetFlowConfig(uiConfig.logo, msg, this::onCancel, 
+		this.notificationPresenter = notificationPresenter;
+		credResetUIConfig = new CredentialResetFlowConfig(uiConfig.logo, msg, this::onCancel,
 				uiConfig.infoWidth, uiConfig.contentsWidth, uiConfig.compactLayout);
 	}
 
@@ -65,7 +64,7 @@ public class OTPCredentialResetController
 		this.presetEntity = presetEntity;
 		CredentialResetStateVariable.reset();
 		mainWrapper = new CredentialResetScreen();
-		mainWrapper.setContents(new OTPResetStep1Captcha(credResetUIConfig, !presetEntity.isPresent(), this::onUsernameCollected));
+		mainWrapper.setContents(new OTPResetStep1Captcha(credResetUIConfig, presetEntity.isEmpty(), this::onUsernameCollected));
 		return mainWrapper;
 	}
 	
@@ -142,6 +141,7 @@ public class OTPCredentialResetController
 		
 		backend.updateCredential(updatedValue);
 		CredentialResetStateVariable.reset();
+		mainWrapper.removeAll();
 		mainWrapper.setContents(new CredentialResetFinalMessage(credResetUIConfig,
 				msg.getMessage("OTPCredentialReset.success")));
 	}
@@ -151,6 +151,7 @@ public class OTPCredentialResetController
 	{
 		OTPResetStep2VerificationChoice methodChoiceUI = new OTPResetStep2VerificationChoice(
 				credResetUIConfig, this::onConfirmationModeSelected);
+		mainWrapper.removeAll();
 		mainWrapper.setContents(methodChoiceUI);
 	}
 	
@@ -159,7 +160,8 @@ public class OTPCredentialResetController
 		if (!sendCodeViaEmail())
 			return;
 		OTPResetStep3EmailCode emailCodeUI = new OTPResetStep3EmailCode(
-				credResetUIConfig, this::onCodeConfirmedByEmail, this::resendCodeViaEmail);
+				credResetUIConfig, this::onCodeConfirmedByEmail, this::resendCodeViaEmail, notificationPresenter);
+		mainWrapper.removeAll();
 		mainWrapper.setContents(emailCodeUI);
 	}
 	
@@ -168,7 +170,8 @@ public class OTPCredentialResetController
 		if (!sendCodeViaMobile())
 			return;
 		OTPResetStep3MobileCode mobileCodeUI = new OTPResetStep3MobileCode(
-				credResetUIConfig, this::onCodeConfirmedByMobile, this::resendCodeViaMobile);
+				credResetUIConfig, this::onCodeConfirmedByMobile, this::resendCodeViaMobile, notificationPresenter);
+		mainWrapper.removeAll();
 		mainWrapper.setContents(mobileCodeUI);
 	}
 
@@ -176,7 +179,8 @@ public class OTPCredentialResetController
 	{
 		OTPResetStep4NewCredential newCredential = new OTPResetStep4NewCredential(credResetUIConfig,
 				credEditor, this::onNewCredentialProvided, 
-				backend.getCredentialConfiguration(), backend.getEntityId());
+				backend.getCredentialConfiguration(), backend.getEntityId(), notificationPresenter);
+		mainWrapper.removeAll();
 		mainWrapper.setContents(newCredential);
 	}
 	
@@ -189,7 +193,7 @@ public class OTPCredentialResetController
 		} catch (Exception e)
 		{
 			log.warn("Credential reset notification failed", e);
-			NotificationPopup.showError(msg.getMessage("error"),
+			notificationPresenter.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			onCancel();
 			return false;
@@ -207,7 +211,7 @@ public class OTPCredentialResetController
 		} catch (Exception e)
 		{
 			log.warn("Credential reset notification failed", e);
-			NotificationPopup.showError(msg.getMessage("error"),
+			notificationPresenter.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			onCancel();
 		}
@@ -222,7 +226,7 @@ public class OTPCredentialResetController
 		} catch (Exception e)
 		{
 			log.warn("Credential reset notification failed", e);
-			NotificationPopup.showError(msg.getMessage("error"),
+			notificationPresenter.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			onCancel();
 			return false;
@@ -240,33 +244,9 @@ public class OTPCredentialResetController
 		} catch (Exception e)
 		{
 			log.warn("Credential reset notification failed", e);
-			NotificationPopup.showError(msg.getMessage("error"),
+			notificationPresenter.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			onCancel();
 		}
-	}
-	
-	@FunctionalInterface
-	public static interface AnswerConsumer 
-	{
-		void acceptAnswer(String answer) throws TooManyAttempts, WrongArgumentException, IllegalIdentityValueException;
-	}
-	
-	@FunctionalInterface
-	public static interface CodeConsumer 
-	{
-		void acceptCode(String code) throws TooManyAttempts, WrongArgumentException;
-	}
-
-	@FunctionalInterface
-	public static interface NewCredentialConsumer 
-	{
-		void acceptNewCredential(String credential) throws EngineException;
-	}
-	
-	@FunctionalInterface
-	public static interface CodeSender 
-	{
-		void resendCode() throws TooManyAttempts;
 	}
 }

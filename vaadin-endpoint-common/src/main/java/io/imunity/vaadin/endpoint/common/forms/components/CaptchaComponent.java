@@ -4,7 +4,6 @@
  */
 package io.imunity.vaadin.endpoint.common.forms.components;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -45,6 +44,7 @@ public class CaptchaComponent
 		'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 	private static final Random random = new Random();
 	private final MessageSource msg;
+	private final boolean showLabelInline;
 	private Captcha engine;
 	
 	private Image challenge;
@@ -56,6 +56,7 @@ public class CaptchaComponent
 	public CaptchaComponent(MessageSource msg, int length, boolean showLabelInline)
 	{
 		this.msg = msg;
+		this.showLabelInline = showLabelInline;
 		this.length = length;
 		initEngine();
 		initUI();
@@ -79,7 +80,11 @@ public class CaptchaComponent
 		SimpleImageSource src = new SimpleImageSource(engine.getImage());
 		challenge.setSrc(src.getResource());
 		answer = new TextField();
-		answer.setLabel(msg.getMessage("CaptchaComponent.answer"));
+		if(showLabelInline)
+			answer.setPlaceholder(msg.getMessage("CaptchaComponent.answer"));
+		else
+			answer.setLabel(msg.getMessage("CaptchaComponent.answer"));
+		answer.setWidthFull();
 		resetChallenge = new Button();
 		resetChallenge.addClassName("u-captcha-reset");
 		resetChallenge.getElement().setProperty("title", msg.getMessage("CaptchaComponent.resetDesc"));
@@ -109,7 +114,7 @@ public class CaptchaComponent
 		return captchaLine;
 	}
 
-	public Component getAsComponent()
+	public VerticalLayout getAsComponent()
 	{
 		return getAsComponent(FlexComponent.Alignment.START);
 	}
@@ -119,7 +124,7 @@ public class CaptchaComponent
 		answer.setInvalid(true);
 	}
 
-	public Component getAsComponent(FlexComponent.Alignment answerAlignment)
+	public VerticalLayout getAsComponent(FlexComponent.Alignment answerAlignment)
 	{
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);

@@ -16,6 +16,9 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.AuthNGridTextWrapper;
+import io.imunity.vaadin.auth.CredentialResetLauncher;
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.auth.extensions.credreset.password.PasswordCredentialResetController;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
@@ -37,8 +40,6 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
-import io.imunity.vaadin.auth.CredentialResetLauncher;
-import io.imunity.vaadin.auth.VaadinAuthentication;
 
 import java.io.StringReader;
 import java.util.*;
@@ -256,13 +257,12 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		
 		private void showResetDialog()
 		{
-// FIXME UY-1335 Support credential reset
-//			PasswordCredentialResetController passReset = new PasswordCredentialResetController(msg,
-//					credentialExchange.getCredentialResetBackend(), credEditor,
-//					credResetLauncher.getConfiguration());
-//			AuthenticationSubject subject = presetAuthenticatedIdentity == null ?
-//					null : AuthenticationSubject.identityBased(presetAuthenticatedIdentity);
-//			credResetLauncher.startCredentialReset(passReset.getInitialUI(Optional.ofNullable(subject)));
+			PasswordCredentialResetController passReset = new PasswordCredentialResetController(msg,
+					credentialExchange.getCredentialResetBackend(), credEditor,
+					credResetLauncher.getConfiguration(), notificationPresenter);
+			AuthenticationSubject subject = presetAuthenticatedIdentity == null ?
+					null : AuthenticationSubject.identityBased(presetAuthenticatedIdentity);
+			credResetLauncher.startCredentialReset(passReset.getInitialUI(Optional.ofNullable(subject)));
 		}
 
 		@Override

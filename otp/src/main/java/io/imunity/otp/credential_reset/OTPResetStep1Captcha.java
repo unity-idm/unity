@@ -1,22 +1,20 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.otp.resetui;
+package io.imunity.otp.credential_reset;
 
-import java.util.function.Consumer;
-
-import com.vaadin.server.UserError;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.auth.extensions.credreset.CredentialResetFlowConfig;
+import io.imunity.vaadin.auth.extensions.credreset.CredentialResetLayout;
+import io.imunity.vaadin.auth.extensions.credreset.TextFieldWithContextLabel;
+import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialResetLayout;
-import pl.edu.icm.unity.webui.authn.credreset.TextFieldWithContextLabel;
-import pl.edu.icm.unity.webui.common.CaptchaComponent;
+
+import java.util.function.Consumer;
 
 /**
  * Bootstraps OTP credential reset pipeline: captcha and username.
@@ -27,12 +25,12 @@ class OTPResetStep1Captcha extends CredentialResetLayout
 	
 	private TextFieldWithContextLabel username;
 	private CaptchaComponent captcha;
-	private Consumer<String> proceedCallback;
-	private Runnable cancelCallback;
+	private final Consumer<String> proceedCallback;
+	private final Runnable cancelCallback;
 
-	private boolean compactLayout;
+	private final boolean compactLayout;
 
-	private boolean collectUsername;
+	private final boolean collectUsername;
 	
 	OTPResetStep1Captcha(CredentialResetFlowConfig credResetConfig, boolean collectUsername, Consumer<String> proceedCallback)
 	{
@@ -49,22 +47,23 @@ class OTPResetStep1Captcha extends CredentialResetLayout
 	{
 		VerticalLayout narrowCol = new VerticalLayout();
 		narrowCol.setMargin(false);
+		narrowCol.setPadding(false);
 		narrowCol.setWidth(MAIN_WIDTH_EM, Unit.EM);
 		username = new TextFieldWithContextLabel(compactLayout);
 		username.setLabel(msg.getMessage("CredentialReset.username"));
-		username.setWidth(100, Unit.PERCENTAGE);
-		captcha = new CaptchaComponent(msg, compactLayout);
-		narrowCol.addComponent(username);
+		username.setWidthFull();
+		captcha = new CaptchaComponent(msg, 6, compactLayout);
+		narrowCol.add(username);
 
-		Component captchaComp = captcha.getAsFullWidthComponent();
-		captchaComp.addStyleName("u-credreset-captcha");
-		narrowCol.addComponent(captchaComp);
+		VerticalLayout captchaComp = captcha.getAsComponent();
+		captchaComp.addClassName("u-credreset-captcha");
+		narrowCol.add(captchaComp);
 		
 		Component buttons = getButtonsBar(msg.getMessage("OTPCredentialReset.requestReset"), 
 				this::onConfirm, msg.getMessage("cancel"), cancelCallback);
 		
-		narrowCol.addComponent(buttons);
-		narrowCol.setComponentAlignment(buttons, Alignment.TOP_CENTER);
+		narrowCol.add(buttons);
+		narrowCol.setAlignItems(Alignment.CENTER);
 		
 		if (!collectUsername)
 			username.setVisible(false);
@@ -79,10 +78,11 @@ class OTPResetStep1Captcha extends CredentialResetLayout
 			user = username.getValue();
 			if (user == null || user.equals(""))
 			{
-				username.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+				username.setInvalid(true);
+				username.setErrorMessage(msg.getMessage("fieldRequired"));
 				return;
 			}
-			username.setComponentError(null);
+			username.setInvalid(false);
 		}
 		try
 		{

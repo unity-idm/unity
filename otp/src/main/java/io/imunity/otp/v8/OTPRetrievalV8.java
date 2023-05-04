@@ -13,7 +13,8 @@ import com.vaadin.ui.Component.Focusable;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.otp.OTP;
 import io.imunity.otp.OTPResetSettings;
-import io.imunity.otp.resetui.OTPCredentialResetController;
+import io.imunity.otp.OTPRetrievalProperties;
+import io.imunity.otp.v8.resetui.OTPCredentialResetController;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
@@ -39,7 +40,7 @@ import java.util.*;
  * Retrieves OTP code using a Vaadin textfield
  */
 @PrototypeComponent
-class OTPRetrievalV8 extends AbstractCredentialRetrieval<OTPExchange> implements VaadinAuthentication
+class OTPRetrievalV8 extends AbstractCredentialRetrieval<OTPExchangeV8> implements VaadinAuthentication
 {
 	static final String NAME = "web-otp";
 	static final String DESC = "OTPRetrievalFactory.desc";
@@ -369,7 +370,7 @@ class OTPRetrievalV8 extends AbstractCredentialRetrieval<OTPExchange> implements
 		@Autowired
 		Factory(ObjectFactory<OTPRetrievalV8> factory)
 		{
-			super(NAME, DESC, VaadinAuthentication.NAME, factory, OTPExchange.ID);
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, OTPExchangeV8.ID);
 		}
 	}
 }

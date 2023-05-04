@@ -263,7 +263,8 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		@Override
 		public void startCredentialReset(Component credentialResetUI)
 		{
-			 getContent().add(credentialResetUI);
+			getContent().removeAll();
+			getContent().add(credentialResetUI);
 		}
 
 		@Override
@@ -278,7 +279,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 
 		private Optional<Image> getLogo()
 		{
-			String logoURL = config.getValue(VaadinEndpointProperties.AUTHN_LOGO);
+			String logoURL = config.getAuthnLogo();
 			return imageAccessService.loadImageFromUri(logoURL);
 		}
 	}

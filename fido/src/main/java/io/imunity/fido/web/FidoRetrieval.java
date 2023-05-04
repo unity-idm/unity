@@ -17,6 +17,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.fido.FidoExchange;
 import io.imunity.fido.service.FidoCredentialVerificator;
+import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import org.apache.logging.log4j.Logger;
@@ -31,8 +32,6 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties;
-import io.imunity.vaadin.auth.CredentialResetLauncher;
-import io.imunity.vaadin.auth.VaadinAuthentication;
 
 import java.io.StringReader;
 import java.util.Collection;
@@ -249,11 +248,6 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		public void setAuthenticationCallback(AuthenticationCallback callback)
 		{
 			theComponent.setCallback(callback);
-		}
-
-		@Override
-		public void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
-		{
 		}
 		
 		@Override

@@ -20,6 +20,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.AuthNGridTextWrapper;
+import io.imunity.vaadin.auth.CredentialResetLauncher;
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.auth.extensions.credreset.sms.SMSCredentialResetController;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
@@ -42,8 +45,6 @@ import pl.edu.icm.unity.stdext.credential.sms.SMSExchange;
 import pl.edu.icm.unity.stdext.credential.sms.SMSVerificator;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
-import io.imunity.vaadin.auth.CredentialResetLauncher;
-import io.imunity.vaadin.auth.VaadinAuthentication;
 
 import java.io.StringReader;
 import java.util.*;
@@ -366,13 +367,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 
 		private void showResetDialog()
 		{
-//FIXME UY-1335 Support credential reset
-//			SMSCredentialResetController controller = new SMSCredentialResetController(msg,
-//					credentialExchange.getSMSCredentialResetBackend(),
-//					credEditor, credResetLauncher.getConfiguration());
-//			Optional<AuthenticationSubject> presetSubject = presetEntity == null ?
-//					Optional.empty() : Optional.of(AuthenticationSubject.entityBased(presetEntity.getId()));
-//			credResetLauncher.startCredentialReset(controller.getInitialUI(presetSubject));
+			SMSCredentialResetController controller = new SMSCredentialResetController(msg,
+					credentialExchange.getSMSCredentialResetBackend(),
+					credEditor, credResetLauncher.getConfiguration(), notificationPresenter);
+			Optional<AuthenticationSubject> presetSubject = presetEntity == null ?
+					Optional.empty() : Optional.of(AuthenticationSubject.entityBased(presetEntity.getId()));
+			credResetLauncher.startCredentialReset(controller.getInitialUI(presetSubject));
 		}
 
 		private Optional<AuthenticationSubject> getAuthenticationSubject()

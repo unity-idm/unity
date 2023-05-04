@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.otp.resetui;
+package io.imunity.otp.v8.resetui;
 
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetCodeVerificationUI;

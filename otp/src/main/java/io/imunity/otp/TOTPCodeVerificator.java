@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.otp.v8;
+package io.imunity.otp;
 
-import io.imunity.otp.OTPGenerationParams;
+import io.imunity.otp.v8.TOTPCodeGenerator;
 
 public class TOTPCodeVerificator
 {

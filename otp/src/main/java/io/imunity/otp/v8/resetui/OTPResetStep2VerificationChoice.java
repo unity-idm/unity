@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.otp.resetui;
+package io.imunity.otp.v8.resetui;
 
 import java.util.function.Consumer;
 
@@ -12,7 +12,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.otp.resetui.OTPCredentialResetController.VerificationMethod;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFlowConfig;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetLayout;
@@ -22,13 +21,13 @@ import pl.edu.icm.unity.webui.authn.credreset.CredentialResetLayout;
  */
 class OTPResetStep2VerificationChoice extends CredentialResetLayout
 {
-	private ComboBox<VerificationMethod> chooser;
+	private ComboBox<OTPCredentialResetController.VerificationMethod> chooser;
 	private MessageSource msg;
 	private Runnable cancelCallback;
-	private Consumer<VerificationMethod> proceedCallback;
+	private Consumer<OTPCredentialResetController.VerificationMethod> proceedCallback;
 	
 	OTPResetStep2VerificationChoice(CredentialResetFlowConfig credResetConfig,  
-			Consumer<VerificationMethod> proceedCallback)
+			Consumer<OTPCredentialResetController.VerificationMethod> proceedCallback)
 	{
 		super(credResetConfig);
 		this.msg = credResetConfig.msg;
@@ -41,8 +40,8 @@ class OTPResetStep2VerificationChoice extends CredentialResetLayout
 	{
 		chooser = new ComboBox<>();
 		chooser.setCaption(msg.getMessage("CredentialReset.chooseVerificationMethod"));
-		chooser.setItems(VerificationMethod.values());
-		chooser.setValue(VerificationMethod.EMAIL);
+		chooser.setItems(OTPCredentialResetController.VerificationMethod.values());
+		chooser.setValue(OTPCredentialResetController.VerificationMethod.EMAIL);
 		chooser.setEmptySelectionAllowed(false);	
 		chooser.setItemCaptionGenerator(i -> msg.getMessage("OTPCredentialReset.method." + i.toString()));
 		chooser.setWidth(100, Unit.PERCENTAGE);

@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.otp.v8;
+package io.imunity.otp.credential_reset;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import io.imunity.otp.OTPResetSettings;
-import io.imunity.otp.credential_reset.OTPVerificator;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
@@ -18,12 +16,12 @@ import pl.edu.icm.unity.stdext.credential.CredentialResetBase;
 
 public class OTPCredentialReset extends CredentialResetBase
 {
-	private OTPResetSettings resetSettings;
+	private final OTPResetSettings resetSettings;
 
 	public OTPCredentialReset(NotificationProducer notificationProducer, IdentityResolver identityResolver,
-			LocalCredentialVerificator localVerificator, CredentialHelper credentialHelper,
-			String credentialId, ObjectNode completeCredentialConfiguration,
-			OTPResetSettings resetSettings)
+	                          LocalCredentialVerificator localVerificator, CredentialHelper credentialHelper,
+	                          String credentialId, ObjectNode completeCredentialConfiguration,
+	                          OTPResetSettings resetSettings)
 	{
 		super(notificationProducer, identityResolver, localVerificator, credentialHelper, credentialId,
 				completeCredentialConfiguration, CredentialResetBase.DEFAULT_MAX_CODE_VALIDITY);

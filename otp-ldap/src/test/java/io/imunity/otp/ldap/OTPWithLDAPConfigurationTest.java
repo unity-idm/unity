@@ -16,7 +16,7 @@ import java.util.Properties;
 
 import org.junit.Test;
 
-import io.imunity.otp.v8.OTPRetrievalProperties;
+import io.imunity.otp.OTPRetrievalProperties;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;

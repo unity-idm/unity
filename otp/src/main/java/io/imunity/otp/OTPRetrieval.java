@@ -17,8 +17,11 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.otp.v8.OTPExchange;
-import io.imunity.otp.v8.OTPRetrievalProperties;
+import io.imunity.otp.credential_reset.OTPCredentialResetController;
+import io.imunity.vaadin.auth.AuthNGridTextWrapper;
+import io.imunity.vaadin.auth.CredentialResetLauncher;
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
@@ -30,9 +33,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
-import io.imunity.vaadin.auth.AuthNGridTextWrapper;
-import io.imunity.vaadin.auth.CredentialResetLauncher;
-import io.imunity.vaadin.auth.VaadinAuthentication;
 
 import java.io.StringReader;
 import java.util.*;
@@ -118,7 +118,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 
 		private Button authenticateButton;
 
-		private Button lostDevice;
+		private LinkButton lostDevice;
 		private final CredentialEditor credEditor;
 		private CredentialResetLauncher credResetLauncher;
 		
@@ -174,10 +174,9 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			OTPResetSettings resetSettings = credentialExchange.getCredentialResetBackend().getResetSettings();
 			if (resetSettings.enabled)
 			{
-				lostDevice = new Button(
-						msg.getMessage("OTPRetrieval.lostDevice"));
+				lostDevice = new LinkButton(
+						msg.getMessage("OTPRetrieval.lostDevice"), event -> showResetDialog());
 				add(new AuthNGridTextWrapper(lostDevice, Alignment.END));
-				lostDevice.addClickListener(event -> showResetDialog());
 			}
 		}
 
@@ -223,13 +222,12 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 		
 		private void showResetDialog()
 		{
-//			FIXME UY-1335 Support credential reset
-//			OTPCredentialResetController controller = new OTPCredentialResetController(msg,
-//					credentialExchange.getCredentialResetBackend(),
-//					credEditor, credResetLauncher.getConfiguration());
-//			Optional<AuthenticationSubject> presetSubject = presetEntity == null ?
-//					Optional.empty() : Optional.of(AuthenticationSubject.entityBased(presetEntity.getId()));
-//			credResetLauncher.startCredentialReset(controller.getInitialUI(presetSubject));
+			OTPCredentialResetController controller = new OTPCredentialResetController(msg,
+					credentialExchange.getCredentialResetBackend(),
+					credEditor, credResetLauncher.getConfiguration(), notificationPresenter);
+			Optional<AuthenticationSubject> presetSubject = presetEntity == null ?
+					Optional.empty() : Optional.of(AuthenticationSubject.entityBased(presetEntity.getId()));
+			credResetLauncher.startCredentialReset(controller.getInitialUI(presetSubject));
 		}
 
 		@Override
@@ -295,7 +293,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 
 	private class OTPRetrievalUI implements VaadinAuthenticationUI
 	{
-		private OTPRetrievalComponent theComponent;
+		private final OTPRetrievalComponent theComponent;
 
 		public OTPRetrievalUI(CredentialEditor credEditor)
 		{

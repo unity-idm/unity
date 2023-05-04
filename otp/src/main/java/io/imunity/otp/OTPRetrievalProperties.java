@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.otp.v8;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.logging.log4j.Logger;
+package io.imunity.otp;
 
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class OTPRetrievalProperties extends UnityPropertiesHelper
 {

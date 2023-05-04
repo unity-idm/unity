@@ -7,7 +7,6 @@ package io.imunity.otp;
 import static io.imunity.otp.TOTPCodeGeneratorTest.hexToBase32;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.imunity.otp.v8.TOTPCodeVerificator;
 import org.junit.jupiter.api.Test;
 
 import io.imunity.otp.TOTPCodeGeneratorTest.TestCaseSpec;

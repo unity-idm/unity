@@ -9,7 +9,7 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.otp.HashFunction;
-import io.imunity.otp.v8.OTPRetrievalProperties;
+import io.imunity.otp.OTPRetrievalProperties;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.InternalException;

@@ -79,7 +79,8 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 		captcha = new CaptchaComponent(msg, 4, false);		
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setMargin(false);
-		wrapper.add(infoLabel, captcha.getAsComponent());
+		VerticalLayout component = captcha.getAsComponent();
+		wrapper.add(infoLabel, component);
 		return wrapper;
 	}
 	
@@ -115,6 +116,8 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 			confirmCodeComponent.setVisible(true);
 		}
 		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
+		main.setPadding(false);
 		main.add(captchaComponent, confirmCodeComponent);
 		return main;
 	}

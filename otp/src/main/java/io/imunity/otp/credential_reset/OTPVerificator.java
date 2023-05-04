@@ -1,15 +1,12 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.otp.v8;
+package io.imunity.otp.credential_reset;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
-import io.imunity.otp.OTP;
-import io.imunity.otp.OTPCredential;
-import io.imunity.otp.OTPCredentialDefinition;
-import io.imunity.otp.OTPExtraInfo;
+import io.imunity.otp.*;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +32,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import java.util.Date;
 
 @PrototypeComponent
-class OTPVerificator extends AbstractLocalVerificator implements OTPExchange 
+public class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OTP, OTPVerificator.class);
 	public static final String DESC = "One-time password";
@@ -82,7 +79,7 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 			String dbCredential = resolved.getCredentialValue();
 			OTPCredentialDBState credState = JsonUtil.parse(dbCredential, OTPCredentialDBState.class);
 			
-			boolean valid = TOTPCodeVerificator.verifyCode(code, credState.secret, credState.otpParams, 
+			boolean valid = TOTPCodeVerificator.verifyCode(code, credState.secret, credState.otpParams,
 					credentialConfig.allowedTimeDriftSteps);
 			
 			if (!valid)
@@ -118,7 +115,7 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 			throws IllegalCredentialException, InternalException
 	{
 		OTPCredential credential = JsonUtil.parse(rawCredential, OTPCredential.class);
-		OTPCredentialDBState dbState = new OTPCredentialDBState(credential.secret, credential.otpParams, 
+		OTPCredentialDBState dbState = new OTPCredentialDBState(credential.secret, credential.otpParams,
 				new Date(), false, null);
 		return JsonUtil.toJsonString(dbState);
 	}
@@ -139,7 +136,7 @@ class OTPVerificator extends AbstractLocalVerificator implements OTPExchange
 	public String invalidate(String currentCredential)
 	{
 		OTPCredentialDBState dbState = JsonUtil.parse(currentCredential, OTPCredentialDBState.class);
-		OTPCredentialDBState invalidated = new OTPCredentialDBState(dbState.secret, dbState.otpParams, 
+		OTPCredentialDBState invalidated = new OTPCredentialDBState(dbState.secret, dbState.otpParams,
 				dbState.time, true, null);
 		return JsonUtil.toJsonString(invalidated);
 	}

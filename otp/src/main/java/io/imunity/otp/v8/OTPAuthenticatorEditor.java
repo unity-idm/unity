@@ -9,6 +9,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.otp.OTP;
+import io.imunity.otp.OTPRetrievalProperties;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;

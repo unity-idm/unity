@@ -9,10 +9,7 @@ import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
 import fi.jasoft.qrcode.QRCode;
-import io.imunity.otp.HashFunction;
-import io.imunity.otp.OTPCredential;
-import io.imunity.otp.OTPCredentialDefinition;
-import io.imunity.otp.TOTPKeyGenerator;
+import io.imunity.otp.*;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -278,7 +275,7 @@ class OTPEditorComponent extends CustomComponent implements Component.Focusable,
 		
 		private void verify()
 		{
-			validated = TOTPCodeVerificator.verifyCode(code.getValue(), secret, config.otpParams, 
+			validated = TOTPCodeVerificator.verifyCode(code.getValue(), secret, config.otpParams,
 					config.allowedTimeDriftSteps);
 			if (validated)
 			{
