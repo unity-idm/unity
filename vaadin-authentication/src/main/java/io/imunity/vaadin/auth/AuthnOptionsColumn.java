@@ -75,7 +75,7 @@ class AuthnOptionsColumn extends Component implements HasComponents, HasStyle
 	void enableAll()
 	{
 		for (ComponentWithId componentWithId: components)
-			componentWithId.component.getElement().setProperty("enabled", "true");
+			((HasEnabled)componentWithId.component).setEnabled(true);
 	}
 	
 	int countAuthenticationOptions()

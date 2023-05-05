@@ -5,9 +5,9 @@
 package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.elements.LinkButton;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -65,10 +65,12 @@ public class SecondFactorAuthNPanel extends AuthNPanelBase implements Authentica
 		}
 		
 		
-		Button resetMfaButton = new Button(msg.getMessage("AuthenticationUI.resetMfaButton"));
+		LinkButton resetMfaButton = new LinkButton(
+				msg.getMessage("AuthenticationUI.resetMfaButton"),
+				event -> switchToFirstFactor.run()
+		);
 		resetMfaButton.getElement().setProperty("title", msg.getMessage("AuthenticationUI.resetMfaButtonDesc"));
 		resetMfaButton.addClassName("u-authn-resetMFAButton");
-		resetMfaButton.addClickListener(event -> switchToFirstFactor.run());
 		authenticatorContainer.add(resetMfaButton);
 		authenticatorContainer.setAlignItems(FlexComponent.Alignment.END);
 	}

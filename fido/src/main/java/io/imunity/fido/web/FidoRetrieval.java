@@ -18,6 +18,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.fido.FidoExchange;
 import io.imunity.fido.service.FidoCredentialVerificator;
 import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import org.apache.logging.log4j.Logger;
@@ -47,16 +48,18 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 	public static final String DESC = "fido.desc";
 
 	private final MessageSource msg;
+	private final NotificationPresenter notificationPresenter;
 	private I18nString name;
 	private final CredentialEditorRegistry credEditorReg;
 	private String configuration;
 
 	@Autowired
-	public FidoRetrieval(MessageSource msg, CredentialEditorRegistry credEditorReg)
+	public FidoRetrieval(MessageSource msg, CredentialEditorRegistry credEditorReg, NotificationPresenter notificationPresenter)
 	{	
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.credEditorReg = credEditorReg;
+		this.notificationPresenter = notificationPresenter;
 	}
 	
 	@Override
@@ -135,6 +138,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 					.fidoExchange(credentialExchange)
 					.showSuccessNotification(false)
 					.authenticationResultListener(this::setAuthenticationResult)
+					.notificationPresenter(notificationPresenter)
 					.build();
 			add(fidoComponent.getComponent());
 
