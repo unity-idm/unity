@@ -85,7 +85,6 @@ public class SAMLResponseValidatorUtil
 
 		try
 		{
-			log.info("Validate SAML response using credential " + credential.getSubjectName());
 			validator.validate(responseDocument, verifiableResponse);
 		} catch (SAMLValidationException e)
 		{
