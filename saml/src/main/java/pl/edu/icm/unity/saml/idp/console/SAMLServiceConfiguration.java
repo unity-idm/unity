@@ -61,6 +61,7 @@ public class SAMLServiceConfiguration
 	private SAMLIdPConfiguration.AssertionSigningPolicy signAssertionPolicy;
 	private SAMLIdPConfiguration.ResponseSigningPolicy signResponcePolicy;
 	private String signResponseCredential;
+	private String alternativeCredential;
 	private String httpsTruststore;
 	private boolean skipConsentScreen;
 	private boolean editableConsentScreen;
@@ -129,6 +130,12 @@ public class SAMLServiceConfiguration
 			raw.put(SamlIdpProperties.P + SamlIdpProperties.CREDENTIAL, signResponseCredential);
 		}
 
+		if (alternativeCredential != null && !alternativeCredential.isEmpty())
+		{
+			raw.put(SamlIdpProperties.P + SamlIdpProperties.ALTERNATIVE_CREDENTIAL, alternativeCredential);
+		}
+
+		
 		if (httpsTruststore != null)
 		{
 			raw.put(SamlIdpProperties.P + SamlIdpProperties.TRUSTSTORE, httpsTruststore);
@@ -294,6 +301,8 @@ public class SAMLServiceConfiguration
 				AssertionSigningPolicy.class);
 
 		signResponseCredential = samlIdpProperties.getValue(SamlIdpProperties.CREDENTIAL);
+		alternativeCredential = samlIdpProperties.getValue(SamlIdpProperties.ALTERNATIVE_CREDENTIAL);
+
 		httpsTruststore = samlIdpProperties.getValue(SamlIdpProperties.TRUSTSTORE);
 
 		skipConsentScreen = samlIdpProperties.getBooleanValue(CommonIdPProperties.SKIP_CONSENT);
@@ -729,5 +738,15 @@ public class SAMLServiceConfiguration
 	public void setPolicyAgreementConfig(IdpPolicyAgreementsConfiguration policyAgreementConfig)
 	{
 		this.policyAgreementConfig = policyAgreementConfig;
+	}
+
+	public String getAlternativeCredential()
+	{
+		return alternativeCredential;
+	}
+
+	public void setAlternativeCredential(String alternativeCredential)
+	{
+		this.alternativeCredential = alternativeCredential;
 	}
 }

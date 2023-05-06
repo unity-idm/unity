@@ -207,7 +207,7 @@ class OAuthWebRequestValidator
 				&& !oauthConfig.isOpenIdConnect())
 		{
 			log.error(
-					"Invalid claims_in_tokens parameter, id_token value can only be used with endpoint supported openid");
+					"Invalid claims_in_tokens parameter, id_token value can only be used with endpoint operating in the OpenId mode");
 			throw new OAuthValidationException("Invalid claims_in_tokens parameter value");
 		}
 
@@ -215,7 +215,7 @@ class OAuthWebRequestValidator
 				&& !oauthConfig.isJWTAccessTokenPossible())
 		{
 			log.error(
-					"Invalid claims_in_tokens parameter, token value can only be used with endpoint supported JWT access tokens");
+					"Invalid claims_in_tokens parameter, token value can only be used with endpoint supporting JWT access tokens");
 			throw new OAuthValidationException("Invalid claims_in_tokens parameter value");
 		}
 	}

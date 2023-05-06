@@ -23,7 +23,9 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 	public final String sloPath;
 	public final String sloRealm;
 	public final X509Credential requesterCredential;
+	public final X509Credential alternativeRequesterCredential;
 	public final String requesterCredentialName;
+	public final String alternativeRequesterCredentialName;
 	public final boolean signRequestByDefault;
 	public final List<String> acceptedNameFormats;
 	public final boolean signPublishedMetadata;
@@ -47,6 +49,8 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		this.sloRealm = builder.sloRealm;
 		this.requesterCredential = builder.requesterCredential;
 		this.requesterCredentialName = builder.requesterCredentialName;
+		this.alternativeRequesterCredential = builder.alternativeRequesterCredential;
+		this.alternativeRequesterCredentialName = builder.alternativeRequesterCredentialName;
 		this.signRequestByDefault = builder.signRequestByDefault;
 		this.acceptedNameFormats = List.copyOf(builder.acceptedNameFormats);
 		this.signPublishedMetadata = builder.signPublishedMetadata;
@@ -88,7 +92,9 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		private String sloPath;
 		private String sloRealm;
 		private X509Credential requesterCredential;
+		private X509Credential alternativeRequesterCredential;
 		private String requesterCredentialName;
+		private String alternativeRequesterCredentialName;
 		private boolean signRequestByDefault;
 		private List<String> acceptedNameFormats = Collections.emptyList();
 		private boolean signPublishedMetadata;
@@ -149,10 +155,22 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 			this.requesterCredential = requesterCredential;
 			return this;
 		}
+		
+		public Builder withAlternativeRequesterCredential(X509Credential requesterCredential)
+		{
+			this.alternativeRequesterCredential = requesterCredential;
+			return this;
+		}
 
 		public Builder withRequesterCredentialName(String requesterCredentialName)
 		{
 			this.requesterCredentialName = requesterCredentialName;
+			return this;
+		}
+		
+		public Builder withAlternativeRequesterCredentialName(String alternativeRequesterCredentialName)
+		{
+			this.alternativeRequesterCredentialName = alternativeRequesterCredentialName;
 			return this;
 		}
 

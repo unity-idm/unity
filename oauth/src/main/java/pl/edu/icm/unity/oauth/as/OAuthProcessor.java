@@ -284,9 +284,9 @@ public class OAuthProcessor
 				new Date(now.getTime() + context.getConfig().getIdTokenValidity()*1000), 
 				now);
 		ResponseType responseType = request.getResponseType();
-		boolean onlyAccessTokenRequested = responseType.contains(ID_TOKEN) && responseType.size() == 1; 
+		boolean onlyIdTokenRequested = responseType.contains(ID_TOKEN) && responseType.size() == 1; 
 
-		if (onlyAccessTokenRequested || context.hasSupportAttributesInIdToken())
+		if (onlyIdTokenRequested || context.requestsAttributesInIdToken())
 			idToken.putAll(regularAttributes);
 		
 		if (request.getNonce() != null)

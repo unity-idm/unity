@@ -258,7 +258,7 @@ public class OAuthAuthzContext
 		this.claimsInTokenAttribute = claimsInTokenAttribute;
 	}
 	
-	public boolean hasSupportAttributesInIdToken()
+	public boolean requestsAttributesInIdToken()
 	{
 		if (claimsInTokenAttribute.isEmpty())
 			return false;

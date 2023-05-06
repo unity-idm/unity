@@ -24,7 +24,7 @@ public class ClaimsInTokenAttribute
 
 	private ClaimsInTokenAttribute(Builder builder)
 	{
-		this.values = builder.values;
+		this.values = Set.copyOf(builder.values);
 	}
 
 	public static Builder builder()

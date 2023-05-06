@@ -167,6 +167,13 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 						: ValidationResult.ok())
 				.bind("credential");
 		header.addComponent(credential);
+		
+		ComboBox<String> alternativeCredential = new ComboBox<>();
+		alternativeCredential.setCaption(msg.getMessage("SAMLAuthenticatorEditor.alternativeCredential"));
+		alternativeCredential.setItems(credentials);
+		configBinder.forField(alternativeCredential)
+				.bind("alternativeCredential");
+		header.addComponent(alternativeCredential);
 
 		ChipsWithFreeText acceptedNameFormats = new ChipsWithFreeText(msg);
 		acceptedNameFormats.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH,

@@ -47,6 +47,7 @@ public class SAMLAuthneticatorConfiguration
 
 	private String requesterId;
 	private String credential;
+	private String alternativeCredential;
 	private List<String> acceptedNameFormats;
 	private boolean requireSignedAssertion;
 	private boolean defSignRequest;
@@ -80,6 +81,11 @@ public class SAMLAuthneticatorConfiguration
 		if (getCredential() != null)
 		{
 			raw.put(SAMLSPProperties.P + SAMLSPProperties.CREDENTIAL, getCredential());
+		}
+		
+		if (getAlternativeCredential() != null && !getAlternativeCredential().isEmpty())
+		{
+			raw.put(SAMLSPProperties.P + SAMLSPProperties.ALTERNATIVE_CREDENTIAL, getAlternativeCredential());
 		}
 
 		if (acceptedNameFormats != null)
@@ -174,6 +180,7 @@ public class SAMLAuthneticatorConfiguration
 
 		setRequesterId(samlSpProp.getValue(SAMLSPProperties.REQUESTER_ID));
 		setCredential(samlSpProp.getValue(SAMLSPProperties.CREDENTIAL));
+		setAlternativeCredential(samlSpProp.getValue(SAMLSPProperties.ALTERNATIVE_CREDENTIAL));
 		setAcceptedNameFormats(samlSpProp.getListOfValues(SAMLSPProperties.ACCEPTED_NAME_FORMATS));
 		setRequireSignedAssertion(samlSpProp.getBooleanValue(SAMLSPProperties.REQUIRE_SIGNED_ASSERTION));
 		setDefSignRequest(samlSpProp.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST));
@@ -445,5 +452,15 @@ public class SAMLAuthneticatorConfiguration
 	public void setMetadataSource(LocalOrRemoteResource metadataSource)
 	{
 		this.metadataSource = metadataSource;
+	}
+
+	public String getAlternativeCredential()
+	{
+		return alternativeCredential;
+	}
+
+	public void setAlternativeCredential(String alternativeCredential)
+	{
+		this.alternativeCredential = alternativeCredential;
 	}
 }

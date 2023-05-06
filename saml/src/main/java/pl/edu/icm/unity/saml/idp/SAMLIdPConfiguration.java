@@ -49,6 +49,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	public final ResponseSigningPolicy signResponses;
 	public final AssertionSigningPolicy signAssertion;
 	public final String credentialName;
+	public final String alternativeCredentialName;
 	public final String truststore;
 	public final Duration validityPeriod;
 	public final Duration requestValidityPeriod;
@@ -63,6 +64,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	public final Set<ActiveValueClient> activeValueClient;
 	public final IdpPolicyAgreementsConfiguration policyAgreements;
 	public final X509Credential credential;
+	public final X509Credential alternativeCredential;
 	private final X509CertChainValidator trustedValidator;
 	public final GroupChooser groupChooser;
 	public final SamlAttributeMapper attributesMapper = new DefaultSamlAttributesMapper();
@@ -82,13 +84,13 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	SAMLIdPConfiguration(List<RemoteMetadataSource> trustedMetadataSources, boolean publishMetadata, String metadataURLPath,
 	                     String ourMetadataFilePath, int authenticationTimeout,
 	                     ResponseSigningPolicy signResponses,
-	                     AssertionSigningPolicy signAssertion, String credentialName, String truststore,
+	                     AssertionSigningPolicy signAssertion, String credentialName,String alternativeCredentialName, String truststore,
 	                     Duration validityPeriod, Duration requestValidityPeriod, String issuerURI, boolean returnSingleAssertion,
 	                     RequestAcceptancePolicy spAcceptPolicy,
 	                     boolean userCanEditConsent, TrustedServiceProviders trustedServiceProviders,
 	                     GroupChooser groupChooser, IdentityTypeMapper identityTypeMapper, UserImportConfigs userImportConfigs,
 	                     TranslationProfile translationProfile, boolean skipConsent, Set<ActiveValueClient> activeValueClient,
-	                     IdpPolicyAgreementsConfiguration policyAgreements, X509Credential credential,
+	                     IdpPolicyAgreementsConfiguration policyAgreements, X509Credential credential, X509Credential alternativeCredential,
 	                     X509CertChainValidator chainValidator, boolean signMetadata)
 	{
 		super(trustedMetadataSources, publishMetadata, metadataURLPath, ourMetadataFilePath);
@@ -96,6 +98,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		this.signResponses = signResponses;
 		this.signAssertion = signAssertion;
 		this.credentialName = credentialName;
+		this.alternativeCredentialName = alternativeCredentialName;
 		this.truststore = truststore;
 		this.validityPeriod = validityPeriod;
 		this.requestValidityPeriod = requestValidityPeriod;
@@ -112,6 +115,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		this.activeValueClient = Set.copyOf(activeValueClient);
 		this.policyAgreements = policyAgreements;
 		this.credential = credential;
+		this.alternativeCredential = alternativeCredential;
 		this.trustedValidator = chainValidator;
 		this.signMetadata = signMetadata;
 		load();
@@ -280,6 +284,11 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	public X509Credential getSamlIssuerCredential()
 	{
 		return credential;
+	}
+
+	public X509Credential getAlternativeSamlIssuerCredential()
+	{
+		return alternativeCredential;
 	}
 
 	static Map<Integer, String> initAllowedRequesters(Set<String> allowedEndpoints)
@@ -505,7 +514,9 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		public ResponseSigningPolicy signResponses;
 		public AssertionSigningPolicy signAssertion;
 		public String credentialName;
+		public String alternativeCredentialName;
 		public X509Credential credential;
+		public X509Credential alternativeCredential;
 		public String truststore;
 		public Duration validityPeriod;
 		public Duration requestValidityPeriod;
@@ -555,10 +566,22 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			this.credentialName = credentialName;
 			return this;
 		}
+		
+		public SAMLIdPConfigurationBuilder withAlternativeCredentialName(String credentialName)
+		{
+			this.alternativeCredentialName = credentialName;
+			return this;
+		}
 
 		public SAMLIdPConfigurationBuilder withCredential(X509Credential credential)
 		{
 			this.credential = credential;
+			return this;
+		}
+		
+		public SAMLIdPConfigurationBuilder withAlternativeCredential(X509Credential credential)
+		{
+			this.alternativeCredential = credential;
 			return this;
 		}
 
@@ -691,11 +714,11 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		public SAMLIdPConfiguration build()
 		{
 			return new SAMLIdPConfiguration(trustedMetadataSources, publishMetadata, metadataURLPath,
-					ourMetadataFilePath, authenticationTimeout, signResponses, signAssertion, credentialName,
+					ourMetadataFilePath, authenticationTimeout, signResponses, signAssertion, credentialName, alternativeCredentialName,
 					truststore, validityPeriod, requestValidityPeriod, issuerURI, returnSingleAssertion, spAcceptPolicy,
 					userCanEditConsent,
 					trustedServiceProviders, groupChooser, identityTypeMapper, userImportConfigs, translationProfile,
-					skipConsent, activeValueClient, policyAgreements, credential, chainValidator, signMetadata);
+					skipConsent, activeValueClient, policyAgreements, credential, alternativeCredential, chainValidator, signMetadata);
 		}
 	}
 }

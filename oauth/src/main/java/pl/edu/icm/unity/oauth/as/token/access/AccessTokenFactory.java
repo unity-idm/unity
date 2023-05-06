@@ -83,14 +83,14 @@ public class AccessTokenFactory
 				.claim("scope", scope.toString())
 				.claim("client_id", token.getClientUsername());
 
-		addAttributesToClaimIfNeeded(claimsSetBuilder, token);
+		addUserInfoAsClaimsIfNeeded(claimsSetBuilder, token);
 		JWTClaimsSet claimsSet = claimsSetBuilder.build();
 		SignedJWT signedJWT = sign(claimsSet);
 		int tokenValidity = token.getTokenValidity();
 		return new BearerJWTAccessToken(signedJWT.serialize(), tokenValidity, scope, claimsSet);
 	}
 	
-	private void addAttributesToClaimIfNeeded(Builder claimsSetBuilder, OAuthToken token) throws OAuthErrorException
+	private void addUserInfoAsClaimsIfNeeded(Builder claimsSetBuilder, OAuthToken token) throws OAuthErrorException
 	{
 		if (token.hasSupportAttributesInToken())
 		{

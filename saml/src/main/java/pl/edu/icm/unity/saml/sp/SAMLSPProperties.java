@@ -48,6 +48,7 @@ public class SAMLSPProperties extends SamlProperties
 	
 	public static final String REQUESTER_ID = "requesterEntityId";
 	public static final String CREDENTIAL = "requesterCredential";
+	public static final String ALTERNATIVE_CREDENTIAL = "alternativeRequesterCredential";
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
 	public static final String METADATA_PATH = "metadataPath";
 	public static final String SLO_PATH = "sloPath";
@@ -164,6 +165,8 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
 				"Local credential, used to sign requests and to decrypt encrypted assertions. "
 				+ "If neither signing nor decryption is used it can be skipped."));
+		META.put(ALTERNATIVE_CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
+				"Alternative local credential, used to decrypt encrypted assertions."));
 		META.put(SLO_PATH, new PropertyMD().setCategory(common).setDescription(
 				"Last element of the URL, under which the SAML Single Logout functionality should "
 				+ "be published for this SAML authenticator. Any suffix can be used, however it "
@@ -338,7 +341,17 @@ public class SAMLSPProperties extends SamlProperties
 
 	public X509Credential getRequesterCredential()
 	{
-		String credential = getValue(SAMLSPProperties.CREDENTIAL);
+		return getCredential(SAMLSPProperties.CREDENTIAL);
+	}
+	
+	public X509Credential getAlternativeRequesterCredential()
+	{
+		return getCredential(SAMLSPProperties.ALTERNATIVE_CREDENTIAL);
+	}
+	
+	private X509Credential getCredential(String credentialKey)
+	{
+		String credential = getValue(credentialKey);
 		if (credential == null)
 			return null;
 		try
@@ -349,6 +362,7 @@ public class SAMLSPProperties extends SamlProperties
 			return null;
 		}
 	}
+	
 	
 	private void verifyTrustdedCertificatesExistence() throws ConfigurationException
 	{

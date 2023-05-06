@@ -8,6 +8,8 @@ import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
+
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.assertion.AssertionParser;
@@ -19,6 +21,7 @@ import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
@@ -42,6 +45,8 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class SAMLResponseValidatorUtil
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLResponseValidatorUtil.class);
+
 	public static final String AUTHN_CONTEXT_CLASS_REF_ATTR = "authnContextClassRef";
 	private SAMLSPConfiguration spConfiguration;
 	private ReplayAttackChecker replayAttackChecker;
@@ -56,31 +61,47 @@ public class SAMLResponseValidatorUtil
 	}
 
 
-	public RemotelyAuthenticatedInput verifySAMLResponse(ResponseDocument responseDocument, 
-			SAMLVerifiableElement verifiableResponse,
-			String requestId, SAMLBindings binding, String groupAttribute, TrustedIdPConfiguration idp,
-			SamlTrustChecker trustChecker) 
-					throws RemoteAuthenticationException
+	public RemotelyAuthenticatedInput verifySAMLResponse(ResponseDocument responseDocument,
+			SAMLVerifiableElement verifiableResponse, String requestId, SAMLBindings binding, String groupAttribute,
+			TrustedIdPConfiguration idp, SamlTrustChecker trustChecker) throws RemoteAuthenticationException
 	{
-		X509Credential credential = spConfiguration.requesterCredential;
-		PrivateKey decryptKey = credential == null ? null : credential.getKey();
-		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(
-				spConfiguration.requesterSamlId, responseConsumerAddress, 
-				requestId, AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, 
-				trustChecker, replayAttackChecker, binding, 
-				decryptKey);
-		try
-		{
-			validator.validate(responseDocument, verifiableResponse);
-		} catch (SAMLValidationException e)
-		{
-			throw new RemoteAuthenticationException("The SAML response is either invalid or is issued " +
-					"by an untrusted identity provider.", e);
-		}
+		SSOAuthnResponseValidator validator = validate(responseDocument, verifiableResponse, requestId, binding,
+				groupAttribute, idp, trustChecker, spConfiguration.requesterCredential,
+				spConfiguration.alternativeRequesterCredential);
 
 		return convertAssertion(responseDocument, validator, groupAttribute, idp);
 	}
 	
+	private SSOAuthnResponseValidator validate(ResponseDocument responseDocument,
+			SAMLVerifiableElement verifiableResponse, String requestId, SAMLBindings binding, String groupAttribute,
+			TrustedIdPConfiguration idp, SamlTrustChecker trustChecker, X509Credential credential,
+			X509Credential alternativeCredential) throws RemoteAuthenticationException
+	{
+
+		PrivateKey decryptKey = credential == null ? null : credential.getKey();
+		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(spConfiguration.requesterSamlId,
+				responseConsumerAddress, requestId, AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, trustChecker,
+				replayAttackChecker, binding, decryptKey);
+
+		try
+		{
+			log.info("Validate SAML response using credential " + credential.getSubjectName());
+			validator.validate(responseDocument, verifiableResponse);
+		} catch (SAMLValidationException e)
+		{
+			if (alternativeCredential != null)
+			{
+				log.warn("SAML response validation using main credential failed: ", e);
+				log.info("Try validate SAML response using alternative credential");
+				return validate(responseDocument, verifiableResponse, requestId, binding, groupAttribute, idp,
+						trustChecker, alternativeCredential, null);
+			}
+			throw new RemoteAuthenticationException(
+					"The SAML response is either invalid or is issued " + "by an untrusted identity provider.", e);
+		}
+
+		return validator;
+	}
 	
 	RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
 			SSOAuthnResponseValidator validator, String groupA, TrustedIdPConfiguration idp) throws RemoteAuthenticationException
