@@ -211,6 +211,13 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 				.bind("signResponseCredential");
 		mainGeneralLayout.addComponent(signResponseCredential);
 
+		ComboBox<String> alternativeCredential = new ComboBox<>();
+		alternativeCredential.setCaption(msg.getMessage("SAMLEditorGeneralTab.alternativeCredential"));
+		alternativeCredential.setItems(credentials);
+		configBinder.forField(alternativeCredential)
+				.bind("alternativeCredential");
+		mainGeneralLayout.addComponent(alternativeCredential);
+		
 		ComboBox<String> httpsTruststore = new ComboBox<>(
 				msg.getMessage("SAMLEditorGeneralTab.httpsTruststore"));
 		httpsTruststore.setItems(truststores);
