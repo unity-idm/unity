@@ -40,7 +40,6 @@ import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguratio
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.*;
@@ -391,32 +390,13 @@ class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTit
 			
 		} catch (WrongArgumentException e)
 		{
-			handleFormSubmissionError(e, msg, editor);
+			SubmissionErrorHandler.handleFormSubmissionError(e, msg, editor, notificationPresenter);
 		} catch (Exception e)
 		{
 			log.warn("Registration request submision failed", e);
 			WorkflowFinalizationConfiguration finalScreenConfig = 
 					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.GENERAL_ERROR);
 			gotoFinalStep(finalScreenConfig);
-		}
-	}
-
-	public void handleFormSubmissionError(Exception e, MessageSource msg, RegistrationRequestEditor editor)
-	{
-		if (e instanceof IllegalFormContentsException)
-		{
-			editor.markErrorsFromException((IllegalFormContentsException) e);
-			if (e instanceof IllegalFormContentsException.OccupiedIdentityUsedInRequest)
-			{
-				String identity = ((IllegalFormContentsException.OccupiedIdentityUsedInRequest) e).occupiedIdentity.getValue();
-				notificationPresenter.showError(msg.getMessage("FormRequest.occupiedIdentity", identity), "");
-			} else
-			{
-				notificationPresenter.showError(msg.getMessage("Generic.formError"), e.getMessage());
-			}
-		} else
-		{
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
 		}
 	}
 

@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessi
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
+import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncherV8;
 import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
 
 import java.util.*;
@@ -63,7 +63,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private LocaleChoiceComponent localeChoice;
 	private StandardWebLogoutHandler authnProcessor;
 	private RegistrationFormsLayoutController registrationFormController;
-	private InsecureRegistrationFormLauncher formLauncher;
+	private InsecureRegistrationFormLauncherV8 formLauncher;
 	private ExecutorsService execService;
 	private EntityManagement idsMan;
 	private InputTranslationEngine inputTranslationEngine;
@@ -78,7 +78,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			StandardWebLogoutHandler authnProcessor,
 			InteractiveAuthenticationProcessor interactiveProcessor,
 			RegistrationFormsLayoutController registrationFormController,
-			InsecureRegistrationFormLauncher formLauncher,
+			InsecureRegistrationFormLauncherV8 formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 			InputTranslationEngine inputTranslationEngine,
 			ObjectFactory<OutdatedCredentialControllerV8> outdatedCredentialDialogFactory)

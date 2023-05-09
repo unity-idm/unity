@@ -4,13 +4,10 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import java.util.List;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -22,18 +19,16 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.*;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+
+import java.util.List;
 
 
 
@@ -43,9 +38,9 @@ import pl.edu.icm.unity.webui.common.file.ImageAccessService;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class InsecureRegistrationFormLauncher extends AbstractRegistrationFormDialogProvider
+public class InsecureRegistrationFormLauncherV8 extends AbstractRegistrationFormDialogProvider
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InsecureRegistrationFormLauncher.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InsecureRegistrationFormLauncherV8.class);
 	private RegistrationsManagement registrationsManagement;
 	private IdPLoginController idpLoginController;
 	private EventsBus bus;
@@ -53,10 +48,10 @@ public class InsecureRegistrationFormLauncher extends AbstractRegistrationFormDi
 	private ImageAccessService imageAccessService;
 	
 	@Autowired
-	public InsecureRegistrationFormLauncher(MessageSource msg, IdPLoginController idpLoginController,
-	                                        ObjectFactory<RequestEditorCreatorV8> requestEditorCreatorFatory,
-	                                        @Qualifier("insecure") RegistrationsManagement registrationsManagement,
-	                                        AutoLoginAfterSignUpProcessorV8 autoLoginProcessor, ImageAccessService imageAccessService)
+	public InsecureRegistrationFormLauncherV8(MessageSource msg, IdPLoginController idpLoginController,
+	                                          ObjectFactory<RequestEditorCreatorV8> requestEditorCreatorFatory,
+	                                          @Qualifier("insecure") RegistrationsManagement registrationsManagement,
+	                                          AutoLoginAfterSignUpProcessorV8 autoLoginProcessor, ImageAccessService imageAccessService)
 	{
 		super(msg, requestEditorCreatorFatory);
 		this.idpLoginController = idpLoginController;

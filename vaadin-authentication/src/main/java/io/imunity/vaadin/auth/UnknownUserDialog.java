@@ -1,21 +1,20 @@
 /*
- * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn;
+package io.imunity.vaadin.auth;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.RegistrationFormDialogProvider;
 import org.apache.logging.log4j.Logger;
-
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
@@ -23,11 +22,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.webui.association.atlogin.ConnectIdAtLoginWizardProvider;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncherV8;
-import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
 /**
  * Dialog presented to users who were correctly authenticated with a remote IdP
@@ -37,36 +31,41 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
  * or to associate the new account with an existing one.
  * <p>
  * This dialog shall be shown only if at least one of the alternatives is enabled in configuration.
- * @author K. Benedyczak
  */
-public class UnknownUserDialog extends AbstractDialog
+public class UnknownUserDialog extends Dialog
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnknownUserDialog.class);
 	
-	private UnknownRemotePrincipalResult authNResult;
-	private InsecureRegistrationFormLauncherV8 formLauncher;
+	private final MessageSource msg;
+	private final UnknownRemotePrincipalResult authNResult;
+	private final RegistrationFormDialogProvider formLauncher;
 
 	private SandboxAuthnNotifier sandboxAuthnNotifier;
 	private InputTranslationEngine inputTranslationEngine;
+	private final NotificationPresenter notificationPresenter;
 
 	private String sandboxURL;
 
 	public UnknownUserDialog(MessageSource msg, UnknownRemotePrincipalResult authNResult,
-	                         InsecureRegistrationFormLauncherV8 formLauncher, SandboxAuthnNotifier sandboxAuthnNotifier,
-	                         InputTranslationEngine inputTranslationEngine, String sandboxURL)
+	                         RegistrationFormDialogProvider formLauncher, SandboxAuthnNotifier sandboxAuthnNotifier,
+	                         InputTranslationEngine inputTranslationEngine, String sandboxURL, NotificationPresenter notificationPresenter)
 	{
-		super(msg, msg.getMessage("UnknownUserDialog.caption"), msg.getMessage("cancel"));
-		setSizeEm(50, 25);
 		this.authNResult = authNResult;
 		this.formLauncher = formLauncher;
 		this.sandboxAuthnNotifier = sandboxAuthnNotifier;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.sandboxURL = sandboxURL;
+		this.msg = msg;
+		this.notificationPresenter = notificationPresenter;
+		init();
 	}
 
-	@Override
-	protected Component getContents() throws Exception
+	private void init()
 	{
+		setHeaderTitle(msg.getMessage("UnknownUserDialog.caption"));
+		getFooter().add(new Button(msg.getMessage("cancel"), e -> close()));
+		setWidth("80%");
+
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		
@@ -77,38 +76,34 @@ public class UnknownUserDialog extends AbstractDialog
 		if (authNResult.formForUnknownPrincipal != null)
 		{
 			log.debug("Adding registration component");
-			options.addComponent(getRegistrationComponent());
+			options.add(getRegistrationComponent());
 		}
 		if (authNResult.enableAssociation)
 		{
-			options.addComponent(getAssociationComponent());
+			options.add(getAssociationComponent());
 		}
 		
-		main.addComponents(mainInfo, options);
-		return main;
+		main.add(mainInfo, options);
+		add(main);
 	}
 
 	private Component getRegistrationComponent()
 	{
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
+		ret.setPadding(false);
 		Label label = new Label(msg.getMessage("UnknownUserDialog.registerInfo"));
 		label.setSizeFull();
 		Button register = new Button(msg.getMessage("UnknownUserDialog.register"));
 		register.setId("UnknownUserDialog.register");
-		register.addStyleName(ValoTheme.BUTTON_LARGE);
-		register.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				showRegistration(authNResult.formForUnknownPrincipal, 
-						authNResult.getRemotelyAuthenticatedPrincipal());
-			}
-		});
-		ret.addComponents(register, label);
-		ret.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
-		ret.setComponentAlignment(register, Alignment.MIDDLE_CENTER);
+		register.addThemeVariants(ButtonVariant.LUMO_LARGE);
+		register.addClickListener(e ->
+				showRegistration(
+						authNResult.formForUnknownPrincipal,
+						authNResult.getRemotelyAuthenticatedPrincipal())
+		);
+		ret.add(register, label);
+		ret.setAlignItems(FlexComponent.Alignment.CENTER);
 		return ret;
 	}
 	
@@ -116,35 +111,30 @@ public class UnknownUserDialog extends AbstractDialog
 	{
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
+		ret.setPadding(false);
 		Label label = new Label(msg.getMessage("UnknownUserDialog.associationInfo"));
 		label.setSizeFull();
 		Button associate = new Button(msg.getMessage("UnknownUserDialog.associate"));
 		associate.setId("UnknownUserDialog.associate");
-		associate.addStyleName(ValoTheme.BUTTON_LARGE);
-		associate.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				showAssociation();
-			}
-		});
-		ret.addComponents(associate, label);
-		ret.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
-		ret.setComponentAlignment(associate, Alignment.MIDDLE_CENTER);
+		associate.addThemeVariants(ButtonVariant.LUMO_LARGE);
+		associate.addClickListener(e ->
+				showAssociation()
+		);
+		ret.add(associate, label);
+		ret.setAlignItems(FlexComponent.Alignment.CENTER);
 		return ret;
 	}
 
 	protected void showAssociation()
 	{
 		
-		ConnectIdAtLoginWizardProvider wizardProv = new ConnectIdAtLoginWizardProvider(msg, 
-				sandboxURL, sandboxAuthnNotifier, inputTranslationEngine, 
-				authNResult.getRemotelyAuthenticatedPrincipal());
-		SandboxWizardDialog dialog = new SandboxWizardDialog(wizardProv.getWizardInstance(), 
-				wizardProv.getCaption());
-		dialog.show();
-		close();
+//		ConnectIdAtLoginWizardProvider wizardProv = new ConnectIdAtLoginWizardProvider(msg,
+//				sandboxURL, sandboxAuthnNotifier, inputTranslationEngine,
+//				authNResult.getRemotelyAuthenticatedPrincipal());
+//		SandboxWizardDialog dialog = new SandboxWizardDialog(wizardProv.getWizardInstance(),
+//				wizardProv.getCaption());
+//		dialog.show();
+//		close();
 	}
 	
 	protected void showRegistration(String form, RemotelyAuthenticatedPrincipal ctx)
@@ -158,7 +148,7 @@ public class UnknownUserDialog extends AbstractDialog
 		{
 			log.error("Can't show a registration form for the remotely authenticated user as configured. " +
 					"Probably the form name is wrong.", e);
-			NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+			notificationPresenter.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"),
 					msg.getMessage("AuthenticationUI.problemWithRegistration"));
 		}
 	}
@@ -167,14 +157,7 @@ public class UnknownUserDialog extends AbstractDialog
 	{
 		log.info("Can't show a registration form for the remotely authenticated user - "
 				+ "user does not meet form requirements.", error);
-		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+		notificationPresenter.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"),
 				msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));
-	}
-	
-	@Override
-	protected void onConfirm()
-	{
-		//do nothing - confirm == cancel, i.e. simply close.
-		onCancel();
 	}
 }

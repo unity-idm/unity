@@ -22,6 +22,7 @@ import io.imunity.vaadin.auth.outdated.CredentialChangeConfiguration;
 import io.imunity.vaadin.auth.outdated.OutdatedCredentialController;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
+import io.imunity.vaadin.endpoint.common.RegistrationFormDialogProvider;
 import io.imunity.vaadin.endpoint.common.RegistrationFormsLayoutService;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -35,6 +36,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
@@ -43,14 +45,17 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
+import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
 
@@ -70,6 +75,10 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	private final RegistrationFormsLayoutService registrationFormsLayoutService;
 	private final NotificationPresenter notificationPresenter;
 
+	private final RegistrationFormDialogProvider formLauncher;
+	private final SandboxAuthnRouter sandboxRouter;
+
+
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	
@@ -84,6 +93,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	                          InputTranslationEngine inputTranslationEngine,
 	                          ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
 	                          RegistrationFormsLayoutService registrationFormsLayoutService,
+	                          RegistrationFormDialogProvider formLauncher,
 	                          NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
@@ -97,6 +107,8 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		this.imageAccessService = imageAccessService;
 		this.registrationFormsLayoutService = registrationFormsLayoutService;
 		this.notificationPresenter = notificationPresenter;
+		this.formLauncher = formLauncher;
+		this.sandboxRouter = null;
 		this.endpointDescription = getCurrentWebAppResolvedEndpoint();
 		this.config = getCurrentWebAppVaadinProperties();
 		this.authnFlows = List.copyOf(getCurrentWebAppAuthenticationFlows());
@@ -105,16 +117,25 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	
 	protected void init()
 	{
+		Function<UnknownRemotePrincipalResult, Dialog> unknownUserDialogProvider = result -> new UnknownUserDialog(
+				msg, result, formLauncher, sandboxRouter, inputTranslationEngine, getSandboxServletURLForAssociation(),
+				notificationPresenter
+		);
 		authenticationUI = ColumnInstantAuthenticationScreen.getInstance(msg, imageAccessService, config, endpointDescription,
 				new CredentialResetLauncherImpl(),
 				this::showRegistration,
 				getCurrentWebAppCancelHandler(), idsMan, execService,
 				isRegistrationEnabled(), 
-				u -> new Dialog(),
+				unknownUserDialogProvider,
 				Optional.of(localeChoice), authnFlows,
 				interactiveAuthnProcessor, notificationPresenter);
 		loadInitialState();
 		getContent().setSizeFull();
+	}
+
+	private String getSandboxServletURLForAssociation()
+	{
+		return endpointDescription.getEndpoint().getContextAddress() + VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 	}
 	
 	private void loadInitialState() 
