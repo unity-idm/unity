@@ -41,6 +41,12 @@ public class NotificationPresenter
 		notification.open();
 	}
 
+	public void showSuccess(String caption, String description)
+	{
+		SuccessNotification successNotification = new SuccessNotification(caption, description);
+		successNotification.open();
+	}
+
 	public void showError(String caption, String description)
 	{
 		ErrorNotification errorNotification = new ErrorNotification(caption, description);
@@ -85,6 +91,31 @@ public class NotificationPresenter
 			label.getStyle().set("font-weight", "bold");
 			HorizontalLayout layout = new HorizontalLayout(
 					VaadinIcon.EXCLAMATION_CIRCLE.create(),
+					new VerticalLayout(label, new Text(description)),
+					closeButton
+			);
+			layout.setAlignItems(FlexComponent.Alignment.CENTER);
+
+			add(layout);
+			setPosition(MIDDLE);
+		}
+	}
+
+	private static class SuccessNotification extends Notification
+	{
+		private SuccessNotification(String header, String description)
+		{
+			addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(event -> close());
+
+			Label label = new Label(header);
+			label.getStyle().set("font-weight", "bold");
+			HorizontalLayout layout = new HorizontalLayout(
+					VaadinIcon.CHECK.create(),
 					new VerticalLayout(label, new Text(description)),
 					closeButton
 			);

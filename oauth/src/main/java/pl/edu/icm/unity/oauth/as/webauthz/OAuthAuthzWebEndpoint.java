@@ -10,10 +10,7 @@ import com.nimbusds.openid.connect.sdk.OIDCError;
 import com.vaadin.flow.server.startup.ServletContextListeners;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.VaadinAuthentication;
-import io.imunity.vaadin.endpoint.common.AuthenticationFilter;
-import io.imunity.vaadin.endpoint.common.EopException;
-import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
-import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.*;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -140,7 +137,7 @@ public class OAuthAuthzWebEndpoint extends Vaadin2XEndpoint
 		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows,
 				new OAuthCancelHandler(
 						new OAuthResponseHandler(applicationContext.getBean(OAuthSessionService.class),
-								idpReporterFactory.getForEndpoint(description.getEndpoint()), freemarkerHandler)));
+								idpReporterFactory.getForEndpoint(description.getEndpoint()), freemarkerHandler)), new SandboxAuthnRouterImpl());
 		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);
 		return context;
 	}

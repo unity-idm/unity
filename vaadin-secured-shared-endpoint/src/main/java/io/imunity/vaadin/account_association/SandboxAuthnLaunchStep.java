@@ -11,8 +11,11 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinService;
 import io.imunity.vaadin.account_association.wizard.WizardStep;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
+
+import static java.util.Optional.ofNullable;
 
 class SandboxAuthnLaunchStep extends WizardStep
 {
@@ -55,7 +58,9 @@ class SandboxAuthnLaunchStep extends WizardStep
 						try
 						{
 							this.event = event;
-							this.sessionEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
+							this.sessionEntityId = ofNullable(InvocationContext.getCurrent().getLoginSession())
+									.map(LoginSession::getEntityId)
+									.orElse(null);
 							stepRequiredNewStep();
 							refreshWizard();
 						} finally

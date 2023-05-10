@@ -163,7 +163,9 @@ public class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpo
 	@Override
 	public ServletContextHandler getServletContextHandler()
 	{
-		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows, null);
+		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(
+				properties, genericEndpointProperties, msg, description, authenticationFlows, null, new SandboxAuthnRouterImpl()
+		);
 		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);
 		return context;
 	}

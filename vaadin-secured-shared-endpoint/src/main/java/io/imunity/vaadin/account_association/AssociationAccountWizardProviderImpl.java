@@ -5,52 +5,48 @@
 
 package io.imunity.vaadin.account_association;
 
-import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.account_association.wizard.Wizard;
 import io.imunity.vaadin.account_association.wizard.WizardStepPreparer;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 
-import javax.annotation.security.PermitAll;
-
 import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
-@PermitAll
-@CssImport("./styles/custom-lumo-theme.css")
-@Route("/sec/account-association")
-class AssociationAccountView extends Composite<VerticalLayout> implements HasDynamicTitle
+@Service
+class AssociationAccountWizardProviderImpl implements AssociationAccountWizardProvider
 {
 	private final MessageSource msg;
 	private final InputTranslationEngine inputTranslationEngine;
 	private final NotificationPresenter notificationPresenter;
-	AssociationAccountView(MessageSource msg, InputTranslationEngine inputTranslationEngine, NotificationPresenter notificationPresenter)
+
+	AssociationAccountWizardProviderImpl(MessageSource msg, InputTranslationEngine inputTranslationEngine, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.notificationPresenter = notificationPresenter;
-		runWizard();
 	}
 
-	void runWizard()
+	@Override
+	public Component getWizardForConnectIdAtLogin(RemotelyAuthenticatedPrincipal unknownUser, Runnable closeWizard)
 	{
 		String contextPath = VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath();
 		Runnable sandBoxNewPageOpener = () -> UI.getCurrent().getPage()
 				.executeJs("window.open('"+ contextPath + SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
 		SandboxAuthnRouter router = Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter();
 
-		Wizard wizard = Wizard.builder()
+		return Wizard.builder()
 				.addStep(new IntroStep(msg))
 				.addStep(new SandboxAuthnLaunchStep(
 						msg.getMessage("Wizard.SandboxStep.caption"),
@@ -64,26 +60,19 @@ class AssociationAccountView extends Composite<VerticalLayout> implements HasDyn
 				)
 				.addNextStepPreparer(new WizardStepPreparer<>(
 						SandboxAuthnLaunchStep.class,
-						MergingUserConfirmationStep.class,
-						(step1, step2) -> step2.prepareStep(step1.event, step1.sessionEntityId))
+						MergingUnknownUserConfirmationStep.class,
+						(step1, step2) -> step2.prepareStep(step1.event.entity))
 				)
-				.addStep(new MergingUserConfirmationStep(msg.getMessage("ConnectId.ConfirmStep.caption"), msg, inputTranslationEngine))
+				.addStep(new MergingUnknownUserConfirmationStep(msg.getMessage("ConnectId.ConfirmStep.caption"), msg, unknownUser))
 				.addNextStepPreparer(new WizardStepPreparer<>(
-						MergingUserConfirmationStep.class,
-						FinalConnectIdStep.class,
-						(step1, step2) -> step2.prepareStep(step1.ctx.getRemotePrincipal().orElse(null)))
+						MergingUnknownUserConfirmationStep.class,
+						FinalConnectIdAtLoginStep.class,
+						(step1, step2) -> step2.prepareStep(step1.locallyAuthenticatedEntity))
 				)
-				.addStep(new FinalConnectIdStep(null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg))
+				.addStep(new FinalConnectIdAtLoginStep(
+						null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg, unknownUser, closeWizard))
 				.addMessageSource(msg)
-				.addCancelTask(() -> UI.getCurrent().navigate(StatusView.class, QueryParameters.of(StatusView.TITLE_PARAM, msg.getMessage("Wizard.canceled"))))
-				.title(msg.getMessage("ConnectId.wizardCaption"))
+				.addCancelTask(closeWizard)
 				.build();
-		getContent().add(wizard);
-	}
-
-	@Override
-	public String getPageTitle()
-	{
-		return msg.getMessage("AssociationAccount.title");
 	}
 }

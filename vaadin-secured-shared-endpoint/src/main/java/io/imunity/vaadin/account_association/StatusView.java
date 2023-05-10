@@ -14,10 +14,12 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.edu.icm.unity.MessageSource;
 
 import java.util.List;
 
+@AnonymousAllowed
 @Route("/sec/status")
 class StatusView extends Composite<VerticalLayout> implements BeforeEnterObserver, HasDynamicTitle
 {

@@ -12,15 +12,15 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.auth.sandbox.SandboxWizardDialog;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.RegistrationFormDialogProvider;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 
 /**
@@ -39,24 +39,18 @@ public class UnknownUserDialog extends Dialog
 	private final MessageSource msg;
 	private final UnknownRemotePrincipalResult authNResult;
 	private final RegistrationFormDialogProvider formLauncher;
-
-	private SandboxAuthnNotifier sandboxAuthnNotifier;
-	private InputTranslationEngine inputTranslationEngine;
 	private final NotificationPresenter notificationPresenter;
-
-	private String sandboxURL;
+	private final AssociationAccountWizardProvider associationAccountWizardProvider;
 
 	public UnknownUserDialog(MessageSource msg, UnknownRemotePrincipalResult authNResult,
-	                         RegistrationFormDialogProvider formLauncher, SandboxAuthnNotifier sandboxAuthnNotifier,
-	                         InputTranslationEngine inputTranslationEngine, String sandboxURL, NotificationPresenter notificationPresenter)
+	                         RegistrationFormDialogProvider formLauncher,
+	                         NotificationPresenter notificationPresenter, AssociationAccountWizardProvider associationAccountWizardProvider)
 	{
 		this.authNResult = authNResult;
 		this.formLauncher = formLauncher;
-		this.sandboxAuthnNotifier = sandboxAuthnNotifier;
-		this.inputTranslationEngine = inputTranslationEngine;
-		this.sandboxURL = sandboxURL;
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
+		this.associationAccountWizardProvider = associationAccountWizardProvider;
 		init();
 	}
 
@@ -64,7 +58,6 @@ public class UnknownUserDialog extends Dialog
 	{
 		setHeaderTitle(msg.getMessage("UnknownUserDialog.caption"));
 		getFooter().add(new Button(msg.getMessage("cancel"), e -> close()));
-		setWidth("80%");
 
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
@@ -73,16 +66,20 @@ public class UnknownUserDialog extends Dialog
 		
 		HorizontalLayout options = new HorizontalLayout();
 		options.setSizeFull();
+		int widthMode = 0;
 		if (authNResult.formForUnknownPrincipal != null)
 		{
 			log.debug("Adding registration component");
 			options.add(getRegistrationComponent());
+			widthMode++;
 		}
 		if (authNResult.enableAssociation)
 		{
 			options.add(getAssociationComponent());
+			widthMode++;
 		}
-		
+		setWidth(widthMode == 2 ? "80%" : "50%");
+
 		main.add(mainInfo, options);
 		add(main);
 	}
@@ -127,14 +124,12 @@ public class UnknownUserDialog extends Dialog
 
 	protected void showAssociation()
 	{
-		
-//		ConnectIdAtLoginWizardProvider wizardProv = new ConnectIdAtLoginWizardProvider(msg,
-//				sandboxURL, sandboxAuthnNotifier, inputTranslationEngine,
-//				authNResult.getRemotelyAuthenticatedPrincipal());
-//		SandboxWizardDialog dialog = new SandboxWizardDialog(wizardProv.getWizardInstance(),
-//				wizardProv.getCaption());
-//		dialog.show();
-//		close();
+		SandboxWizardDialog dialog = new SandboxWizardDialog();
+		Component wizard = associationAccountWizardProvider.getWizardForConnectIdAtLogin(authNResult.getRemotelyAuthenticatedPrincipal(), dialog::close);
+		dialog.setHeaderTitle(msg.getMessage("ConnectId.wizardCaption"));
+		dialog.add(wizard);
+		dialog.open();
+		close();
 	}
 	
 	protected void showRegistration(String form, RemotelyAuthenticatedPrincipal ctx)

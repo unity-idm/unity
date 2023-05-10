@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.secured_shared_endpoint;
+package io.imunity.vaadin.endpoint.common;
 
 import com.vaadin.flow.server.VaadinService;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 import static java.util.Collections.synchronizedSet;
 
-class SandboxAuthnRouterImpl implements SandboxAuthnRouter
+public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, SandboxAuthnRouterImpl.class);
 	private final Set<AuthnResultListener> authnListenerList;

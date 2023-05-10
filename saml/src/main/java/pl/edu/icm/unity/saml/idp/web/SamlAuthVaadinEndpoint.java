@@ -10,6 +10,7 @@ import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.endpoint.common.AuthenticationFilter;
+import io.imunity.vaadin.endpoint.common.SandboxAuthnRouterImpl;
 import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import org.apache.cxf.Bus;
@@ -217,7 +218,7 @@ public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
 	{
 		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows,
 				new SamlAuthnCancelHandler(freemarkerHandler, aTypeSupport, idpStatisticReporterFactory,
-						lastAccessAttributeManagement, description.getEndpoint()));
+						lastAccessAttributeManagement, description.getEndpoint()), new SandboxAuthnRouterImpl());
 		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);
 		return context;
 	}

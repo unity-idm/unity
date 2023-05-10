@@ -8,6 +8,7 @@ package io.imunity.vaadin.endpoint.common;
 import org.eclipse.jetty.webapp.WebAppContext;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
@@ -23,6 +24,8 @@ public class Vaadin2XWebAppContext extends WebAppContext
 	public final MessageSource messageSource;
 	public final ResolvedEndpoint description;
 	public final CancelHandler cancelHandler;
+	public final SandboxAuthnRouter sandboxRouter;
+
 	public List<AuthenticationFlow> authenticationFlows;
 
 	public Vaadin2XWebAppContext(Properties properties, Vaadin82XEndpointProperties vaadinEndpointProperties,
@@ -40,12 +43,20 @@ public class Vaadin2XWebAppContext extends WebAppContext
 	                             MessageSource messageSource, ResolvedEndpoint description, List<AuthenticationFlow> authenticationFlows,
 	                             CancelHandler cancelHandler)
 	{
+		this(properties, vaadinEndpointProperties, messageSource, description, authenticationFlows, cancelHandler, null);
+	}
+
+	public Vaadin2XWebAppContext(Properties properties, Vaadin82XEndpointProperties vaadinEndpointProperties,
+	                             MessageSource messageSource, ResolvedEndpoint description, List<AuthenticationFlow> authenticationFlows,
+	                             CancelHandler cancelHandler, SandboxAuthnRouter sandboxRouter)
+	{
 		this.properties = properties;
 		this.vaadin23Properties = vaadinEndpointProperties;
 		this.messageSource = messageSource;
 		this.description = description;
 		this.authenticationFlows = authenticationFlows;
 		this.cancelHandler = cancelHandler;
+		this.sandboxRouter = sandboxRouter;
 	}
 
 	public static Properties getCurrentWebAppContextProperties()
@@ -105,6 +116,14 @@ public class Vaadin2XWebAppContext extends WebAppContext
 		return Optional.ofNullable(getCurrentWebAppContext())
 				.map(context -> (Vaadin2XWebAppContext) context)
 				.map(context -> context.cancelHandler)
+				.orElse(null);
+	}
+
+	public static SandboxAuthnRouter getCurrentWebAppSandboxAuthnRouter()
+	{
+		return Optional.ofNullable(getCurrentWebAppContext())
+				.map(context -> (Vaadin2XWebAppContext) context)
+				.map(context -> context.sandboxRouter)
 				.orElse(null);
 	}
 

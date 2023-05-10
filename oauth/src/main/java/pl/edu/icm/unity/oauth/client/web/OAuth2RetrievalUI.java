@@ -199,7 +199,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 				clear();
 				return;
 			}
-			UI.getCurrent().getPage().open(currentRelativeURI.getPath() + "?" + redirectParam, null);
+			UI.getCurrent().getPage().open(currentRelativeURI.getPath() + "?" + redirectParam, "_self");
 	});
 	}
 

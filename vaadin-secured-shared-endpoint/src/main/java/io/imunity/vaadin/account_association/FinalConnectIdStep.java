@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 
 import java.util.Map;
 
-class FinalStep extends WizardStep
+class FinalConnectIdStep extends WizardStep
 {
 	private final InputTranslationEngine translationEngine;
 	private final NotificationPresenter notificationPresenter;
@@ -27,8 +27,8 @@ class FinalStep extends WizardStep
 
 	private RemotelyAuthenticatedPrincipal authnContext;
 
-	public FinalStep(String label, Component component,
-	                 InputTranslationEngine translationEngine, NotificationPresenter notificationPresenter, MessageSource msg)
+	public FinalConnectIdStep(String label, Component component,
+	                          InputTranslationEngine translationEngine, NotificationPresenter notificationPresenter, MessageSource msg)
 	{
 		super(label, component);
 		this.translationEngine = translationEngine;

@@ -21,10 +21,7 @@ import com.vaadin.server.Page;
 import io.imunity.vaadin.auth.outdated.CredentialChangeConfiguration;
 import io.imunity.vaadin.auth.outdated.OutdatedCredentialController;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
-import io.imunity.vaadin.endpoint.common.RegistrationFormDialogProvider;
-import io.imunity.vaadin.endpoint.common.RegistrationFormsLayoutService;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.*;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -36,16 +33,13 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
@@ -69,15 +63,12 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	private final VaddinWebLogoutHandler authnProcessor;
 	private final ExecutorsService execService;
 	private final EntityManagement idsMan;
-	private final InputTranslationEngine inputTranslationEngine;
 	private final ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory;
 	private final List<AuthenticationFlow> authnFlows;
 	private final RegistrationFormsLayoutService registrationFormsLayoutService;
 	private final NotificationPresenter notificationPresenter;
-
+	private final AssociationAccountWizardProvider associationAccountWizardProvider;
 	private final RegistrationFormDialogProvider formLauncher;
-	private final SandboxAuthnRouter sandboxRouter;
-
 
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
@@ -90,11 +81,11 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	                          VaddinWebLogoutHandler authnProcessor,
 	                          InteractiveAuthenticationProcessor interactiveProcessor,
 	                          ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
-	                          InputTranslationEngine inputTranslationEngine,
 	                          ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
 	                          RegistrationFormsLayoutService registrationFormsLayoutService,
 	                          RegistrationFormDialogProvider formLauncher,
-	                          NotificationPresenter notificationPresenter)
+	                          NotificationPresenter notificationPresenter,
+	                          AssociationAccountWizardProvider associationAccountWizardProvider)
 	{
 		this.msg = msg;
 		this.localeChoice = new LocaleChoiceComponent(cfg);
@@ -102,13 +93,12 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		this.interactiveAuthnProcessor = interactiveProcessor;
 		this.execService = execService;
 		this.idsMan = idsMan;
-		this.inputTranslationEngine = inputTranslationEngine;
 		this.outdatedCredentialDialogFactory = outdatedCredentialDialogFactory;
 		this.imageAccessService = imageAccessService;
 		this.registrationFormsLayoutService = registrationFormsLayoutService;
 		this.notificationPresenter = notificationPresenter;
 		this.formLauncher = formLauncher;
-		this.sandboxRouter = null;
+		this.associationAccountWizardProvider = associationAccountWizardProvider;
 		this.endpointDescription = getCurrentWebAppResolvedEndpoint();
 		this.config = getCurrentWebAppVaadinProperties();
 		this.authnFlows = List.copyOf(getCurrentWebAppAuthenticationFlows());
@@ -118,8 +108,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	protected void init()
 	{
 		Function<UnknownRemotePrincipalResult, Dialog> unknownUserDialogProvider = result -> new UnknownUserDialog(
-				msg, result, formLauncher, sandboxRouter, inputTranslationEngine, getSandboxServletURLForAssociation(),
-				notificationPresenter
+				msg, result, formLauncher, notificationPresenter, associationAccountWizardProvider
 		);
 		authenticationUI = ColumnInstantAuthenticationScreen.getInstance(msg, imageAccessService, config, endpointDescription,
 				new CredentialResetLauncherImpl(),
@@ -131,11 +120,6 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 				interactiveAuthnProcessor, notificationPresenter);
 		loadInitialState();
 		getContent().setSizeFull();
-	}
-
-	private String getSandboxServletURLForAssociation()
-	{
-		return endpointDescription.getEndpoint().getContextAddress() + VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 	}
 	
 	private void loadInitialState() 

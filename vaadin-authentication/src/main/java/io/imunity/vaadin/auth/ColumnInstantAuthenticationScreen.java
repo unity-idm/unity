@@ -73,7 +73,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 	private TopHeaderComponent topHeader;
 	private HorizontalLayout cancelComponent;
 	private final CredentialResetLauncher credentialResetLauncher;
-	private final NotificationPresenter notificationPresenter;
+	protected final NotificationPresenter notificationPresenter;
 
 	protected ColumnInstantAuthenticationScreen(MessageSource msg, VaadinLogoImageLoader imageAccessService,
 	                                            VaadinEndpointProperties config,

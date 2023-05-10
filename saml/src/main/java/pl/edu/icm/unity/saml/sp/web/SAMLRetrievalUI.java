@@ -171,7 +171,7 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 			session.setAttribute(VaadinRedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
 			samlContextManagement.addAuthnContext(context);
 
-			UI.getCurrent().getPage().open(path + "?" + redirectParam, null);
+			UI.getCurrent().getPage().open(path + "?" + redirectParam, "_self");
 		});
 	}
 
