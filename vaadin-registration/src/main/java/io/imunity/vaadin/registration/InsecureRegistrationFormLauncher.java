@@ -4,7 +4,7 @@
  */
 package io.imunity.vaadin.registration;
 
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dialog.Dialog;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -132,7 +132,7 @@ public class InsecureRegistrationFormLauncher extends AbstractRegistrationFormDi
 	}
 	
 	@Override
-	protected ConfirmDialog createDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
+	protected Dialog createDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		RegistrationContext context = new RegistrationContext(
 				idpLoginController.isLoginInProgress(), mode);

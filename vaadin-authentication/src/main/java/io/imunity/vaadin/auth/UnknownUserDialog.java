@@ -90,7 +90,6 @@ public class UnknownUserDialog extends Dialog
 		ret.setMargin(false);
 		ret.setPadding(false);
 		Label label = new Label(msg.getMessage("UnknownUserDialog.registerInfo"));
-		label.setSizeFull();
 		Button register = new Button(msg.getMessage("UnknownUserDialog.register"));
 		register.setId("UnknownUserDialog.register");
 		register.addThemeVariants(ButtonVariant.LUMO_LARGE);
@@ -110,7 +109,6 @@ public class UnknownUserDialog extends Dialog
 		ret.setMargin(false);
 		ret.setPadding(false);
 		Label label = new Label(msg.getMessage("UnknownUserDialog.associationInfo"));
-		label.setSizeFull();
 		Button associate = new Button(msg.getMessage("UnknownUserDialog.associate"));
 		associate.setId("UnknownUserDialog.associate");
 		associate.addThemeVariants(ButtonVariant.LUMO_LARGE);

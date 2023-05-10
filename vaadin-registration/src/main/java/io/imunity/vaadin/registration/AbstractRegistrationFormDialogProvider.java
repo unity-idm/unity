@@ -4,7 +4,7 @@
  */
 package io.imunity.vaadin.registration;
 
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dialog.Dialog;
 import io.imunity.vaadin.endpoint.common.RegistrationFormDialogProvider;
 import org.springframework.beans.factory.ObjectFactory;
 import pl.edu.icm.unity.MessageSource;
@@ -33,8 +33,8 @@ public abstract class AbstractRegistrationFormDialogProvider implements Registra
 		this.requestEditorCreatorFactory = requestEditorCreatorFactory;
 	}
 
-	protected abstract ConfirmDialog createDialog(RegistrationForm form, RegistrationRequestEditor editor,
-	                                              TriggeringMode mode);
+	protected abstract Dialog createDialog(RegistrationForm form, RegistrationRequestEditor editor,
+	                                       TriggeringMode mode);
 	
 	@Override
 	public void showRegistrationDialog(RegistrationForm form, RemotelyAuthenticatedPrincipal remoteContext,
@@ -89,11 +89,11 @@ public abstract class AbstractRegistrationFormDialogProvider implements Registra
 	static class EditorCreatedCallbackImpl implements RequestEditorCreator.RequestEditorCreatedCallback
 	{
 		private final AsyncErrorHandler errorHandler;
-		private final Function<RegistrationRequestEditor, ConfirmDialog> dialogCreator;
-		private ConfirmDialog dialog;
+		private final Function<RegistrationRequestEditor, Dialog> dialogCreator;
+		private Dialog dialog;
 
 		public EditorCreatedCallbackImpl(AsyncErrorHandler errorHandler, 
-				Function<RegistrationRequestEditor, ConfirmDialog> dialogCreator)
+				Function<RegistrationRequestEditor, Dialog> dialogCreator)
 		{
 			this.errorHandler = errorHandler;
 			this.dialogCreator = dialogCreator;
@@ -118,7 +118,7 @@ public abstract class AbstractRegistrationFormDialogProvider implements Registra
 			//nop
 		}
 
-		public ConfirmDialog getDialog()
+		public Dialog getDialog()
 		{
 			return dialog;
 		}

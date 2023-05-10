@@ -5,7 +5,9 @@
 package io.imunity.vaadin.registration;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -24,16 +26,15 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
  * Dialog allowing to fill a registration form. It takes an editor component as argument.
  * Dialog uses 2 buttons: submit request, cancel.
  */
-public class RegistrationFormFillDialog extends ConfirmDialog
+public class RegistrationFormFillDialog extends Dialog
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormFillDialog.class);
-	private MessageSource msg;
-	private RegistrationRequestEditor editor;
+	private final MessageSource msg;
+	private final RegistrationRequestEditor editor;
 	private final VaadinLogoImageLoader imageAccessService;
 	private final NotificationPresenter notificationPresenter;
 	private final Callback callback;
 	private boolean onFinalScreen;
-	private IdPLoginController idpLoginController;
 	private final boolean withSimplifiedFinalization;
 	
 	public RegistrationFormFillDialog(MessageSource msg, VaadinLogoImageLoader imageAccessService, String caption,
@@ -44,26 +45,33 @@ public class RegistrationFormFillDialog extends ConfirmDialog
 		this.msg = msg;
 		this.editor = editor;
 		this.callback = callback;
-		this.idpLoginController = idpLoginController;
 		this.withSimplifiedFinalization = withSimplifiedFinalization;
 		this.imageAccessService = imageAccessService;
 		this.notificationPresenter = notificationPresenter;
-		setText(caption);
+		setHeaderTitle(caption);
 		init();
 	}
 
 	private void init()
 	{
 		setWidth("80%");
-		setCancelable(true);
-		setCancelButton(msg.getMessage("cancel"), e -> callback.cancelled());
-		setConfirmButton(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), e ->
+		Button cancelButton = new Button(msg.getMessage("cancel"), e ->
+		{
+			callback.cancelled();
+			close();
+		});
+		cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		cancelButton.getStyle().set("margin-right", "auto");
+		getFooter().add(cancelButton);
+		Button submitButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), e ->
 		{
 			if (onFinalScreen)
 				close();
 			else
 				submitRequest();
 		});
+		submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		getFooter().add(submitButton);
 
 		VerticalLayout vl = new VerticalLayout();
 		vl.setMargin(false);
@@ -76,7 +84,6 @@ public class RegistrationFormFillDialog extends ConfirmDialog
 	private void gotoFinalScreen(WorkflowFinalizationConfiguration config)
 	{
 		log.debug("Registration is finalized, status: {}", config);
-		setCancelable(false);
 		onFinalScreen = true;
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(false);
@@ -90,20 +97,11 @@ public class RegistrationFormFillDialog extends ConfirmDialog
 		wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 	
-//	private static void redirect(Page page, String redirectUrl, IdPLoginController loginController)
-//	{
-//		loginController.breakLogin();
-//		page.open(redirectUrl, null);
-//	}
-	
 	private void submitRequest()
 	{
 		RegistrationRequest request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
 		if (request == null)
-		{
-//			open();
 			return;
-		}
 		try
 		{
 			WorkflowFinalizationConfiguration config = callback.newRequest(request);
@@ -125,7 +123,7 @@ public class RegistrationFormFillDialog extends ConfirmDialog
 	private void closeDialogAndShowInfo(String mainInformation)
 	{
 		close();
-		notificationPresenter.showWarning(mainInformation, mainInformation);
+		notificationPresenter.showSuccess(mainInformation, "");
 	}
 
 	public interface Callback
