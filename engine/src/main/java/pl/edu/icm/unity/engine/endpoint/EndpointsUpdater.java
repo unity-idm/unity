@@ -86,6 +86,8 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		{
 			tx.runInTransactionThrowing(() ->
 			{
+				Map<String, AuthenticationRealm> allRealmsAsMap = realmDB.getAllAsMap();
+				
 				long roundedUpdateTime = roundToS(System.currentTimeMillis());
 				List<Endpoint> endpointsInDBMap = endpointDB.getAll();
 				log.debug("There are " + endpointsInDBMap.size() + " endpoints in DB.");
@@ -93,7 +95,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 				{
 					if (endpointInDB.getState().equals(EndpointState.UNDEPLOYED))
 						continue;
-					EndpointInstance instance = updateEndpoint(endpointInDB, endpointsDeployed);
+					EndpointInstance instance = updateEndpoint(endpointInDB, endpointsDeployed, allRealmsAsMap);
 					endpointsInDb.add(instance.getEndpointDescription().getName());
 				}
 				setLastUpdate(roundedUpdateTime);
@@ -108,18 +110,21 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		}
 	}
 	
-	private EndpointInstance updateEndpoint(Endpoint endpointInDB, Map<String, EndpointInstance> endpointsDeployed) throws EngineException
+	private EndpointInstance updateEndpoint(Endpoint endpointInDB, Map<String, EndpointInstance> endpointsDeployed,
+			Map<String, AuthenticationRealm> allRealmsAsMap) throws EngineException
 	{
 		String name = endpointInDB.getName();
 		EndpointInstance runtimeEndpointInstance = endpointsDeployed.get(name);
 		EndpointInstance updatedInstance = null;
+
 		if (runtimeEndpointInstance == null)
 		{
 			updatedInstance = createEndpointInstance(endpointInDB);
 			log.info("Endpoint " + name + " will be deployed");
 			endpointMan.deploy(updatedInstance);
 		} else if (endpointInDB.getRevision() > runtimeEndpointInstance.getEndpointDescription()
-				.getEndpoint().getRevision() || hasChangedRealm(runtimeEndpointInstance))
+				.getEndpoint()
+				.getRevision() || hasChangedRealm(runtimeEndpointInstance, allRealmsAsMap))
 		{
 			updatedInstance = createEndpointInstance(endpointInDB);
 			log.info("Endpoint " + name + " will be re-deployed");
@@ -177,13 +182,13 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		}
 	}
 	
-	private boolean hasChangedRealm(EndpointInstance endpointInstance)
+	private boolean hasChangedRealm(EndpointInstance endpointInstance, Map<String, AuthenticationRealm> allRealmsAsMap)
 	{
 		AuthenticationRealm currentRealm = endpointInstance.getEndpointDescription()
 				.getRealm();
 		if (currentRealm == null)
 			return false;
-		AuthenticationRealm dbRealm = realmDB.get(currentRealm.getName());
+		AuthenticationRealm dbRealm = allRealmsAsMap.get(currentRealm.getName());
 		return !dbRealm.equals(currentRealm);
 	}
 	
