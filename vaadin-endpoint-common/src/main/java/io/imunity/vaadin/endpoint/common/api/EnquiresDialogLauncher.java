@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.endpoint.common;
+package io.imunity.vaadin.endpoint.common.api;
 
 public interface EnquiresDialogLauncher
 {

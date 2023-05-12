@@ -6,6 +6,7 @@ package io.imunity.vaadin.registration;
 
 import com.vaadin.server.Page;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolverFactory;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
@@ -52,6 +53,7 @@ class RequestEditorCreator
 	private final SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider;
 	private final NotificationPresenter notificationPresenter;
 	private final VaadinLogoImageLoader logoImageLoader;
+	private final RemoteRegistrationSignupResolverFactory remoteRegistrationSignupResolverFactory;
 
 	private RegistrationForm form;
 	private RemotelyAuthenticatedPrincipal remotelyAuthenticated;
@@ -73,7 +75,8 @@ class RequestEditorCreator
 	                            InvitationResolver invitationResolver,
 	                            SwitchToEnquiryComponentProvider toEnquirySwitchLabelProvider,
 	                            NotificationPresenter notificationPresenter,
-	                            VaadinLogoImageLoader logoImageLoader)
+	                            VaadinLogoImageLoader logoImageLoader,
+	                            RemoteRegistrationSignupResolverFactory remoteRegistrationSignupResolverFactory)
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -90,6 +93,7 @@ class RequestEditorCreator
 		this.toEnquirySwitchLabelProvider = toEnquirySwitchLabelProvider;
 		this.notificationPresenter = notificationPresenter;
 		this.logoImageLoader = logoImageLoader;
+		this.remoteRegistrationSignupResolverFactory = remoteRegistrationSignupResolverFactory;
 	}
 
 
@@ -238,7 +242,7 @@ class RequestEditorCreator
 				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder,
 				toEnquirySwitchLabelProvider,
 				enableRemoteSignup,
-				authenticationOptionKey, logoImageLoader);
+				authenticationOptionKey, logoImageLoader, remoteRegistrationSignupResolverFactory);
 	}
 
 	private Optional<ResolvedInvitationParam> getInvitationByCode(String registrationCode) throws RegCodeException

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.endpoint.common;
+package io.imunity.vaadin.endpoint.common.api;
 
 import com.vaadin.flow.component.Component;
 import pl.edu.icm.unity.exceptions.EngineException;

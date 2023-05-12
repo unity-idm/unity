@@ -14,7 +14,7 @@ import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.account_association.wizard.Wizard;
 import io.imunity.vaadin.account_association.wizard.WizardStepPreparer;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.AssociationAccountWizardProvider;
+import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;

@@ -5,7 +5,7 @@
 package io.imunity.vaadin.enquiry;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.EnquiresDialogLauncher;
+import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;

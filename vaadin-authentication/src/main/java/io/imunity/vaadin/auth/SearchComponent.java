@@ -18,6 +18,8 @@ public class SearchComponent extends VerticalLayout
 		search.setPlaceholder(msg.getMessage("IdpSelectorComponent.filter"));
 		search.addValueChangeListener(event -> filterChangedCallback.accept(search.getValue()));
 		search.addClassName("u-authn-search");
+		setMargin(false);
+		setPadding(false);
 		add(search);
 	}
 }

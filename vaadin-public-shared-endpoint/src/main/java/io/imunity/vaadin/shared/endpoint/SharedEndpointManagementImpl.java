@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import javax.servlet.DispatcherType;
 import java.net.URL;
@@ -56,7 +57,8 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	                                    UnityServerConfiguration config,
 	                                    AdvertisedAddressProvider advertisedAddrProvider,
 	                                    SharedResourceProvider sharedResourceProvider,
-	                                    MessageSource msg) throws EngineException
+	                                    MessageSource msg,
+	                                    RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter) throws EngineException
 	{
 		Properties properties = config.getProperties();
 		Vaadin82XEndpointProperties vaadinEndpointProperties = new Vaadin82XEndpointProperties(properties, config.getValue(DEFAULT_WEB_CONTENT_PATH));
@@ -68,6 +70,8 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		context.getServletContext().setExtendedListenerTypes(true);
 		context.addEventListener(new ServletContextListeners());
 
+		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
+				EnumSet.of(DispatcherType.REQUEST));
 		context.addFilter(new FilterHolder(new InvocationContextSetupFilter(config, null, null, emptyList())), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 

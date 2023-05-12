@@ -5,7 +5,7 @@
 package io.imunity.vaadin.registration;
 
 import com.vaadin.flow.component.dialog.Dialog;
-import io.imunity.vaadin.endpoint.common.RegistrationFormDialogProvider;
+import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
 import org.springframework.beans.factory.ObjectFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;

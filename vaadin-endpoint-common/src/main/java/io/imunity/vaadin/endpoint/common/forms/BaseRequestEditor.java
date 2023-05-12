@@ -66,7 +66,7 @@ import static io.imunity.vaadin.endpoint.common.forms.FormParser.isGroupParamUse
 
 public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends VerticalLayout
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
+	protected static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
 	protected MessageSource msg;
 	protected NotificationPresenter notificationPresenter;
 	private final BaseForm form;

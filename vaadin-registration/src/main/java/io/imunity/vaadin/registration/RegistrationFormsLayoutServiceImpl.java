@@ -7,7 +7,7 @@ package io.imunity.vaadin.registration;
 import com.google.common.collect.Lists;
 import com.vaadin.flow.component.Component;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.RegistrationFormsLayoutService;
+import io.imunity.vaadin.endpoint.common.api.RegistrationFormsLayoutService;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
