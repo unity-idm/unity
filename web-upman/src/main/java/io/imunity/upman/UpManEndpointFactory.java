@@ -7,11 +7,12 @@
 package io.imunity.upman;
 
 import io.imunity.vaadin.auth.VaadinAuthentication;
-import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
+import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.project.ProjectManagementConstants;
@@ -22,11 +23,6 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessi
 
 import java.util.Collections;
 
-/**
- * Factory creating endpoints exposing {@link UpManUI}.
- * @author P.Piernik
- *
- */
 @Component
 public class UpManEndpointFactory implements EndpointFactory
 {
@@ -41,18 +37,21 @@ public class UpManEndpointFactory implements EndpointFactory
 	private final MessageSource msg;
 	private final AdvertisedAddressProvider advertisedAddrProvider;
 	private final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
+	private final SandboxAuthnRouter sandboxAuthnRouter;
 
 	@Autowired
 	public UpManEndpointFactory(ApplicationContext applicationContext,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			MessageSource msg,
+			SandboxAuthnRouter sandboxAuthnRouter,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
 		this.advertisedAddrProvider = advertisedAddrProvider;
+		this.sandboxAuthnRouter = sandboxAuthnRouter;
 		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
 	}
 	
@@ -65,8 +64,9 @@ public class UpManEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new Vaadin2XEndpoint(server, advertisedAddrProvider, msg, applicationContext,
-				new UpManResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, UpManServlet.class
+		return new SecureVaadin2XEndpoint(server, advertisedAddrProvider, msg, applicationContext,
+				new UpManResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouter,
+				UpManServlet.class
 		);
 	}
 }

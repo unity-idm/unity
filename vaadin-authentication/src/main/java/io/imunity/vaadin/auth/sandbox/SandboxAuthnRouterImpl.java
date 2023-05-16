@@ -2,25 +2,27 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.endpoint.common;
+package io.imunity.vaadin.auth.sandbox;
 
 import com.vaadin.flow.server.VaadinService;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Collections.synchronizedSet;
 
-public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
+@PrototypeComponent
+class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, SandboxAuthnRouterImpl.class);
 	private final Set<AuthnResultListener> authnListenerList;
 
-	public SandboxAuthnRouterImpl()
+	SandboxAuthnRouterImpl()
 	{
 		authnListenerList = synchronizedSet(new HashSet<>());
 	}

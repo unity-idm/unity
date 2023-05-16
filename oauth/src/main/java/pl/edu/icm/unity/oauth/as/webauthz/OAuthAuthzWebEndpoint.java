@@ -10,6 +10,8 @@ import com.nimbusds.openid.connect.sdk.OIDCError;
 import com.vaadin.flow.server.startup.ServletContextListeners;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.auth.server.AuthenticationFilter;
+import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
 import io.imunity.vaadin.endpoint.common.*;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -28,6 +30,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
@@ -64,7 +67,7 @@ import java.util.EnumSet;
  * OAuth2 authorization endpoint, Vaadin based.
  */
 @PrototypeComponent
-public class OAuthAuthzWebEndpoint extends Vaadin2XEndpoint
+public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, OAuthAuthzWebEndpoint.class);
 
@@ -100,10 +103,11 @@ public class OAuthAuthzWebEndpoint extends Vaadin2XEndpoint
 			MessageSource msg,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 			OAuthIdpStatisticReporterFactory idpReporterFactory,
+			SandboxAuthnRouter sandboxAuthnRouter,
 			OAuthScopesService scopeService)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, new OAuthResourceProvider(),
-				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter, OAuthVaadin2XServlet.class);
+				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouter, OAuthVaadin2XServlet.class);
 		this.freemarkerHandler = freemarkerHandler;
 		this.attributesManagement = attributesManagement;
 		this.identitiesManagement = identitiesManagement;
@@ -137,7 +141,7 @@ public class OAuthAuthzWebEndpoint extends Vaadin2XEndpoint
 		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows,
 				new OAuthCancelHandler(
 						new OAuthResponseHandler(applicationContext.getBean(OAuthSessionService.class),
-								idpReporterFactory.getForEndpoint(description.getEndpoint()), freemarkerHandler)), new SandboxAuthnRouterImpl());
+								idpReporterFactory.getForEndpoint(description.getEndpoint()), freemarkerHandler)), sandboxAuthnRouter);
 		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);
 		return context;
 	}
@@ -210,7 +214,7 @@ public class OAuthAuthzWebEndpoint extends Vaadin2XEndpoint
 		return servletContextHandler;
 	}
 	
-	private static class NoSessionFilterImpl implements io.imunity.vaadin.endpoint.common.AuthenticationFilter.NoSessionFilter
+	private static class NoSessionFilterImpl implements AuthenticationFilter.NoSessionFilter
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NoSessionFilterImpl.class);
 		

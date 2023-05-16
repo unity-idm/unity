@@ -9,9 +9,8 @@ import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import io.imunity.vaadin.endpoint.common.AuthenticationFilter;
-import io.imunity.vaadin.endpoint.common.SandboxAuthnRouterImpl;
-import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
+import io.imunity.vaadin.auth.server.AuthenticationFilter;
+import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -31,6 +30,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
@@ -84,7 +84,7 @@ import java.util.List;
  */
 @PrototypeComponent
 @Primary
-public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
+public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SamlAuthVaadinEndpoint.class);
 
@@ -133,12 +133,14 @@ public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
 	                              RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 	                              SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
 	                              LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+								  SandboxAuthnRouter sandboxAuthnRouter,
 	                              SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
 		this(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
 				pkiManagement, executorsService, dispatcherServletFactory, logoutProcessorFactory,
 				sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
-				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory, lastAccessAttributeManagement, samlIdPConfigurationParser);
+				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory, lastAccessAttributeManagement,
+				sandboxAuthnRouter, samlIdPConfigurationParser);
 	}
 
 	protected SamlAuthVaadinEndpoint(String publicEntryServletPath,
@@ -158,10 +160,11 @@ public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
 			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+			SandboxAuthnRouter sandboxAuthnRouter,
 			SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, new SamlResourceProvider(), SAML_ENTRY_SERVLET_PATH,
-				remoteAuthnResponseProcessingFilter, SamlVaadin2XServlet.class);
+				remoteAuthnResponseProcessingFilter, sandboxAuthnRouter, SamlVaadin2XServlet.class);
 		this.publicEntryPointPath = publicEntryServletPath;
 		this.freemarkerHandler = freemarkerHandler;
 		this.dispatcherServletFactory = dispatcherServletFactory;
@@ -218,7 +221,7 @@ public class SamlAuthVaadinEndpoint extends Vaadin2XEndpoint
 	{
 		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows,
 				new SamlAuthnCancelHandler(freemarkerHandler, aTypeSupport, idpStatisticReporterFactory,
-						lastAccessAttributeManagement, description.getEndpoint()), new SandboxAuthnRouterImpl());
+						lastAccessAttributeManagement, description.getEndpoint()), sandboxAuthnRouter);
 		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);
 		return context;
 	}

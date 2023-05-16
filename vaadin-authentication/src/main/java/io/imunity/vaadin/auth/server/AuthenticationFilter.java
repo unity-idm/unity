@@ -2,8 +2,9 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.endpoint.common;
+package io.imunity.vaadin.auth.server;
 
+import io.imunity.vaadin.endpoint.common.EopException;
 import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;

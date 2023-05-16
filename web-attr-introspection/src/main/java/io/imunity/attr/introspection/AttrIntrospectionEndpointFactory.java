@@ -5,28 +5,22 @@
 
 package io.imunity.attr.introspection;
 
-import java.util.Collections;
-
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.endpoint.common.InsecureVaadin2XEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.InsecureVaadinEndpoint;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
-/**
- * Factory creating endpoints exposing {@link AttrIntrospectionUI}.
- * 
- * @author P.Piernik
- *
- */
+import java.util.Collections;
+
 @Component
 public class AttrIntrospectionEndpointFactory implements EndpointFactory
 {
@@ -36,22 +30,25 @@ public class AttrIntrospectionEndpointFactory implements EndpointFactory
 			"Attribute introspection endpoint", VaadinAuthentication.NAME,
 			Collections.singletonMap(SERVLET_PATH, "Attribute introspection endpoint"));
 
-	private ApplicationContext applicationContext;
-	private NetworkServer server;
-	private MessageSource msg;
-	private AdvertisedAddressProvider advertisedAddrProvider;
-	private RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
+	private final ApplicationContext applicationContext;
+	private final NetworkServer server;
+	private final MessageSource msg;
+	private final AdvertisedAddressProvider advertisedAddrProvider;
+	private final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
+	private final SandboxAuthnRouter sandboxAuthnRouter;
 
 	@Autowired
 	AttrIntrospectionEndpointFactory(ApplicationContext applicationContext, NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider, MessageSource msg,
-			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
+			SandboxAuthnRouter sandboxAuthnRouter)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
 		this.advertisedAddrProvider = advertisedAddrProvider;
 		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
+		this.sandboxAuthnRouter = sandboxAuthnRouter;
 	}
 
 	@Override
@@ -63,7 +60,8 @@ public class AttrIntrospectionEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new InsecureVaadinEndpoint(server, advertisedAddrProvider, msg, applicationContext,
-				AttrIntrospectionUI.class.getSimpleName(), SERVLET_PATH, remoteAuthnResponseProcessingFilter);
+		return new InsecureVaadin2XEndpoint(server, advertisedAddrProvider, msg, applicationContext,
+				new AttrIntrospectionResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouter,
+				AttrIntrospectionServlet.class);
 	}
 }
