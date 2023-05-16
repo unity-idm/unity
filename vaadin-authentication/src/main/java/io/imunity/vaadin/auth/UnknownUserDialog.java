@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
  * <p>
  * This dialog shall be shown only if at least one of the alternatives is enabled in configuration.
  */
-public class UnknownUserDialog extends Dialog
+class UnknownUserDialog extends Dialog
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnknownUserDialog.class);
 	
@@ -42,7 +42,7 @@ public class UnknownUserDialog extends Dialog
 	private final NotificationPresenter notificationPresenter;
 	private final AssociationAccountWizardProvider associationAccountWizardProvider;
 
-	public UnknownUserDialog(MessageSource msg, UnknownRemotePrincipalResult authNResult,
+	UnknownUserDialog(MessageSource msg, UnknownRemotePrincipalResult authNResult,
 	                         RegistrationFormDialogProvider formLauncher,
 	                         NotificationPresenter notificationPresenter, AssociationAccountWizardProvider associationAccountWizardProvider)
 	{
@@ -66,19 +66,19 @@ public class UnknownUserDialog extends Dialog
 		
 		HorizontalLayout options = new HorizontalLayout();
 		options.setSizeFull();
-		int widthMode = 0;
+		int enabledColumns = 0;
 		if (authNResult.formForUnknownPrincipal != null)
 		{
 			log.debug("Adding registration component");
 			options.add(getRegistrationComponent());
-			widthMode++;
+			enabledColumns++;
 		}
 		if (authNResult.enableAssociation)
 		{
 			options.add(getAssociationComponent());
-			widthMode++;
+			enabledColumns++;
 		}
-		setWidth(widthMode == 2 ? "80%" : "50%");
+		setWidth(enabledColumns == 2 ? "80%" : "50%");
 
 		main.add(mainInfo, options);
 		add(main);

@@ -9,9 +9,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
-/**
- * Provides registration form dialog.
- */
 public interface RegistrationFormDialogProvider
 {
 	void showRegistrationDialog(

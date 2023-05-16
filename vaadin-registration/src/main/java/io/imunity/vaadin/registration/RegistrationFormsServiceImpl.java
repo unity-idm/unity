@@ -7,7 +7,7 @@ package io.imunity.vaadin.registration;
 import com.google.common.collect.Lists;
 import com.vaadin.flow.component.Component;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.RegistrationFormsLayoutService;
+import io.imunity.vaadin.endpoint.common.api.RegistrationFormsService;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +27,7 @@ import java.util.List;
 
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-class RegistrationFormsLayoutServiceImpl implements RegistrationFormsLayoutService
+class RegistrationFormsServiceImpl implements RegistrationFormsService
 {
 	private final RegistrationsManagement registrationsManagement;
 	private final MessageSource msg;
@@ -41,13 +41,13 @@ class RegistrationFormsLayoutServiceImpl implements RegistrationFormsLayoutServi
 
 
 	@Autowired
-	RegistrationFormsLayoutServiceImpl(MessageSource msg,
-	                                   @Qualifier("insecure") RegistrationsManagement regMan,
-	                                   UnityServerConfiguration cfg,
-	                                   IdPLoginController idpLoginController,
-	                                   RequestEditorCreator editorCreator,
-	                                   AutoLoginAfterSignUpProcessor autoLogin, VaadinLogoImageLoader logoImageLoader,
-	                                   NotificationPresenter notificationPresenter)
+	RegistrationFormsServiceImpl(MessageSource msg,
+								 @Qualifier("insecure") RegistrationsManagement regMan,
+								 UnityServerConfiguration cfg,
+								 IdPLoginController idpLoginController,
+								 RequestEditorCreator editorCreator,
+								 AutoLoginAfterSignUpProcessor autoLogin, VaadinLogoImageLoader logoImageLoader,
+								 NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.registrationsManagement = regMan;

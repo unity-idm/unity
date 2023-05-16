@@ -6,6 +6,7 @@ package io.imunity.otp.credential_reset;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.imunity.otp.OTPResetSettings;
+import io.imunity.otp.OTPVerificator;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;

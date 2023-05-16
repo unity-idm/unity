@@ -41,6 +41,7 @@ import java.util.Set;
 public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
+	private static final String SELF_WINDOW_NAME = "_self";
 
 	private final MessageSource msg;
 	private final AuthenticationStepContext authenticationStepContext;
@@ -171,7 +172,7 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 			session.setAttribute(VaadinRedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
 			samlContextManagement.addAuthnContext(context);
 
-			UI.getCurrent().getPage().open(path + "?" + redirectParam, "_self");
+			UI.getCurrent().getPage().open(path + "?" + redirectParam, SELF_WINDOW_NAME);
 		});
 	}
 

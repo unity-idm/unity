@@ -24,7 +24,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.*;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
-import io.imunity.vaadin.endpoint.common.api.RegistrationFormsLayoutService;
+import io.imunity.vaadin.endpoint.common.api.RegistrationFormsService;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -68,7 +68,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	private final EntityManagement idsMan;
 	private final ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory;
 	private final List<AuthenticationFlow> authnFlows;
-	private final RegistrationFormsLayoutService registrationFormsLayoutService;
+	private final RegistrationFormsService registrationFormsService;
 	private final NotificationPresenter notificationPresenter;
 	private final AssociationAccountWizardProvider associationAccountWizardProvider;
 	private final RegistrationFormDialogProvider formLauncher;
@@ -85,7 +85,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	                          InteractiveAuthenticationProcessor interactiveProcessor,
 	                          ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 	                          ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
-	                          RegistrationFormsLayoutService registrationFormsLayoutService,
+	                          RegistrationFormsService registrationFormsService,
 	                          RegistrationFormDialogProvider formLauncher,
 	                          NotificationPresenter notificationPresenter,
 	                          AssociationAccountWizardProvider associationAccountWizardProvider)
@@ -98,14 +98,14 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		this.idsMan = idsMan;
 		this.outdatedCredentialDialogFactory = outdatedCredentialDialogFactory;
 		this.imageAccessService = imageAccessService;
-		this.registrationFormsLayoutService = registrationFormsLayoutService;
+		this.registrationFormsService = registrationFormsService;
 		this.notificationPresenter = notificationPresenter;
 		this.formLauncher = formLauncher;
 		this.associationAccountWizardProvider = associationAccountWizardProvider;
 		this.endpointDescription = getCurrentWebAppResolvedEndpoint();
 		this.config = getCurrentWebAppVaadinProperties();
 		this.authnFlows = List.copyOf(getCurrentWebAppAuthenticationFlows());
-		this.registrationFormsLayoutService.configure(config.getRegistrationConfiguration());
+		this.registrationFormsService.configure(config.getRegistrationConfiguration());
 	}
 	
 	protected void init()
@@ -201,7 +201,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	{
 		try
 		{
-			return registrationFormsLayoutService.isRegistrationEnabled();
+			return registrationFormsService.isRegistrationEnabled();
 		} catch (EngineException e)
 		{
 			LOG.error("Failed to determine whether registration is enabled or not on "
@@ -225,7 +225,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	{
 		try
 		{
-			List<RegistrationForm> forms = registrationFormsLayoutService.getDisplayedForms();
+			List<RegistrationForm> forms = registrationFormsService.getDisplayedForms();
 			if (forms.isEmpty())
 			{
 				notificationPresenter.showError(msg.getMessage("error"),
@@ -242,6 +242,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 			}
 		} catch (EngineException e)
 		{
+			LOG.error("Failed to get displayed forms", e);
 			notificationPresenter.showError(msg.getMessage("error"),
 					msg.getMessage("AuthenticationUI.registrationFormInitError"));
 		}
@@ -249,7 +250,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 
 	private void formSelected(RegistrationForm form)
 	{
-		Component view = registrationFormsLayoutService.createRegistrationView(
+		Component view = registrationFormsService.createRegistrationView(
 				form, RegistrationContext.TriggeringMode.manualAtLogin, this::resetToFreshAuthenticationScreen,
 				() -> UI.getCurrent().getPage().reload(), () -> UI.getCurrent().getPage().reload()
 		);

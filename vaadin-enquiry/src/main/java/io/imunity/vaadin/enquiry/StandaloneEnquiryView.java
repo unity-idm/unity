@@ -65,7 +65,7 @@ import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQU
 @PermitAll
 @RouteAlias(SEC_ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
 @Route(value = ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
-public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, BeforeEnterObserver
+class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, BeforeEnterObserver
 {
 	public static final String FORM_PARAM = "form";
 	public static final String REG_CODE_PARAM = "regcode";
@@ -224,6 +224,8 @@ public class StandaloneEnquiryView extends Composite<Div> implements HasDynamicT
 			} catch (Exception e)
 			{
 				log.warn("Can't check if enquiry request exists", e);
+				notificationPresenter.showError(msg.getMessage("EnquiryErrorName.title"), msg.getMessage("EnquiryErrorName.description"));
+				return;
 			}
 		}
 		showEditorContent();

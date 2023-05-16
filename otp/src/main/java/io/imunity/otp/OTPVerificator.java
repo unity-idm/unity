@@ -2,11 +2,12 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.otp.credential_reset;
+package io.imunity.otp;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
-import io.imunity.otp.*;
+import io.imunity.otp.credential_reset.OTPCredentialDBState;
+import io.imunity.otp.credential_reset.OTPCredentialReset;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;

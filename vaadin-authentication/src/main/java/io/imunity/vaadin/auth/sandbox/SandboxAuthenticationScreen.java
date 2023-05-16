@@ -5,6 +5,7 @@
 package io.imunity.vaadin.auth.sandbox;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.vaadin.auth.*;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -120,17 +121,22 @@ public class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScre
 	private static VaadinEndpointProperties prepareConfigurationBasingOnEndpoint(Properties endpointProperties, String title)
 	{
 		Properties stripDown = new Properties();
-		Map<Object, Object> reduced = endpointProperties.entrySet().stream().filter(entry -> {
-			String key = (String) entry.getKey();
-			return !(key.endsWith(VaadinEndpointProperties.ENABLE_REGISTRATION) || 
-					key.endsWith(VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS) ||
-					key.endsWith(VaadinEndpointProperties.PRODUCTION_MODE) ||
-					key.endsWith(VaadinEndpointProperties.WEB_CONTENT_PATH));
-		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		Map<Object, Object> reduced = endpointProperties.entrySet().stream()
+				.filter(SandboxAuthenticationScreen::filterProperties)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		stripDown.putAll(reduced);
 		stripDown.setProperty(PREFIX + AUTHN_TITLE, title);
 		stripDown.setProperty(PREFIX + AUTHN_SHOW_LAST_OPTION_ONLY, "false");
 		return new VaadinEndpointProperties(stripDown);
+	}
+
+	private static boolean filterProperties(Map.Entry<Object, Object> entry)
+	{
+		String key = (String) entry.getKey();
+		return !(key.endsWith(VaadinEndpointProperties.ENABLE_REGISTRATION) ||
+				key.endsWith(VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS) ||
+				key.endsWith(VaadinEndpointProperties.PRODUCTION_MODE) ||
+				key.endsWith(VaadinEndpointProperties.WEB_CONTENT_PATH));
 	}
 
 	@Override
@@ -173,7 +179,7 @@ public class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScre
 		return super.getRememberMeComponent(realm);
 	}
 	
-	private static UnknownUserDialog disabledUnknownUserProvider(UnknownRemotePrincipalResult authnResult)
+	private static Dialog disabledUnknownUserProvider(UnknownRemotePrincipalResult authnResult)
 	{
 		throw new IllegalStateException("Showing unknown user dialog on sanbox screen - should never happen");
 	}

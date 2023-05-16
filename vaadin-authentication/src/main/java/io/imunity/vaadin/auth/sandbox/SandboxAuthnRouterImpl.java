@@ -33,8 +33,8 @@ class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 		LOG.debug("Fire event: {}", event);
 		synchronized (authnListenerList)
 		{
-				for (AuthnResultListener listener: authnListenerList)
-					listener.onSandboxAuthnResult(event);
+			for (AuthnResultListener listener: authnListenerList)
+				listener.onSandboxAuthnResult(event);
 		}
 	}
 

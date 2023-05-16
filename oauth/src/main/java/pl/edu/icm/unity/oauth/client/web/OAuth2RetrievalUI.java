@@ -41,7 +41,8 @@ import java.util.Set;
 public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticationUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
-	
+	private static final String SELF_WINDOW_NAME = "_self";
+
 	private final MessageSource msg;
 	private final VaadinLogoImageLoader imageAccessService;
 	private final OAuthExchange credentialExchange;
@@ -199,7 +200,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 				clear();
 				return;
 			}
-			UI.getCurrent().getPage().open(currentRelativeURI.getPath() + "?" + redirectParam, "_self");
+			UI.getCurrent().getPage().open(currentRelativeURI.getPath() + "?" + redirectParam, SELF_WINDOW_NAME);
 	});
 	}
 

@@ -13,7 +13,7 @@ import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 
 import java.util.List;
 
-public interface RegistrationFormsLayoutService
+public interface RegistrationFormsService
 {
 	void configure(EndpointRegistrationConfiguration registrationConfiguration);
 	boolean isRegistrationEnabled() throws EngineException;

@@ -24,6 +24,8 @@ import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -59,17 +61,18 @@ public class IdentityHelperTest extends TestCase
 		when(idTypesRegistry.getByName("id")).thenReturn(mock);
 		when(idTypeHelper.upcastIdentityParam(entityParam, 1)).thenReturn(mock(Identity.class));
 
-		identityHelper.insertIdentity(entityParam, 1, true);
+		assertThatNoException().isThrownBy(() -> identityHelper.insertIdentity(entityParam, 1, true));
 	}
 
-	@Test(expected = IllegalIdentityValueException.class)
-	public void shouldNotInsertDynamicIdentityWhenAllowSystemIsFalse() throws IllegalIdentityValueException
+	@Test
+	public void shouldNotInsertDynamicIdentityWhenAllowSystemIsFalse()
 	{
 		IdentityParam entityParam = new IdentityParam("id", "val");
 		DynamicIdentityTypeDefinition mockDefinition = mock(DynamicIdentityTypeDefinition.class);
 		when(idTypesRegistry.getByName("id")).thenReturn(mockDefinition);
 		when(mockDefinition.getId()).thenReturn("id");
 
-		identityHelper.insertIdentity(entityParam, 1, false);
+		assertThatThrownBy(() -> identityHelper.insertIdentity(entityParam, 1, false))
+				.isOfAnyClassIn(IllegalIdentityValueException.class);
 	}
 }

@@ -16,17 +16,17 @@ import java.util.Date;
  * Representation of the OTP credential in DB
  */
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-class OTPCredentialDBState
+public class OTPCredentialDBState
 {
-	final String secret;
-	final OTPGenerationParams otpParams;
+	public final String secret;
+	public final OTPGenerationParams otpParams;
 
-	final Date time;
-	final boolean outdated;
-	final String outdatedReason;
+	public final Date time;
+	public final boolean outdated;
+	public final String outdatedReason;
 	
 	@JsonCreator
-	OTPCredentialDBState(
+	public OTPCredentialDBState(
 			@JsonProperty("secret") String secret, 
 			@JsonProperty("otpParams") OTPGenerationParams otpParams,
 			@JsonProperty("time") Date time, 
