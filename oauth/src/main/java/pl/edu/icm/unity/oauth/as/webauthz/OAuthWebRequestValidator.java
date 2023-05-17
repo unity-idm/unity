@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +34,12 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
+import pl.edu.icm.unity.oauth.as.OAuthScope;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
-import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -182,11 +183,15 @@ class OAuthWebRequestValidator
 		try
 		{
 			values = customParameter.stream()
+					.map (s -> s.trim())
+					.map(s -> s.split(" "))
+	                .flatMap(Arrays::stream)
+	                .filter(s -> s != null && !s.isEmpty())
 					.map(ClaimsInTokenAttribute.Value::valueOf)
 					.collect(Collectors.toSet());
 		} catch (Exception e)
 		{
-			throw new OAuthValidationException("Invalid claims_in_tokens parameter values");
+			throw new OAuthValidationException("Invalid claims_in_tokens parameter values. Supported values are: token, id_token");
 		}
 
 		if (!values.isEmpty())
@@ -206,17 +211,15 @@ class OAuthWebRequestValidator
 		if (claimsInTokenAttribute.values.contains(ClaimsInTokenAttribute.Value.id_token)
 				&& !oauthConfig.isOpenIdConnect())
 		{
-			log.error(
+			throw new OAuthValidationException(
 					"Invalid claims_in_tokens parameter, id_token value can only be used with endpoint operating in the OpenId mode");
-			throw new OAuthValidationException("Invalid claims_in_tokens parameter value");
 		}
 
 		if (claimsInTokenAttribute.values.contains(ClaimsInTokenAttribute.Value.token)
 				&& !oauthConfig.isJWTAccessTokenPossible())
 		{
-			log.error(
+			throw new OAuthValidationException(
 					"Invalid claims_in_tokens parameter, token value can only be used with endpoint supporting JWT access tokens");
-			throw new OAuthValidationException("Invalid claims_in_tokens parameter value");
 		}
 	}
 
