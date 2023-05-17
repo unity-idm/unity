@@ -61,7 +61,7 @@ public class SAMLServiceConfiguration
 	private SAMLIdPConfiguration.AssertionSigningPolicy signAssertionPolicy;
 	private SAMLIdPConfiguration.ResponseSigningPolicy signResponcePolicy;
 	private String signResponseCredential;
-	private String alternativeCredential;
+	private String additionallyAdvertisedCredential;
 	private String httpsTruststore;
 	private boolean skipConsentScreen;
 	private boolean editableConsentScreen;
@@ -130,9 +130,9 @@ public class SAMLServiceConfiguration
 			raw.put(SamlIdpProperties.P + SamlIdpProperties.CREDENTIAL, signResponseCredential);
 		}
 
-		if (alternativeCredential != null && !alternativeCredential.isEmpty())
+		if (getAdditionallyAdvertisedCredential() != null && !getAdditionallyAdvertisedCredential().isEmpty())
 		{
-			raw.put(SamlIdpProperties.P + SamlIdpProperties.ALTERNATIVE_CREDENTIAL, alternativeCredential);
+			raw.put(SamlIdpProperties.P + SamlIdpProperties.ADDITIONALLY_ADVERTISED_CREDENTIAL, getAdditionallyAdvertisedCredential());
 		}
 
 		
@@ -301,7 +301,7 @@ public class SAMLServiceConfiguration
 				AssertionSigningPolicy.class);
 
 		signResponseCredential = samlIdpProperties.getValue(SamlIdpProperties.CREDENTIAL);
-		alternativeCredential = samlIdpProperties.getValue(SamlIdpProperties.ALTERNATIVE_CREDENTIAL);
+		setAdditionallyAdvertisedCredential(samlIdpProperties.getValue(SamlIdpProperties.ADDITIONALLY_ADVERTISED_CREDENTIAL));
 
 		httpsTruststore = samlIdpProperties.getValue(SamlIdpProperties.TRUSTSTORE);
 
@@ -740,13 +740,15 @@ public class SAMLServiceConfiguration
 		this.policyAgreementConfig = policyAgreementConfig;
 	}
 
-	public String getAlternativeCredential()
+	public String getAdditionallyAdvertisedCredential()
 	{
-		return alternativeCredential;
+		return additionallyAdvertisedCredential;
 	}
 
-	public void setAlternativeCredential(String alternativeCredential)
+	public void setAdditionallyAdvertisedCredential(String additionallyAdvertisedCredential)
 	{
-		this.alternativeCredential = alternativeCredential;
+		this.additionallyAdvertisedCredential = additionallyAdvertisedCredential;
 	}
+
+	
 }

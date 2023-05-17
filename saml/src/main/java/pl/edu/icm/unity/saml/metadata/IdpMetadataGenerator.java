@@ -139,7 +139,7 @@ public class IdpMetadataGenerator implements MetadataProvider
 		protocolSupport.setStringValue(SAMLConstants.PROTOCOL_NS);
 		idpDesc.setProtocolSupportEnumeration(protocolSupport.getListValue());
 		X509Credential issuerCredential = samlConfig.getSamlIssuerCredential();
-		X509Credential alternativeIssuerCredential = samlConfig.getAlternativeSamlIssuerCredential();
+		X509Credential alternativeIssuerCredential = samlConfig.getAdditionalyAdvertisedCredential();
 		
 		addCredential(issuerCredential, idpDesc);
 		if (alternativeIssuerCredential != null)

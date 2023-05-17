@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml;
 import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.saml.sp.config.AdditionalCredential;
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
@@ -67,7 +69,7 @@ public class SAMLResponseValidatorUtil
 	{
 		SSOAuthnResponseValidator validator = validate(responseDocument, verifiableResponse, requestId, binding,
 				groupAttribute, idp, trustChecker, spConfiguration.requesterCredential,
-				spConfiguration.alternativeRequesterCredential);
+				spConfiguration.additionalCredential);
 
 		return convertAssertion(responseDocument, validator, groupAttribute, idp);
 	}
@@ -75,31 +77,57 @@ public class SAMLResponseValidatorUtil
 	private SSOAuthnResponseValidator validate(ResponseDocument responseDocument,
 			SAMLVerifiableElement verifiableResponse, String requestId, SAMLBindings binding, String groupAttribute,
 			TrustedIdPConfiguration idp, SamlTrustChecker trustChecker, X509Credential credential,
-			X509Credential alternativeCredential) throws RemoteAuthenticationException
+			Optional<AdditionalCredential> alternativeCredential) throws RemoteAuthenticationException
 	{
 
-		PrivateKey decryptKey = credential == null ? null : credential.getKey();
-		SSOAuthnResponseValidator validator = new SSOAuthnResponseValidator(spConfiguration.requesterSamlId,
-				responseConsumerAddress, requestId, AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, trustChecker,
-				replayAttackChecker, binding, decryptKey);
+		SSOAuthnResponseValidator validator = getValidator(credential, trustChecker, binding, requestId);
 
 		try
 		{
 			validator.validate(responseDocument, verifiableResponse);
 		} catch (SAMLValidationException e)
 		{
-			if (alternativeCredential != null)
+			if (alternativeCredential.isPresent())
 			{
 				log.warn("SAML response validation using main credential failed: ", e);
 				log.info("Try validate SAML response using alternative credential");
-				return validate(responseDocument, verifiableResponse, requestId, binding, groupAttribute, idp,
-						trustChecker, alternativeCredential, null);
+				return validateUsingAdditionalCredential(responseDocument, verifiableResponse, requestId, binding, groupAttribute, idp,
+						trustChecker, alternativeCredential.get().credential);
 			}
 			throw new RemoteAuthenticationException(
 					"The SAML response is either invalid or is issued " + "by an untrusted identity provider.", e);
 		}
 
 		return validator;
+	}
+	
+	private SSOAuthnResponseValidator validateUsingAdditionalCredential(ResponseDocument responseDocument,
+			SAMLVerifiableElement verifiableResponse, String requestId, SAMLBindings binding, String groupAttribute,
+			TrustedIdPConfiguration idp, SamlTrustChecker trustChecker, X509Credential credential) throws RemoteAuthenticationException
+	{
+
+		SSOAuthnResponseValidator validator = getValidator(credential, trustChecker, binding, requestId);
+
+		try
+		{
+			validator.validate(responseDocument, verifiableResponse);
+		} catch (SAMLValidationException e)
+		{
+			throw new RemoteAuthenticationException(
+					"The SAML response is either invalid or is issued " + "by an untrusted identity provider.", e);
+		}
+
+		return validator;
+	}
+	
+	private SSOAuthnResponseValidator getValidator(X509Credential credential, SamlTrustChecker trustChecker,
+			SAMLBindings binding, String requestId)
+	{
+		PrivateKey decryptKey = credential == null ? null : credential.getKey();
+		return new SSOAuthnResponseValidator(spConfiguration.requesterSamlId, responseConsumerAddress, requestId,
+				AssertionValidator.DEFAULT_VALIDITY_GRACE_PERIOD, trustChecker, replayAttackChecker, binding,
+				decryptKey);
+
 	}
 	
 	RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,

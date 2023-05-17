@@ -11,6 +11,8 @@ import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
+
+import io.imunity.tooltip.TooltipExtension;
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import org.vaadin.risto.stepper.IntStepper;
 import pl.edu.icm.unity.MessageSource;
@@ -211,12 +213,14 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 				.bind("signResponseCredential");
 		mainGeneralLayout.addComponent(signResponseCredential);
 
-		ComboBox<String> alternativeCredential = new ComboBox<>();
-		alternativeCredential.setCaption(msg.getMessage("SAMLEditorGeneralTab.alternativeCredential"));
-		alternativeCredential.setItems(credentials);
-		configBinder.forField(alternativeCredential)
-				.bind("alternativeCredential");
-		mainGeneralLayout.addComponent(alternativeCredential);
+		ComboBox<String> additionallyAdvertisedCredential = new ComboBox<>();
+		additionallyAdvertisedCredential.setCaption(msg.getMessage("SAMLEditorGeneralTab.additionallyAdvertisedCredential"));
+		additionallyAdvertisedCredential.setDescription(msg.getMessage("SAMLEditorGeneralTab.additionallyAdvertisedCredentialDesc"));
+		TooltipExtension.tooltip(additionallyAdvertisedCredential);
+		additionallyAdvertisedCredential.setItems(credentials);
+		configBinder.forField(additionallyAdvertisedCredential)
+				.bind("additionallyAdvertisedCredential");
+		mainGeneralLayout.addComponent(additionallyAdvertisedCredential);
 		
 		ComboBox<String> httpsTruststore = new ComboBox<>(
 				msg.getMessage("SAMLEditorGeneralTab.httpsTruststore"));

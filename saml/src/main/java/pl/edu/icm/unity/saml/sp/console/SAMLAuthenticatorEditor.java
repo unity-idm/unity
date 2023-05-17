@@ -168,13 +168,18 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				.bind("credential");
 		header.addComponent(credential);
 		
-		ComboBox<String> alternativeCredential = new ComboBox<>();
-		alternativeCredential.setCaption(msg.getMessage("SAMLAuthenticatorEditor.alternativeCredential"));
-		alternativeCredential.setItems(credentials);
-		configBinder.forField(alternativeCredential)
-				.bind("alternativeCredential");
-		header.addComponent(alternativeCredential);
+		ComboBox<String> additionallyAdvertisedCredential = new ComboBox<>();
+		additionallyAdvertisedCredential.setCaption(msg.getMessage("SAMLAuthenticatorEditor.additionalCredential"));
+		additionallyAdvertisedCredential.setDescription(msg.getMessage("SAMLAuthenticatorEditor.additionalCredentialDesc"));
+		additionallyAdvertisedCredential.setItems(credentials);
+		configBinder.forField(additionallyAdvertisedCredential)
+				.bind("additionalCredential");
+		header.addComponent(additionallyAdvertisedCredential);
 
+		CheckBox includeAddtionalCredentialInMetadata = new CheckBox(msg.getMessage("SAMLAuthenticatorEditor.includeAddtionalCredentialInMetadata"));
+		configBinder.forField(includeAddtionalCredentialInMetadata).bind("includeAddtionalCredentialInMetadata");
+		header.addComponent(includeAddtionalCredentialInMetadata);
+			
 		ChipsWithFreeText acceptedNameFormats = new ChipsWithFreeText(msg);
 		acceptedNameFormats.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH,
 				FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
