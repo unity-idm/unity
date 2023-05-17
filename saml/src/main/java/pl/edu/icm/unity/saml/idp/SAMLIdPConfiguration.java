@@ -261,9 +261,16 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 
 		if (!config.encrypt)
 			return null;
-
+		
+		Date now = new Date();
+		
 		for (X509Certificate c : config.getCertificates())
 		{
+			if (c.getNotBefore().compareTo(now) < 0)
+			{
+				continue;
+			}
+			
 			if (rc == null)
 			{
 				rc = c;

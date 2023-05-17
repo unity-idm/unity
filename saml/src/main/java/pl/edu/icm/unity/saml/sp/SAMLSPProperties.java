@@ -169,7 +169,7 @@ public class SAMLSPProperties extends SamlProperties
 				"Local credential, used to sign requests and to decrypt encrypted assertions. "
 				+ "If neither signing nor decryption is used it can be skipped."));
 		META.put(ADDITIONAL_CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
-				"Alternative local credential, used to decrypt encrypted assertions."));
+				"Additional local credential, used to decrypt encrypted assertions."));
 		META.put(INCLUDE_ADDITIONAL_CREDENTIAL_IN_METADATA, new PropertyMD("false").setCategory(common).setDescription(
 				"Include additional credential in metadata"));
 		META.put(SLO_PATH, new PropertyMD().setCategory(common).setDescription(
