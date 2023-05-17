@@ -47,7 +47,8 @@ public class SAMLAuthneticatorConfiguration
 
 	private String requesterId;
 	private String credential;
-	private String alternativeCredential;
+	private String additionalCredential;
+	private boolean includeAddtionalCredentialInMetadata;
 	private List<String> acceptedNameFormats;
 	private boolean requireSignedAssertion;
 	private boolean defSignRequest;
@@ -83,11 +84,13 @@ public class SAMLAuthneticatorConfiguration
 			raw.put(SAMLSPProperties.P + SAMLSPProperties.CREDENTIAL, getCredential());
 		}
 		
-		if (getAlternativeCredential() != null && !getAlternativeCredential().isEmpty())
+		if (getAdditionalCredential() != null && !getAdditionalCredential().isEmpty())
 		{
-			raw.put(SAMLSPProperties.P + SAMLSPProperties.ALTERNATIVE_CREDENTIAL, getAlternativeCredential());
+			raw.put(SAMLSPProperties.P + SAMLSPProperties.ADDITIONAL_CREDENTIAL, getAdditionalCredential());
 		}
 
+		raw.put(SAMLSPProperties.P + SAMLSPProperties.INCLUDE_ADDITIONAL_CREDENTIAL_IN_METADATA, String.valueOf(includeAddtionalCredentialInMetadata));
+		
 		if (acceptedNameFormats != null)
 		{
 			acceptedNameFormats.stream().forEach(
@@ -180,7 +183,8 @@ public class SAMLAuthneticatorConfiguration
 
 		setRequesterId(samlSpProp.getValue(SAMLSPProperties.REQUESTER_ID));
 		setCredential(samlSpProp.getValue(SAMLSPProperties.CREDENTIAL));
-		setAlternativeCredential(samlSpProp.getValue(SAMLSPProperties.ALTERNATIVE_CREDENTIAL));
+		setAdditionalCredential(samlSpProp.getValue(SAMLSPProperties.ADDITIONAL_CREDENTIAL));
+		setIncludeAddtionalCredentialInMetadata(samlSpProp.getBooleanValue(SAMLSPProperties.INCLUDE_ADDITIONAL_CREDENTIAL_IN_METADATA));
 		setAcceptedNameFormats(samlSpProp.getListOfValues(SAMLSPProperties.ACCEPTED_NAME_FORMATS));
 		setRequireSignedAssertion(samlSpProp.getBooleanValue(SAMLSPProperties.REQUIRE_SIGNED_ASSERTION));
 		setDefSignRequest(samlSpProp.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST));
@@ -454,13 +458,23 @@ public class SAMLAuthneticatorConfiguration
 		this.metadataSource = metadataSource;
 	}
 
-	public String getAlternativeCredential()
+	public String getAdditionalCredential()
 	{
-		return alternativeCredential;
+		return additionalCredential;
 	}
 
-	public void setAlternativeCredential(String alternativeCredential)
+	public void setAdditionalCredential(String additionallyAdvertisedCredential)
 	{
-		this.alternativeCredential = alternativeCredential;
+		this.additionalCredential = additionallyAdvertisedCredential;
+	}
+
+	public boolean isIncludeAddtionalCredentialInMetadata()
+	{
+		return includeAddtionalCredentialInMetadata;
+	}
+
+	public void setIncludeAddtionalCredentialInMetadata(boolean includeAddtionalCredentialInMetadata)
+	{
+		this.includeAddtionalCredentialInMetadata = includeAddtionalCredentialInMetadata;
 	}
 }

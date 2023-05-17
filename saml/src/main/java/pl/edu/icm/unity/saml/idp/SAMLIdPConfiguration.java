@@ -13,6 +13,7 @@ import eu.unicore.samly2.trust.*;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClient;
@@ -41,15 +42,25 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 {
 	private static final Logger log = Log.getLogger(SamlIdpProperties.LOG_PFX, SAMLIdPConfiguration.class);
 
-	public enum RequestAcceptancePolicy {all, validSigner, validRequester, strict}
-	public enum ResponseSigningPolicy {always, never, asRequest}
-	public enum AssertionSigningPolicy {always, ifResponseUnsigned}
+	public enum RequestAcceptancePolicy
+	{
+		all, validSigner, validRequester, strict
+	}
+
+	public enum ResponseSigningPolicy
+	{
+		always, never, asRequest
+	}
+
+	public enum AssertionSigningPolicy
+	{
+		always, ifResponseUnsigned
+	}
 
 	public final int authenticationTimeout;
 	public final ResponseSigningPolicy signResponses;
 	public final AssertionSigningPolicy signAssertion;
 	public final String credentialName;
-	public final String alternativeCredentialName;
 	public final String truststore;
 	public final Duration validityPeriod;
 	public final Duration requestValidityPeriod;
@@ -64,7 +75,6 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	public final Set<ActiveValueClient> activeValueClient;
 	public final IdpPolicyAgreementsConfiguration policyAgreements;
 	public final X509Credential credential;
-	public final X509Credential alternativeCredential;
 	private final X509CertChainValidator trustedValidator;
 	public final GroupChooser groupChooser;
 	public final SamlAttributeMapper attributesMapper = new DefaultSamlAttributesMapper();
@@ -79,26 +89,25 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	private SamlTrustChecker soapTrustChecker;
 	private Map<Integer, String> allowedRequestersByIndex;
 
+	public final Optional<AdditionalyAdvertisedCredential> additionallyAdvertisedCredential;
 
-
-	SAMLIdPConfiguration(List<RemoteMetadataSource> trustedMetadataSources, boolean publishMetadata, String metadataURLPath,
-	                     String ourMetadataFilePath, int authenticationTimeout,
-	                     ResponseSigningPolicy signResponses,
-	                     AssertionSigningPolicy signAssertion, String credentialName,String alternativeCredentialName, String truststore,
-	                     Duration validityPeriod, Duration requestValidityPeriod, String issuerURI, boolean returnSingleAssertion,
-	                     RequestAcceptancePolicy spAcceptPolicy,
-	                     boolean userCanEditConsent, TrustedServiceProviders trustedServiceProviders,
-	                     GroupChooser groupChooser, IdentityTypeMapper identityTypeMapper, UserImportConfigs userImportConfigs,
-	                     TranslationProfile translationProfile, boolean skipConsent, Set<ActiveValueClient> activeValueClient,
-	                     IdpPolicyAgreementsConfiguration policyAgreements, X509Credential credential, X509Credential alternativeCredential,
-	                     X509CertChainValidator chainValidator, boolean signMetadata)
+	SAMLIdPConfiguration(List<RemoteMetadataSource> trustedMetadataSources, boolean publishMetadata,
+			String metadataURLPath, String ourMetadataFilePath, int authenticationTimeout,
+			ResponseSigningPolicy signResponses, AssertionSigningPolicy signAssertion, String credentialName,
+			String truststore, Duration validityPeriod, Duration requestValidityPeriod, String issuerURI,
+			boolean returnSingleAssertion, RequestAcceptancePolicy spAcceptPolicy, boolean userCanEditConsent,
+			TrustedServiceProviders trustedServiceProviders, GroupChooser groupChooser,
+			IdentityTypeMapper identityTypeMapper, UserImportConfigs userImportConfigs,
+			TranslationProfile translationProfile, boolean skipConsent, Set<ActiveValueClient> activeValueClient,
+			IdpPolicyAgreementsConfiguration policyAgreements, X509Credential credential,
+			X509CertChainValidator chainValidator, boolean signMetadata,
+			Optional<AdditionalyAdvertisedCredential> additionalyAdvertisedCredential)
 	{
 		super(trustedMetadataSources, publishMetadata, metadataURLPath, ourMetadataFilePath);
 		this.authenticationTimeout = authenticationTimeout;
 		this.signResponses = signResponses;
 		this.signAssertion = signAssertion;
 		this.credentialName = credentialName;
-		this.alternativeCredentialName = alternativeCredentialName;
 		this.truststore = truststore;
 		this.validityPeriod = validityPeriod;
 		this.requestValidityPeriod = requestValidityPeriod;
@@ -115,9 +124,9 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		this.activeValueClient = Set.copyOf(activeValueClient);
 		this.policyAgreements = policyAgreements;
 		this.credential = credential;
-		this.alternativeCredential = alternativeCredential;
 		this.trustedValidator = chainValidator;
 		this.signMetadata = signMetadata;
+		this.additionallyAdvertisedCredential = additionalyAdvertisedCredential;
 		load();
 	}
 
@@ -151,13 +160,12 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			initValidRequester(authnTrustChecker);
 		}
 
-		for (TrustedServiceProvider configuration: trustedServiceProviders.getSPConfigs())
+		for (TrustedServiceProvider configuration : trustedServiceProviders.getSPConfigs())
 		{
-			if (configuration.encrypt && configuration.getCertificates().isEmpty())
+			if (configuration.encrypt && configuration.getCertificates()
+					.isEmpty())
 				throw new ConfigurationException(
-						"Invalid specification of allowed Service "
-								+ "Provider "
-								+ configuration.allowedKey
+						"Invalid specification of allowed Service " + "Provider " + configuration.allowedKey
 								+ " must have the certificate defined to be able to encrypt assertions.");
 		}
 
@@ -175,8 +183,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			new URI(issuerURI);
 		} catch (URISyntaxException e)
 		{
-			throw new ConfigurationException("SAML endpoint's issuer is not a valid URI: " +
-					e.getMessage(), e);
+			throw new ConfigurationException("SAML endpoint's issuer is not a valid URI: " + e.getMessage(), e);
 		}
 	}
 
@@ -209,20 +216,20 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	{
 		return groupChooser;
 	}
+
 	private void initValidRequester(EnumeratedTrustChecker authnTrustChecker)
 	{
-		for (TrustedServiceProvider configuration: trustedServiceProviders.getSPConfigs())
+		for (TrustedServiceProvider configuration : trustedServiceProviders.getSPConfigs())
 		{
 			String returnAddress = configuration.returnUrl;
 			if (returnAddress == null)
-				throw new ConfigurationException("Invalid specification of allowed Service " +
-						"Provider " + configuration.entityId + ", return address is not set.");
+				throw new ConfigurationException("Invalid specification of allowed Service " + "Provider "
+						+ configuration.entityId + ", return address is not set.");
 
 			if (configuration.entityId.id != null && configuration.entityId.dnSamlId != null)
-				throw new ConfigurationException("The allowed SP entry " + configuration.allowedKey +
-						" has both the DN and SAML entity id defined. "
-						+ "Please use only one, which is actually used by "
-						+ "the SP to identify itself." );
+				throw new ConfigurationException("The allowed SP entry " + configuration.allowedKey
+						+ " has both the DN and SAML entity id defined. "
+						+ "Please use only one, which is actually used by " + "the SP to identify itself.");
 
 			String name = configuration.entityId.id;
 			if (name != null)
@@ -230,14 +237,14 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 				Set<String> allowedEndpoints = configuration.returnUrls;
 				allowedRequestersByIndex = initAllowedRequesters(allowedEndpoints);
 				authnTrustChecker.addTrustedIssuer(name, returnAddress);
-				for (String endpoint: allowedRequestersByIndex.values())
+				for (String endpoint : allowedRequestersByIndex.values())
 					authnTrustChecker.addTrustedIssuer(name, endpoint);
 			} else
 			{
 				name = configuration.entityId.dnSamlId;
 				if (name == null)
-					throw new ConfigurationException("Invalid specification of allowed Service " +
-							"Provider " + configuration.allowedKey + ", neither Entity ID nor DN is set.");
+					throw new ConfigurationException("Invalid specification of allowed Service " + "Provider "
+							+ configuration.allowedKey + ", neither Entity ID nor DN is set.");
 				authnTrustChecker.addTrustedDNIssuer(name, returnAddress);
 			}
 
@@ -260,7 +267,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			if (rc == null)
 			{
 				rc = c;
-			} else if (c.getNotAfter().compareTo(rc.getNotAfter()) > 0)
+			} else if (c.getNotAfter()
+					.compareTo(rc.getNotAfter()) > 0)
 			{
 				rc = c;
 			}
@@ -270,7 +278,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 
 	public void configureKnownRequesters(UnityAuthnRequestValidator validator)
 	{
-		for (TrustedServiceProvider configuration: trustedServiceProviders.getSPConfigs())
+		for (TrustedServiceProvider configuration : trustedServiceProviders.getSPConfigs())
 		{
 			String name = configuration.entityId.id;
 			if (name == null)
@@ -286,21 +294,21 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		return credential;
 	}
 
-	public X509Credential getAlternativeSamlIssuerCredential()
+	public X509Credential getAdditionalyAdvertisedCredential()
 	{
-		return alternativeCredential;
+		return additionallyAdvertisedCredential.isPresent() ? additionallyAdvertisedCredential.get().credential : null;
 	}
 
 	static Map<Integer, String> initAllowedRequesters(Set<String> allowedEndpoints)
 	{
 		Map<Integer, String> allowedRequestersByIndex = new HashMap<>();
 		Pattern pattern = Pattern.compile("\\[([\\d]+)\\](.+)");
-		for (String endpoint: allowedEndpoints)
+		for (String endpoint : allowedEndpoints)
 		{
 			Matcher matcher = pattern.matcher(endpoint);
 			if (!matcher.matches())
-				throw new ConfigurationException("SAML allowed endpoint '"
-						+ endpoint + "' has incorrect syntax. Should be [N]URL");
+				throw new ConfigurationException(
+						"SAML allowed endpoint '" + endpoint + "' has incorrect syntax. Should be [N]URL");
 			String indexStr = matcher.group(1);
 			String url = matcher.group(2);
 			allowedRequestersByIndex.put(Integer.parseInt(indexStr), url);
@@ -311,7 +319,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	private StrictSamlTrustChecker createStrictTrustChecker()
 	{
 		StrictSamlTrustChecker authnTrustChecker = new StrictSamlTrustChecker();
-		for (TrustedServiceProvider configuration: trustedServiceProviders.getSPConfigs())
+		for (TrustedServiceProvider configuration : trustedServiceProviders.getSPConfigs())
 		{
 			String type = SAMLConstants.NFORMAT_ENTITY;
 			String name = configuration.entityId.id;
@@ -321,10 +329,10 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 				type = SAMLConstants.NFORMAT_DN;
 			}
 			if (name == null)
-				throw new ConfigurationException("Invalid specification of allowed Service " +
-						"Provider " + configuration.allowedKey + ", neither Entity ID nor DN is set.");
+				throw new ConfigurationException("Invalid specification of allowed Service " + "Provider "
+						+ configuration.allowedKey + ", neither Entity ID nor DN is set.");
 
-			for (X509Certificate spCert: configuration.getCertificates())
+			for (X509Certificate spCert : configuration.getCertificates())
 			{
 				authnTrustChecker.addTrustedIssuer(name, type, spCert.getPublicKey());
 			}
@@ -342,11 +350,9 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		TrustedServiceProvider config = getSPConfig(req.getIssuer());
 		if (config == null)
 			return null;
-		Integer requestedServiceIdx = req.isSetAssertionConsumerServiceIndex()
-				? req.getAssertionConsumerServiceIndex()
+		Integer requestedServiceIdx = req.isSetAssertionConsumerServiceIndex() ? req.getAssertionConsumerServiceIndex()
 				: null;
-		return (requestedServiceIdx != null) ? allowedRequestersByIndex.get(requestedServiceIdx)
-				: config.returnUrl;
+		return (requestedServiceIdx != null) ? allowedRequestersByIndex.get(requestedServiceIdx) : config.returnUrl;
 	}
 
 	public String getDisplayedNameForRequester(NameIDType id, MessageSource msg)
@@ -370,8 +376,9 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 
 	public TrustedServiceProvider getSPConfig(NameIDType requester)
 	{
-		boolean dnName = requester.getFormat() != null && requester.getFormat().equals(SAMLConstants.NFORMAT_DN);
-		for (TrustedServiceProvider configuration: trustedServiceProviders.getSPConfigs())
+		boolean dnName = requester.getFormat() != null && requester.getFormat()
+				.equals(SAMLConstants.NFORMAT_DN);
+		for (TrustedServiceProvider configuration : trustedServiceProviders.getSPConfigs())
 		{
 			if (dnName)
 			{
@@ -396,9 +403,10 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	public List<PublicKey> getTrustedKeysForSamlEntity(NameIDType samlEntity)
 	{
 		TrustedServiceProvider configuration = getSPConfig(samlEntity);
-		if(configuration == null)
+		if (configuration == null)
 			return null;
-		return configuration.getCertificates().stream()
+		return configuration.getCertificates()
+				.stream()
 				.map(Certificate::getPublicKey)
 				.collect(Collectors.toList());
 	}
@@ -421,86 +429,66 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
 		SAMLIdPConfiguration that = (SAMLIdPConfiguration) o;
-		return authenticationTimeout == that.authenticationTimeout &&
-				validityPeriod == that.validityPeriod &&
-				requestValidityPeriod == that.requestValidityPeriod &&
-				returnSingleAssertion == that.returnSingleAssertion &&
-				userCanEditConsent == that.userCanEditConsent &&
-				skipConsent == that.skipConsent &&
-				signMetadata == that.signMetadata &&
-				signRespNever == that.signRespNever &&
-				signRespAlways == that.signRespAlways &&
-				signResponses == that.signResponses &&
-				signAssertion == that.signAssertion &&
-				Objects.equals(credentialName, that.credentialName) &&
-				Objects.equals(truststore, that.truststore) &&
-				Objects.equals(issuerURI, that.issuerURI) &&
-				spAcceptPolicy == that.spAcceptPolicy &&
-				Objects.equals(trustedServiceProviders, that.trustedServiceProviders) &&
-				Objects.equals(userImportConfigs, that.userImportConfigs) &&
-				Objects.equals(translationProfile, that.translationProfile) &&
-				Objects.equals(activeValueClient, that.activeValueClient) &&
-				Objects.equals(policyAgreements, that.policyAgreements) &&
-				Objects.equals(credential, that.credential) &&
-				Objects.equals(trustedValidator, that.trustedValidator) &&
-				Objects.equals(groupChooser, that.groupChooser) &&
-				Objects.equals(attributesMapper, that.attributesMapper) &&
-				Objects.equals(idTypeMapper, that.idTypeMapper) &&
-				Objects.equals(replayChecker, that.replayChecker) &&
-				Objects.equals(authnTrustChecker, that.authnTrustChecker) &&
-				Objects.equals(soapTrustChecker, that.soapTrustChecker) &&
-				Objects.equals(allowedRequestersByIndex, that.allowedRequestersByIndex);
+		return authenticationTimeout == that.authenticationTimeout && validityPeriod == that.validityPeriod
+				&& requestValidityPeriod == that.requestValidityPeriod
+				&& returnSingleAssertion == that.returnSingleAssertion && userCanEditConsent == that.userCanEditConsent
+				&& skipConsent == that.skipConsent && signMetadata == that.signMetadata
+				&& signRespNever == that.signRespNever && signRespAlways == that.signRespAlways
+				&& signResponses == that.signResponses && signAssertion == that.signAssertion
+				&& Objects.equals(credentialName, that.credentialName)
+				&& Objects.equals(additionallyAdvertisedCredential, that.additionallyAdvertisedCredential)
+				&& Objects.equals(truststore, that.truststore) && Objects.equals(issuerURI, that.issuerURI)
+				&& spAcceptPolicy == that.spAcceptPolicy
+				&& Objects.equals(trustedServiceProviders, that.trustedServiceProviders)
+				&& Objects.equals(userImportConfigs, that.userImportConfigs)
+				&& Objects.equals(translationProfile, that.translationProfile)
+				&& Objects.equals(activeValueClient, that.activeValueClient)
+				&& Objects.equals(policyAgreements, that.policyAgreements)
+				&& Objects.equals(credential, that.credential)
+				&& Objects.equals(trustedValidator, that.trustedValidator)
+				&& Objects.equals(groupChooser, that.groupChooser)
+				&& Objects.equals(attributesMapper, that.attributesMapper)
+				&& Objects.equals(idTypeMapper, that.idTypeMapper) && Objects.equals(replayChecker, that.replayChecker)
+				&& Objects.equals(authnTrustChecker, that.authnTrustChecker)
+				&& Objects.equals(soapTrustChecker, that.soapTrustChecker)
+				&& Objects.equals(allowedRequestersByIndex, that.allowedRequestersByIndex);
 	}
 
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(super.hashCode(), authenticationTimeout, signResponses, signAssertion, credentialName,
-				truststore, validityPeriod, requestValidityPeriod, issuerURI, returnSingleAssertion, spAcceptPolicy,
-				userCanEditConsent, trustedServiceProviders, userImportConfigs, translationProfile, skipConsent,
-				activeValueClient, policyAgreements, credential, trustedValidator, groupChooser, attributesMapper,
-				idTypeMapper, signMetadata, signRespNever, signRespAlways, replayChecker, authnTrustChecker,
-				soapTrustChecker, allowedRequestersByIndex);
+				additionallyAdvertisedCredential, truststore, validityPeriod, requestValidityPeriod, issuerURI,
+				returnSingleAssertion, spAcceptPolicy, userCanEditConsent, trustedServiceProviders, userImportConfigs,
+				translationProfile, skipConsent, activeValueClient, policyAgreements, credential,
+				trustedValidator, groupChooser, attributesMapper, idTypeMapper, signMetadata, signRespNever,
+				signRespAlways, replayChecker, authnTrustChecker, soapTrustChecker, allowedRequestersByIndex);
 	}
 
 	@Override
 	public String toString()
 	{
-		return "SAMLIdPConfiguration{" +
-				"authenticationTimeout=" + authenticationTimeout +
-				", signResponses=" + signResponses +
-				", signAssertion=" + signAssertion +
-				", credentialName='" + credentialName + '\'' +
-				", truststore='" + truststore + '\'' +
-				", validityPeriod=" + validityPeriod +
-				", requestValidityPeriod=" + requestValidityPeriod +
-				", issuerURI='" + issuerURI + '\'' +
-				", returnSingleAssertion=" + returnSingleAssertion +
-				", spAcceptPolicy=" + spAcceptPolicy +
-				", userCanEditConsent=" + userCanEditConsent +
-				", trustedServiceProviders=" + trustedServiceProviders +
-				", userImportConfigs=" + userImportConfigs +
-				", translationProfile=" + translationProfile +
-				", skipConsent=" + skipConsent +
-				", activeValueClient=" + activeValueClient +
-				", policyAgreements=" + policyAgreements +
-				", credential=" + credential +
-				", trustedValidator=" + trustedValidator +
-				", groupChooser=" + groupChooser +
-				", attributesMapper=" + attributesMapper +
-				", idTypeMapper=" + idTypeMapper +
-				", signMetadata=" + signMetadata +
-				", signRespNever=" + signRespNever +
-				", signRespAlways=" + signRespAlways +
-				", replayChecker=" + replayChecker +
-				", authnTrustChecker=" + authnTrustChecker +
-				", soapTrustChecker=" + soapTrustChecker +
-				", allowedRequestersByIndex=" + allowedRequestersByIndex +
-				'}';
+		return "SAMLIdPConfiguration{" + "authenticationTimeout=" + authenticationTimeout + ", signResponses="
+				+ signResponses + ", signAssertion=" + signAssertion + ", credentialName='" + credentialName + '\''
+				+ ", truststore='" + truststore + '\'' + ", validityPeriod=" + validityPeriod
+				+ ", requestValidityPeriod=" + requestValidityPeriod + ", issuerURI='" + issuerURI + '\''
+				+ ", returnSingleAssertion=" + returnSingleAssertion + ", spAcceptPolicy=" + spAcceptPolicy
+				+ ", userCanEditConsent=" + userCanEditConsent + ", trustedServiceProviders=" + trustedServiceProviders
+				+ ", userImportConfigs=" + userImportConfigs + ", translationProfile=" + translationProfile
+				+ ", skipConsent=" + skipConsent + ", activeValueClient=" + activeValueClient + ", policyAgreements="
+				+ policyAgreements + ", credential=" + credential + ", trustedValidator=" + trustedValidator
+				+ ", groupChooser=" + groupChooser + ", attributesMapper=" + attributesMapper + ", idTypeMapper="
+				+ idTypeMapper + ", signMetadata=" + signMetadata + ", signRespNever=" + signRespNever
+				+ ", signRespAlways=" + signRespAlways + ", replayChecker=" + replayChecker + ", authnTrustChecker="
+				+ authnTrustChecker + ", soapTrustChecker=" + soapTrustChecker + ", allowedRequestersByIndex="
+				+ allowedRequestersByIndex + '}';
 	}
 
 	public static SAMLIdPConfigurationBuilder builder()
@@ -514,9 +502,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		public ResponseSigningPolicy signResponses;
 		public AssertionSigningPolicy signAssertion;
 		public String credentialName;
-		public String alternativeCredentialName;
 		public X509Credential credential;
-		public X509Credential alternativeCredential;
 		public String truststore;
 		public Duration validityPeriod;
 		public Duration requestValidityPeriod;
@@ -538,6 +524,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		private IdpPolicyAgreementsConfiguration policyAgreements;
 		private X509CertChainValidator chainValidator;
 		private boolean signMetadata;
+		private Optional<AdditionalyAdvertisedCredential> additionallyAdvertisedCredential = Optional.empty();
 
 		private SAMLIdPConfigurationBuilder()
 		{
@@ -566,22 +553,17 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			this.credentialName = credentialName;
 			return this;
 		}
-		
-		public SAMLIdPConfigurationBuilder withAlternativeCredentialName(String credentialName)
-		{
-			this.alternativeCredentialName = credentialName;
-			return this;
-		}
 
 		public SAMLIdPConfigurationBuilder withCredential(X509Credential credential)
 		{
 			this.credential = credential;
 			return this;
 		}
-		
-		public SAMLIdPConfigurationBuilder withAlternativeCredential(X509Credential credential)
+
+		public SAMLIdPConfigurationBuilder withAdditionallyAdvertisedCredential(
+				Optional<AdditionalyAdvertisedCredential> additionalyAdvertisedCredential)
 		{
-			this.alternativeCredential = credential;
+			this.additionallyAdvertisedCredential = additionalyAdvertisedCredential;
 			return this;
 		}
 
@@ -645,7 +627,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			return this;
 		}
 
-		public SAMLIdPConfigurationBuilder withTrustedMetadataSources(List<RemoteMetadataSource> trustedMetadataSourcesByUrl)
+		public SAMLIdPConfigurationBuilder withTrustedMetadataSources(
+				List<RemoteMetadataSource> trustedMetadataSourcesByUrl)
 		{
 			this.trustedMetadataSources = trustedMetadataSourcesByUrl;
 			return this;
@@ -714,11 +697,11 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		public SAMLIdPConfiguration build()
 		{
 			return new SAMLIdPConfiguration(trustedMetadataSources, publishMetadata, metadataURLPath,
-					ourMetadataFilePath, authenticationTimeout, signResponses, signAssertion, credentialName, alternativeCredentialName,
+					ourMetadataFilePath, authenticationTimeout, signResponses, signAssertion, credentialName,
 					truststore, validityPeriod, requestValidityPeriod, issuerURI, returnSingleAssertion, spAcceptPolicy,
-					userCanEditConsent,
-					trustedServiceProviders, groupChooser, identityTypeMapper, userImportConfigs, translationProfile,
-					skipConsent, activeValueClient, policyAgreements, credential, alternativeCredential, chainValidator, signMetadata);
+					userCanEditConsent, trustedServiceProviders, groupChooser, identityTypeMapper, userImportConfigs,
+					translationProfile, skipConsent, activeValueClient, policyAgreements, credential, chainValidator,
+					signMetadata, additionallyAdvertisedCredential);
 		}
 	}
 }

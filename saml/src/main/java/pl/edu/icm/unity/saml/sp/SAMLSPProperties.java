@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
+import pl.edu.icm.unity.saml.sp.config.AdditionalCredential;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
@@ -48,7 +50,8 @@ public class SAMLSPProperties extends SamlProperties
 	
 	public static final String REQUESTER_ID = "requesterEntityId";
 	public static final String CREDENTIAL = "requesterCredential";
-	public static final String ALTERNATIVE_CREDENTIAL = "alternativeRequesterCredential";
+	public static final String ADDITIONAL_CREDENTIAL = "additionalCredential";
+	public static final String INCLUDE_ADDITIONAL_CREDENTIAL_IN_METADATA = "includeAddtionalCredentialInMetadata";
 	public static final String ACCEPTED_NAME_FORMATS = "acceptedNameFormats.";
 	public static final String METADATA_PATH = "metadataPath";
 	public static final String SLO_PATH = "sloPath";
@@ -165,8 +168,10 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
 				"Local credential, used to sign requests and to decrypt encrypted assertions. "
 				+ "If neither signing nor decryption is used it can be skipped."));
-		META.put(ALTERNATIVE_CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
+		META.put(ADDITIONAL_CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
 				"Alternative local credential, used to decrypt encrypted assertions."));
+		META.put(INCLUDE_ADDITIONAL_CREDENTIAL_IN_METADATA, new PropertyMD("false").setCategory(common).setDescription(
+				"Include additional credential in metadata"));
 		META.put(SLO_PATH, new PropertyMD().setCategory(common).setDescription(
 				"Last element of the URL, under which the SAML Single Logout functionality should "
 				+ "be published for this SAML authenticator. Any suffix can be used, however it "
@@ -344,16 +349,18 @@ public class SAMLSPProperties extends SamlProperties
 		return getCredential(SAMLSPProperties.CREDENTIAL);
 	}
 	
-	public X509Credential getAlternativeRequesterCredential()
+	public Optional<AdditionalCredential> getAdditionalRequesterCredential()
 	{
-		return getCredential(SAMLSPProperties.ALTERNATIVE_CREDENTIAL);
+		String credName = getValue(SAMLSPProperties.ADDITIONAL_CREDENTIAL);
+		if (credName == null || credName.isEmpty())
+			return Optional.empty();
+		return Optional.of(new AdditionalCredential(credName, getCredential(SAMLSPProperties.ADDITIONAL_CREDENTIAL)));
 	}
 	
 	private X509Credential getCredential(String credentialKey)
 	{
 		String credential = getValue(credentialKey);
-		if (credential == null)
-			return null;
+		
 		try
 		{
 			return pkiManagement.getCredential(credential);

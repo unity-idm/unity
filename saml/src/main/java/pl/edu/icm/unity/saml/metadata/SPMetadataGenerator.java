@@ -103,7 +103,10 @@ public class SPMetadataGenerator implements MetadataProvider
 			idpDesc.addNameIDFormat(a);
 		
 		addCredential(samlConfig.requesterCredential, idpDesc);
-		addCredential(samlConfig.alternativeRequesterCredential, idpDesc);
+		if (samlConfig.includeAdditionalCredentialInMetadata && samlConfig.additionalCredential.isPresent())
+		{
+			addCredential(samlConfig.additionalCredential.get().credential, idpDesc);
+		}
 
 	}
 	
