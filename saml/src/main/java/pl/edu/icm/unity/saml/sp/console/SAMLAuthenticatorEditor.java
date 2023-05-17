@@ -25,6 +25,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.tooltip.TooltipExtension;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -168,13 +169,14 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				.bind("credential");
 		header.addComponent(credential);
 		
-		ComboBox<String> additionallyAdvertisedCredential = new ComboBox<>();
-		additionallyAdvertisedCredential.setCaption(msg.getMessage("SAMLAuthenticatorEditor.additionalCredential"));
-		additionallyAdvertisedCredential.setDescription(msg.getMessage("SAMLAuthenticatorEditor.additionalCredentialDesc"));
-		additionallyAdvertisedCredential.setItems(credentials);
-		configBinder.forField(additionallyAdvertisedCredential)
+		ComboBox<String> additionalCredential = new ComboBox<>();
+		additionalCredential.setCaption(msg.getMessage("SAMLAuthenticatorEditor.additionalCredential"));
+		additionalCredential.setDescription(msg.getMessage("SAMLAuthenticatorEditor.additionalCredentialDesc"));
+		TooltipExtension.tooltip(additionalCredential);
+		additionalCredential.setItems(credentials);
+		configBinder.forField(additionalCredential)
 				.bind("additionalCredential");
-		header.addComponent(additionallyAdvertisedCredential);
+		header.addComponent(additionalCredential);
 
 		CheckBox includeAddtionalCredentialInMetadata = new CheckBox(msg.getMessage("SAMLAuthenticatorEditor.includeAddtionalCredentialInMetadata"));
 		configBinder.forField(includeAddtionalCredentialInMetadata).bind("includeAddtionalCredentialInMetadata");
