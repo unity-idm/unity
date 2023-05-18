@@ -44,7 +44,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-public class EnquiryResponseEditorController
+class EnquiryResponseEditorController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryResponseEditorController.class);
 	
@@ -129,6 +129,37 @@ public class EnquiryResponseEditorController
 				form.getPolicyAgreements());
 		return getEditorInstance(form, Collections.emptyMap(), remoteContext, prefilled,
 				filteredPolicyAgreement);
+	}
+
+	public EnquiryForm getForm(String name)
+	{
+		try
+		{
+			List<EnquiryForm> forms = enquiryManagement.getEnquires();
+			for (EnquiryForm regForm: forms)
+				if (regForm.getName().equals(name))
+					return regForm;
+		} catch (EngineException e)
+		{
+			log.error("Can't load enquiry forms", e);
+		}
+		return null;
+	}
+
+	public boolean isStickyFormApplicable(String formName)
+	{
+		EntityParam entity = getLoggedEntity();
+		try
+		{
+			return enquiryManagement.getAvailableEnquires(entity, EnquirySelector.builder()
+					.withAccessMode(EnquirySelector.AccessMode.NOT_BY_INVITATION_ONLY)
+					.withType(EnquirySelector.Type.STICKY)
+					.build()).stream().anyMatch(f -> f.getName().equals(formName));
+		} catch (EngineException e)
+		{
+			log.error("Can't load sticky enquiry forms", e);
+		}
+		return false;
 	}
 
 	public List<EnquiryForm> getRegularFormsToFill()

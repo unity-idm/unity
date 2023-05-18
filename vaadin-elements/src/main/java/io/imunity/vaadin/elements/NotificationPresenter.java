@@ -47,6 +47,14 @@ public class NotificationPresenter
 		successNotification.open();
 	}
 
+	public void showSuccessAutoClosing(String caption, String description)
+	{
+		SuccessNotification successNotification = new SuccessNotification(caption, description);
+		successNotification.setDuration(DEFAULT_NOTIFICATION_DURATION);
+		successNotification.setPosition(TOP_END);
+		successNotification.open();
+	}
+
 	public void showError(String caption, String description)
 	{
 		ErrorNotification errorNotification = new ErrorNotification(caption, description);

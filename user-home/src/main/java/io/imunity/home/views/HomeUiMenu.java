@@ -5,10 +5,7 @@
 
 package io.imunity.home.views;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasElement;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -64,6 +61,8 @@ public class HomeUiMenu extends UnityAppLayout
 		this.registry = registry;
 
 		HomeEndpointProperties homeEndpointProperties = new HomeEndpointProperties(getCurrentWebAppContextProperties());
+		ComponentUtil.setData(UI.getCurrent(), HomeEndpointProperties.class, homeEndpointProperties);
+
 		HorizontalLayout imageLayout = createImageLayout(homeEndpointProperties);
 
 		super.initView();
