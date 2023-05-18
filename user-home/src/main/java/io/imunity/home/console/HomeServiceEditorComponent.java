@@ -5,12 +5,7 @@
 
 package io.imunity.home.console;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.vaadin.data.Binder;
-
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.MessageSource;
@@ -25,6 +20,10 @@ import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
 import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 class HomeServiceEditorComponent extends ServiceEditorBase
 {
@@ -73,9 +72,8 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 
 	public static List<String> getAvailableControls()
 	{
-		return new ArrayList<String>(Arrays.asList(HomeEndpointProperties.Components.userInfo.toString(),
+		return new ArrayList<>(Arrays.asList(
 				HomeEndpointProperties.Components.attributesManagement.toString(),
-				HomeEndpointProperties.Components.identitiesManagement.toString(),
 				HomeEndpointProperties.Components.accountRemoval.toString(),
 				HomeEndpointProperties.Components.accountLinking.toString()));
 	}

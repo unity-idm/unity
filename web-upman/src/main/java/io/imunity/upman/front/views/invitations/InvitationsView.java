@@ -15,7 +15,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
-import io.imunity.upman.front.UnityViewComponent;
+import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
@@ -33,7 +33,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 
 @PermitAll
 @Route(value = "/invitations", layout = UpManMenu.class)
-public class InvitationsView extends UnityViewComponent
+public class InvitationsView extends UpmanViewComponent
 {
 	private final ProjectService projectService;
 	private final InvitationsService invitationsService;

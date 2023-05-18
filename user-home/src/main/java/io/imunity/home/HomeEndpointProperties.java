@@ -4,23 +4,15 @@
  */
 package io.imunity.home;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+
+import java.util.*;
 
 /**
  * Configuration of the Home endpoint.
@@ -32,8 +24,7 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, HomeEndpointProperties.class);
 
 	public enum Components {credentialTab, trustedApplications, userDetailsTab, accountUpdateTab, 
-		accountRemoval, attributesManagement, userInfo, identitiesManagement,
-		accountLinking};
+		accountRemoval, attributesManagement, accountLinking}
 
 	public enum RemovalModes {remove, disable, blockAuthentication};
 	
@@ -51,6 +42,7 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 	public static final String GWA_SHOW_GROUP = "showGroup";
 	public static final String GWA_EDITABLE = "editable";
 	public static final String REMOVAL_MODE = "selfRemovalMode";
+	public static final String IMAGE_ATTRIBUTE = "imageAttribute";
 	public static final String DISABLE_REMOVAL_SCHEDULE = "disableSelfRemovalScheduling";
 	public static final String DISABLE_2ND_FACTOR_OPT_IN = "disable2ndFactorOptIn";
 	public static final String ENABLE_PROJECT_MANAGEMENT_LINK = "enableProjectManagementLink";
@@ -91,6 +83,8 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 				"If true then the project managament link is shown in header of User Home UI."));
 		META.put(PROJECT_MANAGEMENT_ENDPOINT, new PropertyMD().setDescription(
 				"If project management link is active, then link redirect to this endpoint address. By default first active project management endpoint is used."));
+		META.put(IMAGE_ATTRIBUTE, new PropertyMD().setDescription(
+				"User attribute from, which user avatar will be displayed in view."));
 	}
 	
 	public HomeEndpointProperties(Properties properties) throws ConfigurationException
@@ -116,5 +110,10 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 	public String getProjectManEndpoint()
 	{
 		return getValue(PROJECT_MANAGEMENT_ENDPOINT);
-	}	
+	}
+
+	public String getImageAttribute()
+	{
+		return getValue(IMAGE_ATTRIBUTE);
+	}
 }

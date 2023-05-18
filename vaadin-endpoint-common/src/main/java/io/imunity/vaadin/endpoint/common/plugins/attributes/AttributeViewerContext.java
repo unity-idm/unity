@@ -19,6 +19,8 @@ public class AttributeViewerContext
 	private boolean showCaption = true;
 	private Integer maxTextSize = null;
 	private boolean showAsLabel = false;
+	private Float borderRadius = null;
+	private Unit borderUnit = null;
 
 	private AttributeViewerContext()
 	{
@@ -89,6 +91,16 @@ public class AttributeViewerContext
 		return imageScaleWidth != null && imageScaleHeight != null;
 	}
 
+	public Float getBorderRadius()
+	{
+		return borderRadius;
+	}
+
+	public Unit getBorderUnit()
+	{
+		return borderUnit;
+	}
+
 	public static class Builder
 	{
 		private AttributeViewerContext obj;
@@ -149,6 +161,18 @@ public class AttributeViewerContext
 		public Builder withImageScaleHeight(int imageScaleHeight)
 		{
 			this.obj.imageScaleHeight = imageScaleHeight;
+			return this;
+		}
+
+		public Builder withBorderRadius(float borderRadius)
+		{
+			this.obj.borderRadius = borderRadius;
+			return this;
+		}
+
+		public Builder withBorderRadiusUnit(Unit borderUnit)
+		{
+			this.obj.borderUnit = borderUnit;
 			return this;
 		}
 

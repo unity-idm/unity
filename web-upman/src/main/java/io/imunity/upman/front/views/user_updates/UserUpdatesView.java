@@ -14,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
-import io.imunity.upman.front.UnityViewComponent;
+import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.vaadin.elements.ActionMenu;
@@ -33,7 +33,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE_O;
 
 @PermitAll
 @Route(value = "/user-updates", layout = UpManMenu.class)
-public class UserUpdatesView extends UnityViewComponent
+public class UserUpdatesView extends UpmanViewComponent
 {
 	private final MessageSource msg;
 	private final UpdateRequestsService updateRequestsService;

@@ -5,15 +5,11 @@
 
 package io.imunity.home.console;
 
-import java.util.List;
-import java.util.Set;
-
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.HomeEndpointProperties.RemovalModes;
 import pl.edu.icm.unity.MessageSource;
@@ -27,10 +23,14 @@ import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 
+import java.util.List;
+import java.util.Set;
+
 public class HomeServiceEditorGeneralTab extends GeneralTab
 {
 	private Binder<HomeServiceConfiguration> homeBinder;
 	private List<String> allAttributes;
+	private List<String> allImageAttributes;
 	private List<Group> allGroups;
 	private List<String> upManServices;
 	private List<String> enquiryForms;
@@ -39,11 +39,12 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 	private CheckBox allowRemovalSheduling;
 
 	public HomeServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, Set<String> serverContextPaths,
-			List<String> allAttributes, List<Group> allGroups, List<String> upManServices,
+			List<String> allAttributes, List<String> allImageAttributes, List<Group> allGroups, List<String> upManServices,
 			List<String> enquiryForms, List<String> registrationForms)
 	{
 		super(msg, type, usedEndpointsPaths, serverContextPaths);
 		this.allAttributes = allAttributes;
+		this.allImageAttributes = allImageAttributes;
 		this.allGroups = allGroups;
 		this.upManServices = upManServices;
 		this.enquiryForms = enquiryForms;
@@ -149,6 +150,13 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 		upmanService.setEmptySelectionAllowed(false);
 		homeBinder.forField(upmanService).bind("upManService");
 		main.addComponent(upmanService);
+
+		ComboBox<String> imageAttributes = new ComboBox<>();
+		imageAttributes.setCaption(msg.getMessage("HomeServiceEditorComponent.imageAttribute"));
+		imageAttributes.setItems(allImageAttributes);
+		imageAttributes.setEmptySelectionAllowed(false);
+		homeBinder.forField(imageAttributes).bind("imageAttribute");
+		main.addComponent(imageAttributes);
 
 		enableUpMan.addValueChangeListener(e -> {
 			upmanService.setEnabled(e.getValue());

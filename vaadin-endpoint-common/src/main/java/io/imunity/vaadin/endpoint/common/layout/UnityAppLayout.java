@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.front;
+package io.imunity.vaadin.endpoint.common.layout;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,8 +21,7 @@ import java.util.List;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppVaadinProperties;
 
-@CssImport("./styles/views/main-layout.css")
-@CssImport("./styles/custom-lumo-theme.css")
+
 @PreserveOnRefresh
 public class UnityAppLayout extends FlexLayout implements RouterLayout
 {

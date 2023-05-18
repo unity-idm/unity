@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package io.imunity.upman.front;
@@ -13,11 +13,11 @@ import io.imunity.upman.front.model.ProjectGroup;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppDisplayedName;
 
-public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>, AfterNavigationObserver, HasDynamicTitle
+public abstract class UpmanViewComponent extends Composite<Div> implements HasUrlParameter<String>, AfterNavigationObserver, HasDynamicTitle
 {
 	public final String pageTitle = getCurrentWebAppDisplayedName();
 
-	public UnityViewComponent()
+	public UpmanViewComponent()
 	{
 		if(ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class) == null)
 			return;

@@ -4,28 +4,23 @@
  */
 package io.imunity.home;
 
-import java.util.Collections;
-
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.home.HomeEndpointConstants;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.webui.VaadinEndpoint;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
-/**
- * Factory creating endpoints exposing {@link UserHomeUI}.
- * 
- * @author K. Benedyczak
- */
+import java.util.Collections;
+
 @Component
 public class UserHomeEndpointFactory implements EndpointFactory
 {
@@ -35,23 +30,26 @@ public class UserHomeEndpointFactory implements EndpointFactory
 			"User-oriented account management web interface", VaadinAuthentication.NAME,
 			Collections.singletonMap(SERVLET_PATH, "User home endpoint"));
 
-	private ApplicationContext applicationContext;
-	private NetworkServer server;
-	private MessageSource msg;
-	private AdvertisedAddressProvider advertisedAddrProvider;
-	private RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
+	private final ApplicationContext applicationContext;
+	private final NetworkServer server;
+	private final MessageSource msg;
+	private final AdvertisedAddressProvider advertisedAddrProvider;
+	private final SandboxAuthnRouter sandboxAuthnRouter;
+	private final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 
 	@Autowired
 	public UserHomeEndpointFactory(ApplicationContext applicationContext,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			MessageSource msg,
+			SandboxAuthnRouter sandboxAuthnRouter,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
 		this.advertisedAddrProvider = advertisedAddrProvider;
+		this.sandboxAuthnRouter = sandboxAuthnRouter;
 		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
 	}
 
@@ -64,7 +62,7 @@ public class UserHomeEndpointFactory implements EndpointFactory
 	@Override
 	public EndpointInstance newInstance()
 	{
-		return new VaadinEndpoint(server, advertisedAddrProvider, msg, applicationContext, UserHomeUI.class.getSimpleName(),
-				SERVLET_PATH, remoteAuthnResponseProcessingFilter);
+		return new SecureVaadin2XEndpoint(server, advertisedAddrProvider, msg, applicationContext, new UserHomeResourceProvider(),
+				SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouter, UserHomeServlet.class);
 	}
 }

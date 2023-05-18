@@ -5,9 +5,6 @@
 
 package io.imunity.home.console;
 
-import java.util.List;
-import java.util.Set;
-
 import io.imunity.home.UserHomeEndpointFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
@@ -25,6 +22,9 @@ import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
 import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
+import java.util.List;
+import java.util.Set;
+
 class HomeServiceEditor implements ServiceEditor
 {
 	private MessageSource msg;
@@ -33,6 +33,7 @@ class HomeServiceEditor implements ServiceEditor
 	private List<AuthenticatorInfo> authenticators;
 	private HomeServiceEditorComponent editor;
 	private List<String> allAttributes;
+	private List<String> allImageAttributes;
 	private List<Group> allGroups;
 	private List<String> upManServices;
 	private List<String> enquiryForms;
@@ -50,6 +51,7 @@ class HomeServiceEditor implements ServiceEditor
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<String> allAttributes,
+			List<String> allImageAttributes,
 			List<Group> allGroups, List<String> upManServices, List<String> enquiryForms,
 			List<String> registrationForms, List<String> usedPaths, Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService)
@@ -60,6 +62,7 @@ class HomeServiceEditor implements ServiceEditor
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.allAttributes = allAttributes;
+		this.allImageAttributes = allImageAttributes;
 		this.allGroups = allGroups;
 		this.upManServices = upManServices;
 		this.enquiryForms = enquiryForms;
@@ -77,8 +80,8 @@ class HomeServiceEditor implements ServiceEditor
 	{
 
 		HomeServiceEditorGeneralTab homeServiceEditorGeneralTab = new HomeServiceEditorGeneralTab(msg,
-				UserHomeEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths, allAttributes, allGroups,
-				upManServices, enquiryForms, registrationForms);
+				UserHomeEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths, allAttributes, allImageAttributes,
+				allGroups, upManServices, enquiryForms, registrationForms);
 		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg, uriAccessService,
 				serverConfig, authenticatorSupportService, flows, authenticators, allRealms,
 				registrationForms, UserHomeEndpointFactory.TYPE.getSupportedBinding());

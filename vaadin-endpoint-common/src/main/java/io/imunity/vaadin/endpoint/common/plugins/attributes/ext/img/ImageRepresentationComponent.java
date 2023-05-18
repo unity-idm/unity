@@ -60,6 +60,8 @@ class ImageRepresentationComponent extends VerticalLayout
 				image.setHeight("unset");
 			}
 		}
+		if(context.getBorderRadius() != null && context.getBorderUnit() != null)
+			image.getStyle().set("border-radius", context.getBorderRadius() + context.getBorderUnit().getSymbol());
 		if (linkURL != null && context.isScaleImage())
 		{
 			Image externalImage = new Image(linkURL, "");

@@ -1,0 +1,167 @@
+html {
+  --lumo-font-size: 1rem;
+  --lumo-font-size-xxxl: 2.5rem;
+  --lumo-font-size-xxl: 1.75rem;
+  --lumo-font-size-xl: 1.375rem;
+  --lumo-font-size-l: 1.125rem;
+  --lumo-font-size-m: 1rem;
+  --lumo-font-size-s: 0.875rem;
+  --lumo-font-size-xs: 0.8125rem;
+  --lumo-font-size-xxs: 0.75rem;
+  --lumo-font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
+  --lumo-size-xl: 4rem;
+  --lumo-size-l: 3rem;
+  --lumo-size-m: 2.5rem;
+  --lumo-size-s: 2rem;
+  --lumo-size-xs: 1.75rem;
+  --lumo-primary-text-color: rgb(0, 105, 151);
+  --lumo-primary-color-50pct: rgba(0, 105, 151, 0.5);
+  --lumo-primary-color-10pct: rgba(0, 105, 151, 0.1);
+  --lumo-primary-color: #006997;
+  --lumo-shade-90pct: hsla(214, 40%, 16%, 0.94);
+  --lumo-header-text-color: #006997;
+  --lumo-error-color: #FF4637;
+  --lumo-success-color: #00B720;
+
+  /* custom furms variables */
+  --unity-font-weight: 500;
+
+  --vaadin-text-field-default-width: 16em;
+
+  --fido-top-margin: var(--lumo-space-m);
+  --input-label-top-padding: var(--lumo-space-m);
+  --border-radius: var(--lumo-border-radius-m);
+  --contrast: var(--lumo-contrast-5pct);
+}
+
+h1, h2, h3, h4, h5, h6, b, strong {
+	font-weight: var(--unity-font-weight);
+}
+
+vaadin-tab {
+	font-size: var(--lumo-font-size-m);
+	height: var(--lumo-size-l);
+	font-weight: var(--unity-font-weight);
+	color: white;
+}
+
+vaadin-tab:hover {
+	background-color: var(--lumo-contrast-5pct);
+}
+
+vaadin-tab[selected] {
+    background-color: #013842;
+    color: white;
+}
+
+vaadin-context-menu-item {
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-right: 0.5em;
+	padding-left: 0.5em;
+}
+
+vaadin-notification-card > vaadin-icon {
+    width: var(--lumo-icon-size-l);
+    height: var(--lumo-icon-size-l);
+}
+
+vaadin-tab > vaadin-icon {
+    color: white;
+    width: var(--lumo-icon-size-m);
+    height: var(--lumo-icon-size-m);
+}
+
+vaadin-icon {
+    color: #04859d;
+    width: var(--lumo-icon-size-s);
+    height: var(--lumo-icon-size-s);
+}
+
+vaadin-form-item {
+    --vaadin-form-item-label-width: 11em;
+}
+
+vaadin-text-field > label {
+    overflow: unset;
+}
+
+#scroller {
+	bottom: unset;
+}
+
+.disable-icon-color {
+    color: #cfd4db;
+}
+
+.u-fido-layout {
+    flex-direction: row;
+    gap: 0;
+}
+
+.u-password-quality {
+    background-color: #F5F5F5;
+    border-radius: var(--border-radius);
+}
+
+#unity-navbar {
+	height: var(--lumo-size-l);
+	width: 100%;
+	font-size: var(--lumo-font-size-s);
+	font-family: var(--lumo-font-family);
+	font-weight: var(--furms-font-weight);
+	background: var(--lumo-contrast-5pct);
+	padding-right: 1rem;
+	padding-left: 1rem;
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+}
+
+.unity-view {
+	padding-right: 1rem;
+	padding-left: 1rem;
+	font-family: var(--lumo-font-family);
+	display: flex;
+	flex-direction: column;
+}
+
+#unity-layout {
+	flex-direction: column;
+	justify-content: start;
+	height: 100%;
+}
+
+#unity-main-container {
+    min-height: 80%;
+	overflow: hidden;
+	flex: auto;
+	align-items: stretch;
+	margin: 0;
+	padding: 0;
+	gap: unset;
+}
+
+#unity-left-content-container {
+    background-color: #04859d;
+	width: 26rem;
+	height: 100%;
+	overflow: auto;
+	margin: 0;
+	border-right: 1px solid var(--lumo-contrast-10pct);
+}
+
+#unity-right-content-container {
+	width: 100%;
+	overflow: auto;
+	align-items: stretch;
+	margin: 0;
+	padding: 0;
+	gap: unset;
+}
+
+#unity-logo-image {
+	max-width: 100%;
+	max-height: 5rem;
+	margin-left: auto;
+	margin-right: auto;
+}

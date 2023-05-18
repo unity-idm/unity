@@ -19,8 +19,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NavigationTrigger;
-import io.imunity.upman.front.UnityAppLayout;
-import io.imunity.upman.front.UnityViewComponent;
+import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
+import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.groups.GroupsView;
 import io.imunity.upman.front.views.invitations.InvitationsView;
@@ -41,12 +41,14 @@ import java.util.stream.Stream;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static java.util.stream.Collectors.toList;
 
+@CssImport("./styles/views/main-layout.css")
+@CssImport("./styles/custom-lumo-theme.css")
 @CssImport(value = "./styles/vaadin-combo-box.css", themeFor = "vaadin-combo-box")
 public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 {
 	private final ProjectService projectService;
 	private final ProjectsLayout projectsLayout;
-	private Optional<UnityViewComponent> currentView = Optional.empty();
+	private Optional<UpmanViewComponent> currentView = Optional.empty();
 
 	@Autowired
 	public UpManMenu(VaddinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg,
@@ -99,7 +101,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 	public void showRouterLayoutContent(HasElement content)
 	{
 		super.showRouterLayoutContent(content);
-		currentView = Optional.of((UnityViewComponent) content);
+		currentView = Optional.of((UpmanViewComponent) content);
 	}
 
 	@Override
@@ -109,7 +111,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 		{
 			projectsLayout.load(projectService.getProjectForUser(InvocationContext.getCurrent().getLoginSession().getEntityId()));
 			ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, projectsLayout.selectedProject);
-			currentView.ifPresent(UnityViewComponent::loadData);
+			currentView.ifPresent(UpmanViewComponent::loadData);
 		}
 		if(ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class) == null)
 		{
@@ -165,7 +167,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 				}
 				selectedProject = event.getValue();
 				ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, event.getValue());
-				currentView.ifPresent(UnityViewComponent::loadData);
+				currentView.ifPresent(UpmanViewComponent::loadData);
 				setImage(event.getValue());
 			});
 

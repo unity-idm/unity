@@ -6,6 +6,13 @@
 
 package io.imunity.home.console;
 
+import io.imunity.home.HomeEndpointProperties;
+import io.imunity.home.HomeEndpointProperties.RemovalModes;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -14,13 +21,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import io.imunity.home.HomeEndpointProperties;
-import io.imunity.home.HomeEndpointProperties.RemovalModes;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 /**
  * 
@@ -39,6 +39,7 @@ public class HomeServiceConfiguration
 	private RemovalModes removalMode;
 	private boolean enableUpMan;
 	private String upManService;
+	private String imageAttribute;
 	private List<String> enquiryForms;
 
 	HomeServiceConfiguration()
@@ -115,6 +116,9 @@ public class HomeServiceConfiguration
 					+ HomeEndpointProperties.ENQUIRIES + (enquiryForms.indexOf(c) + 1), c));
 		}
 
+		if(imageAttribute != null)
+			raw.put(HomeEndpointProperties.PREFIX + HomeEndpointProperties.IMAGE_ATTRIBUTE, imageAttribute);
+
 		HomeEndpointProperties prop = new HomeEndpointProperties(raw);
 		return prop.getAsString();
 	}
@@ -170,6 +174,8 @@ public class HomeServiceConfiguration
 		enableUpMan = homeProperties
 				.getBooleanValue(HomeEndpointProperties.ENABLE_PROJECT_MANAGEMENT_LINK);
 		upManService = homeProperties.getValue(HomeEndpointProperties.PROJECT_MANAGEMENT_ENDPOINT);
+
+		imageAttribute = homeProperties.getValue(HomeEndpointProperties.IMAGE_ATTRIBUTE);
 
 		enquiryForms = homeProperties.getListOfValues(HomeEndpointProperties.ENQUIRIES);
 	}
@@ -264,4 +270,13 @@ public class HomeServiceConfiguration
 		this.enquiryForms = enquiryForms;
 	}
 
+	public String getImageAttribute()
+	{
+		return imageAttribute;
+	}
+
+	public void setImageAttribute(String imageAttribute)
+	{
+		this.imageAttribute = imageAttribute;
+	}
 }

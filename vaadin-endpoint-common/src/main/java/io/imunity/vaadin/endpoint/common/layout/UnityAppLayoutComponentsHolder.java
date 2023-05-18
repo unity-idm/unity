@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.upman.front;
+package io.imunity.vaadin.endpoint.common.layout;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;

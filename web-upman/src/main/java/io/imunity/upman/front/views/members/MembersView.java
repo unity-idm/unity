@@ -15,7 +15,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import io.imunity.upman.front.UnityViewComponent;
+import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @PermitAll
 @Route(value = "/members", layout = UpManMenu.class)
 @RouteAlias(value = "/", layout = UpManMenu.class)
-public class MembersView extends UnityViewComponent
+public class MembersView extends UpmanViewComponent
 {
 	enum ViewMode {PROJECT_MODE, SUBPROJECT_MODE, SUBGROUP_MODE}
 

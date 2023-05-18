@@ -20,7 +20,7 @@ import java.lang.invoke.MethodHandles;
 
 @PermitAll
 @ParentLayout(UpManMenu.class)
-public class UpmanErrorPage extends UnityViewComponent implements HasErrorParameter<Exception>
+public class UpmanErrorPage extends UpmanViewComponent implements HasErrorParameter<Exception>
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

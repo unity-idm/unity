@@ -12,6 +12,7 @@
 	<description>Web based administration UI</description>
 	<properties>
 		<m.name>user-home</m.name>
+		<vaadin.productionMode>true</vaadin.productionMode>
 	</properties>
 
 	<scm>
@@ -42,8 +43,23 @@
 		<!-- compile -->
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-common</artifactId>
+			<artifactId>unity-server-vaadin-endpoint-common</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-vaadin-authentication</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin</groupId>
+					<artifactId>vaadin-dev-server</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
@@ -73,6 +89,19 @@
 								<descriptor>src/main/assembly/assembly-i18n.xml</descriptor>
 							</descriptors>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>${vaadin.version.new}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-frontend</goal>
+							<goal>build-frontend</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

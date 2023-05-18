@@ -14,7 +14,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.router.Route;
-import io.imunity.upman.front.UnityViewComponent;
+import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.toSet;
 
 @PermitAll
 @Route(value = "/groups", layout = UpManMenu.class)
-public class GroupsView extends UnityViewComponent
+public class GroupsView extends UpmanViewComponent
 {
 	private final MessageSource msg;
 	private final ProjectService projectService;

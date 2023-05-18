@@ -5,6 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -151,6 +152,19 @@ public class AttributeHandlerRegistry
 			indentedValues.add(valueRep);
 		}
 		vl.add(indentedValues);
+		return vl;
+	}
+
+	public Div getSimpleRepresentation(Attribute attribute, AttributeViewerContext context)
+	{
+		Div vl = new Div();
+		AttributeValueSyntax<?> syntax = getSyntaxWithStringFallback(attribute);
+		WebAttributeHandler handler = getHandler(syntax);
+		for (String value : attribute.getValues())
+		{
+			com.vaadin.flow.component.Component valueRep = handler.getRepresentation(value, context);
+			vl.add(valueRep);
+		}
 		return vl;
 	}
 

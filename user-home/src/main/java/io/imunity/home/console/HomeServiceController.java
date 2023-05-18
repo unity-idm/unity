@@ -5,20 +5,11 @@
 
 package io.imunity.home.console;
 
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Component;
-
 import io.imunity.home.UserHomeEndpointFactory;
 import io.imunity.home.utils.ProjectManagementHelper;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
-import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
-import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -32,6 +23,8 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceController;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+
+import java.util.stream.Collectors;
 
 @Component
 class HomeServiceController extends DefaultServicesControllerBase implements ServiceController
@@ -93,6 +86,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 				atMan.getAttributeTypes().stream().map(a -> a.getName()).collect(Collectors.toList()),
+				atMan.getAttributeTypes().stream().filter(a -> a.getValueSyntax().equals("image")).map(a -> a.getName()).collect(Collectors.toList()),
 				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values()
 						.stream().map(g -> g.getGroup()).collect(Collectors.toList()),
 				projectManHelper.getAllProjectManEndpoints().stream().map(e -> e.getName())

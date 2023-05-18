@@ -4,23 +4,11 @@
  */
 package io.imunity.home.iddetails;
 
-import java.util.Set;
-
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
+import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-
 import io.imunity.home.HomeEndpointProperties;
-
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
@@ -29,6 +17,8 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
+
+import java.util.Set;
 
 /**
  * Shows {@link UserDetailsPanel}, {@link UserIdentitiesPanel}, {@link UserAttributesPanel}
@@ -59,11 +49,11 @@ public class EntityDetailsWithActions extends CustomComponent
 		root.setSpacing(false);
 		FormLayout mainForm = new FormLayout();
 		CompositeLayoutAdapter layoutAdapter = new CompositeLayoutAdapter(mainForm);
-		if (!disabled.contains(HomeEndpointProperties.Components.userInfo.toString()))
-			layoutAdapter.addContainer(detailsPanel.getContents());
-		
-		if (!disabled.contains(HomeEndpointProperties.Components.identitiesManagement.toString()))
-			layoutAdapter.addContainer(identitiesPanel.getContents());
+//		if (!disabled.contains(HomeEndpointProperties.Components.userInfo.toString()))
+//			layoutAdapter.addContainer(detailsPanel.getContents());
+//
+//		if (!disabled.contains(HomeEndpointProperties.Components.identitiesManagement.toString()))
+//			layoutAdapter.addContainer(identitiesPanel.getContents());
 
 		if (!disabled.contains(HomeEndpointProperties.Components.attributesManagement.toString()))
 			layoutAdapter.addContainer(attrsPanel.getContents());
@@ -150,8 +140,8 @@ public class EntityDetailsWithActions extends CustomComponent
 	private boolean shouldShowSave()
 	{
 		boolean showSave = false;
-		if (!disabled.contains(HomeEndpointProperties.Components.identitiesManagement.toString()))
-			showSave = identitiesPanel.hasEditable();
+//		if (!disabled.contains(HomeEndpointProperties.Components.identitiesManagement.toString()))
+//			showSave = identitiesPanel.hasEditable();
 
 		if (!disabled.contains(HomeEndpointProperties.Components.attributesManagement.toString()))
 			showSave |= attrsPanel.hasEditable();
