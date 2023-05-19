@@ -14,8 +14,8 @@ import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.account_association.wizard.Wizard;
 import io.imunity.vaadin.account_association.wizard.WizardStepPreparer;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
@@ -36,6 +36,43 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 		this.msg = msg;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.notificationPresenter = notificationPresenter;
+	}
+
+	@Override
+	public Component getWizardForConnectId(Runnable finishTask, Runnable closeWizard)
+	{
+		String contextPath = VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath();
+		Runnable sandBoxNewPageOpener = () -> UI.getCurrent().getPage()
+				.executeJs("window.open('"+ contextPath + SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
+		SandboxAuthnRouter router = Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter();
+
+		return Wizard.builder()
+				.addStep(new IntroStep(msg))
+				.addStep(new SandboxAuthnLaunchStep(
+						msg.getMessage("Wizard.SandboxStep.caption"),
+						new VerticalLayout(
+								new Label(msg.getMessage("ConnectId.introLabel")),
+								new Button(msg.getMessage("Wizard.SandboxStepComponent.sboxButton"),
+										e -> sandBoxNewPageOpener.run())
+						),
+						router,
+						sandBoxNewPageOpener)
+				)
+				.addNextStepPreparer(new WizardStepPreparer<>(
+						SandboxAuthnLaunchStep.class,
+						MergingUserConfirmationStep.class,
+						(step1, step2) -> step2.prepareStep(step1.event, step1.sessionEntityId))
+				)
+				.addStep(new MergingUserConfirmationStep(msg.getMessage("ConnectId.ConfirmStep.caption"), msg, inputTranslationEngine))
+				.addNextStepPreparer(new WizardStepPreparer<>(
+						MergingUserConfirmationStep.class,
+						FinalConnectIdStep.class,
+						(step1, step2) -> step2.prepareStep(step1.ctx.getRemotePrincipal().orElse(null)))
+				)
+				.addStep(new FinalConnectIdStep(null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg, finishTask))
+				.addMessageSource(msg)
+				.addCancelTask(closeWizard)
+				.build();
 	}
 
 	@Override

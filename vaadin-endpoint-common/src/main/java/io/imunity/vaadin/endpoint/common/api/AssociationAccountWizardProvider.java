@@ -10,5 +10,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 
 public interface AssociationAccountWizardProvider
 {
+	Component getWizardForConnectId(Runnable finishTask, Runnable closeWizard);
 	Component getWizardForConnectIdAtLogin(RemotelyAuthenticatedPrincipal unknownUser, Runnable closeWizard);
 }

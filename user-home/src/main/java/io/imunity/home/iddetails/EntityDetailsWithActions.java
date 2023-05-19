@@ -22,7 +22,7 @@ import java.util.Set;
 
 /**
  * Shows {@link UserDetailsPanel}, {@link UserIdentitiesPanel}, {@link UserAttributesPanel}
- * and the {@link EntityRemovalButton} under it. This class also controls whether to
+ * and the  under it. This class also controls whether to
  * show the subcomponents.
  * @author K. Benedyczak
  */

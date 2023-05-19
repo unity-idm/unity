@@ -5,8 +5,6 @@
 package io.imunity.vaadin.account_association;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.router.QueryParameters;
 import io.imunity.vaadin.account_association.wizard.WizardStep;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.MessageSource;
@@ -17,23 +15,24 @@ import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
-import java.util.Map;
-
 class FinalConnectIdStep extends WizardStep
 {
 	private final InputTranslationEngine translationEngine;
 	private final NotificationPresenter notificationPresenter;
 	private final MessageSource msg;
+	private final Runnable finishTask;
 
 	private RemotelyAuthenticatedPrincipal authnContext;
 
 	public FinalConnectIdStep(String label, Component component,
-	                          InputTranslationEngine translationEngine, NotificationPresenter notificationPresenter, MessageSource msg)
+	                          InputTranslationEngine translationEngine, NotificationPresenter notificationPresenter,
+							  MessageSource msg, Runnable finishTask)
 	{
 		super(label, component);
 		this.translationEngine = translationEngine;
 		this.notificationPresenter = notificationPresenter;
 		this.msg = msg;
+		this.finishTask = finishTask;
 	}
 
 	@Override
@@ -47,10 +46,7 @@ class FinalConnectIdStep extends WizardStep
 		{
 			translationEngine.mergeWithExisting(authnContext.getMappingResult(), 
 					new EntityParam(loginSession.getEntityId()));
-			UI.getCurrent().navigate(StatusView.class, QueryParameters.simple(Map.of(
-					StatusView.TITLE_PARAM, msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"),
-					StatusView.DESCRIPTION_PARAM, msg.getMessage("ConnectId.ConfirmStep.mergeSuccessful"))
-			));
+			finishTask.run();
 		} catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("ConnectId.ConfirmStep.mergeFailed"), e.getMessage());

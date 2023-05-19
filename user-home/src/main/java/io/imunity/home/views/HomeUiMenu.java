@@ -12,6 +12,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.utils.ProjectManagementHelper;
+import io.imunity.home.views.profile.ProfileView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;

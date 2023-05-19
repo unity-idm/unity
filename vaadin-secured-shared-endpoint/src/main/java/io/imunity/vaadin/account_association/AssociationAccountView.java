@@ -25,6 +25,8 @@ import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 
 import javax.annotation.security.PermitAll;
 
+import java.util.Map;
+
 import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
 @PermitAll
@@ -50,6 +52,11 @@ class AssociationAccountView extends Composite<VerticalLayout> implements HasDyn
 				.executeJs("window.open('"+ contextPath + SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
 		SandboxAuthnRouter router = Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter();
 
+		Runnable finishTask = () ->	UI.getCurrent().navigate(StatusView.class, QueryParameters.simple(Map.of(
+				StatusView.TITLE_PARAM, msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"),
+				StatusView.DESCRIPTION_PARAM, msg.getMessage("ConnectId.ConfirmStep.mergeSuccessful"))
+		));
+
 		Wizard wizard = Wizard.builder()
 				.addStep(new IntroStep(msg))
 				.addStep(new SandboxAuthnLaunchStep(
@@ -73,7 +80,7 @@ class AssociationAccountView extends Composite<VerticalLayout> implements HasDyn
 						FinalConnectIdStep.class,
 						(step1, step2) -> step2.prepareStep(step1.ctx.getRemotePrincipal().orElse(null)))
 				)
-				.addStep(new FinalConnectIdStep(null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg))
+				.addStep(new FinalConnectIdStep(null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg, finishTask))
 				.addMessageSource(msg)
 				.addCancelTask(() -> UI.getCurrent().navigate(StatusView.class, QueryParameters.of(StatusView.TITLE_PARAM, msg.getMessage("Wizard.canceled"))))
 				.title(msg.getMessage("ConnectId.wizardCaption"))

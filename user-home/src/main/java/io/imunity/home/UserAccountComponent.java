@@ -281,6 +281,7 @@ public class UserAccountComponent extends VerticalLayout
 
 	private Button getRemovalButton(LoginSession theUser, HomeEndpointProperties config)
 	{
-		return new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, insecureIdsMan, authnProcessor, config);
+//		return new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, insecureIdsMan, authnProcessor, config);
+		return new Button();
 	}
 }
