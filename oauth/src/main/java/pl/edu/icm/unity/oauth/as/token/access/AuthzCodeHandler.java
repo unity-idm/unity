@@ -19,6 +19,7 @@ import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
@@ -123,6 +124,8 @@ class AuthzCodeHandler
 				null);
 		log.info("Authz code grant: issuing new access token {}, valid until {}",
 				BaseOAuthResource.tokenToLog(accessToken.getValue()), accessExpiration);
+		if (oauthResponse instanceof OIDCTokenResponse)
+			log.debug("Issued OIDC ID token {}", ((OIDCTokenResponse)oauthResponse).getOIDCTokens().getIDTokenString());
 		accessTokenDAO.storeAccessToken(accessToken, internalToken, new EntityParam(codeToken.getOwner()), now,
 				accessExpiration);
 
