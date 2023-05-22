@@ -164,13 +164,18 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 			return this;
 		}
 
+		public Builder withIncludeAdditionalCredentialInMetadata(boolean includeAdditionalCredentialInMetadata)
+		{
+			this.includeAdditionalCredentialInMetadata = includeAdditionalCredentialInMetadata;
+			return this;
+		}
+		
 		public Builder withRequesterCredentialName(String requesterCredentialName)
 		{
 			this.requesterCredentialName = requesterCredentialName;
 			return this;
 		}
 		
-	
 
 		public Builder withSignRequestByDefault(boolean signRequestByDefault)
 		{
