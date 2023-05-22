@@ -111,6 +111,10 @@ public class BaseOAuthResource
 	
 	public static String tokenToLog(String token)
 	{
-		return "..." + token.substring(6);
+		if (token.length() < 6)
+			throw new IllegalArgumentException("Can't log token of length smaller than 6 chars, was " + token.length());
+		int charsToShow = token.length() > 10 ? 6 : 3;
+		int beginIndex = token.length() - charsToShow;
+		return "..." + token.substring(beginIndex);
 	}
 }
