@@ -175,15 +175,15 @@ class OAuthWebRequestValidator
 	private void validateAndRecordClaimsInTokenAttribute(OAuthAuthzContext context, AuthorizationRequest authzRequest)
 			throws OAuthValidationException
 	{
-		List<String> customParameter = authzRequest.getCustomParameter(ClaimsInTokenAttribute.PARAMETER_NAME);
-		if (customParameter == null)
+		List<String> claimsInTokensParameter = authzRequest.getCustomParameter(ClaimsInTokenAttribute.PARAMETER_NAME);
+		if (claimsInTokensParameter == null)
 			return;
 
 		Set<ClaimsInTokenAttribute.Value> values;
 		try
 		{
-			values = customParameter.stream()
-					.map (s -> s.trim())
+			values = claimsInTokensParameter.stream()
+					.map(s -> s.trim())
 					.map(s -> s.split(" "))
 	                .flatMap(Arrays::stream)
 	                .filter(s -> s != null && !s.isEmpty())
@@ -191,7 +191,11 @@ class OAuthWebRequestValidator
 					.collect(Collectors.toSet());
 		} catch (Exception e)
 		{
-			throw new OAuthValidationException("Invalid claims_in_tokens parameter values. Supported values are: token, id_token");
+			log.error("Invalid claims_in_tokens parameter values " +
+					claimsInTokensParameter
+					+ ". Supported values are: token, id_token", e);
+			throw new OAuthValidationException("Invalid claims_in_tokens parameter values. "
+					+ "Supported values are: token, id_token");
 		}
 
 		if (!values.isEmpty())
