@@ -14,8 +14,9 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import pl.edu.icm.unity.JsonUtil;
 
 import javax.ws.rs.core.Response.Status;
@@ -31,7 +32,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 {
 	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 
-	@Before
+	@BeforeEach
 	public void setUp()
 	{
 		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NON_PRIVATE);
