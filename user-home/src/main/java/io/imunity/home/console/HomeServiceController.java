@@ -5,8 +5,8 @@
 
 package io.imunity.home.console;
 
+import io.imunity.home.ProjectManagementHelper;
 import io.imunity.home.UserHomeEndpointFactory;
-import io.imunity.home.utils.ProjectManagementHelper;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.*;
@@ -45,13 +45,13 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 	private ImageAccessService imageAccessService;
 
 	HomeServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
-			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
-			AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
-			ProjectManagementHelper projectManagementHelper, EnquiryManagement enquiryMan,
-			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
-			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, NetworkServer server,
-			ImageAccessService imageAccessService, EndpointFileConfigurationManagement serviceFileConfigController)
+						  AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
+						  AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
+						  ProjectManagementHelper projectManagementHelper, EnquiryManagement enquiryMan,
+						  RegistrationsManagement registrationMan, URIAccessService uriAccessService,
+						  FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
+						  AuthenticatorSupportService authenticatorSupportService, NetworkServer server,
+						  ImageAccessService imageAccessService, EndpointFileConfigurationManagement serviceFileConfigController)
 			
 	{
 		super(msg, endpointMan, serviceFileConfigController);

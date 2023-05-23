@@ -1,23 +1,15 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
 
-package io.imunity.home.utils;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+package io.imunity.home;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import io.imunity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -29,6 +21,12 @@ import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * Utility class simplifies getting project management endpoint address based on home ui config
  * @author P.Piernik
@@ -39,7 +37,7 @@ public class ProjectManagementHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ProjectManagementHelper.class);
 	
-	private DelegatedGroupManagement delGroupMan;
+	private final DelegatedGroupManagement delGroupMan;
 	private EndpointManagement endpointMan;
 	private AdvertisedAddressProvider advertisedAddrProvider;
 	

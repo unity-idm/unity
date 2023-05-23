@@ -14,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import io.imunity.home.HomeEndpointProperties;
-import io.imunity.home.utils.ProjectManagementHelper;
+import io.imunity.home.ProjectManagementHelper;
 import io.imunity.home.views.profile.ProfileView;
 import io.imunity.home.views.sign_in.SignInView;
 import io.imunity.home.views.trusted_application.TrustedApplicationsView;
