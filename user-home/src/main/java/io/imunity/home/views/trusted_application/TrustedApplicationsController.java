@@ -3,26 +3,26 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.home.externalApplication;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+package io.imunity.home.views.trusted_application;
 
 import io.imunity.idp.AccessProtocol;
 import io.imunity.idp.ApplicationId;
 import io.imunity.idp.IdPClientData;
-import io.imunity.idp.TrustedIdPClientsManagement;
 import io.imunity.idp.IdPClientData.AccessStatus;
+import io.imunity.idp.TrustedIdPClientsManagement;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class TrustedApplicationsController
@@ -43,8 +43,7 @@ public class TrustedApplicationsController
 	{
 		List<IdPClientData> applications = new ArrayList<>();
 		for (TrustedIdPClientsManagement p : providers.values().stream()
-				.sorted((p1, p2) -> p1.getSupportedProtocol().compareTo(p2.getSupportedProtocol()))
-				.collect(Collectors.toList()))
+				.sorted(Comparator.comparing(TrustedIdPClientsManagement::getSupportedProtocol)).toList())
 		{
 			try
 			{
