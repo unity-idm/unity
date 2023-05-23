@@ -6,13 +6,19 @@
 package io.imunity.home.views;
 
 import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.utils.ProjectManagementHelper;
 import io.imunity.home.views.profile.ProfileView;
+import io.imunity.home.views.sign_in.SignInView;
+import io.imunity.home.views.trusted_application.TrustedApplicationsView;
+import io.imunity.home.views.trusted_device.TrustedDeviceView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
@@ -34,10 +40,12 @@ import java.util.stream.Stream;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
 import static java.util.stream.Collectors.toList;
 
-public class HomeUiMenu extends UnityAppLayout
+@CssImport(value = "./styles/components/vaadin-accordion-panel.css", themeFor = "vaadin-accordion-panel")
+public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 {
 	private final AttributesManagement attributesMan;
 	private final AttributeHandlerRegistry registry;
+	private final HomeEndpointProperties homeEndpointProperties;
 
 	@Autowired
 	public HomeUiMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg,
@@ -49,7 +57,7 @@ public class HomeUiMenu extends UnityAppLayout
 								.build(),
 						MenuComponent.builder(SignInView.class).tabName(msg.getMessage("UserHomeUI.signIn"))
 								.build(),
-						MenuComponent.builder(TrustedDeviceView.class).tabName(msg.getMessage("UserHomeUI.trustedDevice"))
+						MenuComponent.builder(TrustedDeviceView.class).tabName(msg.getMessage("UserHomeUI.trustedDevices"))
 								.build(),
 						MenuComponent.builder(TrustedApplicationsView.class).tabName(msg.getMessage("UserHomeUI.trustedApplications"))
 								.build(),
@@ -60,8 +68,7 @@ public class HomeUiMenu extends UnityAppLayout
 		);
 		this.attributesMan = attributesMan;
 		this.registry = registry;
-
-		HomeEndpointProperties homeEndpointProperties = new HomeEndpointProperties(getCurrentWebAppContextProperties());
+		this.homeEndpointProperties = new HomeEndpointProperties(getCurrentWebAppContextProperties());
 		ComponentUtil.setData(UI.getCurrent(), HomeEndpointProperties.class, homeEndpointProperties);
 
 		HorizontalLayout imageLayout = createImageLayout(homeEndpointProperties);
@@ -75,6 +82,19 @@ public class HomeUiMenu extends UnityAppLayout
 	{
 		LoginSession theUser = InvocationContext.getCurrent().getLoginSession();
 		String imageAttribute = homeEndpointProperties.getImageAttribute();
+		Component image = createImage(theUser, imageAttribute);
+		HorizontalLayout imageLayout = new HorizontalLayout();
+		imageLayout.getStyle().set("margin-top", "1.5em");
+		imageLayout.getStyle().set("margin-bottom", "1.5em");
+		imageLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+		imageLayout.add(image);
+		return imageLayout;
+	}
+
+	private Component createImage(LoginSession theUser, String imageAttribute)
+	{
+		if(imageAttribute == null)
+			return createDefaultImage();
 		Collection<AttributeExt> attributes;
 		try
 		{
@@ -85,14 +105,8 @@ public class HomeUiMenu extends UnityAppLayout
 			throw new RuntimeException(e);
 		}
 
-		Component image;
 		if(attributes.isEmpty())
-		{
-			Image tmpImage = new Image("../unitygw/img/other/logo-hand.png", "");
-			tmpImage.setWidth("7em");
-			tmpImage.setHeight("7em");
-			image = tmpImage;
-		}
+			return createDefaultImage();
 		else
 		{
 			AttributeViewerContext context = AttributeViewerContext.builder()
@@ -103,14 +117,16 @@ public class HomeUiMenu extends UnityAppLayout
 					.withBorderRadius(50)
 					.withBorderRadiusUnit(Unit.PERCENTAGE)
 					.build();
-			image = registry.getSimpleRepresentation(attributes.iterator().next(), context);
+			return registry.getSimpleRepresentation(attributes.iterator().next(), context);
 		}
-		HorizontalLayout imageLayout = new HorizontalLayout();
-		imageLayout.getStyle().set("margin-top", "1.5em");
-		imageLayout.getStyle().set("margin-bottom", "1.5em");
-		imageLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-		imageLayout.add(image);
-		return imageLayout;
+	}
+
+	private static Image createDefaultImage()
+	{
+		Image tmpImage = new Image("../unitygw/img/other/logo-hand.png", "");
+		tmpImage.setWidth("7em");
+		tmpImage.setHeight("7em");
+		return tmpImage;
 	}
 
 	private static List<Component> createUpmanIcon(ProjectManagementHelper projectManagementHelper)
@@ -126,6 +142,13 @@ public class HomeUiMenu extends UnityAppLayout
 		home.getStyle().set("cursor", "pointer");
 		home.addClickListener(event -> UI.getCurrent().getPage().setLocation(url));
 		return home;
+	}
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent beforeEnterEvent)
+	{
+		if(ComponentUtil.getData(UI.getCurrent(), HomeEndpointProperties.class) == null)
+			ComponentUtil.setData(UI.getCurrent(), HomeEndpointProperties.class, homeEndpointProperties);
 	}
 
 	@Override

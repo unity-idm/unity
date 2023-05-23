@@ -12,13 +12,20 @@ import com.vaadin.flow.component.html.Label;
 
 public class LinkButton extends Div
 {
+	private Label label;
+
 	public LinkButton(String txt, ComponentEventListener<ClickEvent<Div>> listener)
 	{
-		Label cancelLabel = new Label(txt);
-		cancelLabel.getStyle().set("cursor", "pointer");
-		add(cancelLabel);
+		label = new Label(txt);
+		label.getStyle().set("cursor", "pointer");
+		add(label);
 		getStyle().set("text-decoration", "underline");
 		getStyle().set("cursor", "pointer");
 		addClickListener(listener);
+	}
+
+	public void setLabel(String label)
+	{
+		this.label.setText(label);
 	}
 }
