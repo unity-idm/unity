@@ -152,6 +152,8 @@ public class ActionParameterComponentProvider
 			return new I18nTextActionParameterComponent(param, msg);
 		case BOOLEAN:
 			return new BooleanActionParameterComponent(param, msg);
+		case INTEGER:
+			return new IntegerActionParameterComponent(param, msg);
 		case UNITY_INPUT_TRANSLATION_PROFILE:
 			return new BaseEnumActionParameterComponent(param, msg, inputProfiles);
 		case UNITY_OUTPUT_TRANSLATION_PROFILE:

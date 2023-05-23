@@ -21,12 +21,15 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
+import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
+import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -44,7 +47,9 @@ import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
+import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import pl.edu.icm.unity.webui.idpcommon.activesel.ActiveValueSelectionScreen;
@@ -75,7 +80,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private final OAuthSessionService oauthSessionService;
 	private final OAuthProcessor oauthProcessor;
 	private final PolicyAgreementManagement policyAgreementsMan;
-
+	private final ImageAccessService imageAccessService;
+	
 	private OAuthResponseHandler oauthResponseHandler;
 	private IdentityParam identity;
 	private ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory;
@@ -96,7 +102,8 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			PolicyAgreementManagement policyAgreementsMan,
 			ObjectFactory<PolicyAgreementScreen> policyAgreementScreenObjectFactory,
 			OAuthIdpStatisticReporterFactory idpStatisticReporterFactory,
-			FreemarkerAppHandler freemarkerHandler
+			FreemarkerAppHandler freemarkerHandler,
+			ImageAccessService imageAccessService
 			)
 	{
 		super(msg, enquiryDialogLauncher);
@@ -113,6 +120,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		this.policyAgreementScreenObjectFactory = policyAgreementScreenObjectFactory;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.freemarkerHandler = freemarkerHandler;
+		this.imageAccessService = imageAccessService;
 	}
 
 	@Override
@@ -245,7 +253,11 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		} catch (OAuthErrorResponseException e)
 		{
 			oauthResponseHandler.returnOauthResponseAndReportStatistic(e.getOauthResponse(), e.isInvalidateSession(), ctx, Status.FAILED);
-		} catch (Exception e)
+		} catch (StopAuthenticationException e) {
+			handleFinalizationScreen(e.finalizationScreenConfiguration);
+		}
+			
+		catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
 			// we kill the session as the user may want to log as
@@ -268,6 +280,22 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 			Page.getCurrent().open(redirectURL, null);
 			throw new EopException();
 		}
+	}
+	
+	private void handleFinalizationScreen(AuthenticationFinalizationConfiguration finalizationScreenConfiguration)
+			throws EopException
+	{
+		WorkflowFinalizationConfiguration config = new WorkflowFinalizationConfiguration(false, false, null, null,
+				finalizationScreenConfiguration.title.getValue(msg), finalizationScreenConfiguration.info.getValue(msg),
+				finalizationScreenConfiguration.redirectURL,
+				finalizationScreenConfiguration.redirectCaption.getValue(msg),
+				finalizationScreenConfiguration.redirectAfterTime);
+
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, (p, url) -> p.open(url, null),
+				imageAccessService);
+		com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
+		setContent(wrapper);
+		throw new EopException();
 	}
 
 	private void onDecline()
