@@ -77,7 +77,7 @@ class FidoCredentialEditor implements CredentialEditor
 			return Optional.empty();
 		}
 		VerticalLayout ret = new VerticalLayout();
-		ret.setMargin(false);
+		ret.setPadding(false);
 
 		ret.add(new Label(msg.getMessage("Fido.viewerInfo",
 				keys.size())));

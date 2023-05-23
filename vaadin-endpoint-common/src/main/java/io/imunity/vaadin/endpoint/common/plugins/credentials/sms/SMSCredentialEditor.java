@@ -252,7 +252,7 @@ public class SMSCredentialEditor implements CredentialEditor
 	public Optional<Component> getViewer(String credentialInfo)
 	{
 		VerticalLayout ret = new VerticalLayout();
-		ret.setMargin(false);
+		ret.setPadding(false);
 
 		SMSCredentialExtraInfo pei = SMSCredentialExtraInfo.fromJson(credentialInfo);
 		if (pei.getLastChange() == null)

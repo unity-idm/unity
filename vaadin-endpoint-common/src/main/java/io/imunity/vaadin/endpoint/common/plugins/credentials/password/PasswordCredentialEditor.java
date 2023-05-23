@@ -55,7 +55,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 	public Optional<Component> getViewer(String credentialExtraInformation)
 	{
 		VerticalLayout ret = new VerticalLayout();
-		ret.setMargin(false);
+		ret.setPadding(false);
 		PasswordExtraInfo pei = PasswordExtraInfo.fromJson(credentialExtraInformation);
 		if (pei.getLastChange() == null)
 			return Optional.empty();

@@ -5,36 +5,24 @@
 
 package io.imunity.home.externalApplication;
 
-import java.io.ByteArrayInputStream;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.ui.*;
+import io.imunity.home.views.trusted_application.TrustedApplicationsController;
 import io.imunity.idp.IdPClientData;
 import io.imunity.idp.IdPClientData.AccessStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.io.ByteArrayInputStream;
 
 @PrototypeComponent
 public class TrustedApplicationTab extends CustomComponent
@@ -60,48 +48,48 @@ public class TrustedApplicationTab extends CustomComponent
 
 	public void refresh()
 	{
-		main.removeAllComponents();
-		List<IdPClientData> applications;
-		try
-		{
-			applications = controller.getApplications();
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(e);
-			return;
-		}
-		List<IdPClientData> allowedApp = controller.filterAllowedApplications(applications);
-
-		Label appWithAccess = new Label();
-		appWithAccess.setValue(msg.getMessage("TrustedApplications.applicationsWithAccess"));
-		appWithAccess.setStyleName(Styles.textXLarge.toString());
-		appWithAccess.addStyleName(Styles.bold.toString());
-		main.addComponent(appWithAccess);
-		main.addComponent(new Label(""));
-		
-		
-		if (allowedApp.size() > 0)
-		{
-			allowedApp.forEach(a -> main.addComponent(new TrustedApplicationComponent(a)));
-		}else {
-			Label noApp = new Label();
-			noApp.setValue(msg.getMessage("TrustedApplications.noneTrustedApplications"));
-			noApp.setStyleName(Styles.emphasized.toString());
-			main.addComponent(noApp);		
-		}
-		
-		
-		List<IdPClientData> disallowedApp = controller.filterDisallowedApplications(applications);
-		if (disallowedApp.size() > 0)
-		{
-			Label appWithDenied = new Label();
-			appWithDenied.setValue(msg.getMessage("TrustedApplications.applicationsWithDenied"));
-			appWithDenied.setStyleName(Styles.textXLarge.toString());
-			appWithDenied.addStyleName(Styles.bold.toString());
-			main.addComponent(appWithDenied);
-			main.addComponent(new Label(""));
-			disallowedApp.forEach(a -> main.addComponent(new TrustedApplicationComponent(a)));
-		}
+//		main.removeAllComponents();
+//		List<IdPClientData> applications;
+//		try
+//		{
+//			applications = controller.getApplications();
+//		} catch (ControllerException e)
+//		{
+//			NotificationPopup.showError(e);
+//			return;
+//		}
+//		List<IdPClientData> allowedApp = controller.filterAllowedApplications(applications);
+//
+//		Label appWithAccess = new Label();
+//		appWithAccess.setValue(msg.getMessage("TrustedApplications.applicationsWithAccess"));
+//		appWithAccess.setStyleName(Styles.textXLarge.toString());
+//		appWithAccess.addStyleName(Styles.bold.toString());
+//		main.addComponent(appWithAccess);
+//		main.addComponent(new Label(""));
+//
+//
+//		if (allowedApp.size() > 0)
+//		{
+//			allowedApp.forEach(a -> main.addComponent(new TrustedApplicationComponent(a)));
+//		}else {
+//			Label noApp = new Label();
+//			noApp.setValue(msg.getMessage("TrustedApplications.noneTrustedApplications"));
+//			noApp.setStyleName(Styles.emphasized.toString());
+//			main.addComponent(noApp);
+//		}
+//
+//
+//		List<IdPClientData> disallowedApp = controller.filterDisallowedApplications(applications);
+//		if (disallowedApp.size() > 0)
+//		{
+//			Label appWithDenied = new Label();
+//			appWithDenied.setValue(msg.getMessage("TrustedApplications.applicationsWithDenied"));
+//			appWithDenied.setStyleName(Styles.textXLarge.toString());
+//			appWithDenied.addStyleName(Styles.bold.toString());
+//			main.addComponent(appWithDenied);
+//			main.addComponent(new Label(""));
+//			disallowedApp.forEach(a -> main.addComponent(new TrustedApplicationComponent(a)));
+//		}
 	}
 
 	public class TrustedApplicationComponent extends CustomComponent
@@ -277,32 +265,32 @@ public class TrustedApplicationTab extends CustomComponent
 
 		private void unblockAccess(IdPClientData application)
 		{
-			try
-			{
-				controller.ublockAccess(application.applicationId, application.accessProtocol);
-				refresh();
-			} catch (ControllerException e)
-			{
-				NotificationPopup.showError(e);
-			}
+//			try
+//			{
+//				controller.ublockAccess(application.applicationId, application.accessProtocol);
+//				refresh();
+//			} catch (ControllerException e)
+//			{
+//				NotificationPopup.showError(e);
+//			}
 		}
 
 		private void revokeAccess(IdPClientData application)
 		{
-			new ConfirmDialog(msg, msg.getMessage("TrustedApplications.confirmRevokeTitle"),
-					msg.getMessage("TrustedApplications.confirmRevoke", application.applicationName), () ->
-					{
-						try
-						{
-							controller.revokeAccess(application.applicationId, application.accessProtocol);
-							refresh();
-						} catch (ControllerException e)
-						{
-							NotificationPopup.showError(e);
-
-						}
-
-					}).show();
+//			new ConfirmDialog(msg, msg.getMessage("TrustedApplications.confirmRevokeTitle"),
+//					msg.getMessage("TrustedApplications.confirmRevoke", application.applicationName), () ->
+//					{
+//						try
+//						{
+//							controller.revokeAccess(application.applicationId, application.accessProtocol);
+//							refresh();
+//						} catch (ControllerException e)
+//						{
+//							NotificationPopup.showError(e);
+//
+//						}
+//
+//					}).show();
 		}
 
 		private void showHideContent(boolean show)
