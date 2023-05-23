@@ -23,12 +23,15 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
+import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -47,6 +50,7 @@ import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementScreen;
+import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import pl.edu.icm.unity.webui.idpcommon.activesel.ActiveValueSelectionScreen;
@@ -189,7 +193,12 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			translationResult = getUserInfo(samlCtx, samlProcessor);
 			handleRedirectIfNeeded(translationResult);
 			validIdentities = samlProcessor.getCompatibleIdentities(translationResult.getIdentities());
-		}  catch (EopException eop) 
+		} catch (StopAuthenticationException e) {
+			log.info("Authentication stopped due to profile's decision");
+			handleFinalizationScreen(e.finalizationScreenConfiguration);
+			return;
+		}  
+		catch (EopException eop) 
 		{
 			return;
 		} catch (Exception e)
@@ -246,6 +255,20 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		setContent(valueSelectionScreen);
 	}
 	
+	private void handleFinalizationScreen(AuthenticationFinalizationConfiguration finalizationScreenConfiguration)
+	{
+		WorkflowFinalizationConfiguration config = new WorkflowFinalizationConfiguration(false, false, null, null,
+				finalizationScreenConfiguration.title.getValue(msg), finalizationScreenConfiguration.info.getValue(msg),
+				finalizationScreenConfiguration.redirectURL,
+				finalizationScreenConfiguration.redirectCaption.getValue(msg),
+				finalizationScreenConfiguration.redirectAfterTime);
+
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, (p, url) -> p.open(url, null),
+				imageAccessService);
+		com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
+		setContent(wrapper);
+	}
+
 	private void handleRedirectIfNeeded(TranslationResult userInfo) 
 			throws IOException, EopException
 	{
