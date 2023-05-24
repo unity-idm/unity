@@ -14,8 +14,9 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import pl.edu.icm.unity.JsonUtil;
 
 import javax.ws.rs.core.Response.Status;
@@ -25,13 +26,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 {
 	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 
-	@Before
+	@BeforeEach
 	public void setUp()
 	{
 		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NON_PRIVATE);
@@ -99,13 +99,13 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		HttpDelete removeProject = new HttpDelete("/restupm/v1/projects/" + projectId.id);
 		try(ClassicHttpResponse response = client.executeOpen(host, removeProject, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id);
 		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
 		{
-			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+			assertThat(Status.NOT_FOUND.getStatusCode()).isEqualTo(response.getCode());
 		}
 	}
 
@@ -115,7 +115,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + "test");
 		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
 		{
-			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+			assertThat(Status.NOT_FOUND.getStatusCode()).isEqualTo(response.getCode());
 		}
 	}
 
@@ -125,7 +125,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		HttpDelete removeProject = new HttpDelete("/restupm/v1/projects/" + "test");
 		try(ClassicHttpResponse response = client.executeOpen(host, removeProject, getClientContext(host)))
 		{
-			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+			assertThat(Status.NOT_FOUND.getStatusCode()).isEqualTo(response.getCode());
 		}
 	}
 
@@ -198,7 +198,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 
 		try(ClassicHttpResponse response = client.executeOpen(host, update, getClientContext(host)))
 		{
-			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+			assertThat(Status.NOT_FOUND.getStatusCode()).isEqualTo(response.getCode());
 		}
 	}
 
@@ -239,7 +239,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 
 		try(ClassicHttpResponse response = client.executeOpen(host, update, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id);
@@ -283,7 +283,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
@@ -317,19 +317,19 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpDelete removeMembership = new HttpDelete("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, removeMembership, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
 		{
-			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+			assertThat(Status.NOT_FOUND.getStatusCode()).isEqualTo(response.getCode());
 		}
 	}
 
@@ -356,14 +356,14 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpPut addMembershipRole = new HttpPut("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
 		addMembershipRole.setEntity(new StringEntity(mapper.writeValueAsString(new RestAuthorizationRole("manager"))));
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembershipRole, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
@@ -397,7 +397,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
@@ -431,21 +431,21 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpPut addMembershipRole = new HttpPut("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
 		addMembershipRole.setEntity(new StringEntity(mapper.writeValueAsString(new RestAuthorizationRole("manager"))));
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembershipRole, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpPut addMembershipRoleUpdate = new HttpPut("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
 		addMembershipRoleUpdate.setEntity(new StringEntity(mapper.writeValueAsString(new RestAuthorizationRole("projectsAdmin"))));
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembershipRoleUpdate, getClientContext(host)))
 		{
-			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
 		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
@@ -463,7 +463,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		HttpGet getMemberRole = new HttpGet("/restupm/v1/projects/" + "test" + "/members/" + entityEmail + "/role");
 		try(ClassicHttpResponse response = client.executeOpen(host, getMemberRole, getClientContext(host)))
 		{
-			assertEquals(Status.NOT_FOUND.getStatusCode(), response.getCode());
+			assertThat(Status.NOT_FOUND.getStatusCode()).isEqualTo(response.getCode());
 		}
 	}
 }

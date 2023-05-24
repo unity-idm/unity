@@ -5,15 +5,22 @@
 
 package io.imunity.upman.front.views.user_updates;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
 import io.imunity.vaadin23.elements.NotificationPresenter;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
@@ -22,15 +29,8 @@ import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 
-import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestRequestsService
 {
 	@Mock
@@ -44,7 +44,7 @@ public class TestRequestsService
 
 	private UpdateRequestsService service;
 
-	@Before
+	@BeforeEach
 	public void initController()
 	{
 		service = new UpdateRequestsService(mockMsg, mockRequestMan, mockDelGroupHelper, notificationPresenter);
@@ -68,10 +68,10 @@ public class TestRequestsService
 
 		ArgumentCaptor<ProjectRequestParam> argument = ArgumentCaptor.forClass(ProjectRequestParam.class);
 		verify(mockRequestMan).accept((argument.capture()));
-		assertThat(argument.getValue().project, is("/project"));
-		assertThat(argument.getValue().id, is("id"));
-		assertThat(argument.getValue().type, is(RequestType.Registration));
-		assertThat(argument.getValue().operation, is(RequestOperation.SignUp));
+		assertThat(argument.getValue().project).isEqualTo("/project");
+		assertThat(argument.getValue().id).isEqualTo("id");
+		assertThat(argument.getValue().type).isEqualTo(RequestType.Registration);
+		assertThat(argument.getValue().operation).isEqualTo(RequestOperation.SignUp);
 	}
 
 	@Test
@@ -83,10 +83,10 @@ public class TestRequestsService
 
 		ArgumentCaptor<ProjectRequestParam> argument = ArgumentCaptor.forClass(ProjectRequestParam.class);
 		verify(mockRequestMan).decline((argument.capture()));
-		assertThat(argument.getValue().project, is("/project"));
-		assertThat(argument.getValue().id, is("id"));
-		assertThat(argument.getValue().type, is(RequestType.Registration));
-		assertThat(argument.getValue().operation, is(RequestOperation.SignUp));
+		assertThat(argument.getValue().project).isEqualTo("/project");
+		assertThat(argument.getValue().id).isEqualTo("id");
+		assertThat(argument.getValue().type).isEqualTo(RequestType.Registration);
+		assertThat(argument.getValue().operation).isEqualTo(RequestOperation.SignUp);
 	}
 	
 	private UpdateRequestModel getRequest()

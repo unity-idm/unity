@@ -5,16 +5,27 @@
 
 package io.imunity.upman.front.views.members;
 
-import com.google.common.collect.Sets;
-import io.imunity.upman.front.model.Group;
-import io.imunity.upman.front.model.ProjectGroup;
-import io.imunity.vaadin23.elements.NotificationPresenter;
-import org.hamcrest.MatcherAssert;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.google.common.collect.Sets;
+
+import io.imunity.upman.front.model.Group;
+import io.imunity.upman.front.model.ProjectGroup;
+import io.imunity.vaadin23.elements.NotificationPresenter;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
@@ -24,16 +35,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TestGroupMembersService
@@ -114,8 +115,8 @@ public class TestGroupMembersService
 
 		Map<String, String> additionalAttributeNamesForProject = service
 				.getAdditionalAttributeNamesForProject(project);
-		MatcherAssert.assertThat(additionalAttributeNamesForProject.isEmpty(), is(false));
-		MatcherAssert.assertThat(additionalAttributeNamesForProject.get("extraAttr"), is("extra"));
+		assertThat(additionalAttributeNamesForProject.isEmpty()).isFalse();
+		assertThat(additionalAttributeNamesForProject.get("extraAttr")).isEqualTo("extra");
 
 	}
 

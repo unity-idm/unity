@@ -5,12 +5,13 @@
 
 package io.imunity.upman.rest.console;
 
-import org.junit.Test;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 
 import java.util.Properties;
+
+import org.junit.jupiter.api.Test;
 
 import static io.imunity.upman.rest.UpmanRestEndpointProperties.META;
 import static io.imunity.upman.rest.UpmanRestEndpointProperties.PREFIX;
