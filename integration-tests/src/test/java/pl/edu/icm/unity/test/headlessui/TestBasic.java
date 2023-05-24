@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.test.headlessui;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * 
@@ -18,23 +18,21 @@ import org.openqa.selenium.Cookie;
 public class TestBasic extends SeleniumTestBase
 {
 	@Test
-	public void loginTest() throws Exception
+	public void loginTest()
 	{
 		driver.get(baseUrl + "/home");
 		waitForPageLoad(By.className("u-passwordSignInButton"));
 		
 		Cookie sessionBefore = driver.manage().getCookieNamed("JSESSIONID");
-		driver.findElement(By.className("u-passwordUsernameField")).clear();
 		driver.findElement(By.className("u-passwordUsernameField")).sendKeys("a");
-		driver.findElement(By.className("u-passwordField")).clear();
 		driver.findElement(By.className("u-passwordField")).sendKeys("a");
 		driver.findElement(By.className("u-passwordSignInButton")).click();
-		
-		waitForPageLoad(By.id("MainHeader.logout"));
+
+		waitForPageLoad(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"));
 		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("Default Administrator"));
-		driver.findElement(By.id("MainHeader.logout"));
+		driver.findElement(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"));
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
 		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
-		waitForElement(By.id("MainHeader.logout")).click();
+		waitForElement(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']")).click();
 	}
 }

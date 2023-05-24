@@ -7,7 +7,9 @@ package io.imunity.home.views;
 
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -64,7 +66,7 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 						MenuComponent.builder(AccountUpdateView.class).tabName(msg.getMessage("UserHomeUI.accountUpdate"))
 								.build()
 						)
-						.collect(toList()), standardWebLogoutHandler, createUpmanIcon(projectManagementHelper)
+						.collect(toList()), standardWebLogoutHandler, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper))
 		);
 		this.attributesMan = attributesMan;
 		this.registry = registry;
@@ -129,11 +131,22 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 		return tmpImage;
 	}
 
-	private static List<Component> createUpmanIcon(ProjectManagementHelper projectManagementHelper)
+	private static Component createLoggedAsLabel(MessageSource msg)
+	{
+		LoginSession entity = InvocationContext.getCurrent().getLoginSession();
+		String label = entity.getEntityLabel() == null ? "" : entity.getEntityLabel();
+		Label loggedEntity = new Label(entity.getEntityLabel() != null ?
+				msg.getMessage("MainHeader.loggedAs", label) :
+				msg.getMessage("MainHeader.loggedAsWithId", entity.getEntityId()));
+		loggedEntity.setId("MainHeader.loggedAs");
+		return loggedEntity;
+	}
+
+	private static Component createUpmanIcon(ProjectManagementHelper projectManagementHelper)
 	{
 		return projectManagementHelper.getProjectManLinkIfAvailable(new HomeEndpointProperties(getCurrentWebAppContextProperties()))
 				.map(HomeUiMenu::createUpmanIcon)
-				.stream().collect(toList());
+				.orElse(new Div());
 	}
 
 	private static Component createUpmanIcon(String url)

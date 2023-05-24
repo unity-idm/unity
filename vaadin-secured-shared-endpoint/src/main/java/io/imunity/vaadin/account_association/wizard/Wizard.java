@@ -47,17 +47,23 @@ public class Wizard extends VerticalLayout
 		initLabelsLayout(labels, labelsLayout);
 
 		Button cancelButton = new Button(msg.getMessage("Wizard.cancel"), e -> cancelTask.run());
+		cancelButton.setId("Wizard.cancel");
+
 		startOverButton.setText(msg.getMessage("Wizard.start-over"));
+		startOverButton.setId("Wizard.start-over");
 		startOverButton.addClickListener(e -> init());
 
 		nextButton.setText(msg.getMessage("Wizard.next"));
+		nextButton.setId("Wizard.next");
 		nextButton.addClickListener(event -> nextStep());
 		nextButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 		backButton.setText(msg.getMessage("Wizard.back"));
+		backButton.setId("Wizard.back");
 		backButton.addClickListener(event -> prevStep());
 
 		finishButton.setText(msg.getMessage("Wizard.finish"));
+		finishButton.setId("Wizard.finish");
 		finishButton.addClickListener(e ->
 		{
 			nextButton.setEnabled(false);

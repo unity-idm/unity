@@ -32,8 +32,8 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 		waitForElement(By.id("ExposedAttributes.showDetails")).click();
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();	
 		
-		waitForPageLoad(By.id("MainHeader.logout"));
+		waitForPageLoad(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"));
 		assertNotNull(waitForElement(By.id("MainHeader.loggedAs")));
-		waitForElement(By.id("MainHeader.logout")).click();
+		waitForElement(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']")).click();
 	}
 }

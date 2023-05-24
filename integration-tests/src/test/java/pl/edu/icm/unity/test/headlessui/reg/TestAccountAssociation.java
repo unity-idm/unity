@@ -16,9 +16,7 @@ public class TestAccountAssociation extends SeleniumTestBase
 	{
 		//login to home UI 
 		driver.get(baseUrl + "/home");
-		waitForPageLoad(By.className("u-passwordUsernameField")).clear();
 		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user2");
-		waitForElement(By.className("u-passwordField")).clear();
 		waitForElement(By.className("u-passwordField")).sendKeys("the!test2");
 		waitForElement(By.className("u-passwordSignInButton")).click();
 		
@@ -38,15 +36,14 @@ public class TestAccountAssociation extends SeleniumTestBase
 		
 		//go back to the main window and complete wizard
 		driver.switchTo().window(cwh);
-		waitForPageLoad(By.id("SandboxWizard.finish")).click();
-		waitForPageLoad(By.className("success")).click();
-		waitForPageLoad(By.id("MainHeader.logout")).click();
+		waitForPageLoad(By.id("Wizard.finish")).click();
+		waitForPageLoad(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']")).click();
 	}
 	
 	private String waitForPopup() throws InterruptedException
 	{
 		String cwh = driver.getWindowHandle();
-		waitForElement(By.id("SandboxWizard.next")).click();
+		waitForElement(By.id("Wizard.next")).click();
 		int i=0;
 		while (driver.getWindowHandles().size() == 1 && i <= WAIT_TIME_S)
 		{

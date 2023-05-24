@@ -6,6 +6,7 @@ package pl.edu.icm.unity.test.headlessui.reg;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 
 import static org.junit.Assert.assertNotNull;
@@ -29,16 +30,14 @@ public class TestRegistrationForm extends SeleniumTestBase
 		waitForPageLoad(By.id("UnknownUserDialog.register")).click();
 		assertTrue(waitForPageLoad(By.id("EmailValueEditor.Email")).getAttribute("value")
 				.contains("x"));
-		waitForElement(By.id("EmailValueEditor.Email")).clear();
-		waitForElement(By.id("EmailValueEditor.Email")).sendKeys("test@test.com");
-		waitForElement(By.id("AbstractDialog.confirm")).click();	
+		WebElement webElement = waitForElement(By.id("EmailValueEditor.Email"));
+		webElement.findElement(By.tagName("input")).clear();
+		webElement.sendKeys("test@test.com");
+		waitForElement(By.tagName("vaadin-dialog-overlay")).findElement(By.cssSelector("vaadin-button[theme='primary']")).click();
 
-		waitForPageLoad(By.className("v-Notification")).click();	
-				
 		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();
 
 		assertNotNull(waitForElement(By.id("MainHeader.loggedAs")));
-		waitForElement(By.id("MainHeader.logout"));			
-	}	
+	}
 }
