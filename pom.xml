@@ -778,7 +778,7 @@
 			<dependency>
 				<groupId>com.yubico</groupId>
 				<artifactId>webauthn-server-core</artifactId>
-				<version>1.5.0</version>
+				<version>1.12.4</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.ua-parser</groupId>
@@ -826,11 +826,6 @@
 				<groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
 				<artifactId>owasp-java-html-sanitizer</artifactId>
 				<version>20220608.1</version>
-			</dependency>
-			<dependency>
-				<groupId>com.upokecenter</groupId>
-				<artifactId>cbor</artifactId>
-				<version>4.0.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
