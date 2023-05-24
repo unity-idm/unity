@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
@@ -17,6 +18,7 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -49,6 +51,7 @@ public class OAuthAuthzContext
 	private GrantFlow flow;
 	private ClientType clientType;
 	private boolean openIdMode;
+	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute = Optional.empty();
 	
 	
 	
@@ -243,5 +246,23 @@ public class OAuthAuthzContext
 	public void setAdditionalAudience(List<String> additionalAudience)
 	{
 		this.additionalAudience = additionalAudience;
+	}
+
+	public Optional<ClaimsInTokenAttribute> getClaimsInTokenAttribute()
+	{
+		return claimsInTokenAttribute;
+	}
+
+	public void setClaimsInTokenAttribute(Optional<ClaimsInTokenAttribute> claimsInTokenAttribute)
+	{
+		this.claimsInTokenAttribute = claimsInTokenAttribute;
+	}
+	
+	public boolean requestsAttributesInIdToken()
+	{
+		if (claimsInTokenAttribute.isEmpty())
+			return false;
+		
+		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.id_token);	
 	}
 }

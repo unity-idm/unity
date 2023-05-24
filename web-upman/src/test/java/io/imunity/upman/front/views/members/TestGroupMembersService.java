@@ -114,8 +114,8 @@ public class TestGroupMembersService
 
 		Map<String, String> additionalAttributeNamesForProject = service
 				.getAdditionalAttributeNamesForProject(project);
-		MatcherAssert.assertThat(additionalAttributeNamesForProject.isEmpty(), is(false));
-		MatcherAssert.assertThat(additionalAttributeNamesForProject.get("extraAttr"), is("extra"));
+		assertThat(additionalAttributeNamesForProject.isEmpty()).isFalse();
+		assertThat(additionalAttributeNamesForProject.get("extraAttr")).isEqualTo("extra");
 
 	}
 

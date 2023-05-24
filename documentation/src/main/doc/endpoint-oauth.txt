@@ -144,7 +144,28 @@ is valid then the following JSON document is returned:
 }
 ----
 
+==== Controlling JWT token contents
+
+During OAuth protocol authentication two main tokens can be issued: access token and id token. 
+Id token, available only in OIDC mode, is always encoded as a JWT. In case of the access token, 
+a server may be configured to return it in the JWT form, as well as a client may request access token in this format. 
+
+JWT format is essentially a signed JSON, and so can carry semantic information. Standards require some basic elements
+of both id token and access token, but also allow for additional claims inclusion. Unity exploits this possibility 
+for attaching user's attributes (the ones available from the +/userinfo+ endpoint) into either of the JWT tokens. 
+This process is controlled by the client.
+
+In order to request inclusion of user's attributes in one of the tokens, client has to use the not-standard query parameter:
++claims_in_tokens+, with supported values:      
+
+* +id_token+ - user attributes will be added to the OIDC id token. Works only if the OIDC protocol is active.
+* +token+ - user attributes will be added to the access token. Works only if access token is issued as JWT.
+
+Note, that client may request inclusion in both tokens, by requesting both +id_token+ and +token+ together, 
+separating them with space. 
+
 ==== Token exchange
+
 Unity supports token exchange according to https://tools.ietf.org/html/draft-ietf-oauth-token-exchange-08 specification. 
 For this purpose a special grant type +urn:ietf:params:oauth:grant-type:token-exchange+ is used.
 

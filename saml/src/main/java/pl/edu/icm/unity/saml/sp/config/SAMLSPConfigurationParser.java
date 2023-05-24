@@ -92,6 +92,8 @@ public class SAMLSPConfigurationParser
 				.withPublishMetadata(samlProperties.getBooleanValue(SAMLSPProperties.PUBLISH_METADATA))
 				.withRequesterCredential(samlProperties.getRequesterCredential())
 				.withRequesterCredentialName(samlProperties.getValue(SAMLSPProperties.CREDENTIAL))
+				.withAdditionalCredential(samlProperties.getAdditionalRequesterCredential())
+				.withIncludeAdditionalCredentialInMetadata(samlProperties.getBooleanValue(SAMLSPProperties.INCLUDE_ADDITIONAL_CREDENTIAL_IN_METADATA))
 				.withRequesterSamlId(samlProperties.getValue(SAMLSPProperties.REQUESTER_ID))
 				.withSignPublishedMetadata(samlProperties.getBooleanValue(SAMLSPProperties.SIGN_METADATA))
 				.withSignRequestByDefault(samlProperties.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST))

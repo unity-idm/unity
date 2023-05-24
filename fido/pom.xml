@@ -65,11 +65,6 @@
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jdk8</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.upokecenter</groupId>
-			<artifactId>cbor</artifactId>
-			<version>4.0.1</version>
-		</dependency>
 
 
 		<dependency>

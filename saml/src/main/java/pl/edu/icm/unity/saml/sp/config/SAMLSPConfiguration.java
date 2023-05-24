@@ -9,6 +9,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import eu.emi.security.authn.x509.X509Credential;
@@ -32,7 +33,9 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 	public final String defaultRequestedNameFormat;
 	public final boolean requireSignedAssertion;
 	private final Function<TrustedIdPConfiguration, SamlTrustChecker> trustCheckerFactory;
-
+	public final boolean includeAdditionalCredentialInMetadata;
+	public final Optional<AdditionalCredential> additionalCredential;
+	
 	private SAMLSPConfiguration(Builder builder)
 	{
 		super(builder.trustedMetadataSources, builder.publishMetadata, builder.metadataURLPath,
@@ -47,6 +50,8 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		this.sloRealm = builder.sloRealm;
 		this.requesterCredential = builder.requesterCredential;
 		this.requesterCredentialName = builder.requesterCredentialName;
+		this.additionalCredential = builder.additionalCredential;
+		this.includeAdditionalCredentialInMetadata = builder.includeAdditionalCredentialInMetadata;
 		this.signRequestByDefault = builder.signRequestByDefault;
 		this.acceptedNameFormats = List.copyOf(builder.acceptedNameFormats);
 		this.signPublishedMetadata = builder.signPublishedMetadata;
@@ -80,6 +85,7 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 
 	public static final class Builder
 	{
+		
 		private List<RemoteMetadataSource> trustedMetadataSources = Collections.emptyList();
 		private boolean publishMetadata;
 		private String metadataURLPath;
@@ -88,6 +94,7 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		private String sloPath;
 		private String sloRealm;
 		private X509Credential requesterCredential;
+		private Optional<AdditionalCredential> additionalCredential;
 		private String requesterCredentialName;
 		private boolean signRequestByDefault;
 		private List<String> acceptedNameFormats = Collections.emptyList();
@@ -97,7 +104,8 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		private String defaultRequestedNameFormat;
 		private boolean requireSignedAssertion;
 		private Function<TrustedIdPConfiguration, SamlTrustChecker> trustCheckerFactory;
-
+		private boolean includeAdditionalCredentialInMetadata;
+		
 		private Builder()
 		{
 		}
@@ -149,12 +157,25 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 			this.requesterCredential = requesterCredential;
 			return this;
 		}
+		
+		public Builder withAdditionalCredential(Optional<AdditionalCredential> requesterCredential)
+		{
+			this.additionalCredential = requesterCredential;
+			return this;
+		}
 
+		public Builder withIncludeAdditionalCredentialInMetadata(boolean includeAdditionalCredentialInMetadata)
+		{
+			this.includeAdditionalCredentialInMetadata = includeAdditionalCredentialInMetadata;
+			return this;
+		}
+		
 		public Builder withRequesterCredentialName(String requesterCredentialName)
 		{
 			this.requesterCredentialName = requesterCredentialName;
 			return this;
 		}
+		
 
 		public Builder withSignRequestByDefault(boolean signRequestByDefault)
 		{

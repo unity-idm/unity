@@ -42,6 +42,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String SIGN_RESPONSE = "signResponses";
 	public static final String SIGN_ASSERTION = "signAssertion";
 	public static final String CREDENTIAL = "credential";
+	public static final String ADDITIONALLY_ADVERTISED_CREDENTIAL = "additionallyAdvertisedCredential";
 	public static final String TRUSTSTORE = "truststore";
 	public static final String DEF_ATTR_ASSERTION_VALIDITY = "validityPeriod";
 	public static final String SAML_REQUEST_VALIDITY = "requestValidityPeriod";
@@ -194,7 +195,8 @@ public class SamlIdpProperties extends SamlProperties
 						"if the Service Provider accept policy requires so."));
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().setCategory(samlCat).
 				setDescription("SAML IdP credential name, which is used to sign responses."));	
-
+		defaults.put(ADDITIONALLY_ADVERTISED_CREDENTIAL, new PropertyMD().setCategory(samlCat).
+				setDescription("SAML IdP additionally advertised credential name."));	
 		defaults.putAll(SamlProperties.getDefaults(SPMETA_PREFIX, 
 				"Under this prefix you can configure the remote trusted SAML Sps however not "
 				+ "providing all their details but only their metadata."));

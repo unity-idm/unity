@@ -102,7 +102,16 @@ public class SPMetadataGenerator implements MetadataProvider
 		for (String a: samlConfig.acceptedNameFormats)
 			idpDesc.addNameIDFormat(a);
 		
-		X509Credential issuerCredential = samlConfig.requesterCredential;
+		addCredential(samlConfig.requesterCredential, idpDesc);
+		if (samlConfig.includeAdditionalCredentialInMetadata && samlConfig.additionalCredential.isPresent())
+		{
+			addCredential(samlConfig.additionalCredential.get().credential, idpDesc);
+		}
+
+	}
+	
+	private void addCredential(X509Credential issuerCredential, SPSSODescriptorType idpDesc)
+	{
 		if (issuerCredential != null)
 		{
 			KeyDescriptorType keyDescriptor = idpDesc.addNewKeyDescriptor();

@@ -15,6 +15,7 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.metadata.*;
 import xmlbeans.org.w3.x2000.x09.xmldsig.KeyInfoType;
+import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -137,12 +138,24 @@ public class IdpMetadataGenerator implements MetadataProvider
 		AnyURIListType protocolSupport = AnyURIListType.Factory.newInstance();
 		protocolSupport.setStringValue(SAMLConstants.PROTOCOL_NS);
 		idpDesc.setProtocolSupportEnumeration(protocolSupport.getListValue());
+		X509Credential issuerCredential = samlConfig.getSamlIssuerCredential();
+		X509Credential alternativeIssuerCredential = samlConfig.getAdditionalyAdvertisedCredential();
 		
+		addCredential(issuerCredential, idpDesc);
+		if (alternativeIssuerCredential != null)
+		{
+			addCredential(alternativeIssuerCredential, idpDesc);
+		}
+	}
+	
+	private void addCredential(X509Credential issuerCredential, RoleDescriptorType idpDesc)
+	{
 		KeyDescriptorType keyDescriptor = idpDesc.addNewKeyDescriptor();
 		KeyInfoType keyInfo = keyDescriptor.addNewKeyInfo();
-		X509Credential issuerCredential = samlConfig.getSamlIssuerCredential();
+		X509DataType newX509Data = keyInfo.addNewX509Data();
+		
 		X509Certificate cert = issuerCredential.getCertificate();
-		XmlBase64Binary xmlCert = keyInfo.addNewX509Data().addNewX509Certificate();
+		XmlBase64Binary xmlCert = newX509Data.addNewX509Certificate();
 		try
 		{
 			xmlCert.setByteArrayValue(cert.getEncoded());

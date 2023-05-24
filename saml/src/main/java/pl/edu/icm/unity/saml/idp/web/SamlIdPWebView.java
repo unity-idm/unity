@@ -195,7 +195,12 @@ class SamlIdPWebView extends Composite<Div> implements HasDynamicTitle
 			translationResult = getUserInfo(samlCtx, samlProcessor);
 			handleRedirectIfNeeded(translationResult);
 			validIdentities = samlProcessor.getCompatibleIdentities(translationResult.getIdentities());
-		}  catch (EopException eop) 
+		} catch (StopAuthenticationException e) {
+			log.info("Authentication stopped due to profile's decision");
+			handleFinalizationScreen(e.finalizationScreenConfiguration);
+			return;
+		}
+		catch (EopException eop)
 		{
 			return;
 		} catch (Exception e)
@@ -255,7 +260,21 @@ class SamlIdPWebView extends Composite<Div> implements HasDynamicTitle
 		getContent().add(valueSelectionScreen);
 	}
 	
-	private void handleRedirectIfNeeded(TranslationResult userInfo) 
+	private void handleFinalizationScreen(AuthenticationFinalizationConfiguration finalizationScreenConfiguration)
+	{
+		WorkflowFinalizationConfiguration config = new WorkflowFinalizationConfiguration(false, false, null, null,
+				finalizationScreenConfiguration.title.getValue(msg), finalizationScreenConfiguration.info.getValue(msg),
+				finalizationScreenConfiguration.redirectURL,
+				finalizationScreenConfiguration.redirectCaption.getValue(msg),
+				finalizationScreenConfiguration.redirectAfterTime);
+
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, (p, url) -> p.open(url, null),
+				imageAccessService);
+		com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
+		setContent(wrapper);
+	}
+
+	private void handleRedirectIfNeeded(TranslationResult userInfo)
 			throws IOException, EopException
 	{
 		String redirectURL = userInfo.getRedirectURL();

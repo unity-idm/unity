@@ -100,11 +100,11 @@ public class SAMLIdPConfigurationParser
 				.withActiveValueClient(getActiveValueClients(samlProperties))
 				.withPolicyAgreements(IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, samlProperties))
 				.withChainValidator(getX509CertChainValidator(samlProperties))
-
 				.withAuthenticationTimeout(samlProperties.getIntValue(SamlIdpProperties.AUTHENTICATION_TIMEOUT))
 				.withSignResponses(samlProperties.getEnumValue(SamlIdpProperties.SIGN_RESPONSE, SAMLIdPConfiguration.ResponseSigningPolicy.class))
 				.withSignAssertion(samlProperties.getEnumValue(SamlIdpProperties.SIGN_ASSERTION, SAMLIdPConfiguration.AssertionSigningPolicy.class))
 				.withCredentialName(samlProperties.getValue(SamlIdpProperties.CREDENTIAL))
+				.withAdditionallyAdvertisedCredential(getAdditionalyCredential(samlProperties))
 				.withCredential(getSamlIssuerCredential(samlProperties.getValue(SamlIdpProperties.CREDENTIAL)))
 				.withTruststore(samlProperties.getValue(SamlIdpProperties.TRUSTSTORE))
 				.withValidityPeriod(Duration.of(samlProperties.getIntValue(SamlIdpProperties.DEF_ATTR_ASSERTION_VALIDITY), ChronoUnit.SECONDS))
@@ -122,6 +122,16 @@ public class SAMLIdPConfigurationParser
 				.build();
 	}
 
+	private Optional<AdditionalyAdvertisedCredential> getAdditionalyCredential(SamlIdpProperties samlProperties)
+	{
+		String credName = samlProperties.getValue(SamlIdpProperties.ADDITIONALLY_ADVERTISED_CREDENTIAL);
+		if (credName != null && !credName.isEmpty())
+		{
+			return Optional.of(new AdditionalyAdvertisedCredential(credName, getSamlIssuerCredential(credName)));
+		}
+		return Optional.empty();
+	}
+	
 	private X509CertChainValidator getX509CertChainValidator(SamlIdpProperties samlProperties)
 	{
 		try

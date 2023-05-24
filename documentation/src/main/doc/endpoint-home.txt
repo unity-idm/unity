@@ -21,7 +21,11 @@ are provided below:
 
 include::ref-homeEndpointProperties.txt[]
 
-For instance the following configuration snippet will enable display of the +email+ attribute of the root group
+
+==== User modification of personal data
+
+
+The following configuration snippet will enable display of the +email+ attribute of the root group
 in the profile page. What's more the user will be allowed to edit the email attribute if only the attribute type
 is marked as self modifiable.
  
@@ -32,3 +36,8 @@ unity.userhome.attributes.2.showGroup=false
 unity.userhome.attributes.2.editable=true
 ----
 
+For verifiable attributes (like email or mobile telephone number) Unity requires user to edit so that 
+always at least one value is confirmed. This means that in order to allow users to perform self-modifications of 
+their verifiable attributes, the corresponding attribute type must accept at least 2 values. 
+User then is able to first add an additional attribute value (e.g. another email), then confirm it 
+and finally remove an old one.

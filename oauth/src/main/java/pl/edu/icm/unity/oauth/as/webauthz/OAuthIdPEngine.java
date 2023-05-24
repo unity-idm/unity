@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
+import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -44,11 +45,15 @@ public class OAuthIdPEngine
 		this.idpEngine = idpEngine;
 	}
 
-	public TranslationResult getUserInfo(OAuthAuthzContext ctx) throws OAuthErrorResponseException
+	public TranslationResult getUserInfo(OAuthAuthzContext ctx) throws OAuthErrorResponseException, StopAuthenticationException
 	{
 		try
 		{
 			return getUserInfoUnsafe(ctx);
+		} catch (StopAuthenticationException e)
+		{
+			log.info("Authentication stopped due to profile's decision");
+			throw e;
 		} catch (ExecutionFailException e)
 		{
 			log.info("Authentication failed due to profile's decision, returning error");

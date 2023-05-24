@@ -29,8 +29,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestRequestsService
 {
 	@Mock
@@ -44,7 +43,7 @@ public class TestRequestsService
 
 	private UpdateRequestsService service;
 
-	@Before
+	@BeforeEach
 	public void initController()
 	{
 		service = new UpdateRequestsService(mockMsg, mockRequestMan, mockDelGroupHelper, notificationPresenter);
@@ -68,10 +67,10 @@ public class TestRequestsService
 
 		ArgumentCaptor<ProjectRequestParam> argument = ArgumentCaptor.forClass(ProjectRequestParam.class);
 		verify(mockRequestMan).accept((argument.capture()));
-		assertThat(argument.getValue().project, is("/project"));
-		assertThat(argument.getValue().id, is("id"));
-		assertThat(argument.getValue().type, is(RequestType.Registration));
-		assertThat(argument.getValue().operation, is(RequestOperation.SignUp));
+		assertThat(argument.getValue().project).isEqualTo("/project");
+		assertThat(argument.getValue().id).isEqualTo("id");
+		assertThat(argument.getValue().type).isEqualTo(RequestType.Registration);
+		assertThat(argument.getValue().operation).isEqualTo(RequestOperation.SignUp);
 	}
 
 	@Test
@@ -83,10 +82,10 @@ public class TestRequestsService
 
 		ArgumentCaptor<ProjectRequestParam> argument = ArgumentCaptor.forClass(ProjectRequestParam.class);
 		verify(mockRequestMan).decline((argument.capture()));
-		assertThat(argument.getValue().project, is("/project"));
-		assertThat(argument.getValue().id, is("id"));
-		assertThat(argument.getValue().type, is(RequestType.Registration));
-		assertThat(argument.getValue().operation, is(RequestOperation.SignUp));
+		assertThat(argument.getValue().project).isEqualTo("/project");
+		assertThat(argument.getValue().id).isEqualTo("id");
+		assertThat(argument.getValue().type).isEqualTo(RequestType.Registration);
+		assertThat(argument.getValue().operation).isEqualTo(RequestOperation.SignUp);
 	}
 	
 	private UpdateRequestModel getRequest()

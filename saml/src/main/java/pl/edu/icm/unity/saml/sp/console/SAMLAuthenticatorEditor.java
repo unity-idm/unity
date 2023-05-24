@@ -25,6 +25,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.tooltip.TooltipExtension;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -167,7 +168,20 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 						: ValidationResult.ok())
 				.bind("credential");
 		header.addComponent(credential);
+		
+		ComboBox<String> additionalCredential = new ComboBox<>();
+		additionalCredential.setCaption(msg.getMessage("SAMLAuthenticatorEditor.additionalCredential"));
+		additionalCredential.setDescription(msg.getMessage("SAMLAuthenticatorEditor.additionalCredentialDesc"));
+		TooltipExtension.tooltip(additionalCredential);
+		additionalCredential.setItems(credentials);
+		configBinder.forField(additionalCredential)
+				.bind("additionalCredential");
+		header.addComponent(additionalCredential);
 
+		CheckBox includeAddtionalCredentialInMetadata = new CheckBox(msg.getMessage("SAMLAuthenticatorEditor.includeAddtionalCredentialInMetadata"));
+		configBinder.forField(includeAddtionalCredentialInMetadata).bind("includeAddtionalCredentialInMetadata");
+		header.addComponent(includeAddtionalCredentialInMetadata);
+			
 		ChipsWithFreeText acceptedNameFormats = new ChipsWithFreeText(msg);
 		acceptedNameFormats.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH,
 				FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);

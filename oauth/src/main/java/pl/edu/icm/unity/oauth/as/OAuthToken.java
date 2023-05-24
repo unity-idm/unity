@@ -8,12 +8,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
 
 /**
  * OAuth token as stored on the server to keep the state of the OAuth 'session'. It is used both to store access
@@ -43,10 +45,11 @@ public class OAuthToken
 	private String issuerUri;
 	private ClientType clientType;
 	private PKCSInfo pkcsInfo;
-
+	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
 	
 	public OAuthToken()
 	{
+		claimsInTokenAttribute = Optional.empty();
 		pkcsInfo = new PKCSInfo();
 	}
 	
@@ -75,6 +78,7 @@ public class OAuthToken
 		pkcsInfo = new PKCSInfo(source.pkcsInfo);
 		setClientType(source.getClientType());
 		setFirstRefreshRollingToken(source.getFirstRefreshRollingToken());
+		setClaimsInTokenAttribute(source.getClaimsInTokenAttribute());
 		
 	}
 	
@@ -316,6 +320,25 @@ public class OAuthToken
 		this.firstRefreshRollingToken = firstRefreshRollingToken;
 	}
 	
+	public Optional<ClaimsInTokenAttribute> getClaimsInTokenAttribute()
+	{
+		return claimsInTokenAttribute;
+	}
+
+	public void setClaimsInTokenAttribute(Optional<ClaimsInTokenAttribute> claimsInTokenAttribute)
+	{
+		this.claimsInTokenAttribute = claimsInTokenAttribute;
+	}
+	
+	@JsonIgnore
+	public boolean hasSupportAttributesInToken()
+	{
+		if (claimsInTokenAttribute.isEmpty())
+			return false;
+		
+		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.token);	
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -430,4 +453,6 @@ public class OAuthToken
 					+ codeChallengeMethod + "]";
 		}
 	}
+
+	
 }

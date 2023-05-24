@@ -25,9 +25,11 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
+import pl.edu.icm.unity.store.api.generic.RealmDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 
@@ -49,6 +51,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, EndpointsUpdater.class);
 	private InternalEndpointManagement endpointMan;
 	private EndpointDB endpointDB;
+	private RealmDB realmDB;
 	private AuthenticatorConfigurationDB authnDB;
 	private AuthenticationFlowDB authnFlowDB;
 	private EndpointInstanceLoader loader;
@@ -57,7 +60,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	@Autowired
 	public EndpointsUpdater(TransactionalRunner tx,
 			InternalEndpointManagement endpointMan, EndpointDB endpointDB,
-			AuthenticatorConfigurationDB authnDB, AuthenticationFlowDB authnFlowDB, EndpointInstanceLoader loader)
+			AuthenticatorConfigurationDB authnDB, AuthenticationFlowDB authnFlowDB, EndpointInstanceLoader loader, RealmDB realmDB)
 	{
 		super("endpoints");
 		this.tx = tx;
@@ -66,6 +69,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		this.authnDB = authnDB;
 		this.loader = loader;
 		this.authnFlowDB = authnFlowDB;
+		this.realmDB = realmDB;
 	}
 
 	@Override
@@ -82,6 +86,8 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		{
 			tx.runInTransactionThrowing(() ->
 			{
+				Map<String, AuthenticationRealm> allRealmsAsMap = realmDB.getAllAsMap();
+				
 				long roundedUpdateTime = roundToS(System.currentTimeMillis());
 				List<Endpoint> endpointsInDBMap = endpointDB.getAll();
 				log.debug("There are " + endpointsInDBMap.size() + " endpoints in DB.");
@@ -89,7 +95,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 				{
 					if (endpointInDB.getState().equals(EndpointState.UNDEPLOYED))
 						continue;
-					EndpointInstance instance = updateEndpoint(endpointInDB, endpointsDeployed);
+					EndpointInstance instance = updateEndpoint(endpointInDB, endpointsDeployed, allRealmsAsMap);
 					endpointsInDb.add(instance.getEndpointDescription().getName());
 				}
 				setLastUpdate(roundedUpdateTime);
@@ -104,18 +110,21 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		}
 	}
 	
-	private EndpointInstance updateEndpoint(Endpoint endpointInDB, Map<String, EndpointInstance> endpointsDeployed) throws EngineException
+	private EndpointInstance updateEndpoint(Endpoint endpointInDB, Map<String, EndpointInstance> endpointsDeployed,
+			Map<String, AuthenticationRealm> allRealmsAsMap) throws EngineException
 	{
 		String name = endpointInDB.getName();
 		EndpointInstance runtimeEndpointInstance = endpointsDeployed.get(name);
 		EndpointInstance updatedInstance = null;
+
 		if (runtimeEndpointInstance == null)
 		{
 			updatedInstance = createEndpointInstance(endpointInDB);
 			log.info("Endpoint " + name + " will be deployed");
 			endpointMan.deploy(updatedInstance);
 		} else if (endpointInDB.getRevision() > runtimeEndpointInstance.getEndpointDescription()
-				.getEndpoint().getRevision())
+				.getEndpoint()
+				.getRevision() || hasChangedRealm(runtimeEndpointInstance, allRealmsAsMap))
 		{
 			updatedInstance = createEndpointInstance(endpointInDB);
 			log.info("Endpoint " + name + " will be re-deployed");
@@ -129,7 +138,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		{
 			updatedInstance = createEndpointInstance(endpointInDB);
 			updateEndpointAuthenticators(name, updatedInstance, endpointsDeployed);
-		}
+		} 
 		
 		return updatedInstance == null ? runtimeEndpointInstance : updatedInstance;
 	}
@@ -171,6 +180,16 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 			endpointMan.undeploy(instance.getEndpointDescription().getEndpoint().getName());
 			endpointMan.deploy(instance);
 		}
+	}
+	
+	private boolean hasChangedRealm(EndpointInstance endpointInstance, Map<String, AuthenticationRealm> allRealmsAsMap)
+	{
+		AuthenticationRealm currentRealm = endpointInstance.getEndpointDescription()
+				.getRealm();
+		if (currentRealm == null)
+			return false;
+		AuthenticationRealm dbRealm = allRealmsAsMap.get(currentRealm.getName());
+		return !dbRealm.equals(currentRealm);
 	}
 	
 	/** 

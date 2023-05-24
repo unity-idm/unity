@@ -252,7 +252,11 @@ class OAuthAuthzView extends Composite<Div> implements HasDynamicTitle
 		} catch (OAuthErrorResponseException e)
 		{
 			oauthResponseHandler.returnOauthResponseAndReportStatistic(e.getOauthResponse(), e.isInvalidateSession(), ctx, Status.FAILED);
-		} catch (Exception e)
+		} catch (StopAuthenticationException e) {
+			handleFinalizationScreen(e.finalizationScreenConfiguration);
+		}
+
+		catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
 			// we kill the session as the user may want to log as
@@ -275,6 +279,22 @@ class OAuthAuthzView extends Composite<Div> implements HasDynamicTitle
 			UI.getCurrent().getPage().open(redirectURL, null);
 			throw new EopException();
 		}
+	}
+
+	private void handleFinalizationScreen(AuthenticationFinalizationConfiguration finalizationScreenConfiguration)
+			throws EopException
+	{
+		WorkflowFinalizationConfiguration config = new WorkflowFinalizationConfiguration(false, false, null, null,
+				finalizationScreenConfiguration.title.getValue(msg), finalizationScreenConfiguration.info.getValue(msg),
+				finalizationScreenConfiguration.redirectURL,
+				finalizationScreenConfiguration.redirectCaption.getValue(msg),
+				finalizationScreenConfiguration.redirectAfterTime);
+
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, (p, url) -> p.open(url, null),
+				imageAccessService);
+		com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
+		setContent(wrapper);
+		throw new EopException();
 	}
 
 	private void onDecline()
