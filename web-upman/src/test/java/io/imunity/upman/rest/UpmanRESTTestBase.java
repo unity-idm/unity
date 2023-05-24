@@ -5,18 +5,27 @@
 
 package io.imunity.upman.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import eu.unicore.util.httpclient.HttpUtils;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.hc.client5.http.ContextBuilder;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.HttpHost;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import eu.unicore.util.httpclient.HttpUtils;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase5;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -33,14 +42,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-
-abstract class UpmanRESTTestBase extends DBIntegrationTestBase
+abstract class UpmanRESTTestBase extends DBIntegrationTestBase5
 {
 	public static final String AUTHENTICATOR_REST_PASS = "ApassREST";
 	public static final String CONFIGURATION = "#\n" +
@@ -62,8 +64,8 @@ abstract class UpmanRESTTestBase extends DBIntegrationTestBase
 	protected HttpHost host;
 
 	protected HttpClient client;
-
-	@Before
+	
+	@BeforeEach
 	public void setup() throws Exception
 	{
 		setupPasswordAuthn();
@@ -136,7 +138,7 @@ abstract class UpmanRESTTestBase extends DBIntegrationTestBase
 			"desc", authnCfg, CONFIGURATION, realm.getName());
 		endpointMan.deploy(RESTUpmanEndpoint.NAME, "restUpman", "/restupm", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
-		assertEquals(1, endpoints.size());
+		assertThat(endpoints.size()).isEqualTo(1);
 
 		httpServer.start();
 	}
