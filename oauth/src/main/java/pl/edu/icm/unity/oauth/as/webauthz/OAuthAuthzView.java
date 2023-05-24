@@ -13,11 +13,13 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
+import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import org.apache.logging.log4j.Logger;
@@ -27,12 +29,15 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
+import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
+import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -73,6 +78,7 @@ class OAuthAuthzView extends Composite<Div> implements HasDynamicTitle
 	private final PolicyAgreementManagement policyAgreementsMan;
 	private final PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder;
 	private final NotificationPresenter notificationPresenter;
+	private final VaadinLogoImageLoader imageAccessService;
 
 	private OAuthResponseHandler oauthResponseHandler;
 	private IdentityParam identity;
@@ -94,6 +100,7 @@ class OAuthAuthzView extends Composite<Div> implements HasDynamicTitle
 	                      FreemarkerAppHandler freemarkerHandler,
 	                      PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
 	                      EnquiresDialogLauncher enquiresDialogLauncher,
+						  VaadinLogoImageLoader imageAccessService,
 	                      NotificationPresenter notificationPresenter
 	)
 	{
@@ -111,6 +118,7 @@ class OAuthAuthzView extends Composite<Div> implements HasDynamicTitle
 		this.freemarkerHandler = freemarkerHandler;
 		this.policyAgreementRepresentationBuilder = policyAgreementRepresentationBuilder;
 		this.notificationPresenter = notificationPresenter;
+		this.imageAccessService = imageAccessService;
 		enquiresDialogLauncher.showEnquiryDialogIfNeeded(this::enter);
 	}
 
@@ -290,10 +298,12 @@ class OAuthAuthzView extends Composite<Div> implements HasDynamicTitle
 				finalizationScreenConfiguration.redirectCaption.getValue(msg),
 				finalizationScreenConfiguration.redirectAfterTime);
 
-		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, (p, url) -> p.open(url, null),
-				imageAccessService);
-		com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
-		setContent(wrapper);
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(
+				config,
+				imageAccessService.loadImageFromUri(config.logoURL).orElse(null)
+		);
+		getContent().removeAll();
+		getContent().add(finalScreen);
 		throw new EopException();
 	}
 

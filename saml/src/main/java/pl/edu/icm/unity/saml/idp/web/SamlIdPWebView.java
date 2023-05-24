@@ -12,12 +12,13 @@ import com.vaadin.server.Page;
 import eu.unicore.samly2.SAMLConstants;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
+import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import org.apache.logging.log4j.Logger;
@@ -30,12 +31,15 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
+import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -195,7 +199,8 @@ class SamlIdPWebView extends Composite<Div> implements HasDynamicTitle
 			translationResult = getUserInfo(samlCtx, samlProcessor);
 			handleRedirectIfNeeded(translationResult);
 			validIdentities = samlProcessor.getCompatibleIdentities(translationResult.getIdentities());
-		} catch (StopAuthenticationException e) {
+		}
+		catch (StopAuthenticationException e) {
 			log.info("Authentication stopped due to profile's decision");
 			handleFinalizationScreen(e.finalizationScreenConfiguration);
 			return;
@@ -268,10 +273,12 @@ class SamlIdPWebView extends Composite<Div> implements HasDynamicTitle
 				finalizationScreenConfiguration.redirectCaption.getValue(msg),
 				finalizationScreenConfiguration.redirectAfterTime);
 
-		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, (p, url) -> p.open(url, null),
-				imageAccessService);
-		com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
-		setContent(wrapper);
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(
+				config,
+				imageAccessService.loadImageFromUri(config.logoURL).orElse(null)
+		);
+		getContent().removeAll();
+		getContent().add(finalScreen);
 	}
 
 	private void handleRedirectIfNeeded(TranslationResult userInfo)
