@@ -5,8 +5,7 @@
 
 package io.imunity.upman.front.views.user_updates;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -69,10 +68,10 @@ public class TestRequestsService
 
 		ArgumentCaptor<ProjectRequestParam> argument = ArgumentCaptor.forClass(ProjectRequestParam.class);
 		verify(mockRequestMan).accept((argument.capture()));
-		assertThat(argument.getValue().project, is("/project"));
-		assertThat(argument.getValue().id, is("id"));
-		assertThat(argument.getValue().type, is(RequestType.Registration));
-		assertThat(argument.getValue().operation, is(RequestOperation.SignUp));
+		assertThat(argument.getValue().project).isEqualTo("/project");
+		assertThat(argument.getValue().id).isEqualTo("id");
+		assertThat(argument.getValue().type).isEqualTo(RequestType.Registration);
+		assertThat(argument.getValue().operation).isEqualTo(RequestOperation.SignUp);
 	}
 
 	@Test
@@ -84,10 +83,10 @@ public class TestRequestsService
 
 		ArgumentCaptor<ProjectRequestParam> argument = ArgumentCaptor.forClass(ProjectRequestParam.class);
 		verify(mockRequestMan).decline((argument.capture()));
-		assertThat(argument.getValue().project, is("/project"));
-		assertThat(argument.getValue().id, is("id"));
-		assertThat(argument.getValue().type, is(RequestType.Registration));
-		assertThat(argument.getValue().operation, is(RequestOperation.SignUp));
+		assertThat(argument.getValue().project).isEqualTo("/project");
+		assertThat(argument.getValue().id).isEqualTo("id");
+		assertThat(argument.getValue().type).isEqualTo(RequestType.Registration);
+		assertThat(argument.getValue().operation).isEqualTo(RequestOperation.SignUp);
 	}
 	
 	private UpdateRequestModel getRequest()

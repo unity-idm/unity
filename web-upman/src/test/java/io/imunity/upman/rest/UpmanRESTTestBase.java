@@ -5,7 +5,7 @@
 
 package io.imunity.upman.rest;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -138,7 +138,7 @@ abstract class UpmanRESTTestBase extends DBIntegrationTestBase5
 			"desc", authnCfg, CONFIGURATION, realm.getName());
 		endpointMan.deploy(RESTUpmanEndpoint.NAME, "restUpman", "/restupm", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
-		assertEquals(1, endpoints.size());
+		assertThat(endpoints.size()).isEqualTo(1);
 
 		httpServer.start();
 	}
