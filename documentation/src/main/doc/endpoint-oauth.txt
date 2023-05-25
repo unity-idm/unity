@@ -155,7 +155,7 @@ of both id token and access token, but also allow for additional claims inclusio
 for attaching user's attributes (the ones available from the +/userinfo+ endpoint) into either of the JWT tokens. 
 This process is controlled by the client.
 
-In order to request inclusion of user's attributes in one of the tokens, client has to use the not-standard query parameter:
+In order to request inclusion of user's attributes in one of the tokens, client has to use a non-standard query parameter:
 +claims_in_tokens+, with supported values:      
 
 * +id_token+ - user attributes will be added to the OIDC id token. Works only if the OIDC protocol is active.
