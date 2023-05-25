@@ -59,34 +59,25 @@ public class AttributeViewer
 		String descriptionraw = description != null ? description.getValue(msg) : null;
 		createContents(caption, descriptionraw);
 	}
-	
-	private void createContents(String caption, String descriptionRaw)
-	{
-		if (showGroup && !attribute.getGroupPath().equals("/"))
-			caption = caption + " @" + attribute.getGroupPath(); 
 
-		int i = 1;
+	private void createContents(String caption, String description)
+	{
 		group.removeAll();
-		for (String o: attribute.getValues())
-		{
-			Component valueRepresentation = getRepresentation(o);
-			if (context.isShowCaption())
-			{
-				String captionWithNum = (attribute.getValues().size() == 1) ? caption + ":" :
-					caption + " (" + i + "):";
-				valueRepresentation.getElement().setProperty("label", captionWithNum);
-			}
-			if (descriptionRaw != null)
-			{
-				String descSafe = HtmlConfigurableLabel.conditionallyEscape(descriptionRaw);
-				valueRepresentation.getElement().setProperty("title", descSafe);
-			}
-			
-			group.addComponent(valueRepresentation);
-			i++;
-		}
+		List<Component> components = attribute.getValues().stream()
+				.map(value ->
+				{
+					Component representation = getRepresentation(value);
+					if(description != null)
+					{
+						String descSafe = HtmlConfigurableLabel.conditionallyEscape(description);
+						representation.getElement().setProperty("title", descSafe);
+					}
+					return representation;
+				}).toList();
+		components.stream().findFirst().ifPresent(component -> component.getElement().setProperty("label", caption));
+		components.forEach(group::addComponent);
 	}
-	
+
 	private Component getRepresentation(String value)
 	{
 		WebAttributeHandler handler = null;

@@ -34,6 +34,9 @@ public class ListOfSelectableElements extends VerticalLayout
 	public ListOfSelectableElements(Component firstHeader, Component secondHeader, DisableMode disableMode)
 	{
 		setWidthFull();
+		getStyle().set("gap", "0.4em");
+		setPadding(false);
+
 		if (firstHeader != null)
 			add(wrapWithLayout(firstHeader));
 		if (secondHeader != null)
@@ -41,9 +44,6 @@ public class ListOfSelectableElements extends VerticalLayout
 
 		selects = new ArrayList<>();
 		this.disableMode = disableMode;
-
-		setMargin(false);
-		setPadding(false);
 	}
 	
 	public void addEntry(Component representation, boolean selected)

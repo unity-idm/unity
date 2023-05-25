@@ -26,6 +26,8 @@ public class IdPButtonsBar extends VerticalLayout
 	private final WebLogoutHandler authnProcessor;
 	private final ActionListener listener;
 	private final String logoutRedirectPath;
+	private final Button confirmButton;
+	private final Button declineButton;
 
 	public IdPButtonsBar(MessageSource msg, WebLogoutHandler authnProcessor, String logoutRedirectPath,
 	                     ActionListener listener)
@@ -34,6 +36,9 @@ public class IdPButtonsBar extends VerticalLayout
 		this.authnProcessor = authnProcessor;
 		this.listener = listener;
 		this.logoutRedirectPath = logoutRedirectPath;
+		this.confirmButton = new Button(msg.getMessage("IdPButtonsBar.confirm"));
+		this.declineButton = new Button(msg.getMessage("IdPButtonsBar.decline"));
+
 		initUI();
 	}
 
@@ -43,7 +48,6 @@ public class IdPButtonsBar extends VerticalLayout
 		setMargin(false);
 		setPadding(false);
 
-		Button confirmButton = new Button(msg.getMessage("IdPButtonsBar.confirm"));
 		confirmButton.setId("IdpButtonsBar.confirmButton");
 		confirmButton.addClickListener(e -> {
 			listener.buttonClicked(Action.ACCEPT);
@@ -52,7 +56,6 @@ public class IdPButtonsBar extends VerticalLayout
 		confirmButton.addClassName("u-consentConfirmButton");
 		confirmButton.addClickShortcut(Key.ENTER);
 		
-		Button declineButton = new Button(msg.getMessage("IdPButtonsBar.decline"));
 		declineButton.addClickListener(event -> listener.buttonClicked(Action.DENY));
 		declineButton.addClassName("u-consentDeclineButton");
 
@@ -68,6 +71,16 @@ public class IdPButtonsBar extends VerticalLayout
 		});
 
 		add(buttonsLayout, reloginButton);
+	}
+
+	public void setConfirmButtonText(String txt)
+	{
+		confirmButton.setText(txt);
+	}
+
+	public void setDeclineButtonText(String txt)
+	{
+		declineButton.setText(txt);
 	}
 
 	public interface ActionListener

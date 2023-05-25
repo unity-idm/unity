@@ -30,7 +30,7 @@ public class ROExposedAttributesComponent extends VerticalLayout implements Sele
 			Collection<DynamicAttribute> attributes, AttributeHandlerRegistry handlersRegistry,
 			Optional<IdentityParam> selectedIdentity)
 	{
-		this.attributes = attributes.stream().map(da -> da.getAttribute()).collect(Collectors.toList());
+		this.attributes = attributes.stream().map(DynamicAttribute::getAttribute).collect(Collectors.toList());
 		ExposedAttributesComponent ui = new ExposedAttributesComponent(msg, idTypeSupport, handlersRegistry, 
 				attributes, selectedIdentity);
 		add(ui);

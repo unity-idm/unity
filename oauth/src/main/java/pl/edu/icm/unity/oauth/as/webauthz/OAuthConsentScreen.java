@@ -152,18 +152,16 @@ class OAuthConsentScreen extends VerticalLayout
 		exposedInfoPanel.setClassName("u-consent-screen");
 		contents.add(exposedInfoPanel);
 		VerticalLayout eiLayout = new VerticalLayout();
-		eiLayout.setMargin(false);
-		eiLayout.setSpacing(false);
+		eiLayout.setWidthFull();
 		exposedInfoPanel.add(eiLayout);
 
 		for (OAuthScope si : ctx.getEffectiveRequestedScopes())
 		{
-			
 			String label = Strings.isNullOrEmpty(si.description) ? si.name : si.description;
 			Label scope = new Label("\u25CF " + label);
 			eiLayout.add(scope);
-			eiLayout.add(new HtmlComponent("br"));
 		}
+		eiLayout.add(new HtmlComponent("br"));
 
 		if (!ctx.getAdditionalAudience().isEmpty())
 		{

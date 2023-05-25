@@ -89,7 +89,8 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 			else
 				declineHandler.run();
 		});
-		
+		buttons.setConfirmButtonText(msg.getMessage("continue"));
+		buttons.setDeclineButtonText(msg.getMessage("cancel"));
 		add(buttons);
 		setAlignItems(CENTER);
 	}

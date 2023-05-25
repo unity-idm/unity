@@ -5,6 +5,7 @@
 package io.imunity.vaadin.endpoint.common.consent_utils;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -45,9 +46,9 @@ class SelectableAttributeWithValues extends VerticalLayout
 	
 	private void initUI()
 	{
+		setPadding(false);
 		setSpacing(false);
-		setMargin(false);
-		
+
 		Label attrNameLabel = new Label(customAttrName);
 		attrNameLabel.getElement().setProperty("title", customAttrDesc);
 		add(attrNameLabel);
@@ -58,6 +59,7 @@ class SelectableAttributeWithValues extends VerticalLayout
 		for (String value: attribute.getValues())
 		{
 			Component representation = webHandler.getRepresentation(value, AttributeViewerContext.EMPTY);
+			((HasStyle)representation).getStyle().set("width", "100%");
 			listOfValues.addEntry(representation, true);
 		}
 		listOfValues.setCheckBoxesVisible(enableSelect);

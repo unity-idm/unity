@@ -144,9 +144,8 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 	private Component getAttributesListComponent()
 	{
 		VerticalLayout attributesList = new VerticalLayout();
-		attributesList.setMargin(false);
 		attributesList.setPadding(false);
-		attributesList.getStyle().set("gap", "0");
+		attributesList.getStyle().set("gap", "0.4em");
 
 		attributesHiding = new HashMap<>();
 		for (DynamicAttribute dat: attributes.values())

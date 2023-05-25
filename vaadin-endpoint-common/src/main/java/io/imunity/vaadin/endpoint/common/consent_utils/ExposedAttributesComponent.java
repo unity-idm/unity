@@ -5,6 +5,7 @@
 package io.imunity.vaadin.endpoint.common.consent_utils;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -29,12 +30,11 @@ import java.util.*;
  */
 public class ExposedAttributesComponent extends VerticalLayout
 {
-	private static final String INPUT_WIDTH = "40%";
+	private static final String INPUT_WIDTH = "100%";
 	private final MessageSource msg;
 	private final IdentityPresentationUtil identityPresenter;
 	
 	protected Map<String, DynamicAttribute> attributes;
-	protected ListOfSelectableElements attributesHiding;
 	private final AttributeHandlerRegistry handlersRegistry;
 	private final Optional<IdentityParam> selectedIdentity;
 
@@ -65,10 +65,8 @@ public class ExposedAttributesComponent extends VerticalLayout
 
 	private void initUI()
 	{
-		setMargin(false);
 		setPadding(false);
 		VerticalLayout content = new VerticalLayout();
-		content.setMargin(false);
 		content.setPadding(false);
 		Details details = new Details(
 				msg.getMessage("ExposedAttributesComponent.attributes"),
@@ -91,6 +89,11 @@ public class ExposedAttributesComponent extends VerticalLayout
 			List<Component> components = getAttributeComponent(dat);
 			components.forEach(attribtuesFL::add);
 			components.forEach(component -> component.getElement().getStyle().set("width", INPUT_WIDTH));
+			components.forEach(component -> component.getElement().getStyle().set("padding", "0"));
+			components.stream().skip(1).forEach(component -> {
+				if(component instanceof HasLabel label)
+					label.setLabel("");
+			});
 		}
 	}
 

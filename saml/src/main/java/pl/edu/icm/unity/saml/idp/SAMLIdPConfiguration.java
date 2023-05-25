@@ -376,7 +376,12 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		if (config == null || config.logoUri == null)
 			return Optional.empty();
 		String logoURI = config.logoUri.getDefaultLocaleValue(msg);
-		return imageAccessService.loadImageFromUri(logoURI);
+		return imageAccessService.loadImageFromUri(logoURI)
+				.map(img ->
+				{
+					img.getStyle().set("max-height", "12.5em");
+					return img;
+				});
 	}
 
 	public TrustedServiceProvider getSPConfig(NameIDType requester)
