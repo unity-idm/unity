@@ -169,9 +169,11 @@ public class SAMLSPProperties extends SamlProperties
 				"Local credential, used to sign requests and to decrypt encrypted assertions. "
 				+ "If neither signing nor decryption is used it can be skipped."));
 		META.put(ADDITIONAL_CREDENTIAL, new PropertyMD().setCategory(common).setDescription(
-				"Additional local credential, used to decrypt encrypted assertions."));
+				"Additional credential, which can be used to decrypt encrypted assertions. "
+				+ "Useful in the certificate roll-over process."));
 		META.put(INCLUDE_ADDITIONAL_CREDENTIAL_IN_METADATA, new PropertyMD("false").setCategory(common).setDescription(
-				"Include additional credential in metadata"));
+				"Controls whether to include the additional credential in generated SAML metadata. "
+				+ "Useful in the certificate roll-over process."));
 		META.put(SLO_PATH, new PropertyMD().setCategory(common).setDescription(
 				"Last element of the URL, under which the SAML Single Logout functionality should "
 				+ "be published for this SAML authenticator. Any suffix can be used, however it "
