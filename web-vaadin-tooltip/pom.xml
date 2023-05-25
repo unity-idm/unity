@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>3.13.0-SNAPSHOT</version>
+		<version>3.14.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>unity-server-web-vaadin-tooltip</artifactId>
