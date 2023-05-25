@@ -8,6 +8,7 @@ package io.imunity.upman;
 
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -37,21 +38,21 @@ public class UpManEndpointFactory implements EndpointFactory
 	private final MessageSource msg;
 	private final AdvertisedAddressProvider advertisedAddrProvider;
 	private final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
-	private final SandboxAuthnRouter sandboxAuthnRouter;
+	private final ObjectFactory<SandboxAuthnRouter> sandboxAuthnRouterFactory;
 
 	@Autowired
 	public UpManEndpointFactory(ApplicationContext applicationContext,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			MessageSource msg,
-			SandboxAuthnRouter sandboxAuthnRouter,
+			ObjectFactory<SandboxAuthnRouter> sandboxAuthnRouterFactory,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
 		this.advertisedAddrProvider = advertisedAddrProvider;
-		this.sandboxAuthnRouter = sandboxAuthnRouter;
+		this.sandboxAuthnRouterFactory = sandboxAuthnRouterFactory;
 		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
 	}
 	
@@ -65,7 +66,7 @@ public class UpManEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new SecureVaadin2XEndpoint(server, advertisedAddrProvider, msg, applicationContext,
-				new UpManResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouter,
+				new UpManResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouterFactory.getObject(),
 				UpManServlet.class
 		);
 	}

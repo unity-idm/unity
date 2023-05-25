@@ -5,16 +5,16 @@
 
 package io.imunity.attr.introspection.summary;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import io.imunity.attr.introspection.config.Attribute;
 import io.imunity.attr.introspection.config.AttributePolicy;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.exceptions.EngineException;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 class AttributePolicyProcessor
 {
@@ -45,7 +45,7 @@ class AttributePolicyProcessor
 						.filter(at -> at.name.equals(a.getName())).map(at -> at.description).findFirst(),
 						a.getValues()))
 				.collect(Collectors.toList());
-		List<String> receivedNames = allReceivedAttributes.stream().map(a -> a.name).collect(Collectors.toList());
+		List<String> receivedNames = allReceivedAttributes.stream().map(a -> a.name).toList();
 		List<Attribute> missingMandatory = policy.attributes.stream()
 				.filter(a -> !receivedNames.contains(a.name) && a.mandatory).collect(Collectors.toList());
 		List<Attribute> missingOptional = policy.attributes.stream()

@@ -137,7 +137,9 @@ class AttrIntrospectionView extends Composite<Div> implements HasDynamicTitle
 	{
 		if (ctx == null || ctx.getRemotePrincipal().isEmpty())
 		{
-			throw new IllegalStateException("Unknown remote user");
+			createAuthnUI();
+			notificationPresenter.showErrorAutoClosing(msg.getMessage("AttrIntrospection.unknownRemoteUser"), "");
+			return;
 		}
 
 		PolicyProcessingSummaryComponent summary = summaryViewFactory.getInstance(config, this::loadInitialState);

@@ -110,13 +110,15 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 
 		if (!result.missingMandatory.isEmpty())
 		{
-			add(getAttributesComponent(msg.getMessage("PolicyProcessingSummaryComponent.missingMandatory"), "badge error",
+			add(getAttributesComponent(msg.getMessage("PolicyProcessingSummaryComponent.missingMandatory"),
+					"badge small error",
 					result.missingMandatory));
 		}
 
 		if (!result.missingOptional.isEmpty())
 		{
-			add(getAttributesComponent(msg.getMessage("PolicyProcessingSummaryComponent.missingOptional"), "badge contrast",
+			add(getAttributesComponent(msg.getMessage("PolicyProcessingSummaryComponent.missingOptional"),
+					"badge small contrast",
 					result.missingOptional));
 		}
 
@@ -196,8 +198,8 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		HorizontalLayout wrapper = new HorizontalLayout();
 
 		Span summaryTitle = new Span();
-		summaryTitle.setWidth("15em");
-		summaryTitle.setHeight("3em");
+		summaryTitle.setWidth("19em");
+		summaryTitle.setHeight("5em");
 
 		wrapper.add(summaryTitle);
 		wrapper.setAlignItems(Alignment.CENTER);

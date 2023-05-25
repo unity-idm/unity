@@ -7,6 +7,7 @@ package io.imunity.attr.introspection;
 
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.endpoint.common.InsecureVaadin2XEndpoint;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -35,20 +36,20 @@ public class AttrIntrospectionEndpointFactory implements EndpointFactory
 	private final MessageSource msg;
 	private final AdvertisedAddressProvider advertisedAddrProvider;
 	private final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
-	private final SandboxAuthnRouter sandboxAuthnRouter;
+	private final ObjectFactory<SandboxAuthnRouter> sandboxAuthnRouterFactory;
 
 	@Autowired
 	AttrIntrospectionEndpointFactory(ApplicationContext applicationContext, NetworkServer server,
-			AdvertisedAddressProvider advertisedAddrProvider, MessageSource msg,
-			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
-			SandboxAuthnRouter sandboxAuthnRouter)
+									 AdvertisedAddressProvider advertisedAddrProvider, MessageSource msg,
+									 RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
+									 ObjectFactory<SandboxAuthnRouter> sandboxAuthnRouterFactory)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
 		this.advertisedAddrProvider = advertisedAddrProvider;
 		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
-		this.sandboxAuthnRouter = sandboxAuthnRouter;
+		this.sandboxAuthnRouterFactory = sandboxAuthnRouterFactory;
 	}
 
 	@Override
@@ -61,7 +62,7 @@ public class AttrIntrospectionEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new InsecureVaadin2XEndpoint(server, advertisedAddrProvider, msg, applicationContext,
-				new AttrIntrospectionResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouter,
-				AttrIntrospectionServlet.class);
+				new AttrIntrospectionResourceProvider(), SERVLET_PATH, remoteAuthnResponseProcessingFilter,
+				sandboxAuthnRouterFactory.getObject(), AttrIntrospectionServlet.class);
 	}
 }

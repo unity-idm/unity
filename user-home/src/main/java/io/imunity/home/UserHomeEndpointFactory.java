@@ -6,6 +6,7 @@ package io.imunity.home;
 
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class UserHomeEndpointFactory implements EndpointFactory
 	private final NetworkServer server;
 	private final MessageSource msg;
 	private final AdvertisedAddressProvider advertisedAddrProvider;
-	private final SandboxAuthnRouter sandboxAuthnRouter;
+	private final ObjectFactory<SandboxAuthnRouter> sandboxAuthnRouterFactory;
 	private final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 
 	@Autowired
@@ -42,14 +43,14 @@ public class UserHomeEndpointFactory implements EndpointFactory
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			MessageSource msg,
-			SandboxAuthnRouter sandboxAuthnRouter,
+			ObjectFactory<SandboxAuthnRouter> sandboxAuthnRouterFactory,
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;
 		this.msg = msg;
 		this.advertisedAddrProvider = advertisedAddrProvider;
-		this.sandboxAuthnRouter = sandboxAuthnRouter;
+		this.sandboxAuthnRouterFactory = sandboxAuthnRouterFactory;
 		this.remoteAuthnResponseProcessingFilter = remoteAuthnResponseProcessingFilter;
 	}
 
@@ -63,6 +64,6 @@ public class UserHomeEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new SecureVaadin2XEndpoint(server, advertisedAddrProvider, msg, applicationContext, new UserHomeResourceProvider(),
-				SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouter, UserHomeServlet.class);
+				SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouterFactory.getObject(), UserHomeServlet.class);
 	}
 }
