@@ -196,7 +196,9 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().setCategory(samlCat).
 				setDescription("SAML IdP credential name, which is used to sign responses."));	
 		defaults.put(ADDITIONALLY_ADVERTISED_CREDENTIAL, new PropertyMD().setCategory(samlCat).
-				setDescription("SAML IdP additionally advertised credential name."));	
+				setDescription("Additional SAML IdP credential name. This credential is advertised in "
+						+ "generated metadata but not used for signing. "
+						+ "Useful for the certificate roll-over process."));	
 		defaults.putAll(SamlProperties.getDefaults(SPMETA_PREFIX, 
 				"Under this prefix you can configure the remote trusted SAML Sps however not "
 				+ "providing all their details but only their metadata."));
