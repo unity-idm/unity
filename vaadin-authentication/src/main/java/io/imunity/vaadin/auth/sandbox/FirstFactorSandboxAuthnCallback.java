@@ -4,9 +4,8 @@
  */
 package io.imunity.vaadin.auth.sandbox;
 
-import com.vaadin.server.VaadinServletRequest;
-import com.vaadin.ui.JavaScript;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.VaadinServletRequest;
 import io.imunity.vaadin.auth.ColumnInstantAuthenticationScreen;
 import io.imunity.vaadin.auth.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.auth.VaadinAuthentication;
@@ -127,7 +126,7 @@ class FirstFactorSandboxAuthnCallback implements VaadinAuthentication.Authentica
 
 	private void closeWindow()
 	{
-		JavaScript.getCurrent().execute("window.close();");
+		UI.getCurrent().getPage().executeJs("window.close();");
 	}
 	
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
