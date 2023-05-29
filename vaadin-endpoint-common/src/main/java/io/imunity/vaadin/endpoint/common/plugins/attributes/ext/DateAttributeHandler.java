@@ -13,6 +13,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.NullAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.DateAttributeSyntax;
 
 import java.time.LocalDate;
@@ -115,7 +116,14 @@ class DateAttributeHandler implements WebAttributeHandler
 				syntax.validate(cur);
 				date.setInvalid(false);
 				return syntax.convertToString(cur);
-			} catch (IllegalAttributeValueException e)
+			}
+			catch (NullAttributeValueException e)
+			{
+				date.setInvalid(true);
+				date.setErrorMessage(msg.getMessage("fieldRequired"));
+				throw e;
+			}
+			catch (IllegalAttributeValueException e)
 			{
 				date.setInvalid(true);
 				date.setErrorMessage(e.getMessage());

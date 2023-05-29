@@ -14,6 +14,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.NullAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax;
 
 import java.time.LocalDateTime;
@@ -119,7 +120,14 @@ class DateTimeAttributeHandler implements WebAttributeHandler
 				syntax.validate(cur);
 				datetime.setInvalid(false);
 				return syntax.convertToString(cur);
-			} catch (IllegalAttributeValueException e)
+			}
+			catch (NullAttributeValueException e)
+			{
+				datetime.setInvalid(true);
+				datetime.setErrorMessage(msg.getMessage("fieldRequired"));
+				throw e;
+			}
+			catch (IllegalAttributeValueException e)
 			{
 				datetime.setInvalid(true);
 				datetime.setErrorMessage(e.getMessage());

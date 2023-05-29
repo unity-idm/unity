@@ -4,22 +4,21 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.JsonNode;
-
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.NullAttributeValueException;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * DateTime attribute sytax. Accept datetime in various formats
@@ -59,7 +58,7 @@ public class DateTimeAttributeSyntax implements AttributeValueSyntax<LocalDateTi
 	public void validate(LocalDateTime value) throws IllegalAttributeValueException
 	{
 		if (value == null)
-			throw new IllegalAttributeValueException("null value is illegal");
+			throw new NullAttributeValueException("");
 
 	}
 
