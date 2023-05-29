@@ -28,17 +28,17 @@ class StickyEnquiryServiceImpl implements StickyEnquiryService
 	}
 
 	@Override
-	public Component createStickyEnquiry(List<String> forms)
+	public Component createApplicableToCurrentUserStickyEnquiryComponent(List<String> forms)
 	{
 		return new StickyEnquiryUpdatableComponent(msg, controller, notificationPresenter, forms);
 	}
 
 	@Override
-	public boolean isFormsAreApplicable(List<String> forms)
+	public boolean anyFormApplicableToCurrentUser(List<String> forms)
 	{
 		for (String enquiryForm : forms)
 		{
-			if (controller.isStickyFormApplicable(enquiryForm))
+			if (controller.isStickyFormApplicableForCurrentUser(enquiryForm))
 			{
 				return true;
 			}

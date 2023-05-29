@@ -12,7 +12,8 @@ import com.vaadin.flow.server.VaadinServletService;
 import io.imunity.vaadin.auth.SecuredSpringVaadin2XServletService;
 import io.imunity.vaadin.endpoint.common.SpringContextProvider;
 
-public class UserHomeServlet extends VaadinServlet {
+public class UserHomeServlet extends VaadinServlet
+{
 
 	@Override
 	protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration) throws ServiceException

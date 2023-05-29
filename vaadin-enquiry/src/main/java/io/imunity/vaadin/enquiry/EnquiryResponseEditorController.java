@@ -135,10 +135,7 @@ class EnquiryResponseEditorController
 	{
 		try
 		{
-			List<EnquiryForm> forms = enquiryManagement.getEnquires();
-			for (EnquiryForm regForm: forms)
-				if (regForm.getName().equals(name))
-					return regForm;
+			return enquiryManagement.getEnquiryByName(name).orElse(null);
 		} catch (EngineException e)
 		{
 			log.error("Can't load enquiry forms", e);
@@ -146,7 +143,7 @@ class EnquiryResponseEditorController
 		return null;
 	}
 
-	public boolean isStickyFormApplicable(String formName)
+	public boolean isStickyFormApplicableForCurrentUser(String formName)
 	{
 		EntityParam entity = getLoggedEntity();
 		try

@@ -20,6 +20,7 @@ import java.util.List;
 @Route(value = "/account-update", layout = HomeUiMenu.class)
 public class AccountUpdateView extends HomeViewComponent
 {
+
 	private final StickyEnquiryService stickyEnquiryService;
 	AccountUpdateView(StickyEnquiryService stickyEnquiryService)
 	{
@@ -31,8 +32,8 @@ public class AccountUpdateView extends HomeViewComponent
 	{
 		HomeEndpointProperties properties = ComponentUtil.getData(UI.getCurrent(), HomeEndpointProperties.class);
 		List<String> enabledEnquiries = properties.getEnabledEnquiries();
-		Component stickyEnquiry = stickyEnquiryService.createStickyEnquiry(enabledEnquiries);
-		if (stickyEnquiryService.isFormsAreApplicable(enabledEnquiries))
+		Component stickyEnquiry = stickyEnquiryService.createApplicableToCurrentUserStickyEnquiryComponent(enabledEnquiries);
+		if (stickyEnquiryService.anyFormApplicableToCurrentUser(enabledEnquiries))
 			getContent().add(stickyEnquiry);
 	}
 }

@@ -42,7 +42,7 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 	public static final String GWA_SHOW_GROUP = "showGroup";
 	public static final String GWA_EDITABLE = "editable";
 	public static final String REMOVAL_MODE = "selfRemovalMode";
-	public static final String IMAGE_ATTRIBUTE = "imageAttribute";
+	public static final String AVATAR_IMAGE_ATTRIBUTE_NAME = "imageAttribute";
 	public static final String DISABLE_REMOVAL_SCHEDULE = "disableSelfRemovalScheduling";
 	public static final String DISABLE_2ND_FACTOR_OPT_IN = "disable2ndFactorOptIn";
 	public static final String ENABLE_PROJECT_MANAGEMENT_LINK = "enableProjectManagementLink";
@@ -83,8 +83,8 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 				"If true then the project managament link is shown in header of User Home UI."));
 		META.put(PROJECT_MANAGEMENT_ENDPOINT, new PropertyMD().setDescription(
 				"If project management link is active, then link redirect to this endpoint address. By default first active project management endpoint is used."));
-		META.put(IMAGE_ATTRIBUTE, new PropertyMD().setDescription(
-				"User attribute from, which user avatar will be displayed in view."));
+		META.put(AVATAR_IMAGE_ATTRIBUTE_NAME, new PropertyMD().setDescription(
+				"Selected attribute value is used as user's avatar image"));
 	}
 	
 	public HomeEndpointProperties(Properties properties) throws ConfigurationException
@@ -114,6 +114,6 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 
 	public String getImageAttribute()
 	{
-		return getValue(IMAGE_ATTRIBUTE);
+		return getValue(AVATAR_IMAGE_ATTRIBUTE_NAME);
 	}
 }

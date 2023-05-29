@@ -52,7 +52,7 @@ class StickyEnquiryUpdatableComponent extends VerticalLayout
 		reload();
 	}
 
-	private Component getRemoveLastComponent(EnquiryForm form)
+	private Component removeLastComponent(EnquiryForm form)
 	{
 
 		VerticalLayout wrapper = new VerticalLayout();
@@ -74,7 +74,7 @@ class StickyEnquiryUpdatableComponent extends VerticalLayout
 				controller.removePendingRequest(form.getName());
 			} catch (EngineException e)
 			{
-				log.error("Can not remove pending request for enquiry form " + form.getName());
+				log.error("Can not remove pending request for enquiry form " + form.getName(), e);
 				notificationPresenter.showError(
 						msg.getMessage("SingleStickyEnquiryUpdater.cannotRemovePendingRequest", form.getName()),
 						e.getMessage());
@@ -100,7 +100,7 @@ class StickyEnquiryUpdatableComponent extends VerticalLayout
 			editor = controller.getEditorInstanceForAuthenticatedUser(form, RemotelyAuthenticatedPrincipal.getLocalContext());
 		} catch (Exception e)
 		{
-			log.error("Can not get editor for enquiry form " + form.getName());
+			log.error("Can not get editor for enquiry form " + form.getName(), e);
 			notificationPresenter.showError(msg.getMessage(
 					"SingleStickyEnquiryUpdater.cannotSubmitRequest", form.getName()), e.getMessage());
 			return editorWrapper;
@@ -148,7 +148,7 @@ class StickyEnquiryUpdatableComponent extends VerticalLayout
 		EnquiryForm form = null;
 		for (String enquiryForm : forms)
 		{
-			if (controller.isStickyFormApplicable(enquiryForm))
+			if (controller.isStickyFormApplicableForCurrentUser(enquiryForm))
 			{
 				form = controller.getForm(enquiryForm);
 				break;
@@ -173,7 +173,7 @@ class StickyEnquiryUpdatableComponent extends VerticalLayout
 		}
 
 		if (requestExist)
-			add(getRemoveLastComponent(form));
+			add(removeLastComponent(form));
 		else
 			add(getEditorComponent(form));
 	}

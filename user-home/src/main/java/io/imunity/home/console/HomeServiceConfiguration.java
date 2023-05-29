@@ -117,7 +117,7 @@ public class HomeServiceConfiguration
 		}
 
 		if(imageAttribute != null)
-			raw.put(HomeEndpointProperties.PREFIX + HomeEndpointProperties.IMAGE_ATTRIBUTE, imageAttribute);
+			raw.put(HomeEndpointProperties.PREFIX + HomeEndpointProperties.AVATAR_IMAGE_ATTRIBUTE_NAME, imageAttribute);
 
 		HomeEndpointProperties prop = new HomeEndpointProperties(raw);
 		return prop.getAsString();
@@ -175,7 +175,7 @@ public class HomeServiceConfiguration
 				.getBooleanValue(HomeEndpointProperties.ENABLE_PROJECT_MANAGEMENT_LINK);
 		upManService = homeProperties.getValue(HomeEndpointProperties.PROJECT_MANAGEMENT_ENDPOINT);
 
-		imageAttribute = homeProperties.getValue(HomeEndpointProperties.IMAGE_ATTRIBUTE);
+		imageAttribute = homeProperties.getValue(HomeEndpointProperties.AVATAR_IMAGE_ATTRIBUTE_NAME);
 
 		enquiryForms = homeProperties.getListOfValues(HomeEndpointProperties.ENQUIRIES);
 	}

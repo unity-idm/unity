@@ -45,6 +45,7 @@ import static java.util.stream.Collectors.toList;
 @CssImport(value = "./styles/components/vaadin-accordion-panel.css", themeFor = "vaadin-accordion-panel")
 public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 {
+	private final static int imageSize = 7;
 	private final AttributesManagement attributesMan;
 	private final AttributeHandlerRegistry registry;
 	private final HomeEndpointProperties homeEndpointProperties;
@@ -112,9 +113,9 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 		else
 		{
 			AttributeViewerContext context = AttributeViewerContext.builder()
-					.withCustomHeight(7)
+					.withCustomHeight(imageSize)
 					.withCustomHeightUnit(Unit.EM)
-					.withCustomWidth(7)
+					.withCustomWidth(imageSize)
 					.withCustomWidthUnit(Unit.EM)
 					.withBorderRadius(50)
 					.withBorderRadiusUnit(Unit.PERCENTAGE)
@@ -126,8 +127,8 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 	private static Image createDefaultImage()
 	{
 		Image tmpImage = new Image("../unitygw/img/other/logo-hand.png", "");
-		tmpImage.setWidth("7em");
-		tmpImage.setHeight("7em");
+		tmpImage.setWidth(imageSize + "em");
+		tmpImage.setHeight(imageSize + "em");
 		return tmpImage;
 	}
 

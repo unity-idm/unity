@@ -18,12 +18,20 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
+import pl.edu.icm.unity.types.DescribedObjectROImpl;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceController;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Component
@@ -82,19 +90,22 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 	{
 
 		return new HomeServiceEditor(msg, uriAccessService, imageAccessService, fileStorageService, serverConfig,
-				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
-				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
-				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
-				atMan.getAttributeTypes().stream().map(a -> a.getName()).collect(Collectors.toList()),
-				atMan.getAttributeTypes().stream().filter(a -> a.getValueSyntax().equals("image")).map(a -> a.getName()).collect(Collectors.toList()),
-				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values()
-						.stream().map(g -> g.getGroup()).collect(Collectors.toList()),
-				projectManHelper.getAllProjectManEndpoints().stream().map(e -> e.getName())
+				realmsMan.getRealms().stream().map(DescribedObjectROImpl::getName).collect(Collectors.toList()),
+				new ArrayList<>(flowsMan.getAuthenticationFlows()),
+				new ArrayList<>(authMan.getAuthenticators(null)),
+				atMan.getAttributeTypes().stream().map(AttributeType::getName).collect(Collectors.toList()),
+				atMan.getAttributeTypes().stream().filter(a -> a.getValueSyntax().equals( ImageAttributeSyntax.ID))
+						.map(AttributeType::getName)
+						.sorted()
 						.collect(Collectors.toList()),
-				enquiryMan.getEnquires().stream().map(e -> e.getName()).collect(Collectors.toList()),
-				registrationMan.getForms().stream().filter(r -> r.isPubliclyAvailable())
-						.map(r -> r.getName()).collect(Collectors.toList()),
-				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress())
+				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values()
+						.stream().map(GroupContents::getGroup).collect(Collectors.toList()),
+				projectManHelper.getAllProjectManEndpoints().stream().map(ResolvedEndpoint::getName)
+						.collect(Collectors.toList()),
+				enquiryMan.getEnquires().stream().map(DescribedObjectROImpl::getName).collect(Collectors.toList()),
+				registrationMan.getForms().stream().filter(RegistrationForm::isPubliclyAvailable)
+						.map(DescribedObjectROImpl::getName).collect(Collectors.toList()),
+				endpointMan.getEndpoints().stream().map(Endpoint::getContextAddress)
 						.collect(Collectors.toList()), server.getUsedContextPaths(),
 				authenticatorSupportService);
 	}

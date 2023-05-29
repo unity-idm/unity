@@ -11,6 +11,6 @@ import java.util.List;
 
 public interface StickyEnquiryService
 {
-	Component createStickyEnquiry(List<String> forms);
-	boolean isFormsAreApplicable(List<String> forms);
+	Component createApplicableToCurrentUserStickyEnquiryComponent(List<String> forms);
+	boolean anyFormApplicableToCurrentUser(List<String> forms);
 }

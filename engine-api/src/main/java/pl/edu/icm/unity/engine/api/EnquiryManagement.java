@@ -15,6 +15,7 @@ import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Enquires support: forms, submissions of requests and their processing.
@@ -82,6 +83,8 @@ public interface EnquiryManagement
 	 * @return enquiry form with given id.
 	 */
 	EnquiryForm getEnquiry(String id) throws EngineException;
+
+	Optional<EnquiryForm> getEnquiryByName(String name) throws EngineException;
 
 	boolean hasForm(String id);
 	

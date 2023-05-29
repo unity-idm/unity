@@ -8,7 +8,9 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import io.imunity.home.HomeEndpointProperties.RemovalModes;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -23,6 +25,9 @@ import pl.edu.icm.unity.types.basic.EntityState;
  */
 class ImmediateEntityRemovalDialog extends ConfirmDialog
 {
+
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImmediateEntityRemovalDialog.class);
+
 	private final long entity;
 	private final MessageSource msg;
 	private final VaddinWebLogoutHandler authnProcessor;
@@ -31,9 +36,9 @@ class ImmediateEntityRemovalDialog extends ConfirmDialog
 	private final NotificationPresenter notificationPresenter;
 
 	ImmediateEntityRemovalDialog(MessageSource msg, long entityId,
-										EntityManagement identitiesManagement,
-										VaddinWebLogoutHandler authnProcessor,
-										RemovalModes removalMode, NotificationPresenter notificationPresenter)
+								 EntityManagement identitiesManagement,
+								 VaddinWebLogoutHandler authnProcessor,
+								 RemovalModes removalMode, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.entity = entityId;
@@ -63,6 +68,7 @@ class ImmediateEntityRemovalDialog extends ConfirmDialog
 		} catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("RemoveEntityDialog.scheduleFailed"), e.getMessage());
+			log.error("Removing the account failed", e);
 		}
 	}
 }

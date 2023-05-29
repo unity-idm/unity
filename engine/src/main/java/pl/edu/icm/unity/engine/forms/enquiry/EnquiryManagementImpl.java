@@ -47,27 +47,11 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.registration.AdminComment;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.*;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
-import pl.edu.icm.unity.types.registration.EnquiryResponse;
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -562,6 +546,17 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public EnquiryForm getEnquiry(String id) throws EngineException
 	{
 		return enquiryFormDB.get(id);
+	}
+
+	@Transactional
+	@Override
+	public Optional<EnquiryForm> getEnquiryByName(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+			for (EnquiryForm regForm: enquiryFormDB.getAll())
+				if (regForm.getName().equals(name))
+					return Optional.of(regForm);
+		return Optional.empty();
 	}
 
 	@Override

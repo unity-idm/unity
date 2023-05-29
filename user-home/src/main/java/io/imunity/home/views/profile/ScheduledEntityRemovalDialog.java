@@ -20,7 +20,9 @@ import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -35,6 +37,8 @@ import java.util.Map;
  */
 class ScheduledEntityRemovalDialog extends Dialog
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ScheduledEntityRemovalDialog.class);
+
 	private final static String NOW = "now";
 	private final static String SCHEDULE = "sched";
 			
@@ -138,6 +142,7 @@ class ScheduledEntityRemovalDialog extends Dialog
 		} catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("RemoveEntityDialog.scheduleFailed"), e.getMessage());
+			log.error("Removing the account failed", e);
 		}
 	}
 }
