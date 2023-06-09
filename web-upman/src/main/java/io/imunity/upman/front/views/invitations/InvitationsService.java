@@ -120,7 +120,6 @@ class InvitationsService
 
 	public void addInvitations(InvitationRequest invitationRequest)
 	{
-
 		List<String> added = new ArrayList<>();
 		List<String> alredyMember = new ArrayList<>();
 
@@ -129,8 +128,14 @@ class InvitationsService
 				.collect(Collectors.toList());
 		for (String email : invitationRequest.emails)
 		{
-			try {
-				ProjectInvitationParam projectInvitationParam = new ProjectInvitationParam(invitationRequest.projectGroup.path, email, groups, invitationRequest.allowModifyGroups, invitationRequest.expiration);
+			try 
+			{
+				ProjectInvitationParam projectInvitationParam = new ProjectInvitationParam(
+						invitationRequest.projectGroup.path, 
+						email, 
+						groups, 
+						invitationRequest.allowModifyGroups, 
+						invitationRequest.expiration);
 				invitationMan.addInvitation(projectInvitationParam);
 				added.add(projectInvitationParam.contactAddress);
 
