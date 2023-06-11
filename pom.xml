@@ -51,7 +51,6 @@
 	</licenses>
 
 	<modules>
-		<module>types-api</module>
 		<module>engine-api</module>
 		<module>engine</module>
 		<module>base</module>
