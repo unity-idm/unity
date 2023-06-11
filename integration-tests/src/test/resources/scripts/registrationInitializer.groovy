@@ -9,7 +9,7 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordToken
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
 import pl.edu.icm.unity.base.i18n.I18nString
 import pl.edu.icm.unity.base.identity.EntityParam
-import pl.edu.icm.unity.base.identityEntityState
+import pl.edu.icm.unity.base.identity.EntityState
 import pl.edu.icm.unity.base.identity.Identity
 import pl.edu.icm.unity.base.identity.IdentityParam
 import pl.edu.icm.unity.base.registration.AgreementRegistrationParam
