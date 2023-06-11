@@ -75,7 +75,7 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 	}
 
 	@Override
-	public String getActionValueRepresentation()
+	public String getActionValueRepresentation(MessageSource msg)
 	{
 		String value = binder.getBean().getValue();
 		return value == null ? null : getItemCaptionGenerator().apply(binder.getBean().getValue());

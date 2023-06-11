@@ -85,4 +85,15 @@ public class I18nTextActionParameterComponent extends I18nTextField implements A
 		binder.validate();
 		return binder.isValid();
 	}
+	
+	@Override
+	public String getActionValueRepresentation(MessageSource msg)
+	{
+		 I18nString i18nValue = getI18nValue(getActionValue());
+		 if (i18nValue != null)
+			 return i18nValue.getDefaultLocaleValue(msg);
+		 return null;
+	}	
+
 }
+

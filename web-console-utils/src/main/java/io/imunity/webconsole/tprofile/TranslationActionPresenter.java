@@ -4,10 +4,15 @@
  */
 package io.imunity.webconsole.tprofile;
 
+import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
@@ -20,6 +25,8 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
  */
 public class TranslationActionPresenter extends LayoutEmbeddable
 {	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TranslationActionPresenter.class);
+	
 	private MessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	
@@ -76,6 +83,14 @@ public class TranslationActionPresenter extends LayoutEmbeddable
 	{
 		if (value == null)
 			return "";
+		try
+		{
+			value = Constants.MAPPER.readValue(value, I18nString.class).getDefaultLocaleValue(msg);
+		} catch (Exception e)
+		{
+			log.error("Can not parse i18n string", e);
+		}
+		
 		return value.replace("\n", " | ");
 	}
 }
