@@ -262,9 +262,9 @@ public class ActionEditor extends LayoutEmbeddable
 			if (caption != null && !caption.endsWith(":"))
 				caption = caption + ":";
 			rep.append(caption + " "
-					+ (tc.getActionValueRepresentation() != null
+					+ (tc.getActionValueRepresentation(msg) != null
 							&& !tc.getActionValue().equals("null")
-									? tc.getActionValueRepresentation()
+									? tc.getActionValueRepresentation(msg)
 									: " "));
 			rep.append("|");
 		}
