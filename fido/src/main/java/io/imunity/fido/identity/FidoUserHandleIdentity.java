@@ -6,9 +6,9 @@ package io.imunity.fido.identity;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.entity.Identity;
-import pl.edu.icm.unity.base.entity.IdentityParam;
-import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.identity.Identity;
+import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.identity.AbstractStaticIdentityTypeProvider;
 

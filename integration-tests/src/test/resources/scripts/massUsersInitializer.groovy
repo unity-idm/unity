@@ -23,21 +23,21 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner.TxRunnable;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner.TxRunnableRet;
 import pl.edu.icm.unity.store.types.StoredIdentity
 import pl.edu.icm.unity.store.types.StoredAttribute
-import pl.edu.icm.unity.types.basic.Attribute
-import pl.edu.icm.unity.types.basic.AttributeExt
-import pl.edu.icm.unity.types.basic.AttributeStatement
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution
-import pl.edu.icm.unity.types.basic.AttributeType
-import pl.edu.icm.unity.types.basic.EntityParam
-import pl.edu.icm.unity.types.basic.EntityState
-import pl.edu.icm.unity.types.basic.EntityInformation
-import pl.edu.icm.unity.types.basic.Group
-import pl.edu.icm.unity.types.basic.GroupContents
-import pl.edu.icm.unity.types.basic.GroupMembership
-import pl.edu.icm.unity.types.basic.Identity
-import pl.edu.icm.unity.types.basic.IdentityParam
-import pl.edu.icm.unity.types.basic.VerifiableEmail
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo
+import pl.edu.icm.unity.base.attribute.Attribute
+import pl.edu.icm.unity.base.attribute.AttributeExt
+import pl.edu.icm.unity.base.attribute.AttributeStatement
+import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution
+import pl.edu.icm.unity.base.attribute.AttributeType
+import pl.edu.icm.unity.base.identity.EntityParam
+import pl.edu.icm.unity.base.identity.EntityState
+import pl.edu.icm.unity.base.identity.EntityInformation
+import pl.edu.icm.unity.base.group.Group
+import pl.edu.icm.unity.base.group.GroupContents
+import pl.edu.icm.unity.base.group.GroupMembership
+import pl.edu.icm.unity.base.identity.Identity
+import pl.edu.icm.unity.base.identity.IdentityParam
+import pl.edu.icm.unity.base.verifiable.VerifiableEmail
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo
 import groovy.transform.Field
 
 

@@ -11,7 +11,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
-import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;

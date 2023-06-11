@@ -16,8 +16,8 @@ import io.imunity.tooltip.TooltipExtension;
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import org.vaadin.risto.stepper.IntStepper;
 
-import pl.edu.icm.unity.base.entity.IdentityType;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;

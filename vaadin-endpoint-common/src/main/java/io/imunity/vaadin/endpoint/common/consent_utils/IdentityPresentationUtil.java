@@ -4,7 +4,7 @@
  */
 package io.imunity.vaadin.endpoint.common.consent_utils;
 
-import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;

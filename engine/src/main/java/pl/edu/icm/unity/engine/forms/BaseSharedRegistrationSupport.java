@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.entity.EntityParam;
-import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationProcessedNotificationTemplateDef;

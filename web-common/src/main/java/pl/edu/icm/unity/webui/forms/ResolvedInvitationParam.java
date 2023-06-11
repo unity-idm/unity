@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.base.registration.BaseForm;
 import pl.edu.icm.unity.base.registration.IllegalFormTypeException;
 import pl.edu.icm.unity.base.registration.invite.ComboInvitationParam;

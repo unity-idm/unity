@@ -14,8 +14,8 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.base.entity.Identity;
-import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.identity.Identity;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;

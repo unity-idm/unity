@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import io.imunity.rest.api.types.basic.RestIdentity;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.identity.Identity;
 
 public class IdentityMapper
 {

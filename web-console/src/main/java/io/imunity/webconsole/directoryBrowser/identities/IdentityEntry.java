@@ -11,8 +11,8 @@ import java.util.Set;
 import org.springframework.util.StringUtils;
 
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.base.entity.EntityInformation;
-import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;

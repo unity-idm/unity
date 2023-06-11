@@ -6,7 +6,7 @@ package pl.edu.icm.unity.store.api;
 
 import java.util.List;
 
-import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 
 /**

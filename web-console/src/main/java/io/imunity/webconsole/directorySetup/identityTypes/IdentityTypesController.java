@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.base.entity.IdentityType;
+import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;

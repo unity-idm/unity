@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import pl.edu.icm.unity.base.entity.IdentityParam;
-import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 

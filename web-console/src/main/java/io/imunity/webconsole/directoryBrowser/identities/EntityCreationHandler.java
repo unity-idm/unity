@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupManagementHelper;
 import io.imunity.webconsole.directoryBrowser.identities.NewEntityCredentialsPanel.CredentialsPanelFactory;
-import pl.edu.icm.unity.base.entity.Identity;
 import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;

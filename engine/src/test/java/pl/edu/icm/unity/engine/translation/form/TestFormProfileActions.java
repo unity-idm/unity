@@ -27,10 +27,10 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
-import pl.edu.icm.unity.base.entity.EntityState;
-import pl.edu.icm.unity.base.entity.IdentityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.identity.EntityScheduledOperation;
+import pl.edu.icm.unity.base.identity.EntityState;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.base.registration.GroupSelection;

@@ -15,7 +15,7 @@ import io.imunity.rest.api.types.basic.RestIdentityParam;
 import io.imunity.rest.api.types.confirmation.RestConfirmationInfo;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 
 public class IdentityParamMapperTest extends MapperWithMinimalTestBase<IdentityParam, RestIdentityParam>
 {

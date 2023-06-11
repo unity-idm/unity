@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Locale;
 
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
-import pl.edu.icm.unity.base.entity.IdentityTaV;
 import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.identity.IdentityTaV;
 
 
 /**

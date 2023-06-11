@@ -9,9 +9,9 @@ import java.util.Optional;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
-import pl.edu.icm.unity.base.entity.EntityParam;
-import pl.edu.icm.unity.base.entity.Identity;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 

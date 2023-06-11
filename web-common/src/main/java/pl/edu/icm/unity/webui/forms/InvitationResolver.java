@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.base.entity.Entity;
-import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.identity.Entity;
+import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.base.registration.invite.InvitationParam;
 import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;

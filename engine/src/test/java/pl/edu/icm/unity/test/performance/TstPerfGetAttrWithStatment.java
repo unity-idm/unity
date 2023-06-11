@@ -12,10 +12,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
+import pl.edu.icm.unity.base.identity.Entity;
 
 /**
  * Test get user attributes with attributes statements processing

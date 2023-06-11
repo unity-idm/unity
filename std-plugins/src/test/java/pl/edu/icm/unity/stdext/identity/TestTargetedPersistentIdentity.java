@@ -10,8 +10,8 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.base.entity.Identity;
-import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.identity.Identity;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
 
 public class TestTargetedPersistentIdentity

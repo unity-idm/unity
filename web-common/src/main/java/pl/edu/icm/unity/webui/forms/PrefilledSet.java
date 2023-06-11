@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.GroupSelection;
 import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
 

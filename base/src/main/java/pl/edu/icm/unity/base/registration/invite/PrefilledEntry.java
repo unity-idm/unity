@@ -6,7 +6,7 @@ package pl.edu.icm.unity.base.registration.invite;
 
 import java.util.Objects;
 
-import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.Selection;
 
 /**

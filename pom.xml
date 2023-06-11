@@ -51,9 +51,9 @@
 	</licenses>
 
 	<modules>
+		<module>base</module>
 		<module>engine-api</module>
 		<module>engine</module>
-		<module>base</module>
 		<module>storage-api</module>
 		<module>storage</module>
 		<module>std-plugins</module>

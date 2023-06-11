@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.identity.Entity;
 
 public class GroupsWithMembers
 {

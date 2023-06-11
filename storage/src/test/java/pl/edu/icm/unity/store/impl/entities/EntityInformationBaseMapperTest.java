@@ -8,9 +8,9 @@ package pl.edu.icm.unity.store.impl.entities;
 import java.util.Date;
 import java.util.function.Function;
 
-import pl.edu.icm.unity.base.entity.EntityInformation;
-import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
-import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.identity.EntityScheduledOperation;
+import pl.edu.icm.unity.base.identity.EntityState;
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
 

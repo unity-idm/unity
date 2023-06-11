@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine;
 import java.util.Collection;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
-import pl.edu.icm.unity.base.entity.EntityParam;
-import pl.edu.icm.unity.base.entity.IdentityTaV;
+import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 
 public class AttributesAssertion

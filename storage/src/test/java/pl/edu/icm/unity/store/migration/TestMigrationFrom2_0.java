@@ -27,7 +27,7 @@ import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.db.DBDumpContentElements;
-import pl.edu.icm.unity.base.entity.IdentityType;
+import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.base.notifications.NotificationChannel;
 import pl.edu.icm.unity.store.StorageCleanerImpl;

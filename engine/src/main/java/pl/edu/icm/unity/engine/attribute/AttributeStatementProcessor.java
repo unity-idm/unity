@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.AttributesClass;
-import pl.edu.icm.unity.base.entity.Identity;
 import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 

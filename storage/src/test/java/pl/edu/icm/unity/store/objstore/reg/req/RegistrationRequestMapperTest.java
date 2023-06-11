@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
 import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
 import pl.edu.icm.unity.base.registration.CredentialParamValue;

@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
-import pl.edu.icm.unity.base.entity.EntityInformation;
-import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.identity.Identity;
 
 /**
  * Information about many entities. May include all system entities, or only a subset, depending on usage context.

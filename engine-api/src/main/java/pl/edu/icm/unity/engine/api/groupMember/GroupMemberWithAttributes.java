@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.engine.api.groupMember;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
-import pl.edu.icm.unity.base.entity.EntityInformation;
-import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.identity.Identity;
 
 import java.util.ArrayList;
 import java.util.Collection;

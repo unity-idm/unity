@@ -42,8 +42,8 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.tooltip.TooltipExtension;
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
-import pl.edu.icm.unity.base.entity.IdentityType;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;

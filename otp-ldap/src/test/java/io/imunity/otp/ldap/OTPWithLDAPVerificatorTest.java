@@ -30,7 +30,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.otp.HashFunction;
 import io.imunity.otp.OTPGenerationParams;
 import io.imunity.otp.v8.TOTPCodeGenerator;
-import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;

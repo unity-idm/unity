@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
-import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;

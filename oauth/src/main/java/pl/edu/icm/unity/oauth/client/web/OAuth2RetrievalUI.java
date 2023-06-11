@@ -16,7 +16,7 @@ import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
-import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;

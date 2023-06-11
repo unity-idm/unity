@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.translation.in;
 
-import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 
 /**
  * {@link IdentityParam} with {@link IdentityEffectMode}.

@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.impl.identities;
 import java.util.Optional;
 
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.store.types.common.ConfirmationInfoMapper;
 
 public class IdentityBaseMapper

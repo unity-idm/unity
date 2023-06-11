@@ -8,7 +8,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes;
 import com.vaadin.flow.component.Unit;
 
 import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 
 

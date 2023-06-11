@@ -12,8 +12,8 @@ import java.util.function.Function;
 
 import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.base.entity.IdentityType;
 import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;

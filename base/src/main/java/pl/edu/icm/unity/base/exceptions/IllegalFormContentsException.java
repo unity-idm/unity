@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.base.exceptions;
 
-import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 
 /**
  * Thrown when there is problem with submitted form (enquiry, registration etc).

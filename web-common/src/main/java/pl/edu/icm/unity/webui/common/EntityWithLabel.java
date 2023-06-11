@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 
 /**

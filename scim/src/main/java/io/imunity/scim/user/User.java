@@ -11,8 +11,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
-import pl.edu.icm.unity.base.entity.Identity;
 import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.identity.Identity;
 
 public class User
 {

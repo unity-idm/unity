@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.bulkops.action;
 
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.utils.Log;

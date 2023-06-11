@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
-import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.identity.Entity;
 
 /**
  * Almost all information about a single entity in general plus attributes in a particular group and in root group

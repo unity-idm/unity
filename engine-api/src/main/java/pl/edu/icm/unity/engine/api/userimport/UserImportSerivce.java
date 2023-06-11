@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.userimport;
 
 import java.util.List;
 
-import pl.edu.icm.unity.base.entity.IdentityTaV;
+import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 
 /**

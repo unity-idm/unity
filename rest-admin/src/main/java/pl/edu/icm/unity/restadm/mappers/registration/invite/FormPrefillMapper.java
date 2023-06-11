@@ -14,7 +14,7 @@ import io.imunity.rest.api.types.basic.RestIdentityParam;
 import io.imunity.rest.api.types.registration.RestGroupSelection;
 import io.imunity.rest.api.types.registration.invite.RestFormPrefill;
 import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.GroupSelection;
 import pl.edu.icm.unity.base.registration.invite.FormPrefill;
 import pl.edu.icm.unity.restadm.mappers.AttributeMapper;

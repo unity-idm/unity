@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import java.util.Optional;
 
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.store.types.common.ConfirmationInfoMapper;
 
 public class IdentityParamMapper
