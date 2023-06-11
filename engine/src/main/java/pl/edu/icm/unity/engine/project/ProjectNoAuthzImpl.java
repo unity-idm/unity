@@ -8,8 +8,9 @@ package pl.edu.icm.unity.engine.project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 

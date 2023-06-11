@@ -6,7 +6,7 @@ package io.imunity.webconsole.directorySetup.attributeTypes;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.webui.bus.Event;
 
 /**

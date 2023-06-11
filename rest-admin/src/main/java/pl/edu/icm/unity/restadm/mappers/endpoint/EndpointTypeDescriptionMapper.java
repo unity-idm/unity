@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.MapUtils;
 
 import io.imunity.rest.api.types.endpoint.RestEndpointTypeDescription;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 
 public class EndpointTypeDescriptionMapper
 {

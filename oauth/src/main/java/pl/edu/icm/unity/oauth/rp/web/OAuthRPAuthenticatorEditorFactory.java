@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;

@@ -5,33 +5,58 @@
 
 package pl.edu.icm.unity.engine.project;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.*;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupContents;
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.group.GroupMembership;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
-import pl.edu.icm.unity.engine.api.project.*;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
+import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
+import pl.edu.icm.unity.engine.api.project.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.*;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * Implementation of {@link DelegatedGroupManagement}

@@ -6,7 +6,7 @@ package io.imunity.vaadin.endpoint.common.active_value_select;
 
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 
 import java.util.ArrayList;
 import java.util.List;

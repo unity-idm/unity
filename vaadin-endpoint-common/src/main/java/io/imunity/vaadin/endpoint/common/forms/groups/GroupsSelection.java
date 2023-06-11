@@ -4,10 +4,10 @@
  */
 package io.imunity.vaadin.endpoint.common.forms.groups;
 
-import pl.edu.icm.unity.types.basic.Group;
-
 import java.util.List;
 import java.util.Set;
+
+import pl.edu.icm.unity.base.group.Group;
 
 public interface GroupsSelection
 {

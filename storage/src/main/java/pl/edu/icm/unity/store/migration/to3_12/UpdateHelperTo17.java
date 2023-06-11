@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
 
 public class UpdateHelperTo17
 {

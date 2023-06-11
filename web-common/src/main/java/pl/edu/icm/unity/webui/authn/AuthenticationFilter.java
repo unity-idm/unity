@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webui.authn;
 
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
@@ -14,7 +16,6 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.MDCKeys;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 import javax.servlet.*;

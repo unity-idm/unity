@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.impl.attribute.AttributeBean;
 import pl.edu.icm.unity.store.impl.attribute.AttributesMapper;
@@ -24,7 +25,6 @@ import pl.edu.icm.unity.store.impl.objstore.GenericMapper;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * 1. changes the legacy jpegImage to a properly implemented image

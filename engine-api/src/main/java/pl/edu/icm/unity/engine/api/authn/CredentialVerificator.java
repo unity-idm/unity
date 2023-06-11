@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import pl.edu.icm.unity.base.describedObject.DescribedObject;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.utils.StringConfigurable;
-import pl.edu.icm.unity.types.DescribedObject;
 
 /**
  * Implementations allow for verification of the provided credential. It is assumed that credential is 

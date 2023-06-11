@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.entity.IdentityTaV;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
@@ -29,7 +30,6 @@ import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPIFactory;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 
 /**

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.msg.Message;
+import pl.edu.icm.unity.base.message.Message;
 import pl.edu.icm.unity.store.api.MessagesDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
 

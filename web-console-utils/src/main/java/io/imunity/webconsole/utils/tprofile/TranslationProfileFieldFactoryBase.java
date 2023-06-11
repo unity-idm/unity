@@ -9,10 +9,10 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 

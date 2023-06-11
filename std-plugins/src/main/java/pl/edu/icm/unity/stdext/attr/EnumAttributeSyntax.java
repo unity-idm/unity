@@ -19,9 +19,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 
 /**
  * Enumeration attribute syntax. Accepts strings which are from a defined set.

@@ -21,22 +21,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.entity.IdentityTaV;
+import pl.edu.icm.unity.base.entity.IdentityType;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
+import pl.edu.icm.unity.engine.api.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /*
  * Note - those tests most often (always?) do not require password cred, and could equally well use mock cred,

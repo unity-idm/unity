@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.store.objstore.authnFlow;
 
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 
 class AuthenticationFlowMapper
 {

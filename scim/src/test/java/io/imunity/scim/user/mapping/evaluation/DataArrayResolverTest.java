@@ -24,16 +24,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 import io.imunity.scim.config.DataArray;
 import io.imunity.scim.config.DataArray.DataArrayType;
 import io.imunity.scim.user.User;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.Identity;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataArrayResolverTest

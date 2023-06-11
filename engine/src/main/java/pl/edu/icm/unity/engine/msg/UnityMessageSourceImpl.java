@@ -30,13 +30,13 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.MessageArea;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageArea;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.LocaleHelper;
-import pl.edu.icm.unity.types.I18nString;
 
 /**
  * Extension of the {@link ResourceBundleMessageSource} which 

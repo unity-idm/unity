@@ -10,7 +10,7 @@ import java.util.Date;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.SignedJWT;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 

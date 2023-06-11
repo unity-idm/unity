@@ -19,13 +19,13 @@ import org.springframework.stereotype.Component;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.entity.Identity;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Identity;
 
 @Component
 class MVELEvaluator

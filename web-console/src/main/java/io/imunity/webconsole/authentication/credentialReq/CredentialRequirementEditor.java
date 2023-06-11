@@ -11,10 +11,10 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.authn.CredentialRequirements;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 

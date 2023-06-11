@@ -4,16 +4,17 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
+import static java.util.Objects.isNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.types.basic.audit.AuditEntity;
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
-import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
-import static java.util.Objects.isNull;
+import pl.edu.icm.unity.base.audit.AuditEntity;
+import pl.edu.icm.unity.base.audit.AuditEvent;
+import pl.edu.icm.unity.base.audit.AuditEventAction;
+import pl.edu.icm.unity.base.audit.AuditEventType;
+import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 
 /**
  * Serializes {@link AuditEvent} to/from DB form.

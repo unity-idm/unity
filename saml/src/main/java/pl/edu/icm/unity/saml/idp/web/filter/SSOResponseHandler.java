@@ -8,6 +8,9 @@ import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.security.dsig.DSigException;
 import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
@@ -20,8 +23,6 @@ import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.saml.slo.SamlRoutableUnsignedMessage;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 

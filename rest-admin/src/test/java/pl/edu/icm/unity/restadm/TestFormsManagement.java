@@ -30,12 +30,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.registration.RestIdentityRegistrationParam;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
+import pl.edu.icm.unity.base.registration.ConfirmationMode;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutSettingsMapper;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.registration.ConfirmationMode;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
 /**
  * Registration forms management test

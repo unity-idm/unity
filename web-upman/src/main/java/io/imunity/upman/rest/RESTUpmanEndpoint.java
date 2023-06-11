@@ -7,7 +7,9 @@ package io.imunity.upman.rest;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
@@ -19,7 +21,6 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.RestEndpointHelper;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

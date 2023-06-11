@@ -9,7 +9,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import pl.edu.icm.unity.types.NamedObject;
+import pl.edu.icm.unity.base.describedObject.NamedObject;
 
 /**
  * Configuration of authenticator allows for creating instances of authenticators from it.

@@ -26,12 +26,12 @@ import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.notifications.MessageTemplateParams;
 import pl.edu.icm.unity.engine.notifications.NotificationChannelInstance;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
 
 class EmailChannel implements NotificationChannelInstance
 {

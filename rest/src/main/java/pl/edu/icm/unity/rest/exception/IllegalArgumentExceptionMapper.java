@@ -13,7 +13,6 @@ import javax.ws.rs.ext.Provider;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.types.JsonError;
 
 /**
  * Maps {@link IllegalArgumentException} to HTTP error response

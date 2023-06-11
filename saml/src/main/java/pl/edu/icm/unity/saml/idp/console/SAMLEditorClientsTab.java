@@ -22,12 +22,12 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.Images;

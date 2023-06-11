@@ -11,10 +11,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.signupAndEnquiry.forms.layout.FormLayoutEditor;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.FormLayoutUtils;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.FormLayoutUtils;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
 
 /**
  * Enquiry layout editor. Allows for selecting whether the default layout should

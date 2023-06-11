@@ -5,10 +5,10 @@
 
 package pl.edu.icm.unity.engine.api.idp;
 
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
-
 import java.util.*;
 import java.util.stream.Collectors;
+
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 
 public class ActiveValueClientHelper
 {

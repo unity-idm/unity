@@ -17,12 +17,12 @@ import java.util.Properties;
 import org.junit.Test;
 
 import io.imunity.otp.OTPRetrievalProperties;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 public class OTPWithLDAPConfigurationTest
 {

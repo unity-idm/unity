@@ -20,30 +20,30 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.entity.IdentityTaV;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
+import pl.edu.icm.unity.engine.api.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.engine.api.group.GroupPattern;
+import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupPattern;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class AttributesManagementImplTest extends DBIntegrationTestBase
 {

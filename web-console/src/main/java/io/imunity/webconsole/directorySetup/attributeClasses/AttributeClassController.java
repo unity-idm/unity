@@ -10,10 +10,10 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.AttributesClass;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

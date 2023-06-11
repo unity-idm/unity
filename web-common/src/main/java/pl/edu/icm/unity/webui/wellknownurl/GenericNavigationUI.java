@@ -12,7 +12,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.VaadinRequest;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.ErrorComponent;

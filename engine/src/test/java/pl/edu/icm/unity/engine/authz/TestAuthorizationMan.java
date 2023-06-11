@@ -12,12 +12,12 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.IdentityParam;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * 

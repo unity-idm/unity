@@ -12,8 +12,8 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.describedObject.NamedObject;
 import pl.edu.icm.unity.store.types.UpdateFlag;
-import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * DAO with typical CRUD operations for types which are identifiable by string name.

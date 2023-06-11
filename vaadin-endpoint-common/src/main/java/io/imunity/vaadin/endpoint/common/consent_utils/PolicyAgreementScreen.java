@@ -15,12 +15,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentation;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;

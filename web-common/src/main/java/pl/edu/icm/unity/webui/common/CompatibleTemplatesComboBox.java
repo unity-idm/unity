@@ -12,10 +12,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.ComboBox;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
 
 /**
  * A {@link ComboBox} showing only the templates which are compatible with a given description.

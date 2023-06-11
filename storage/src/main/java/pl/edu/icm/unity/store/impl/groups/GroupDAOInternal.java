@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.groups;
 
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.types.basic.Group;
 
 /**
  * Extends {@link GroupDAO} with {@link ReferenceAwareDAO} methods, which shall be visible only internally

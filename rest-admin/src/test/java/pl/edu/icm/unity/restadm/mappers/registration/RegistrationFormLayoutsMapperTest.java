@@ -18,16 +18,16 @@ import io.imunity.rest.api.types.registration.layout.RestFormLayout;
 import io.imunity.rest.api.types.registration.layout.RestFormLocalSignupButtonElement;
 import io.imunity.rest.api.types.registration.layout.RestFormParameterElement;
 import io.imunity.rest.api.types.registration.layout.RestFormSeparatorElement;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.registration.RegistrationFormLayouts;
+import pl.edu.icm.unity.base.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.base.registration.layout.FormCaptionElement;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
+import pl.edu.icm.unity.base.registration.layout.FormLocalSignupButtonElement;
+import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
+import pl.edu.icm.unity.base.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
-import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
-import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
-import pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement;
-import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
-import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 
 public class RegistrationFormLayoutsMapperTest
 		extends MapperTestBase<RegistrationFormLayouts, RestRegistrationFormLayouts>

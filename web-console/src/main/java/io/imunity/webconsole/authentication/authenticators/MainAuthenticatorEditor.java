@@ -19,9 +19,9 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactoriesRegistry;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;

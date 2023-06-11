@@ -8,11 +8,11 @@ package pl.edu.icm.unity.store.objstore.reg.layout;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 
 public class FormLayoutMapperTest extends MapperTestBase<FormLayout, DBFormLayout>
 

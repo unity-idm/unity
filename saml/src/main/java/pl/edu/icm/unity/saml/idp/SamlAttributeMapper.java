@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.base.attribute.Attribute;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 
 /**

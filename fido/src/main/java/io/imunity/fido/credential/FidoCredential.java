@@ -7,8 +7,9 @@ package io.imunity.fido.credential;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yubico.webauthn.data.AttestationConveyancePreference;
 import com.yubico.webauthn.data.UserVerificationRequirement;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
+
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 
 /**
  * Represents business object of fido credential definition.

@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.common.i18n;
 
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 public class I18nOptionalLangTextField extends AbstractOptionalLang18nField<TextField>
 {

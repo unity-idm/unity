@@ -11,13 +11,14 @@ import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
 import io.imunity.fido.credential.FidoCredentialInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.EntityParam;
 
 import java.util.AbstractMap;
 import java.util.Collections;

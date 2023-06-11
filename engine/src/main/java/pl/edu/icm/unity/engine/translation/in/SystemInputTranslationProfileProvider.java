@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.engine.translation.SystemTranslationProfileProviderBase;
-import pl.edu.icm.unity.types.translation.ProfileType;
 
 /**
  * Provides system input translation profiles

@@ -6,12 +6,12 @@ package pl.edu.icm.unity.engine.api.translation;
 
 import java.util.List;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Parses external data into types usable in Unity API.

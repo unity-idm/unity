@@ -14,10 +14,10 @@ import java.util.stream.Stream;
 
 import io.imunity.rest.api.types.basic.RestAttributeStatement;
 import io.imunity.rest.api.types.basic.RestGroup;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.attribute.AttributeStatement;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class GroupMapper
 {

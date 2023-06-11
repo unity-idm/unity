@@ -6,7 +6,7 @@
 
 package pl.edu.icm.unity.engine.api.files;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * 

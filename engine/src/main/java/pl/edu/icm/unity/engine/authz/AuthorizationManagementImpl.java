@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
 /**
  * Implementation of the {@link AuthorizationManagement}

@@ -7,8 +7,8 @@ package pl.edu.icm.unity.stdext.utils;
 
 import java.util.regex.Pattern;
 
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
-import pl.edu.icm.unity.types.basic.VerifiableMobileNumber;
+import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
+import pl.edu.icm.unity.base.verifiable.VerifiableMobileNumber;
 
 /**
  * Mobile number utils shared

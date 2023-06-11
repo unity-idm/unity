@@ -17,9 +17,9 @@ import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 public class AttrIntrospectionAttributePoliciesConfiguration
 {

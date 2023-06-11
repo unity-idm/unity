@@ -7,9 +7,9 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeValueEditor;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.attr.UnityImage;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
 
 import java.util.Optional;

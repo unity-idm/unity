@@ -5,7 +5,7 @@
 
 package io.imunity.webconsole.tprofile;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 
 public class DynamicGroupParamWithLabel extends DynamicGroupParam

@@ -14,25 +14,25 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
+import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.base.registration.RegistrationRequest;
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementState;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 
 public class TestRegistrationPolicyAgreements extends RegistrationTestBase
 {

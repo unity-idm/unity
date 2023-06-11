@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.edit;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 

@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.store.api.generic.ProcessingRuleDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 
 /**
  * Handles import/export of {@link ScheduledProcessingRule}.

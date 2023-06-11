@@ -15,7 +15,15 @@ import org.springframework.context.ApplicationEventPublisher;
 import io.imunity.idp.AccessProtocol;
 import io.imunity.idp.ApplicationId;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -23,18 +31,10 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 public class OAuthTokenStatisticPublisher
 {

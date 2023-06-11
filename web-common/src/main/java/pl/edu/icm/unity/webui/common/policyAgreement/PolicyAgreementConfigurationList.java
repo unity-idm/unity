@@ -12,13 +12,13 @@ import java.util.function.Supplier;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements;
 
 public class PolicyAgreementConfigurationList extends ListOfDnDCollapsableElements<PolicyAgreementConfiguration>

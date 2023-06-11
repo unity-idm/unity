@@ -7,10 +7,10 @@ package pl.edu.icm.unity.store.objstore.realm;
 
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 public class AuthenticationRealmMapperTest extends MapperTestBase<AuthenticationRealm, DBAuthenticationRealm>
 {

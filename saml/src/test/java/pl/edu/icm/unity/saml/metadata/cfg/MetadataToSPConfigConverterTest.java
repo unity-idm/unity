@@ -17,13 +17,13 @@ import java.time.Duration;
 import org.apache.xmlbeans.XmlException;
 import org.junit.Test;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 public class MetadataToSPConfigConverterTest

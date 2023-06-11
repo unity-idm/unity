@@ -8,13 +8,28 @@ import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.audit.AuditEventAction;
+import pl.edu.icm.unity.base.audit.AuditEventType;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupContents;
+import pl.edu.icm.unity.base.group.GroupMembership;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
+import pl.edu.icm.unity.engine.api.group.GroupsChain;
+import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
@@ -26,10 +41,6 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
@@ -38,16 +49,6 @@ import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.GroupsChain;
-import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
-import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,8 +60,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
+import static pl.edu.icm.unity.base.audit.AuditEventTag.GROUPS;
+import static pl.edu.icm.unity.base.audit.AuditEventTag.MEMBERS;
 
 
 /**

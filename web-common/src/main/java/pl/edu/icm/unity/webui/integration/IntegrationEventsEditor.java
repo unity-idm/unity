@@ -15,7 +15,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent.EventType;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventGroup;

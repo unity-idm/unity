@@ -8,8 +8,8 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;

@@ -10,7 +10,7 @@ import java.io.StringReader;
 import java.util.Properties;
 
 import io.imunity.upman.UpmanEndpointProperties;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 
 /**
  * 

@@ -17,8 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.base.Supplier;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.authn.CredentialRequirements;
+import pl.edu.icm.unity.base.entity.IdentityType;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -28,13 +35,6 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Responsible for creating {@link ActionParameterComponent}s.

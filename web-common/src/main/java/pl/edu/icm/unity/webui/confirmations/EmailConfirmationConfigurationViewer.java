@@ -8,8 +8,8 @@ package pl.edu.icm.unity.webui.confirmations;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Simple shows {@link EmailConfirmationConfiguration}

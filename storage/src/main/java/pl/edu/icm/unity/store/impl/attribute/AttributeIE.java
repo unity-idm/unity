@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
 import pl.edu.icm.unity.store.types.StoredAttribute;

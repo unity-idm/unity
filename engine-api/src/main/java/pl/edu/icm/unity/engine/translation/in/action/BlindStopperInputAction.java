@@ -6,13 +6,13 @@ package pl.edu.icm.unity.engine.translation.in.action;
 
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Action used instead of a real action when it is misconfigured.

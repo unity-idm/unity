@@ -15,14 +15,14 @@ import io.imunity.rest.api.types.registration.layout.RestFormElement;
 import io.imunity.rest.api.types.registration.layout.RestFormLocalSignupButtonElement;
 import io.imunity.rest.api.types.registration.layout.RestFormParameterElement;
 import io.imunity.rest.api.types.registration.layout.RestFormSeparatorElement;
+import pl.edu.icm.unity.base.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.base.registration.layout.FormCaptionElement;
+import pl.edu.icm.unity.base.registration.layout.FormElement;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
+import pl.edu.icm.unity.base.registration.layout.FormLocalSignupButtonElement;
+import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
+import pl.edu.icm.unity.base.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.restadm.mappers.I18nStringMapper;
-import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
-import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
-import pl.edu.icm.unity.types.registration.layout.FormElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
-import pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement;
-import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
-import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 
 public class FormLayoutElementMapper
 {

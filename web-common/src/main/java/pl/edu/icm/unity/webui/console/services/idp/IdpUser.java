@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.webui.console.services.idp;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 /**

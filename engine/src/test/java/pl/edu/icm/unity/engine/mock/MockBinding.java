@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.mock;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 public interface MockBinding extends BindingAuthn 
 {

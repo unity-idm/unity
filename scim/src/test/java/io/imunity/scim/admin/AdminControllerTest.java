@@ -28,10 +28,10 @@ import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.config.SCIMEndpointConfiguration;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.config.SCIMEndpointPropertiesConfigurationMapper;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AdminControllerTest

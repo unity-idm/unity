@@ -11,8 +11,8 @@ import java.util.Map;
 import com.vaadin.data.HasValue;
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventConfiguration;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 public interface IntegrationEventConfigurationEditor extends Component, HasValue<IntegrationEventConfiguration>
 {

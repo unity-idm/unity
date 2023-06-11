@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers.registration;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.RestRegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 
 public class RegistrationContextMapper
 {

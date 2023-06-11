@@ -14,10 +14,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * Handles import/export of attribute types table.

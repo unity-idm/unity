@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 
 /**
  * Describes context of authentication: in which realm it happens (or happened), what flow is used, which option

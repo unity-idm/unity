@@ -9,9 +9,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Allows to install the {@link SLOReplyServlet} under unitygw. Ensures that the servlet is installed only once.

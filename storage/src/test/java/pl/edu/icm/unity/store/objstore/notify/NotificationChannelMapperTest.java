@@ -7,9 +7,9 @@ package pl.edu.icm.unity.store.objstore.notify;
 
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.notifications.NotificationChannel;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 public class NotificationChannelMapperTest extends MapperTestBase<NotificationChannel, DBNotificationChannel>
 {

@@ -10,12 +10,13 @@ import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.home.HomeEndpointConstants;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 import java.util.Collections;
 import java.util.Optional;

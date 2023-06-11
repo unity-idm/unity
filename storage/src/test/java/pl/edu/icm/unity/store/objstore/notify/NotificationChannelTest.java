@@ -6,10 +6,10 @@ package pl.edu.icm.unity.store.objstore.notify;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.notifications.NotificationChannel;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.NotificationChannelDB;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 public class NotificationChannelTest extends AbstractNamedWithTSTest<NotificationChannel>
 {

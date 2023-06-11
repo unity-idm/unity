@@ -11,7 +11,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.basic.RestGroupDelegationConfiguration;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 
 public class GroupDelegationConfigurationMapperTest
 		extends MapperTestBase<GroupDelegationConfiguration, RestGroupDelegationConfiguration>

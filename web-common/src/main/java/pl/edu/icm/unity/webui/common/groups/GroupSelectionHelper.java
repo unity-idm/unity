@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Group selection related operations.

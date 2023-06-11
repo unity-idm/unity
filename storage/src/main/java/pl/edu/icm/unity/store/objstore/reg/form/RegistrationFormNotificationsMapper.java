@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.objstore.reg.form;
 
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
 
 class RegistrationFormNotificationsMapper
 {

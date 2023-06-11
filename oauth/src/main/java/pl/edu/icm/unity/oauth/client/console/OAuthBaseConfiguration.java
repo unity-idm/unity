@@ -7,10 +7,10 @@
 package pl.edu.icm.unity.oauth.client.console;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Base OAuth configuration bean

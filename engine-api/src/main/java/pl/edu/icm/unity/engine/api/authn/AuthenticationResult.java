@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.authn;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Base contract of authentication result - have remote and local authn variants.

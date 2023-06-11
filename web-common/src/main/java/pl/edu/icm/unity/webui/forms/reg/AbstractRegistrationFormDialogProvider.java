@@ -8,11 +8,11 @@ import java.util.function.Function;
 
 import org.springframework.beans.factory.ObjectFactory;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;

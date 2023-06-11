@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.membership;
 
-import pl.edu.icm.unity.store.impl.groups.GroupBean;
-
 import java.util.List;
+
+import pl.edu.icm.unity.store.impl.groups.GroupBean;
 
 
 /**

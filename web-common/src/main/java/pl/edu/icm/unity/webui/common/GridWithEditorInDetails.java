@@ -26,8 +26,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
 
 /**

@@ -12,7 +12,8 @@ import io.imunity.fido.credential.FidoCredentialInfo;
 import io.imunity.fido.service.FidoException;
 import io.imunity.fido.service.NoEntityException;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;

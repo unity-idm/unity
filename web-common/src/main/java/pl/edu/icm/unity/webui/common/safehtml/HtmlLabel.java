@@ -8,7 +8,7 @@ import com.google.common.html.HtmlEscapers;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * HTML label displaying a contents which is based on a safe template with HTML and unsafe arguments which are supposed

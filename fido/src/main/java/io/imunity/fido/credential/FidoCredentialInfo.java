@@ -11,9 +11,11 @@ import com.yubico.webauthn.RegisteredCredential;
 import com.yubico.webauthn.attestation.Attestation;
 import com.yubico.webauthn.attestation.Transport;
 import com.yubico.webauthn.data.ByteArray;
+
+import pl.edu.icm.unity.base.Constants;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.Constants;
 
 import java.io.IOException;
 import java.util.Collections;

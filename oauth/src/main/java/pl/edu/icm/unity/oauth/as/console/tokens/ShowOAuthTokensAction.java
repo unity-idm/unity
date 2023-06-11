@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.spi.services.IdpServiceAdditionalAction;
 import io.imunity.webconsole.spi.services.ServiceActionRepresentation;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.webui.common.Images;
 

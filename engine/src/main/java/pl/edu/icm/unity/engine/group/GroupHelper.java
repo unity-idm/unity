@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.group;
 
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.GROUPS;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.MEMBERS;
+import static pl.edu.icm.unity.base.audit.AuditEventTag.GROUPS;
+import static pl.edu.icm.unity.base.audit.AuditEventTag.MEMBERS;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,29 +21,29 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeStatement;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.base.audit.AuditEventAction;
+import pl.edu.icm.unity.base.audit.AuditEventType;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
-import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 /**
  * Shared group-related utility methods

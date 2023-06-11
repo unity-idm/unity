@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings.ConfirmationMode;
 

@@ -22,7 +22,7 @@ import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.SearchField;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
 import javax.annotation.security.PermitAll;

@@ -10,9 +10,10 @@ import io.imunity.vaadin.elements.VaadinInitParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;

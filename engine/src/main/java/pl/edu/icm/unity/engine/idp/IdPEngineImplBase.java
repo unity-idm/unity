@@ -4,25 +4,41 @@
  */
 package pl.edu.icm.unity.engine.idp;
 
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.Logger;
+
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.entity.IdentityTaV;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.engine.api.idp.*;
+import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
+import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.idp.UserImportConfigs;
+import pl.edu.icm.unity.engine.api.idp.UserImportHelper;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.*;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * IdP engine is responsible for performing common IdP-related functionality. It resolves the information

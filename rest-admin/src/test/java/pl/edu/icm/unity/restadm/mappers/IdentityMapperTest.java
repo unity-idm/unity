@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.imunity.rest.api.types.basic.RestIdentity;
 import io.imunity.rest.api.types.confirmation.RestConfirmationInfo;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.entity.Identity;
 
 public class IdentityMapperTest extends MapperWithMinimalTestBase<Identity, RestIdentity>
 {

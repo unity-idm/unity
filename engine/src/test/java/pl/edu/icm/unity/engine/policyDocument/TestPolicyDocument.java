@@ -13,14 +13,14 @@ import java.util.Collection;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentUpdateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.I18nString;
 
 public class TestPolicyDocument extends DBIntegrationTestBase
 {

@@ -32,7 +32,7 @@ import io.imunity.scim.config.DataValue;
 import io.imunity.scim.config.DataValue.DataValueType;
 import io.imunity.scim.config.SimpleAttributeMapping;
 import io.imunity.scim.schema.SCIMAttributeType;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComplexMappingEvaluatorTest

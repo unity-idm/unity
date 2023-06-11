@@ -13,6 +13,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
@@ -22,12 +28,6 @@ import pl.edu.icm.unity.engine.api.translation.in.AttributeEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Maps multiple attributes only by providing new names, values are unchanged.

@@ -8,8 +8,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;

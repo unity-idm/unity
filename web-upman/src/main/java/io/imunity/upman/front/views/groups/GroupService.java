@@ -10,11 +10,12 @@ import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.SubprojectGroupDelegationConfiguration;
-import pl.edu.icm.unity.types.I18nString;
 
 import java.util.Locale;
 import java.util.Map;

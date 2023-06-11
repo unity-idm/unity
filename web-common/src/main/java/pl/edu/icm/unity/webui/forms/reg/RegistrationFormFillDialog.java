@@ -11,12 +11,12 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.RegistrationRequest;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;

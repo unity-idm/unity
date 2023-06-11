@@ -27,8 +27,8 @@ import io.imunity.scim.SCIMRestController;
 import io.imunity.scim.SCIMRestControllerFactory;
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.config.SCIMEndpointDescription;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path(SCIMEndpoint.PATH)

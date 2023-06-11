@@ -16,11 +16,11 @@ import io.imunity.rest.api.types.basic.RestAttributeExt;
 import io.imunity.rest.api.types.basic.RestEntityInformation;
 import io.imunity.rest.api.types.basic.RestIdentity;
 import io.imunity.rest.api.types.confirmation.RestConfirmationInfo;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.entity.EntityInformation;
+import pl.edu.icm.unity.base.entity.Identity;
 import pl.edu.icm.unity.engine.api.groupMember.GroupMemberWithAttributes;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.Identity;
 
 public class GroupMemberWithAttributesMapperTest
 		extends MapperTestBase<GroupMemberWithAttributes, RestGroupMemberWithAttributes>

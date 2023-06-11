@@ -7,10 +7,10 @@ package pl.edu.icm.unity.store.objstore.msgtemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
 
 /**
  * Easy to use interface to {@link MessageTemplate} storage.

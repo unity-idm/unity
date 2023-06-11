@@ -4,7 +4,7 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**

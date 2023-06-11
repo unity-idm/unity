@@ -13,9 +13,9 @@ import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
-import pl.edu.icm.unity.types.I18nString;
 
 public class PolicyAgreementConfigTextParser
 {	

@@ -11,8 +11,13 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.registration.UserRequestState;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.base.verifiable.VerifiableElement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
@@ -23,11 +28,6 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdent
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
-import pl.edu.icm.unity.types.registration.UserRequestState;
 
 /**
  * Support for rewriting confirmation tokens of registration form (upon its acceptance) to regular confirmation tokens

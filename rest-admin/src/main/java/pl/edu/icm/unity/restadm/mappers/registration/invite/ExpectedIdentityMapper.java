@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers.registration.invite;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.invite.RestExpectedIdentity;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
+import pl.edu.icm.unity.base.authn.ExpectedIdentity;
+import pl.edu.icm.unity.base.authn.ExpectedIdentity.IdentityExpectation;
 
 public class ExpectedIdentityMapper
 {

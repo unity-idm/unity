@@ -17,8 +17,8 @@ import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.config.SchemaWithMapping;
 import io.imunity.scim.user.User;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 public class UserSchemaEvaluator
 {

@@ -6,9 +6,9 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 
 /**
  * Authentication realm is a group of endpoints which share the same authentication context:

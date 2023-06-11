@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.stdext.attr.PolicyAgreementAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 @Component
 public class PolicyAgreementStateAttributeProvider implements SystemAttributesProvider

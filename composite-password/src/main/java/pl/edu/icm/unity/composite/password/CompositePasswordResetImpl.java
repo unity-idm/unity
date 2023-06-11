@@ -11,25 +11,25 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.TooManyAttempts;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.exceptions.TooManyAttempts;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordEngine;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
  * Composite password reset implementation of {@link CredentialReset}. This

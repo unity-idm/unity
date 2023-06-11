@@ -6,8 +6,8 @@ package pl.edu.icm.unity.engine.notifications;
 
 import java.util.concurrent.Future;
 
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
-import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 
 /**
  * Configured object created by {@link NotificationFacility} able to send notifications.

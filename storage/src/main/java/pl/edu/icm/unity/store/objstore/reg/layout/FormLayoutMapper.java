@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.layout;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
 
 public class FormLayoutMapper
 {

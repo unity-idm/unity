@@ -6,10 +6,10 @@
 package pl.edu.icm.unity.rest.exception;
 
 import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
-import pl.edu.icm.unity.types.JsonError;
+import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;

@@ -5,9 +5,8 @@
 
 package pl.edu.icm.unity.restadm.mappers.registration;
 
-import pl.edu.icm.unity.types.registration.GroupSelection;
-
 import io.imunity.rest.api.types.registration.RestGroupSelection;
+import pl.edu.icm.unity.base.registration.GroupSelection;
 
 public class GroupSelectionMapper
 {

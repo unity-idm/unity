@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.webui.console.services;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Convert service binding and type to more readable form

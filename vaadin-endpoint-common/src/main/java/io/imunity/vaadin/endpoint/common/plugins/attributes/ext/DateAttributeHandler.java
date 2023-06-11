@@ -9,11 +9,12 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.NullAttributeValueException;
+import pl.edu.icm.unity.engine.api.attributes.NullAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.DateAttributeSyntax;
 
 import java.time.LocalDate;

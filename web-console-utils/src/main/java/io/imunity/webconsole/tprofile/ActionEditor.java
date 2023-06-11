@@ -17,12 +17,12 @@ import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;

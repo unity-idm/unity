@@ -10,12 +10,12 @@
 package io.imunity.fido.service;
 
 import io.imunity.fido.identity.FidoUserHandleIdentity;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 
 import java.util.List;
 import java.util.Optional;

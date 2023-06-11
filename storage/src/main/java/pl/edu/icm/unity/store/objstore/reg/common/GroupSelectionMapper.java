@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.objstore.reg.common;
 
-import pl.edu.icm.unity.types.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.GroupSelection;
 
 
 public class GroupSelectionMapper

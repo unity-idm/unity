@@ -9,8 +9,8 @@ import java.util.Properties;
 
 import org.springframework.context.ApplicationContext;
 
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 
 

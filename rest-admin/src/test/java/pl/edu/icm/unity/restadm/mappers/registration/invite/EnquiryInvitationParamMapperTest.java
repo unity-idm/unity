@@ -22,17 +22,17 @@ import io.imunity.rest.api.types.registration.RestGroupSelection;
 import io.imunity.rest.api.types.registration.invite.RestEnquiryInvitationParam;
 import io.imunity.rest.api.types.registration.invite.RestFormPrefill;
 import io.imunity.rest.api.types.registration.invite.RestPrefilledEntry;
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.registration.FormType;
+import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.base.registration.invite.FormPrefill;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.registration.FormType;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 public class EnquiryInvitationParamMapperTest extends MapperTestBase<EnquiryInvitationParam, RestEnquiryInvitationParam>
 {

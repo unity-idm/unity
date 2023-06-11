@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
-import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
-
 import java.util.List;
+
+import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
 
 
 

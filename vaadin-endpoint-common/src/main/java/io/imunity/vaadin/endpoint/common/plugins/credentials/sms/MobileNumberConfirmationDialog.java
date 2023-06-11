@@ -15,15 +15,16 @@ import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.MobileNumberConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
 
 public class MobileNumberConfirmationDialog extends ConfirmDialog
 {

@@ -18,14 +18,14 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
-import pl.edu.icm.unity.types.registration.layout.FormElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
-import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
-import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.layout.FormCaptionElement;
+import pl.edu.icm.unity.base.registration.layout.FormElement;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
+import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
+import pl.edu.icm.unity.base.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 

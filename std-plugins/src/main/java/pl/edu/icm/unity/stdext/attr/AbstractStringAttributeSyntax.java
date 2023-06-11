@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
  * Common code for string based attribute syntax classes.

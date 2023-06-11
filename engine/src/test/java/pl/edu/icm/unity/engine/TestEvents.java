@@ -8,13 +8,14 @@ package pl.edu.icm.unity.engine;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.events.EventProducingAspect;
 import pl.edu.icm.unity.engine.events.InvocationEventContents;
-import pl.edu.icm.unity.types.Event;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;

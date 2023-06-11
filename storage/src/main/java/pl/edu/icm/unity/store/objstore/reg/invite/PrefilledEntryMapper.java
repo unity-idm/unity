@@ -7,9 +7,8 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 
 import java.util.function.Function;
 
-
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
 
 public class PrefilledEntryMapper
 {

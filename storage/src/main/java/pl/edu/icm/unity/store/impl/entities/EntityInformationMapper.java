@@ -7,9 +7,9 @@ package pl.edu.icm.unity.store.impl.entities;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
-import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.base.entity.EntityInformation;
+import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
+import pl.edu.icm.unity.base.entity.EntityState;
 
 class EntityInformationMapper
 {

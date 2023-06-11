@@ -10,10 +10,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam.InvitationType;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 
 /**
  * Shared code updating authenticators. 

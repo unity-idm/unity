@@ -14,9 +14,10 @@ import io.imunity.vaadin.auth.extensions.credreset.CredentialResetLayout;
 import io.imunity.vaadin.auth.extensions.credreset.TextFieldWithContextLabel;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.TooManyAttempts;
+import pl.edu.icm.unity.engine.api.authn.TooManyAttempts;
 
 /**
  * 2nd step of credential reset pipeline. On this screen the user must provide an answer to the security question.

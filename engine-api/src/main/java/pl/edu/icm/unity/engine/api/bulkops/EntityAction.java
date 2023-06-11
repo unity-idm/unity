@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.bulkops;
 
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Implementation performs an action on a given entity.

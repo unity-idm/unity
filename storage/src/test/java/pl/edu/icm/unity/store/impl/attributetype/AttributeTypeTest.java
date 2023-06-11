@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 public class AttributeTypeTest extends AbstractNamedDAOTest<AttributeType>
 {

@@ -7,10 +7,10 @@ package pl.edu.icm.unity.store.objstore.bulk;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.store.api.generic.ProcessingRuleDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 
 /**
  * Easy access to {@link ScheduledProcessingRule} storage.

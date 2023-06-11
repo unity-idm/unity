@@ -13,7 +13,7 @@ import javax.ws.rs.ext.Provider;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 
 @Provider
 class UnknownGroupExceptionMapper implements ExceptionMapper<IllegalGroupValueException>

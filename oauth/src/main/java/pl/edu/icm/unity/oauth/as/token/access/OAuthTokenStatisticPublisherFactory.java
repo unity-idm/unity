@@ -11,13 +11,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 @Component
 class OAuthTokenStatisticPublisherFactory

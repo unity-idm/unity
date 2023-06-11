@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
 
 /**
  * Time related utilities.

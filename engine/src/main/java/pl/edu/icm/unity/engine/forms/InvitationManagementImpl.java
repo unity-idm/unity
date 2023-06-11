@@ -14,22 +14,22 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Objects;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.invite.FormProvider;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam;
+import pl.edu.icm.unity.base.registration.invite.InvitationSendData;
+import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.registration.UnknownInvitationException;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.invite.FormProvider;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationSendData;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 @Component
 @Primary

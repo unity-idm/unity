@@ -18,22 +18,22 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.GroupMembership;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.GenericMessageTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateProcessor;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TxManager;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 
 /**
  * Internal (shouldn't be exposed directly to end-users) subsystem for sending notifications.

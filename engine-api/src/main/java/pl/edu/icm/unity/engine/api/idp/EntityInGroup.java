@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.idp;
 
-import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityParam;
 
 /**
  * EntityParam with group context information

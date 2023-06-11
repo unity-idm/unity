@@ -30,6 +30,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.otp.HashFunction;
 import io.imunity.otp.OTPGenerationParams;
 import io.imunity.otp.v8.TOTPCodeGenerator;
+import pl.edu.icm.unity.base.entity.Identity;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
@@ -37,7 +38,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.ldap.EmbeddedDirectoryServer;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Identity;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OTPWithLDAPVerificatorTest

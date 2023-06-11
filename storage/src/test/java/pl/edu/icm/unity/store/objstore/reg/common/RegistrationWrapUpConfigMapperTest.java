@@ -8,12 +8,12 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import java.time.Duration;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig;
+import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.types.common.DBI18nString;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 
 public class RegistrationWrapUpConfigMapperTest
 		extends MapperTestBase<RegistrationWrapUpConfig, DBRegistrationWrapUpConfig>

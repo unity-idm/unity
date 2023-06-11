@@ -12,7 +12,7 @@ import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.server.Resource;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Simplified {@link Handler} providing and handling a single action. 

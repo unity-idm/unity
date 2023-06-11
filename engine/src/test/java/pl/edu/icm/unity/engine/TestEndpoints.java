@@ -19,20 +19,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.RememberMePolicy;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 public class TestEndpoints extends DBIntegrationTestBase
 {

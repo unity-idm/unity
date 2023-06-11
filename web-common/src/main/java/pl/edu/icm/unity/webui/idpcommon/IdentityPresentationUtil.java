@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.webui.idpcommon;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 
 class IdentityPresentationUtil
 {

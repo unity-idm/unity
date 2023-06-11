@@ -6,10 +6,10 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.CredentialType;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.authn.CredentialType;
+import pl.edu.icm.unity.base.authn.LocalCredentialState;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Credential management API

@@ -6,11 +6,11 @@ package pl.edu.icm.unity.store.objstore.reg;
 
 import java.util.List;
 
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 
 public class CredentialRenameListener<T extends BaseForm > implements ReferenceUpdateHandler<CredentialDefinition>
 {

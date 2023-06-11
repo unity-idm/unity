@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
@@ -36,8 +38,6 @@ import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class TestSpCfgFromMeta extends DBIntegrationTestBase
 {

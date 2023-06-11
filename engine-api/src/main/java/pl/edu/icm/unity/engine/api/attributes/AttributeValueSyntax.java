@@ -8,8 +8,8 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 
 /**
  * Base interface defining attribute value syntax. It provides handling of the 

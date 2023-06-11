@@ -17,11 +17,12 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 
 /**
  * Dialog presented to users who were correctly authenticated with a remote IdP

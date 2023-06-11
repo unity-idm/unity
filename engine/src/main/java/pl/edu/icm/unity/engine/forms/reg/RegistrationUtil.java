@@ -13,15 +13,15 @@ import java.util.function.Function;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.invite.FormPrefill;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 class RegistrationUtil
 {

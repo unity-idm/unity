@@ -9,7 +9,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.authn.CredentialRequirements;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
@@ -27,12 +33,6 @@ import pl.edu.icm.unity.store.objstore.reg.CredentialChangeListener;
 import pl.edu.icm.unity.store.objstore.reg.CredentialRenameListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupChangeListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupRenameListener;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 
 /**
  * Easy access to {@link RegistrationForm} storage.

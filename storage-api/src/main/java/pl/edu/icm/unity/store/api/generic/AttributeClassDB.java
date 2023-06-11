@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.base.attribute.AttributesClass;
 
 /**
  * Easy access to {@link AttributesClass} storage.

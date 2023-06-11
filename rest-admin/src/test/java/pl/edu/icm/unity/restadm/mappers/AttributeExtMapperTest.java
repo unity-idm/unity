@@ -12,8 +12,8 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.basic.RestAttributeExt;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 
 public class AttributeExtMapperTest extends MapperWithMinimalTestBase<AttributeExt, RestAttributeExt>
 {

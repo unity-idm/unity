@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.store.api;
 
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 
 import java.util.List;
 

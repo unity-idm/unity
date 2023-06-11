@@ -29,7 +29,17 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.RememberMePolicy;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
@@ -41,16 +51,6 @@ import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Somewhat complex integration test of the OAuth RP authenticator.

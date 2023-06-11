@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
+import pl.edu.icm.unity.base.registration.ExternalSignupSpec;
 
 class ExternalSignupSpecMapper
 {

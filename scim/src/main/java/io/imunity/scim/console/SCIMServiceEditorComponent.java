@@ -10,7 +10,7 @@ import com.vaadin.data.Binder;
 
 import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.config.SCIMEndpointPropertiesConfigurationMapper;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;

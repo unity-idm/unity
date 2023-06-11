@@ -10,25 +10,25 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryResponse;
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
+import pl.edu.icm.unity.base.registration.IllegalFormTypeException;
+import pl.edu.icm.unity.base.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.base.registration.invite.FormPrefill;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam;
+import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.forms.BaseRequestPreprocessor;
 import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.engine.forms.PolicyAgreementsValidator;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
-import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryResponse;
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
-import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Helper component with methods to validate {@link EnquiryResponse}.

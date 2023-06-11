@@ -5,9 +5,9 @@
 
 package io.imunity.vaadin.enquiry;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 import java.net.MalformedURLException;

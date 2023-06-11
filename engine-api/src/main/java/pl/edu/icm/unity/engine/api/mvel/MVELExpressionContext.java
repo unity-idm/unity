@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 
-import pl.edu.icm.unity.types.translation.ActionParameterDefinitionDetails;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinitionDetails;
 
 public class MVELExpressionContext implements  ActionParameterDefinitionDetails
 {

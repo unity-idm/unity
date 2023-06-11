@@ -16,8 +16,8 @@ import org.springframework.util.StringUtils;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameComparator;
 

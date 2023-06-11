@@ -7,8 +7,9 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
+
+import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 class EmailConfirmationConfigurationViewer extends VerticalLayout
 {

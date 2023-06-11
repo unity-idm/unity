@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 
 public class AuthenticationFlowMapperTest extends MapperTestBase<AuthenticationFlowDefinition, DBAuthenticationFlow>
 {

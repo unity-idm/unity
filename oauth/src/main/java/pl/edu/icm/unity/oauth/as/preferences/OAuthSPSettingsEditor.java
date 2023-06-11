@@ -15,11 +15,11 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.types.basic.Identity;
 
 /**
  * Allows to edit settings for a single OAuth Client.

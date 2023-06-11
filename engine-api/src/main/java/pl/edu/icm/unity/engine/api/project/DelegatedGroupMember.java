@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
 
 /**
  * Holds information about delegated group member.

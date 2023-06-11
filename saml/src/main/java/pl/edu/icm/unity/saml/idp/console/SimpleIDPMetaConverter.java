@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToConfigConverterHelper;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;

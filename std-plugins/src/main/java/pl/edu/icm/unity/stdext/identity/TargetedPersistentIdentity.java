@@ -6,12 +6,13 @@ package pl.edu.icm.unity.stdext.identity;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.DynamicIdentityTypeDefinition;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 
 import java.util.UUID;
 

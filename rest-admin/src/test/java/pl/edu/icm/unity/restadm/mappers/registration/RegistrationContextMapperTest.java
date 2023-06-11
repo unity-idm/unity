@@ -10,9 +10,9 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.RestRegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 
 public class RegistrationContextMapperTest extends MapperTestBase<RegistrationContext, RestRegistrationContext>
 {

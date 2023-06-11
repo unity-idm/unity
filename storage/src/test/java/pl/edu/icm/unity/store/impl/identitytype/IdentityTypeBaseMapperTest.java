@@ -7,10 +7,10 @@ package pl.edu.icm.unity.store.impl.identitytype;
 
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.base.entity.IdentityType;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 public class IdentityTypeBaseMapperTest extends MapperTestBase<IdentityType, DBIdentityType>
 {

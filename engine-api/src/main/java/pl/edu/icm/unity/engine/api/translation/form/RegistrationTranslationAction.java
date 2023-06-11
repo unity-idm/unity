@@ -7,10 +7,10 @@ package pl.edu.icm.unity.engine.api.translation.form;
 import org.apache.logging.log4j.Logger;
 import org.apache.log4j.NDC;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Base of all actions operating on a contents of a registration request submitted by a prospective user. 

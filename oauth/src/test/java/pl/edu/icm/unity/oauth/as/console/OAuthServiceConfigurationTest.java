@@ -17,7 +17,11 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
@@ -25,10 +29,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 public class OAuthServiceConfigurationTest
 {

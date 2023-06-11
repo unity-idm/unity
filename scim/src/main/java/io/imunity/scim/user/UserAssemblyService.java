@@ -29,11 +29,11 @@ import io.imunity.scim.config.SchemaWithMapping;
 import io.imunity.scim.user.UserAuthzService.SCIMUserAuthzServiceFactory;
 import io.imunity.scim.user.mapping.evaluation.UserSchemaEvaluator;
 import io.imunity.scim.user.mapping.evaluation.UserSchemaEvaluator.UserSchemaEvaluatorFactory;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-import pl.edu.icm.unity.types.basic.Identity;
 
 class UserAssemblyService
 {

@@ -10,19 +10,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import pl.edu.icm.unity.base.audit.AuditEvent;
+import pl.edu.icm.unity.base.audit.AuditEventAction;
+import pl.edu.icm.unity.base.audit.AuditEventType;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
-import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 
 import java.util.List;
 import java.util.concurrent.Callable;

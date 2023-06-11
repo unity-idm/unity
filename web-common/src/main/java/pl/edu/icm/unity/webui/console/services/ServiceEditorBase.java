@@ -18,7 +18,7 @@ import com.vaadin.ui.HasComponents;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.Tab;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Base for all service editor. Editor based on two tabs - general and

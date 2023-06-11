@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.api.endpoint;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Management of the single, shared, internal Unity endpoint,  which is not under administrator's control.

@@ -13,10 +13,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.endpoint.RestEndpoint;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.restadm.mappers.MapperWithMinimalTestBase;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
 public class EndpointMapperTest extends MapperWithMinimalTestBase<Endpoint, RestEndpoint>
 {

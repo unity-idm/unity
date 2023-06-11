@@ -4,37 +4,67 @@
  */
 package io.imunity.webconsole.signupAndEnquiry.forms;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.Streams;
-import com.vaadin.ui.*;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+
 import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
 import io.imunity.webconsole.tprofile.DynamicGroupParamWithLabel;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.entity.IdentityType;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.AgreementRegistrationParam;
+import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.BaseFormBuilder;
+import pl.edu.icm.unity.base.registration.ConfirmationMode;
+import pl.edu.icm.unity.base.registration.CredentialRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam.IncludeGroupsMode;
+import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.base.registration.OptionalRegistrationParam;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.RegistrationParam;
+import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig;
+import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.IdentityType;
-import pl.edu.icm.unity.types.registration.*;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
-import pl.edu.icm.unity.webui.common.*;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
+import pl.edu.icm.unity.webui.common.NotNullComboBox;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
 import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
-
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Base code for both registration and enquiry forms editing

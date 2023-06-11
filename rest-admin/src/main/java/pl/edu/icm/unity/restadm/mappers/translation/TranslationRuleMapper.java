@@ -8,7 +8,7 @@ package pl.edu.icm.unity.restadm.mappers.translation;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.translation.RestTranslationRule;
-import pl.edu.icm.unity.types.translation.TranslationRule;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 
 public class TranslationRuleMapper
 {

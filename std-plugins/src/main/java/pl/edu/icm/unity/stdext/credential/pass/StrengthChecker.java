@@ -19,7 +19,7 @@ import edu.vt.middleware.password.CharacterRule;
 import edu.vt.middleware.password.Password;
 import edu.vt.middleware.password.PasswordData;
 import edu.vt.middleware.password.Rule;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Checks strength of the password using zxcvbn derivative library and provide other simple 

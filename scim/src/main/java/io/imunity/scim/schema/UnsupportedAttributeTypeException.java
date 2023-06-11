@@ -5,7 +5,7 @@
 
 package io.imunity.scim.schema;
 
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 
 public class UnsupportedAttributeTypeException extends RuntimeEngineException
 {

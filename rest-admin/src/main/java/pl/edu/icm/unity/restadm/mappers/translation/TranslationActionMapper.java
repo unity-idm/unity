@@ -8,7 +8,7 @@ package pl.edu.icm.unity.restadm.mappers.translation;
 import java.util.List;
 
 import io.imunity.rest.api.types.translation.RestTranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationAction;
 
 public class TranslationActionMapper
 {

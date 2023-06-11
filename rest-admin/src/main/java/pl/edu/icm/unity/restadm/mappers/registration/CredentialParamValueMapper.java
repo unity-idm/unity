@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers.registration;
 
 import io.imunity.rest.api.types.registration.RestCredentialParamValue;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
+import pl.edu.icm.unity.base.registration.CredentialParamValue;
 
 public class CredentialParamValueMapper
 {

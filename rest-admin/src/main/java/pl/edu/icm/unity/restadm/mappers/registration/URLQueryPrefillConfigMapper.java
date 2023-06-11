@@ -6,8 +6,8 @@
 package pl.edu.icm.unity.restadm.mappers.registration;
 
 import io.imunity.rest.api.types.registration.RestURLQueryPrefillConfig;
-import pl.edu.icm.unity.types.registration.URLQueryPrefillConfig;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
 
 public class URLQueryPrefillConfigMapper
 {

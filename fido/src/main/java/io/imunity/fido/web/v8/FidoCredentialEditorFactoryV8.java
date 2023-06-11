@@ -8,7 +8,8 @@ import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.service.FidoCredentialVerificator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;

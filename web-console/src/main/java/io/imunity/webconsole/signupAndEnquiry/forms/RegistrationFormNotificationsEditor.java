@@ -4,13 +4,13 @@
  */
 package io.imunity.webconsole.signupAndEnquiry.forms;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 
 /**

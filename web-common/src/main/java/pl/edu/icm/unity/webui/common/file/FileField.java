@@ -11,7 +11,7 @@ import com.vaadin.server.StreamResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;

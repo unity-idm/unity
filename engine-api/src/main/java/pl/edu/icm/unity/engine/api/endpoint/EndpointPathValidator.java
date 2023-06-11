@@ -9,7 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 
 /**
  * Helper for validation endpoint path

@@ -7,9 +7,9 @@ package pl.edu.icm.unity.engine.api;
 import java.util.Collection;
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.base.attribute.AttributesClass;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Attribute class management API.

@@ -9,17 +9,17 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.registration.FormType;
+import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.invite.FormPrefill;
 import pl.edu.icm.unity.store.impl.attribute.AttributeMapper;
 import pl.edu.icm.unity.store.impl.attribute.DBAttribute;
 import pl.edu.icm.unity.store.objstore.reg.common.DBGroupSelection;
 import pl.edu.icm.unity.store.objstore.reg.common.DBIdentityParam;
 import pl.edu.icm.unity.store.objstore.reg.common.GroupSelectionMapper;
 import pl.edu.icm.unity.store.objstore.reg.common.IdentityParamMapper;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.FormType;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill;
 
 public class FormPrefillMapper
 {

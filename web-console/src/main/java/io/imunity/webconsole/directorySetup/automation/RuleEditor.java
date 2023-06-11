@@ -6,7 +6,7 @@ package io.imunity.webconsole.directorySetup.automation;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.types.translation.TranslationRule;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**

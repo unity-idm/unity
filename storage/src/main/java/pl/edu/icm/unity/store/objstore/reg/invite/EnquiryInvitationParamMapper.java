@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 import java.time.Instant;
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.base.registration.invite.EnquiryInvitationParam;
 
 public class EnquiryInvitationParamMapper
 {

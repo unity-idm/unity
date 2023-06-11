@@ -7,7 +7,10 @@ package pl.edu.icm.unity.webui.association.afterlogin;
 import org.apache.logging.log4j.Logger;
 import org.vaadin.teemu.wizards.Wizard;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -17,9 +20,6 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.association.AbstractConfirmationStep;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 

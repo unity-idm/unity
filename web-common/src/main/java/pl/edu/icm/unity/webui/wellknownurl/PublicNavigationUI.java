@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * The Vaadin UI providing a concrete view depending on URL fragment. Actual views are configured via DI.

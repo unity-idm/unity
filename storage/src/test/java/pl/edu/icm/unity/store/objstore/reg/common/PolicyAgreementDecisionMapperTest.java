@@ -5,13 +5,13 @@
 
 package pl.edu.icm.unity.store.objstore.reg.common;
 
-import pl.edu.icm.unity.store.MapperTestBase;
-import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
-
 import java.util.List;
 import java.util.function.Function;
+
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.store.MapperTestBase;
+import pl.edu.icm.unity.store.Pair;
 
 
 

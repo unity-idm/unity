@@ -7,15 +7,14 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.function.Function;
 
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.entity.IdentityParam;
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 public class IdentityParamMapperTest extends MapperWithMinimalTestBase<IdentityParam, DBIdentityParam>
 {

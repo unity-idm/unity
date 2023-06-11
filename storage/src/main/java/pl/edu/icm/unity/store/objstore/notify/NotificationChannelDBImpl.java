@@ -7,10 +7,10 @@ package pl.edu.icm.unity.store.objstore.notify;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.notifications.NotificationChannel;
 import pl.edu.icm.unity.store.api.generic.NotificationChannelDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 /**
  * Easy access to {@link NotificationChannel} storage.

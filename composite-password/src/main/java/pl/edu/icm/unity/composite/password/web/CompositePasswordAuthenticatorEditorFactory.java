@@ -7,10 +7,10 @@ package pl.edu.icm.unity.composite.password.web;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.composite.password.CompositePasswordVerificator;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.ldap.client.console.LdapAuthenticatorEditorFactory;
 import pl.edu.icm.unity.pam.web.PamAuthenticatorEditorFactory;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;

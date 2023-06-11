@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 class IdpGroupResolver

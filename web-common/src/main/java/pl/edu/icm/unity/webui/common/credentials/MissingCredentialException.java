@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.credentials;
 
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 
 public class MissingCredentialException extends IllegalCredentialException
 {

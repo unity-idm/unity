@@ -7,17 +7,17 @@ package pl.edu.icm.unity.engine.confirmation.facilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.engine.api.confirmation.states.UserEmailConfirmationState;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.types.basic.EntityState;
 
 /**
  * Common code for processing verifiable elements for the entities existing in database (as opposed to 

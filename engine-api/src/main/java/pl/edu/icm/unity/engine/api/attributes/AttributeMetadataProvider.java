@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.attributes;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.types.DescribedObject;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
+import pl.edu.icm.unity.base.describedObject.DescribedObject;
 
 /**
  * Implementation defines an {@link AttributeType} metadata. The metadata can be used to give user-controlled semantics 

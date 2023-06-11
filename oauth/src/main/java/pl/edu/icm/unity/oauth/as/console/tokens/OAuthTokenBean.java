@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 import com.nimbusds.jwt.SignedJWT;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.oauth.as.OAuthToken;

@@ -8,9 +8,9 @@ package pl.edu.icm.unity.restadm.mappers.policyAgreement;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.policyAgreement.RestPolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.restadm.mappers.I18nStringMapper;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 
 public class PolicyAgreementConfigurationMapper
 {

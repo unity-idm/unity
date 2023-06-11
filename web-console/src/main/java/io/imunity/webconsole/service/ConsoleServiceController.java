@@ -8,7 +8,7 @@ package io.imunity.webconsole.service;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.WebConsoleEndpointFactory;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;

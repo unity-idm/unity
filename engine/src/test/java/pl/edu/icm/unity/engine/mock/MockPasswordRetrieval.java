@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.engine.mock;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 
 public class MockPasswordRetrieval extends AbstractCredentialRetrieval<MockExchange> implements MockBinding
 {

@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.webui.console.services;
 
-import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
+import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
 
 /**
  * Used by {@link ServiceControllerBaseInt}. Each services can have its own

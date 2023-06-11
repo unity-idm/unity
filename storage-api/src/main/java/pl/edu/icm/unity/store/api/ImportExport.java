@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.DBDumpContentElements;
+import pl.edu.icm.unity.base.db.DBDumpContentElements;
 
 /**
  * Provides feature to export and import database dumps to a file. 

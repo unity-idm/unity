@@ -7,9 +7,9 @@ package io.imunity.webconsole;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

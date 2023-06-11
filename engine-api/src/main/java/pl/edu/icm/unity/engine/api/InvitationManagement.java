@@ -6,10 +6,10 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam;
+import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
 
 /**
  * Invitations to fill registration form management

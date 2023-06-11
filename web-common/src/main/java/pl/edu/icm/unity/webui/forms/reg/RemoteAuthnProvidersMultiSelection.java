@@ -9,12 +9,12 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector.AuthenticationOptionsSelectorComparator;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector.AuthenticationOptionsSelectorComparator;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 

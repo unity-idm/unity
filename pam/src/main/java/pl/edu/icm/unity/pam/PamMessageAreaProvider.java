@@ -7,8 +7,8 @@ package pl.edu.icm.unity.pam;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageArea;
-import pl.edu.icm.unity.msg.MessageAreaProvider;
+import pl.edu.icm.unity.base.message.MessageArea;
+import pl.edu.icm.unity.base.message.MessageAreaProvider;
 
 @Component
 public class PamMessageAreaProvider implements MessageAreaProvider

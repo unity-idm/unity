@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.store.impl.groups.GroupRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 
 /**
  * Serialization to from Json and to from RDBMS beans.

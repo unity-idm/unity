@@ -8,7 +8,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 
 /**
  * Small widget showing a clickable component presenting a remote IdP. Implemented as Button.

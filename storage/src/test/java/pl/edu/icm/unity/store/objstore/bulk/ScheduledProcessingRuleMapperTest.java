@@ -8,10 +8,10 @@ package pl.edu.icm.unity.store.objstore.bulk;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.types.translation.TranslationAction;
 
 public class ScheduledProcessingRuleMapperTest
 		extends MapperTestBase<ScheduledProcessingRule, DBScheduledProcessingRule>

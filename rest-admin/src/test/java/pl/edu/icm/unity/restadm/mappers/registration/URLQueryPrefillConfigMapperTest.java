@@ -10,9 +10,9 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.RestURLQueryPrefillConfig;
+import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.registration.URLQueryPrefillConfig;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 public class URLQueryPrefillConfigMapperTest extends MapperTestBase<URLQueryPrefillConfig, RestURLQueryPrefillConfig>
 {

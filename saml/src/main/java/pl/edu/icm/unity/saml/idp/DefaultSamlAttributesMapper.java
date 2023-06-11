@@ -14,15 +14,15 @@ import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
 
-import pl.edu.icm.unity.attr.UnityImage;
+import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 
 /**

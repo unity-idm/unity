@@ -7,8 +7,8 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 

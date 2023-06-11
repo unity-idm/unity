@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.impl.membership;
 
-import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.base.group.GroupMembership;
 
 class GroupMembershipMapper
 {

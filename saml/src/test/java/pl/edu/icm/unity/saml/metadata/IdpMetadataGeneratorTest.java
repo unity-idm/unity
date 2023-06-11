@@ -8,10 +8,11 @@ package pl.edu.icm.unity.saml.metadata;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
-import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 
 import java.util.Map;

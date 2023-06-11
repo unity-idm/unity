@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api.utils;
 import java.util.Collection;
 import java.util.Iterator;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.NamedObject;
+import pl.edu.icm.unity.base.describedObject.NamedObject;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Messages related utilities

@@ -9,11 +9,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-import pl.edu.icm.unity.types.basic.EntityInformation;
 
 
 /**

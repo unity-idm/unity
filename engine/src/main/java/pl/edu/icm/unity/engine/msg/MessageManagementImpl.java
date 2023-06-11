@@ -10,11 +10,11 @@ import java.util.Locale;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.Message;
 import pl.edu.icm.unity.engine.api.msg.MessageManagement;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.msg.Message;
 import pl.edu.icm.unity.store.api.MessagesDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 

@@ -8,7 +8,7 @@ package io.imunity.upman.console;
 import com.vaadin.data.Binder;
 
 import io.imunity.upman.UpManEndpointFactory;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;

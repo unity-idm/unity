@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.groupMember;
 
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.entity.EntityInformation;
+import pl.edu.icm.unity.base.entity.Identity;
 
 import java.util.ArrayList;
 import java.util.Collection;

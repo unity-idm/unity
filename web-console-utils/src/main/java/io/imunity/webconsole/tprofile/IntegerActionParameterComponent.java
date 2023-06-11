@@ -9,8 +9,8 @@ import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 /**
  * Action parameter for integer 

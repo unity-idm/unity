@@ -5,8 +5,8 @@
 
 package io.imunity.vaadin.endpoint.common.forms.groups;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.*;
 import java.util.stream.Collectors;

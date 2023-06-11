@@ -14,7 +14,7 @@ import io.imunity.webconsole.idprovider.outputTranslation.OutputTranslationsView
 import io.imunity.webconsole.translationProfile.NewTranslationView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 @PrototypeComponent

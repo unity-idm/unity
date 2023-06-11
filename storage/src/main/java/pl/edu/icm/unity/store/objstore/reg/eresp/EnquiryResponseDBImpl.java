@@ -7,12 +7,12 @@ package pl.edu.icm.unity.store.objstore.reg.eresp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.store.objstore.cred.CredentialDBImpl;
 import pl.edu.icm.unity.store.objstore.reg.RequestCredentialChangeListener;
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 
 /**
  * Easy access to {@link EnquiryResponseState} storage.

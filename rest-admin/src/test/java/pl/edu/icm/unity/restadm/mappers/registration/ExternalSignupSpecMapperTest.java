@@ -12,9 +12,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.authn.RestAuthenticationOptionsSelector;
 import io.imunity.rest.api.types.registration.RestExternalSignupSpec;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
+import pl.edu.icm.unity.base.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
-import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 
 public class ExternalSignupSpecMapperTest extends MapperTestBase<ExternalSignupSpec, RestExternalSignupSpec>
 {

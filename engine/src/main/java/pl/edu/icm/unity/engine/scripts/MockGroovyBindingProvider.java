@@ -11,8 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 
 import groovy.lang.Binding;
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.event.PersistableEvent;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 import org.apache.hc.core5.net.URIBuilder;
 import org.vaadin.teemu.wizards.Wizard;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;

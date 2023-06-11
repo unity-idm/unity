@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.engine.mock;
 
+import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.base.authn.LocalCredentialState;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class MockPasswordVerificator extends AbstractLocalVerificator implements MockExchange
 {

@@ -6,9 +6,9 @@ package pl.edu.icm.unity.engine.api.confirmation;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Confirmation manager for mobile number

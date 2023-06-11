@@ -8,6 +8,15 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.registration.RegistrationFormLayouts;
+import pl.edu.icm.unity.base.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.base.registration.layout.FormCaptionElement;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
+import pl.edu.icm.unity.base.registration.layout.FormLocalSignupButtonElement;
+import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
+import pl.edu.icm.unity.base.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.objstore.reg.layout.DBBasicFormElement;
@@ -17,15 +26,6 @@ import pl.edu.icm.unity.store.objstore.reg.layout.DBFormLocalSignupButtonElement
 import pl.edu.icm.unity.store.objstore.reg.layout.DBFormParameterElement;
 import pl.edu.icm.unity.store.objstore.reg.layout.DBFormSeparatorElement;
 import pl.edu.icm.unity.store.types.common.DBI18nString;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
-import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
-import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
-import pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement;
-import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
-import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 
 public class RegistrationFormLayoutsMapperTest
 		extends MapperTestBase<RegistrationFormLayouts, DBRegistrationFormLayouts>

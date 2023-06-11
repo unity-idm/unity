@@ -29,10 +29,10 @@ import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpClientProperties;
 import eu.unicore.util.httpclient.HttpUtils;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.ServerManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Tests Jetty server features

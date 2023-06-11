@@ -8,7 +8,7 @@ package io.imunity.webconsole.idprovider.endpoints;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.services.base.ServiceControllerBase;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceControllersRegistry;
 

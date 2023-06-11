@@ -21,7 +21,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.notifications.NotificationChannel;
+import pl.edu.icm.unity.base.notifications.NotificationChannelInfo;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -29,9 +32,6 @@ import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
 import pl.edu.icm.unity.engine.notifications.script.GroovyEmailNotificationFacility;
 import pl.edu.icm.unity.engine.notifications.script.GroovyNotificationChannelConfig;
 import pl.edu.icm.unity.engine.notifications.sms.SMSFacility;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
-import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 /**
  * Loads notification channels. Currently we allow only for a single instance of each type,

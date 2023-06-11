@@ -23,11 +23,12 @@ import com.vaadin.flow.server.StreamResource;
 import io.imunity.vaadin.elements.ErrorLabel;
 import io.imunity.vaadin.elements.InputLabel;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.attr.ImageType;
-import pl.edu.icm.unity.attr.UnityImage;
+
+import pl.edu.icm.unity.base.attr.ImageType;
+import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 
 import java.io.ByteArrayInputStream;

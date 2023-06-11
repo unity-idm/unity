@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
-import pl.edu.icm.unity.store.rdbms.BaseBean;
-
 import java.util.Date;
 import java.util.Set;
+
+import pl.edu.icm.unity.store.rdbms.BaseBean;
 
 /**
  * In DB audit event representation.

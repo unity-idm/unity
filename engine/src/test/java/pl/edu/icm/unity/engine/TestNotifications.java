@@ -23,11 +23,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.entity.IdentityTaV;
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.i18n.I18nMessage;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.base.msgtemplates.MessageType;
+import pl.edu.icm.unity.base.notifications.NotificationChannel;
+import pl.edu.icm.unity.base.notifications.NotificationChannelInfo;
+import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.CredentialResetTemplateDefBase;
@@ -35,20 +49,6 @@ import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
-import pl.edu.icm.unity.types.I18nMessage;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.basic.MessageType;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
-import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 /**
  * Tests the core notifications mechanism and the email facility.

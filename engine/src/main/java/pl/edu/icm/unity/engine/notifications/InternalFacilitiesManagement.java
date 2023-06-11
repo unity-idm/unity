@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.notifications;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Helper interface, probably to be removed after complete transactions rewrite to AOP. 

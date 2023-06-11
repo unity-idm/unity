@@ -25,10 +25,10 @@ import io.imunity.scim.SCIMRestController;
 import io.imunity.scim.SCIMRestControllerFactory;
 import io.imunity.scim.admin.AdminController.AdminControllerFactory;
 import io.imunity.scim.config.SCIMEndpointDescription;
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path(SCIMEndpoint.PATH)

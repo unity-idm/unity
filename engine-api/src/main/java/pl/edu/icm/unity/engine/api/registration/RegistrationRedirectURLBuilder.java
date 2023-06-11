@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.registration;
 
+import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 
 /**
  * Creates redirect URL which shall be used in certain situations after registration request submission 

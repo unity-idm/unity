@@ -7,9 +7,9 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 
 public class RegistrationFormNotificationsMapperTest
 		extends MapperTestBase<RegistrationFormNotifications, DBRegistrationFormNotifications>

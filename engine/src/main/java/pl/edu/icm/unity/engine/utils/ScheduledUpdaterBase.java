@@ -6,8 +6,8 @@ package pl.edu.icm.unity.engine.utils;
 
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Base code for scheduled updaters. Extensions should implement the actual update logic,

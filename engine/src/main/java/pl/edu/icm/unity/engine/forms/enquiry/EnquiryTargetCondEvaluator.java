@@ -14,14 +14,14 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.authn.CredentialInfo;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.bulkops.EntityMVELContextBuilder;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.CredentialInfo;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
 
 /**
  * Helper for checking enquiry target condition

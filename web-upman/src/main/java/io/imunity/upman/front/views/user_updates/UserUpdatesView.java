@@ -21,7 +21,7 @@ import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.BlankPageAnchor;
 import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.SearchField;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import javax.annotation.security.PermitAll;
 import java.util.Set;

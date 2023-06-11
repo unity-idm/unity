@@ -8,9 +8,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
 import java.util.ArrayList;

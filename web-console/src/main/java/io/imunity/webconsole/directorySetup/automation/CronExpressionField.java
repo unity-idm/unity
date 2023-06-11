@@ -13,7 +13,7 @@ import com.vaadin.data.ValueContext;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Field allowing for editing a Quartz cron expression

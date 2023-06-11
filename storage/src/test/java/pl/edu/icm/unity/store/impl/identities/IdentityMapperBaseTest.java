@@ -10,11 +10,11 @@ import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.entity.Identity;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
-import pl.edu.icm.unity.types.basic.Identity;
 
 public class IdentityMapperBaseTest extends MapperTestBase<Identity, DBIdentityBase>
 {

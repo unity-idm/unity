@@ -21,12 +21,12 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormValidationException;

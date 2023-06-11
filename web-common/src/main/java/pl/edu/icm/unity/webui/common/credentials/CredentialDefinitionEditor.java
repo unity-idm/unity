@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webui.common.credentials;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 
 /**
  * Implementations allow for editing a {@link CredentialDefinition}.

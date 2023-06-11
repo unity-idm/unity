@@ -6,9 +6,10 @@
 package io.imunity.vaadin.endpoint.common.api;
 
 import com.vaadin.flow.component.Component;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
+
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 
 import java.util.List;

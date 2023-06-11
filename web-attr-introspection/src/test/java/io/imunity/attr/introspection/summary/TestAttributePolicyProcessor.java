@@ -22,10 +22,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import io.imunity.attr.introspection.config.AttributePolicy;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestAttributePolicyProcessor

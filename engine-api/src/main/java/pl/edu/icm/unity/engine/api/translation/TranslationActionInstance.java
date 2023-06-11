@@ -6,9 +6,9 @@ package pl.edu.icm.unity.engine.api.translation;
 
 import java.util.stream.Stream;
 
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 
 
 /**

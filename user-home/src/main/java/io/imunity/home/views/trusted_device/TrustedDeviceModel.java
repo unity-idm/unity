@@ -5,8 +5,8 @@
 
 package io.imunity.home.views.trusted_device;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
 

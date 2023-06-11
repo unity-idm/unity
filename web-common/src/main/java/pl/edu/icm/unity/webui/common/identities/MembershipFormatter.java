@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.identities;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.base.group.GroupMembership;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Formats information about entity's group membership

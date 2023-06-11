@@ -6,7 +6,7 @@
 
 package pl.edu.icm.unity.webui.authn.authenticators;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Factory for {@link AuthenticatorEditor}

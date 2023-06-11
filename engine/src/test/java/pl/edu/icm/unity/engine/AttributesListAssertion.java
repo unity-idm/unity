@@ -13,9 +13,9 @@ import org.hamcrest.MatcherAssert;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class AttributesListAssertion extends AttributesAssertion
 {

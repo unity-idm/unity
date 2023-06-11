@@ -39,6 +39,11 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
+import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
@@ -56,11 +61,6 @@ import pl.edu.icm.unity.saml.xmlbeans.ecp.RelayStateDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class TestECP extends AbstractTestIdpBase
 {

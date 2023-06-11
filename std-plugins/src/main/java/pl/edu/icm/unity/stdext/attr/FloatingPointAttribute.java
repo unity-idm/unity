@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.base.attribute.Attribute;
 
 /**
  * Helper class allowing to create floating point number attributes easily.

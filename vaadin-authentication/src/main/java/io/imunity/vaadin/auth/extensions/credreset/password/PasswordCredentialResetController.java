@@ -13,15 +13,16 @@ import io.imunity.vaadin.auth.extensions.credreset.CredentialResetStateVariable;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.TooManyAttempts;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.engine.api.authn.TooManyAttempts;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings.ConfirmationMode;
 

@@ -9,13 +9,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler.PlannedUpdateEvent;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.store.objstore.cred.CredentialDBImpl;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
  * Easy access to AuthenticatorConfiguration storage.

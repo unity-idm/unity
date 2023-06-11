@@ -6,7 +6,7 @@
 
 package pl.edu.icm.unity.webui.forms;
 
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
+import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
 
 /**
  * 

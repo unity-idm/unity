@@ -16,14 +16,14 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlBase64Binary;
 import org.junit.Test;
 
-import pl.edu.icm.unity.attr.ImageType;
-import pl.edu.icm.unity.attr.UnityImage;
+import pl.edu.icm.unity.base.attr.ImageType;
+import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.ImageAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 
 public class TestSamlAttributeMapping

@@ -20,17 +20,17 @@ import io.imunity.rest.api.types.registration.RestCredentialParamValue;
 import io.imunity.rest.api.types.registration.RestGroupSelection;
 import io.imunity.rest.api.types.registration.RestRegistrationRequest;
 import io.imunity.rest.api.types.registration.RestSelection;
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.registration.CredentialParamValue;
+import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.RegistrationRequest;
+import pl.edu.icm.unity.base.registration.Selection;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.Selection;
 
 public class RegistrationRequestMapperTest extends MapperTestBase<RegistrationRequest, RestRegistrationRequest>
 {

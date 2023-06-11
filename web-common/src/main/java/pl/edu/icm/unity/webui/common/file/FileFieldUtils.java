@@ -8,9 +8,9 @@ package pl.edu.icm.unity.webui.common.file;
 import java.net.URI;
 import java.util.Properties;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 
 /**

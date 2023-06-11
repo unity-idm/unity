@@ -8,13 +8,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributesClass;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.authn.CredentialRequirements;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributesClass;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
 
 /**
  * Information about global state of the system, not group specific.

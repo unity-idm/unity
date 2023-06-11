@@ -6,7 +6,7 @@ package pl.edu.icm.unity.store.rdbms.tx;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.store.StorageEngine;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.tx.TransactionalExt;

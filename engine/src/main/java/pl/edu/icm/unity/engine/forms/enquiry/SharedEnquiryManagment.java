@@ -21,9 +21,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.AdminComment;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.base.registration.EnquiryResponse;
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
+import pl.edu.icm.unity.engine.api.identity.UnknownIdentityException;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
@@ -46,22 +59,9 @@ import pl.edu.icm.unity.engine.identity.SecondFactorOptInService;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.AdminComment;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
-import pl.edu.icm.unity.types.registration.EnquiryResponse;
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 
 /**
  * Implementation of the shared code of enquires management. This class is used

@@ -9,8 +9,8 @@ import java.time.Instant;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.invite.RestRegistrationInvitationParam;
-import pl.edu.icm.unity.types.registration.FormType;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.base.registration.FormType;
+import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
 
 public class RegistrationInvitationParamMapper
 {

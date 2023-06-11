@@ -8,9 +8,9 @@ package io.imunity.home.console;
 
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.HomeEndpointProperties.RemovalModes;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 import java.io.IOException;

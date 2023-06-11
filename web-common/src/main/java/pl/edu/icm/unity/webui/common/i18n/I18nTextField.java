@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webui.common.i18n;
 
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Custom field allowing for editing an {@link I18nString}, i.e. a string in several languages.

@@ -7,8 +7,8 @@ package io.imunity.webconsole.tprofile;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 /**
  * Action component allowing to select a number of days

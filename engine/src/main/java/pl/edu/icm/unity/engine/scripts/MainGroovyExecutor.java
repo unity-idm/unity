@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import groovy.lang.Binding;
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.event.PersistableEvent;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

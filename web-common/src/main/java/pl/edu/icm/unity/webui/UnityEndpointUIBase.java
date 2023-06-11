@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 /**

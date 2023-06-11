@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.objstore.notify;
 
-import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.base.notifications.NotificationChannel;
 
 class NotifiacationChannelMapper
 {

@@ -12,13 +12,13 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Test;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.bulkops.action.RemoveEntityActionFactory;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 public class TestBulkProcessing extends RESTAdminTestBase
 {

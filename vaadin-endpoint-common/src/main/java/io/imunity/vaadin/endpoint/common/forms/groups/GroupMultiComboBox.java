@@ -9,7 +9,8 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -8,7 +8,7 @@ import org.vaadin.teemu.wizards.WizardStep;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;

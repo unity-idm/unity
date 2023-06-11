@@ -6,9 +6,9 @@
 package pl.edu.icm.unity.engine.api.idp;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Retrieve translation profile from properties

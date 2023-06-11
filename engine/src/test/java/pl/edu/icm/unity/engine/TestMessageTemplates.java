@@ -12,19 +12,19 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.i18n.I18nMessage;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.msgtemplates.GenericMessageTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.base.msgtemplates.MessageType;
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateProcessor;
 import pl.edu.icm.unity.engine.notifications.sms.SMSFacility;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.I18nMessage;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.basic.MessageType;
 
 public class TestMessageTemplates extends DBIntegrationTestBase
 {

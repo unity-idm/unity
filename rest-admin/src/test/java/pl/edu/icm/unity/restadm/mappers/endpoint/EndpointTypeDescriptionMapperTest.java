@@ -5,8 +5,6 @@
 
 package pl.edu.icm.unity.restadm.mappers.endpoint;
 
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
@@ -14,6 +12,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.endpoint.RestEndpointTypeDescription;
+import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 
 public class EndpointTypeDescriptionMapperTest

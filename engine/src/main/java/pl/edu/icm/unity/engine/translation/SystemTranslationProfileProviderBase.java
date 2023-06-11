@@ -13,13 +13,13 @@ import org.springframework.context.ApplicationContext;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.translation.ProfileMode;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.utils.ClasspathResourceReader;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.translation.ProfileMode;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Base for all system translation profile providers

@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 
 import com.vaadin.ui.ComboBox;
 
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * Allows to select an attribute name

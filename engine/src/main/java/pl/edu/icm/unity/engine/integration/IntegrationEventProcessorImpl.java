@@ -11,7 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEvent;
 import pl.edu.icm.unity.engine.api.integration.IntegrationEventProcessor;
@@ -19,7 +20,6 @@ import pl.edu.icm.unity.engine.api.integration.Message;
 import pl.edu.icm.unity.engine.api.integration.Webhook;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.webhook.WebhookProcessor;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Implementation of {@link IntegrationEventProcessor}

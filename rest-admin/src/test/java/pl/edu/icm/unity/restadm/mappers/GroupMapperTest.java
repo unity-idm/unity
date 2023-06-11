@@ -19,12 +19,12 @@ import io.imunity.rest.api.types.basic.RestGroup;
 import io.imunity.rest.api.types.basic.RestGroupDelegationConfiguration;
 import io.imunity.rest.api.types.basic.RestGroupProperty;
 import io.imunity.rest.api.types.basic.RestI18nString;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.types.basic.GroupProperty;
+import pl.edu.icm.unity.base.attribute.AttributeStatement;
+import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.group.GroupProperty;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class GroupMapperTest extends MapperWithMinimalTestBase<Group, RestGroup>
 {

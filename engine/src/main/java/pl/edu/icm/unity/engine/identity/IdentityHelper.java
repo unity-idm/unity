@@ -4,10 +4,35 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import com.google.common.collect.Sets;
+import static java.lang.String.join;
+import static pl.edu.icm.unity.base.audit.AuditEventTag.USERS;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.audit.AuditEventAction;
+import pl.edu.icm.unity.base.audit.AuditEventType;
+import pl.edu.icm.unity.base.entity.EntityInformation;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -16,24 +41,11 @@ import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.credential.SystemAllCredentialRequirements;
 import pl.edu.icm.unity.engine.group.GroupHelper;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.store.types.StoredIdentity;
-import pl.edu.icm.unity.types.basic.*;
-import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
-import pl.edu.icm.unity.types.basic.audit.AuditEventType;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.lang.String.join;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.USERS;
 
 /**
  * Shared code related to handling entities and identities

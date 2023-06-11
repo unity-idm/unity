@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.forms.enquiry;
 
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
 
 /**
  * Sent to trigger auto-processing of an enquiry response

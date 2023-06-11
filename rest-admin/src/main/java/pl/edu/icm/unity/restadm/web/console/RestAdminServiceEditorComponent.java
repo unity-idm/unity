@@ -7,7 +7,7 @@ package pl.edu.icm.unity.restadm.web.console;
 
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;

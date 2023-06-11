@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.message.MessageAreaProvider;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.msg.MessageAreaProvider;
 
 @Component
 public class MessageAreaRegistry extends TypesRegistryBase<MessageAreaProvider>

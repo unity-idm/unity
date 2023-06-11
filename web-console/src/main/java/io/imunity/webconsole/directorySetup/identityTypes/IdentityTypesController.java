@@ -13,11 +13,11 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.entity.IdentityType;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 

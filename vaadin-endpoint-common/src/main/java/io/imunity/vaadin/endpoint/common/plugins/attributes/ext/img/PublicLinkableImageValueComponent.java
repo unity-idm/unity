@@ -6,10 +6,11 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.attr.LinkableImage;
-import pl.edu.icm.unity.attr.UnityImage;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+
+import pl.edu.icm.unity.base.attr.LinkableImage;
+import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 

@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api.files;
 
 import java.net.URI;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.file.FileData;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Provides access to local or remote file. 

@@ -11,6 +11,10 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
@@ -18,10 +22,6 @@ import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Allows for removing a requested group membership from the request

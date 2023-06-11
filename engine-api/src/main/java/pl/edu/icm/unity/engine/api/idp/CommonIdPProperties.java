@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.idp;
 
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
 import java.util.HashMap;

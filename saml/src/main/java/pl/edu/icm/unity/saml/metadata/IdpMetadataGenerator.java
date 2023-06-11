@@ -10,9 +10,10 @@ import org.apache.xmlbeans.XmlBase64Binary;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
-import pl.edu.icm.unity.types.I18nString;
 import xmlbeans.org.oasis.saml2.metadata.*;
 import xmlbeans.org.w3.x2000.x09.xmldsig.KeyInfoType;
 import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;

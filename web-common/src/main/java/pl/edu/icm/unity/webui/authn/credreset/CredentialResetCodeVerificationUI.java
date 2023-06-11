@@ -15,9 +15,9 @@ import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.TooManyAttempts;
+import pl.edu.icm.unity.engine.api.authn.TooManyAttempts;
 import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetController.CodeConsumer;
 import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetController.CodeSender;
 import pl.edu.icm.unity.webui.common.NotificationPopup;

@@ -10,8 +10,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.types.Event;
+import pl.edu.icm.unity.base.Constants;
 
 /**
  * Describes execution of operation with its context. Suitable for auditing, 

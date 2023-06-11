@@ -6,7 +6,7 @@ package io.imunity.webconsole.directorySetup.identityTypes;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.base.entity.IdentityType;
 import pl.edu.icm.unity.webui.bus.Event;
 
 /**

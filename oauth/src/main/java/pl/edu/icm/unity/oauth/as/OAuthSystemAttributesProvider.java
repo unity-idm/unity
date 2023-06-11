@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * Provides attribute types used internally by OAuth

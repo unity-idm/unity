@@ -16,10 +16,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.attr.LinkableImage;
-import pl.edu.icm.unity.attr.UnityImage;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attr.LinkableImage;
+import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 

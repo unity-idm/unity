@@ -7,11 +7,11 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam.IncludeGroupsMode;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
 
 public class GroupRegistrationParamMapperTest extends MapperTestBase<GroupRegistrationParam, DBGroupRegistrationParam>
 {

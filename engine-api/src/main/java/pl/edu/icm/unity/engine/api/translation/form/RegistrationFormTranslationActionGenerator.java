@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.engine.api.translation.form;
 
+import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
-import pl.edu.icm.unity.types.translation.TranslationAction;
 
 /**
  * Generator for registration translation action

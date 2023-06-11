@@ -7,7 +7,7 @@ package io.imunity.idp;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 public interface TrustedIdPClientsManagement
 {

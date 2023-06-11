@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
-import pl.edu.icm.unity.types.basic.Group;
 
 public class MembershipGroupsUtils
 {

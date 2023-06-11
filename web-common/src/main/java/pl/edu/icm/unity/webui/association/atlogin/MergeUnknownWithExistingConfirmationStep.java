@@ -6,12 +6,12 @@ package pl.edu.icm.unity.webui.association.atlogin;
 
 import org.vaadin.teemu.wizards.Wizard;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.association.AbstractConfirmationStep;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 

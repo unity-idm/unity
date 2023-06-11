@@ -7,9 +7,9 @@ package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.attribute.AttributeStatement;
+import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.store.impl.attribute.AttributeMapper;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 
 class AttributeStatementMapper
 {

@@ -23,14 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.db.DBDumpContentElements;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.basic.DBDumpContentElements;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations =

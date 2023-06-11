@@ -10,12 +10,13 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
+
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.exceptions.EngineException;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 import java.io.BufferedInputStream;

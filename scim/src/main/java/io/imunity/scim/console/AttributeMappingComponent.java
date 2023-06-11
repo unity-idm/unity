@@ -27,7 +27,7 @@ import io.imunity.scim.config.DataValue.DataValueType;
 import io.imunity.scim.config.ReferenceAttributeMapping.ReferenceType;
 import io.imunity.scim.schema.SCIMAttributeType;
 import io.imunity.scim.user.mapping.evaluation.SCIMMvelContextKey;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;

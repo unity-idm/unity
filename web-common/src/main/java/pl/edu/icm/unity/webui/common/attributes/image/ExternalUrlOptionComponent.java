@@ -20,8 +20,8 @@ import com.vaadin.data.ValueContext;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 
 class ExternalUrlOptionComponent extends CustomComponent

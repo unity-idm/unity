@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.identity;
 
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 
 /**
  * Thrown when email value is unknown

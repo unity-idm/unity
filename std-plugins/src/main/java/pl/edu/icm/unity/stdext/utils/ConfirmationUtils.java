@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.stdext.utils;
 
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
 
 public class ConfirmationUtils
 {

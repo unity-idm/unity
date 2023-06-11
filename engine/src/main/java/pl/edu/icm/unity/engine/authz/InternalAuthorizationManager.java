@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.engine.authz;
 
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.AuthorizationExceptionRT;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationExceptionRT;
 
 import java.util.Set;
 

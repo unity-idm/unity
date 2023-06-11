@@ -6,7 +6,7 @@
 
 package pl.edu.icm.unity.engine.api;
 
-import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
 /**
  * API for authorization management.

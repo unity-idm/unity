@@ -6,7 +6,7 @@ package io.imunity.webconsole.directoryBrowser.groupdetails;
 
 import java.util.UUID;
 
-import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.base.attribute.AttributeStatement;
 
 /**
  * Decorated {@link AttributeStatement} with random unique id. Used as table entry: without it equals and hashcode

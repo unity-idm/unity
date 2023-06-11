@@ -10,13 +10,14 @@ import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 

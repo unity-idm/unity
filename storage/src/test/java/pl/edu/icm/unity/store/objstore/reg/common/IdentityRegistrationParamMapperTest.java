@@ -7,13 +7,13 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.registration.ConfirmationMode;
+import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.registration.ConfirmationMode;
-import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
-import pl.edu.icm.unity.types.registration.URLQueryPrefillConfig;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 public class IdentityRegistrationParamMapperTest
 		extends MapperTestBase<IdentityRegistrationParam, DBIdentityRegistrationParam>

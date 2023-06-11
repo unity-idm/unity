@@ -8,8 +8,8 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 import java.time.Instant;
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.registration.FormType;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.base.registration.FormType;
+import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
 
 public class RegistrationInvitationParamMapper
 {

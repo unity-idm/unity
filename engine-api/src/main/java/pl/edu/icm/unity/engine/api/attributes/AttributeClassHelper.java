@@ -11,11 +11,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
-import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributesClass;
+import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.engine.api.exceptions.SchemaConsistencyException;
 
 /**
  * Helper for handling {@link AttributesClass}es of an entity. A single virtual 'class' is created

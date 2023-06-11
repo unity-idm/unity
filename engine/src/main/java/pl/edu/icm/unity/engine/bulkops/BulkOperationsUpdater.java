@@ -16,12 +16,12 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.bulkops.BulkProcessingSupport.RuleWithTS;
 import pl.edu.icm.unity.engine.utils.ScheduledUpdaterBase;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.ProcessingRuleDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 
 /**
  * Checks if persisted bulk operations are changed wrt to what is loaded in QuartzScheduler

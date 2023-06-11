@@ -7,9 +7,9 @@ package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.group.GroupProperty;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.basic.GroupProperty;
 
 public class GroupPropertyMapperTest extends MapperTestBase<GroupProperty, DBGroupProperty>
 {

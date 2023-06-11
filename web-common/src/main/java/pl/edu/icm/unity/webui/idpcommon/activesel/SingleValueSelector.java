@@ -12,7 +12,7 @@ import com.google.common.collect.Lists;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.RadioButtonGroup;
 
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 
 /**
  * Selection of a single value of a {@link DynamicAttribute}

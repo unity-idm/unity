@@ -13,10 +13,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import io.imunity.rest.api.types.authn.RestAuthenticationOptionsSelector;
 import io.imunity.rest.api.types.registration.RestAuthnGridSettings;
 import io.imunity.rest.api.types.registration.RestExternalSignupGridSpec;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
+import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec;
+import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec.AuthnGridSettings;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
-import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
-import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec.AuthnGridSettings;
 
 public class ExternalSignupGridSpecMapperTest extends MapperTestBase<ExternalSignupGridSpec, RestExternalSignupGridSpec>
 {

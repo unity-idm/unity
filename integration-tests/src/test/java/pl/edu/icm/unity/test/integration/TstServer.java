@@ -6,7 +6,7 @@ package pl.edu.icm.unity.test.integration;
 
 import java.io.IOException;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.server.UnityApplication;
 
 

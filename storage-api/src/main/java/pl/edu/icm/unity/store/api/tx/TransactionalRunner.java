@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.tx;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Implementations allow for running arbitrary code in transaction. Useful when Transactional annotation won't

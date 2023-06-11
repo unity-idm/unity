@@ -9,10 +9,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * Provides system attribute for credential

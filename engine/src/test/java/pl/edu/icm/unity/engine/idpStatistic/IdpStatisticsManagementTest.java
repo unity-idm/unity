@@ -17,15 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.statistic.GroupedIdpStatistic;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 
 public class IdpStatisticsManagementTest extends DBIntegrationTestBase
 {

@@ -7,15 +7,15 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec;
+import pl.edu.icm.unity.base.registration.ExternalSignupSpec;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.base.registration.RegistrationFormLayouts;
+import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.store.objstore.reg.common.BaseFormMapper;
 import pl.edu.icm.unity.store.types.common.I18nStringMapper;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
-import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
-import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 
 class RegistrationFormMapper
 {

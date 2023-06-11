@@ -15,9 +15,9 @@ import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector.AuthenticationOptionsSelectorComparator;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector.AuthenticationOptionsSelectorComparator;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;

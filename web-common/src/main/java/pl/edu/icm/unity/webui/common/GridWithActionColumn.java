@@ -26,7 +26,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.components.grid.DetailsGenerator;
 import com.vaadin.ui.components.grid.GridRowDragger;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
 
 /**

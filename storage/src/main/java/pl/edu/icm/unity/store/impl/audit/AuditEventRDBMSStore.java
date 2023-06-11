@@ -4,19 +4,20 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import pl.edu.icm.unity.base.audit.AuditEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.CachingDAO;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * RDBMS storage of {@link AuditEvent}

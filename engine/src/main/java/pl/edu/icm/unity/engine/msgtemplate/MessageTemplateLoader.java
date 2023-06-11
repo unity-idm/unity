@@ -23,17 +23,17 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.util.configuration.ConfigIncludesProcessor;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.i18n.I18nMessage;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.base.msgtemplates.MessageType;
+import pl.edu.icm.unity.base.notifications.NotificationChannelInfo;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.I18nMessage;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.basic.MessageType;
-import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 /**
  * Loads message templates from file configuration

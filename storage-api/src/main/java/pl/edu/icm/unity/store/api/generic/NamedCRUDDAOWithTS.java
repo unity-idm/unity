@@ -8,8 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import pl.edu.icm.unity.base.describedObject.NamedObject;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
-import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * {@link NamedCRUDDAO} enhanced with update timestamps of objects. 

@@ -7,10 +7,10 @@ package pl.edu.icm.unity.saml.sp;
 import java.util.List;
 import java.util.Set;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
-import pl.edu.icm.unity.types.I18nString;
 
 public class FakeTrustedIdPConfiguration
 {

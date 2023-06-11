@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.store.objstore.reg;
 
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.base.registration.BaseFormNotifications;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.registration.BaseFormNotifications;
 
 /**
  * Base code for checking of form's templates consistency

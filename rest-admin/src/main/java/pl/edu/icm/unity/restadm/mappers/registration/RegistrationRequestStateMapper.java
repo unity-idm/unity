@@ -5,13 +5,12 @@
 
 package pl.edu.icm.unity.restadm.mappers.registration;
 
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.imunity.rest.api.types.registration.RestRegistrationRequestState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 
 public class RegistrationRequestStateMapper
 {

@@ -10,7 +10,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 
 /**
  * Credential reset settings.

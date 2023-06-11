@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.authn.CredentialRequirements;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.store.api.generic.CredentialRequirementDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
 
 /**
  * Allows read all credential requirements from DB and one special credential

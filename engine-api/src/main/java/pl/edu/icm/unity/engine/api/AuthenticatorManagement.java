@@ -6,9 +6,9 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
-import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorTypeDescription;
 
 /**
  * API for authenticators management.

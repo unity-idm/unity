@@ -10,15 +10,15 @@ import com.unboundid.ldap.sdk.LDAPException;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.otp.HashFunction;
 import io.imunity.otp.OTPRetrievalProperties;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.config.LdapConfiguration;
 import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonConfiguration;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
-import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 
 import java.io.IOException;

@@ -7,23 +7,24 @@ package pl.edu.icm.unity.engine.audit;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.audit.AuditEntity;
+import pl.edu.icm.unity.base.audit.AuditEvent;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.event.EventListener;
+import pl.edu.icm.unity.engine.api.identity.UnknownIdentityException;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeChangedEvent;
 import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.Event;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.audit.AuditEntity;
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 
 import java.util.List;
 

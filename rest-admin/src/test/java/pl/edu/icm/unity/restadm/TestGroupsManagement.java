@@ -36,13 +36,13 @@ import io.imunity.rest.api.types.basic.RestGroupContents;
 import io.imunity.rest.api.types.basic.RestGroupMember;
 import io.imunity.rest.api.types.basic.RestGroupProperty;
 import io.imunity.rest.api.types.basic.RestI18nString;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.IdentityTaV;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Groups management test

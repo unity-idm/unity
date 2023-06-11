@@ -10,6 +10,19 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.ConfirmationMode;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.UserRequestState;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.verifiable.VerifiableElement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
@@ -26,19 +39,6 @@ import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.engine.translation.form.FormAutomationSupportExt;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.ConfirmationMode;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.UserRequestState;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Support class implementing sending of confirmation requests for verifiable identities and attributes.

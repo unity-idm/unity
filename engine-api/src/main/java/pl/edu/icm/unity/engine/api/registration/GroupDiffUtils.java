@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupSelection;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupSelection;
 
 /**
  * Breaks group membership change request into three groups: unchanged groups,

@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.engine.api.authn;
 
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
 /**
  * Provides information about partial state of authentication. Basing on the contents the 

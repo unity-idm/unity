@@ -14,20 +14,20 @@ import java.util.function.Supplier;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.bulkops.action.ChangeStatusActionFactory;
 import pl.edu.icm.unity.engine.bulkops.action.RemoveEntityActionFactory;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.SetEntityStateActionFactory.EntityStateLimited;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 public class TestBulkActions extends DBIntegrationTestBase
 {

@@ -8,7 +8,7 @@ package io.imunity.webconsole.authentication.realms;
 import java.util.Collections;
 import java.util.List;
 
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 
 /**
  * 

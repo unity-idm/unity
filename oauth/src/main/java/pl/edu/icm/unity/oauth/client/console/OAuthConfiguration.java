@@ -6,10 +6,10 @@
 package pl.edu.icm.unity.oauth.client.console;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;

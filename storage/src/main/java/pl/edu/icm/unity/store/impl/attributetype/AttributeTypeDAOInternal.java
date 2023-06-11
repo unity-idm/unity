@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.attributetype;
 
+import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * Extends {@link AttributeTypeDAO} with {@link ReferenceAwareDAO} methods, which shall be visible only internally

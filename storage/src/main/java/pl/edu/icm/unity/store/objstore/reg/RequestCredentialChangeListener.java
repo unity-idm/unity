@@ -6,13 +6,13 @@ package pl.edu.icm.unity.store.objstore.reg;
 
 import java.util.List;
 
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.registration.CredentialParamValue;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.base.registration.UserRequestState;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.types.UpdateFlag;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.UserRequestState;
 
 public class RequestCredentialChangeListener<T extends UserRequestState<?>> 
 		implements ReferenceUpdateHandler<CredentialDefinition>

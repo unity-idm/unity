@@ -7,7 +7,12 @@ package pl.edu.icm.unity.engine.idp;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
@@ -18,11 +23,6 @@ import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
 import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * Instantiates and executes output profile on provided input. Supports creation of the default

@@ -9,10 +9,10 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * Defines authorization role attribute.

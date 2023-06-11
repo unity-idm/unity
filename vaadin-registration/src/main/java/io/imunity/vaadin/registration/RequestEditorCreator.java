@@ -14,7 +14,11 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegi
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
 import org.springframework.beans.factory.annotation.Qualifier;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -23,9 +27,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.webui.forms.InvitationResolver;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;

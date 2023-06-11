@@ -10,11 +10,11 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.registration.UserRequestState;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.registration.UserRequestState;
 
 public abstract class BaseRequestTest<T extends UserRequestState<?>> extends AbstractNamedWithTSTest<T>
 {

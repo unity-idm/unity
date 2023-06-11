@@ -10,9 +10,9 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.invite.RestExpectedIdentity;
+import pl.edu.icm.unity.base.authn.ExpectedIdentity;
+import pl.edu.icm.unity.base.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 
 public class ExpectedIdentityMapperTest extends MapperTestBase<ExpectedIdentity, RestExpectedIdentity>
 {

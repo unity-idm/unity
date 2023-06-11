@@ -6,7 +6,7 @@
 
 package io.imunity.home.console;
 
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 public class ExposedAttribute

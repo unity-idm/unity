@@ -7,14 +7,14 @@ package pl.edu.icm.unity.engine.forms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.FormType;
+import pl.edu.icm.unity.base.registration.IllegalFormTypeException;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.invite.FormProvider;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.FormType;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.invite.FormProvider;
 
 @Component
 class FormProviderImpl implements FormProvider

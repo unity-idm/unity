@@ -11,9 +11,9 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException.OccupiedIdentityUsedInRequest;
+import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException.OccupiedIdentityUsedInRequest;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 

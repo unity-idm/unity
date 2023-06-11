@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api.endpoint;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 public interface EndpointFileConfigurationManagement
 {

@@ -33,8 +33,8 @@ import io.imunity.scim.common.ResourceType;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.schema.providerConfig.SCIMProviderConfigResource.AuthenticationSchema;
 import io.imunity.scim.schema.providerConfig.SCIMProviderConfigResource.Supported;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path(SCIMEndpoint.PATH)

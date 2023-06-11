@@ -9,9 +9,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import org.assertj.core.util.Lists;
 import org.hamcrest.MatcherAssert;
 
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class AttributeAssertion extends AttributesAssertion
 {

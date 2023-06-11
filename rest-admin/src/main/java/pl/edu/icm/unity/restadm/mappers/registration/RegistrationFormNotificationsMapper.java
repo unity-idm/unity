@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers.registration;
 
 import io.imunity.rest.api.types.registration.RestRegistrationFormNotifications;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
 
 public class RegistrationFormNotificationsMapper
 {

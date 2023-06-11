@@ -6,11 +6,11 @@ package pl.edu.icm.unity.stdext.utils;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * 

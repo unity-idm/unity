@@ -16,7 +16,7 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
 
 public class StrengthCheckerTest

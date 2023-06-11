@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
-import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 
 public class OAuthClient
 {

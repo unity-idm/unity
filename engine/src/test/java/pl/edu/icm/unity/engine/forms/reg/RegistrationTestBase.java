@@ -6,6 +6,23 @@ package pl.edu.icm.unity.engine.forms.reg;
 
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.registration.AgreementRegistrationParam;
+import pl.edu.icm.unity.base.registration.CredentialRegistrationParam;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.base.registration.RegistrationRequest;
+import pl.edu.icm.unity.base.registration.RegistrationRequestBuilder;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
@@ -14,27 +31,11 @@ import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeClassActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationRequestBuilder;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 import java.util.List;
 

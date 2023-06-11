@@ -5,9 +5,9 @@
 
 package pl.edu.icm.unity.engine.api.idp;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;

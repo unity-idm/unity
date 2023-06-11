@@ -8,8 +8,8 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Base for all tokens where contents is storing byte[] serialized JSON. I.e. nearly 

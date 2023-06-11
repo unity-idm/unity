@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 
 /**
  * Describes method invocation. Provides to/from JSON serialization.

@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers.registration.layout;
 
 import io.imunity.rest.api.types.registration.layout.RestFormLayoutSettings;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 
 public class FormLayoutSettingsMapper
 {

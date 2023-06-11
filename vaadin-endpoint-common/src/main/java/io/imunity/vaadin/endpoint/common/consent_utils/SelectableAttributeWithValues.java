@@ -11,11 +11,11 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 import java.util.ArrayList;
 import java.util.List;

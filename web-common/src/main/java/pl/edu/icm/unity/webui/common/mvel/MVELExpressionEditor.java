@@ -15,7 +15,7 @@ import com.vaadin.server.Setter;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.AbstractField;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Configures fields that can be used to edit MVAL expression.

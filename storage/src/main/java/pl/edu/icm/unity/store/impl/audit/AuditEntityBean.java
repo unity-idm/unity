@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
-import pl.edu.icm.unity.types.basic.audit.AuditEntity;
+import pl.edu.icm.unity.base.audit.AuditEntity;
 
 /**
  * In DB audit event representation.

@@ -21,7 +21,7 @@ import com.google.common.cache.LoadingCache;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
+import pl.edu.icm.unity.engine.api.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.store.api.generic.CapacityLimitDB;
 
 /**

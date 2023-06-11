@@ -16,10 +16,10 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.base.describedObject.NamedObject;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.tx.TransactionTL;
-import pl.edu.icm.unity.types.NamedObject;
 
 public abstract class AbstractNamedDAOTest<T extends NamedObject> extends AbstractBasicDAOTest<T>
 {

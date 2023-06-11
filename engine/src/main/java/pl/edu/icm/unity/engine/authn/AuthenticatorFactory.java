@@ -8,14 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstanceMetadata;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
-import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
 /**
  * Instantiation can be done in two variants for local and remote authenticators.

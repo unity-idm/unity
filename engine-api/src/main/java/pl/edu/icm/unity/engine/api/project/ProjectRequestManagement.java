@@ -8,7 +8,7 @@ package pl.edu.icm.unity.engine.api.project;
 import java.util.List;
 import java.util.Optional;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Engine API for project update request management

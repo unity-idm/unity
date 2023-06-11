@@ -12,7 +12,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Wraps type-specific editor of a credential, adds confirmation and cancel buttons.

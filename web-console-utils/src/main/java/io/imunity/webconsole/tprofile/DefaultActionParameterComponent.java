@@ -7,8 +7,8 @@ package io.imunity.webconsole.tprofile;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 /**
  * Trivial, {@link TextField} based implementation of {@link ActionParameterComponent}. 

@@ -5,8 +5,8 @@
 
 package io.imunity.webconsole.signupAndEnquiry.requests;
 
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 
 public interface RequestSelectionListener
 {

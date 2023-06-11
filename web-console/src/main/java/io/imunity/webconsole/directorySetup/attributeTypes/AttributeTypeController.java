@@ -18,12 +18,12 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.server.StreamResource;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;

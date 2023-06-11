@@ -8,8 +8,8 @@ package pl.edu.icm.unity.engine.api.msg;
 import java.util.List;
 import java.util.Locale;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.msg.Message;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.Message;
 
 /**
  * 

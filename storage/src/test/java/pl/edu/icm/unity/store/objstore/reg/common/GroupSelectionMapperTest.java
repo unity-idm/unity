@@ -8,9 +8,9 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.registration.GroupSelection;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.registration.GroupSelection;
 
 public class GroupSelectionMapperTest extends MapperTestBase<GroupSelection, DBGroupSelection>
 {

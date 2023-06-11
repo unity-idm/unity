@@ -9,7 +9,7 @@ import com.vaadin.flow.component.Component;
 import io.imunity.vaadin.auth.AuthnsGridWidget;
 import io.imunity.vaadin.auth.SearchComponent;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationGrid;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 
 record RemoteRegistrationGridImpl(MessageSource msg, AuthnsGridWidget authnsGridWidget, boolean empty) implements RemoteRegistrationGrid

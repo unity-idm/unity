@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.objstore.credreq;
 
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.base.authn.CredentialRequirements;
 
 class CredentialRequirementsMapper
 {

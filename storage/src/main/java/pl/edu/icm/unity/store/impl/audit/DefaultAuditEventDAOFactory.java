@@ -4,14 +4,15 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+
 import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
-
-import java.util.Map;
 
 /**
  * Produces a default {@link AuditEventDAO}, basing on the configuration.

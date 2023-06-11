@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StorageConfigurationFactory;
 import pl.edu.icm.unity.store.StorageEngine;

@@ -5,8 +5,8 @@
 
 package io.imunity.vaadin.auth.extensions.credreset;
 
-import pl.edu.icm.unity.exceptions.TooManyAttempts;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.engine.api.authn.TooManyAttempts;
 
 @FunctionalInterface
 public interface CodeConsumer

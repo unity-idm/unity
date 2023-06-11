@@ -8,9 +8,9 @@ package pl.edu.icm.unity.restadm.mappers.registration;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.RestAttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.ConfirmationMode;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.base.registration.ConfirmationMode;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
 
 public class AttributeRegistrationParamMapper
 {

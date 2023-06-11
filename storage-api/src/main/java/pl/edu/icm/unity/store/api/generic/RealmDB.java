@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 
 /**
  * Easy access to {@link AuthenticationRealm} storage.

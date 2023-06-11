@@ -8,9 +8,10 @@ package io.imunity.vaadin.auth.remote;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolver;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolverFactory;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 @Component

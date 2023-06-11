@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.engine.api.project;
 
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 import java.util.Objects;
 

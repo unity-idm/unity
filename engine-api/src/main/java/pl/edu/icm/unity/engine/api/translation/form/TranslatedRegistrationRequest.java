@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.i18n.I18nMessage;
+import pl.edu.icm.unity.base.registration.EnquiryResponse;
+import pl.edu.icm.unity.base.registration.RegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.in.EntityChange;
-import pl.edu.icm.unity.types.I18nMessage;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.EnquiryResponse;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 
 /**
  * Output of {@link RegistrationRequest} or {@link EnquiryResponse} translation with a 

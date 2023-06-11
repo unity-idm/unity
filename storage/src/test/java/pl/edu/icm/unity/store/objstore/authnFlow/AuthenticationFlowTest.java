@@ -13,13 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 
 public class AuthenticationFlowTest extends AbstractNamedWithTSTest<AuthenticationFlowDefinition>
 {

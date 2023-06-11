@@ -7,9 +7,9 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam.IncludeGroupsMode;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
 
 class GroupRegistrationParamMapper
 {

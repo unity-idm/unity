@@ -6,9 +6,9 @@ package pl.edu.icm.unity.stdext.identity;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Simple username identity type definition

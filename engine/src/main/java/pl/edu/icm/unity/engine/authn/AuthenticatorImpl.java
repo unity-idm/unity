@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
-import pl.edu.icm.unity.types.authn.IdPInfo;
 
 /**
  * Runtime instance of authenticator, with a selected retrieval. Stateful and mutable.

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.base.entity.Identity;
 
 /**
  * Base class for static identity types, which simply store the identity value in the database.

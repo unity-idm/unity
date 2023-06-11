@@ -4,9 +4,31 @@
  */
 package pl.edu.icm.unity.engine.idp;
 
-import com.google.common.collect.Lists;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.successful;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import com.google.common.collect.Lists;
+
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.entity.IdentityTaV;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -18,21 +40,7 @@ import pl.edu.icm.unity.engine.api.idp.UserImportConfigs;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.types.basic.*;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.successful;
 
 public class IdPEngineImplBaseTest
 {

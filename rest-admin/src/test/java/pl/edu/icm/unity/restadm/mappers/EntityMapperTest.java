@@ -18,12 +18,12 @@ import io.imunity.rest.api.types.basic.RestEntity;
 import io.imunity.rest.api.types.basic.RestEntityInformation;
 import io.imunity.rest.api.types.basic.RestIdentity;
 import io.imunity.rest.api.types.confirmation.RestConfirmationInfo;
-import pl.edu.icm.unity.types.authn.CredentialInfo;
-import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.base.authn.CredentialInfo;
+import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.base.authn.LocalCredentialState;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityInformation;
+import pl.edu.icm.unity.base.entity.Identity;
 
 public class EntityMapperTest extends MapperTestBase<Entity, RestEntity>
 {

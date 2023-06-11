@@ -10,16 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class InvitationTest extends AbstractNamedWithTSTest<InvitationWithCode>
 {

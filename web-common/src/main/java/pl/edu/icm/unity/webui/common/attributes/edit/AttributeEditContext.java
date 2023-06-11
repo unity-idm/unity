@@ -7,8 +7,8 @@ package pl.edu.icm.unity.webui.common.attributes.edit;
 
 import com.vaadin.server.Sizeable.Unit;
 
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 
 /**

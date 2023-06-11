@@ -9,8 +9,11 @@ import com.google.common.collect.Lists;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.saml.idp.GroupChooser;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
@@ -18,8 +21,6 @@ import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.impl.identitytype;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.base.entity.IdentityType;
 
  class IdentityTypeMapper
 {

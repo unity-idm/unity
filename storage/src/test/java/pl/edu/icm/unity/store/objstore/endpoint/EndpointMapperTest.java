@@ -8,12 +8,12 @@ package pl.edu.icm.unity.store.objstore.endpoint;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.types.common.DBI18nString;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
 public class EndpointMapperTest extends MapperWithMinimalTestBase<Endpoint, DBEndpoint>
 {

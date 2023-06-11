@@ -6,7 +6,7 @@ package pl.edu.icm.unity.store.api;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.EntityInformation;
+import pl.edu.icm.unity.base.entity.EntityInformation;
 
 /**
  * Entities DAO

@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.imunity.rest.api.types.registration.layout.RestFormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
 
 public class FormLayoutMapper
 {

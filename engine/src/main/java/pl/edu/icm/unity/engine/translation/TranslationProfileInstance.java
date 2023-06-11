@@ -10,14 +10,14 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * The translation profile instance contains a {@link TranslationProfile}, enriched in that way that it can be executed,

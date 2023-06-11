@@ -12,13 +12,13 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import pl.edu.icm.unity.base.entity.IdentityTaV;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Manages imports using a single configured import facility.

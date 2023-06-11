@@ -12,9 +12,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.TooManyAttempts;
+import pl.edu.icm.unity.engine.api.authn.TooManyAttempts;
 
 /**
  * On this UI the user must provide the reset code which was sent to it. Universal can be used for 

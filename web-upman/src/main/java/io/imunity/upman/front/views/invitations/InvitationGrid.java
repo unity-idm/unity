@@ -14,7 +14,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import io.imunity.vaadin.elements.BlankPageAnchor;
 import io.imunity.vaadin.elements.MultiSelectGrid;
 import io.imunity.vaadin.elements.TooltipAttacher;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.time.Instant;
 import java.time.ZoneId;

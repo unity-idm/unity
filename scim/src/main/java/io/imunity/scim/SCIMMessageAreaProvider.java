@@ -7,8 +7,8 @@ package io.imunity.scim;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageArea;
-import pl.edu.icm.unity.msg.MessageAreaProvider;
+import pl.edu.icm.unity.base.message.MessageArea;
+import pl.edu.icm.unity.base.message.MessageAreaProvider;
 
 @Component
 public class SCIMMessageAreaProvider implements MessageAreaProvider

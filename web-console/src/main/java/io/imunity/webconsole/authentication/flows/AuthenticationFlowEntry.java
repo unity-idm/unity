@@ -8,7 +8,7 @@ package io.imunity.webconsole.authentication.flows;
 import java.util.Collections;
 import java.util.List;
 
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 
 /**
  * 

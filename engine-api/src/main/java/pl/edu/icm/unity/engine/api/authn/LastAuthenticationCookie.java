@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import javax.servlet.http.Cookie;
 
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 
 public class LastAuthenticationCookie
 {

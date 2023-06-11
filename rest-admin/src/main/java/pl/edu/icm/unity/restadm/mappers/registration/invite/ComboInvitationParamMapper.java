@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.invite.RestComboInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.ComboInvitationParam;
+import pl.edu.icm.unity.base.registration.invite.ComboInvitationParam;
 
 public class ComboInvitationParamMapper
 {

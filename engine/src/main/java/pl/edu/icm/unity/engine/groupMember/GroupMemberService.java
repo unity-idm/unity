@@ -4,22 +4,43 @@
  */
 package pl.edu.icm.unity.engine.groupMember;
 
-import com.google.common.base.Stopwatch;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.groupMember.GroupMemberWithAttributes;
-import pl.edu.icm.unity.store.api.*;
-import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.store.types.StoredIdentity;
-import pl.edu.icm.unity.types.basic.*;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.*;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
+import com.google.common.base.Stopwatch;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.entity.EntityInformation;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.group.GroupMembership;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.groupMember.GroupMemberWithAttributes;
+import pl.edu.icm.unity.store.api.AttributeDAO;
+import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.EntityDAO;
+import pl.edu.icm.unity.store.api.IdentityDAO;
+import pl.edu.icm.unity.store.api.MembershipDAO;
+import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.store.types.StoredIdentity;
 
 @Component
 class GroupMemberService

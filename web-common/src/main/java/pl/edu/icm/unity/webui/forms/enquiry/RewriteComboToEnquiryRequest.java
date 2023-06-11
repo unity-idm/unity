@@ -5,9 +5,9 @@
 
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import pl.edu.icm.unity.types.registration.BaseForm;
-
 import java.util.Objects;
+
+import pl.edu.icm.unity.base.registration.BaseForm;
 
 class RewriteComboToEnquiryRequest
 {

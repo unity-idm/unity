@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -22,7 +24,6 @@ import pl.edu.icm.unity.engine.api.files.URIAccessException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.files.RemoteFileNetworkClient.ContentsWithType;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.FileDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 

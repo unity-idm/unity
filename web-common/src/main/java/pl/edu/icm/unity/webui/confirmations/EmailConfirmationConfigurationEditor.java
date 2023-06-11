@@ -11,10 +11,10 @@ import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;

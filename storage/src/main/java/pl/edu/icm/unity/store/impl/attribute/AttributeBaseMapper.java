@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.impl.attribute;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.base.attribute.Attribute;
 
 public class AttributeBaseMapper
 {

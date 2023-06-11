@@ -15,12 +15,12 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.oauth.rp.local.AccessTokenAndPasswordVerificator;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
-import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;

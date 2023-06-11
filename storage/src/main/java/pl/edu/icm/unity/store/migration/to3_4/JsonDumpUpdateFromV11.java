@@ -18,9 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.i18n.I18nStringJsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.export.JsonDumpUpdate;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
 
 /**
  * 1. changes the legacy jpegImage to a properly implemented image

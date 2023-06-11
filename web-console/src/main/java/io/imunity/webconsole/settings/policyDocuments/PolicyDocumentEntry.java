@@ -5,7 +5,7 @@
 
 package io.imunity.webconsole.settings.policyDocuments;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 

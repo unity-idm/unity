@@ -8,12 +8,12 @@ import java.util.List;
 
 import org.apache.logging.log4j.util.Strings;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig;
+import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 
 /**
  * Controller making decisions on what to do/show after completed registration.

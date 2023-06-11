@@ -6,7 +6,7 @@ package io.imunity.vaadin.endpoint.common.plugins.credentials.password;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;

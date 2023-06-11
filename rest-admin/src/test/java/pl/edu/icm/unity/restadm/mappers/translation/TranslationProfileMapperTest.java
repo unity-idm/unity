@@ -14,12 +14,12 @@ import io.imunity.rest.api.types.translation.RestTranslationAction;
 import io.imunity.rest.api.types.translation.RestTranslationProfile;
 import io.imunity.rest.api.types.translation.RestTranslationProfile.Condition;
 import io.imunity.rest.api.types.translation.RestTranslationProfile.RestTranslationProfileRule;
+import pl.edu.icm.unity.base.translation.ProfileMode;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.translation.ProfileMode;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 public class TranslationProfileMapperTest extends MapperTestBase<TranslationProfile, RestTranslationProfile>
 {

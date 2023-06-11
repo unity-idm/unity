@@ -22,12 +22,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.db.DBDumpContentElements;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.TokenDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations =

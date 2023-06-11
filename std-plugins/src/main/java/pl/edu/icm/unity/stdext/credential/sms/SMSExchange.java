@@ -5,11 +5,11 @@
 
 package pl.edu.icm.unity.stdext.credential.sms;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationSubject;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Allows for exchanging a sms code. Standard flow is simple - first we send

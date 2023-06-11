@@ -10,12 +10,13 @@ import io.imunity.upman.utils.DelegatedGroupsHelper;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 import java.util.ArrayList;
 import java.util.List;

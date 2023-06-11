@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.imunity.rest.api.types.basic.RestGroupContents;
-import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.base.group.GroupContents;
 
 public class GroupContentsMapper
 {

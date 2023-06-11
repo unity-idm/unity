@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.engine.translation.in.action;
 
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionFactory;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Boilerplate code for the input profile's {@link InputTranslationActionFactory} implementations.

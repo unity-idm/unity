@@ -14,7 +14,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**

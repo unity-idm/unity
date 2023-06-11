@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import com.vaadin.data.Binder;
 import com.vaadin.data.HasValue;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Extension of {@link Binder} allowing for robust creation of binders for components with a single field

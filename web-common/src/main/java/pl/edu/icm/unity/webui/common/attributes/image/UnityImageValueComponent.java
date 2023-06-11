@@ -7,11 +7,12 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.attr.ImageType;
-import pl.edu.icm.unity.attr.UnityImage;
+
+import pl.edu.icm.unity.base.attr.ImageType;
+import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.Images;

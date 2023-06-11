@@ -19,7 +19,7 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.saml.SimplePKIManagement;
 import pl.edu.icm.unity.saml.metadata.SPMetadataGenerator;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;

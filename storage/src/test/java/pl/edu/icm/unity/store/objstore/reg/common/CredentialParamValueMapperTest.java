@@ -7,9 +7,9 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.registration.CredentialParamValue;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
 
 public class CredentialParamValueMapperTest extends MapperTestBase<CredentialParamValue, DBCredentialParamValue>
 {

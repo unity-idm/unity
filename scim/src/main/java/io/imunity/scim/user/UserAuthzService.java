@@ -18,9 +18,9 @@ import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
 
 class UserAuthzService
 {

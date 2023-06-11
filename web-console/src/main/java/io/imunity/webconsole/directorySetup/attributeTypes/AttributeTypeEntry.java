@@ -5,8 +5,8 @@
 
 package io.imunity.webconsole.directorySetup.attributeTypes;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 

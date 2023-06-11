@@ -18,11 +18,21 @@ import org.apache.log4j.NDC;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.engine.api.group.GroupsChain;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
@@ -34,16 +44,6 @@ import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.exceptions.RuntimeEngineException;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupsChain;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Entry point: output translation profile, a list of translation rules

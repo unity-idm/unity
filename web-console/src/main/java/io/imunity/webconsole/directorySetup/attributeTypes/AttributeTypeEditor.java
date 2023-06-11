@@ -6,8 +6,8 @@ package io.imunity.webconsole.directorySetup.attributeTypes;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 
 /**
  * Implemented by all attribute type editors.

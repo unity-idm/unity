@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.api.policyDocument;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Policy documents management API

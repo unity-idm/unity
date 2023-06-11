@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api;
 import java.util.List;
 
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Allows for manual triggering of user import.

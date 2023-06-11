@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.springframework.core.io.Resource;
 
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeType;
 
 /**
  * API helping to manipulate attributes, used internally

@@ -10,8 +10,8 @@ import java.util.function.Consumer;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.binding.I18nStringBindingValue;

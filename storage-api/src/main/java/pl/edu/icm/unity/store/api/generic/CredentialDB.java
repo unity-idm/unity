@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
 
 /**
  * Easy access to {@link CredentialDefinition} storage.

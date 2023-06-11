@@ -6,11 +6,11 @@ package pl.edu.icm.unity.engine.msgtemplate;
 
 import java.util.Map;
 
+import pl.edu.icm.unity.base.i18n.I18nMessage;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.types.I18nMessage;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate.Message;
 
 public class MessageTemplateProcessor
 {

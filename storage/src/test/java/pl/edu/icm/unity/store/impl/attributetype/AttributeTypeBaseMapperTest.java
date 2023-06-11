@@ -8,12 +8,12 @@ package pl.edu.icm.unity.store.impl.attributetype;
 import java.util.Map;
 import java.util.function.Function;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.types.common.DBI18nString;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 public class AttributeTypeBaseMapperTest extends MapperTestBase<AttributeType, DBAttributeTypeBase>
 {

@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.authn;
 
 import com.vaadin.ui.Alignment;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 
 /**

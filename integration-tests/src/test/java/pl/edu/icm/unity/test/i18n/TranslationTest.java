@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 
 public class TranslationTest

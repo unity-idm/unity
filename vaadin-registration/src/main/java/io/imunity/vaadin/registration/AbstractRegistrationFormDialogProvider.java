@@ -7,11 +7,12 @@ package io.imunity.vaadin.registration;
 import com.vaadin.flow.component.dialog.Dialog;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
 import org.springframework.beans.factory.ObjectFactory;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 
 import java.util.function.Function;

@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationAction;
 
 public class TranslationActionMapper
 {

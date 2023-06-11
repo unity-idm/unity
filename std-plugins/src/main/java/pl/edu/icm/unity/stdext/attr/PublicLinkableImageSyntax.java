@@ -16,15 +16,15 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import pl.edu.icm.unity.attr.LinkableImage;
-import pl.edu.icm.unity.attr.UnityImage;
+import pl.edu.icm.unity.base.attr.LinkableImage;
+import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.PublicAttributeContent;
 import pl.edu.icm.unity.engine.api.attributes.PublicAttributeInfo;
 import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
 
 public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<LinkableImage>

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import pl.edu.icm.unity.base.db.DBDumpContentElements;
 import pl.edu.icm.unity.store.impl.attribute.AttributeIE;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesIE;
 import pl.edu.icm.unity.store.impl.audit.AuditEventIE;
@@ -40,7 +41,6 @@ import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
 import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
-import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 /**
  * Helper which maps from {@link DBDumpContentElements} to database elements list.

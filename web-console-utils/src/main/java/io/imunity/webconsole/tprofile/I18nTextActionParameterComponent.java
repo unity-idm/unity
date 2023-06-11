@@ -7,10 +7,10 @@ package io.imunity.webconsole.tprofile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 public class I18nTextActionParameterComponent extends I18nTextField implements ActionParameterComponent

@@ -13,24 +13,24 @@ import java.util.function.Function;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.authn.ExpectedIdentity;
+import pl.edu.icm.unity.base.authn.ExpectedIdentity.IdentityExpectation;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.registration.FormType;
+import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.invite.FormPrefill;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.impl.attribute.DBAttribute;
 import pl.edu.icm.unity.store.objstore.reg.common.DBGroupSelection;
 import pl.edu.icm.unity.store.objstore.reg.common.DBIdentityParam;
 import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.registration.FormType;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class RegistrationInvitationParamMapperTest
 		extends MapperTestBase<RegistrationInvitationParam, DBRegistrationInvitationParam>

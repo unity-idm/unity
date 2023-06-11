@@ -13,8 +13,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import pl.edu.icm.unity.base.attribute.AttributesClass;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.types.basic.AttributesClass;
 
 public class TestAttributesClassHelper
 {

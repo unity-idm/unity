@@ -11,7 +11,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import io.imunity.upman.front.model.GroupTreeNode;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 class GroupComboBox extends ComboBox<GroupTreeNode>
 {

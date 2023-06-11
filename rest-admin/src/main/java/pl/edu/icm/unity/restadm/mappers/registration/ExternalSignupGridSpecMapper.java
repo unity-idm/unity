@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 import io.imunity.rest.api.types.registration.RestAuthnGridSettings;
 import io.imunity.rest.api.types.registration.RestExternalSignupGridSpec;
+import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec;
 import pl.edu.icm.unity.restadm.mappers.authn.AuthenticationOptionsSelectorMapper;
-import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
 
 public class ExternalSignupGridSpecMapper
 {

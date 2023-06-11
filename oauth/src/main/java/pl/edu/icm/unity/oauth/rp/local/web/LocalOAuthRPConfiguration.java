@@ -10,7 +10,7 @@ import org.eclipse.jetty.util.StringUtil;
 import org.springframework.util.CollectionUtils;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.console.OAuthBaseConfiguration;
 import pl.edu.icm.unity.oauth.rp.local.LocalOAuthRPProperties;
 

@@ -10,12 +10,13 @@ import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.edu.icm.unity.Constants;
+
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentNotFoundException;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.restadm.mappers.policy.PolicyDocumentMapper;
 
 import javax.ws.rs.BadRequestException;

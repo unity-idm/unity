@@ -15,15 +15,15 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.tprofile.ActionEditor;
 import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionsRegistry;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

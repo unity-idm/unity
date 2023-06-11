@@ -7,10 +7,9 @@ package pl.edu.icm.unity.store.objstore.reg.layout;
 
 import java.util.function.Function;
 
-
+import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
 public class FormLayoutSettingsMapperTest extends MapperTestBase<FormLayoutSettings, DBFormLayoutSettings>
 {

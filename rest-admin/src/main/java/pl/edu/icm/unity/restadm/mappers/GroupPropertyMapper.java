@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers;
 
 import io.imunity.rest.api.types.basic.RestGroupProperty;
-import pl.edu.icm.unity.types.basic.GroupProperty;
+import pl.edu.icm.unity.base.group.GroupProperty;
 
 public class GroupPropertyMapper
 {

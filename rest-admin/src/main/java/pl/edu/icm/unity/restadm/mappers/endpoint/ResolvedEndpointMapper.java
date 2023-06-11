@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers.endpoint;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.endpoint.RestResolvedEndpoint;
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.restadm.mappers.authn.AuthenticationRealmMapper;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 public class ResolvedEndpointMapper
 {

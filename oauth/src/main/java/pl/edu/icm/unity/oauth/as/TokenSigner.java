@@ -28,9 +28,9 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
  * Wrapper for  {@link JWSSigner}. Can signs token using RSA, EC or HMAC algorithm. 

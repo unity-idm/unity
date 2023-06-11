@@ -9,8 +9,8 @@ import java.util.Base64;
 
 import org.bouncycastle.crypto.digests.SHA512Digest;
 
-import pl.edu.icm.unity.types.NamedObject;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.base.describedObject.NamedObject;
+import pl.edu.icm.unity.base.entity.Identity;
 
 /**
  * Holds {@link Identity} and properly creates the comparable value which is used in database:

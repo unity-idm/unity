@@ -13,8 +13,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.event.EventExecution;
+import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.store.api.EventDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 

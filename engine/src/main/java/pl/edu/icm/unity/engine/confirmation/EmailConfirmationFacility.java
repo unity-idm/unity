@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.engine.confirmation;
 
+import pl.edu.icm.unity.base.describedObject.DescribedObject;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.DescribedObject;
 
 /**
  * Implementations are providing confirmation functionality.

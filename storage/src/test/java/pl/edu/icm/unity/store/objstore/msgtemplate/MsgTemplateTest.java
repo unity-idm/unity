@@ -6,13 +6,13 @@ package pl.edu.icm.unity.store.objstore.msgtemplate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.i18n.I18nMessage;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.base.msgtemplates.MessageType;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
-import pl.edu.icm.unity.types.I18nMessage;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.basic.MessageType;
 
 public class MsgTemplateTest extends AbstractNamedWithTSTest<MessageTemplate>
 {

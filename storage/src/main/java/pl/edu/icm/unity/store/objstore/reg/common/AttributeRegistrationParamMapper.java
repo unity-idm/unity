@@ -7,9 +7,9 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.ConfirmationMode;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.base.registration.ConfirmationMode;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
 
 class AttributeRegistrationParamMapper
 {

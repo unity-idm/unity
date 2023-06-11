@@ -20,12 +20,12 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
+import pl.edu.icm.unity.base.registration.BaseForm;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.webui.common.GridWithEditor;
 import pl.edu.icm.unity.webui.common.Styles;
 

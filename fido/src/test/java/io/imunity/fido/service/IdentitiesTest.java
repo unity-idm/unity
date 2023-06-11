@@ -6,9 +6,10 @@ package io.imunity.fido.service;
 
 import io.imunity.fido.identity.FidoUserHandleIdentity;
 import org.junit.Test;
+
+import pl.edu.icm.unity.base.entity.Identity;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.basic.Identity;
 
 import java.util.Arrays;
 import java.util.List;

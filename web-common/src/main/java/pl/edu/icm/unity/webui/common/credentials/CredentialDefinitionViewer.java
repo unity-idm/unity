@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.common.credentials;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
 
 /**
  * Implementations allow for presenting a {@link CredentialDefinition}.

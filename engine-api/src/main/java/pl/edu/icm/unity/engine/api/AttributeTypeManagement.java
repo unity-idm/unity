@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api;
 import java.util.Collection;
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Attribute types management API.

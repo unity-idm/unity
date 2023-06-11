@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.attribute.AttributesClass;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
-import pl.edu.icm.unity.types.basic.AttributesClass;
 
 public class AttributeClassTest extends AbstractNamedWithTSTest<AttributesClass>
 {

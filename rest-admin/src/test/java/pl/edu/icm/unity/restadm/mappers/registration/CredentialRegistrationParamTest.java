@@ -10,8 +10,8 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.RestCredentialRegistrationParam;
+import pl.edu.icm.unity.base.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 
 public class CredentialRegistrationParamTest
 		extends MapperTestBase<CredentialRegistrationParam, RestCredentialRegistrationParam>

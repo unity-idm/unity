@@ -7,10 +7,10 @@ package pl.edu.icm.unity.stdext.attr;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 /**
  * Helper class allowing to create verifiable email attributes easily.

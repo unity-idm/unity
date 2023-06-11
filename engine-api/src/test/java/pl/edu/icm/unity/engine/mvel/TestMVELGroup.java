@@ -17,10 +17,10 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mvel2.MVEL;
 
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.engine.api.group.GroupsChain;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupsChain;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestMVELGroup

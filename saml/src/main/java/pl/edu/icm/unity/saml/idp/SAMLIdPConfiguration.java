@@ -15,14 +15,14 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClient;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
 import pl.edu.icm.unity.engine.api.idp.UserImportConfigs;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 

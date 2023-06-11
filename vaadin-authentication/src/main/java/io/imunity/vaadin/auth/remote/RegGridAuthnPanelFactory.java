@@ -8,8 +8,8 @@ package io.imunity.vaadin.auth.remote;
 import io.imunity.vaadin.auth.AuthNOption;
 import io.imunity.vaadin.auth.AuthNPanelFactory;
 import io.imunity.vaadin.auth.FirstFactorAuthNPanel;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
 
 class RegGridAuthnPanelFactory implements AuthNPanelFactory
 {

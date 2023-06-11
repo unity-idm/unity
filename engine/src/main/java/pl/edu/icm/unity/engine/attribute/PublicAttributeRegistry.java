@@ -6,10 +6,10 @@ package pl.edu.icm.unity.engine.attribute;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.attributes.PublicAttributeInfo;
 import pl.edu.icm.unity.store.api.AttributeDAO;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * For a given attribute, which syntax indicates that is sharable, link the

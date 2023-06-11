@@ -26,10 +26,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Escaper;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationHandler;
@@ -47,7 +48,6 @@ import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
 import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 /**
  * Updates a JSON dump before it is actually imported.

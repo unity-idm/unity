@@ -15,8 +15,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
 
 public class MembershipGroupsUtilsTest
 {

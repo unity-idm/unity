@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.engine.api.identity;
 
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.Identity;
+import pl.edu.icm.unity.base.entity.IdentityTaV;
+import pl.edu.icm.unity.base.entity.IllegalIdentityValueException;
 
 /**
  * Various helper operations allowing for converting and checking identity and entity related parameters.

@@ -10,9 +10,9 @@ import java.time.ZoneId;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 
 @Component
 public class IdpStatisticJsonSerializer implements RDBMSObjectSerializer<IdpStatistic, IdpStatisticBean>

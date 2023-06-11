@@ -7,8 +7,8 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.authn.ExpectedIdentity;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
+import pl.edu.icm.unity.base.authn.ExpectedIdentity;
+import pl.edu.icm.unity.base.authn.ExpectedIdentity.IdentityExpectation;
 
 public class ExpectedIdentityMapper
 {

@@ -19,9 +19,9 @@ import org.springframework.util.StringUtils;
 import com.vaadin.event.selection.SingleSelectionEvent;
 import com.vaadin.ui.Button.ClickEvent;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameComparator;
 

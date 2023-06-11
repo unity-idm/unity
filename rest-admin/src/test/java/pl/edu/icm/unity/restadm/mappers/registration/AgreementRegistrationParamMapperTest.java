@@ -11,9 +11,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.registration.RestAgreementRegistrationParam;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 
 public class AgreementRegistrationParamMapperTest
 		extends MapperTestBase<AgreementRegistrationParam, RestAgreementRegistrationParam>

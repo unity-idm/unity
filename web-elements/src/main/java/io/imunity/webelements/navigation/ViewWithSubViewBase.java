@@ -11,7 +11,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 
 import io.imunity.webelements.menu.MenuButton;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
 

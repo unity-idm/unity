@@ -5,10 +5,10 @@
 
 package io.imunity.upman.front.model;
 
-import pl.edu.icm.unity.MessageSource;
-
 import java.util.*;
 import java.util.stream.Collectors;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 
 public class GroupTreeNode
 {

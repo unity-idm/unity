@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 /**
  * Database update helper. If object is update then non empty optional is return;

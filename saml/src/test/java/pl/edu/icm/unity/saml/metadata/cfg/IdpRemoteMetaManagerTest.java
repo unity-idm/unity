@@ -10,7 +10,10 @@ import org.awaitility.Durations;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
@@ -19,8 +22,6 @@ import pl.edu.icm.unity.saml.idp.TrustedServiceProvider;
 import pl.edu.icm.unity.saml.idp.TrustedServiceProviders;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 import java.io.File;

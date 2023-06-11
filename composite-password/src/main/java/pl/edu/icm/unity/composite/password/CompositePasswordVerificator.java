@@ -24,7 +24,9 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
@@ -44,7 +46,6 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
 import pl.edu.icm.unity.pam.PAMVerificator;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
@@ -53,7 +54,6 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordEncodingPoolProvider;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordEngine;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
  * Composite password verificator is only a relay to other local or remote

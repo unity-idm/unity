@@ -7,6 +7,8 @@ package pl.edu.icm.unity.engine.events;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.event.EventExecution;
 import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.base.utils.Log;
@@ -16,7 +18,6 @@ import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.store.api.EventDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.Event;
 
 import java.util.ArrayList;
 import java.util.Date;

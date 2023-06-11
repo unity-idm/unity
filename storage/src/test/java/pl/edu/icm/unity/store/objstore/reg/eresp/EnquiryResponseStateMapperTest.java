@@ -11,7 +11,21 @@ import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.entity.IdentityParam;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.registration.AdminComment;
+import pl.edu.icm.unity.base.registration.CredentialParamValue;
+import pl.edu.icm.unity.base.registration.EnquiryResponse;
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
+import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.base.registration.Selection;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.impl.attribute.DBAttribute;
@@ -23,20 +37,6 @@ import pl.edu.icm.unity.store.objstore.reg.common.DBPolicyAgreementDecision;
 import pl.edu.icm.unity.store.objstore.reg.common.DBRegistrationContext;
 import pl.edu.icm.unity.store.objstore.reg.common.DBSelection;
 import pl.edu.icm.unity.store.types.common.DBConfirmationInfo;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
-import pl.edu.icm.unity.types.registration.AdminComment;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
-import pl.edu.icm.unity.types.registration.EnquiryResponse;
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.Selection;
 
 public class EnquiryResponseStateMapperTest
 		extends MapperTestBase<EnquiryResponseState, DBEnquiryResponseState>

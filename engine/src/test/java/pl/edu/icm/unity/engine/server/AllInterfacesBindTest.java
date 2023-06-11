@@ -14,9 +14,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @UnityIntegrationTest

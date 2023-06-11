@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.base.notifications.NotificationChannel;
 
 /**
  * Easy access to {@link NotificationChannel} storage.

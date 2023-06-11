@@ -19,15 +19,15 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.scim.schema.providerConfig.SCIMProviderConfigResource.AuthenticationSchema;
 import io.imunity.scim.schema.providerConfig.SCIMProviderConfigResource.AuthenticationSchema.Type;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificator;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 
 @Component
 class AuthenticationSchemesProvider

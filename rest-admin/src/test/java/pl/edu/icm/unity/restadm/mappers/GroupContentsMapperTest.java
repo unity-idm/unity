@@ -16,9 +16,9 @@ import io.imunity.rest.api.types.basic.RestGroupContents;
 import io.imunity.rest.api.types.basic.RestGroupDelegationConfiguration;
 import io.imunity.rest.api.types.basic.RestGroupMembership;
 import io.imunity.rest.api.types.basic.RestI18nString;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupContents;
+import pl.edu.icm.unity.base.group.GroupMembership;
 
 public class GroupContentsMapperTest extends MapperTestBase<GroupContents, RestGroupContents>
 {

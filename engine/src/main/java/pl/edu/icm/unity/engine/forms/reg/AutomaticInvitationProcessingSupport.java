@@ -24,6 +24,15 @@ import org.springframework.util.CollectionUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.registration.AdminComment;
+import pl.edu.icm.unity.base.registration.IllegalFormTypeException;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.invite.FormPrefill;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam;
+import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -33,16 +42,7 @@ import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationReques
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessInvitationsActionFactory.AutoProcessInvitationsAction;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.registration.AdminComment;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.invite.FormPrefill;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Helper component that helps with processing a registration request from

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common.binding;
 import com.google.common.base.Objects;
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 /**
  * Useful for trivial {@link Binder}s that should operate on a single field of

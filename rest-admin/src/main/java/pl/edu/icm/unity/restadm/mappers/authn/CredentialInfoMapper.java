@@ -9,9 +9,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.imunity.rest.api.types.authn.RestCredentialInfo;
-import pl.edu.icm.unity.types.authn.CredentialInfo;
-import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.base.authn.CredentialInfo;
+import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.base.authn.LocalCredentialState;
 
 public class CredentialInfoMapper
 {

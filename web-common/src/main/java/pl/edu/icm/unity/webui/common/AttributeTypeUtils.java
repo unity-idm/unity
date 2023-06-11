@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Shared helpers for attribute(types)

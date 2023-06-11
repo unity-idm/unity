@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.objstore.tprofile;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.translation.TranslationRule;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 
 public class TranslationRuleMapper
 {

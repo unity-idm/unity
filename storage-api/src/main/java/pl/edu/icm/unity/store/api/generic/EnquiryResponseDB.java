@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
 
 /**
  * Easy access to {@link EnquiryResponseState} storage.

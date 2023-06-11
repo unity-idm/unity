@@ -19,8 +19,9 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Test;
-import pl.edu.icm.unity.JsonUtil;
+
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 
 import javax.ws.rs.core.Response;
 import java.util.List;

@@ -17,7 +17,7 @@ import com.vaadin.shared.Version;
 
 import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
 
 /**

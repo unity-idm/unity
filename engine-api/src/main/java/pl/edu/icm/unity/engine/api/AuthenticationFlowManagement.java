@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * API for authentication flow management.

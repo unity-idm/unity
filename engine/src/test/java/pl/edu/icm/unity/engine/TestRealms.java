@@ -10,8 +10,8 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.RememberMePolicy;
 
 public class TestRealms extends DBIntegrationTestBase
 {

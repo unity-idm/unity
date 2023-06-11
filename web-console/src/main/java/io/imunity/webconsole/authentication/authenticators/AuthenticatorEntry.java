@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 
 /**
  * Data object behind a row in {@link AuthenticatorsComponent}. Stores

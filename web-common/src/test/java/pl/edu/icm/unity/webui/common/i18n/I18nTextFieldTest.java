@@ -14,8 +14,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 public class I18nTextFieldTest
 {

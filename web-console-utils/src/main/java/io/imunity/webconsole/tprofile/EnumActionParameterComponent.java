@@ -6,8 +6,8 @@ package io.imunity.webconsole.tprofile;
 
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 /**
  * {@link ComboBox} based editor of enum paramter.

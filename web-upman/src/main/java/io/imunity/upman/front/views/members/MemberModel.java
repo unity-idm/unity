@@ -8,8 +8,9 @@ package io.imunity.upman.front.views.members;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import io.imunity.upman.front.model.EmailModel;
 import org.apache.commons.lang3.tuple.Pair;
+
+import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 
 import java.util.Map;
 import java.util.Objects;

@@ -19,7 +19,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.group.GroupMembership;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.store.objstore.reg.form.RegistrationFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
 import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 
 /**
  * Update db from 2.6.0 release version (DB schema version 2.4). See {@link UpdateHelperTo2_6}

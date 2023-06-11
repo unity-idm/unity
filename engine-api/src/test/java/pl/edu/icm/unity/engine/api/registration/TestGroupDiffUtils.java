@@ -18,9 +18,9 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupSelection;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupSelection;
 
 public class TestGroupDiffUtils
 {

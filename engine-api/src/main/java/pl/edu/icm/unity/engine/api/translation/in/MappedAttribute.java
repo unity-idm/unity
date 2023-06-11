@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.translation.in;
 
 import java.util.Objects;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.base.attribute.Attribute;
 
 /**
  * Mapped {@link Attribute} with {@link AttributeEffectMode}.

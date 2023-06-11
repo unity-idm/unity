@@ -8,9 +8,9 @@ package pl.edu.icm.unity.store.impl.attributetype;
 import java.util.HashMap;
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.store.types.common.I18nStringMapper;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 class AttributeTypeBaseMapper
 {

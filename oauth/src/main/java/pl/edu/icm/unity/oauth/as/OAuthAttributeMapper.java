@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.base.attribute.Attribute;
 
 /**
  * Maps Unity attributes to OAuth attributes, which is simple mapping to JSON.

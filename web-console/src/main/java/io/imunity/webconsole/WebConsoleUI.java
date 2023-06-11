@@ -29,7 +29,7 @@ import io.imunity.webelements.menu.left.LeftMenuLabel;
 import io.imunity.webelements.menu.top.TopRightMenu;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.authn.StandardWebLogoutHandler;
 import pl.edu.icm.unity.webui.common.Images;

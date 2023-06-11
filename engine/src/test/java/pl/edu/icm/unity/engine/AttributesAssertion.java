@@ -6,10 +6,10 @@ package pl.edu.icm.unity.engine;
 
 import java.util.Collection;
 
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.IdentityTaV;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class AttributesAssertion
 {

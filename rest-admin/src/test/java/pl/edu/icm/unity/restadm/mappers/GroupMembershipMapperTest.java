@@ -11,7 +11,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.basic.RestGroupMembership;
-import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.base.group.GroupMembership;
 
 public class GroupMembershipMapperTest extends MapperWithMinimalTestBase<GroupMembership, RestGroupMembership>
 {

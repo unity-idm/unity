@@ -5,7 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 
 
 public interface AttributeValueEditor
