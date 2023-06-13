@@ -55,7 +55,10 @@ class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, Ses
 			messages.setSessionExpiredCaption(messageSource.getMessage("SessionExpiration.expired"));
 			messages.setSessionExpiredMessage(messageSource.getMessage("SessionExpiration.refresh"));
 			messages.setSessionExpiredNotificationEnabled(true);
-			messages.setSessionExpiredURL(VaadinServlet.getFrontendMapping().replace("*", ""));
+			messages.setSessionExpiredURL(
+					VaadinServlet.getCurrent().getServletContext().getContextPath() +
+					VaadinServlet.getFrontendMapping().replace("*", "")
+			);
 
 			return messages;
 		});

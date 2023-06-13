@@ -153,11 +153,12 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 	private FormLayout getAttributeList(List<Attribute> attributes, String theme)
 	{
 		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new ResponsiveStep("0", 1));
+
 		for (Attribute attr : attributes)
 		{
 			Label attributeLabel = new Label();
 			attributeLabel.setText(attr.name);
-			attributeLabel.setTitle(attr.description);
 			Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
 			icon.getElement().getThemeList().add(theme);
 			icon.getStyle().set("background-color", "transparent");
@@ -198,8 +199,9 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		HorizontalLayout wrapper = new HorizontalLayout();
 
 		Span summaryTitle = new Span();
-		summaryTitle.setWidth("19em");
-		summaryTitle.setHeight("5em");
+		summaryTitle.setWidth("10em");
+		summaryTitle.setHeight("3em");
+		summaryTitle.getStyle().set("font-size", "1.5em");
 
 		wrapper.add(summaryTitle);
 		wrapper.setAlignItems(Alignment.CENTER);

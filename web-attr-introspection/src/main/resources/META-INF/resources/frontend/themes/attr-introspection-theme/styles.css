@@ -1,3 +1,7 @@
+vaadin-form-item {
+    --vaadin-form-item-label-width: 15em;
+}
+
 vaadin-icon {
     width: var(--lumo-icon-size-s);
     height: var(--lumo-icon-size-s);

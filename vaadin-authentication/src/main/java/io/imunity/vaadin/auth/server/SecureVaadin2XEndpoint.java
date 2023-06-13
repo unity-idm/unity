@@ -7,12 +7,14 @@ package io.imunity.vaadin.auth.server;
 import com.vaadin.flow.server.startup.ServletContextListeners;
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
 import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
@@ -36,6 +38,7 @@ import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PA
 
 public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, SecureVaadin2XEndpoint.class);
 	private static final Duration UNRESTRICTED_SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	protected AuthenticationFilter authnFilter;
@@ -71,6 +74,7 @@ public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 			);
 		} catch (Exception e)
 		{
+			log.error("Exception occurred, while web app context creating", e);
 			return context;
 		}
 
