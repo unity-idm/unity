@@ -6,7 +6,7 @@ package io.imunity.webconsole.directorySetup.attributeClasses;
 
 import com.vaadin.ui.TwinColSelect;
 
-import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.base.attribute.AttributesClass;
 
 /**
  * Customization of the {@link TwinColSelect} for {@link AttributesClass} selection.

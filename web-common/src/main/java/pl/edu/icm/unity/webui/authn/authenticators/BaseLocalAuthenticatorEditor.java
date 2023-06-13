@@ -10,8 +10,8 @@ import java.util.Collection;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 
 /**
  * Easy access to {@link MessageTemplate} storage.

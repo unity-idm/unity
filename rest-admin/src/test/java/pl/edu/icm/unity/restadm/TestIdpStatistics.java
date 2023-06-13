@@ -21,9 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import io.imunity.rest.api.types.idp.statistic.RestGroupedIdpStatistic;
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
 
 public class TestIdpStatistics extends RESTAdminTestBase
 {
@@ -36,12 +36,12 @@ public class TestIdpStatistics extends RESTAdminTestBase
 		idpStatisticManagement.addIdpStatistic(IdpStatistic.builder().idpEndpointId("eid").idpEndpointName("ename")
 				.clientId("c1").clientName("cName")
 				.timestamp(LocalDateTime.now())
-				.status(pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status.SUCCESSFUL).build());
+				.status(pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status.SUCCESSFUL).build());
 
 		idpStatisticManagement.addIdpStatistic(IdpStatistic.builder().idpEndpointId("eid").idpEndpointName("ename")
 				.clientId("c1").clientName("cName")
 				.timestamp(LocalDateTime.now())
-				.status(pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status.FAILED).build());
+				.status(pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status.FAILED).build());
 
 		HttpGet get = new HttpGet(
 				"/restadm/v1/idp-stats?since=" + Date.from(Instant.now().minusSeconds(1000)).toInstant().toEpochMilli()

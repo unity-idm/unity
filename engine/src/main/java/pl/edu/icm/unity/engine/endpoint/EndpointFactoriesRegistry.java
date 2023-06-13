@@ -13,8 +13,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 
 /**

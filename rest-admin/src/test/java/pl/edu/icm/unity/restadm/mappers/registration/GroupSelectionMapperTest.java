@@ -11,8 +11,8 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.RestGroupSelection;
+import pl.edu.icm.unity.base.registration.GroupSelection;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.registration.GroupSelection;
 
 public class GroupSelectionMapperTest extends MapperTestBase<GroupSelection, RestGroupSelection>
 {

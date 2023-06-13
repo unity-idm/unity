@@ -7,10 +7,10 @@ package pl.edu.icm.unity.store.objstore.ac;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.attribute.AttributesClass;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
-import pl.edu.icm.unity.types.basic.AttributesClass;
 
 /**
  * Easy access to {@link AttributesClass} storage.

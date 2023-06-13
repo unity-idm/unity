@@ -8,8 +8,9 @@ package io.imunity.vaadin.enquiry;
 import com.vaadin.flow.component.Component;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.StickyEnquiryService;
+import pl.edu.icm.unity.base.message.MessageSource;
+
 import org.springframework.stereotype.Service;
-import pl.edu.icm.unity.MessageSource;
 
 import java.util.List;
 

@@ -6,8 +6,8 @@
 package pl.edu.icm.unity.restadm.mappers.policyAgreement;
 
 import io.imunity.rest.api.types.policyAgreement.RestPolicyAgreementDecision;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
 
 public class PolicyAgreementDecisionMapper
 {

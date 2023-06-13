@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.idpcommon;
 import java.util.Collection;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.base.attribute.Attribute;
 
 public interface SelectableAttributesComponent
 {

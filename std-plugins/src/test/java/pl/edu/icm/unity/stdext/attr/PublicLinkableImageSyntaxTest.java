@@ -13,9 +13,9 @@ import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-import pl.edu.icm.unity.attr.LinkableImage;
-import pl.edu.icm.unity.attr.UnityImage;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attr.LinkableImage;
+import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 
 public class PublicLinkableImageSyntaxTest
 {

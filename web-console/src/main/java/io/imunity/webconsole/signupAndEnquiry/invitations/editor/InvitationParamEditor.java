@@ -5,7 +5,7 @@
 
 package io.imunity.webconsole.signupAndEnquiry.invitations.editor;
 
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 interface InvitationParamEditor

@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers.endpoint;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.endpoint.RestEndpoint;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
 
 public class EndpointMapper
 {

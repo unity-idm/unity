@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.api.identity;
 import java.util.Collection;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.base.identity.IdentityType;
 
 /**
  * Internally useful support API for handling identity types.

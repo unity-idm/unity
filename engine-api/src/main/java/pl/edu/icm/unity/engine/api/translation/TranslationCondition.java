@@ -10,8 +10,8 @@ import java.util.HashMap;
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * MVEL condition of translation rule.

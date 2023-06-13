@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.types.common;
 
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class I18nStringMapper
 {

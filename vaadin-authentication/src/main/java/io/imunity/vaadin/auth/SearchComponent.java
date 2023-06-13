@@ -6,7 +6,8 @@ package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.function.Consumer;
 

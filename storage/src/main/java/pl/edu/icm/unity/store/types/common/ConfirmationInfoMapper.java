@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.types.common;
 
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 
 public class ConfirmationInfoMapper
 {

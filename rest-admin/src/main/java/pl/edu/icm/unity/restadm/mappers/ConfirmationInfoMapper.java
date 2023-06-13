@@ -5,9 +5,8 @@
 
 package pl.edu.icm.unity.restadm.mappers;
 
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-
 import io.imunity.rest.api.types.confirmation.RestConfirmationInfo;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 
 public class ConfirmationInfoMapper
 {

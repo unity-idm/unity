@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.engine.notifications;
 
+import pl.edu.icm.unity.base.describedObject.DescribedObject;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.DescribedObject;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.registration.UserRequestState;
+import pl.edu.icm.unity.base.registration.UserRequestState;
 
 /**
  * Implementations are providing messaging functionality. Facility can be configured in 

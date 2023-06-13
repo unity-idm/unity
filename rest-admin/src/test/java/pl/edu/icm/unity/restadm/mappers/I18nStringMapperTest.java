@@ -11,7 +11,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.basic.RestI18nString;
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class I18nStringMapperTest extends MapperTestBase<I18nString, RestI18nString>
 {

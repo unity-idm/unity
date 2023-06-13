@@ -8,7 +8,7 @@ package io.imunity.scim.console;
 import java.util.Collections;
 import java.util.function.Supplier;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements;
 
 class AttributeDefinitionConfigurationList extends ListOfDnDCollapsableElements<AttributeDefinitionWithMappingBean>

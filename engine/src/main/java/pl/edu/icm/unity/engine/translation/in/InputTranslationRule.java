@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.translation.in;
 
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
@@ -14,7 +15,6 @@ import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInvocationContext;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Invokes {@link InputTranslationAction}.

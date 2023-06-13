@@ -10,9 +10,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 
 /**
  * Result of output translation. Set of identities and attributes. This class is mutable: actions modify the contents

@@ -12,9 +12,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.basic.RestAttribute;
 import io.imunity.rest.api.types.basic.RestAttributeStatement;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeStatement;
+import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution;
 
 public class AttributeStatementWithFixedAttrMapperTest
 		extends MapperWithMinimalTestBase<AttributeStatement, RestAttributeStatement>

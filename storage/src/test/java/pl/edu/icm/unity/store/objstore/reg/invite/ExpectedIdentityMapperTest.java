@@ -7,10 +7,10 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.authn.ExpectedIdentity;
+import pl.edu.icm.unity.base.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 
 public class ExpectedIdentityMapperTest extends MapperTestBase<ExpectedIdentity, DBExpectedIdentity>
 {

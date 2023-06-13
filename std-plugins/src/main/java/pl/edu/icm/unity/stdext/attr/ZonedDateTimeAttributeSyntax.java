@@ -7,13 +7,14 @@ package pl.edu.icm.unity.stdext.attr;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.Constants;
+
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.exceptions.NullAttributeValueException;
+import pl.edu.icm.unity.engine.api.attributes.NullAttributeValueException;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;

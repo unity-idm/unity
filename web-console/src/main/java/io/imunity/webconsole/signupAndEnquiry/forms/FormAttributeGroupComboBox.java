@@ -4,7 +4,7 @@
  */
 package io.imunity.webconsole.signupAndEnquiry.forms;
 
-import static pl.edu.icm.unity.types.registration.AttributeRegistrationParam.DYN_GROUP_PFX;
+import static pl.edu.icm.unity.base.registration.AttributeRegistrationParam.DYN_GROUP_PFX;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,8 +13,8 @@ import java.util.List;
 
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
 
 
 /**

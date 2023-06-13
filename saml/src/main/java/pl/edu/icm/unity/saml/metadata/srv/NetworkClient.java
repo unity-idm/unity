@@ -19,8 +19,8 @@ import org.apache.hc.core5.http.message.StatusLine;
 
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Wraps configuration of HTTP client which can use custom truststore 

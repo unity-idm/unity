@@ -5,14 +5,13 @@ S * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
 
 package pl.edu.icm.unity.store.objstore.bulk;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.ArrayList;
-import java.util.Collections;
 
 @JsonDeserialize(builder = DBScheduledProcessingRule.Builder.class)
 class DBScheduledProcessingRule

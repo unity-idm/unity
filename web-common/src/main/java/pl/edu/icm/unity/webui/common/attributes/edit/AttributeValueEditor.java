@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.edit;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
@@ -28,7 +28,7 @@ public interface AttributeValueEditor
 	
 	/**
 	 * Updates the editor's label of the value, which was initially set upon object construction
-	 * (see {@link WebAttributeHandler#getEditorComponent(Object, String, pl.edu.icm.unity.types.basic.AttributeValueSyntax)}).
+	 * (see {@link WebAttributeHandler#getEditorComponent(Object, String, pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax)}).
 	 * @param label
 	 */
 	public void setLabel(String label);

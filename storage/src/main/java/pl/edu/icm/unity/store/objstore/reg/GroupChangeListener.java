@@ -6,11 +6,11 @@ package pl.edu.icm.unity.store.objstore.reg;
 
 import java.util.List;
 
+import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 
 public class GroupChangeListener implements ReferenceRemovalHandler
 {

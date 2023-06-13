@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 
 public class TestNumericAttribute
 {

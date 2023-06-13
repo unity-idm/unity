@@ -7,9 +7,7 @@ package pl.edu.icm.unity.engine.api.authn;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
-import pl.edu.icm.unity.types.authn.IdPInfo;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
 
 
 /**

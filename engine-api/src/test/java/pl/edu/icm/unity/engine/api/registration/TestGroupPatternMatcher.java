@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
 
 public class TestGroupPatternMatcher
 {

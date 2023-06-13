@@ -5,13 +5,11 @@
 
 package pl.edu.icm.unity.store.objstore.reg.common;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-
-import java.util.Collections;
 
 @JsonDeserialize(builder = DBPolicyAgreementDecision.Builder.class)
 public class DBPolicyAgreementDecision

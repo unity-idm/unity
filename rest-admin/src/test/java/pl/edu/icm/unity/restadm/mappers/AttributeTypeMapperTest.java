@@ -15,9 +15,9 @@ import org.junit.Test;
 
 import io.imunity.rest.api.types.basic.RestAttributeType;
 import io.imunity.rest.api.types.basic.RestI18nString;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class AttributeTypeMapperTest extends MapperWithMinimalTestBase<AttributeType, RestAttributeType>
 {

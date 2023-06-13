@@ -8,8 +8,8 @@ import java.net.URI;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
+import pl.edu.icm.unity.base.authn.ExpectedIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 
 
 /**

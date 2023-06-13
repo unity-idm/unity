@@ -12,10 +12,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.policyAgreement.RestPolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 
 public class PolicyAgreementConfigurationMapperTest
 		extends MapperTestBase<PolicyAgreementConfiguration, RestPolicyAgreementConfiguration>

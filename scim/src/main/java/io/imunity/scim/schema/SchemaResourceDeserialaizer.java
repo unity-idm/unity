@@ -18,7 +18,7 @@ import io.imunity.scim.config.AttributeDefinition;
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.config.SchemaWithMapping;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 public class SchemaResourceDeserialaizer
 {

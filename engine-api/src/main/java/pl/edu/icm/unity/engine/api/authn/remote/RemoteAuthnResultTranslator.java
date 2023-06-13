@@ -6,12 +6,12 @@ package pl.edu.icm.unity.engine.api.authn.remote;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.identity.IdentityTaV;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Processes {@link RemotelyAuthenticatedInput} by applying a translation profile to it and 

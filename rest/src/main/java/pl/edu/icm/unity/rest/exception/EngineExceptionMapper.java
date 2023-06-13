@@ -14,8 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.types.JsonError;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
 /**
  * Maps Unity exceptions to HTTP error responses

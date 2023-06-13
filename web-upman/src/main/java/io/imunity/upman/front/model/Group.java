@@ -5,9 +5,9 @@
 
 package io.imunity.upman.front.model;
 
-import pl.edu.icm.unity.types.I18nString;
-
 import java.util.Objects;
+
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class Group
 {

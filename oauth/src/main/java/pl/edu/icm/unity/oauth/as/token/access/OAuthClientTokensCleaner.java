@@ -8,8 +8,8 @@ package pl.edu.icm.unity.oauth.as.token.access;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 @Component
 public class OAuthClientTokensCleaner

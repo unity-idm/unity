@@ -9,10 +9,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.imunity.rest.api.types.registration.RestRegistrationRequest;
+import pl.edu.icm.unity.base.registration.RegistrationRequest;
 import pl.edu.icm.unity.restadm.mappers.AttributeMapper;
 import pl.edu.icm.unity.restadm.mappers.IdentityParamMapper;
 import pl.edu.icm.unity.restadm.mappers.policyAgreement.PolicyAgreementDecisionMapper;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 
 public class RegistrationRequestMapper
 {

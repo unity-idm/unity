@@ -7,10 +7,12 @@ package io.imunity.vaadin.endpoint.common;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.*;
+
+import pl.edu.icm.unity.base.message.MessageSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.MessageSource;
 
 import java.lang.invoke.MethodHandles;
 

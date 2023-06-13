@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.oauth.api.Scope;
 import pl.edu.icm.unity.oauth.api.SystemScopeProvider;
 

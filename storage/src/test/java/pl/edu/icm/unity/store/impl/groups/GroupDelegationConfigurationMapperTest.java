@@ -8,9 +8,9 @@ package pl.edu.icm.unity.store.impl.groups;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 
 public class GroupDelegationConfigurationMapperTest
 		extends MapperTestBase<GroupDelegationConfiguration, DBGroupDelegationConfiguration>

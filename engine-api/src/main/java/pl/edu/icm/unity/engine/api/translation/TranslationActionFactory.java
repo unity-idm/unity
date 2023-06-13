@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.translation;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 
 /**
  * Creates {@link TranslationActionInstance}s.

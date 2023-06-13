@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * {@link ComboBox} allowing to simply select from enum constatnts.

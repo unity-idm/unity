@@ -6,9 +6,9 @@ package pl.edu.icm.unity.engine.api.translation.out;
 
 import org.apache.log4j.NDC;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Base class of all output profile action instances.

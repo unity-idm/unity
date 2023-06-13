@@ -21,7 +21,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin.elements.*;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.*;
 import java.util.stream.Collectors;

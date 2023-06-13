@@ -6,11 +6,11 @@ package pl.edu.icm.unity.store.objstore.realm;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.RealmDB;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 public class RealmTest extends AbstractNamedWithTSTest<AuthenticationRealm>
 {

@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.store.rdbms.tx;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 
 import pl.edu.icm.unity.store.tx.TransactionState;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SQLTransactionState implements TransactionState
 {

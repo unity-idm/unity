@@ -8,10 +8,10 @@ package pl.edu.icm.unity.store.objstore.reg.eresp;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.store.objstore.reg.common.AdminCommentMapper;
 import pl.edu.icm.unity.store.objstore.reg.common.RegistrationContextMapper;
-import pl.edu.icm.unity.types.registration.EnquiryResponseState;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 
 
 public class EnquiryResponseStateMapper

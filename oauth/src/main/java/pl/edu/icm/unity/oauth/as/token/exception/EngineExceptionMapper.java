@@ -16,7 +16,7 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
 @Provider
 class EngineExceptionMapper implements ExceptionMapper<Exception>

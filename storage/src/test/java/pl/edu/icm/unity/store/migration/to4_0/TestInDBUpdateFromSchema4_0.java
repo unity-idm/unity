@@ -4,16 +4,20 @@
  */
 package pl.edu.icm.unity.store.migration.to4_0;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.Test;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 
 public class TestInDBUpdateFromSchema4_0
 {

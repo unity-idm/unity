@@ -6,8 +6,8 @@ package io.imunity.webconsole.authentication.localCredentials;
 
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;

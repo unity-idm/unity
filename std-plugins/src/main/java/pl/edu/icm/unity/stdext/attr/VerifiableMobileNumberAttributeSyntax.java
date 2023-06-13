@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
+import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.verifiable.VerifiableMobileNumber;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.utils.MobileNumberUtils;
-import pl.edu.icm.unity.types.basic.VerifiableMobileNumber;
-import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
 
 /**
  * Verifiable mobile number attribute value syntax.

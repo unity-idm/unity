@@ -7,11 +7,10 @@ package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.function.Function;
 
-
+import pl.edu.icm.unity.base.attribute.AttributeStatement;
+import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 
 public class AttributeStatementWithDynamicAttrMapperTest
 		extends MapperWithMinimalTestBase<AttributeStatement, DBAttributeStatement>

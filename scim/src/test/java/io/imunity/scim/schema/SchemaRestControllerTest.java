@@ -26,7 +26,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.imunity.scim.SCIMConstants;
 import io.imunity.scim.common.ListResponse;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SchemaRestControllerTest

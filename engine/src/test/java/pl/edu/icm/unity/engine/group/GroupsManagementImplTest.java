@@ -19,20 +19,20 @@ import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupContents;
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.group.GroupMembership;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.CapacityLimitDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class GroupsManagementImplTest extends DBIntegrationTestBase
 {

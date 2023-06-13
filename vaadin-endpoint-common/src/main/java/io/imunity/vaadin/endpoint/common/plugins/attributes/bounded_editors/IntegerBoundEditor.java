@@ -7,7 +7,8 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 

@@ -31,10 +31,10 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.oidc.metadata.JWKSetRequest;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthJWKSetCache;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;

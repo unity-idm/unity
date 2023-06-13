@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.engine.translation.form;
 
+import pl.edu.icm.unity.base.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.base.registration.UserRequestState;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
-import pl.edu.icm.unity.types.registration.UserRequestState;
 
 /**
  * Classic translation profile used for post-processing registration requests.

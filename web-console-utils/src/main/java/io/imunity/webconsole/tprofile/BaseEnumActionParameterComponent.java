@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 /**
  * {@link ComboBox} based editor of all enumerated parameters.
@@ -75,7 +75,7 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 	}
 
 	@Override
-	public String getActionValueRepresentation()
+	public String getActionValueRepresentation(MessageSource msg)
 	{
 		String value = binder.getBean().getValue();
 		return value == null ? null : getItemCaptionGenerator().apply(binder.getBean().getValue());

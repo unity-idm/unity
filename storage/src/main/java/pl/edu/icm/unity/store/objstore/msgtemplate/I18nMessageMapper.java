@@ -7,8 +7,8 @@ package pl.edu.icm.unity.store.objstore.msgtemplate;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.i18n.I18nMessage;
 import pl.edu.icm.unity.store.types.common.I18nStringMapper;
-import pl.edu.icm.unity.types.I18nMessage;
 
 class I18nMessageMapper
 {

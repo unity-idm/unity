@@ -16,16 +16,16 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupMembership;
+import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.identity.EntityScheduledOperation;
+import pl.edu.icm.unity.base.identity.EntityState;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.store.tx.TransactionTL;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 
 public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 {

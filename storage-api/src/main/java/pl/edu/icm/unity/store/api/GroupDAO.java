@@ -6,7 +6,8 @@ package pl.edu.icm.unity.store.api;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
+
 
 /**
  * Group DAO

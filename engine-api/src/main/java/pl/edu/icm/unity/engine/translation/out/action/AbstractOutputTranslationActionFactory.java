@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.engine.translation.out.action;
 
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionFactory;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Boilerplate code for the output profile's {@link OutputTranslationActionFactory} implementations.

@@ -11,8 +11,8 @@ import java.util.Set;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Provides access to PKI related stores: credentials, certificates and truststores (validators).

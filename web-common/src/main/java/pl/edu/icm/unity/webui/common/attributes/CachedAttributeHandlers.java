@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common.attributes;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.base.attribute.Attribute;
 
 /**
  * Provides fast attributes web handling with minimal overhead of accessing engine, as attribute handlers are 

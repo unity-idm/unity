@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.ComplexAttributeMapping;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 @Component
 class ComplexMappingEvaluator implements MappingEvaluator

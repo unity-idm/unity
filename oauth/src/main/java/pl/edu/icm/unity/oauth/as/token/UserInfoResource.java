@@ -16,7 +16,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 
 /**

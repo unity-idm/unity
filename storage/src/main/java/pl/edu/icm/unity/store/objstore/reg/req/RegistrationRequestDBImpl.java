@@ -7,12 +7,12 @@ package pl.edu.icm.unity.store.objstore.reg.req;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.store.objstore.cred.CredentialDBImpl;
 import pl.edu.icm.unity.store.objstore.reg.RequestCredentialChangeListener;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 /**
  * Easy access to {@link RegistrationRequestState} storage.

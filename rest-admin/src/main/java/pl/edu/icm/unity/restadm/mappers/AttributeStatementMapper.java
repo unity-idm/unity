@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.basic.RestAttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
+import pl.edu.icm.unity.base.attribute.AttributeStatement;
+import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution;
 
 public class AttributeStatementMapper
 {

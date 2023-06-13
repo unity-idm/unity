@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms;
 
-import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.BaseForm;
 import pl.edu.icm.unity.webui.bus.Event;
 
 public class BaseFormChangedEvent<T extends BaseForm> implements Event

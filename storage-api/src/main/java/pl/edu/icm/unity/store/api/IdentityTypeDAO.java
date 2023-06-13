@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.base.identity.IdentityType;
 
 /**
  * Identity type DAO

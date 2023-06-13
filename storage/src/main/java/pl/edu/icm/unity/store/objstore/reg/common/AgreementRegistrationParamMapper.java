@@ -7,8 +7,8 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.store.types.common.I18nStringMapper;
-import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 
 public class AgreementRegistrationParamMapper
 {

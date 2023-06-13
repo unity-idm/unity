@@ -5,13 +5,13 @@
 
 package pl.edu.icm.unity.store.objstore.reg.req;
 
-import pl.edu.icm.unity.store.objstore.reg.common.AdminCommentMapper;
-import pl.edu.icm.unity.store.objstore.reg.common.RegistrationContextMapper;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.store.objstore.reg.common.AdminCommentMapper;
+import pl.edu.icm.unity.store.objstore.reg.common.RegistrationContextMapper;
 
 
 public class RegistrationRequestStateMapper

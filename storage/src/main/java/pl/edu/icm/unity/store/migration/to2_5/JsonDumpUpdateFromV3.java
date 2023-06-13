@@ -22,7 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
@@ -30,8 +32,6 @@ import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
 import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.form.RegistrationFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
-import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
  * Update db from 2.0-2.4 (Json schema V3) to 2.5.0+ (V4)

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.bulkops;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Group bulk processing actions which are used internally and not exposed with the engine API.

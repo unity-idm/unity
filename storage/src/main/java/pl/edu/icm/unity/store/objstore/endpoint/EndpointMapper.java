@@ -7,8 +7,8 @@ package pl.edu.icm.unity.store.objstore.endpoint;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
 
 class EndpointMapper
 {

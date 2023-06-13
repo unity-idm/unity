@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.bulk;
 import java.util.Collections;
 import java.util.Map;
 
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
-import pl.edu.icm.unity.types.basic.Group;
 
 /**
  * Hidden implementation of the data backing bulk operations on group structures.

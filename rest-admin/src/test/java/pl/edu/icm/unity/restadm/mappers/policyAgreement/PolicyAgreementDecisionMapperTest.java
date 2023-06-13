@@ -5,15 +5,14 @@
 
 package pl.edu.icm.unity.restadm.mappers.policyAgreement;
 
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
-
 import java.util.List;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.policyAgreement.RestPolicyAgreementDecision;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 
 public class PolicyAgreementDecisionMapperTest

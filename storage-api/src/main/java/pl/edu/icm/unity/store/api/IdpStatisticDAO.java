@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.api;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
 
 public interface IdpStatisticDAO extends BasicCRUDDAO<IdpStatistic>
 {

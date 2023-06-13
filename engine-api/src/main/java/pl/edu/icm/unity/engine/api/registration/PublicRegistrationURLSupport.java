@@ -5,9 +5,9 @@
 
 package pl.edu.icm.unity.engine.api.registration;
 
-import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
-import pl.edu.icm.unity.types.registration.FormType;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.FormType;
+import pl.edu.icm.unity.base.registration.IllegalFormTypeException;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
 
 /**
  * Defines constants and helper methods used to create public form access URI. 

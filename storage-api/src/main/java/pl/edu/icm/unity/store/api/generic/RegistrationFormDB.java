@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
 
 /**
  * Easy access to {@link RegistrationForm} storage.

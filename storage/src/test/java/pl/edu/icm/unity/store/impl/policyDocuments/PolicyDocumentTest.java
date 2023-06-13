@@ -12,12 +12,12 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
 import pl.edu.icm.unity.store.api.PolicyDocumentDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.store.tx.TransactionTL;
 import pl.edu.icm.unity.store.types.StoredPolicyDocument;
-import pl.edu.icm.unity.types.I18nString;
 
 public class PolicyDocumentTest extends AbstractBasicDAOTest<StoredPolicyDocument>
 {

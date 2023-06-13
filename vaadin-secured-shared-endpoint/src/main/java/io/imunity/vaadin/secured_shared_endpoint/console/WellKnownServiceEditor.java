@@ -7,9 +7,9 @@ package io.imunity.vaadin.secured_shared_endpoint.console;
 
 import com.vaadin.data.Binder;
 import io.imunity.vaadin.secured_shared_endpoint.SecuredSharedEndpointFactory;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.console.services.*;
 import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;

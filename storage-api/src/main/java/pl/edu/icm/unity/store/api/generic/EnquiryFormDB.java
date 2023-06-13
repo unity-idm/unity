@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
 
 /**
  * Easy access to {@link EnquiryForm} storage.

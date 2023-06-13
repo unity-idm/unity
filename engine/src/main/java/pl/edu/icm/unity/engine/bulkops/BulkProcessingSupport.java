@@ -34,15 +34,15 @@ import org.quartz.utils.Key;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionFactory;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionsRegistry;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * Utility code for bulk processing actions management

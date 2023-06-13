@@ -6,10 +6,11 @@ package pl.edu.icm.unity.engine.forms;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.registration.FormType;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
-import pl.edu.icm.unity.types.registration.FormType;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

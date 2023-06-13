@@ -5,19 +5,20 @@
 
 package pl.edu.icm.unity.store.migration.to4_0;
 
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
-import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
-import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
+import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 
 @Component
 public class InDBUpdateFromSchema18 implements InDBContentsUpdater

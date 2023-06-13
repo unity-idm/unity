@@ -6,7 +6,7 @@ package io.imunity.fido.web.v8;
 
 import com.vaadin.ui.*;
 import io.imunity.fido.web.FidoCredentialInfoWrapper;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 
 import java.util.Optional;

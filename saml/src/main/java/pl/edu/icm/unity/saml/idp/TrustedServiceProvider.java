@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.types.I18nString;
 
 import java.security.cert.X509Certificate;
 import java.util.*;

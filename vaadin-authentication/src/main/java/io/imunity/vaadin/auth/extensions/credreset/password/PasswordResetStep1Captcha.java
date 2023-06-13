@@ -12,8 +12,8 @@ import io.imunity.vaadin.auth.extensions.credreset.CredentialResetFlowConfig;
 import io.imunity.vaadin.auth.extensions.credreset.CredentialResetLayout;
 import io.imunity.vaadin.auth.extensions.credreset.TextFieldWithContextLabel;
 import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.function.Consumer;
 

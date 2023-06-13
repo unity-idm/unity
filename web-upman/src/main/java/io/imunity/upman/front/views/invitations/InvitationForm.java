@@ -16,7 +16,7 @@ import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin.elements.FormLayoutLabel;
 import io.imunity.vaadin.elements.TooltipAttacher;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
 
 import java.time.Instant;

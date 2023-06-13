@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.types.JsonError;
 
 /**
  * Maps JSON exceptions to HTTP error responses

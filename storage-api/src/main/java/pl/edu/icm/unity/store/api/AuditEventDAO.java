@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import pl.edu.icm.unity.base.audit.AuditEvent;
 
 /**
  * AuditEvent DAO

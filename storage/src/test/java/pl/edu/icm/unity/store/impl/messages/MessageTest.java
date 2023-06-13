@@ -10,7 +10,7 @@ import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.msg.Message;
+import pl.edu.icm.unity.base.message.Message;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.MessagesDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;

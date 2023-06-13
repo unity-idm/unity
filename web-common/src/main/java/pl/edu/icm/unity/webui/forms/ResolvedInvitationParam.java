@@ -11,18 +11,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
+import pl.edu.icm.unity.base.identity.Entity;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.IllegalFormTypeException;
+import pl.edu.icm.unity.base.registration.invite.ComboInvitationParam;
+import pl.edu.icm.unity.base.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam;
+import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.invite.ComboInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class ResolvedInvitationParam
 {

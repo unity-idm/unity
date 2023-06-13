@@ -8,10 +8,10 @@ import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.*;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 import java.io.IOException;

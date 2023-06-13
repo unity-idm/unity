@@ -7,7 +7,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.vaadin.elements.StringBindingValue;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.function.Supplier;
 

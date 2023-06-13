@@ -12,9 +12,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.translation.RestTranslationAction;
 import io.imunity.rest.api.types.translation.RestTranslationRule;
+import pl.edu.icm.unity.base.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 public class TranslationRuleMapperTest extends MapperTestBase<TranslationRule, RestTranslationRule>
 {

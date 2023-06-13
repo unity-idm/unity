@@ -6,11 +6,11 @@ package pl.edu.icm.unity.engine.bulkops.action;
 
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.base.identity.Entity;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Action used instead of a real action when it is misconfigured.

@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 import io.imunity.rest.api.types.translation.RestTranslationProfile;
 import io.imunity.rest.api.types.translation.RestTranslationProfile.Condition;
 import io.imunity.rest.api.types.translation.RestTranslationProfile.RestTranslationProfileRule;
-import pl.edu.icm.unity.types.translation.ProfileMode;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.types.translation.TranslationRule;
+import pl.edu.icm.unity.base.translation.ProfileMode;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 
 public class TranslationProfileMapper
 {

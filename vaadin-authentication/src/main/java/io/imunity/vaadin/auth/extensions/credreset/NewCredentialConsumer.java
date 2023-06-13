@@ -5,7 +5,7 @@
 
 package io.imunity.vaadin.auth.extensions.credreset;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 @FunctionalInterface
 public interface NewCredentialConsumer

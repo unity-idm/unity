@@ -6,13 +6,13 @@ package pl.edu.icm.unity.store.objstore.reg;
 
 import java.util.List;
 
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.BaseFormNotifications;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.BaseFormNotifications;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 
 public class GroupRenameListener<T extends BaseForm> implements ReferenceUpdateHandler<Group>
 {

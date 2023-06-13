@@ -9,8 +9,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.base.msgtemplates.reg.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
@@ -27,12 +33,6 @@ import pl.edu.icm.unity.store.objstore.reg.CredentialChangeListener;
 import pl.edu.icm.unity.store.objstore.reg.CredentialRenameListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupChangeListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupRenameListener;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
-import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 
 /**
  * Easy access to {@link EnquiryForm} storage.

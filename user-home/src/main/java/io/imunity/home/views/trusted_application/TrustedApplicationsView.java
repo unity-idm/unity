@@ -26,7 +26,7 @@ import io.imunity.home.views.HomeViewComponent;
 import io.imunity.idp.IdPClientData;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 

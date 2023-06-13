@@ -5,8 +5,8 @@
 
 package io.imunity.webconsole.authentication.authenticators;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorTypeDescription;
 
 /**
  * 

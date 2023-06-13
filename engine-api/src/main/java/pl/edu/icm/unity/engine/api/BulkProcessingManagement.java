@@ -7,11 +7,11 @@ package pl.edu.icm.unity.engine.api;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.types.translation.TranslationRule;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.translation.TranslationRule;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
 /**
  * Defines API allowing for bulk processing of entities - both manually and basing on a repeatable schedule.

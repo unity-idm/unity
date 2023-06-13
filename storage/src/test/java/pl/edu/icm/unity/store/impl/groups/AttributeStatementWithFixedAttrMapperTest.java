@@ -8,13 +8,12 @@ package pl.edu.icm.unity.store.impl.groups;
 import java.util.List;
 import java.util.function.Function;
 
-
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeStatement;
+import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.impl.attribute.DBAttribute;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 
 public class AttributeStatementWithFixedAttrMapperTest
 		extends MapperWithMinimalTestBase<AttributeStatement, DBAttributeStatement>

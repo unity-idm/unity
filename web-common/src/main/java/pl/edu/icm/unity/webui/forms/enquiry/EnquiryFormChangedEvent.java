@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.webui.forms.BaseFormChangedEvent;
 
 public class EnquiryFormChangedEvent extends BaseFormChangedEvent<EnquiryForm>

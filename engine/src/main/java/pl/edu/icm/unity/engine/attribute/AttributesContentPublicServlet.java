@@ -17,6 +17,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.common.base.CharMatcher;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -24,7 +25,6 @@ import pl.edu.icm.unity.engine.api.attributes.PublicAttributeContent;
 import pl.edu.icm.unity.engine.api.attributes.PublicAttributeInfo;
 import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec;
 import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec.PublicAttributeContentProvider;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * Exposes attribute's value associated with extenral id.

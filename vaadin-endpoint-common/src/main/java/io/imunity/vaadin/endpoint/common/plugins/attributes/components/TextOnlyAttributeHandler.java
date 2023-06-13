@@ -19,9 +19,9 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeValueEditor
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ext.AttributeHandlerHelper;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 
 import java.util.List;

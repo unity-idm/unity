@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.types;
 
-import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 
 /**
  * Information about stored attribute. AttributeExt plus entityId. 

@@ -4,7 +4,7 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.webui.bus.Event;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 

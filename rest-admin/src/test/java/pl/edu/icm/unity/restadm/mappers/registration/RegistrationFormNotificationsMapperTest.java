@@ -10,8 +10,8 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.RestRegistrationFormNotifications;
+import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 
 public class RegistrationFormNotificationsMapperTest
 		extends MapperTestBase<RegistrationFormNotifications, RestRegistrationFormNotifications>

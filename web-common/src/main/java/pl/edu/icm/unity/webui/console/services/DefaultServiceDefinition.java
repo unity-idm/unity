@@ -7,9 +7,9 @@ package pl.edu.icm.unity.webui.console.services;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 /**
  * Contains information necessary for create or update service

@@ -45,8 +45,8 @@ import eu.unicore.util.httpclient.EmptyHostnameVerifier;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.HttpClientProperties;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Wraps configuration of HTTP client which can use custom truststore and makes

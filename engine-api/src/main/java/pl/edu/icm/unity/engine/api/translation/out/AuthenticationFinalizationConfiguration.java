@@ -8,7 +8,7 @@ package pl.edu.icm.unity.engine.api.translation.out;
 import java.time.Duration;
 import java.util.Objects;
 
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class AuthenticationFinalizationConfiguration
 {

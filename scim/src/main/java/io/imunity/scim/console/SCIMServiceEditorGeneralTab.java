@@ -13,9 +13,9 @@ import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.Component;
 
 import io.imunity.tooltip.TooltipExtension;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;

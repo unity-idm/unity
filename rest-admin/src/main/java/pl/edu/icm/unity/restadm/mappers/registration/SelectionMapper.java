@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers.registration;
 
 import io.imunity.rest.api.types.registration.RestSelection;
-import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.base.registration.Selection;
 
 public class SelectionMapper
 {

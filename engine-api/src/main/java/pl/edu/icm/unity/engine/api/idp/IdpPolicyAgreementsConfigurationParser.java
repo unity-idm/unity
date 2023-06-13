@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 
 /**
  * Maps {@link PolicyAgreementConfiguration} to properties and vice versa

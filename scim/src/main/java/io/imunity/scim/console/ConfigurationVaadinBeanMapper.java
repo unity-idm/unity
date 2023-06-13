@@ -16,10 +16,10 @@ import io.imunity.scim.config.AttributeMapping;
 import io.imunity.scim.config.SCIMEndpointConfiguration;
 import io.imunity.scim.config.SchemaWithMapping;
 import io.imunity.scim.config.UndefinedMapping;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 @Component

@@ -6,7 +6,7 @@
 package io.imunity.scim.user.mapping.evaluation;
 
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 public interface MappingEvaluator
 {

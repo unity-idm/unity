@@ -6,9 +6,9 @@ package pl.edu.icm.unity.webui.forms;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
 
 /**
  * Utilities related to parsing a form

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.endpoint;
 
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 
 /**
  * Implemented by a class which allows to create an endpoint instance ready for hot deployment.

@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinSession;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.forms.PublicFormURLProviderBase;
 
 /**

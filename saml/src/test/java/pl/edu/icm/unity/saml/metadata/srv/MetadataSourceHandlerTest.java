@@ -9,11 +9,12 @@ import org.awaitility.Awaitility;
 import org.awaitility.Durations;
 import org.junit.Before;
 import org.junit.Test;
+
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 

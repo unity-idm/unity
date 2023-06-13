@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 import com.vaadin.ui.CheckBoxGroup;
 import com.vaadin.ui.CustomComponent;
 
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.webui.idpcommon.activesel.SingleValueSelector.ValueItem;
 
 /**

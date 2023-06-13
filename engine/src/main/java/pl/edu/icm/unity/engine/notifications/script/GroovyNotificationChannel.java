@@ -16,13 +16,13 @@ import com.google.common.base.Stopwatch;
 import eu.unicore.util.configuration.ConfigurationException;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate.Message;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.notifications.MessageTemplateParams;
 import pl.edu.icm.unity.engine.notifications.NotificationChannelInstance;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 
 
 class GroovyNotificationChannel implements NotificationChannelInstance

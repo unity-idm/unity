@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.basic.RestIdentity;
-import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.identity.Identity;
 
 public class IdentityMapper
 {

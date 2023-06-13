@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Properties;
 
 import io.imunity.upman.rest.UpmanRestEndpointProperties;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 public class UpmanRestServiceConfiguration

@@ -9,11 +9,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationDBImpl;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 
 /**
  * Easy access to {@link AuthenticationFlowDefinition} storage.

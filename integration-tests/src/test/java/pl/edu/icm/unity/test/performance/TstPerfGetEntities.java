@@ -6,7 +6,7 @@ package pl.edu.icm.unity.test.performance;
 
 import java.io.IOException;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Test standard get entities 

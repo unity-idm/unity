@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesMapper;

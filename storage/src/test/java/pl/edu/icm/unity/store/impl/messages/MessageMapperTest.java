@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.impl.messages;
 import java.util.Locale;
 import java.util.function.Function;
 
-import pl.edu.icm.unity.msg.Message;
+import pl.edu.icm.unity.base.message.Message;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 

@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.objstore.ac;
 
-import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.base.attribute.AttributesClass;
 
 class AttributeClassMapper
 {

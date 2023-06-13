@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.engine.bulkops.action;
 
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionFactory;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Boilerplate code for the {@link TranslationActionFactory} implementations producing {@link EntityAction}s.

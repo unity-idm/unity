@@ -12,10 +12,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.authn.RestCredentialInfo;
 import io.imunity.rest.api.types.authn.RestCredentialPublicInformation;
+import pl.edu.icm.unity.base.authn.CredentialInfo;
+import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.authn.CredentialInfo;
-import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 public class CredentialInfoMapperTest extends MapperTestBase<CredentialInfo, RestCredentialInfo>
 {

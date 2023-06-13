@@ -14,10 +14,10 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.signupAndEnquiry.forms.layout.FormLayoutEditor;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.registration.FormLayoutUtils;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.FormLayoutUtils;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationFormLayouts;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**

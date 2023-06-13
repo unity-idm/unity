@@ -5,17 +5,18 @@
 
 package pl.edu.icm.unity.store.impl.idpStatistics;
 
-import org.springframework.stereotype.Repository;
-import pl.edu.icm.unity.store.api.IdpStatisticDAO;
-import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
-import pl.edu.icm.unity.store.rdbms.RDBMSDAO;
-import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
-
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
+import pl.edu.icm.unity.store.api.IdpStatisticDAO;
+import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
+import pl.edu.icm.unity.store.rdbms.RDBMSDAO;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
 @Repository(IdpStatisticsRDBMSStore.BEAN)
 public class IdpStatisticsRDBMSStore implements IdpStatisticDAO, RDBMSDAO

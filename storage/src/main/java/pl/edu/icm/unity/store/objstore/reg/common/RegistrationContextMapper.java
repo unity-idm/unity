@@ -7,8 +7,8 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 
 public class RegistrationContextMapper
 {

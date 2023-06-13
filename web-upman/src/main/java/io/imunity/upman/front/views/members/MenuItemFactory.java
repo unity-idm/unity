@@ -28,7 +28,7 @@ import io.imunity.vaadin.elements.BaseDialog;
 import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.SubmitButton;
 import io.imunity.vaadin.elements.VaadinClassNames;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 

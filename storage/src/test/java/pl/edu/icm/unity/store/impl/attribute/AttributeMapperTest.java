@@ -8,9 +8,9 @@ package pl.edu.icm.unity.store.impl.attribute;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 public class AttributeMapperTest extends MapperWithMinimalTestBase<Attribute, DBAttribute>
 {

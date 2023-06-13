@@ -12,8 +12,8 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.configuration.FilePropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Extends {@link FilePropertiesHelper} with Unity specific methods. Currently only one - returning localized strings.

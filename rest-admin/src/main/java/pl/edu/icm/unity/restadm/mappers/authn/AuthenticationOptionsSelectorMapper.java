@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers.authn;
 
 import io.imunity.rest.api.types.authn.RestAuthenticationOptionsSelector;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
 
 public class AuthenticationOptionsSelectorMapper
 {

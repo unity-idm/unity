@@ -5,9 +5,9 @@
 
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.base.identity.Entity;
+import pl.edu.icm.unity.base.identity.Identity;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 import java.net.MalformedURLException;

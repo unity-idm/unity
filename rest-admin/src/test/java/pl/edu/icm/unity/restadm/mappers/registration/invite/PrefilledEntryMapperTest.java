@@ -12,11 +12,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.RestGroupSelection;
 import io.imunity.rest.api.types.registration.invite.RestPrefilledEntry;
+import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 import pl.edu.icm.unity.restadm.mappers.registration.GroupSelectionMapper;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 public class PrefilledEntryMapperTest
 		extends MapperTestBase<PrefilledEntry<GroupSelection>, RestPrefilledEntry<RestGroupSelection>>

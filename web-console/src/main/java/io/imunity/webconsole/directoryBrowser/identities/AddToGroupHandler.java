@@ -16,7 +16,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupManagementHelper;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;

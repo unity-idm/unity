@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.engine.api.project;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 import java.util.List;
 import java.util.Map;

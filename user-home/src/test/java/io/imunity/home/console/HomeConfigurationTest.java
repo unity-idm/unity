@@ -15,10 +15,10 @@ import java.util.Properties;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
-import pl.edu.icm.unity.types.basic.Group;
 
 public class HomeConfigurationTest
 {

@@ -8,12 +8,12 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.types.common.DBI18nString;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType;
 
 public class PolicyAgreementConfigurationMapperTest
 		extends MapperTestBase<PolicyAgreementConfiguration, DBPolicyAgreementConfiguration>

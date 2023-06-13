@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.translation.in;
 
 import java.util.Date;
 
-import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
+import pl.edu.icm.unity.base.identity.EntityScheduledOperation;
 
 /**
  * Describes entity status change prescribed by the profile.

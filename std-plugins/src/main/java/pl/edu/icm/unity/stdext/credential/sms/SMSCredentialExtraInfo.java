@@ -9,8 +9,8 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 
 /**
  * Represents extra information about an existing sms credential, the information

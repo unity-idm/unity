@@ -5,9 +5,9 @@
 
 package io.imunity.vaadin.endpoint.common.api;
 
-import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
-
 import java.util.List;
+
+import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
 
 public interface RemoteRegistrationSignupResolver
 {

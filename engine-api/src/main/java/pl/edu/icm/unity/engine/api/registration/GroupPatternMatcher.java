@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.AntPathMatcher;
 
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam.IncludeGroupsMode;
 
 /**
  * Matcher of group to ant-style pattern. We support * as arbitrary characters within group name, 

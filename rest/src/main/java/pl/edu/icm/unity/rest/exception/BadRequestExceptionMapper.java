@@ -14,7 +14,6 @@ import javax.ws.rs.ext.Provider;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.types.JsonError;
 
 @Provider
 public class BadRequestExceptionMapper implements ExceptionMapper<BadRequestException>

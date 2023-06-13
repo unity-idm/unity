@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.translation.form;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationFormTranslationActionGenerator;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
@@ -14,7 +15,6 @@ import pl.edu.icm.unity.engine.translation.form.action.AddIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
-import pl.edu.icm.unity.types.translation.TranslationAction;
 
 /**
  * Implementation of {@link RegistrationFormTranslationActionGenerator}

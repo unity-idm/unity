@@ -19,7 +19,7 @@ import io.imunity.vaadin.account_association.wizard.Wizard;
 import io.imunity.vaadin.account_association.wizard.WizardStepPreparer;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 

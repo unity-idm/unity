@@ -5,11 +5,11 @@
 
 package pl.edu.icm.unity.store;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.function.Function;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public abstract class OneWayMapperTestBase<S, T>
 {

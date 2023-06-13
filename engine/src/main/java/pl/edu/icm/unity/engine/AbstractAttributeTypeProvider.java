@@ -8,9 +8,9 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 /**
  * Abstract base implementation of a {@link SystemAttributesProvider}, useful when a single attribute type 

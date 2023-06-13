@@ -9,16 +9,16 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.BaseFormBuilder;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.store.objstore.reg.common.DBBaseForm.DBBaseFormBuilder;
 import pl.edu.icm.unity.store.objstore.reg.layout.FormLayoutSettingsMapper;
 import pl.edu.icm.unity.store.objstore.tprofile.TranslationProfileMapper;
 import pl.edu.icm.unity.store.types.common.I18nStringMapper;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.BaseFormBuilder;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class BaseFormMapper
 {

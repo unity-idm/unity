@@ -26,11 +26,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pl.edu.icm.unity.base.db.DBDumpContentElements;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.impl.tokens.TokensIE;
-import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 /**
  * Import/export functionality. 

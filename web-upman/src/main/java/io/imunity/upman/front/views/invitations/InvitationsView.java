@@ -20,7 +20,7 @@ import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.*;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import javax.annotation.security.PermitAll;
 import java.util.List;

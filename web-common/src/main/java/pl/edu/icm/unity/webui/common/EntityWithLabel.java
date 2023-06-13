@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
-import pl.edu.icm.unity.types.basic.Entity;
 
 /**
  * Holds {@link Entity} together with extra information useful for entity presentation in the web UI.

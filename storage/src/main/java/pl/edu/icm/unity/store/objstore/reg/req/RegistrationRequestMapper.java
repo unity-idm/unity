@@ -8,13 +8,13 @@ package pl.edu.icm.unity.store.objstore.reg.req;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.base.registration.RegistrationRequest;
 import pl.edu.icm.unity.store.impl.attribute.AttributeMapper;
 import pl.edu.icm.unity.store.objstore.reg.common.CredentialParamValueMapper;
 import pl.edu.icm.unity.store.objstore.reg.common.GroupSelectionMapper;
 import pl.edu.icm.unity.store.objstore.reg.common.IdentityParamMapper;
 import pl.edu.icm.unity.store.objstore.reg.common.PolicyAgreementDecisionMapper;
 import pl.edu.icm.unity.store.objstore.reg.common.SelectionMapper;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 
 public class RegistrationRequestMapper
 {

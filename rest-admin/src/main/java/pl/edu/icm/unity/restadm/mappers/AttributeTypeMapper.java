@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.basic.RestAttributeType;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class AttributeTypeMapper
 {

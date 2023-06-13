@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.objstore.reg.eform;
 
-import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
 
 class EnquiryFormNotificationsMapper
 {

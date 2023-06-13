@@ -7,7 +7,6 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 
 import java.util.List;
 
-
 import pl.edu.icm.unity.store.DBTypeTestBase;
 import pl.edu.icm.unity.store.objstore.reg.common.DBAgreementRegistrationParamProvider;
 import pl.edu.icm.unity.store.objstore.reg.common.DBAttributeRegistrationParamProvider;

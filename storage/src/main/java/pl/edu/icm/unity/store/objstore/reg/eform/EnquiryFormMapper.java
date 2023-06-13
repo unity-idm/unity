@@ -8,12 +8,12 @@ package pl.edu.icm.unity.store.objstore.reg.eform;
 import java.util.List;
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
+import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.store.objstore.reg.common.BaseFormMapper;
 import pl.edu.icm.unity.store.objstore.reg.layout.FormLayoutMapper;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
-import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 
 class EnquiryFormMapper
 {

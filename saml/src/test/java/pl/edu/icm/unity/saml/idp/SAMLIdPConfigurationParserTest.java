@@ -6,7 +6,14 @@ package pl.edu.icm.unity.saml.idp;
 
 import eu.unicore.samly2.SAMLConstants;
 import org.junit.Test;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClient;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
@@ -15,12 +22,6 @@ import pl.edu.icm.unity.engine.api.idp.UserImportConfigs;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -33,11 +34,11 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType.CHECKBOX_SELECTED;
 import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.*;
 import static pl.edu.icm.unity.saml.SamlProperties.*;
 import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
 import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
-import static pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType.CHECKBOX_SELECTED;
 
 public class SAMLIdPConfigurationParserTest
 {

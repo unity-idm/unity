@@ -8,10 +8,10 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
+import pl.edu.icm.unity.base.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionsSelector;
-import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 
 public class ExternalSignupSpecMapperTest extends MapperTestBase<ExternalSignupSpec, DBExternalSignupSpec>
 {

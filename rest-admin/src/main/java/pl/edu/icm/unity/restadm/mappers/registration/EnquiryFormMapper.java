@@ -11,19 +11,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.imunity.rest.api.types.registration.RestEnquiryForm;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
+import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.restadm.mappers.I18nStringMapper;
 import pl.edu.icm.unity.restadm.mappers.policyAgreement.PolicyAgreementConfigurationMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutSettingsMapper;
 import pl.edu.icm.unity.restadm.mappers.translation.TranslationProfileMapper;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
-import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 public class EnquiryFormMapper
 {

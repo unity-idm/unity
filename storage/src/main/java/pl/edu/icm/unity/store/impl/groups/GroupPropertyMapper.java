@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.impl.groups;
 
-import pl.edu.icm.unity.types.basic.GroupProperty;
+import pl.edu.icm.unity.base.group.GroupProperty;
 
 class GroupPropertyMapper
 {

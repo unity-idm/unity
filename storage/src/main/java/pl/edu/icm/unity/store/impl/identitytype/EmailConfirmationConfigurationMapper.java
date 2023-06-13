@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.impl.identitytype;
 
-import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 
 class EmailConfirmationConfigurationMapper
 {

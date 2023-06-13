@@ -14,11 +14,11 @@ import java.util.Date;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.base.identity.Identity;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
 
 public class TestTransientIdentity
 {

@@ -2,20 +2,20 @@ import java.util.Arrays;
 import groovy.transform.Field
 import pl.edu.icm.unity.stdext.attr.EnumAttribute
 import pl.edu.icm.unity.stdext.attr.StringAttribute
-import pl.edu.icm.unity.types.I18nString
+import pl.edu.icm.unity.base.i18n.I18nString
 import pl.edu.icm.unity.stdext.identity.EmailIdentity
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
-import pl.edu.icm.unity.types.basic.Attribute
-import pl.edu.icm.unity.types.basic.EntityParam
-import pl.edu.icm.unity.types.basic.EntityState
-import pl.edu.icm.unity.types.basic.Group
-import pl.edu.icm.unity.types.basic.GroupContents
-import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration
-import pl.edu.icm.unity.types.basic.Identity
-import pl.edu.icm.unity.types.basic.IdentityParam
-import pl.edu.icm.unity.types.basic.IdentityTaV
-import pl.edu.icm.unity.types.registration.RegistrationForm
-import pl.edu.icm.unity.types.registration.EnquiryForm
+import pl.edu.icm.unity.base.attribute.Attribute
+import pl.edu.icm.unity.base.identity.EntityParam
+import pl.edu.icm.unity.base.identity.EntityState
+import pl.edu.icm.unity.base.group.Group
+import pl.edu.icm.unity.base.group.GroupContents
+import pl.edu.icm.unity.base.group.GroupDelegationConfiguration
+import pl.edu.icm.unity.base.identity.Identity
+import pl.edu.icm.unity.base.identity.IdentityParam
+import pl.edu.icm.unity.base.identity.IdentityTaV
+import pl.edu.icm.unity.base.registration.RegistrationForm
+import pl.edu.icm.unity.base.registration.EnquiryForm
 
 
 @Field final String NAME_ATTR = "name"

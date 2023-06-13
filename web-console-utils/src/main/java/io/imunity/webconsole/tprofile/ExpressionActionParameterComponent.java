@@ -10,9 +10,9 @@ import com.vaadin.data.Binder;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.ui.dnd.DropTargetExtension;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 
 /**

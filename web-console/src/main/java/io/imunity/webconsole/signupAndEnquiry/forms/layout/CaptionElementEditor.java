@@ -7,8 +7,8 @@ package io.imunity.webconsole.signupAndEnquiry.forms.layout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**

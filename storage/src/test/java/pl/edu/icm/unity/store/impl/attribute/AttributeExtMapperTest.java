@@ -9,10 +9,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 
 public class AttributeExtMapperTest extends MapperTestBase<AttributeExt, DBAttributeExtBase>
 {

@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers.registration;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.RestAgreementRegistrationParam;
+import pl.edu.icm.unity.base.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.restadm.mappers.I18nStringMapper;
-import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 
 public class AgreementRegistrationParamMapper
 {

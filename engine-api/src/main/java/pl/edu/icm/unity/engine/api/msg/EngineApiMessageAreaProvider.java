@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api.msg;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.MessageArea;
-import pl.edu.icm.unity.msg.MessageAreaProvider;
+import pl.edu.icm.unity.base.message.MessageArea;
+import pl.edu.icm.unity.base.message.MessageAreaProvider;
 
 @Component
 public class EngineApiMessageAreaProvider implements MessageAreaProvider

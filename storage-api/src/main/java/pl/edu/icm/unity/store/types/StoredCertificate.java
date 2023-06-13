@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.types;
 
 import java.util.Objects;
 
-import pl.edu.icm.unity.types.NamedObject;
+import pl.edu.icm.unity.base.describedObject.NamedObject;
 
 /**
  * Represents an certificate with name stored in db

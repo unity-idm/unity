@@ -5,8 +5,8 @@
 
 package io.imunity.webconsole.settings.msgTemplates;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 /**

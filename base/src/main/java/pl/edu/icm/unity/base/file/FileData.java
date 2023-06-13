@@ -10,7 +10,7 @@ import java.util.Date;
 
 import com.google.common.base.Objects;
 
-import pl.edu.icm.unity.types.NamedObject;
+import pl.edu.icm.unity.base.describedObject.NamedObject;
 
 /**
  * Contains content of local or remote file and additional info about file -

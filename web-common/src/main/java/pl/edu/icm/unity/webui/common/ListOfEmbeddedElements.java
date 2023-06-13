@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import java.util.Collection;
 import java.util.List;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 

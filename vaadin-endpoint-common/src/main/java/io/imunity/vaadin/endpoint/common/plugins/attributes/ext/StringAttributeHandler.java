@@ -17,9 +17,10 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerF
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.TextOnlyAttributeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 
 import java.util.ArrayList;

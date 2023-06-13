@@ -8,12 +8,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.audit.AuditEntity;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.store.api.tx.TxManager;
-import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 
 /**
  * Used to publish log events from various parts of the app

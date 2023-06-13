@@ -14,7 +14,7 @@ import io.imunity.webconsole.services.ServicesView.ServicesNavigationInfoProvide
 import io.imunity.webconsole.services.base.NewServiceViewBase;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**

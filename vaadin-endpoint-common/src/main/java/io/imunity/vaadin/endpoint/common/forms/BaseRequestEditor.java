@@ -4,6 +4,22 @@
  */
 package io.imunity.vaadin.endpoint.common.forms;
 
+import static io.imunity.vaadin.endpoint.common.forms.FormParser.isGroupParamUsedAsMandatoryAttributeGroup;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
+
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
@@ -14,6 +30,7 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+
 import io.imunity.vaadin.elements.CheckboxWithError;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.ReadOnlyField;
@@ -22,46 +39,69 @@ import io.imunity.vaadin.endpoint.common.forms.groups.GroupTreeNode;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentation;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewer;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.ComponentsGroup;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.CompositeLayoutAdapter;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.FixedAttributeEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditor;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorContext;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.Strings;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException;
+import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException.Category;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityTaV;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.registration.AgreementRegistrationParam;
+import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.base.registration.ConfirmationMode;
+import pl.edu.icm.unity.base.registration.CredentialParamValue;
+import pl.edu.icm.unity.base.registration.CredentialRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.Selection;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.base.registration.layout.FormCaptionElement;
+import pl.edu.icm.unity.base.registration.layout.FormElement;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
+import pl.edu.icm.unity.base.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
-import pl.edu.icm.unity.exceptions.*;
-import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.basic.*;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementDecision;
-import pl.edu.icm.unity.types.registration.*;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
-import pl.edu.icm.unity.types.registration.layout.*;
 import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static io.imunity.vaadin.endpoint.common.forms.FormParser.isGroupParamUsedAsMandatoryAttributeGroup;
 
 
 public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends VerticalLayout

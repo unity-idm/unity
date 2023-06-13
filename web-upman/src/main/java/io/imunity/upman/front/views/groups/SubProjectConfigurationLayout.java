@@ -12,7 +12,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.upman.front.model.Group;
 import io.imunity.vaadin.elements.FormLayoutLabel;
 import io.imunity.vaadin.elements.TooltipAttacher;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import static com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition.ASIDE;
 

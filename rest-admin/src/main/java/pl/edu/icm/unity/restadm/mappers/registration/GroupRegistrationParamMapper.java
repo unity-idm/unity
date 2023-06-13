@@ -8,9 +8,9 @@ package pl.edu.icm.unity.restadm.mappers.registration;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.RestGroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam.IncludeGroupsMode;
 
 public class GroupRegistrationParamMapper
 {

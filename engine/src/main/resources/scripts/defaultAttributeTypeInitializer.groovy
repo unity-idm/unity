@@ -10,8 +10,8 @@ import org.apache.commons.io.FilenameUtils;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.attribute.AttributeType;
 import groovy.transform.Field
 
 @Field final String COMMON_ATTR_FILE = "common"

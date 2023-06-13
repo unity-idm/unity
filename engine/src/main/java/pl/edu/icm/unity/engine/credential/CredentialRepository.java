@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
  * Allows read credentials from DB and @{SystemCredentialProvider}

@@ -6,10 +6,10 @@ package pl.edu.icm.unity.engine.translation;
 
 import java.util.Map;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Allows read profiles from DB and @{SystemTranslationProfileProvider}s 

@@ -4,20 +4,21 @@
  */
 package pl.edu.icm.unity.store.rdbms;
 
-import org.apache.ibatis.exceptions.PersistenceException;
-import pl.edu.icm.unity.store.api.NamedCRUDDAO;
-import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
-import pl.edu.icm.unity.store.impl.StorageLimits;
-import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-import pl.edu.icm.unity.store.types.UpdateFlag;
-import pl.edu.icm.unity.types.NamedObject;
-
 import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.ibatis.exceptions.PersistenceException;
+
+import pl.edu.icm.unity.base.describedObject.NamedObject;
+import pl.edu.icm.unity.store.api.NamedCRUDDAO;
+import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
+import pl.edu.icm.unity.store.impl.StorageLimits;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.store.types.UpdateFlag;
 
 /**
  * Base implementation of RDBMS based CRUD DAO of named objects.

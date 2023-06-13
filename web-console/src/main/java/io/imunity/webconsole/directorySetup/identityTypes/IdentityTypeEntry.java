@@ -5,8 +5,8 @@
 
 package io.imunity.webconsole.directorySetup.identityTypes;
 
+import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
  * Represent grid identity type entry.

@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers.registration;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.RestRegistrationFormLayouts;
+import pl.edu.icm.unity.base.registration.RegistrationFormLayouts;
 import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutMapper;
-import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
 
 public class RegistrationFormLayoutsMapper
 {

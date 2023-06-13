@@ -10,10 +10,10 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.RestGroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam.IncludeGroupsMode;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
 
 public class GroupRegistrationParamMapperTest extends MapperTestBase<GroupRegistrationParam, RestGroupRegistrationParam>
 {

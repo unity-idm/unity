@@ -14,8 +14,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.InternalException;
 
 @Provider
 class InternalExceptionMapper implements ExceptionMapper<InternalException>

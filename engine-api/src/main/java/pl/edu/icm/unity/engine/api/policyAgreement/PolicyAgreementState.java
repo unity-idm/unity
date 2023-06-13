@@ -12,9 +12,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
 
 public class PolicyAgreementState
 {

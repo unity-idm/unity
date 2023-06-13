@@ -6,9 +6,10 @@ package pl.edu.icm.unity.engine.authz;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.AuthorizationExceptionRT;
-import pl.edu.icm.unity.types.basic.Attribute;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationExceptionRT;
 
 import java.util.Collections;
 import java.util.HashSet;

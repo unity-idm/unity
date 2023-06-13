@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import pl.edu.icm.unity.base.notifications.NotificationChannel;
 import pl.edu.icm.unity.store.api.generic.NotificationChannelDB;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 /**
  * Produces and caches instances of {@link NotificationChannelInstance}.

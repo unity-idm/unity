@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.attributes;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
 
 /**
  * Implementations (must be Spring components) provide additional system attribute types, defined by extensions. 

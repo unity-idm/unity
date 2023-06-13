@@ -14,7 +14,7 @@ import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.UI;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;

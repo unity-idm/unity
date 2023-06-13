@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.types.DescribedObject;
+import pl.edu.icm.unity.base.describedObject.DescribedObject;
 
 /**
  * Implementations allows for creating {@link CredentialRetrieval}s of a particular type.

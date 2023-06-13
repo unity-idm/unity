@@ -17,7 +17,7 @@ import org.springframework.context.ApplicationContext;
 import com.google.common.collect.Lists;
 import com.vaadin.server.Constants;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.ServletProvider;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;

@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 
 /**
  * Sent to trigger auto-processing of a registration request

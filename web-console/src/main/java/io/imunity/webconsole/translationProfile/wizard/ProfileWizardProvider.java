@@ -8,7 +8,7 @@ import org.vaadin.teemu.wizards.Wizard;
 
 import io.imunity.webconsole.tprofile.TranslationProfileEditDialog.Callback;
 import io.imunity.webconsole.tprofile.TranslationProfileEditor;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.association.IntroStep;

@@ -8,9 +8,9 @@ package pl.edu.icm.unity.engine.api.utils;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
 
 /**
  * Generates and validates registration and enquiry forms

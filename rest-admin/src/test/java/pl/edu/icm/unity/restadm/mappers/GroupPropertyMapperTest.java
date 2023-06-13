@@ -10,7 +10,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.basic.RestGroupProperty;
-import pl.edu.icm.unity.types.basic.GroupProperty;
+import pl.edu.icm.unity.base.group.GroupProperty;
 
 public class GroupPropertyMapperTest extends MapperTestBase<GroupProperty, RestGroupProperty>
 {

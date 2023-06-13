@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers;
 
 import io.imunity.rest.api.types.basic.RestGroupMembership;
-import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.base.group.GroupMembership;
 
 public class GroupMembershipMapper
 {

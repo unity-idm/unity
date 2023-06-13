@@ -21,7 +21,8 @@ import io.imunity.scim.config.SCIMEndpointConfiguration;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.config.SCIMEndpointPropertiesConfigurationMapper;
 import io.imunity.scim.exception.providers.SCIMEndpointExceptionMapper;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
@@ -32,7 +33,6 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
 @PrototypeComponent
 public class SCIMEndpoint extends RESTEndpoint

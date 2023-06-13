@@ -7,9 +7,9 @@ package io.imunity.upman.front.views.user_updates;
 
 import com.google.common.base.Objects;
 import io.imunity.upman.front.model.EmailModel;
+import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 
 import java.time.Instant;
 import java.util.List;

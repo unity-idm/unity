@@ -14,10 +14,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.IdpStatisticDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
 
 
 @Component

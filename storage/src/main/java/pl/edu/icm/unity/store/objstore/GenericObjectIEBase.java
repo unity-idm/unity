@@ -12,9 +12,9 @@ import java.util.Map.Entry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.describedObject.NamedObject;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
-import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Base code for import/export of generic objects. Typical extension should only fix the generic param

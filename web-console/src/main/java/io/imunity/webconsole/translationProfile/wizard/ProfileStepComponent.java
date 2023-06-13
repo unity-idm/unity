@@ -19,7 +19,7 @@ import com.vaadin.ui.components.grid.GridDragSource;
 
 import io.imunity.webconsole.tprofile.DragDropBean;
 import io.imunity.webconsole.tprofile.TranslationProfileEditor;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationContextFactory;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;

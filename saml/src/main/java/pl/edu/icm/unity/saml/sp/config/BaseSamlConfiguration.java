@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.saml.sp.config;
 
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 import java.time.Duration;
 import java.util.*;

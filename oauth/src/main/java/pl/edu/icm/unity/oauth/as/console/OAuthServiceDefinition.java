@@ -8,9 +8,9 @@ package pl.edu.icm.unity.oauth.as.console;
 import java.util.List;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
-import pl.edu.icm.unity.types.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 

@@ -18,11 +18,11 @@ import io.imunity.webconsole.signupAndEnquiry.invitations.editor.InvitationEdito
 import io.imunity.webconsole.signupAndEnquiry.invitations.editor.InvitationEditor.InvitationEditorFactory;
 import io.imunity.webconsole.signupAndEnquiry.invitations.viewer.MainInvitationViewer;
 import io.imunity.webconsole.signupAndEnquiry.invitations.viewer.MainInvitationViewer.InvitationViewerFactory;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam;
+import pl.edu.icm.unity.base.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

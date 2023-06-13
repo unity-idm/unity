@@ -11,9 +11,9 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.authn.RememberMePolicy;
 
 /**
  * Contains information used by remember me functionality

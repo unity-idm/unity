@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
-import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
 
 public interface IdpConsentDeciderServletFactory
 {

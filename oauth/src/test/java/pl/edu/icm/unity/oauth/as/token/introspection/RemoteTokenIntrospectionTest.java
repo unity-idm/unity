@@ -34,7 +34,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.MockPKIMan;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.rest.jwt.JWTUtils;

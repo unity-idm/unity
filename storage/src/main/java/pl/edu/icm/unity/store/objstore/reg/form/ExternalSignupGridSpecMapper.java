@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.form;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
+import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec;
 
 class ExternalSignupGridSpecMapper
 {

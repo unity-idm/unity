@@ -10,8 +10,8 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.layout.RestFormLayoutSettings;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
 public class FormLayoutSettingsMapperTest extends MapperTestBase<FormLayoutSettings, RestFormLayoutSettings>
 {

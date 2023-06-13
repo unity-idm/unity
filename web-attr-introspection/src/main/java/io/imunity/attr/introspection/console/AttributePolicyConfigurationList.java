@@ -8,8 +8,8 @@ package io.imunity.attr.introspection.console;
 import java.util.List;
 
 import io.imunity.attr.introspection.config.AttributePolicy;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.authn.IdPInfo;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements;
 
 class AttributePolicyConfigurationList extends ListOfDnDCollapsableElements<AttributePolicy>

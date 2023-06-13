@@ -14,11 +14,11 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.ComboBox;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
+import pl.edu.icm.unity.base.notifications.NotificationChannelInfo;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 /**
  * A {@link ComboBox} showing only the notification channels which are

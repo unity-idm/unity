@@ -24,14 +24,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.msgtemplates.MessageType;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.notifications.MessageTemplateParams;
 import pl.edu.icm.unity.engine.notifications.NotificationChannelInstance;
-import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
-import pl.edu.icm.unity.types.basic.MessageType;
 
 
 /**

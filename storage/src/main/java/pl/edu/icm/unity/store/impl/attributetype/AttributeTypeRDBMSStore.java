@@ -7,8 +7,8 @@ package pl.edu.icm.unity.store.impl.attributetype;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
-import pl.edu.icm.unity.types.basic.AttributeType;
 
 
 /**

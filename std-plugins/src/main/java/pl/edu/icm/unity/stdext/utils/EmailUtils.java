@@ -8,10 +8,11 @@ import java.util.List;
 
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.DomainValidator.ArrayType;
-import org.apache.commons.validator.routines.EmailValidator;
 
-import pl.edu.icm.unity.types.basic.VerifiableElementBase;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
+import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
+import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
+
+import org.apache.commons.validator.routines.EmailValidator;
 
 /**
  * Email utils shared.

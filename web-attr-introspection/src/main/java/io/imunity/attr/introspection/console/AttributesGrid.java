@@ -12,7 +12,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 
 import io.imunity.attr.introspection.config.Attribute;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.GridWithEditor;
 
 class AttributesGrid extends CustomField<List<Attribute>>

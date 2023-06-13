@@ -14,9 +14,9 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.db.DBDumpContentElements;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.types.basic.DBDumpContentElements;
 
 /**
  * Tests the import and export. Only a integration test. Import and export of all stored elements is tested 

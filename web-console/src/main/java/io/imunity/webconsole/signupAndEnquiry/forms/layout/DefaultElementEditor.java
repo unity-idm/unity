@@ -7,7 +7,7 @@ package io.imunity.webconsole.signupAndEnquiry.forms.layout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.types.registration.layout.FormElement;
+import pl.edu.icm.unity.base.registration.layout.FormElement;
 
 /**
  * Editor of {@link FormElement}. Simply presents what was set.

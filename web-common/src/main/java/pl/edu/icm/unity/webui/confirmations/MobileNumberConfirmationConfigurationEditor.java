@@ -11,11 +11,11 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.Layout;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
-import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;

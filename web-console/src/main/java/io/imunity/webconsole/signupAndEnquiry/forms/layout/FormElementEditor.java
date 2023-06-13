@@ -6,7 +6,7 @@ package io.imunity.webconsole.signupAndEnquiry.forms.layout;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.types.registration.layout.FormElement;
+import pl.edu.icm.unity.base.registration.layout.FormElement;
 
 /**
  * Interface to be implemented by {@link FormElement} editors.

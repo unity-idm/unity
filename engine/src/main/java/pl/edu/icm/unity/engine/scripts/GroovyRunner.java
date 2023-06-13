@@ -12,8 +12,8 @@ import com.google.common.base.Stopwatch;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
  * Executes a given Groovy script using provided binding (context). 

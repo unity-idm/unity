@@ -8,11 +8,11 @@ package pl.edu.icm.unity.oauth.as.token.access;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.token.access.TokenService.TokenServiceFactory;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 @Component
 class AuthzCodeHandlerFactory

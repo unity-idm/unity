@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers;
 
 import io.imunity.rest.api.types.basic.RestI18nString;
-import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class I18nStringMapper
 {

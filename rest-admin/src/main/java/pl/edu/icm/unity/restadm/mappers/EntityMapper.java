@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers;
 import java.util.stream.Collectors;
 
 import io.imunity.rest.api.types.basic.RestEntity;
+import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.restadm.mappers.authn.CredentialInfoMapper;
-import pl.edu.icm.unity.types.basic.Entity;
 
 public class EntityMapper
 {

@@ -6,8 +6,10 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.*;
+
+import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+
 import org.apache.commons.lang3.StringUtils;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 
 import java.net.MalformedURLException;
 import java.net.URL;

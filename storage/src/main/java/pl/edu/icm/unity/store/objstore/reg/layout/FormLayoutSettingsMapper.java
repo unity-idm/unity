@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.objstore.reg.layout;
 
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 
 public class FormLayoutSettingsMapper
 {

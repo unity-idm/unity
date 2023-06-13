@@ -6,9 +6,9 @@ package pl.edu.icm.unity.engine.credential;
 
 import java.util.Set;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.authn.CredentialRequirements;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
 
 /**
  * Default credential requirements. Contains all configured credential.

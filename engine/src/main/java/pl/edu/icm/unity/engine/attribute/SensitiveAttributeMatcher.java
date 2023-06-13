@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 
 /**
  * Filters attributes which should not be normally sent outside Unity, due to security concerns.

@@ -4,24 +4,25 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.api.AuditEventDAO;
-import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
-import pl.edu.icm.unity.store.tx.TransactionTL;
-import pl.edu.icm.unity.types.basic.audit.AuditEntity;
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
-import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import pl.edu.icm.unity.base.audit.AuditEntity;
+import pl.edu.icm.unity.base.audit.AuditEvent;
+import pl.edu.icm.unity.base.audit.AuditEventAction;
+import pl.edu.icm.unity.base.audit.AuditEventType;
+import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.store.api.AuditEventDAO;
+import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
+import pl.edu.icm.unity.store.tx.TransactionTL;
 
 public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 {

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.translation;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Throw to signal that further execution of the translation profile should be stopped.

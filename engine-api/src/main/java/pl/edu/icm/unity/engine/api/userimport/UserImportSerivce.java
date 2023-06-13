@@ -6,8 +6,8 @@ package pl.edu.icm.unity.engine.api.userimport;
 
 import java.util.List;
 
+import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
  * Internal API for triggering user import.

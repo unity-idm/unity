@@ -9,8 +9,8 @@ import java.util.LinkedList;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 
 /**
  * In DB representation of the credential state.

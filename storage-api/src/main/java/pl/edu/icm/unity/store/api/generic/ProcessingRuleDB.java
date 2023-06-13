@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
 
 /**
  * Easy access to {@link ScheduledProcessingRule} storage.

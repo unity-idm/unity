@@ -6,8 +6,8 @@ package pl.edu.icm.unity.engine.api;
 
 import java.io.File;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.DBDumpContentElements;
+import pl.edu.icm.unity.base.db.DBDumpContentElements;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Provides access to general maintenance operations.

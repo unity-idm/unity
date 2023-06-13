@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.imunity.rest.api.types.registration.RestExternalSignupSpec;
+import pl.edu.icm.unity.base.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.restadm.mappers.authn.AuthenticationOptionsSelectorMapper;
-import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 
 public class ExternalSignupSpecMapper
 {

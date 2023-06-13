@@ -7,11 +7,11 @@ package pl.edu.icm.unity.engine.api.translation.in;
 import org.apache.logging.log4j.Logger;
 import org.apache.log4j.NDC;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Instance of this interface is configured with parameters and performs a translation

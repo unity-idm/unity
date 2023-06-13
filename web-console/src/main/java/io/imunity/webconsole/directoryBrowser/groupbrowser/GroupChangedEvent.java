@@ -4,7 +4,7 @@
  */
 package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.webui.bus.Event;
 
 public class GroupChangedEvent implements Event

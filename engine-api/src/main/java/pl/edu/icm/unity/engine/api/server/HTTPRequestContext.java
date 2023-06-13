@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.server;
 
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 
 /**
  * Stores in thread local state related to the HTTP request being served by the thread.

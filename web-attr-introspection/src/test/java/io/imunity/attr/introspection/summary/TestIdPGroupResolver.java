@@ -18,11 +18,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.IdPInfo;
-import pl.edu.icm.unity.types.authn.IdPInfo.IdpGroup;
+import pl.edu.icm.unity.engine.api.authn.IdPInfo;
+import pl.edu.icm.unity.engine.api.authn.IdPInfo.IdpGroup;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 @RunWith(MockitoJUnitRunner.class)

@@ -7,10 +7,10 @@ package pl.edu.icm.unity.store.objstore.reg.invite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Easy access to {@link InvitationWithCode} storage.

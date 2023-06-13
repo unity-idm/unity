@@ -11,12 +11,13 @@ import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
 import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.idp.*;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 import java.util.HashMap;
 import java.util.Map;

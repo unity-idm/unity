@@ -6,7 +6,7 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import javax.ws.rs.core.Response;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 public class OAuthErrorException extends EngineException
 {

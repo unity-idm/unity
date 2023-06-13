@@ -12,13 +12,13 @@ import org.junit.Test;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 
+import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
-import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class OAuthTokenRepositoryTest
 {

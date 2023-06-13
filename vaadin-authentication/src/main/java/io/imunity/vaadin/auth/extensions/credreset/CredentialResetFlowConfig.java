@@ -5,7 +5,8 @@
 package io.imunity.vaadin.auth.extensions.credreset;
 
 import com.vaadin.flow.component.html.Image;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.Optional;
 

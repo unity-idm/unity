@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
-import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.CapacityLimitDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 

@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.engine.credential;
 
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
  * Internal management of {@link CredentialDefinition} with Local credential verifier. Checks

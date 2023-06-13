@@ -5,10 +5,10 @@
 
 package io.imunity.webconsole.tprofile;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.ProfileType;
 
 /**
  * Component to edit or add a registration form translation profile

@@ -32,12 +32,12 @@ import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.config.SchemaWithMapping;
 import io.imunity.scim.user.mapping.evaluation.UserSchemaEvaluator;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.Identity;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserAssemblyServiceTest

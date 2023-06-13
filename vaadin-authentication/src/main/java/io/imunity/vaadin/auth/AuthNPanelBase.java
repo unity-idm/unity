@@ -6,7 +6,8 @@ package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 
 @Tag("div")
 abstract class AuthNPanelBase extends Component implements AuthenticationUIController, HasEnabled, HasComponents, HasStyle

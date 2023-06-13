@@ -8,9 +8,9 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import java.util.Date;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.registration.AdminComment;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.registration.AdminComment;
 
 public class AdminCommentMapperTest extends MapperTestBase<AdminComment, DBAdminComment>
 {

@@ -7,8 +7,8 @@ package pl.edu.icm.unity.store.objstore.bulk;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.base.translation.TranslationAction;
 
 class ScheduledProcessingRuleMapper
 {

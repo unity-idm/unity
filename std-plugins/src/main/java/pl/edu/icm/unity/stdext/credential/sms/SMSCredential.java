@@ -10,9 +10,9 @@ import java.util.Optional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 
 /**
  * Represents business object of sms credential. Supports (de)serialization

@@ -10,9 +10,9 @@ import com.vaadin.ui.Component;
 
 import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import io.imunity.webconsole.tprofile.TranslationProfileEditDialog.Callback;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Third wizard step with with profile creation - used in {@link WizardDialogComponent}.

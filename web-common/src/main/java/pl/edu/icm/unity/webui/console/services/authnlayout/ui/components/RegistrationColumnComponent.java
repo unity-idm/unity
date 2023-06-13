@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui.console.services.authnlayout.ui.components;
 
 import java.util.function.Consumer;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.elements.RegistrationConfig;

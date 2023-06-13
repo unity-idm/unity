@@ -28,6 +28,8 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -43,8 +45,6 @@ import pl.edu.icm.unity.oauth.as.TestTxRunner;
 import pl.edu.icm.unity.oauth.as.token.introspection.MockTokenIntrospectionFactory;
 import pl.edu.icm.unity.oauth.as.token.introspection.TokenIntrospectionResource;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 public class TokenIntrospectionResourceTest
 {

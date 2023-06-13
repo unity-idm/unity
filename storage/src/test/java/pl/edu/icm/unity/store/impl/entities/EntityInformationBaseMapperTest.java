@@ -8,11 +8,11 @@ package pl.edu.icm.unity.store.impl.entities;
 import java.util.Date;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.identity.EntityScheduledOperation;
+import pl.edu.icm.unity.base.identity.EntityState;
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
-import pl.edu.icm.unity.types.basic.EntityState;
 
 public class EntityInformationBaseMapperTest extends MapperWithMinimalTestBase<EntityInformation, DBEntityInformationBase>
 {

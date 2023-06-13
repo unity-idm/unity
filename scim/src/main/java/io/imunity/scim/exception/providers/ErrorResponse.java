@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import io.imunity.scim.exception.SCIMException.ScimErrorType;
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.Constants;
 
 @JsonPropertyOrder(
 { "schemas", "status" })

@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Provides access to the information of the network server.

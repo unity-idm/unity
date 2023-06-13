@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.event;
 
-import pl.edu.icm.unity.types.Event;
+import pl.edu.icm.unity.base.event.Event;
 
 /**
  * Event listeners are {@link Event} consumers. E.g. a listener can send email with notification or

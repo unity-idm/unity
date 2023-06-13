@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers;
 
 import io.imunity.rest.api.types.basic.RestAttribute;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.base.attribute.Attribute;
 
 public class AttributeMapper
 {

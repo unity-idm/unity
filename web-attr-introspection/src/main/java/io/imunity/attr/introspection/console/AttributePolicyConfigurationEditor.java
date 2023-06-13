@@ -16,9 +16,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.attr.introspection.config.Attribute;
 import io.imunity.attr.introspection.config.AttributePolicy;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.authn.IdPInfo;
-import pl.edu.icm.unity.types.authn.IdPInfo.IdpGroup;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.IdPInfo;
+import pl.edu.icm.unity.engine.api.authn.IdPInfo.IdpGroup;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;

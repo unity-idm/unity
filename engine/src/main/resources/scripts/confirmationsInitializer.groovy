@@ -3,14 +3,14 @@ import java.util.Map
 
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef
 import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef
-import pl.edu.icm.unity.types.basic.AttributeType
-import pl.edu.icm.unity.types.basic.IdentityType
-import pl.edu.icm.unity.types.basic.MessageTemplate
+import pl.edu.icm.unity.base.attribute.AttributeType
+import pl.edu.icm.unity.base.identity.IdentityType
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplate
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
-import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
-import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
+import pl.edu.icm.unity.base.Constants;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.stdext.attr.VerifiableMobileNumberAttributeSyntax;
 

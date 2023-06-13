@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.api.bulk;
 import java.util.Collections;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 
 public class EntityGroupAttributes
 {

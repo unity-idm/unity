@@ -6,7 +6,8 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import pl.edu.icm.unity.MessageSource;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.Set;
 import java.util.function.Consumer;

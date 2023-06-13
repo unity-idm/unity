@@ -5,8 +5,8 @@
 package io.imunity.vaadin.endpoint.common.plugins.identities;
 
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 
 
 public interface IdentityEditor

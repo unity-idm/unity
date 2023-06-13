@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.audit.AuditEntity;
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+import pl.edu.icm.unity.base.audit.AuditEntity;
+import pl.edu.icm.unity.base.audit.AuditEvent;
+import pl.edu.icm.unity.base.audit.AuditEventType;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 /**

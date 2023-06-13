@@ -11,8 +11,8 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.translation.RestTranslationAction;
+import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.translation.TranslationAction;
 
 public class TranslationActionMapperTest extends MapperTestBase<TranslationAction, RestTranslationAction>
 {

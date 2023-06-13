@@ -32,7 +32,7 @@ import io.imunity.scim.config.ReferenceAttributeMapping;
 import io.imunity.scim.config.ReferenceAttributeMapping.ReferenceType;
 import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.schema.SCIMAttributeType;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReferenceMappingEvaluatorTest

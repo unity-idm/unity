@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Base identity type definition. Provides equals and hashcode based on id and default implementations of

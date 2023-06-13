@@ -5,13 +5,14 @@
 package pl.edu.icm.unity.engine.audit;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.types.Event;
-import pl.edu.icm.unity.types.basic.audit.AuditEntity;
-import pl.edu.icm.unity.types.basic.audit.AuditEvent;
-import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
-import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
-import pl.edu.icm.unity.types.basic.audit.AuditEventType;
+
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.audit.AuditEntity;
+import pl.edu.icm.unity.base.audit.AuditEvent;
+import pl.edu.icm.unity.base.audit.AuditEventAction;
+import pl.edu.icm.unity.base.audit.AuditEventTag;
+import pl.edu.icm.unity.base.audit.AuditEventType;
+import pl.edu.icm.unity.base.event.Event;
 
 import java.util.Arrays;
 import java.util.Date;

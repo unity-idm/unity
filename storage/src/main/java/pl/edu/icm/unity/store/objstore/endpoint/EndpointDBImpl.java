@@ -9,13 +9,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationDBImpl;
 import pl.edu.icm.unity.store.objstore.authnFlow.AuthenticationFlowDBImpl;
 import pl.edu.icm.unity.store.objstore.realm.RealmDBImpl;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 /**
  * Easy access to {@link Endpoint} storage.

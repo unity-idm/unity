@@ -6,11 +6,11 @@ package pl.edu.icm.unity.store.objstore.bulk;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.ProcessingRuleDB;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.types.translation.TranslationAction;
 
 public class ProcessingRuleTest extends AbstractNamedWithTSTest<ScheduledProcessingRule>
 {

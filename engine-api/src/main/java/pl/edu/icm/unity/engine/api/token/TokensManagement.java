@@ -7,10 +7,10 @@ package pl.edu.icm.unity.engine.api.token;
 import java.util.Date;
 import java.util.List;
 
+import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
 
 /**
  * Tokens API allows for manipulating generic tokens. Token is a piece of information which is:

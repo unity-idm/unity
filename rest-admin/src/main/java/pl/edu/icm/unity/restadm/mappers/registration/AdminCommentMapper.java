@@ -5,9 +5,8 @@
 
 package pl.edu.icm.unity.restadm.mappers.registration;
 
-import pl.edu.icm.unity.types.registration.AdminComment;
-
 import io.imunity.rest.api.types.registration.RestAdminComment;
+import pl.edu.icm.unity.base.registration.AdminComment;
 
 public class AdminCommentMapper
 {

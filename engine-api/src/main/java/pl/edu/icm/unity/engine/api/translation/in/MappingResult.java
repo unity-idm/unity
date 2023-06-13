@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.base.identity.EntityParam;
 
 /**
  * Stores a set of mapping results, produced by one or more translation actions.

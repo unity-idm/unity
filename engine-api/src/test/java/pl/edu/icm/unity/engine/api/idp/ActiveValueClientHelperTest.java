@@ -5,8 +5,9 @@
 package pl.edu.icm.unity.engine.api.idp;
 
 import org.junit.Test;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.DynamicAttribute;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 
 import java.util.Collection;
 import java.util.List;

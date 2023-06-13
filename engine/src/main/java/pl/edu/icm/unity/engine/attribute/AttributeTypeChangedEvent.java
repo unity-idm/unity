@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import pl.edu.icm.unity.types.Event;
-import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.event.Event;
 
 /**
  * Triggered when AttributeType is modified - hold both instances before modification and after.

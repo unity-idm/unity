@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.confirmation.states;
 
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 
 /**
  * Base class for states of confirmation process which are bound to a user existing in the database (as opposite 

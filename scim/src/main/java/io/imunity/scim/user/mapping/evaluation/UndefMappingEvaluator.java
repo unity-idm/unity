@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
 import io.imunity.scim.config.UndefinedMapping;
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 @Component
 public class UndefMappingEvaluator implements MappingEvaluator

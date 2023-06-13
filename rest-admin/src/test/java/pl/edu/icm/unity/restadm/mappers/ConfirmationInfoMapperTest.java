@@ -10,7 +10,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.confirmation.RestConfirmationInfo;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 
 public class ConfirmationInfoMapperTest extends MapperTestBase<ConfirmationInfo, RestConfirmationInfo>
 {

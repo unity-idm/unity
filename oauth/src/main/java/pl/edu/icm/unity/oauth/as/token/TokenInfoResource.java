@@ -20,8 +20,8 @@ import com.google.common.collect.Lists;
 import com.nimbusds.jwt.util.DateUtils;
 
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 
 /**

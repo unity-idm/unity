@@ -5,12 +5,11 @@
 
 package pl.edu.icm.unity.store.objstore.credreq;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.Collections;
-import java.util.Objects;
 
 @JsonDeserialize(builder = DBCredentialRequirements.Builder.class)
 class DBCredentialRequirements

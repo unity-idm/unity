@@ -8,9 +8,9 @@ import java.util.Collection;
 
 import com.vaadin.data.Binder;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 
 /**

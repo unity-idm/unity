@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers.registration;
 
 import io.imunity.rest.api.types.registration.RestEnquiryFormNotifications;
-import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
 
 public class EnquiryFormNotificationsMapper
 {

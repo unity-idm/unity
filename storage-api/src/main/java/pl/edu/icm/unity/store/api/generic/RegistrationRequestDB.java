@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 
 /**
  * Easy access to {@link RegistrationRequestState} storage.

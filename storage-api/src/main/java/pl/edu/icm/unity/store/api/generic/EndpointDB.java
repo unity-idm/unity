@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
 
 /**
  * Easy access to {@link Endpoint} storage.

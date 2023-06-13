@@ -9,11 +9,11 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
 import io.imunity.webconsole.tprofile.ActionEditor;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
-import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 

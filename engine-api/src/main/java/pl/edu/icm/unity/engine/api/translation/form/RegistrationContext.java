@@ -10,8 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
-import pl.edu.icm.unity.types.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.base.registration.GroupSelection;
 
 public class RegistrationContext
 {

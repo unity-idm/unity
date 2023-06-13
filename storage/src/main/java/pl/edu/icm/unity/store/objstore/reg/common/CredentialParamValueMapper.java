@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.objstore.reg.common;
 
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
+import pl.edu.icm.unity.base.registration.CredentialParamValue;
 
 public class CredentialParamValueMapper
 {

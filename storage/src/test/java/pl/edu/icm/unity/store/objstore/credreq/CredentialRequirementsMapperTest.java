@@ -8,9 +8,9 @@ package pl.edu.icm.unity.store.objstore.credreq;
 import java.util.Set;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.authn.CredentialRequirements;
 
 public class CredentialRequirementsMapperTest extends MapperTestBase<CredentialRequirements, DBCredentialRequirements>
 {

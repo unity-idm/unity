@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.engine.translation.form.action;
 
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import pl.edu.icm.unity.base.translation.ProfileType;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationActionFactory;
-import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
  * Boilerplate code for the {@link RegistrationTranslationActionFactory} implementations.

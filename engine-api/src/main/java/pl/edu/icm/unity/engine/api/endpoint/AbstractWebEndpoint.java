@@ -6,9 +6,9 @@ package pl.edu.icm.unity.engine.api.endpoint;
 
 import java.net.URL;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
  * Typical boilerplate for all {@link WebAppEndpointInstance}s.

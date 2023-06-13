@@ -5,8 +5,9 @@
 package pl.edu.icm.unity.store.impl.audit;
 
 import org.springframework.stereotype.Repository;
+
+import pl.edu.icm.unity.base.audit.AuditEntity;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
-import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 
 /**
  * RDBMS storage of {@link AuditEntity}. Helper repository to handle actions related to AuditEntity entries.

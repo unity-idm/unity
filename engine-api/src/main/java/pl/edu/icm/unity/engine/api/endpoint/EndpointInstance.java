@@ -8,9 +8,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonSerializable;
 
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 /**
  * Generic endpoint instance. Implementations must persist/load only the custom settings using the {@link JsonSerializable}

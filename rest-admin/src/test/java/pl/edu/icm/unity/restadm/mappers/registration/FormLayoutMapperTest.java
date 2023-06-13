@@ -12,11 +12,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.layout.RestBasicFormElement;
 import io.imunity.rest.api.types.registration.layout.RestFormLayout;
+import pl.edu.icm.unity.base.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 import pl.edu.icm.unity.restadm.mappers.registration.layout.FormLayoutMapper;
-import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 
 public class FormLayoutMapperTest extends MapperTestBase<FormLayout, RestFormLayout>
 

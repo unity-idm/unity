@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 public class TestTxRunner implements TransactionalRunner

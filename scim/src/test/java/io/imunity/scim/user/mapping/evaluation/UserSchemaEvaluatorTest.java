@@ -38,13 +38,13 @@ import io.imunity.scim.config.SchemaWithMapping;
 import io.imunity.scim.config.SimpleAttributeMapping;
 import io.imunity.scim.schema.SCIMAttributeType;
 import io.imunity.scim.user.User;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserSchemaEvaluatorTest

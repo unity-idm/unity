@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api.project;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 
 /**
  * Internal engine API for project invitations management

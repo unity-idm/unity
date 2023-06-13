@@ -4,11 +4,11 @@
  */
 package io.imunity.vaadin.endpoint.common.forms;
 
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-
 import java.util.List;
+
+import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.base.registration.BaseForm;
+import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
 
 /**
  * Utilities related to parsing a form

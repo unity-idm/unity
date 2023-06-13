@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import com.vaadin.server.Resource;
 
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Settings useful for most of the credential reset screens

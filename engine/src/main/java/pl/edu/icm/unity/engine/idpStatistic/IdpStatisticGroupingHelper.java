@@ -15,11 +15,11 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
+import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
 import pl.edu.icm.unity.engine.api.idp.statistic.GroupedIdpStatistic;
 import pl.edu.icm.unity.engine.api.idp.statistic.GroupedIdpStatistic.SigInStatistic;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic;
-import pl.edu.icm.unity.types.basic.idpStatistic.IdpStatistic.Status;
 
 class IdpStatisticGroupingHelper
 {

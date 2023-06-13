@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.authn;
 
 import java.util.List;
 
-import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Provides access to authenticators. Low level, rarely useful. Needed e.g. by

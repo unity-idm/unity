@@ -6,7 +6,7 @@
 
 package pl.edu.icm.unity.webui.common.groups;
 
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
 /**
  * Helper class for creating mandatory group selection
  * @author P.Piernik

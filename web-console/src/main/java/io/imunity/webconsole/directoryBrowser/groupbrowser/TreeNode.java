@@ -6,8 +6,8 @@ package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
 import com.vaadin.data.TreeData;
 
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 class TreeNode
 {

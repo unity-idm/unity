@@ -5,7 +5,7 @@
 
 package io.imunity.webconsole.signupAndEnquiry.invitations;
 
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
 
 /**
  * 

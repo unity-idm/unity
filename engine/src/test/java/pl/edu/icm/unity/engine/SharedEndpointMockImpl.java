@@ -8,8 +8,9 @@ package pl.edu.icm.unity.engine;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 @Component
 class SharedEndpointMockImpl implements SharedEndpointManagement

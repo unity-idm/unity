@@ -8,9 +8,9 @@ package pl.edu.icm.unity.restadm.mappers;
 import java.util.Optional;
 
 import io.imunity.rest.api.types.basic.RestEntityInformation;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
-import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.identity.EntityScheduledOperation;
+import pl.edu.icm.unity.base.identity.EntityState;
 
 public class EntityInformationMapper
 {

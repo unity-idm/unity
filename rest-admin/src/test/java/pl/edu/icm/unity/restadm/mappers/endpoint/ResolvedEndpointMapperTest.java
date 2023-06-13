@@ -17,14 +17,14 @@ import io.imunity.rest.api.types.endpoint.RestEndpoint;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
 import io.imunity.rest.api.types.endpoint.RestEndpointTypeDescription;
 import io.imunity.rest.api.types.endpoint.RestResolvedEndpoint;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.authn.RememberMePolicy;
+import pl.edu.icm.unity.base.endpoint.Endpoint;
+import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
+import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
-import pl.edu.icm.unity.types.endpoint.Endpoint;
-import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
-import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
-import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
 public class ResolvedEndpointMapperTest extends MapperTestBase<ResolvedEndpoint, RestResolvedEndpoint>
 {

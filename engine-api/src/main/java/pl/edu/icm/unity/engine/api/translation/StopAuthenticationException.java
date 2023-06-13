@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.translation;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationConfiguration;
-import pl.edu.icm.unity.exceptions.EngineException;
 
 public class StopAuthenticationException extends EngineException
 {

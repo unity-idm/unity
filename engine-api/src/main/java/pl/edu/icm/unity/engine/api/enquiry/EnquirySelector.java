@@ -8,8 +8,8 @@ package pl.edu.icm.unity.engine.api.enquiry;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 
 public class EnquirySelector
 {

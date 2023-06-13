@@ -10,7 +10,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.ViewWithSubViewBase;
-import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;

@@ -19,9 +19,9 @@ import org.springframework.stereotype.Component;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.CredentialType;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.authn.CredentialType;
+import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 
 /**
  * Registry of components which are used to create {@link LocalCredentialVerificator}s.

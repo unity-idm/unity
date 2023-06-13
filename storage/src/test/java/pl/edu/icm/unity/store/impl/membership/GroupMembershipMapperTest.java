@@ -8,9 +8,9 @@ package pl.edu.icm.unity.store.impl.membership;
 import java.util.Date;
 import java.util.function.Function;
 
+import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.store.MapperWithMinimalTestBase;
 import pl.edu.icm.unity.store.Pair;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 
 public class GroupMembershipMapperTest extends MapperWithMinimalTestBase<GroupMembership, DBGroupMembership>
 {
