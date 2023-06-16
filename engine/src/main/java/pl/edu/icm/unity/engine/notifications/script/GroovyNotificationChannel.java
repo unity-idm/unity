@@ -125,7 +125,7 @@ class GroovyNotificationChannel implements NotificationChannelInstance
 		Binding binding = new Binding();
 		binding.setVariable("recipientAddress", recipientAddress);
 		binding.setVariable("subject", message.getSubject());
-		binding.setVariable("body", message.getSubject());
+		binding.setVariable("body", message.getBody());
 		binding.setVariable("type", message.getType().toString());
 		binding.setVariable("log", log);
 		return binding;
