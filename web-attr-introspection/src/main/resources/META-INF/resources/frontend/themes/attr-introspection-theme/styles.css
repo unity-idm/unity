@@ -6,3 +6,8 @@ vaadin-icon {
     width: var(--lumo-icon-size-s);
     height: var(--lumo-icon-size-s);
 }
+
+#badge-warning {
+    color: #e67e00;
+    background-color: #fff4e0;
+}

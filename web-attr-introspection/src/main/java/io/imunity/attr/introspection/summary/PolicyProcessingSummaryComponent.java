@@ -85,7 +85,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		removeAll();
 		setAlignItems(Alignment.CENTER);
 
-		H3 title = new H3();
+		H2 title = new H2();
 		title.setText(msg.getMessage("PolicyProcessingSummaryComponent.title"));;
 		add(title);
 
@@ -217,6 +217,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		{
 			summaryTitle.setText(msg.getMessage("PolicyProcessingSummaryComponent.good"));
 			summaryTitle.getElement().getThemeList().add("badge contrast");
+			summaryTitle.setId("badge-warning");
 			return wrapper;
 		}
 
