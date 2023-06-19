@@ -31,6 +31,7 @@ import java.util.*;
 public class ExposedAttributesComponent extends VerticalLayout
 {
 	private static final String INPUT_WIDTH = "100%";
+	private static final int FIRST_LABEL = 1;
 	private final MessageSource msg;
 	private final IdentityPresentationUtil identityPresenter;
 	
@@ -90,11 +91,19 @@ public class ExposedAttributesComponent extends VerticalLayout
 			components.forEach(attribtuesFL::add);
 			components.forEach(component -> component.getElement().getStyle().set("width", INPUT_WIDTH));
 			components.forEach(component -> component.getElement().getStyle().set("padding", "0"));
-			components.stream().skip(1).forEach(component -> {
-				if(component instanceof HasLabel label)
-					label.setLabel("");
-			});
+			handleDynamicAttributesLabels(components);
 		}
+	}
+
+	private static void handleDynamicAttributesLabels(List<Component> components)
+	{
+		components.stream().skip(FIRST_LABEL).forEach(ExposedAttributesComponent::cleanLabel);
+	}
+
+	private static void cleanLabel(Component component)
+	{
+		if(component instanceof HasLabel label)
+			label.setLabel("");
 	}
 
 	private void addIdentity(VerticalLayout attribtuesFL)

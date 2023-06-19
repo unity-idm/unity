@@ -86,7 +86,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 		{
 			if (action == IdPButtonsBar.Action.ACCEPT)
 				acceptHandler.accept(getFilteredAttributes());
-			else
+			else if(action == IdPButtonsBar.Action.DENY)
 				declineHandler.run();
 		});
 		buttons.setConfirmButtonText(msg.getMessage("continue"));
