@@ -5,18 +5,22 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
+import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.base.attr.UnityImage;
 
 import java.io.ByteArrayInputStream;
 import java.util.UUID;
 
-class ImageRepresentationComponent extends VerticalLayout
+class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 {
+	private final Label label;
 	ImageRepresentationComponent(UnityImage value, AttributeViewerContext context)
 	{
 		this(value, context, null);
@@ -25,6 +29,10 @@ class ImageRepresentationComponent extends VerticalLayout
 	ImageRepresentationComponent(UnityImage value, AttributeViewerContext context, String linkURL)
 	{
 		add(getRepresentation(value, context, linkURL));
+		this.label = new InputLabel("");
+		addComponentAsFirst(label);
+		setPadding(false);
+		setSpacing(false);
 	}
 
 	private Component getRepresentation(UnityImage value, AttributeViewerContext context, String linkURL)
@@ -70,5 +78,15 @@ class ImageRepresentationComponent extends VerticalLayout
 			return anchor;
 		}
 			return image;
+	}
+
+	@Override
+	public void setLabel(String label) {
+		this.label.setText(label);
+	}
+
+	@Override
+	public String getLabel() {
+		return label.getText();
 	}
 }

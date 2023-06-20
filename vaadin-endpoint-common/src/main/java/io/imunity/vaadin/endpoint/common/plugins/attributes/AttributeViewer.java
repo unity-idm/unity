@@ -6,6 +6,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
 import com.vaadin.flow.component.Component;
 
+import com.vaadin.flow.component.HasLabel;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -20,22 +21,22 @@ public class AttributeViewer
 	private AttributeHandlerRegistry registry;
 	private AttributeType attributeType;
 	private Attribute attribute;
-	private boolean showGroup;
+	private LabelContext labelContext;
 	private ComponentsGroup group;
 	private AttributeViewerContext context;
 	
 	public AttributeViewer(MessageSource msg, AttributeHandlerRegistry registry,
-	                       AttributeType attributeType, Attribute attribute, boolean showGroup,
+	                       AttributeType attributeType, Attribute attribute, LabelContext labelContext,
 	                       AttributeViewerContext context)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.attributeType = attributeType;
 		this.attribute = attribute;
-		this.showGroup = showGroup;
+		this.labelContext = labelContext;
 		this.group = new ComponentsGroup();
 		this.context = context;
-		generate(attributeType.getDisplayedName().getValue(msg));
+		generate();
 	}
 	
 	public ComponentsGroup getComponentsGroup()
@@ -48,20 +49,20 @@ public class AttributeViewer
 		group.removeAll();
 	}
 	
-	public List<Component> getAsComponents(String caption, String description)
+	public List<Component> getAsComponents(String description)
 	{
-		createContents(caption, description);
+		createContents(description);
 		return group.getComponents();
 	}
 	
-	private void generate(String caption)
+	private void generate()
 	{
 		I18nString description = attributeType.getDescription();
 		String descriptionraw = description != null ? description.getValue(msg) : null;
-		createContents(caption, descriptionraw);
+		createContents(descriptionraw);
 	}
 
-	private void createContents(String caption, String description)
+	private void createContents(String description)
 	{
 		group.removeAll();
 		List<Component> components = attribute.getValues().stream()
@@ -75,13 +76,13 @@ public class AttributeViewer
 					}
 					return representation;
 				}).toList();
-		components.stream().findFirst().ifPresent(component -> component.getElement().setProperty("label", caption));
+		components.stream().findFirst().ifPresent(component -> ((HasLabel)component).setLabel(labelContext.getLabel()));
 		components.forEach(group::addComponent);
 	}
 
 	private Component getRepresentation(String value)
 	{
-		WebAttributeHandler handler = null;
+		WebAttributeHandler handler;
 		if (attributeType == null)
 			handler = registry.getHandlerWithStringFallback(attribute);
 		else

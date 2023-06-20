@@ -39,8 +39,8 @@ import java.util.UUID;
 class UnityImageValueComponent extends VerticalLayout implements HasLabel
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, UnityImageValueComponent.class);
-	static final int PREVIEW_WIDTH = 256;
-	static final int PREVIEW_HEIGHT = 128;
+	static final int PREVIEW_WIDTH = 320;
+	static final int PREVIEW_HEIGHT = 300;
 	
 	private final InputLabel label;
 	private final Image image;

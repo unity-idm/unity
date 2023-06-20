@@ -5,19 +5,6 @@
 
 package io.imunity.home.views.profile;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.security.PermitAll;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasStyle;
@@ -27,10 +14,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
@@ -39,11 +26,9 @@ import io.imunity.vaadin.auth.sandbox.SandboxWizardDialog;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewer;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.FixedAttributeEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -61,6 +46,9 @@ import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfigured
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import javax.annotation.security.PermitAll;
+import java.util.*;
 
 @PermitAll
 @RouteAlias(value = "/", layout = HomeUiMenu.class)
@@ -84,7 +72,7 @@ public class ProfileView extends HomeViewComponent
 	private HomeEndpointProperties config = ComponentUtil.getData(UI.getCurrent(), HomeEndpointProperties.class);
 	private LoginSession theUser = InvocationContext.getCurrent().getLoginSession();
 
-	public ProfileView(AttributesManagement attributesMan, MessageSource msg, AttributeHandlerRegistry attributeHandlerRegistry,
+	ProfileView(AttributesManagement attributesMan, MessageSource msg, AttributeHandlerRegistry attributeHandlerRegistry,
 					   AdditionalAuthnHandler additionalAuthnHandler, AssociationAccountWizardProvider associationAccountWizardProvider,
 					   VaddinWebLogoutHandler authnProcessor1, EntityManagement idsMan, @Qualifier("insecure") EntityManagement insecureIdsMan,
 					   AttributeSupport atMan, NotificationPresenter notificationPresenter)
@@ -132,15 +120,11 @@ public class ProfileView extends HomeViewComponent
 		save.addClickListener(event -> saveChanges());
 		save.setVisible(shouldShowSave());
 
-		Button refresh = new Button(msg.getMessage("refresh"));
-		refresh.setIcon(VaadinIcon.REFRESH.create());
-		refresh.addClickListener(e -> init());
-
 		EntityRemovalButton entityRemovalButton = new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, insecureIdsMan, authnProcessor, notificationPresenter, config);
 		HorizontalLayout endButtonsLayout = new HorizontalLayout();
 		endButtonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		endButtonsLayout.add(entityRemovalButton);
-		buttonsLayout.add(new HorizontalLayout(save, refresh), endButtonsLayout);
+		buttonsLayout.add(new HorizontalLayout(save), endButtonsLayout);
 
 		if (!config.getDisabledComponents().contains(HomeEndpointProperties.Components.accountLinking.toString()))
 		{
@@ -169,12 +153,11 @@ public class ProfileView extends HomeViewComponent
 	private void addAttributes(Set<String> keys)
 	{
 		Map<String, AttributeType> atTypes;
-		Set<String> groups;
+		Set<Group> groups;
 		try
 		{
 			atTypes = atMan.getAttributeTypesAsMap();
-			groups = idsMan.getGroupsForPresentation(new EntityParam(theUser.getEntityId())).
-					stream().map(Group::toString).collect(Collectors.toSet());
+			groups = new HashSet<>(idsMan.getGroupsForPresentation(new EntityParam(theUser.getEntityId())));
 		} catch (EngineException e)
 		{
 			throw new RuntimeException(e);
@@ -182,11 +165,16 @@ public class ProfileView extends HomeViewComponent
 		VerticalLayout verticalLayout = new VerticalLayout();
 		for (String aKey: keys)
 		{
-			List<Component> attributes = getAttributes(atTypes, aKey, groups);
-			attributes.forEach(attr -> ((HasStyle)attr).getStyle().set("width", "20em"));
+			List<Component> attributes = getAttributes(atTypes, aKey, groups, verticalLayout);
+			attributes.forEach(attr -> setAttributeWidth((HasStyle) attr));
 			verticalLayout.add(attributes);
 		}
 		getContent().add(verticalLayout);
+	}
+
+	private static Style setAttributeWidth(HasStyle attr)
+	{
+		return attr.getStyle().set("width", "20em");
 	}
 
 	private boolean shouldShowSave()
@@ -197,51 +185,68 @@ public class ProfileView extends HomeViewComponent
 		return showSave;
 	}
 
-	private List<Component> getAttributes(Map<String, AttributeType> atTypes, String key, Set<String> groups)
+	private List<Component> getAttributes(Map<String, AttributeType> atTypes, String key, Set<Group> groups, VerticalLayout layout)
 	{
-		String group = config.getValue(key+ HomeEndpointProperties.GWA_GROUP);
+		String groupPath = config.getValue(key+ HomeEndpointProperties.GWA_GROUP);
 		String attributeName = config.getValue(key+HomeEndpointProperties.GWA_ATTRIBUTE);
 		boolean showGroup = config.getBooleanValue(key+HomeEndpointProperties.GWA_SHOW_GROUP);
 		boolean editable = config.getBooleanValue(key+HomeEndpointProperties.GWA_EDITABLE);
-		AttributeType at = atTypes.get(attributeName);
-		if (at == null)
+		AttributeType attributeType = atTypes.get(attributeName);
+		if (attributeType == null)
 		{
 			log.warn("No attribute type " + attributeName + " defined in the system.");
 			return List.of();
 		}
-		AttributeExt attribute = getAttribute(attributeName, group);
+		AttributeExt attribute = getAttribute(attributeName, groupPath);
 
-		if (!groups.contains(group))
+		Optional<Group> group = groups.stream().filter(grp -> grp.toString().equals(groupPath)).findFirst();
+		if (group.isEmpty())
 			return List.of();
-		if (editable && at.isSelfModificable())
+		LabelContext labelContext = new LabelContext(
+				attributeType.getDisplayedName().getValue(msg),
+				showGroup,
+				groupPath,
+				group.get().getDisplayedName().getValue(msg));
+		if (editable && attributeType.isSelfModificable())
 		{
-
 			AttributeEditContext editContext = AttributeEditContext.builder()
 					.withConfirmationMode(ConfirmationEditMode.USER)
-					.withAttributeType(at)
-					.withAttributeGroup(group)
+					.withAttributeType(attributeType)
+					.withAttributeGroup(groupPath)
+					.withLabelContext(labelContext)
 					.withAttributeOwner(new EntityParam(theUser.getEntityId())).build();
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry,
-					editContext, showGroup, null, null);
+					editContext, labelContext, null);
 			if (attribute != null)
 				editor.setAttributeValues(attribute.getValues());
 			attributeEditors.add(editor);
-			return editor.getComponentsGroup().getComponents();
+			ComponentsGroup componentsGroup = editor.getComponentsGroup();
+			componentsGroup.setComponentInsertionListener((comp, idx) ->
+			{
+				layout.addComponentAtIndex(idx + 1, comp);
+				setAttributeWidth((HasStyle) comp);
+			});
+			componentsGroup.setComponentRemovalListener(layout::remove);
+			return componentsGroup.getComponents();
 		} else
 		{
 			if (attribute == null)
 				return List.of();
 
-			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, at,
-					attribute, showGroup, AttributeViewerContext.EMPTY);
+			AttributeViewerContext context = AttributeViewerContext.builder()
+					.withImageScaleWidth(320)
+					.withImageScaleHeight(300)
+					.build();
+
+			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, attributeType,
+					attribute, labelContext, context);
 			return viewer.getComponentsGroup().getComponents();
 		}
 	}
 
 	public void saveChanges()
 	{
-		boolean changed = false;
 		for (FixedAttributeEditor ae: attributeEditors)
 		{
 			try
@@ -253,10 +258,8 @@ public class ProfileView extends HomeViewComponent
 					updateAttribute(a.get());
 				else
 					removeAttribute(ae);
-				changed = true;
-			} catch (FormValidationException e)
+			} catch (FormValidationException ignored)
 			{
-				continue;
 			} catch (AdditionalAuthenticationRequiredException additionalAuthn)
 			{
 				additionalAuthnHandler.handleAdditionalAuthenticationException(additionalAuthn,

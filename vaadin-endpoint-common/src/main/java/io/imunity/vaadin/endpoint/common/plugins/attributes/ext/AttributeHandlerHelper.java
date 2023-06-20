@@ -6,10 +6,13 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 public class AttributeHandlerHelper
 {
@@ -86,6 +89,13 @@ public class AttributeHandlerHelper
 		layout.setSpacing(false);
 		layout.setMargin(false);
 		return layout;
+	}
+
+	public static LayoutWithIcon getRepresentationWithWarning(Component representation, MessageSource msg)
+	{
+		Icon icon = VaadinIcon.CHECK_CIRCLE_O.create();
+		icon.getElement().setProperty("title", msg.getMessage("SimpleConfirmationInfo.unconfirmed"));
+		return new LayoutWithIcon(representation, icon);
 	}
 
 	public static Component getEmptySyntaxViewer(String msg)

@@ -4,8 +4,6 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -18,31 +16,24 @@ import java.util.stream.Collectors;
 
 public class FixedAttributeEditor
 {
-	private MessageSource msg;
-	private AttributeHandlerRegistry registry;
-	private String caption;
+	private final MessageSource msg;
+	private final AttributeHandlerRegistry registry;
 	private String description;
-	private boolean showGroup;
-	private AttributeEditContext editContext;
+	private final LabelContext labelContext;
+	private final AttributeEditContext editContext;
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private List<String> originalValues;
 
 	public FixedAttributeEditor(MessageSource msg, AttributeHandlerRegistry registry,
-	                            AttributeEditContext editContext, boolean showGroup,
-	                            String caption, String description)
+	                            AttributeEditContext editContext, LabelContext labelContext,
+	                            String description)
 	{
 		this.msg = msg;
 		this.registry = registry;
-		this.showGroup = showGroup;
-		this.caption = caption;
+		this.labelContext = labelContext;
 		this.description = description;
 		this.editContext = editContext;
 		initUI();
-	}
-	
-	public void placeOnLayout(VerticalLayout layout)
-	{
-		new CompositeLayoutAdapter(layout, getComponentsGroup());
 	}
 	
 	public void setAttributeValues(List<String> values)
@@ -50,7 +41,7 @@ public class FixedAttributeEditor
 		this.originalValues = new ArrayList<>(values);
 		List<LabelledValue> labelledValues = new ArrayList<>(values.size());
 		for (String value: values)
-			labelledValues.add(new LabelledValue(value, caption));
+			labelledValues.add(new LabelledValue(value, labelContext.getLabel()));
 		valuesComponent.setEntries(labelledValues);
 	}
 	
@@ -74,9 +65,8 @@ public class FixedAttributeEditor
 		Optional<Attribute> current = getAttribute();
 		if (originalValues == null)
 			return current.isPresent();
-		if (!current.isPresent())
-			return !originalValues.isEmpty();
-		return !originalValues.equals(current.get().getValues());
+		return current.map(attribute -> !originalValues.equals(attribute.getValues()))
+				.orElseGet(() -> !originalValues.isEmpty());
 	}
 	
 	public Optional<Attribute> getAttribute() throws FormValidationException
@@ -90,7 +80,7 @@ public class FixedAttributeEditor
 				return Optional.empty();
 		}
 
-		List<String> aValues = values.stream().map(lv -> lv.getValue()).collect(Collectors.toList());
+		List<String> aValues = values.stream().map(LabelledValue::getValue).collect(Collectors.toList());
 		return Optional.of(new Attribute(editContext.getAttributeType().getName(),
 					editContext.getAttributeType().getValueSyntax(),
 					editContext.getAttributeGroup(), aValues));
@@ -98,19 +88,10 @@ public class FixedAttributeEditor
 	
 	private void initUI()
 	{
-		if (caption == null)
-		{
-			caption = editContext.getAttributeType().getDisplayedName().getValue(msg);
-			String group = editContext.getAttributeGroup(); 
-			if (showGroup && !group.equals("/"))
-				caption = caption + " @" + group;
-			if (!editContext.isShowLabelInline())
-				caption += ":";
-		}
 		if (description == null)
 			description = editContext.getAttributeType().getDescription().getValue(msg);
 		
-		valuesComponent = getValuesPart(caption);
+		valuesComponent = getValuesPart(labelContext.getLabel());
 	}
 	
 	public void clear()

@@ -4,22 +4,6 @@
  */
 package io.imunity.vaadin.endpoint.common.forms;
 
-import static io.imunity.vaadin.endpoint.common.forms.FormParser.isGroupParamUsedAsMandatoryAttributeGroup;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.Strings;
-
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
@@ -30,7 +14,6 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
-
 import io.imunity.vaadin.elements.CheckboxWithError;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.ReadOnlyField;
@@ -39,19 +22,15 @@ import io.imunity.vaadin.endpoint.common.forms.groups.GroupTreeNode;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentation;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewer;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.ComponentsGroup;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.CompositeLayoutAdapter;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.FixedAttributeEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditor;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorContext;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
@@ -67,26 +46,10 @@ import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
-import pl.edu.icm.unity.base.registration.AgreementRegistrationParam;
-import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.base.registration.BaseForm;
-import pl.edu.icm.unity.base.registration.BaseRegistrationInput;
-import pl.edu.icm.unity.base.registration.ConfirmationMode;
-import pl.edu.icm.unity.base.registration.CredentialParamValue;
-import pl.edu.icm.unity.base.registration.CredentialRegistrationParam;
-import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.base.registration.GroupSelection;
-import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
-import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
-import pl.edu.icm.unity.base.registration.Selection;
+import pl.edu.icm.unity.base.registration.*;
 import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
-import pl.edu.icm.unity.base.registration.layout.BasicFormElement;
-import pl.edu.icm.unity.base.registration.layout.FormCaptionElement;
-import pl.edu.icm.unity.base.registration.layout.FormElement;
-import pl.edu.icm.unity.base.registration.layout.FormLayout;
-import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
-import pl.edu.icm.unity.base.registration.layout.FormSeparatorElement;
+import pl.edu.icm.unity.base.registration.layout.*;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -102,6 +65,11 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.imunity.vaadin.endpoint.common.forms.FormParser.isGroupParamUsedAsMandatoryAttributeGroup;
 
 
 public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends VerticalLayout
@@ -745,7 +713,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withShowCaption(!(form.getLayoutSettings().isCompactInputs()))
 					.build();
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry,
-					aType, readOnlyAttribute, false, context);
+					aType, readOnlyAttribute, new LabelContext(aType.getDisplayedName().getValue(msg)), context);
 			ComponentsGroup componentsGroup = viewer.getComponentsGroup();
 			layoutAdapter.addContainer(componentsGroup);
 		} else
@@ -768,9 +736,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withCustomWidthUnit(formWidthUnit())
 					.build();
 
+			LabelContext labelContext = new LabelContext(
+					aType.getDisplayedName().getValue(msg),
+					aParam.isShowGroups(),
+					aName,
+					aParam.getGroup());
+
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg,
 					attributeHandlerRegistry, editContext,
-					aParam.isShowGroups(), aName, description);
+					labelContext, description);
 			layoutAdapter.addContainer(editor.getComponentsGroup());
 			
 			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive 

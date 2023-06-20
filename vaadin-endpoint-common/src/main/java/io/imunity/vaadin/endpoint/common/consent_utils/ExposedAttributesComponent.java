@@ -13,6 +13,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.LabelContext;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.identity.IdentityParam;
@@ -133,7 +134,7 @@ public class ExposedAttributesComponent extends VerticalLayout
 		Attribute at = dat.getAttribute();
 		AttributeType attributeType = dat.getAttributeType();
 		AttributeViewer attrViewer = new AttributeViewer(msg, handlersRegistry,
-				attributeType, at, false, AttributeViewerContext.EMPTY);
-		return attrViewer.getAsComponents(dat.getDisplayedName(), dat.getDescription());
+				attributeType, at, new LabelContext(attributeType.getDisplayedName().getValue(msg)), AttributeViewerContext.EMPTY);
+		return attrViewer.getAsComponents(dat.getDescription());
 	}
 }

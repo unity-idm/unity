@@ -18,7 +18,6 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleStringFieldBinder;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.sms.MobileNumberConfirmationDialog;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
@@ -321,7 +320,12 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return AttributeHandlerHelper.getRepresentation(getValueAsString(value), context);
+		VerifiableMobileNumber verifiableMobileNumber = VerifiableMobileNumber.fromJsonString(value);
+		Component representation = AttributeHandlerHelper.getRepresentation(verifiableMobileNumber.getValue(), context);
+		if(!verifiableMobileNumber.getConfirmationInfo().isConfirmed())
+			return AttributeHandlerHelper.getRepresentationWithWarning(representation, msg);
+
+		return representation;
 	}
 
 	@org.springframework.stereotype.Component

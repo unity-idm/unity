@@ -19,6 +19,7 @@ public class AttributeEditContext
 	private AttributeType attributeType;
 	private EntityParam attributeOwner;
 	private String attributeGroup;
+	private LabelContext labelContext;
 	private boolean showLabelInline = false;
 	private Float customWidth = null;
 	private Unit customWidthUnit = null;
@@ -51,6 +52,11 @@ public class AttributeEditContext
 	public String getAttributeGroup()
 	{
 		return attributeGroup;
+	}
+
+	public LabelContext getLabelContext()
+	{
+		return labelContext;
 	}
 
 	public AttributeType getAttributeType()
@@ -120,6 +126,12 @@ public class AttributeEditContext
 		public Builder withAttributeGroup(String group)
 		{
 			this.obj.attributeGroup = group;
+			return this;
+		}
+
+		public Builder withLabelContext(LabelContext context)
+		{
+			this.obj.labelContext = context;
 			return this;
 		}
 		

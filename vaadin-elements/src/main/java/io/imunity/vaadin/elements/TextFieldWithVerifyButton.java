@@ -11,6 +11,7 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -22,6 +23,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 {
 	private final Checkbox adminConfirmCheckBox;
 	private final TextField editor;
+	private final Label label;
 	private final HorizontalLayout fieldLayout;
 	private final Div verifyButtonIcon;
 	private final Div confirmationStatusIcon;
@@ -33,23 +35,32 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		this.showLabelInline = showLabelInline;
 		this.verifyButtonIcon = new Div(verifyButtonIcon);
+		this.label = new InputLabel("");
 		verifyButtonIcon.getElement().setProperty("title", verifyButtonDesc);
 		verifyButtonIcon.getStyle().set("cursor", "pointer");
 		editor = new TextField();
+		editor.setWidthFull();
 		adminConfirmCheckBox = new Checkbox(adminConfirmCheckBoxLabel);
 		fieldLayout = new HorizontalLayout();
 		fieldLayout.setMargin(false);
 		fieldLayout.setSpacing(true);
+		fieldLayout.setWidthFull();
+		fieldLayout.getStyle().set("position", "relative");
 
 		confirmationStatusIcon = new Div();
+		confirmationStatusIcon.getStyle().set("position", "absolute");
+		confirmationStatusIcon.getStyle().set("left", "102%");
+
+		this.verifyButtonIcon.getStyle().set("position", "absolute");
+		this.verifyButtonIcon.getStyle().set("left", "110%");
 
 		fieldLayout.add(editor, confirmationStatusIcon, this.verifyButtonIcon);
 		fieldLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
 		main.setPadding(false);
-		main.add(fieldLayout);
+		main.setSpacing(false);
+		main.add(label, fieldLayout);
 		if (addConfirmCheckbox) 
 		{
 			main.add(adminConfirmCheckBox);
@@ -92,7 +103,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 
 	@Override
 	public String getLabel() {
-		return editor.getLabel();
+		return label.getText();
 	}
 
 	@Override
@@ -192,7 +203,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		if (showLabelInline)
 			editor.setPlaceholder(normalizedLabel);
 		else
-			editor.setLabel(normalizedLabel + ":");
+			this.label.setText(normalizedLabel);
 	}
 
 	@Override

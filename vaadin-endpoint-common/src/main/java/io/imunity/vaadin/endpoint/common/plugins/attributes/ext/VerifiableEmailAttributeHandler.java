@@ -18,7 +18,6 @@ import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleStringFieldBinder;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
@@ -310,7 +309,12 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return AttributeHandlerHelper.getRepresentation(getValueAsString(value), context);
+		VerifiableEmail verifiableEmail = VerifiableEmail.fromJsonString(value);
+		Component representation = AttributeHandlerHelper.getRepresentation(verifiableEmail.getValue(), context);
+		if(!verifiableEmail.getConfirmationInfo().isConfirmed())
+			return AttributeHandlerHelper.getRepresentationWithWarning(representation, msg);
+
+		return representation;
 	}
 	
 	
