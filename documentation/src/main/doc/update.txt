@@ -60,12 +60,13 @@ Please check documentation of the 2.y version. Below we are only focused on Unit
 
 Please check documentation of the 3.y version. Below we are only focused on Unity 4 updates. 
 
-==== From 3.x to 4.0
+
+==== From 3.LATEST to 4.0
+
+===== Java platform requirement
 
 The minimum Java version required to run Unity 4.0.0 is Java 17.
 
-
-==== From 3.LATEST to 4.0
 
 ===== UNICORE IdP endpoints dropped
 
@@ -87,15 +88,26 @@ OLD: https://<UNITY>/unitygw/pub?id={policyId}#!policyDoc
 NEW: https://<UNITY>/unitygw/pub/policyDocuments/{policyId}
 
 
-==== From 3.11 to 3.12
+===== Migration in case of H2 users
 
-===== RPM packaging
+Users of H2 database (which can be part of test/demo/evaluation etc. deployments) can not update to version 4 
+by just running the new version of the server on the old database. A breaking upgrade of the H2 DB engine 
+prevents that.
 
-RPM packaging was dropped, starting from Unity 3.12.0 only the +tar.gz+ installation bundle is officially supported.
+Trying to use the Unity 3.x database with Unity 4 will result in many errors, which will include the string:
 
-===== Java integration over REST API 
+----
+The write format 1 is smaller than the supported format 2
+----
 
-The +unity-types-api+ module, sometimes used in external Java apps to rapidly develop integration with Unity over its REST API, is now deprecated and will be dropped in the 4.0 release. 
+(there will be also many other errors, some of which will be in language specific to server's locale).
 
-REST integrations relying on this module should be migrated to a new module +unity-rest-api+. This new module contains only types relevant for the REST API. It is clean: all types are immutable, contain builders and can be (de)serialized using native Jackson mechanism without any added magic or custom methods. Note that we haven't changed the JSONs formats - only the Java API was rewritten.
- 
+To migrate the H2 database contents, it needs to be first exported to JSON dump, what can be done 
+using Maintenance -> Backup & restore in the admin's console of the 3.x version. 
+Creating a complete database dump is needed. 
+
+After the dump is created, a regular software update can follow, and Unity 4 can be started on 
+an empty H2 database. Then contents can be restored, again using admin's console,
+Maintenance -> Backup & restore functionality.  
+
+
