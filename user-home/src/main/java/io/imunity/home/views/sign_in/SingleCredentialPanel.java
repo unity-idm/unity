@@ -108,7 +108,7 @@ class SingleCredentialPanel extends VerticalLayout
 				this::hideEditor);
 		credEditorPanel.setVisible(false);
 
-		add(new Label(toEdit.getTypeId()));
+		add(new Label(Optional.ofNullable(toEdit.getDisplayedName().getValue(msg)).orElse(toEdit.getTypeId())));
 		add(credentialExtraInfo, credEditorPanel);
 		actionsBar = createActionsBar();
 		add(actionsBar);

@@ -5,18 +5,6 @@
 
 package io.imunity.home.views.sign_in;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.security.PermitAll;
-
-import org.apache.logging.log4j.Logger;
-
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -27,18 +15,14 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.base.authn.CredentialDefinition;
-import pl.edu.icm.unity.base.authn.CredentialInfo;
-import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.base.authn.CredentialRequirements;
-import pl.edu.icm.unity.base.authn.LocalCredentialState;
+import org.apache.logging.log4j.Logger;
+import pl.edu.icm.unity.base.authn.*;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.identity.Entity;
@@ -51,6 +35,15 @@ import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+
+import javax.annotation.security.PermitAll;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @PermitAll
 @Route(value = "/sign-in", layout = HomeUiMenu.class)
@@ -113,6 +106,7 @@ public class SignInView extends HomeViewComponent
 		layout.add(getH2(msg.getMessage("UserHomeUI.signInCredentials")), createPanelLayout(correctCredentialDefinition));
 
 		layout.add(new Details(getH2(msg.getMessage("UserHomeUI.addAnotherSignInCredentials")), createPanelLayout(notSetCredentialDefinition)));
+		layout.getStyle().set("gap", "2em");
 		getContent().add(layout);
 	}
 
@@ -128,6 +122,7 @@ public class SignInView extends HomeViewComponent
 		VerticalLayout layout = new VerticalLayout();
 		layout.setPadding(false);
 		layout.getStyle().set("gap", "0");
+		layout.getStyle().set("margin-left", "2em");
 
 		int last = panels.size();
 		int credSize = panels.size();
@@ -162,6 +157,7 @@ public class SignInView extends HomeViewComponent
 		getContent().add(userOptInCheckBox);
 		userOptInCheckBox.addValueChangeListener(e -> setUserMFAOptin(e.getValue(), entityId));
 		userOptInCheckBox.setValue(getUserOptInAttribute(entityId));
+		userOptInCheckBox.getStyle().set("padding-top", "1em");
 		return userOptInCheckBox;
 	}
 

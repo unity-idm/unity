@@ -69,6 +69,7 @@ public class TrustedDeviceView extends HomeViewComponent
 		content.addFormItem(new Label(model.getCreateTime()), msg.getMessage("RememberMeToken.createTime"));
 		content.addFormItem(new Label(model.getExpires()), msg.getMessage("RememberMeToken.expires"));
 		content.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		content.getStyle().set("margin-left", "2em");
 		accordionPanel.setContent(content);
 
 		return accordionPanel;

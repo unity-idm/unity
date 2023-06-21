@@ -5,6 +5,7 @@
 
 package io.imunity.home.views.trusted_application;
 
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
@@ -123,11 +124,13 @@ public class TrustedApplicationsView extends HomeViewComponent
 	{
 		FormLayout content = new FormLayout();
 		content.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		content.getStyle().set("margin-left", "2em");
+
 		application.applicationDomain.ifPresent(s -> content.addFormItem(new Label(s), msg.getMessage("TrustedApplications.applicationDomain")));
 
 		if (application.accessScopes.isPresent() && !application.accessScopes.get().isEmpty())
 		{
-			Label label = new Label(String.join(", <br>", application.accessScopes.get()));
+			Label label = new Label(String.join(", ", application.accessScopes.get()));
 			content.addFormItem(label, msg.getMessage("TrustedApplications.accessGrantedTo"));
 		}
 
@@ -167,8 +170,9 @@ public class TrustedApplicationsView extends HomeViewComponent
 		technicalInfoContent.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		technicalInfoContent.setSizeUndefined();
 		technicalInfoContent.getStyle().set("align-self", "end");
+		technicalInfoContent.getStyle().set("box-shadow", "0 0 5px 2px grey");
 		application.technicalInformations.forEach(es ->
-				technicalInfoContent.addFormItem(new Label(es.value), es.titleKey));
+				technicalInfoContent.addFormItem(new Html("<div>" + es.value + "</div>"), es.titleKey));
 		return content;
 	}
 

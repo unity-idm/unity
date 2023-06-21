@@ -27,7 +27,6 @@ import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.EntityParam;
@@ -61,9 +60,9 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 								.build(),
 						MenuComponent.builder(SignInView.class).tabName(msg.getMessage("UserHomeUI.signIn"))
 								.build(),
-						MenuComponent.builder(TrustedDeviceView.class).tabName(msg.getMessage("UserHomeUI.trustedDevices"))
-								.build(),
 						MenuComponent.builder(TrustedApplicationsView.class).tabName(msg.getMessage("UserHomeUI.trustedApplications"))
+								.build(),
+						MenuComponent.builder(TrustedDeviceView.class).tabName(msg.getMessage("UserHomeUI.trustedDevices"))
 								.build(),
 						MenuComponent.builder(AccountUpdateView.class).tabName(msg.getMessage("UserHomeUI.accountUpdate"))
 								.build()

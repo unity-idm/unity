@@ -39,7 +39,7 @@ h1, h2, h3, h4, h5, h6, b, strong {
 }
 
 vaadin-tab {
-	font-size: var(--lumo-font-size-m);
+	font-size: var(--lumo-font-size-l);
 	height: var(--lumo-size-l);
 	font-weight: var(--unity-font-weight);
 	color: white;
@@ -107,7 +107,7 @@ vaadin-text-field > label {
 #unity-navbar {
 	height: var(--lumo-size-l);
 	width: 100%;
-	font-size: var(--lumo-font-size-s);
+	font-size: var(--lumo-font-size-m);
 	font-family: var(--lumo-font-family);
 	font-weight: var(--furms-font-weight);
 	background: var(--lumo-contrast-5pct);
@@ -164,4 +164,8 @@ vaadin-text-field > label {
 	max-height: 5rem;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+label[disabled] {
+    color: var(--lumo-disabled-text-color);
 }

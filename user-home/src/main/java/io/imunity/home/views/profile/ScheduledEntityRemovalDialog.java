@@ -6,6 +6,7 @@ package io.imunity.home.views.profile;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
@@ -63,7 +64,9 @@ class ScheduledEntityRemovalDialog extends Dialog
 		this.notificationPresenter = notificationPresenter;
 		setHeaderTitle(msg.getMessage("RemoveEntityDialog.caption"));
 		add(getContents());
-		getFooter().add(new Button(msg.getMessage("cancel"), e -> close()), new Button(msg.getMessage("ok"), e -> onConfirm()));
+		Button okButton = new Button(msg.getMessage("ok"), e -> onConfirm());
+		okButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		getFooter().add(new Button(msg.getMessage("cancel"), e -> close()), okButton);
 	}
 
 	protected Component getContents()
@@ -72,7 +75,7 @@ class ScheduledEntityRemovalDialog extends Dialog
 		Map<String, String> captions = Map.of(NOW,
 				msg.getMessage("RemoveEntityDialog.removeNow"), SCHEDULE,
 				msg.getMessage("RemoveEntityDialog.scheduleRemoval"));
-		nowOrLater.setItems(captions.keySet());
+		nowOrLater.setItems(NOW, SCHEDULE);
 		nowOrLater.setItemLabelGenerator(captions::get);
 		nowOrLater.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 
@@ -94,6 +97,7 @@ class ScheduledEntityRemovalDialog extends Dialog
 			boolean enableSched = SCHEDULE.equals(nowOrLater.getValue());
 			daysHL.setEnabled(enableSched);
 			schedInfo.setEnabled(enableSched);
+			daysL.setEnabled(enableSched);
 		});
 		
 		
