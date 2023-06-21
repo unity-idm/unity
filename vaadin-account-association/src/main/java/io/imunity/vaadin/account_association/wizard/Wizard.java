@@ -14,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ public class Wizard extends VerticalLayout
 	private final Button finishButton = new Button();
 	private final Button nextButton = new Button();
 	private final Button backButton = new Button();
-	private final Button startOverButton = new Button();
 	private final ProgressBar progressBar = new ProgressBar();
 	private final double progressBarIncrementer;
 	private final VerticalLayout contentLayout = new VerticalLayout();
@@ -50,10 +48,6 @@ public class Wizard extends VerticalLayout
 		Button cancelButton = new Button(msg.getMessage("Wizard.cancel"), e -> cancelTask.run());
 		cancelButton.setId("Wizard.cancel");
 
-		startOverButton.setText(msg.getMessage("Wizard.start-over"));
-		startOverButton.setId("Wizard.start-over");
-		startOverButton.addClickListener(e -> init());
-
 		nextButton.setText(msg.getMessage("Wizard.next"));
 		nextButton.setId("Wizard.next");
 		nextButton.addClickListener(event -> nextStep());
@@ -76,7 +70,7 @@ public class Wizard extends VerticalLayout
 		});
 		finishButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-		buttonsLayout.add(cancelButton, startOverButton, backButton, nextButton, finishButton);
+		buttonsLayout.add(cancelButton, backButton, nextButton, finishButton);
 		buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		buttonsLayout.setWidthFull();
 
@@ -109,9 +103,10 @@ public class Wizard extends VerticalLayout
 		progressBar.setValue(progressBarIncrementer / 2);
 		contentLayout.add(wizardStepController.getCurrent());
 		nextButton.setEnabled(true);
+		nextButton.setVisible(true);
 		backButton.setEnabled(false);
 		finishButton.setEnabled(false);
-		startOverButton.setEnabled(false);
+		finishButton.setVisible(false);
 	}
 
 	private void nextStep()
@@ -119,6 +114,8 @@ public class Wizard extends VerticalLayout
 		if(wizardStepController.hasFinished())
 		{
 			finishButton.setEnabled(true);
+			finishButton.setVisible(true);
+			nextButton.setVisible(false);
 			return;
 		}
 		contentLayout.removeAll();
@@ -133,7 +130,6 @@ public class Wizard extends VerticalLayout
 		}
 		nextButton.setEnabled(false);
 		backButton.setEnabled(true);
-		startOverButton.setEnabled(true);
 	}
 	private void prevStep()
 	{
@@ -148,8 +144,8 @@ public class Wizard extends VerticalLayout
 		}
 
 		backButton.setEnabled(wizardStepController.hasPrev());
-		startOverButton.setEnabled(wizardStepController.hasPrev());
-		finishButton.setEnabled(false);
+		finishButton.setVisible(false);
+		nextButton.setVisible(true);
 	}
 
 	void refresh()
@@ -166,7 +162,11 @@ public class Wizard extends VerticalLayout
 		ui.access(() ->
 		{
 			if(wizardStepController.hasFinished())
+			{
+				finishButton.setVisible(true);
 				finishButton.setEnabled(true);
+				nextButton.setVisible(false);
+			}
 			else
 				nextButton.setEnabled(true);
 		});

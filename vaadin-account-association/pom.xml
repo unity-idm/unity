@@ -14,13 +14,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>unity-server-vaadin-secured-shared-endpoint</artifactId>
-    <name>UNITY Server vaadin secured shared endpoint</name>
-    <description>Vaadin secured shared endpoint</description>
+    <artifactId>unity-server-vaadin-account-association</artifactId>
+    <name>UNITY Server vaadin account association</name>
+    <description>Vaadin account association</description>
 
     <properties>
         <vaadin.productionMode>true</vaadin.productionMode>
-        <m.name>vaadin-secured-shared-endpoint</m.name>
+        <m.name>vaadin-account-association</m.name>
     </properties>
 
     <scm>
@@ -37,22 +37,7 @@
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
-            <artifactId>unity-server-vaadin-authentication</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.imunity</groupId>
             <artifactId>unity-vaadin-elements</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.imunity</groupId>
-            <artifactId>unity-server-vaadin-enquiry</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.imunity</groupId>
-            <artifactId>unity-server-vaadin-account-association</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

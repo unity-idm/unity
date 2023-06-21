@@ -10,7 +10,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.vaadin.account_association.wizard.WizardStep;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -48,8 +47,8 @@ class MergingUserConfirmationStep extends WizardStep
 			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
 		} else if (ctx.getRemotePrincipal().isEmpty())
 		{
-			log.error("Bug: sandbox authn context without remote principal used for merge with unknown remote user: {}", ctx);
-			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
+			log.error("Tried to associate local account with local account, what is unsupported and only remote account can be linked to a local one: {}", ctx);
+			setError(msg.getMessage("Merging2LocalAccounts.error"));
 		} else
 		{
 			if (!translationEngine.identitiesNotPresentInDb(ctx.getRemotePrincipal().get().getMappingResult()))

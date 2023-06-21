@@ -48,10 +48,10 @@ class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
 		{
 			log.info("Sandbox got authn error", ctx.getAuthnException().get());
 			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
-		} else if (!ctx.getRemotePrincipal().isPresent())
+		} else if (ctx.getRemotePrincipal().isEmpty())
 		{
-			log.error("Bug: sandbox authn context without remote principal used for merge with unknown remote user: {}", ctx);
-			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
+			log.error("Tried to associate local account with local account, what is unsupported and only remote account can be linked to a local one: {}", ctx);
+			setError(msg.getMessage("Merging2LocalAccounts.error"));
 		} else
 		{
 			if (!translationEngine.identitiesNotPresentInDb(ctx.getRemotePrincipal().get().getMappingResult()))
