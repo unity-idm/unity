@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yubico.webauthn.FinishRegistrationOptions;
 import com.yubico.webauthn.RegistrationResult;
 import com.yubico.webauthn.StartRegistrationOptions;
-import com.yubico.webauthn.attestation.Attestation;
 import com.yubico.webauthn.data.AttestedCredentialData;
 import com.yubico.webauthn.data.AuthenticatorAttestationResponse;
 import com.yubico.webauthn.data.AuthenticatorSelectionCriteria;
@@ -16,6 +15,7 @@ import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.ClientRegistrationExtensionOutputs;
 import com.yubico.webauthn.data.PublicKeyCredential;
 import com.yubico.webauthn.data.PublicKeyCredentialCreationOptions;
+import com.yubico.webauthn.data.ResidentKeyRequirement;
 import com.yubico.webauthn.data.UserIdentity;
 import com.yubico.webauthn.data.UserVerificationRequirement;
 import com.yubico.webauthn.exception.RegistrationFailedException;
@@ -62,9 +62,9 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 	private AdvertisedAddressProvider addressProvider;
 
 	@Autowired
-	public FidoCredentialRegistrationVerificator(final MessageSource msg, final FidoEntityHelper entityHelper,
-												 final UnityFidoRegistrationStorage.UnityFidoRegistrationStorageCache fidoStorage,
-												 final AdvertisedAddressProvider addressProvider)
+	public FidoCredentialRegistrationVerificator(MessageSource msg, FidoEntityHelper entityHelper,
+			UnityFidoRegistrationStorage.UnityFidoRegistrationStorageCache fidoStorage,
+			AdvertisedAddressProvider addressProvider)
 	{
 		this.msg = msg;
 		this.entityHelper = entityHelper;
@@ -72,9 +72,8 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 		this.addressProvider = addressProvider;
 	}
 
-	public SimpleEntry<String, String> getRegistrationOptions(final String credentialName, final String credentialConfiguration,
-															  final Long entityId, final String username,
-															  final boolean useResidentKey) throws FidoException
+	public SimpleEntry<String, String> getRegistrationOptions(String credentialName, String credentialConfiguration,
+			Long entityId, String username, boolean useResidentKey) throws FidoException
 	{
 		Optional<Identities> resolvedUsername = entityHelper.resolveUsername(entityId, username);
 		if (!resolvedUsername.isPresent() && (isNull(username) || username.isEmpty()))
@@ -85,7 +84,10 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 		String displayName = resolvedUsername.map(entityHelper::getDisplayName).orElse(username);
 
 		FidoCredential fidoCredential = FidoCredential.deserialize(credentialConfiguration);
-		PublicKeyCredentialCreationOptions registrationRequest = getRelyingParty(addressProvider.get().getHost(), fidoStorage.getInstance(credentialName), fidoCredential)
+		ResidentKeyRequirement residentKeyRequirement = fidoCredential.isLoginLessAllowed() && useResidentKey ? 
+				ResidentKeyRequirement.PREFERRED : ResidentKeyRequirement.DISCOURAGED;
+		PublicKeyCredentialCreationOptions registrationRequest = getRelyingParty(addressProvider.get().getHost(), 
+				fidoStorage.getInstance(credentialName), fidoCredential)
 				.startRegistration(StartRegistrationOptions.builder()
 				.user(UserIdentity.builder()
 						.name(registrationUsername)
@@ -94,7 +96,7 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 						.build())
 				.authenticatorSelection(AuthenticatorSelectionCriteria.builder()
 						.userVerification(UserVerificationRequirement.valueOf(fidoCredential.getUserVerification()))
-						.requireResidentKey(fidoCredential.isLoginLessAllowed() && useResidentKey)
+						.residentKey(residentKeyRequirement)
 						.build())
 				.build());
 
@@ -111,8 +113,8 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 		return new SimpleEntry<>(reqId, json);
 	}
 
-	public FidoCredentialInfo createFidoCredentials(final String credentialName, final String credentialConfiguration,
-													final String reqId, final String responseJson) throws FidoException
+	public FidoCredentialInfo createFidoCredentials(String credentialName, String credentialConfiguration,
+			String reqId, String responseJson) throws FidoException
 	{
 		log.debug("Fido finalize registration for reqId: {}", reqId);
 		try
@@ -123,7 +125,9 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 
 			PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> pkc =
 					PublicKeyCredential.parseRegistrationResponseJson(responseJson);
-			RegistrationResult result = getRelyingParty(addressProvider.get().getHost(), fidoStorage.getInstance(credentialName), FidoCredential.deserialize(credentialConfiguration))
+			RegistrationResult result = getRelyingParty(addressProvider.get().getHost(), 
+						fidoStorage.getInstance(credentialName), 
+						FidoCredential.deserialize(credentialConfiguration))
 					.finishRegistration(FinishRegistrationOptions.builder()
 					.request(registrationRequest)
 					.response(pkc)
@@ -136,11 +140,11 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 		}
 	}
 
-	private FidoCredentialInfo createFidoCredentialInfo(PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> pkc,
-														PublicKeyCredentialCreationOptions registrationRequest, RegistrationResult result)
+	private FidoCredentialInfo createFidoCredentialInfo(PublicKeyCredential<AuthenticatorAttestationResponse, 
+			ClientRegistrationExtensionOutputs> pkc,
+			PublicKeyCredentialCreationOptions registrationRequest, 
+			RegistrationResult result)
 	{
-		Optional<Attestation> attestationMetadata = result.getAttestationMetadata();
-
 		return FidoCredentialInfo.builder()
 				.registrationTime(System.currentTimeMillis())
 				.credentialId(result.getKeyId().getId())
@@ -149,8 +153,8 @@ class FidoCredentialRegistrationVerificator implements FidoRegistration
 				.userPresent(pkc.getResponse().getParsedAuthenticatorData().getFlags().UP)
 				.userVerified(pkc.getResponse().getParsedAuthenticatorData().getFlags().UV)
 				.attestationFormat(pkc.getResponse().getAttestation().getFormat())
-				.aaguid(pkc.getResponse().getParsedAuthenticatorData().getAttestedCredentialData().map(AttestedCredentialData::getAaguid).map(ByteArray::getHex).orElse(null))
-				.attestationMetadata(attestationMetadata.orElse(null))
+				.aaguid(pkc.getResponse().getParsedAuthenticatorData().getAttestedCredentialData()
+						.map(AttestedCredentialData::getAaguid).map(ByteArray::getHex).orElse(null))
 				.userHandle(new FidoUserHandle(registrationRequest.getUser().getId().getBytes()).asString())
 				.build();
 	}
