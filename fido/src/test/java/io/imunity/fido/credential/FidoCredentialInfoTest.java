@@ -4,20 +4,17 @@
  */
 package io.imunity.fido.credential;
 
-import com.google.common.collect.ImmutableMap;
-import com.yubico.webauthn.attestation.Transport;
-import com.yubico.webauthn.data.ByteArray;
-import com.yubico.webauthn.data.exception.HexException;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import org.junit.Test;
+
+import com.yubico.webauthn.data.ByteArray;
+import com.yubico.webauthn.data.exception.HexException;
 
 /**
  * Test for {@link FidoCredentialInfo} class
@@ -110,11 +107,6 @@ public class FidoCredentialInfoTest
 				.userVerified(random.nextBoolean())
 				.attestationFormat("android")
 				.aaguid("123456789012345678" + random.nextInt(1000))
-				.attestationTrusted(random.nextBoolean())
-				.metadataIdentifier("metadataIdentyfier" + random.nextInt(1000))
-				.vendorProperties(ImmutableMap.of("k1", "v1" + random.nextInt(1000)))
-				.deviceProperties(ImmutableMap.of("k2", "v2" + random.nextInt(1000)))
-				.transports(new HashSet<>(Arrays.asList(Transport.USB)))
 				.signatureCount(random.nextInt(1000))
 				.description("Description " + random.nextInt(1000))
 				.userHandle("a1bec3d4e5f" + random.nextInt(1000))
