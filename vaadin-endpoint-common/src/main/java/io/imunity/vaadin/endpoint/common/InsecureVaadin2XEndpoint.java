@@ -20,6 +20,8 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessi
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 
+import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
+
 public class InsecureVaadin2XEndpoint extends Vaadin2XEndpoint
 {
 	public InsecureVaadin2XEndpoint(NetworkServer server,
@@ -54,6 +56,7 @@ public class InsecureVaadin2XEndpoint extends Vaadin2XEndpoint
 			return context;
 		}
 
+		servletContextHandler.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(UNRESTRICTED_SESSION_TIMEOUT_VALUE.getSeconds()));
 		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		servletContextHandler.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",

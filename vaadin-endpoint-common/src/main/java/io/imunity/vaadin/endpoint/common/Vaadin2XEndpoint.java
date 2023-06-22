@@ -25,6 +25,8 @@ import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import java.io.StringReader;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Properties;
@@ -35,6 +37,8 @@ import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAUL
 
 public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
+	protected static final Duration UNRESTRICTED_SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
+
 	protected ApplicationContext applicationContext;
 	protected CustomResourceProvider resourceProvider;
 	protected String uiServletPath;

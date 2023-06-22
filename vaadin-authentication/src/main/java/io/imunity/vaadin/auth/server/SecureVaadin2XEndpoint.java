@@ -29,8 +29,6 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessi
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Servlet;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -39,7 +37,6 @@ import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PA
 public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, SecureVaadin2XEndpoint.class);
-	private static final Duration UNRESTRICTED_SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
 	public static final String AUTHENTICATION_PATH = "/authentication";
 	protected AuthenticationFilter authnFilter;
 	protected ProxyAuthenticationFilter proxyAuthnFilter;

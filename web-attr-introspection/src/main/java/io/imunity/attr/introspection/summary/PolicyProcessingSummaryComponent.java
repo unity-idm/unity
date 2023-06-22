@@ -5,6 +5,7 @@
 
 package io.imunity.attr.introspection.summary;
 
+import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -17,10 +18,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import io.imunity.attr.introspection.config.Attribute;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.TooltipAttacher;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
@@ -56,13 +57,13 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		return this;
 	}
 
-	public void setPolicyProcessingResultForUser(RemotelyAuthenticatedPrincipal remotelyAuthenticatedPrincipal)
+	public void setPolicyProcessingResultForUser(RemotelyAuthenticatedPrincipal remotelyAuthenticatedPrincipal, HtmlContainer container)
 	{
 		Optional<PolicyProcessingResult> policyProcessingResult = getPolicyProcessingResult(
 				remotelyAuthenticatedPrincipal);
 		if (policyProcessingResult.isEmpty())
 			return;
-		setResult(policyProcessingResult.get());
+		setResult(policyProcessingResult.get(), container);
 	}
 
 	private Optional<PolicyProcessingResult> getPolicyProcessingResult(
@@ -79,7 +80,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 
 	}
 
-	private void setResult(PolicyProcessingResult result)
+	private void setResult(PolicyProcessingResult result, HtmlContainer container)
 	{
 
 		removeAll();
@@ -123,7 +124,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 					result.missingOptional));
 		}
 
-		add(getReceivedAttributeComponent(result.allReceivedAttributes));
+		add(getReceivedAttributeComponent(result.allReceivedAttributes, container));
 
 		Button tryAgain = new Button(msg.getMessage("PolicyProcessingSummaryComponent.tryAgain"));
 		tryAgain.setId("PolicyProcessingSummaryComponent.TryAgain");
@@ -226,7 +227,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		return wrapper;
 	}
 
-	private VerticalLayout getReceivedAttributeComponent(List<ReceivedAttribute> attributes)
+	private VerticalLayout getReceivedAttributeComponent(List<ReceivedAttribute> attributes, HtmlContainer container)
 	{
 		VerticalLayout receivedAttributesLayout = new VerticalLayout();
 		receivedAttributesLayout.add(getTitleLabel(msg.getMessage("PolicyProcessingSummaryComponent.allReceived")));
@@ -235,17 +236,18 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		attributeListLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
 		for (ReceivedAttribute attr : attributes)
 		{
-			attributeListLayout.addFormItem(getAttributeLabel(attr), attr.name)
+			attributeListLayout.addFormItem(getAttributeLabel(attr, container), attr.name)
 					.getStyle().set("gap", "2em");
 		}
 		receivedAttributesLayout.add(attributeListLayout);
 		return receivedAttributesLayout;
 	}
 
-	private static LabelWithTooltip getAttributeLabel(ReceivedAttribute attr)
+	private static LabelWithTooltip getAttributeLabel(ReceivedAttribute attr, HtmlContainer container)
 	{
-		return new LabelWithTooltip(attr.values == null ? ""
-				: attr.values.stream().map(o -> (String) o).collect(Collectors.joining(", ")), attr.description);
+		String value = attr.values == null ? ""
+				: attr.values.stream().map(o -> (String) o).collect(Collectors.joining(", "));
+		return new LabelWithTooltip(value, attr.description, container);
 	}
 
 	@Component
@@ -267,15 +269,16 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 	
 	private static class LabelWithTooltip extends HorizontalLayout
 	{
-		public LabelWithTooltip(String value, Optional<String> description)
+		public LabelWithTooltip(String value, Optional<String> description, HtmlContainer container)
 		{
 			setWidthFull();
 			Label valueLabel = new Label();
 			valueLabel.setText(value);
 			valueLabel.setWidthFull();
+			valueLabel.getStyle().set("overflow-wrap", "anywhere");
 			Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
 			if (description.isPresent())
-				icon.getElement().setProperty("title", description.get());
+				TooltipAttacher.attachTooltip(description.get(), icon, container);
 			else
 				icon.setVisible(false);
 			add(valueLabel, icon);

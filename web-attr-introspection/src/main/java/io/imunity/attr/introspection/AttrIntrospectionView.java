@@ -144,7 +144,7 @@ class AttrIntrospectionView extends Composite<Div> implements HasDynamicTitle
 		}
 
 		PolicyProcessingSummaryComponent summary = summaryViewFactory.getInstance(config, this::loadInitialState);
-		summary.setPolicyProcessingResultForUser(ctx.getRemotePrincipal().get());
+		summary.setPolicyProcessingResultForUser(ctx.getRemotePrincipal().get(), getContent());
 		VerticalLayout main = new VerticalLayout();
 		main.setAlignItems(FlexComponent.Alignment.CENTER);
 		main.add(summary);
