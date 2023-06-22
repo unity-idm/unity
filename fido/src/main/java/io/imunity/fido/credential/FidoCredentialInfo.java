@@ -4,29 +4,24 @@
  */
 package io.imunity.fido.credential;
 
+import static java.util.Objects.isNull;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.yubico.webauthn.RegisteredCredential;
-import com.yubico.webauthn.attestation.Attestation;
-import com.yubico.webauthn.attestation.Transport;
 import com.yubico.webauthn.data.ByteArray;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.Constants;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
  * Holds information about Fido 2 credential details - represents single public key information.
@@ -74,22 +69,6 @@ public class FidoCredentialInfo
 	 */
 	private String aaguid;
 
-	// Attestation properties
-	/**
-	 * Indicates if attestation key was confirmed as trusted during registration.
-	 */
-	private boolean attestationTrusted;
-	/**
-	 * Metadata and authenticator properties
-	 */
-	private String metadataIdentifier;
-	private Map<String, String> vendorProperties;
-	private Map<String, String> deviceProperties;
-	/**
-	 * What transport of data is supported by Authenticator.
-	 */
-	private Set<Transport> transports;
-
 	// Mutable fields
 	/**
 	 * Number of times private key was used to sign challenge - stored also on Authenticator
@@ -134,34 +113,9 @@ public class FidoCredentialInfo
 		return aaguid;
 	}
 
-	public boolean isAttestationTrusted()
-	{
-		return attestationTrusted;
-	}
-
 	public String getAttestationFormat()
 	{
 		return attestationFormat;
-	}
-
-	public String getMetadataIdentifier()
-	{
-		return metadataIdentifier;
-	}
-
-	public Map<String, String> getVendorProperties()
-	{
-		return vendorProperties;
-	}
-
-	public Map<String, String> getDeviceProperties()
-	{
-		return deviceProperties;
-	}
-
-	public Set<Transport> getTransports()
-	{
-		return transports;
 	}
 
 	public long getSignatureCount()
@@ -242,16 +196,11 @@ public class FidoCredentialInfo
 		return registrationTimestamp == that.registrationTimestamp &&
 				userPresent == that.userPresent &&
 				userVerified == that.userVerified &&
-				attestationTrusted == that.attestationTrusted &&
 				signatureCount == that.signatureCount &&
 				Objects.equals(credentialId, that.credentialId) &&
 				Objects.equals(publicKeyCose, that.publicKeyCose) &&
 				Objects.equals(attestationFormat, that.attestationFormat) &&
 				Objects.equals(aaguid, that.aaguid) &&
-				Objects.equals(metadataIdentifier, that.metadataIdentifier) &&
-				Objects.equals(vendorProperties, that.vendorProperties) &&
-				Objects.equals(deviceProperties, that.deviceProperties) &&
-				Objects.equals(transports, that.transports) &&
 				Objects.equals(description, that.description) &&
 				Objects.equals(userHandle, that.userHandle);
 	}
@@ -259,7 +208,9 @@ public class FidoCredentialInfo
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(registrationTimestamp, credentialId, publicKeyCose, userPresent, userVerified, attestationFormat, aaguid, attestationTrusted, metadataIdentifier, vendorProperties, deviceProperties, transports, signatureCount, description, userHandle);
+		return Objects.hash(registrationTimestamp, credentialId, publicKeyCose, userPresent, userVerified, 
+				attestationFormat, aaguid, 
+				signatureCount, description, userHandle);
 	}
 
 	public static FidoCredentialInfoBuilder builder()
@@ -285,12 +236,6 @@ public class FidoCredentialInfo
 		private String aaguid;
 		private String description;
 
-		private boolean attestationTrusted;
-		private String metadataIdentifier;
-		private Map<String, String> vendorProperties;
-		private Map<String, String> deviceProperties;
-		private Set<Transport> transports;
-
 		private String userHandle;
 
 		private FidoCredentialInfoBuilder()
@@ -308,11 +253,6 @@ public class FidoCredentialInfo
 			this.attestationFormat = credentialInfo.attestationFormat;
 			this.aaguid = credentialInfo.aaguid;
 			this.description = credentialInfo.description;
-			this.attestationTrusted = credentialInfo.attestationTrusted;
-			this.metadataIdentifier = credentialInfo.metadataIdentifier;
-			this.vendorProperties = credentialInfo.vendorProperties;
-			this.deviceProperties = credentialInfo.deviceProperties;
-			this.transports = credentialInfo.transports;
 			this.userHandle = credentialInfo.userHandle;;
 		}
 
@@ -342,53 +282,6 @@ public class FidoCredentialInfo
 		public FidoCredentialInfoBuilder registrationTime(long registrationTime)
 		{
 			this.registrationTimestamp = registrationTime;
-			return this;
-		}
-
-
-		public FidoCredentialInfoBuilder attestationTrusted(boolean attestationTrusted)
-		{
-			this.attestationTrusted = attestationTrusted;
-			return this;
-		}
-
-		public FidoCredentialInfoBuilder metadataIdentifier(String metadataIdentifier)
-		{
-			this.metadataIdentifier = metadataIdentifier;
-			return this;
-		}
-
-		public FidoCredentialInfoBuilder vendorProperties(Map<String, String> vendorProperties)
-		{
-			if (nonNull(vendorProperties) && !vendorProperties.isEmpty())
-				this.vendorProperties = new HashMap<>(vendorProperties);
-			return this;
-		}
-
-		public FidoCredentialInfoBuilder deviceProperties(Map<String, String> deviceProperties)
-		{
-			if (nonNull(deviceProperties) && !deviceProperties.isEmpty())
-				this.deviceProperties = new HashMap<>(deviceProperties);
-			return this;
-		}
-
-		public FidoCredentialInfoBuilder transports(Set<Transport> transports)
-		{
-			if (nonNull(transports) && !transports.isEmpty())
-				this.transports = new HashSet<>(transports);
-			return this;
-		}
-
-		public FidoCredentialInfoBuilder attestationMetadata(Attestation attestationMetadata)
-		{
-			if (nonNull(attestationMetadata))
-			{
-				this.attestationTrusted = attestationMetadata.isTrusted();
-				this.metadataIdentifier = attestationMetadata.getMetadataIdentifier().orElse(null);
-				this.vendorProperties = attestationMetadata.getVendorProperties().orElse(null);
-				this.deviceProperties = attestationMetadata.getDeviceProperties().orElse(null);
-				this.transports = attestationMetadata.getTransports().orElse(null);
-			}
 			return this;
 		}
 
@@ -446,12 +339,6 @@ public class FidoCredentialInfo
 			{
 				info.aaguid = null; // for NONE attestation aaguid is always reset to 0s
 			}
-
-			info.attestationTrusted = this.attestationTrusted;
-			info.metadataIdentifier = this.metadataIdentifier;
-			info.vendorProperties = this.vendorProperties;
-			info.deviceProperties = this.deviceProperties;
-			info.transports = this.transports;
 
 			info.description = this.description;
 

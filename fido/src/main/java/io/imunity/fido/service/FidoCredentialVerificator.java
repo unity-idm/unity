@@ -285,10 +285,10 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 						.name(credentialConfiguration.getHostName())
 						.build())
 				.credentialRepository(storage)
-				.attestationConveyancePreference(AttestationConveyancePreference.valueOf(credentialConfiguration.getAttestationConveyance()))
+				.attestationConveyancePreference(AttestationConveyancePreference.valueOf(
+						credentialConfiguration.getAttestationConveyance()))
 				.allowUntrustedAttestation(true)
 				.allowOriginPort(true)
-				.allowUnrequestedExtensions(true)
 				.build();
 	}
 
