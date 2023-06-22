@@ -164,7 +164,7 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"),
 					context.isShowLabelInline());
 			if (label != null)
-				editor.setTextFieldId("EmailValueEditor." + label);
+				editor.setTextFieldId("EmailValueEditor.Email");
 
 			if (value != null)
 			{
