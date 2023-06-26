@@ -43,7 +43,7 @@ class TopHeaderComponent extends VerticalLayout
 		localeChoice.ifPresent(this::add);
 		if (enableRegistration && endpointRegistrationConfiguration.isDisplayRegistrationFormsInHeader())
 		{
-			Div gotoSignIn = new LinkButton(msg.getMessage("StandalonePublicFormView.gotoSignIn"), e -> registrationLayoutLauncher.run());
+			Div gotoSignIn = new LinkButton(msg.getMessage("AuthenticationUI.gotoSignUp"), e -> registrationLayoutLauncher.run());
 			gotoSignIn.addClassName("u-reg-gotoSignIn");
 			add(gotoSignIn);
 		}

@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -19,7 +19,6 @@ import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
@@ -255,8 +254,10 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 		}
 		if (mainTitle != null)
 		{
-			H3 mainTitleLabel = new H3(mainTitle);
+			H2 mainTitleLabel = new H2(mainTitle);
 			mainTitleLabel.addClassName("u-authn-title");
+			mainTitleLabel.getStyle().set("margin-top", "0.5em");
+			mainTitleLabel.getStyle().set("margin-bottom", "2em");
 			return mainTitleLabel;
 		}
 		return null;

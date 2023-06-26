@@ -5,11 +5,14 @@
 package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.apache.commons.collections.ListUtils;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -18,12 +21,14 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import java.text.Collator;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static io.imunity.vaadin.auth.VaadinAuthentication.VaadinAuthenticationUI;
 
 /**
  * Component showing a group of {@link VaadinAuthenticationUI}s. All of them are presented in Vaadin {@link Grid}.
  */
+@CssImport(value = "./styles/components/authns-grid.css", themeFor = "vaadin-grid")
 public class AuthnsGridWidget extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthnsGridWidget.class);
@@ -53,6 +58,8 @@ public class AuthnsGridWidget extends VerticalLayout
 		providers = new ArrayList<>();
 		providersChoiceGrid = new Grid<>();
 		providersChoiceGrid.setSelectionMode(Grid.SelectionMode.NONE);
+		providersChoiceGrid.addThemeVariants(GridVariant.LUMO_NO_ROW_BORDERS);
+
 
 		providersChoiceGrid.addComponentColumn(AuthenticationOptionGridEntry::getImage)
 				.setFlexGrow(1)
@@ -116,8 +123,13 @@ public class AuthnsGridWidget extends VerticalLayout
 		}
 		
 		providers.sort(null);
-		
-		providersChoiceGrid.setItems(providers);
+
+		List<AuthenticationOptionGridEntry> missingEmptyRows = IntStream.range(0, height - providers.size())
+				.boxed()
+				.map(x -> new AuthenticationOptionGridEntry(UUID.randomUUID().toString(), null, new Image(), null))
+				.toList();
+		providersChoiceGrid.setItems(ListUtils.union(providers, missingEmptyRows));
+
 		setVisible(size() != 0);
 	}
 	
@@ -217,8 +229,10 @@ public class AuthnsGridWidget extends VerticalLayout
 			return verticalLayout;
 		}
 
-		public FirstFactorAuthNPanel getComponent()
+		public Component getComponent()
 		{
+			if(component == null)
+				return new Div();
 			return component;
 		}
 

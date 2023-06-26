@@ -51,10 +51,10 @@ class AuthnOptionsColumn extends Component implements HasComponents, HasStyle
 			if (!componentWithId.id.equals(exception))
 			{
 				((HasEnabled)componentWithId.component).setEnabled(false);
-				if (componentWithId.component instanceof FirstFactorAuthNPanel)
+				if (componentWithId.component instanceof FirstFactorAuthNPanel authNPanel)
 				{
-					FirstFactorAuthNPanel authNPanel = (FirstFactorAuthNPanel) componentWithId.component;
 					authNPanel.cancel();
+					((HasEnabled)componentWithId.component).setEnabled(false);
 				}
 			}
 		}

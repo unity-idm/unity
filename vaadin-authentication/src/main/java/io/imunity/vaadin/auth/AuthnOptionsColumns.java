@@ -97,6 +97,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 	
 	private void setRootComponent(Component component)
 	{
+		removeAll();
 		if (config.getBooleanValue(AUTHN_SHOW_SEARCH) && hasGridWidget())
 		{
 			VerticalLayout vWrapper = new VerticalLayout();
@@ -352,6 +353,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 	private ComponentWithId getExpandAllOptionsButton()
 	{
 		LinkButton expand = new LinkButton(msg.getMessage("AuthenticationUI.showAllOptions"), event -> showAllOptions());
+		expand.getStyle().set("margin-top", "2em");
 		return createNonLoginComponent(SPECIAL_ENTRY_EXPAND, expand);
 	}
 
@@ -368,6 +370,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 		String message = key.isEmpty() ? "" : resolveSeparatorMessage(key.substring(1));
 		AuthNGridTextWrapper ret = new AuthNGridTextWrapper(new Label(message), Alignment.CENTER);
 		ret.setClassName("u-authn-entriesSeparator");
+		ret.getStyle().set("margin", "1em");
 		return createNonLoginComponent(specEntry, ret);
 	}
 
@@ -419,6 +422,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 			separator = "";
 		Label separatorLabel = new Label(separator);
 		separatorLabel.addClassName("u-authn-columnsSeparator");
+		separatorLabel.getStyle().set("margin-top", "4.5em");
 		return separatorLabel;
 	}
 	
@@ -436,6 +440,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 		register.addClassName("u-signUpButton");
 		register.addClickListener(event -> registrationLayoutLauncher.run());
 		register.setId("AuthenticationUI.registerButton");
+		register.setWidthFull();
 		return register;
 	}
 }

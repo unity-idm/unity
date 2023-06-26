@@ -1,0 +1,3 @@
+:host(.u-authnGrid) [part~='cell'] ::slotted(vaadin-grid-cell-content) {
+    padding: 0;
+}

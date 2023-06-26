@@ -21,9 +21,10 @@ class RegistrationFormsChooserComponent extends VerticalLayout
 	RegistrationFormsChooserComponent(List<RegistrationForm> forms, RegistrationFormsChooserListener listener,
 	                                  Runnable finishHandler, MessageSource msg)
 	{
-		setMargin(false);
 		setPadding(false);
 		setAlignItems(Alignment.CENTER);
+		setJustifyContentMode(JustifyContentMode.CENTER);
+		setSizeFull();
 
 		H2 formName = new H2(msg.getMessage("RegistrationFormChooserDialog.selectForm"));
 		formName.addClassName("u-reg-title");
