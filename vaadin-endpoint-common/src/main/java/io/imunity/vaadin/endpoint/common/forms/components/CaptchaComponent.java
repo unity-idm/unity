@@ -89,6 +89,7 @@ public class CaptchaComponent
 		resetChallenge.addClassName("u-captcha-reset");
 		resetChallenge.getElement().setProperty("title", msg.getMessage("CaptchaComponent.resetDesc"));
 		resetChallenge.setIcon(VaadinIcon.REFRESH.create());
+		resetChallenge.getStyle().set("background-color", "transparent");
 		resetChallenge.addClickListener(event -> reset());
 	}
 	
@@ -103,6 +104,7 @@ public class CaptchaComponent
 		SimpleImageSource src = new SimpleImageSource(engine.getImage());
 		challenge.setSrc(src.getResource());
 		answer.setValue("");
+		answer.setInvalid(false);
 	}
 	
 	private HorizontalLayout createCapchaLine()
@@ -111,6 +113,8 @@ public class CaptchaComponent
 		captchaLine.add(challenge, resetChallenge);
 		captchaLine.setMargin(false);
 		captchaLine.setAlignItems(FlexComponent.Alignment.CENTER);
+		captchaLine.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+		captchaLine.setWidthFull();
 		return captchaLine;
 	}
 

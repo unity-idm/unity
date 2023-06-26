@@ -38,10 +38,10 @@ public abstract class CredentialResetLayout extends VerticalLayout
 		addClassName("u-credreset-dialog");
 				
 		H2 info = new H2(title);
+		info.getStyle().set("text-align", "center");
 		info.addClassName("u-passwordResetTitle");
 
 		VerticalLayout wrappingCol = new VerticalLayout();
-		wrappingCol.getStyle().set("gap", "0");
 		wrappingCol.setWidth(INFO_WIDTH_EM, Unit.EM);
 		if (uiConfig.logo.isPresent())
 		{
@@ -56,6 +56,8 @@ public abstract class CredentialResetLayout extends VerticalLayout
 		wrappingCol.setAlignItems(Alignment.CENTER);
 
 		setWidth(INFO_WIDTH_EM, Unit.EM);
+		setHeightFull();
+		setJustifyContentMode(JustifyContentMode.CENTER);
 		removeAll();
 		add(wrappingCol);
 	}

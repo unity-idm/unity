@@ -7,8 +7,8 @@ package io.imunity.vaadin.auth.extensions.credreset.password;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import io.imunity.vaadin.auth.extensions.credreset.CredentialResetFlowConfig;
 import io.imunity.vaadin.auth.extensions.credreset.CredentialResetLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  */
 class PasswordResetStep3VerificationChoice extends CredentialResetLayout
 {	
-	private ComboBox<PasswordCredentialResetController.VerificationMethod> chooser;
+	private Select<PasswordCredentialResetController.VerificationMethod> chooser;
 	private final MessageSource msg;
 	private final Runnable cancelCallback;
 	private final Consumer<PasswordCredentialResetController.VerificationMethod> proceedCallback;
@@ -37,7 +37,7 @@ class PasswordResetStep3VerificationChoice extends CredentialResetLayout
 
 	private Component getContents()
 	{
-		chooser = new ComboBox<>();
+		chooser = new Select<>();
 		chooser.setLabel(msg.getMessage("CredentialReset.chooseVerificationMethod"));
 		chooser.setItems(PasswordCredentialResetController.VerificationMethod.values());
 		chooser.setValue(PasswordCredentialResetController.VerificationMethod.Email);
@@ -55,7 +55,7 @@ class PasswordResetStep3VerificationChoice extends CredentialResetLayout
 		
 		VerticalLayout narrowCol = new VerticalLayout();
 		narrowCol.setWidth(MAIN_WIDTH_EM, Unit.EM);
-		narrowCol.setMargin(false);
+		narrowCol.setPadding(false);
 		narrowCol.add(chooser, buttons);
 		narrowCol.setAlignItems(Alignment.CENTER);
 		return narrowCol;
