@@ -11,7 +11,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.setCurrentWebAppAuthenticationFlows;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
 public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
@@ -133,6 +131,6 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 	public synchronized void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
 	{
 		setAuthenticators(authenticators);
-		setCurrentWebAppAuthenticationFlows(authenticators);
+		((Vaadin2XWebAppContext) context).setAuthenticationFlows(authenticationFlows);
 	}
 }

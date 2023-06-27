@@ -35,7 +35,7 @@ public class Vaadin2XWebAppContext extends WebAppContext
 		this(properties, vaadinEndpointProperties, messageSource, description, List.of(), null);
 	}
 
-	private void setAuthenticationFlows(List<AuthenticationFlow> authenticationFlows)
+	void setAuthenticationFlows(List<AuthenticationFlow> authenticationFlows)
 	{
 		this.authenticationFlows = authenticationFlows;
 	}
@@ -126,13 +126,5 @@ public class Vaadin2XWebAppContext extends WebAppContext
 				.map(context -> (Vaadin2XWebAppContext) context)
 				.map(context -> context.sandboxRouter)
 				.orElse(null);
-	}
-
-	static void setCurrentWebAppAuthenticationFlows(List<AuthenticationFlow> authenticationFlows)
-	{
-		List<AuthenticationFlow> flows = List.copyOf(authenticationFlows);
-		Optional.ofNullable(getCurrentWebAppContext())
-				.map(context -> (Vaadin2XWebAppContext) context)
-				.ifPresent(context -> context.setAuthenticationFlows(flows));
 	}
 }
