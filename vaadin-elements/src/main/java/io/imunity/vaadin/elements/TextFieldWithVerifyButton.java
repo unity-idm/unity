@@ -10,8 +10,10 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -19,6 +21,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
+import static java.util.Optional.ofNullable;
+
+@CssImport("./styles/components/required-label.css")
 public class TextFieldWithVerifyButton extends CustomField<String>
 {
 	private final Checkbox adminConfirmCheckBox;
@@ -28,7 +33,8 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	private final Div verifyButtonIcon;
 	private final Div confirmationStatusIcon;
 	private final boolean showLabelInline;
-	
+	private Span requiredDot;
+
 	public TextFieldWithVerifyButton(boolean addConfirmCheckbox,
 	                                 String verifyButtonDesc, Icon verifyButtonIcon,
 	                                 String adminConfirmCheckBoxLabel, boolean showLabelInline)
@@ -71,7 +77,15 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	@Override
 	public void setRequiredIndicatorVisible(boolean visible) 
 	{
-		editor.setRequiredIndicatorVisible(visible);
+		if(requiredDot != null)
+			label.remove(requiredDot);
+		if(visible)
+		{
+			label.remove();
+			requiredDot = new Span();
+			requiredDot.setClassName("required-label");
+			label.add(requiredDot);
+		}
 	}
 
 	public void setRequired(boolean visible)
@@ -81,28 +95,42 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 
 	public void setComponentError(String error)
 	{
-		editor.setInvalid(error != null);
-		editor.setErrorMessage(error);
+		if(error != null)
+		{
+			editor.setInvalid(true);
+			editor.setErrorMessage(error);
+			ofNullable(requiredDot).ifPresent(dot -> dot.addClassName("invalid"));
+		}
+		else
+			ofNullable(requiredDot).ifPresent(dot -> dot.removeClassName("invalid"));
 	}
 
 
 	@Override
-	public void setInvalid(boolean invalid) {
+	public void setInvalid(boolean invalid)
+	{
 		editor.setInvalid(invalid);
+		if(invalid)
+			ofNullable(requiredDot).ifPresent(dot -> dot.addClassName("invalid"));
+		else
+			ofNullable(requiredDot).ifPresent(dot -> dot.removeClassName("invalid"));
 	}
 
 	@Override
-	public void setErrorMessage(String errorMessage) {
+	public void setErrorMessage(String errorMessage)
+	{
 		editor.setErrorMessage(errorMessage);
 	}
 
 	@Override
-	public String getErrorMessage() {
+	public String getErrorMessage()
+	{
 		return editor.getErrorMessage();
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabel()
+	{
 		return label.getText();
 	}
 

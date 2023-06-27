@@ -4,18 +4,6 @@
  */
 package io.imunity.vaadin.registration;
 
-import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
-
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
@@ -33,22 +21,21 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
-
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.*;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.base.registration.RegistrationRequest;
-import pl.edu.icm.unity.base.registration.RegistrationRequestState;
-import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -62,6 +49,13 @@ import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessi
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
+
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
 
 @Route(value = REGISTRATION_PATH + ":" + StandaloneRegistrationView.FORM_PARAM)
 class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTitle, BeforeEnterObserver
@@ -414,8 +408,6 @@ class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTit
 	private void gotoFinalStep(WorkflowFinalizationConfiguration config)
 	{
 		log.debug("Registration is finalized, status: {}", config);
-		if (completedRegistrationHandler != null)
-			completedRegistrationHandler.run();
 		if (config.autoRedirect)
 			redirect(UI.getCurrent().getPage(), config.redirectURL, idpLoginController);
 		else

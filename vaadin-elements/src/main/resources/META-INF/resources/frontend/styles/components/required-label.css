@@ -1,0 +1,11 @@
+.required-label::after {
+    content: '•';
+    color: var(--lumo-required-field-indicator-color, var(--lumo-primary-text-color));
+    text-align: center;
+    width: 1em;
+    position: absolute;
+}
+
+.invalid::after {
+    color: var(--lumo-required-field-indicator-color, var(--lumo-error-text-color));
+}
