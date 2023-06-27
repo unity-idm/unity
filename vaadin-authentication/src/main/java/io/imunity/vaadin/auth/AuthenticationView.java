@@ -253,7 +253,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	{
 		Component view = registrationFormsService.createRegistrationView(
 				form, RegistrationContext.TriggeringMode.manualAtLogin, this::resetToFreshAuthenticationScreen,
-				() -> UI.getCurrent().getPage().reload(), () -> UI.getCurrent().getPage().reload()
+				null, () -> UI.getCurrent().getPage().reload()
 		);
 		getContent().removeAll();
 		getContent().add(view);

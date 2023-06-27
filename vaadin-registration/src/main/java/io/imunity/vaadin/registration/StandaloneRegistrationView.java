@@ -408,6 +408,8 @@ class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTit
 	private void gotoFinalStep(WorkflowFinalizationConfiguration config)
 	{
 		log.debug("Registration is finalized, status: {}", config);
+		if (completedRegistrationHandler != null)
+			completedRegistrationHandler.run();
 		if (config.autoRedirect)
 			redirect(UI.getCurrent().getPage(), config.redirectURL, idpLoginController);
 		else
