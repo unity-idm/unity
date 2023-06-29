@@ -109,6 +109,13 @@ public class Wizard extends VerticalLayout
 		finishButton.setVisible(false);
 	}
 
+	private void showDisableFinishButton()
+	{
+		finishButton.setVisible(true);
+		finishButton.setEnabled(false);
+		nextButton.setVisible(false);
+	}
+
 	private void nextStep()
 	{
 		if(wizardStepController.hasFinished())
@@ -155,6 +162,11 @@ public class Wizard extends VerticalLayout
 			stepComplited();
 		else if (current.getStatus() == WizardStepStatus.NEXT_STEP_REQUIRED)
 			ui.access(this::nextStep);
+	}
+
+	void interrupt()
+	{
+		ui.access(this::showDisableFinishButton);
 	}
 
 	private void stepComplited()

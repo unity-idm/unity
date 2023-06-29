@@ -5,6 +5,7 @@
 package io.imunity.vaadin.account_association;
 
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -47,9 +48,12 @@ class MergingUnknownUserConfirmationStep extends WizardStep
 
 	protected void setError(String message)
 	{
-		((HorizontalLayout)component).add(VaadinIcon.EXCLAMATION_CIRCLE.create());
+		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
+		icon.setClassName("warning-icon");
+		((HorizontalLayout)component).add(icon);
 		((HorizontalLayout)component).add(new Label(message));
 		((HorizontalLayout)component).setAlignItems(FlexComponent.Alignment.CENTER);
+		interrupt();
 	}
 
 	void prepareStep(AuthenticatedEntity authenticatedEntity)

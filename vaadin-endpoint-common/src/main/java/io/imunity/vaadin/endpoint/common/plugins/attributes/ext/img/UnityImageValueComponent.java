@@ -39,8 +39,6 @@ import java.util.UUID;
 class UnityImageValueComponent extends VerticalLayout implements HasLabel
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, UnityImageValueComponent.class);
-	static final int PREVIEW_WIDTH = 320;
-	static final int PREVIEW_HEIGHT = 300;
 	
 	private final InputLabel label;
 	private final Image image;
@@ -133,8 +131,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		try
 		{
 			image.setVisible(true);
-			byte[] scaledDownData = value.getScaledDownImage(PREVIEW_WIDTH, PREVIEW_HEIGHT);
-			UnityImage scaledDown = new UnityImage(scaledDownData, value.getType());
+			UnityImage scaledDown = new UnityImage(value.getImage(), value.getType());
 
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(scaledDown.getImage());
 			StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + scaledDown.getType().toExt(), () -> byteArrayInputStream);

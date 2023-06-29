@@ -12,6 +12,7 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
@@ -101,12 +102,16 @@ public class SignInView extends HomeViewComponent
 			layout.add(create2ndFactorOptInComponent(theUser.getEntityId()));
 
 		if(!outdatedCredentialDefinition.isEmpty())
-			layout.add(getH2(msg.getMessage("UserHomeUI.credentialRequiringUpdate")), createPanelLayout(outdatedCredentialDefinition));
+			layout.add(new H2(msg.getMessage("UserHomeUI.credentialRequiringUpdate")), createPanelLayout(outdatedCredentialDefinition));
 
-		layout.add(getH2(msg.getMessage("UserHomeUI.signInCredentials")), createPanelLayout(correctCredentialDefinition));
+		layout.add(new H2(msg.getMessage("UserHomeUI.signInCredentials")), createPanelLayout(correctCredentialDefinition));
 
-		layout.add(new Details(getH2(msg.getMessage("UserHomeUI.addAnotherSignInCredentials")), createPanelLayout(notSetCredentialDefinition)));
-		layout.getStyle().set("gap", "2em");
+		Details details = new Details(getH2(msg.getMessage("UserHomeUI.addAnotherSignInCredentials")), createPanelLayout(notSetCredentialDefinition));
+		details.getStyle().set("margin-top", "var(--big-margin)");
+		layout.add(details);
+
+		layout.setWidth("26em");
+		layout.setSpacing(false);
 		getContent().add(layout);
 	}
 
@@ -121,8 +126,8 @@ public class SignInView extends HomeViewComponent
 	{
 		VerticalLayout layout = new VerticalLayout();
 		layout.setPadding(false);
-		layout.getStyle().set("gap", "0");
-		layout.getStyle().set("margin-left", "2em");
+		layout.setSpacing(false);
+		layout.getStyle().set("margin-left", "var(--big-margin)");
 
 		int last = panels.size();
 		int credSize = panels.size();
@@ -233,9 +238,10 @@ public class SignInView extends HomeViewComponent
 			return entityMan.getEntity(new EntityParam(entityId));
 		} catch (Exception e)
 		{
-			notificationPresenter.showError(
+			notificationPresenter.showErrorAutoClosing(
 					msg.getMessage("CredentialChangeDialog.entityRefreshError"),
-					e.getMessage());
+					e.getMessage(),
+					Notification.Position.TOP_END);
 			throw new InternalException(msg.getMessage("CredentialChangeDialog.getEntityError"), e);
 		}
 	}

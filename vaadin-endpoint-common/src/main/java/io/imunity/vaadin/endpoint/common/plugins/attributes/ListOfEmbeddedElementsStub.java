@@ -106,8 +106,9 @@ public class ListOfEmbeddedElementsStub<T>
 			components.add(i+1, entry);
 			
 			Component[] uiComponents = entry.getContents().getComponents();
-			for (int j=0; j<uiComponents.length; j++)
-				group.addComponent(uiComponents[j], start+j+parentOffset);
+			group.addComponent(uiComponents[0], start+parentOffset, after.addRemoveBar);
+			for (int j=1; j<uiComponents.length; j++)
+				group.addComponent(uiComponents[j], start+j+parentOffset, uiComponents[j-1]);
 		}
 		
 		for (int i=0; i<components.size(); i++)

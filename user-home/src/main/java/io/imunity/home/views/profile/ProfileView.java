@@ -50,6 +50,8 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import javax.annotation.security.PermitAll;
 import java.util.*;
 
+import static io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext.EMPTY;
+
 @PermitAll
 @RouteAlias(value = "/", layout = HomeUiMenu.class)
 @Route(value = "/profile", layout = HomeUiMenu.class)
@@ -222,9 +224,9 @@ public class ProfileView extends HomeViewComponent
 				editor.setAttributeValues(attribute.getValues());
 			attributeEditors.add(editor);
 			ComponentsGroup componentsGroup = editor.getComponentsGroup();
-			componentsGroup.setComponentInsertionListener((comp, idx) ->
+			componentsGroup.setAfterComponentInsertionListener((comp, before) ->
 			{
-				layout.addComponentAtIndex(idx + 1, comp);
+				layout.addComponentAtIndex(layout.indexOf(before) + 1, comp);
 				setAttributeWidth((HasStyle) comp);
 			});
 			componentsGroup.setComponentRemovalListener(layout::remove);
@@ -234,13 +236,8 @@ public class ProfileView extends HomeViewComponent
 			if (attribute == null)
 				return List.of();
 
-			AttributeViewerContext context = AttributeViewerContext.builder()
-					.withImageScaleWidth(320)
-					.withImageScaleHeight(300)
-					.build();
-
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, attributeType,
-					attribute, labelContext, context);
+					attribute, labelContext, EMPTY);
 			return viewer.getComponentsGroup().getComponents();
 		}
 	}
@@ -277,6 +274,7 @@ public class ProfileView extends HomeViewComponent
 				throw new RuntimeException(e);
 			}
 		}
+		init();
 	}
 
 	private void updateAttribute(Attribute a) throws EngineException

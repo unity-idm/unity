@@ -6,16 +6,11 @@ package pl.edu.icm.unity.engine.api;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.EntityParam;
-import pl.edu.icm.unity.base.registration.EnquiryForm;
-import pl.edu.icm.unity.base.registration.EnquiryResponse;
-import pl.edu.icm.unity.base.registration.EnquiryResponseState;
-import pl.edu.icm.unity.base.registration.RegistrationContext;
-import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
+import pl.edu.icm.unity.base.registration.*;
 import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Enquires support: forms, submissions of requests and their processing.
@@ -83,8 +78,6 @@ public interface EnquiryManagement
 	 * @return enquiry form with given id.
 	 */
 	EnquiryForm getEnquiry(String id) throws EngineException;
-
-	Optional<EnquiryForm> getEnquiryByName(String name) throws EngineException;
 
 	boolean hasForm(String id);
 	

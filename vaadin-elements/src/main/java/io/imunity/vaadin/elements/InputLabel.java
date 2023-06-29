@@ -14,9 +14,18 @@ public class InputLabel extends Label
 
 	public InputLabel(String label)
 	{
-		add(label);
+		setText(label);
 		addClassName("input-label");
-		getStyle().set("padding-top" ,"var(--input-label-top-padding)");
+	}
+
+	@Override
+	public void setText(String text)
+	{
+		super.setText(text);
+		if(text == null || text.isBlank())
+			getStyle().set("padding-top" ,"0");
+		else
+			getStyle().set("padding-top" ,"var(--input-label-top-padding)");
 	}
 
 	public void setRequired(boolean required)

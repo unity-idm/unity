@@ -21,6 +21,7 @@ public class ComponentsGroup implements CompositeLayoutAdapter.ComposableCompone
 {
 	private List<Component> components = new ArrayList<>();
 	private BiConsumer<Component, Integer> componentInsertionListener;
+	private BiConsumer<Component, Component> afterComponentInsertionListener;
 	private Consumer<Component> componentRemovalListener;
 
 	public ComponentsGroup(Component... initialComponents)
@@ -40,7 +41,14 @@ public class ComponentsGroup implements CompositeLayoutAdapter.ComposableCompone
 		if (componentInsertionListener != null)
 			componentInsertionListener.accept(component, at);
 	}
-	
+
+	public void addComponent(Component component, int index, Component after)
+	{
+		components.add(index, component);
+		if (afterComponentInsertionListener != null)
+			afterComponentInsertionListener.accept(component, after);
+	}
+
 	public void removeComponent(Component component)
 	{
 		components.remove(component);
@@ -69,6 +77,11 @@ public class ComponentsGroup implements CompositeLayoutAdapter.ComposableCompone
 	public void setComponentInsertionListener(BiConsumer<Component, Integer> listener)
 	{
 		this.componentInsertionListener = listener;
+	}
+
+	public void setAfterComponentInsertionListener(BiConsumer<Component, Component> listener)
+	{
+		this.afterComponentInsertionListener = listener;
 	}
 
 	@Override

@@ -5,6 +5,7 @@
 package io.imunity.vaadin.account_association;
 
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -47,7 +48,7 @@ class MergingUserConfirmationStep extends WizardStep
 			setError(msg.getMessage("ConnectId.ConfirmStep.error"));
 		} else if (ctx.getRemotePrincipal().isEmpty())
 		{
-			log.error("Tried to associate local account with local account, what is unsupported and only remote account can be linked to a local one: {}", ctx);
+			log.error("Tried to associate local account with another local account, what is unsupported and only remote account can be linked to a local one: {}", ctx);
 			setError(msg.getMessage("Merging2LocalAccounts.error"));
 		} else
 		{
@@ -81,9 +82,12 @@ class MergingUserConfirmationStep extends WizardStep
 
 	protected void setError(String message)
 	{
-		((HorizontalLayout)component).add(VaadinIcon.EXCLAMATION_CIRCLE.create());
+		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
+		icon.setClassName("warning-icon");
+		((HorizontalLayout)component).add(icon);
 		((HorizontalLayout)component).add(new Label(message));
 		((HorizontalLayout)component).setAlignItems(FlexComponent.Alignment.CENTER);
+		interrupt();
 	}
 
 	void prepareStep(SandboxAuthnEvent event, Long sessionEntityId)

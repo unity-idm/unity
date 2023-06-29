@@ -124,7 +124,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 	{
 		FormLayout content = new FormLayout();
 		content.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		content.getStyle().set("margin-left", "2em");
+		content.getStyle().set("margin-left", "var(--big-margin)");
 
 		application.applicationDomain.ifPresent(s -> content.addFormItem(new Label(s), msg.getMessage("TrustedApplications.applicationDomain")));
 
@@ -171,6 +171,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 		technicalInfoContent.setSizeUndefined();
 		technicalInfoContent.getStyle().set("align-self", "end");
 		technicalInfoContent.getStyle().set("box-shadow", "0 0 5px 2px grey");
+		technicalInfoContent.getStyle().set("padding", "1em");
 		application.technicalInformations.forEach(es ->
 				technicalInfoContent.addFormItem(new Html("<div>" + es.value + "</div>"), es.titleKey));
 		return content;

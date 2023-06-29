@@ -91,7 +91,7 @@
 		<module>vaadin-enquiry</module>
 		<module>vaadin-secured-shared-endpoint</module>
 		<module>vaadin-authentication</module>
-        <module>vaadin-account-association</module>
+		<module>vaadin-account-association</module>
 	</modules>
 
 	<developers>

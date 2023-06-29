@@ -10,3 +10,9 @@ html {
   --border-radius: var(--lumo-border-radius-m);
   --contrast: var(--lumo-contrast-5pct);
 }
+
+.warning-icon {
+    color: orange;
+    width: var(--lumo-icon-size-l);
+    height: var(--lumo-icon-size-l);
+}

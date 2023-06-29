@@ -7,7 +7,8 @@ package io.imunity.home.views.sign_in;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
@@ -18,7 +19,6 @@ import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.CredentialType;
@@ -108,7 +108,7 @@ class SingleCredentialPanel extends VerticalLayout
 				this::hideEditor);
 		credEditorPanel.setVisible(false);
 
-		add(new Label(Optional.ofNullable(toEdit.getDisplayedName().getValue(msg)).orElse(toEdit.getTypeId())));
+		add(new H3(Optional.ofNullable(toEdit.getDisplayedName().getValue(msg)).orElse(toEdit.getTypeId())));
 		add(credentialExtraInfo, credEditorPanel);
 		actionsBar = createActionsBar();
 		add(actionsBar);
@@ -240,9 +240,10 @@ class SingleCredentialPanel extends VerticalLayout
 			secrets = credEditor.getValue();
 		} catch (IllegalCredentialException e)
 		{
-			notificationPresenter.showError(msg
+			notificationPresenter.showErrorAutoClosing(msg
 					.getMessage("CredentialChangeDialog.credentialUpdateError"),
-					e.getMessage());
+					e.getMessage(),
+					Notification.Position.TOP_END);
 			return false;
 		}
 		EntityParam entityP = new EntityParam(entity.getId());
@@ -262,17 +263,19 @@ class SingleCredentialPanel extends VerticalLayout
 			return false;
 		} catch (AdditionalAuthenticationMisconfiguredException misconfigured)
 		{
-			notificationPresenter.showError(msg.getMessage("CredentialChangeDialog.credentialUpdateError"),
-					msg.getMessage("AdditionalAuthenticationMisconfiguredError"));
+			notificationPresenter.showErrorAutoClosing(msg.getMessage("CredentialChangeDialog.credentialUpdateError"),
+					msg.getMessage("AdditionalAuthenticationMisconfiguredError"),
+					Notification.Position.TOP_END);
 			return false;
 		} catch (Exception e)
 		{
-			notificationPresenter.showError(msg.getMessage(
-					"CredentialChangeDialog.credentialUpdateError"), e.getMessage());
+			notificationPresenter.showErrorAutoClosing(msg.getMessage(
+					"CredentialChangeDialog.credentialUpdateError"), e.getMessage(),
+					Notification.Position.TOP_END);
 			return false;
 		}
 		credEditor.setCredentialError(null);
-		notificationPresenter.showSuccess(msg.getMessage("CredentialChangeDialog.credentialUpdated"), "");
+		notificationPresenter.showSuccessAutoClosing(msg.getMessage("CredentialChangeDialog.credentialUpdated"), "");
 		loadEntity(entityP);
 		updateCredentialStatus();
 		return true;
@@ -285,8 +288,8 @@ class SingleCredentialPanel extends VerticalLayout
 			updateCredential();
 		} else if (result == AdditionalAuthnHandler.AuthnResult.ERROR)
 		{
-			notificationPresenter.showError(msg.getMessage("CredentialChangeDialog.credentialUpdateError"),
-					msg.getMessage("CredentialChangeDialog.additionalAuthnFailed"));
+			notificationPresenter.showErrorAutoClosing(msg.getMessage("CredentialChangeDialog.credentialUpdateError"),
+					msg.getMessage("CredentialChangeDialog.additionalAuthnFailed"), Notification.Position.TOP_END);
 			credEditor.setCredentialError(null);
 		} else 
 		{
@@ -316,7 +319,10 @@ class SingleCredentialPanel extends VerticalLayout
 			ecredMan.setEntityCredentialStatus(entityP, toEdit.getName(), desiredState);
 		} catch (Exception e)
 		{
-			notificationPresenter.showError(msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e.getMessage());
+			notificationPresenter.showErrorAutoClosing(
+					msg.getMessage("CredentialChangeDialog.credentialUpdateError"),
+					e.getMessage(),
+					Notification.Position.TOP_END);
 			return;
 		}
 		loadEntity(entityP);
@@ -330,9 +336,10 @@ class SingleCredentialPanel extends VerticalLayout
 			entity = entityMan.getEntity(entityP);
 		} catch (Exception e)
 		{
-			notificationPresenter.showError(
+			notificationPresenter.showErrorAutoClosing(
 					msg.getMessage("CredentialChangeDialog.entityRefreshError"),
-					e.getMessage());
+					e.getMessage(),
+					Notification.Position.TOP_END);
 		}
 	}
 

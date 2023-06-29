@@ -48,7 +48,6 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(value.getImage());
 		StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + value.getType().toExt(), () -> byteArrayInputStream);
 		Image image = new Image(streamResource, "");
-		image.getStyle().set("object-fit", "cover");
 		if (context.isCustomWidth() && !context.isScaleImage())
 		{
 			if (context.getCustomWidth() > 0)

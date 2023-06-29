@@ -32,8 +32,10 @@ public class AccountUpdateView extends HomeViewComponent
 	{
 		HomeEndpointProperties properties = ComponentUtil.getData(UI.getCurrent(), HomeEndpointProperties.class);
 		List<String> enabledEnquiries = properties.getEnabledEnquiries();
-		Component stickyEnquiry = stickyEnquiryService.createApplicableToCurrentUserStickyEnquiryComponent(enabledEnquiries);
 		if (stickyEnquiryService.anyFormApplicableToCurrentUser(enabledEnquiries))
+		{
+			Component stickyEnquiry = stickyEnquiryService.createApplicableToCurrentUserStickyEnquiryComponent(enabledEnquiries);
 			getContent().add(stickyEnquiry);
+		}
 	}
 }

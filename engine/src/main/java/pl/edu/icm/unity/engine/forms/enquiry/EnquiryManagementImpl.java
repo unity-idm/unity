@@ -4,24 +4,10 @@
  */
 package pl.edu.icm.unity.engine.forms.enquiry;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
@@ -35,15 +21,8 @@ import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
-import pl.edu.icm.unity.base.registration.AdminComment;
-import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.*;
 import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
-import pl.edu.icm.unity.base.registration.EnquiryResponse;
-import pl.edu.icm.unity.base.registration.EnquiryResponseState;
-import pl.edu.icm.unity.base.registration.RegistrationContext;
-import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
-import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.base.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -71,6 +50,9 @@ import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the enquiry management API.
@@ -564,17 +546,6 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public EnquiryForm getEnquiry(String id) throws EngineException
 	{
 		return enquiryFormDB.get(id);
-	}
-
-	@Transactional
-	@Override
-	public Optional<EnquiryForm> getEnquiryByName(String name) throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
-			for (EnquiryForm regForm: enquiryFormDB.getAll())
-				if (regForm.getName().equals(name))
-					return Optional.of(regForm);
-		return Optional.empty();
 	}
 
 	@Override

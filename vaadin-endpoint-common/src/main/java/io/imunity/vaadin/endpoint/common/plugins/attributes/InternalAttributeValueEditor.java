@@ -73,8 +73,6 @@ class InternalAttributeValueEditor implements ListOfEmbeddedElementsStub.Editor<
 			String base = (baseLabel.endsWith(":")) ? baseLabel.substring(0, baseLabel.length()-1) 
 					: baseLabel;
 			base = base +" (" + (position+1) +")";
-			if (!editContext.isShowLabelInline())
-				base = base + ":";
 			return base;
 		} else
 			return baseLabel;

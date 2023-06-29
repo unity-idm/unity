@@ -44,6 +44,11 @@ public abstract class WizardStep extends Component implements HasComponents
 		status = WizardStepStatus.COMPLITED;
 	}
 
+	protected final void interrupt()
+	{
+		wizard.interrupt();
+	}
+
 	protected final void stepInProgress()
 	{
 		status = WizardStepStatus.IN_PROGRESS;

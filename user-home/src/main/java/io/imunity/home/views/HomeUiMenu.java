@@ -87,8 +87,8 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 		String imageAttribute = homeEndpointProperties.getImageAttribute();
 		Component image = createImage(theUser, imageAttribute);
 		HorizontalLayout imageLayout = new HorizontalLayout();
-		imageLayout.getStyle().set("margin-top", "1.5em");
-		imageLayout.getStyle().set("margin-bottom", "1.5em");
+		imageLayout.getStyle().set("margin-top", "var(--medium-margin)");
+		imageLayout.getStyle().set("margin-bottom", "var(--medium-margin)");
 		imageLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 		imageLayout.add(image);
 		return imageLayout;

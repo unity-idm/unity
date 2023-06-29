@@ -32,6 +32,11 @@ html {
   --input-label-top-padding: var(--lumo-space-m);
   --border-radius: var(--lumo-border-radius-m);
   --contrast: var(--lumo-contrast-5pct);
+
+  --base-margin: 1em;
+  --small-margin: calc(0.5 * var(--base-margin));
+  --medium-margin: calc(1.5 * var(--base-margin));
+  --big-margin: calc(2 * var(--base-margin));
 }
 
 h1, h2, h3, h4, h5, h6, b, strong {
@@ -84,6 +89,17 @@ vaadin-form-item {
 
 vaadin-text-field > label {
     overflow: unset;
+}
+
+hr {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+img {
+    max-width: 20em;
+    max-height: 20em;
+    object-fit: cover;
 }
 
 #scroller {
