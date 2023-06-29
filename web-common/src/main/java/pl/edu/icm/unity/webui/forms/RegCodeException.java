@@ -26,7 +26,7 @@ public class RegCodeException extends Exception
 	public enum ErrorCause 
 	{
 		MISSING_CODE(TriggeringState.GENERAL_ERROR), 
-		INVITATION_OF_OTHER_FORM(TriggeringState.GENERAL_ERROR), 
+		INVITATION_OF_OTHER_FORM(TriggeringState.NOT_APPLICABLE_ENQUIRY),
 		UNRESOLVED_INVITATION(TriggeringState.INVITATION_MISSING), 
 		EXPIRED_INVITATION(TriggeringState.INVITATION_EXPIRED), 
 		MISCONFIGURED(TriggeringState.GENERAL_ERROR);

@@ -49,63 +49,18 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 				setStructuredListEntry(PROVIDERS));
 	}
 
-	private Map<String, CustomProviderProperties> v8Providers = new HashMap<>();
-	private Map<String, CustomProviderProperties> providers = new HashMap<>();
+	private final Map<String, CustomProviderProperties> providers = new HashMap<>();
 
 
 	public OAuthClientProperties(Properties properties, PKIManagement pkiManagement) throws ConfigurationException
 	{
 		super(P, properties, META, log);
 		Set<String> keys = getStructuredListKeys(PROVIDERS);
-		Properties clone = (Properties)properties.clone();
 		for (String key: keys)
-		{
-			setupV8Provider(key, pkiManagement);
-			setupProvider(key, pkiManagement, clone);
-		}
+			setupProvider(key, pkiManagement);
 	}
 
-	private void setupV8Provider(String key, PKIManagement pkiManagement)
-	{
-		Providers providerType = getEnumValue(key+CustomProviderProperties.PROVIDER_TYPE, Providers.class);
-		switch (providerType)
-		{
-		case google:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.GoogleProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case facebook:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.FacebookProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case dropbox:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.DropboxProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case github:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.GitHubProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case microsoft:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.MicrosoftLiveProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case microsoftAzureV2:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.MicrosoftAzureV2ProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case orcid:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.OrcidProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case linkedin:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.LinkedInProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case unity:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.UnityProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case intuit:
-			v8Providers.put(key, new pl.edu.icm.unity.oauth.client.config.v8.IntuitProviderProperties(properties, P+key, pkiManagement));
-			break;
-		case custom:
-			v8Providers.put(key, new CustomProviderProperties(properties, P+key, pkiManagement));
-		}
-	}
-
-	private void setupProvider(String key, PKIManagement pkiManagement, Properties properties)
+	private void setupProvider(String key, PKIManagement pkiManagement)
 	{
 		Providers providerType = getEnumValue(key+CustomProviderProperties.PROVIDER_TYPE, Providers.class);
 		switch (providerType)
@@ -129,11 +84,6 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	public CustomProviderProperties getProvider(String key)
 	{
 		return providers.get(key);
-	}
-
-	public CustomProviderProperties getV8Provider(String key)
-	{
-		return v8Providers.get(key);
 	}
 
 	public Properties getProperties()

@@ -229,7 +229,9 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 				return;
 			}
 		}
-		showEditorContent();
+		VerticalLayout editorContent = getEditorContent();
+		editorContent.addComponentAsFirst(getLogoutButtonLayout(msg.getMessage("EnquiryWellKnownURLView.resignLogout")));
+		getContent().add(editorContent);
 	}
 
 	private PrefilledSet getPrefilledFromInvitation(EnquiryInvitationParam invitation) throws RegCodeException
@@ -311,7 +313,8 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 			return;
 		}
 
-		showEditorContent();
+		VerticalLayout editorContent = getEditorContent();
+		getContent().add(editorContent);
 	}
 
 	private PrefilledSet mergeInvitationAndCurrentUserData(EnquiryInvitationParam invitation, PrefilledSet fromUser)
@@ -387,17 +390,17 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 		return mergedGroups;
 	}
 
-	private void showEditorContent()
+	private VerticalLayout getEditorContent()
 	{
 		VerticalLayout main = new VerticalLayout();
+		main.setSpacing(false);
 		main.setWidthFull();
 		main.add(editor);
 		editor.setWidthFull();
 		main.setAlignItems(FlexComponent.Alignment.CENTER);
 		Component buttonsBar = createButtonsBar();
 		main.add(buttonsBar);
-		main.getStyle().set("gap", "0");
-		getContent().add(main);
+		return main;
 	}
 
 	private void showRemoveLastRequestQuestionScreen()
@@ -428,7 +431,8 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 				log.warn("Can not remove pending request for form " + form.getName());
 			}
 			getContent().removeAll();
-			showEditorContent();
+			VerticalLayout editorContent = getEditorContent();
+			getContent().add(editorContent);
 		});
 
 		Button cancelButton = getCancelButton();
@@ -532,18 +536,19 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 		log.debug("Enquiry is finalized, status: {}", config);
 		Image logo = logoImageLoader.loadImageFromUri(config.logoURL).orElse(null);
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, logo);
+		finalScreen.setMargin(false);
 		if(InvocationContext.getCurrent().getLoginSession() != null)
 		{
-			addLogoutButton(finalScreen);
+			finalScreen.addComponentAsFirst(getLogoutButtonLayout(msg.getMessage("MainHeader.logout")));
 		}
 		getContent().add(finalScreen);
 	}
 
-	private void addLogoutButton(WorkflowCompletedComponent finalScreen)
+	private VerticalLayout getLogoutButtonLayout(String buttonTxt)
 	{
 		VerticalLayout layout = new VerticalLayout(
 				new LinkButton(
-						msg.getMessage("MainHeader.logout"),
+						buttonTxt,
 						e -> authnProcessor.logout(true, SEC_ENQUIRY_PATH + form.getName())
 				)
 		);
@@ -551,7 +556,7 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 		layout.setMargin(false);
 		layout.setPadding(false);
 		layout.setWidthFull();
-		finalScreen.addComponentAsFirst(layout);
+		return layout;
 	}
 
 	private void redirect(Page page, String redirectUrl)

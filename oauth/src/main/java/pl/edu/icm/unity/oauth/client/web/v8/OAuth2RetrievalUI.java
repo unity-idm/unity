@@ -88,7 +88,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public Component getGridCompatibleComponent()
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getV8Provider(configKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), name);
 		idpComponent.addClickListener(event -> startLogin());
@@ -102,7 +102,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 
-		CustomProviderProperties providerProps = clientProperties.getV8Provider(configKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
 
@@ -134,7 +134,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public String getLabel()
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getV8Provider(configKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		return providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 	}
 
@@ -142,7 +142,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public Resource getImage()
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getV8Provider(configKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
 		return imageAccessService.getConfiguredImageResourceFromNullableUri(logoURI).orElse(null);
 	}

@@ -15,6 +15,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletResponse;
 import io.imunity.vaadin.elements.FlagIcon;
+import org.vaadin.firitin.util.WebStorage;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.LanguageCookie;
@@ -45,7 +46,11 @@ public class LocaleChoiceComponent extends Div
 				Locale l = event.getValue();
 				Cookie languageCookie = new LanguageCookie(l.toString());
 				((VaadinServletResponse)VaadinService.getCurrentResponse()).addCookie(languageCookie);
-				UI.getCurrent().getPage().reload();
+				WebStorage.getItem(
+						WebStorage.Storage.sessionStorage,
+						"redirect-url",
+						value -> UI.getCurrent().getPage().setLocation(value)
+				);
 			});
 			chooser.setRenderer(new ComponentRenderer<>(
 					locale -> new Span(new FlagIcon(locale.getLanguage()), getLabel(collect, locale)))

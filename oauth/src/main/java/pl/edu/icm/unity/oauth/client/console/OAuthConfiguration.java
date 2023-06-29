@@ -55,7 +55,7 @@ public class OAuthConfiguration
 			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), key.length() - 1);
 
 			OAuthProviderConfiguration provider = new OAuthProviderConfiguration();
-			CustomProviderProperties providerProps = oauthProp.getV8Provider(key);
+			CustomProviderProperties providerProps = oauthProp.getProvider(key);
 			provider.fromProperties(msg, imageAccessService,  providerProps, idpKey);
 			providers.add(provider);
 		}

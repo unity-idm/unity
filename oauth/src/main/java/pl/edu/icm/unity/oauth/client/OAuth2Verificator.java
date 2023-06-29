@@ -87,7 +87,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private final OAuthContextsManagement contextManagement;
 	private final PKIManagement pkiManagement;
 	private final MessageSource msg;
-	private OAuthDiscoveryMetadataCache metadataManager;
+	private final OAuthDiscoveryMetadataCache metadataManager;
 	
 	@Autowired
 	public OAuth2Verificator(MessageSource msg, AdvertisedAddressProvider advertisedAddrProvider,
@@ -152,7 +152,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			AuthenticationTriggeringContext authnTriggeringContext) 
 			throws URISyntaxException, ParseException, IOException
 	{
-		CustomProviderProperties providerCfg = config.getV8Provider(providerKey);
+		CustomProviderProperties providerCfg = config.getProvider(providerKey);
 		String clientId = providerCfg.getValue(CustomProviderProperties.CLIENT_ID);
 		String authzEndpoint = providerCfg.getValue(CustomProviderProperties.PROVIDER_LOCATION);
 		
@@ -231,7 +231,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
 			verifyExpectedIdentity(input, context.getExpectedIdentity());
-			CustomProviderProperties providerProps = config.getV8Provider(context.getProviderConfigKey());
+			CustomProviderProperties providerProps = config.getProvider(context.getProviderConfigKey());
 			TranslationProfile profile = getTranslationProfile(
 					providerProps,
 					CommonWebAuthnProperties.TRANSLATION_PROFILE,
@@ -291,7 +291,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 							" " + context.getErrorDescription() : ""));
 		}
 		
-		boolean openIdConnectMode = config.getV8Provider(context.getProviderConfigKey()).getBooleanValue(
+		boolean openIdConnectMode = config.getProvider(context.getProviderConfigKey()).getBooleanValue(
 				CustomProviderProperties.OPENID_CONNECT);
 		
 		AttributeFetchResult attributes;
@@ -310,7 +310,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private AccessTokenFormat getAccessTokenFormat(OAuthContext context)
 	{
 		CustomProviderProperties providerCfg = config
-				.getV8Provider(context.getProviderConfigKey());
+				.getProvider(context.getProviderConfigKey());
 		return providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT,
 				AccessTokenFormat.class);
 
@@ -320,9 +320,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			ClientAuthnMode mode) 
 			throws IOException, URISyntaxException
 	{
-		String clientId = config.getV8Provider(context.getProviderConfigKey()).getValue(
+		String clientId = config.getProvider(context.getProviderConfigKey()).getValue(
 				CustomProviderProperties.CLIENT_ID);
-		String clientSecret = config.getV8Provider(context.getProviderConfigKey()).getValue(
+		String clientSecret = config.getProvider(context.getProviderConfigKey()).getValue(
 				CustomProviderProperties.CLIENT_SECRET);
 
 		ClientAuthentication clientAuthn = getClientAuthentication(clientId, clientSecret, mode);
@@ -333,7 +333,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				new URI(tokenEndpoint),
 				clientAuthn,
 				authzCodeGrant);
-		CustomProviderProperties providerCfg = config.getV8Provider(context.getProviderConfigKey());
+		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		
 		HTTPRequest httpRequest = new HttpRequestConfigurer()
 				.secureRequest(request.toHTTPRequest(), providerCfg.getValidator(), providerCfg.getHostNameCheckingMode()); 
@@ -376,7 +376,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	
 	private AttributeFetchResult getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
 	{
-		CustomProviderProperties providerCfg = config.getV8Provider(context.getProviderConfigKey());
+		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg.generateMetadataRequest());
 		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
 		if (tokenEndpoint == null)
@@ -445,7 +445,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	
 	private AttributeFetchResult getAccessTokenAndProfilePlain(OAuthContext context) throws Exception 
 	{
-		CustomProviderProperties providerCfg = config.getV8Provider(context.getProviderConfigKey());
+		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
 		ClientAuthnMode selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
 					ClientAuthnMode.class);
@@ -552,7 +552,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	
 	private RemotelyAuthenticatedInput convertInput(OAuthContext context, AttributeFetchResult attributes)
 	{
-		CustomProviderProperties provCfg = config.getV8Provider(context.getProviderConfigKey());
+		CustomProviderProperties provCfg = config.getProvider(context.getProviderConfigKey());
 		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
 		String discoveryEndpoint = provCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
 		if (tokenEndpoint == null && discoveryEndpoint != null)
@@ -595,18 +595,18 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		Set<String> keys = config.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 		for (String key : keys)
 		{
-			CustomProviderProperties providerProps = config.getV8Provider(key);
+			CustomProviderProperties providerProps = config.getProvider(key);
 			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), key.length() - 1);
-			if (config.getV8Provider(key).getBooleanValue(CustomProviderProperties.OPENID_CONNECT))
+			if (config.getProvider(key).getBooleanValue(CustomProviderProperties.OPENID_CONNECT))
 			{
 				extractIdPInfoFromOIDCProvider(key, idpKey, providerProps).ifPresent(i -> providers.add(i));
 
 			} else
 			{
 				IdPInfo providerInfo = IdPInfo.builder()
-						.withId(config.getV8Provider(key).getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT))
+						.withId(config.getProvider(key).getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT))
 						.withConfigId(idpKey)
-						.withDisplayedName(config.getV8Provider(key).getLocalizedStringWithoutFallbackToDefault(msg,
+						.withDisplayedName(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
 								CustomProviderProperties.PROVIDER_NAME))
 						.build();
 				providers.add(providerInfo);
@@ -631,7 +631,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		}
 
 		return Optional.of(IdPInfo.builder().withId(metadata.getTokenEndpointURI().toString()).withConfigId(idpKey)
-				.withDisplayedName(config.getV8Provider(key).getLocalizedStringWithoutFallbackToDefault(msg,
+				.withDisplayedName(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
 						CustomProviderProperties.PROVIDER_NAME))
 				.build());
 	}
