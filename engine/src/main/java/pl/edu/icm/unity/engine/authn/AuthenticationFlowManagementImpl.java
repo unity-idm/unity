@@ -16,7 +16,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimitName;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;

@@ -14,8 +14,8 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.base.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.base.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec;

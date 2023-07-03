@@ -8,7 +8,7 @@ import java.util.EnumSet;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
+import pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 
 /**

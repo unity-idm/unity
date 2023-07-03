@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.forms;
 
 import java.util.Objects;
 
-import pl.edu.icm.unity.base.registration.invite.InvitationSendData;
+import pl.edu.icm.unity.base.registration.invitation.InvitationSendData;
 
 class ResolvedInvitationSendData
 {

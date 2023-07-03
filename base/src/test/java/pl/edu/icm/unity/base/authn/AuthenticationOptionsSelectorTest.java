@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 
 public class AuthenticationOptionsSelectorTest
 {

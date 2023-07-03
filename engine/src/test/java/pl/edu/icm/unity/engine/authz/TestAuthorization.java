@@ -11,9 +11,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.group.Group;
-import pl.edu.icm.unity.base.identity.EntityParam;
-import pl.edu.icm.unity.base.identity.EntityState;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.identity.IdentityTaV;

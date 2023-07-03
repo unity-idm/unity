@@ -21,7 +21,7 @@ import org.mockito.ArgumentCaptor;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.i18n.I18nMessage;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 import pl.edu.icm.unity.base.notifications.NotificationChannelInfo;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;

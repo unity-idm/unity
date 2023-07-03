@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api.token;
 
 import java.util.List;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.token.Token;
 
 /** Secured tokens API allows for manipulating generic tokens. User with "System Manager" authorization role can manage 

@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.i18n.I18nMessage;
-import pl.edu.icm.unity.base.identity.EntityState;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.EnquiryResponse;
 import pl.edu.icm.unity.base.registration.RegistrationRequest;

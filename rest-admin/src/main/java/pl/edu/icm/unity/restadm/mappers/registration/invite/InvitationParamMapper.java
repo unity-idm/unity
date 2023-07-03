@@ -9,10 +9,10 @@ import io.imunity.rest.api.types.registration.invite.RestComboInvitationParam;
 import io.imunity.rest.api.types.registration.invite.RestEnquiryInvitationParam;
 import io.imunity.rest.api.types.registration.invite.RestInvitationParam;
 import io.imunity.rest.api.types.registration.invite.RestRegistrationInvitationParam;
-import pl.edu.icm.unity.base.registration.invite.ComboInvitationParam;
-import pl.edu.icm.unity.base.registration.invite.EnquiryInvitationParam;
-import pl.edu.icm.unity.base.registration.invite.InvitationParam;
-import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.ComboInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.EnquiryInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
 
 public class InvitationParamMapper
 {

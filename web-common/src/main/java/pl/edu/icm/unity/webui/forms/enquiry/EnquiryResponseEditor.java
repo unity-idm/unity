@@ -9,7 +9,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryResponse;
 import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;

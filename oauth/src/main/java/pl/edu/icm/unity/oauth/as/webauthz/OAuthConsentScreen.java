@@ -25,11 +25,11 @@ import io.imunity.vaadin.endpoint.common.consent_utils.SPInfoComponent;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.base.attr.UnityImage;
 import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityParam;
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;

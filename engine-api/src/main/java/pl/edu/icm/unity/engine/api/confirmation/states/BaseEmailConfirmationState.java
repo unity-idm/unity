@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 
 /**
  * Contains common informations used during confirmation

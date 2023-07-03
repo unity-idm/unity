@@ -19,7 +19,7 @@ import pl.edu.icm.unity.base.audit.AuditEntity;
 import pl.edu.icm.unity.base.audit.AuditEvent;
 import pl.edu.icm.unity.base.audit.AuditEventAction;
 import pl.edu.icm.unity.base.audit.AuditEventType;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.store.tx.TransactionTL;

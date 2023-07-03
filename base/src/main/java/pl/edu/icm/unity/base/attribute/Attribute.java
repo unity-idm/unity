@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.describedObject.NamedObject;
 import pl.edu.icm.unity.base.exceptions.InternalException;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 
 /**
  * Represents an attribute instance.

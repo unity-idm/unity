@@ -5,8 +5,10 @@
 package io.imunity.vaadin.auth.idp;
 
 import com.vaadin.flow.server.*;
-import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.utils.Log;
+
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.UUID;

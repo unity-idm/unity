@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.authn.CredentialInfo;
+import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
-import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.utils.Log;

@@ -20,9 +20,9 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.Entity;
-import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.token.Token;

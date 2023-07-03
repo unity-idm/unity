@@ -10,8 +10,8 @@ import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
-import pl.edu.icm.unity.base.attr.UnityImage;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 
 public final class ImageValidatorUtil
 {

@@ -6,10 +6,10 @@
 package pl.edu.icm.unity.store.objstore.reg.invite;
 
 
-import pl.edu.icm.unity.base.registration.invite.ComboInvitationParam;
-import pl.edu.icm.unity.base.registration.invite.EnquiryInvitationParam;
-import pl.edu.icm.unity.base.registration.invite.InvitationParam;
-import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.ComboInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.EnquiryInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
 
 public class InvitationParamMapper
 {

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.bulkops;
 
-import pl.edu.icm.unity.base.identity.Entity;
+import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 

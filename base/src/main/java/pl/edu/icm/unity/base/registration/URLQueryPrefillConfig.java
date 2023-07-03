@@ -9,7 +9,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 
 /**
  * Describes whether&how a parameter can be pre-filled with information obtained from a URL query string

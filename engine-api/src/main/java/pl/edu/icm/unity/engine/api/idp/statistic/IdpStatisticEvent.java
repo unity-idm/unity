@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.api.idp.statistic;
 
 import java.util.Objects;
 
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 
 public class IdpStatisticEvent
 {

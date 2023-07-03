@@ -25,12 +25,12 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegi
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.identity.IdentityParam;
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;

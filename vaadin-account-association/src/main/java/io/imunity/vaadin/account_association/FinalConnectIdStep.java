@@ -8,7 +8,7 @@ import com.vaadin.flow.component.Component;
 import io.imunity.vaadin.account_association.wizard.WizardStep;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;

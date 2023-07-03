@@ -26,13 +26,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.base.db.DBDumpContentElements;
+import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryResponseState;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationRequestState;
-import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
-import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.ImportExport;

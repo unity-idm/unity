@@ -8,8 +8,8 @@ package io.imunity.webconsole.signupAndEnquiry.invitations.viewer;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.base.registration.IllegalFormTypeException;
-import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
-import pl.edu.icm.unity.base.registration.invite.InvitationParam.InvitationType;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 
 public interface InvitationViewer extends Component
 {

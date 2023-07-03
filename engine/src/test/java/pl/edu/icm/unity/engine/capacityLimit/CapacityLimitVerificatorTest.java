@@ -8,8 +8,8 @@ package pl.edu.icm.unity.engine.capacityLimit;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimit;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimitName;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.exceptions.CapacityLimitReachedException;

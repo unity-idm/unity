@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.confirmation.states;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 
 /**
  * Contains necessary informations used during the confirmation a attribute in

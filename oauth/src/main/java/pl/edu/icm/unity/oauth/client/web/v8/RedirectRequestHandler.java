@@ -9,6 +9,7 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;

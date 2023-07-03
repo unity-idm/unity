@@ -24,9 +24,9 @@ import io.imunity.vaadin.elements.ErrorLabel;
 import io.imunity.vaadin.elements.InputLabel;
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.base.attr.ImageType;
-import pl.edu.icm.unity.base.attr.UnityImage;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.image.ImageType;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;

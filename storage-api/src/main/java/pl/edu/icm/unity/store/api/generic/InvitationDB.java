@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 
 
 /**

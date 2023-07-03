@@ -15,8 +15,8 @@ import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorCon
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 

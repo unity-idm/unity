@@ -22,9 +22,9 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.notifications.NotificationChannel;
 import pl.edu.icm.unity.base.notifications.NotificationChannelInfo;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;

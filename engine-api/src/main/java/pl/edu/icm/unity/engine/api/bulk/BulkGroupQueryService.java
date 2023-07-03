@@ -5,9 +5,9 @@
 package pl.edu.icm.unity.engine.api.bulk;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.GroupContents;
-import pl.edu.icm.unity.base.identity.Entity;
 
 import java.util.Map;
 import java.util.Set;

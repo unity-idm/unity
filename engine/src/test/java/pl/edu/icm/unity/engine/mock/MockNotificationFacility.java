@@ -6,11 +6,11 @@ import java.util.concurrent.Future;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.base.registration.UserRequestState;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;

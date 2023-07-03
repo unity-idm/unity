@@ -13,13 +13,13 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException.Category;
-import pl.edu.icm.unity.base.identity.EntityParam;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementDecision;
 import pl.edu.icm.unity.base.registration.BaseForm;
 import pl.edu.icm.unity.base.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.base.utils.Log;

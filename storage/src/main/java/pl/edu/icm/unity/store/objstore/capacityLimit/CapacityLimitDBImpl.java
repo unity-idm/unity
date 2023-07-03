@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.objstore.capacityLimit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimit;
 import pl.edu.icm.unity.store.api.generic.CapacityLimitDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;

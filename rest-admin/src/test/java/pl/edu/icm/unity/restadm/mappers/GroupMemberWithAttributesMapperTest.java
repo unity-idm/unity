@@ -18,7 +18,7 @@ import io.imunity.rest.api.types.basic.RestIdentity;
 import io.imunity.rest.api.types.confirmation.RestConfirmationInfo;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
-import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.engine.api.groupMember.GroupMemberWithAttributes;
 

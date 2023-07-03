@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.image;
 
-import pl.edu.icm.unity.base.attr.LinkableImage;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.image.LinkableImage;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;

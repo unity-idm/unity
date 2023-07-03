@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 
 /**
  * This interface allows clients to manipulate message templates.

@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 
 /**
  * Represents login session. Session expiration can be stored in two ways: either

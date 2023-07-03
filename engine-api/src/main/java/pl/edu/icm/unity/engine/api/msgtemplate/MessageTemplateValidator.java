@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.i18n.I18nMessage;
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition;
+import pl.edu.icm.unity.base.msg_template.MessageTemplateVariable;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate.Message;
 
 /**
  * Helper: checks if given message or text has only variables supported by a template consumer. 

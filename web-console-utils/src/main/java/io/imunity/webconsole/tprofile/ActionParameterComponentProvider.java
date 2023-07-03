@@ -22,7 +22,7 @@ import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
+import pl.edu.icm.unity.base.msg_template.UserNotificationTemplateDef;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationProfile;

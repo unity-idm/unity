@@ -4,7 +4,7 @@
  */
 package io.imunity.webconsole.settings.msgTemplates;
 
-import static pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition.CUSTOM_VAR_PREFIX;
+import static pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition.CUSTOM_VAR_PREFIX;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -32,10 +32,10 @@ import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nMessage;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
-import pl.edu.icm.unity.base.msgtemplates.MessageType;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate;
+import pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition;
+import pl.edu.icm.unity.base.msg_template.MessageTemplateVariable;
+import pl.edu.icm.unity.base.msg_template.MessageType;
 import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.base.notifications.NotificationChannelInfo;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;

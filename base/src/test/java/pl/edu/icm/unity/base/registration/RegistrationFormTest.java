@@ -17,11 +17,11 @@ import org.mockito.Mockito;
 
 import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 
 
 /**

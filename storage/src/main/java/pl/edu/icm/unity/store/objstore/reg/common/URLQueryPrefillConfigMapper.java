@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.store.objstore.reg.common;
 
 import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 
 class URLQueryPrefillConfigMapper
 {

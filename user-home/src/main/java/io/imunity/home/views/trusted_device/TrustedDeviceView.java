@@ -20,7 +20,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;

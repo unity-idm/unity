@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.store.objstore.reg.invite;
 
-import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 
 public class InvitationWithCodeMapper
 {

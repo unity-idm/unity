@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.identity.Entity;
+import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.identity.Identity;
 
 /**

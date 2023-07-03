@@ -19,8 +19,8 @@ import io.imunity.vaadin.elements.QRBarcode;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import org.vaadin.barcodes.Barcode;
 
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 
 import java.util.Map;

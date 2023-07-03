@@ -14,8 +14,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.store.api.BasicCRUDDAO;
 import pl.edu.icm.unity.store.api.IdpStatisticDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;

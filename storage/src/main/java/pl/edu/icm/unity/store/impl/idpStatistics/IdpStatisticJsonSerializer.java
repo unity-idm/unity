@@ -10,8 +10,8 @@ import java.time.ZoneId;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
 
 @Component

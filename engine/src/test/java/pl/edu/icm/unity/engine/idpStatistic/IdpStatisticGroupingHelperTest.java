@@ -16,9 +16,9 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
 import pl.edu.icm.unity.engine.api.idp.statistic.GroupedIdpStatistic;
 

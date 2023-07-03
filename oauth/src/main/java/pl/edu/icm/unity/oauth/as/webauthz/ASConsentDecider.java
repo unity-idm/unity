@@ -8,8 +8,8 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;

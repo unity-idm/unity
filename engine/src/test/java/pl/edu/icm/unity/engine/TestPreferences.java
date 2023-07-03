@@ -9,8 +9,8 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import pl.edu.icm.unity.base.identity.EntityParam;
-import pl.edu.icm.unity.base.identity.EntityState;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.stdext.identity.X500Identity;

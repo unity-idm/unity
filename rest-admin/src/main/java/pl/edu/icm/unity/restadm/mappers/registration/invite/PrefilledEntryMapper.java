@@ -8,8 +8,8 @@ package pl.edu.icm.unity.restadm.mappers.registration.invite;
 import java.util.function.Function;
 
 import io.imunity.rest.api.types.registration.invite.RestPrefilledEntry;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 
 public class PrefilledEntryMapper
 {

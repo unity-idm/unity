@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 

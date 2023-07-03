@@ -21,6 +21,7 @@ import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;

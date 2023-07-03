@@ -10,7 +10,7 @@ import org.assertj.core.util.Lists;
 import org.hamcrest.MatcherAssert;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
-import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 
 public class AttributeAssertion extends AttributesAssertion

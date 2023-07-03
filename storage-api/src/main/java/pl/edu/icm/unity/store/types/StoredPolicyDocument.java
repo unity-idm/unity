@@ -14,7 +14,7 @@ import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.describedObject.NamedObject;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.i18n.I18nStringJsonUtil;
-import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
+import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 
 /**
  * Stores information about policy document

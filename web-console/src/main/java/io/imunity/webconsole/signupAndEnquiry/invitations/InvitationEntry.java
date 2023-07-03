@@ -9,8 +9,8 @@ import java.time.Instant;
 import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.registration.invite.InvitationParam;
-import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 

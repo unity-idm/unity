@@ -11,7 +11,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic;
 import pl.edu.icm.unity.engine.api.idp.statistic.IdpStatisticEvent;
 import pl.edu.icm.unity.store.api.IdpStatisticDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;

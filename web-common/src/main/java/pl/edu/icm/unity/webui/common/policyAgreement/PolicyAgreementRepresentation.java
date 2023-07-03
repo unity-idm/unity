@@ -13,9 +13,9 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**

@@ -12,7 +12,7 @@ import java.util.Map;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.GroupSelection;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
 
 /**
  * Used by {@link BaseRequestEditor} to create UI controls. Contains

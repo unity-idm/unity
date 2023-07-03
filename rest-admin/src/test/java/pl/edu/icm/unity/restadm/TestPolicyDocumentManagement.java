@@ -20,8 +20,8 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
+import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 
 import javax.ws.rs.core.Response;
 import java.util.List;

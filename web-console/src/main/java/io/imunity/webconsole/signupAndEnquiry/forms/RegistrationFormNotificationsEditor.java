@@ -6,7 +6,7 @@ package io.imunity.webconsole.signupAndEnquiry.forms;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msg_template.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;

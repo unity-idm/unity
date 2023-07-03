@@ -16,11 +16,11 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.entity.EntityInformation;
+import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
+import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupMembership;
-import pl.edu.icm.unity.base.identity.EntityInformation;
-import pl.edu.icm.unity.base.identity.EntityScheduledOperation;
-import pl.edu.icm.unity.base.identity.EntityState;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;

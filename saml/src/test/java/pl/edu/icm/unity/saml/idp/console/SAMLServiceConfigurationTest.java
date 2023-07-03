@@ -9,7 +9,7 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;

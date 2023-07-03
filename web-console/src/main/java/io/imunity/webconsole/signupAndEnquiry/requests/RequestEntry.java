@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.base.identity.Entity;
-import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;

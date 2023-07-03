@@ -18,8 +18,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimit;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimitName;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.store.api.generic.CapacityLimitDB;

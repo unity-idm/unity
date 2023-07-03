@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.imunity.rest.api.types.basic.RestAttributeType;
 import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;

@@ -7,9 +7,9 @@ package io.imunity.vaadin.endpoint.common.forms.policy_agreements;
 
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.vaadin.elements.CheckboxWithError;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 
 import java.util.List;
 

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.base.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.EnquiryInvitationParam;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;

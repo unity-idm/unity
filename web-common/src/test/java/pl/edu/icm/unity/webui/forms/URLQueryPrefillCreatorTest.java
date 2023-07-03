@@ -22,7 +22,7 @@ import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 
 public class URLQueryPrefillCreatorTest

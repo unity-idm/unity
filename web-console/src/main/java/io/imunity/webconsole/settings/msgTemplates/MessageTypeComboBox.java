@@ -19,7 +19,7 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.CustomField;
 
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.msgtemplates.MessageType;
+import pl.edu.icm.unity.base.msg_template.MessageType;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview.PreviewWindow;

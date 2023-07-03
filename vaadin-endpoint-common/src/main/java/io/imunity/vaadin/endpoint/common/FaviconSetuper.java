@@ -8,6 +8,7 @@ package io.imunity.vaadin.endpoint.common;
 import com.vaadin.flow.component.page.Inline.Wrapping;
 import com.vaadin.flow.server.AppShellSettings;
 import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 

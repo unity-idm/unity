@@ -6,7 +6,7 @@
 
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimit;
 
 /**
  * Easy access to {@link CapacityLimit} storage.

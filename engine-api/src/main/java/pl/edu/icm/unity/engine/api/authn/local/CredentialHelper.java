@@ -7,8 +7,8 @@ package pl.edu.icm.unity.engine.api.authn.local;
 import java.util.Map;
 
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.EntityParam;
 
 /**
  * Allows for performing various credential related operations which needs to be handled internally,
@@ -40,7 +40,7 @@ public interface CredentialHelper
 	
 	/**
 	 * Updates the credential in DB. This is the same code as 
-	 * {@link IdentitiesManagement#setEntityCredential(pl.edu.icm.unity.base.identity.EntityParam, String, String)}
+	 * {@link IdentitiesManagement#setEntityCredential(pl.edu.icm.unity.base.entity.EntityParam, String, String)}
 	 * but requires no authorization.
 	 * 
 	 * @param entityId

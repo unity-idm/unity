@@ -10,7 +10,7 @@
 package io.imunity.fido.service;
 
 import io.imunity.fido.identity.FidoUserHandleIdentity;
-import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;

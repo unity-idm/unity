@@ -7,12 +7,12 @@ package pl.edu.icm.unity.engine.notifications.script;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.base.registration.UserRequestState;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;

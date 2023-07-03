@@ -13,7 +13,7 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegi
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryResponse;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

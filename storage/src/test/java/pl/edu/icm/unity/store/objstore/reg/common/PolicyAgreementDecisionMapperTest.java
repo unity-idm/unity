@@ -8,8 +8,8 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import java.util.List;
 import java.util.function.Function;
 
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementDecision;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 

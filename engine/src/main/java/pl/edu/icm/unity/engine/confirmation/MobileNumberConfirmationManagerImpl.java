@@ -21,7 +21,7 @@ import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef;
+import pl.edu.icm.unity.base.msg_template.confirm.MobileNumberConfirmationTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;

@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import pl.edu.icm.unity.base.attribute.AttributesClass;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.EntityParam;
 
 /**
  * Attribute class management API.

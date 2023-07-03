@@ -17,10 +17,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.i18n.I18nMessage;
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.base.msgtemplates.MessageType;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate.Message;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate;
+import pl.edu.icm.unity.base.msg_template.MessageType;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate.Message;
 
 public class MessageTemplateProcessorTest
 {

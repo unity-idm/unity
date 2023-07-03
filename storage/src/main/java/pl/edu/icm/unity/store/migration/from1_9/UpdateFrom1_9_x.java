@@ -27,8 +27,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.utils.Escaper;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.store.export.JsonDumpUpdate;

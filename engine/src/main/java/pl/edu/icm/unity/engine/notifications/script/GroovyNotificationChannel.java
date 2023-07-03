@@ -17,7 +17,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import pl.edu.icm.unity.base.exceptions.InternalException;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate.Message;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;

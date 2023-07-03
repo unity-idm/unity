@@ -11,8 +11,8 @@ import java.nio.file.Paths;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pl.edu.icm.unity.base.attr.ImageType;
-import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.image.ImageType;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 
 public class TestUnityImage
 {

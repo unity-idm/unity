@@ -6,8 +6,8 @@ package pl.edu.icm.unity.stdext.attr;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.base.attr.UnityImage;
 import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 
 import java.util.List;
 import java.util.stream.Collectors;

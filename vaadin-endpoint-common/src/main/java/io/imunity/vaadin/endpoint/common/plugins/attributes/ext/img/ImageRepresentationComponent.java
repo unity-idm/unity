@@ -13,7 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
-import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 
 import java.io.ByteArrayInputStream;
 import java.util.UUID;

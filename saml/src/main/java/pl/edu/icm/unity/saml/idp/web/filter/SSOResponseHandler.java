@@ -10,7 +10,7 @@ import eu.unicore.security.dsig.DSigException;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.endpoint.Endpoint;
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic.Status;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;

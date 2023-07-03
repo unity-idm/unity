@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.store.objstore.reg.common;
 
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementAcceptanceStatus;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementAcceptanceStatus;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementDecision;
 
 public class PolicyAgreementDecisionMapper
 {

@@ -28,8 +28,8 @@ import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorReg
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;

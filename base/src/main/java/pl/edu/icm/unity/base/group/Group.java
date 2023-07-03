@@ -34,8 +34,8 @@ import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nDescribedObject;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.i18n.I18nStringJsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 
 /**
  * Group holds set of other elements: other groups and identities. This class

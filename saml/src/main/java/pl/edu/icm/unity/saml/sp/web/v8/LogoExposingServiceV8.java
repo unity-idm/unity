@@ -10,6 +10,7 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.ui.UI;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.files.IllegalURIException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;

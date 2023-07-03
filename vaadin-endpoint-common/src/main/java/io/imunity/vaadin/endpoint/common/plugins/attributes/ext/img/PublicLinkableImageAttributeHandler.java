@@ -11,8 +11,8 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ext.AttributeHandlerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.attr.LinkableImage;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.image.LinkableImage;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;

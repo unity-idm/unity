@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import io.imunity.rest.api.types.registration.invite.RestRegistrationInvitationParam;
 import pl.edu.icm.unity.base.registration.FormType;
-import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
 
 public class RegistrationInvitationParamMapper
 {

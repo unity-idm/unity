@@ -5,8 +5,8 @@
 
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
-import pl.edu.icm.unity.base.attr.UnityImage;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 
 interface ImageValidator
 {

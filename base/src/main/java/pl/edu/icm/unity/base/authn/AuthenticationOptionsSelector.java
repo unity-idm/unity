@@ -13,8 +13,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 
 /**
  * Represents selection of authentication options: either a single concrete one or all options 

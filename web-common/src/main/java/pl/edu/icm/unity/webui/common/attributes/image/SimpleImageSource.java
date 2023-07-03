@@ -11,8 +11,8 @@ import java.util.Random;
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 
-import pl.edu.icm.unity.base.attr.ImageType;
-import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.image.ImageType;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 
 /**
  * Helper class providing image data as Resource

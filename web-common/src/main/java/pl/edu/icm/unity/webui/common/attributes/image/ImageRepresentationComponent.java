@@ -12,7 +12,7 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 
 class ImageRepresentationComponent extends CustomComponent

@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.base.msgtemplates.reg.EnquiryFilledTemplateDef;
-import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate;
+import pl.edu.icm.unity.base.msg_template.reg.EnquiryFilledTemplateDef;
+import pl.edu.icm.unity.base.msg_template.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;

@@ -6,8 +6,8 @@ package pl.edu.icm.unity.webui.common.attributes.image;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.base.attr.UnityImage;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;

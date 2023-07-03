@@ -23,7 +23,7 @@ import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.base.registration.BaseForm;
 import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;

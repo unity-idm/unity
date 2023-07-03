@@ -16,9 +16,9 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlBase64Binary;
 import org.junit.Test;
 
-import pl.edu.icm.unity.base.attr.ImageType;
-import pl.edu.icm.unity.base.attr.UnityImage;
 import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.image.ImageType;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.ImageAttribute;
 import pl.edu.icm.unity.stdext.attr.IntegerAttribute;

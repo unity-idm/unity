@@ -13,7 +13,7 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.GroupSelection;
-import pl.edu.icm.unity.base.registration.invite.FormPrefill;
+import pl.edu.icm.unity.base.registration.invitation.FormPrefill;
 import pl.edu.icm.unity.store.impl.attribute.AttributeMapper;
 import pl.edu.icm.unity.store.impl.attribute.DBAttribute;
 import pl.edu.icm.unity.store.objstore.reg.common.DBGroupSelection;

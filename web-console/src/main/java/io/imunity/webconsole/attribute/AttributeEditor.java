@@ -15,7 +15,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;

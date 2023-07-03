@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.notifications;
 
 import java.util.concurrent.Future;
 
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate.Message;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate.Message;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 
 /**

@@ -25,7 +25,7 @@ import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.base.registration.invite.InvitationParam.InvitationType;
+import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;

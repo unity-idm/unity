@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.EntityParam;
 
 /**
  * Preferences management API - allows for storing and retrieving user's preferences,

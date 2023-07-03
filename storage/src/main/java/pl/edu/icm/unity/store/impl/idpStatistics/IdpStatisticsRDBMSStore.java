@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic;
 import pl.edu.icm.unity.store.api.IdpStatisticDAO;
 import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
 import pl.edu.icm.unity.store.rdbms.RDBMSDAO;

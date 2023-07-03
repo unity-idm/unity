@@ -8,8 +8,8 @@ package pl.edu.icm.unity.engine.api;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.idpStatistic.IdpStatistic;
 import pl.edu.icm.unity.engine.api.idp.statistic.GroupedIdpStatistic;
 
 public interface IdpStatisticManagement

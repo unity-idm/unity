@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
@@ -34,7 +34,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType.CHECKBOX_SELECTED;
+import static pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType.CHECKBOX_SELECTED;
 import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.*;
 import static pl.edu.icm.unity.saml.SamlProperties.*;
 import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;

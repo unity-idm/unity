@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.restadm.mappers.registration.invite;
 
 import io.imunity.rest.api.types.registration.invite.RestInvitationWithCode;
-import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 
 public class InvitationWithCodeMapper
 {

@@ -11,7 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import io.imunity.rest.api.types.registration.RestURLQueryPrefillConfig;
 import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 
 public class URLQueryPrefillConfigMapperTest extends MapperTestBase<URLQueryPrefillConfig, RestURLQueryPrefillConfig>

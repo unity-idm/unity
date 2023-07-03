@@ -7,7 +7,7 @@ package pl.edu.icm.unity.restadm.mappers.policy;
 
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
+import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.restadm.mappers.OneWayMapperTestBase;
 

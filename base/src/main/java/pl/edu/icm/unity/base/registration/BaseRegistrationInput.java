@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.identity.IdentityParam;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementDecision;
 
 /**
  * Base of enquiry and registration requests.

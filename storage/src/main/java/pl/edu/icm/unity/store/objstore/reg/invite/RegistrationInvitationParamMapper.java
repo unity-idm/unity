@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import pl.edu.icm.unity.base.registration.FormType;
-import pl.edu.icm.unity.base.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
 
 public class RegistrationInvitationParamMapper
 {

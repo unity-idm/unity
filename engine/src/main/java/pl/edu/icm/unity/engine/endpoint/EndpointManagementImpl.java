@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimitName;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;

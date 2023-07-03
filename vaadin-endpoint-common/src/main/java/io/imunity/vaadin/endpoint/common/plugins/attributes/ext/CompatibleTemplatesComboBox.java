@@ -8,7 +8,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 

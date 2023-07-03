@@ -10,11 +10,11 @@ import com.vaadin.ui.CheckBox;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
-import pl.edu.icm.unity.base.msgtemplates.reg.InvitationProcessedNotificationTemplateDef;
-import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
-import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
-import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msg_template.reg.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msg_template.reg.InvitationProcessedNotificationTemplateDef;
+import pl.edu.icm.unity.base.msg_template.reg.InvitationTemplateDef;
+import pl.edu.icm.unity.base.msg_template.reg.RejectRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msg_template.reg.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.base.registration.BaseFormNotifications;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;

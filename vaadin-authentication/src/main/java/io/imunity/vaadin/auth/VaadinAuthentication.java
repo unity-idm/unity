@@ -8,7 +8,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Image;
 
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
-import pl.edu.icm.unity.base.identity.Entity;
+import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;

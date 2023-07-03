@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import pl.edu.icm.unity.base.identity.Entity;
+import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;

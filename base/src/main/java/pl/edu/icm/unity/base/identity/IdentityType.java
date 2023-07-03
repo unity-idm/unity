@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.base.describedObject.NamedObject;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 
 /**
  * Type of identity. Contains stateful configuration which can be modified by administrator.

@@ -19,10 +19,10 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditor;
 import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditor;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
-import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;

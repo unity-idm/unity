@@ -13,8 +13,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.policyAgreement.RestPolicyAgreementConfiguration;
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementPresentationType;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 
 public class PolicyAgreementConfigurationMapperTest

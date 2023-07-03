@@ -7,7 +7,8 @@ package pl.edu.icm.unity.engine.policyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimitName;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;

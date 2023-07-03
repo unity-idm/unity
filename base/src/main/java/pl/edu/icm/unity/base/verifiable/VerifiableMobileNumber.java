@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.base.exceptions.InternalException;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 
 /**
  * Mobile number which can be confirmed by user. 

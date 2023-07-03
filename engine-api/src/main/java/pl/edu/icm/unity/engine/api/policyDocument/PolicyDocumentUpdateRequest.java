@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.engine.api.policyDocument;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.policyDocument.PolicyDocumentContentType;
+import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 
 import java.util.Map;
 import java.util.Objects;

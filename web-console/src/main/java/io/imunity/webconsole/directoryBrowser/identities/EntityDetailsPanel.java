@@ -14,9 +14,9 @@ import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.base.authn.CredentialInfo;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
 import pl.edu.icm.unity.base.group.GroupMembership;
-import pl.edu.icm.unity.base.identity.Entity;
-import pl.edu.icm.unity.base.identity.EntityScheduledOperation;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;

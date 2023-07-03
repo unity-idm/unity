@@ -17,8 +17,13 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.registration.GroupSelection;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.registration.invitation.ComboInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
 
 public class InvitationTest
 {

@@ -18,9 +18,9 @@ import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.base.registration.GroupSelection;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.base.registration.invite.FormPrefill;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.FormPrefill;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 
 class RegistrationUtil

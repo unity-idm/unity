@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
+import pl.edu.icm.unity.base.msg_template.MessageTemplateVariable;
 
 /**
  * Defines common part of template used for sending credential reset confirmation code.

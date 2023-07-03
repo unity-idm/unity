@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.base.msgtemplates.GenericMessageTemplateDef;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
+import pl.edu.icm.unity.base.msg_template.GenericMessageTemplateDef;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate;
+import pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;

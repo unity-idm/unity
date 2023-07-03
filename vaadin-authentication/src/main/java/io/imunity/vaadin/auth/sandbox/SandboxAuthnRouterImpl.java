@@ -6,6 +6,7 @@ package io.imunity.vaadin.auth.sandbox;
 
 import com.vaadin.flow.server.VaadinService;
 import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;

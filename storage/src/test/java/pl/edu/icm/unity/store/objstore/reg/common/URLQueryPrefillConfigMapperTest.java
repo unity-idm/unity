@@ -8,7 +8,7 @@ package pl.edu.icm.unity.store.objstore.reg.common;
 import java.util.function.Function;
 
 import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 

@@ -37,10 +37,10 @@ import io.imunity.rest.api.types.basic.RestGroupMember;
 import io.imunity.rest.api.types.basic.RestGroupProperty;
 import io.imunity.rest.api.types.basic.RestI18nString;
 import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.group.Group;
-import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 

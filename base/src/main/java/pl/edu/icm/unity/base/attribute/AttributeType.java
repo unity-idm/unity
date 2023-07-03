@@ -21,8 +21,8 @@ import pl.edu.icm.unity.base.describedObject.NamedObject;
 import pl.edu.icm.unity.base.i18n.I18nDescribedObject;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.i18n.I18nStringJsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.utils.JsonUtil;
 
 /**
  * Attribute type defines rules for handling attributes. This class provides universal configuration:

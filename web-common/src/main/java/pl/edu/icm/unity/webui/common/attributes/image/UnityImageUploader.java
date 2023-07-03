@@ -18,8 +18,8 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.Upload;
 
-import pl.edu.icm.unity.base.attr.ImageType;
-import pl.edu.icm.unity.base.attr.UnityImage;
+import pl.edu.icm.unity.base.attribute.image.ImageType;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;

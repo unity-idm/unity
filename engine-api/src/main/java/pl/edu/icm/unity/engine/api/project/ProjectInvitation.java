@@ -13,8 +13,8 @@ import com.google.common.base.Objects;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.registration.BaseForm;
-import pl.edu.icm.unity.base.registration.invite.FormPrefill;
-import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.FormPrefill;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 
 /**
  * Holds information about project invitation.

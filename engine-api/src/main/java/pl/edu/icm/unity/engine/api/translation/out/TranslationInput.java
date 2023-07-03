@@ -12,8 +12,8 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.group.Group;
-import pl.edu.icm.unity.base.identity.Entity;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 

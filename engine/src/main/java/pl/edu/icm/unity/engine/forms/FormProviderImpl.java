@@ -12,7 +12,7 @@ import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.IllegalFormTypeException;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.base.registration.invite.FormProvider;
+import pl.edu.icm.unity.base.registration.invitation.FormProvider;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 

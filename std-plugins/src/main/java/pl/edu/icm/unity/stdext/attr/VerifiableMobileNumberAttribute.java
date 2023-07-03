@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.utils.JsonUtil;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.verifiable.VerifiableMobileNumber;
 import pl.edu.icm.unity.stdext.utils.MobileNumberUtils;
 

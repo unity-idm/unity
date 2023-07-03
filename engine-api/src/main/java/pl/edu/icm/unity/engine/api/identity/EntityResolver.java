@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.identity;
 
-import pl.edu.icm.unity.base.identity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;

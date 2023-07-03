@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import pl.edu.icm.unity.base.db.DBDumpContentElements;
+import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.store.impl.attribute.AttributeIE;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesIE;
 import pl.edu.icm.unity.store.impl.audit.AuditEventIE;

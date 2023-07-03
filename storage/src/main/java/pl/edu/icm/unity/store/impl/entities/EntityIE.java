@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;

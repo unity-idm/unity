@@ -5,9 +5,9 @@
 package pl.edu.icm.unity.engine.notifications;
 
 import pl.edu.icm.unity.base.describedObject.DescribedObject;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.base.registration.UserRequestState;
 

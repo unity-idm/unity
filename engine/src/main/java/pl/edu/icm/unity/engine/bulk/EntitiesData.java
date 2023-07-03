@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
-import pl.edu.icm.unity.base.identity.EntityInformation;
+import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.identity.Identity;
 
 /**

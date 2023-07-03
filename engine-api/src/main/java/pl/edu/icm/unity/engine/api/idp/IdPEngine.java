@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.engine.api.idp;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.EntityParam;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.translation.TranslationProfile;

@@ -27,10 +27,10 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.GroupSelection;
-import pl.edu.icm.unity.base.registration.invite.ComboInvitationParam;
-import pl.edu.icm.unity.base.registration.invite.FormPrefill;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.ComboInvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.FormPrefill;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.restadm.mappers.MapperTestBase;
 
 public class ComboInvitationParamMapperTest extends MapperTestBase<ComboInvitationParam, RestComboInvitationParam>

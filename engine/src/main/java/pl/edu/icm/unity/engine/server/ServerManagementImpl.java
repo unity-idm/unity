@@ -23,9 +23,9 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonGenerationException;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.base.db.DBDumpContentElements;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;

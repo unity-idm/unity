@@ -16,9 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.base.identity.Entity;
-import pl.edu.icm.unity.base.identity.EntityParam;
-import pl.edu.icm.unity.base.identity.EntityState;
+import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.base.translation.TranslationRule;

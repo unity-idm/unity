@@ -7,8 +7,8 @@ package pl.edu.icm.unity.store.objstore.capacityLimit;
 
 import java.util.function.Function;
 
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimit;
-import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimit;
+import pl.edu.icm.unity.base.capacity_limit.CapacityLimitName;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 

@@ -9,8 +9,8 @@ import java.util.function.Function;
 
 import pl.edu.icm.unity.base.i18n.I18nMessage;
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate;
-import pl.edu.icm.unity.base.msgtemplates.MessageType;
+import pl.edu.icm.unity.base.msg_template.MessageTemplate;
+import pl.edu.icm.unity.base.msg_template.MessageType;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 import pl.edu.icm.unity.store.types.common.DBI18nString;

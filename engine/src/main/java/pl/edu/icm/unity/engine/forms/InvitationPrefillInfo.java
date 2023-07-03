@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.forms;
 
 import java.util.Optional;
 
-import pl.edu.icm.unity.base.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 
 public class InvitationPrefillInfo
 {

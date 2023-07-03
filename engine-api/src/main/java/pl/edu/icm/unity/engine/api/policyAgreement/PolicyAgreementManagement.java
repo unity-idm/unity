@@ -7,10 +7,10 @@ package pl.edu.icm.unity.engine.api.policyAgreement;
 
 import java.util.List;
 
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.identity.EntityParam;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.base.policyAgreement.PolicyAgreementDecision;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementDecision;
 
 /**
  * Policy agreements management API

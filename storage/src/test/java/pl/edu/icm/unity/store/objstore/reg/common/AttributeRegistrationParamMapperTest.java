@@ -11,7 +11,7 @@ import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.base.registration.ConfirmationMode;
 import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
-import pl.edu.icm.unity.base.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.store.MapperTestBase;
 import pl.edu.icm.unity.store.Pair;
 
