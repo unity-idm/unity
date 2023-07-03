@@ -7,7 +7,7 @@ package io.imunity.vaadin.auth.sandbox;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 import io.imunity.vaadin.auth.ColumnInstantAuthenticationScreen;
-import io.imunity.vaadin.auth.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;

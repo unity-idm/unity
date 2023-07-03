@@ -361,6 +361,11 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 	{
 		return form;
 	}
+
+	RemotelyAuthenticatedPrincipal getRemoteAuthnContext()
+	{
+		return remotelyAuthenticated;
+	}
 	
 	protected Map<String, Object> buildVarsToFreemarkerTemplates(Optional<RegistrationInvitationParam> invitation)
 	{

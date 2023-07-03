@@ -25,7 +25,7 @@ import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import io.imunity.vaadin.auth.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
 import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;

@@ -22,7 +22,7 @@ import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
-import io.imunity.vaadin.auth.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
 import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;

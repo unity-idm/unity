@@ -8,6 +8,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import org.apache.logging.log4j.Logger;
 import org.vaadin.firitin.util.WebStorage;
 
