@@ -6,8 +6,8 @@ import pl.edu.icm.unity.base.i18n.I18nString
 import pl.edu.icm.unity.stdext.identity.EmailIdentity
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
 import pl.edu.icm.unity.base.attribute.Attribute
-import pl.edu.icm.unity.base.identity.EntityParam
-import pl.edu.icm.unity.base.identity.EntityState
+import pl.edu.icm.unity.base.entity.EntityParam
+import pl.edu.icm.unity.base.entity.EntityState
 import pl.edu.icm.unity.base.group.Group
 import pl.edu.icm.unity.base.group.GroupContents
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration

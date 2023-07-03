@@ -8,8 +8,8 @@ import pl.edu.icm.unity.base.exceptions.EngineException
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
 import pl.edu.icm.unity.base.i18n.I18nString
-import pl.edu.icm.unity.base.identity.EntityParam
-import pl.edu.icm.unity.base.identity.EntityState
+import pl.edu.icm.unity.base.entity.EntityParam
+import pl.edu.icm.unity.base.entity.EntityState
 import pl.edu.icm.unity.base.identity.Identity
 import pl.edu.icm.unity.base.identity.IdentityParam
 import pl.edu.icm.unity.base.registration.AgreementRegistrationParam

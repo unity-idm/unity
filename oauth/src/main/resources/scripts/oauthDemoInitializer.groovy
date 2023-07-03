@@ -15,8 +15,8 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
 import pl.edu.icm.unity.base.attribute.Attribute
-import pl.edu.icm.unity.base.identity.EntityParam
-import pl.edu.icm.unity.base.identity.EntityState
+import pl.edu.icm.unity.base.entity.EntityParam
+import pl.edu.icm.unity.base.entity.EntityState
 import pl.edu.icm.unity.base.group.Group
 import pl.edu.icm.unity.base.identity.Identity
 import pl.edu.icm.unity.base.identity.IdentityParam
