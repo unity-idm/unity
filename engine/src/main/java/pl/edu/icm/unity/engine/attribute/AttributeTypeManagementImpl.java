@@ -53,6 +53,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private TxManager txMan;
 	private EventProcessor eventProcessor;
 	private InternalCapacityLimitVerificator capacityLimit;
+	private AttributeTypeByMetaCache attributeTypeByMetaCache;
 
 	@Autowired
 	public AttributeTypeManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
@@ -60,7 +61,8 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			InternalAuthorizationManager authz, AttributeTypeHelper atHelper,
 			AttributesHelper aHelper, TxManager txMan, EventProcessor eventProcessor,
-			InternalCapacityLimitVerificator capacityLimit)
+			InternalCapacityLimitVerificator capacityLimit, 
+			AttributeTypeByMetaCache attributeTypeByMetaCache)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -71,7 +73,9 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		this.aHelper = aHelper;
 		this.txMan = txMan;
 		this.eventProcessor = eventProcessor;
-		this.capacityLimit = capacityLimit;	}
+		this.capacityLimit = capacityLimit;
+		this.attributeTypeByMetaCache = attributeTypeByMetaCache;
+	}
 
 	@Override
 	public String[] getSupportedAttributeValueTypes() throws EngineException
@@ -103,7 +107,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValuesCount,
 				() -> Long.valueOf(toAdd.getMaxElements()));
 		
-		
+		attributeTypeByMetaCache.clear();
 		attributeTypeDAO.create(toAdd);
 		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(null, toAdd)));
 	}
@@ -134,6 +138,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		verifyAttributesConsistencyWithUpdatedType(at);
 		capacityLimit.assertInSystemLimit(CapacityLimitName.AttributeValueSize,
 				() -> Long.valueOf(atHelper.getSyntax(at).getMaxSize()));
+		attributeTypeByMetaCache.clear();
 		attributeTypeDAO.update(at);
 		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(atExisting, at)));
 	}
@@ -177,6 +182,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			throws EngineException
 	{
 		setModifiableSettingsOfImmutableAT(at, existing);
+		attributeTypeByMetaCache.clear();
 		attributeTypeDAO.update(existing);
 	}
 	
@@ -225,7 +231,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 					" can not be manually removed");
 		if (!deleteInstances && !attributeDAO.getAttributes(id, null, null).isEmpty())
 			throw new IllegalAttributeTypeException("The attribute type " + id + " has instances");
-		
+		attributeTypeByMetaCache.clear();
 		attributeTypeDAO.delete(id);
 		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(at, null)));
 	}
