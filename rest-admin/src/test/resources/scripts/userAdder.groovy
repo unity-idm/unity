@@ -1,5 +1,5 @@
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity
-import pl.edu.icm.unity.base.identity.EntityState
+import pl.edu.icm.unity.base.entity.EntityState
 import pl.edu.icm.unity.base.identity.IdentityParam
 
 
