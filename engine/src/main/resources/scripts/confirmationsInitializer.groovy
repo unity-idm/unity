@@ -5,7 +5,7 @@ import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef
 import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef
 import pl.edu.icm.unity.base.attribute.AttributeType
 import pl.edu.icm.unity.base.identity.IdentityType
-import pl.edu.icm.unity.base.msgtemplates.MessageTemplate
+import pl.edu.icm.unity.base.msg_template.MessageTemplate
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
