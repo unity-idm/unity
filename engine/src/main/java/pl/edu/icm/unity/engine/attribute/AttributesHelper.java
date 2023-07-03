@@ -4,15 +4,31 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import com.google.common.collect.ImmutableMap;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.ImmutableMap;
+
 import pl.edu.icm.unity.base.capacityLimit.CapacityLimitName;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
-import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
@@ -21,25 +37,37 @@ import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
-import pl.edu.icm.unity.exceptions.*;
+import pl.edu.icm.unity.exceptions.CapacityLimitReachedException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.store.api.*;
+import pl.edu.icm.unity.store.api.AttributeDAO;
+import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.EntityDAO;
+import pl.edu.icm.unity.store.api.IdentityDAO;
+import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.basic.*;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.EntityInformation;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.basic.audit.AuditEventAction;
 import pl.edu.icm.unity.types.basic.audit.AuditEventTag;
 import pl.edu.icm.unity.types.basic.audit.AuditEventType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
-import static pl.edu.icm.unity.types.basic.audit.AuditEventTag.AUTHN;
 
 /**
  * Attributes and ACs related operations, intended for reuse between other classes.
@@ -52,7 +80,6 @@ public class AttributesHelper
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE,	AttributesHelper.class);
 
 	
-	private final AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private final AttributeClassDB acDB;
 	private final AttributeClassUtil acUtil;
 	private final IdentityDAO identityDAO;
@@ -66,18 +93,19 @@ public class AttributesHelper
 	private final AuditPublisher audit;
 	private final InternalCapacityLimitVerificator capacityLimitVerificator;
 	private final PublicAttributeRegistry attrRegistry;
+	private final AttributeTypeByMetaCache attributeTypeByMetaCache;
 	
 	@Autowired
-	public AttributesHelper(AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
+	public AttributesHelper(
 			AttributeClassDB acDB, IdentityDAO identityDAO,
 			EntityDAO entityDAO, EntityResolver idResolver,
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			MembershipDAO membershipDAO, AttributeStatementProcessor statementsHelper,
 			AttributeTypeHelper atHelper, AttributeClassUtil acUtil,
 			AuditPublisher audit,
-			InternalCapacityLimitVerificator capacityLimitVerificator)
+			InternalCapacityLimitVerificator capacityLimitVerificator,
+			AttributeTypeByMetaCache attributeTypeByMetaCache)
 	{
-		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.acDB = acDB;
 		this.identityDAO = identityDAO;
 		this.entityDAO = entityDAO;
@@ -91,6 +119,7 @@ public class AttributesHelper
 		this.audit = audit;
 		this.capacityLimitVerificator = capacityLimitVerificator;
 		this.attrRegistry = new PublicAttributeRegistry(attributeDAO, atHelper);
+		this.attributeTypeByMetaCache = attributeTypeByMetaCache;
 	}
 
 	public Map<String, AttributeExt> getAllAttributesAsMapOneGroup(long entityId, String groupPath) 
@@ -120,15 +149,7 @@ public class AttributesHelper
 	public AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId)
 			throws EngineException
 	{
-		AttributeMetadataProvider provider = atMetaProvidersRegistry.getByName(metadataId);
-		if (!provider.isSingleton())
-			throw new IllegalArgumentException("Metadata for this call must be singleton.");
-		Collection<AttributeType> existingAts = attributeTypeDAO.getAll();
-		AttributeType ret = null;
-		for (AttributeType at: existingAts)
-			if (at.getMetadata().containsKey(metadataId))
-				ret = at;
-		return ret;
+		return attributeTypeByMetaCache.getAttributeTypeWithSingeltonMetadata(metadataId);
 	}
 	
 	public AttributeExt getAttributeByMetadata(EntityParam entity, String group,
