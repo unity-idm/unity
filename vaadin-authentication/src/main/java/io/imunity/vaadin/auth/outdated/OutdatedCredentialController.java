@@ -130,11 +130,11 @@ public class OutdatedCredentialController
 		ui.setEnabled(false);
 		if (changed)
 		{
-			notificationPresenter.showWarning(msg.getMessage("OutdatedCredentialDialog.finalOK"),
+			notificationPresenter.showSuccess(msg.getMessage("OutdatedCredentialDialog.finalOK"),
 					msg.getMessage("OutdatedCredentialDialog.finalInfo"));
 		} else
 		{
-			notificationPresenter.showWarning(msg.getMessage("OutdatedCredentialDialog.finalError"),
+			notificationPresenter.showError(msg.getMessage("OutdatedCredentialDialog.finalError"),
 					msg.getMessage("OutdatedCredentialDialog.finalInfoNotChanged"));
 		}
 	}

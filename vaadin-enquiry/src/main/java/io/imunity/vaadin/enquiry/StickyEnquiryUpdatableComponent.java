@@ -137,9 +137,9 @@ class StickyEnquiryUpdatableComponent extends VerticalLayout
 	private void showNotificationAfterSubmit(WorkflowFinalizationConfiguration workflowConfig)
 	{
 		if (workflowConfig.success)
-			notificationPresenter.showSuccessAutoClosing(workflowConfig.mainInformation, workflowConfig.extraInformation);
+			notificationPresenter.showSuccess(workflowConfig.mainInformation, workflowConfig.extraInformation);
 		else
-			notificationPresenter.showErrorAutoClosing(workflowConfig.mainInformation, workflowConfig.extraInformation);
+			notificationPresenter.showError(workflowConfig.mainInformation, workflowConfig.extraInformation);
 
 	}
 

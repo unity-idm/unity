@@ -171,7 +171,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 		technicalInfoContent.setSizeUndefined();
 		technicalInfoContent.getStyle().set("align-self", "end");
 		technicalInfoContent.getStyle().set("box-shadow", "0 0 5px 2px grey");
-		technicalInfoContent.getStyle().set("padding", "1em");
+		technicalInfoContent.getStyle().set("padding", "var(--base-padding)");
 		application.technicalInformations.forEach(es ->
 				technicalInfoContent.addFormItem(new Html("<div>" + es.value + "</div>"), es.titleKey));
 		return content;

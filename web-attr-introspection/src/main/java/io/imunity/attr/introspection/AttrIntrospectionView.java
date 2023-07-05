@@ -139,7 +139,7 @@ class AttrIntrospectionView extends Composite<Div> implements HasDynamicTitle
 		if (ctx == null || ctx.getRemotePrincipal().isEmpty())
 		{
 			createAuthnUI();
-			notificationPresenter.showErrorAutoClosing(msg.getMessage("AttrIntrospection.errorAuthentication"), "");
+			notificationPresenter.showError(msg.getMessage("AttrIntrospection.errorAuthentication"), "");
 			return;
 		}
 

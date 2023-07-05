@@ -140,7 +140,7 @@ class FirstFactorSandboxAuthnCallback implements VaadinAuthentication.Authentica
 	private void handleError(String errorToShow)
 	{
 		setAuthenticationAborted();
-		notificationPresenter.showErrorAutoClosing(errorToShow, "");
+		notificationPresenter.showError(errorToShow, "");
 		scheduleWindowClose();
 	}
 	

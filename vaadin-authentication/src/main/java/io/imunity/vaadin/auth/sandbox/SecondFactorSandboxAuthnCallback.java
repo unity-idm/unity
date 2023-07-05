@@ -123,7 +123,7 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 	{
 		log.info("Authentication failed {}", errorToShow);
 		setAuthenticationAborted();
-		notificationPresenter.showErrorAutoClosing(errorToShow, "");
+		notificationPresenter.showError(errorToShow, "");
 	}
 	
 	/**

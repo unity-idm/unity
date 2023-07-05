@@ -37,6 +37,11 @@ html {
   --small-margin: calc(0.5 * var(--base-margin));
   --medium-margin: calc(1.5 * var(--base-margin));
   --big-margin: calc(2 * var(--base-margin));
+
+  --base-padding: 1em;
+  --small-padding: calc(0.5 * var(--base-padding));
+  --medium-padding: calc(1.5 * var(--base-padding));
+  --big-padding: calc(2 * var(--base-padding));
 }
 
 h1, h2, h3, h4, h5, h6, b, strong {
@@ -184,4 +189,10 @@ img {
 
 label[disabled] {
     color: var(--lumo-disabled-text-color);
+}
+
+.warning-icon {
+    color: orange;
+    width: var(--lumo-icon-size-l);
+    height: var(--lumo-icon-size-l);
 }

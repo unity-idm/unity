@@ -157,7 +157,7 @@ class InvitationsService
 		}
 		if (!alredyMember.isEmpty())
 		{
-			notificationPresenter.showWarning(
+			notificationPresenter.showError(
 					msg.getMessage("InvitationsController.alreadyAMember", String.join(",", alredyMember)),
 					""
 			);

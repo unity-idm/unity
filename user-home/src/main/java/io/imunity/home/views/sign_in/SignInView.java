@@ -12,7 +12,6 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
@@ -108,9 +107,10 @@ public class SignInView extends HomeViewComponent
 
 		Details details = new Details(getH2(msg.getMessage("UserHomeUI.addAnotherSignInCredentials")), createPanelLayout(notSetCredentialDefinition));
 		details.getStyle().set("margin-top", "var(--big-margin)");
+		details.setWidthFull();
 		layout.add(details);
 
-		layout.setWidth("26em");
+		layout.setWidth("35em");
 		layout.setSpacing(false);
 		getContent().add(layout);
 	}
@@ -162,7 +162,7 @@ public class SignInView extends HomeViewComponent
 		getContent().add(userOptInCheckBox);
 		userOptInCheckBox.addValueChangeListener(e -> setUserMFAOptin(e.getValue(), entityId));
 		userOptInCheckBox.setValue(getUserOptInAttribute(entityId));
-		userOptInCheckBox.getStyle().set("padding-top", "1em");
+		userOptInCheckBox.getStyle().set("padding-top", "var(--base-padding)");
 		return userOptInCheckBox;
 	}
 
@@ -238,10 +238,9 @@ public class SignInView extends HomeViewComponent
 			return entityMan.getEntity(new EntityParam(entityId));
 		} catch (Exception e)
 		{
-			notificationPresenter.showErrorAutoClosing(
+			notificationPresenter.showError(
 					msg.getMessage("CredentialChangeDialog.entityRefreshError"),
-					e.getMessage(),
-					Notification.Position.TOP_END);
+					e.getMessage());
 			throw new InternalException(msg.getMessage("CredentialChangeDialog.getEntityError"), e);
 		}
 	}

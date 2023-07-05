@@ -10,7 +10,6 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -105,28 +104,27 @@ public class ProfileView extends HomeViewComponent
 		theUser = InvocationContext.getCurrent().getLoginSession();
 		Set<String> keys = config.getStructuredListKeys(HomeEndpointProperties.ATTRIBUTES);
 
-		addAttributes(keys);
+		VerticalLayout mainLayout = getAttributes(keys);
+		getContent().add(mainLayout);
 
-		HorizontalLayout buttonsLayout = createButtonsLayout();
+		HorizontalLayout buttonsLayout = createButtonsLayout(mainLayout);
 		getContent().add(buttonsLayout);
 	}
 
-	private HorizontalLayout createButtonsLayout()
+	private HorizontalLayout createButtonsLayout(VerticalLayout mainLayout)
 	{
 		HorizontalLayout buttonsLayout = new HorizontalLayout();
-		buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+		buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		buttonsLayout.setMargin(true);
 
-		Button save = new Button(msg.getMessage("save"));
-		save.setIcon(VaadinIcon.DISC.create());
-		save.addClickListener(event -> saveChanges());
-		save.setVisible(shouldShowSave());
+		mainLayout.addClickListener(event ->
+		{
+			if(iSavable())
+				saveChanges();
+		});
 
 		EntityRemovalButton entityRemovalButton = new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, insecureIdsMan, authnProcessor, notificationPresenter, config);
-		HorizontalLayout endButtonsLayout = new HorizontalLayout();
-		endButtonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		endButtonsLayout.add(entityRemovalButton);
-		buttonsLayout.add(new HorizontalLayout(save), endButtonsLayout);
+		buttonsLayout.add(entityRemovalButton);
 
 		if (!config.getDisabledComponents().contains(HomeEndpointProperties.Components.accountLinking.toString()))
 		{
@@ -147,12 +145,12 @@ public class ProfileView extends HomeViewComponent
 				dialog.setHeaderTitle(msg.getMessage("ConnectId.wizardCaption"));
 				dialog.open();
 			});
-			endButtonsLayout.add(associationButton);
+			buttonsLayout.add(associationButton);
 		}
 		return buttonsLayout;
 	}
 
-	private void addAttributes(Set<String> keys)
+	private VerticalLayout getAttributes(Set<String> keys)
 	{
 		Map<String, AttributeType> atTypes;
 		Set<Group> groups;
@@ -169,22 +167,18 @@ public class ProfileView extends HomeViewComponent
 		{
 			List<Component> attributes = getAttributes(atTypes, aKey, groups, verticalLayout);
 			attributes.forEach(attr -> setAttributeWidth((HasStyle) attr));
-			verticalLayout.add(attributes);
+			VerticalLayout innerLayout = new VerticalLayout();
+			innerLayout.add(attributes);
+			innerLayout.setPadding(false);
+			innerLayout.setSpacing(false);
+			verticalLayout.add(innerLayout);
 		}
-		getContent().add(verticalLayout);
+		return verticalLayout;
 	}
 
 	private static Style setAttributeWidth(HasStyle attr)
 	{
 		return attr.getStyle().set("width", "20em");
-	}
-
-	private boolean shouldShowSave()
-	{
-		boolean showSave = false;
-		if (!config.getDisabledComponents().contains(HomeEndpointProperties.Components.attributesManagement.toString()))
-			showSave = attributeEditors.size() > 0;
-		return showSave;
 	}
 
 	private List<Component> getAttributes(Map<String, AttributeType> atTypes, String key, Set<Group> groups, VerticalLayout layout)
@@ -225,11 +219,15 @@ public class ProfileView extends HomeViewComponent
 			attributeEditors.add(editor);
 			ComponentsGroup componentsGroup = editor.getComponentsGroup();
 			componentsGroup.setAfterComponentInsertionListener((comp, before) ->
-			{
-				layout.addComponentAtIndex(layout.indexOf(before) + 1, comp);
-				setAttributeWidth((HasStyle) comp);
-			});
-			componentsGroup.setComponentRemovalListener(layout::remove);
+					findLayout(layout, before).ifPresent(innerLayout ->
+					{
+						innerLayout.addComponentAtIndex(innerLayout.indexOf(before) + 1, comp);
+						setAttributeWidth((HasStyle) comp);
+					})
+			);
+			componentsGroup.setComponentRemovalListener(component ->
+					findLayout(layout, component).ifPresent(innerLayout -> innerLayout.remove(component))
+			);
 			return componentsGroup.getComponents();
 		} else
 		{
@@ -240,6 +238,36 @@ public class ProfileView extends HomeViewComponent
 					attribute, labelContext, EMPTY);
 			return viewer.getComponentsGroup().getComponents();
 		}
+	}
+
+	private static Optional<VerticalLayout> findLayout(VerticalLayout layout, Component before)
+	{
+		for(int i = 0; i < layout.getComponentCount(); i++)
+		{
+			if(layout.getComponentAt(i) instanceof VerticalLayout innerLayout)
+			{
+				int index = innerLayout.indexOf(before);
+				if(index != -1)
+					return Optional.of(innerLayout);
+			}
+		}
+		return Optional.empty();
+	}
+
+	public boolean iSavable()
+	{
+		for (FixedAttributeEditor ae: attributeEditors)
+		{
+			try
+			{
+				if (ae.isChanged())
+					return true;
+			} catch (FormValidationException e)
+			{
+				log.warn(e);
+			}
+		}
+		return false;
 	}
 
 	public void saveChanges()
@@ -274,6 +302,7 @@ public class ProfileView extends HomeViewComponent
 				throw new RuntimeException(e);
 			}
 		}
+		notificationPresenter.showSuccess(msg.getMessage("ProfileView.saved"));
 		init();
 	}
 
