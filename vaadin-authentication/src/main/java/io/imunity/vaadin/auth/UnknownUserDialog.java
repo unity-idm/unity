@@ -79,7 +79,7 @@ class UnknownUserDialog extends Dialog
 			options.add(getAssociationComponent());
 			enabledColumns++;
 		}
-		setWidth(enabledColumns == 2 ? "80%" : "50%");
+		setWidth(enabledColumns == 2 ? "65em" : "45em");
 
 		main.add(mainInfo, options);
 		add(main);

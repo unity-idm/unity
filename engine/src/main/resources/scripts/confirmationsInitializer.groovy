@@ -1,8 +1,8 @@
 import java.util.Collection
 import java.util.Map
 
-import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef
-import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef
+import pl.edu.icm.unity.base.msg_template.confirm.EmailConfirmationTemplateDef
+import pl.edu.icm.unity.base.msg_template.confirm.MobileNumberConfirmationTemplateDef
 import pl.edu.icm.unity.base.attribute.AttributeType
 import pl.edu.icm.unity.base.identity.IdentityType
 import pl.edu.icm.unity.base.msg_template.MessageTemplate

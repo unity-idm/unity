@@ -49,13 +49,12 @@ public class RegistrationFormFillDialog extends Dialog
 		this.withSimplifiedFinalization = withSimplifiedFinalization;
 		this.imageAccessService = imageAccessService;
 		this.notificationPresenter = notificationPresenter;
-		setHeaderTitle(caption);
 		init();
 	}
 
 	private void init()
 	{
-		setWidth("80%");
+		setWidth("45em");
 		Button cancelButton = new Button(msg.getMessage("cancel"), e ->
 		{
 			callback.cancelled();
