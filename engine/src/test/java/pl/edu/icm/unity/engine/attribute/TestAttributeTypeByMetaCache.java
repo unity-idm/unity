@@ -5,6 +5,9 @@
 
 package pl.edu.icm.unity.engine.attribute;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,4 +51,30 @@ public class TestAttributeTypeByMetaCache
 
 		verify(attributeTypeDAO, times(1)).getAll();
 	}
+	
+	@Test
+	public void shouldNotReturnATAfterClearCache() throws EngineException
+	{
+		AttributeTypeByMetaCache attributeTypeByMetaCache = new AttributeTypeByMetaCache(attributeTypeDAO, atMetaProvidersRegistry);
+		
+		when(atMetaProvidersRegistry.getByName("contactEmail")).thenReturn(new ContactEmailMetadataProvider());
+		AttributeType attributeType = new AttributeType();
+		attributeType.setName("type");
+		attributeType.setMetadata(Map.of(ContactEmailMetadataProvider.NAME, ""));
+		when(attributeTypeDAO.getAll()).thenReturn(List.of(attributeType));
+		attributeTypeByMetaCache.getAttributeTypeWithSingeltonMetadata("contactEmail");
+		assertThat(attributeTypeByMetaCache.getAttributeTypeWithSingeltonMetadata("contactEmail"), is(attributeType));
+	
+		attributeTypeByMetaCache.clear();
+		
+		AttributeType updatedAttributeType = new AttributeType();
+		attributeType.setName("type");		
+		when(attributeTypeDAO.getAll()).thenReturn(List.of(updatedAttributeType));
+		AttributeType attributeTypeWithSingeltonMetadata = attributeTypeByMetaCache.getAttributeTypeWithSingeltonMetadata("contactEmail");
+		
+		assertThat(attributeTypeWithSingeltonMetadata, nullValue());
+		
+	}
+	
+	
 }

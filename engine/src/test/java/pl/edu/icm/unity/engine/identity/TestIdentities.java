@@ -17,15 +17,23 @@ import static org.junit.Assert.fail;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
+import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
@@ -33,6 +41,7 @@ import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.TransientIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -43,6 +52,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 public class TestIdentities extends DBIntegrationTestBase
@@ -480,6 +490,35 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(0, t2Contents.getMembers().size());
 		GroupContents contents = groupsMan.getContents("/test2/test", GroupContents.MEMBERS);
 		assertEquals(0, contents.getMembers().size());
+	}
+	
+	@Test
+	public void shouldNotRetEntitiesWithContactEmailWhenAtChanged() throws EngineException
+	{
+		AttributeType at = new AttributeType();
+		at.setDescription(new I18nString("desc"));
+		at.setFlags(0);
+		at.setMaxElements(5);
+		at.setMinElements(1);
+		at.setName("at");
+		at.setSelfModificable(true);
+		at.setValueSyntax(VerifiableEmailAttributeSyntax.ID);
+		at.setMetadata(Map.of("contactEmail", ""));
+		aTypeMan.addAttributeType(at);
+		
+		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "username99"), 
+				CR_MOCK, EntityState.valid);
+		attrsMan.createAttribute(new EntityParam(added1), VerifiableEmailAttribute.of("at", "/", new VerifiableEmail("demo@demo.com")));
+		
+		Set<EntityWithContactInfo> allEntitiesWithContactEmails = idsMan.getAllEntitiesWithContactEmails(Set.of("demo@demo.com"));
+		assertThat(allEntitiesWithContactEmails.size()).isEqualTo(1);
+		assertThat(allEntitiesWithContactEmails.iterator().next().entity.getId()).isEqualTo(added1.getEntityId());
+		
+		at.setMetadata(new HashMap<>());
+		aTypeMan.updateAttributeType(at);
+		
+		Throwable error = catchThrowable(() -> idsMan.getAllEntitiesWithContactEmails(Set.of("demo@demo.com")));
+		assertThat(error).isInstanceOf(UnknownEmailException.class);
 	}
 	
 	
