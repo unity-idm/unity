@@ -8,6 +8,7 @@ package pl.edu.icm.unity.webui.forms;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ public class InvitationResolver
 		{
 			try
 			{
-				return entityManagement.getAllEntitiesWithContactEmail(invitationParam.getContactAddress());
+				return entityManagement.getAllEntitiesWithContactEmails(Set.of(invitationParam.getContactAddress())).stream().map(e -> e.entity).collect(Collectors.toSet());
 			} catch (UnknownEmailException e)
 			{
 				log.debug("Email address " + invitationParam.getContactAddress() + " is unknown");

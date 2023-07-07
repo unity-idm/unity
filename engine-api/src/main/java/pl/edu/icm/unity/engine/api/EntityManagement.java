@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -157,7 +158,7 @@ public interface EntityManagement
 	 * 
 	 * @param contactEmail email assigned to the entity
 	 */
-	Set<Entity> getAllEntitiesWithContactEmail(String contactEmail) throws EngineException;
+	Set<EntityWithContactInfo> getAllEntitiesWithContactEmails(Set<String> contactEmails) throws EngineException;
 
 	/**
 	 * Returns a collection with all groups where the entity is a member. For convenience returned 

@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
@@ -38,11 +39,8 @@ import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormTypeException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -97,36 +95,49 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	}
 
 	@Override
-	public String addInvitation(ProjectInvitationParam param) throws EngineException
+	public void addInvitations(Set<ProjectInvitationParam> params) throws EngineException
 	{
-		authz.assertManagerAuthorization(param.project);
+		for (String project: params.stream().map(p -> p.project).collect(Collectors.toSet()))
+		{
+			authz.assertManagerAuthorization(project);
+		}
 		
-		Set<Entity> entities = null;
+		Set<EntityWithContactInfo> entities = null;
 		try
 		{
-			entities = entityMan.getAllEntitiesWithContactEmail(param.contactAddress);
+			entities = entityMan.getAllEntitiesWithContactEmails(params.stream()
+					.map(p -> p.contactAddress)
+					.collect(Collectors.toSet()));
 		} catch (UnknownEmailException e)
 		{
 			// ok
 		}
 		if (entities != null && !entities.isEmpty())
 		{
-			for (Entity en : entities)
+
+			for (ProjectInvitationParam invitation : params)
 			{
-				assertNotMemberAlready(en.getId(), param.project);
+				assertNotMemberAlready(entities.stream()
+						.filter(e -> e.contactEmail.equals(invitation.contactAddress))
+						.collect(Collectors.toSet()), invitation.project);
 			}
+
+		}
+		for (ProjectInvitationParam param : params)
+		{
+			String code = invitationMan.addInvitation(createComboInvitation(param));
+			invitationMan.sendInvitation(code);
 		}
 	
-		String code = invitationMan.addInvitation(createComboInvitation(param));
-		invitationMan.sendInvitation(code);
-		return code;
 	}
 
-	private void assertNotMemberAlready(long entityId, String projectGroup) throws EngineException
+	private void assertNotMemberAlready(Set<EntityWithContactInfo> collect, String project)
 	{
-		Map<String, GroupMembership> groups = entityMan.getGroups(new EntityParam(entityId));
-		if (groups.containsKey(projectGroup))
+		if (collect.stream().filter(e -> e.groups.contains(project)).findAny().isPresent())
+		{
 			throw new AlreadyMemberException();
+		}
+		
 	}
 
 	private ComboInvitationParam createComboInvitation(ProjectInvitationParam param) throws EngineException
