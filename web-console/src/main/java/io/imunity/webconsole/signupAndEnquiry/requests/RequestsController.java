@@ -7,7 +7,9 @@ package io.imunity.webconsole.signupAndEnquiry.requests;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,8 +26,8 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponsesChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 
 /**
  * Controller for all registration and enquiry request views.
@@ -72,11 +74,13 @@ class RequestsController
 	public void process(Collection<?> items, RegistrationRequestAction action, EventsBus bus)
 			throws ControllerException
 	{
+		
+		Set<RequestType> types = new HashSet<>();
 		for (Object item : items)
 		{
 			try
 			{
-				processSingle((RequestEntry) item, action, bus);
+				types.add(processSingle((RequestEntry) item, action, bus).type);
 			} catch (EngineException e)
 			{
 				String info = msg.getMessage("RequestsController.processError." + action.toString(),
@@ -85,9 +89,19 @@ class RequestsController
 				throw new ControllerException(info, e);
 			}
 		}
+		if (types.contains(RequestType.Registration))
+		{
+			bus.fireEvent(new RegistrationRequestsChangedEvent());
+		}
+		
+		if (types.contains(RequestType.Enquiry))
+		{
+			bus.fireEvent(new EnquiryResponsesChangedEvent());
+		}
+		
 	}
 
-	private void processSingle(RequestEntry item, RegistrationRequestAction action, EventsBus bus)
+	private InternalRequestProcessingResponse processSingle(RequestEntry item, RegistrationRequestAction action, EventsBus bus)
 			throws EngineException
 	{
 		UserRequestState<?> request = item.request;
@@ -95,12 +109,23 @@ class RequestsController
 		{
 			regMan.processRegistrationRequest(request.getRequestId(),
 					(RegistrationRequest) request.getRequest(), action, null, null);
-			bus.fireEvent(new RegistrationRequestChangedEvent(request.getRequestId()));
+			return new InternalRequestProcessingResponse(RequestType.Registration);
 		} else
 		{
 			enqMan.processEnquiryResponse(request.getRequestId(), (EnquiryResponse) request.getRequest(),
 					action, null, null);
-			bus.fireEvent(new EnquiryResponseChangedEvent(request.getRequestId()));
+			return new InternalRequestProcessingResponse(RequestType.Registration);
+
+		}
+	}
+	
+	private static class InternalRequestProcessingResponse
+	{
+		final RequestType type;
+
+		InternalRequestProcessingResponse(RequestType type)
+		{
+			this.type = type;
 		}
 	}
 

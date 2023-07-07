@@ -31,10 +31,10 @@ import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponsesChangedEvent;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditor;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 
 
 
@@ -83,7 +83,7 @@ public class AdminEnquiryFormLauncher
 				enquiryManagement.processEnquiryResponse(id, response, 
 						RegistrationRequestAction.accept, null, 
 						msg.getMessage("AdminFormLauncher.autoAccept"));
-				bus.fireEvent(new RegistrationRequestChangedEvent(id));
+				bus.fireEvent(new RegistrationRequestsChangedEvent());
 				status = getRequestStatus(id);
 			}	
 		} catch (EngineException e)
@@ -100,7 +100,7 @@ public class AdminEnquiryFormLauncher
 		try
 		{
 			String requestId = enquiryManagement.submitEnquiryResponse(response, context);
-			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponseChangedEvent(requestId));
+			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponsesChangedEvent());
 			return requestId;
 		} catch (IdentityExistsException e)
 		{

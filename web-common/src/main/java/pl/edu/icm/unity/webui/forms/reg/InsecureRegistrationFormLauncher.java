@@ -73,7 +73,7 @@ public class InsecureRegistrationFormLauncher extends AbstractRegistrationFormDi
 		try
 		{
 			String requestId = registrationsManagement.submitRegistrationRequest(request, context);
-			bus.fireEvent(new RegistrationRequestChangedEvent(requestId));
+			bus.fireEvent(new RegistrationRequestsChangedEvent());
 			RegistrationRequestState requestState = getRequestStatus(requestId);
 			
 			boolean isAutoLogin = autoLoginProcessor.signInIfPossible(editor, requestState);

@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.forms.reg.AbstractRegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormFillDialog;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator;
 
@@ -98,7 +98,7 @@ public class AdminRegistrationFormLauncher extends AbstractRegistrationFormDialo
 				registrationsManagement.processRegistrationRequest(id, request, 
 						RegistrationRequestAction.accept, null, 
 						msg.getMessage("AdminFormLauncher.autoAccept"));
-				bus.fireEvent(new RegistrationRequestChangedEvent(id));
+				bus.fireEvent(new RegistrationRequestsChangedEvent());
 			}	
 		} catch (EngineException e)
 		{
@@ -114,7 +114,7 @@ public class AdminRegistrationFormLauncher extends AbstractRegistrationFormDialo
 		try
 		{
 			String requestId = registrationsManagement.submitRegistrationRequest(request, context);
-			bus.fireEvent(new RegistrationRequestChangedEvent(requestId));
+			bus.fireEvent(new RegistrationRequestsChangedEvent());
 			return requestId;
 		} catch (IdentityExistsException e)
 		{
