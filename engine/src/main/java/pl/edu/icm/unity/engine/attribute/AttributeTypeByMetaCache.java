@@ -6,6 +6,8 @@
 package pl.edu.icm.unity.engine.attribute;
 
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,7 +26,7 @@ class AttributeTypeByMetaCache
 {
 	private final AttributeTypeDAO attributeTypeDAO;
 	private final AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
-	private final Cache<String, AttributeType> attributeTyeByMetaCache;
+	private final Cache<String, CachedAttributeType> attributeTypeByMetaCache;
 
 	@Autowired
 	AttributeTypeByMetaCache(
@@ -33,35 +35,70 @@ class AttributeTypeByMetaCache
 	{
 		this.attributeTypeDAO = attributeTypeDAO;
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
-		attributeTyeByMetaCache = CacheBuilder.newBuilder()
+		attributeTypeByMetaCache = CacheBuilder.newBuilder()
 				.build();
 	}
 
 	AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId) throws EngineException
 	{
-		AttributeType cached = attributeTyeByMetaCache.getIfPresent(metadataId);
+		CachedAttributeType cached = attributeTypeByMetaCache.getIfPresent(metadataId);
 		if (cached != null)
-			return cached;
-
+			return cached.attributeType.orElse(null);
+		
+		return getFreshAttributeTypeWithSingeltonMetadata(metadataId);
+	}
+	
+	private AttributeType getFreshAttributeTypeWithSingeltonMetadata(String metadataId) throws EngineException
+	{
 		AttributeMetadataProvider provider = atMetaProvidersRegistry.getByName(metadataId);
 		if (!provider.isSingleton())
-			throw new IllegalArgumentException("Metadata for this call must be singleton.");
+			throw new IllegalArgumentException("Metadata " + metadataId +  "is not singleton.");
 		Collection<AttributeType> existingAts = attributeTypeDAO.getAll();
 		AttributeType ret = null;
 		for (AttributeType at : existingAts)
-			if (at.getMetadata()
+		{	if (at.getMetadata()
 					.containsKey(metadataId))
+			{
 				ret = at;
-		if (ret != null)
-		{
-			attributeTyeByMetaCache.put(metadataId, ret);
+				break;
+			}
 		}
-
+		
+		attributeTypeByMetaCache.put(metadataId, new CachedAttributeType(ret));
 		return ret;
 	}
-
 	void clear()
 	{
-		attributeTyeByMetaCache.invalidateAll();
+		attributeTypeByMetaCache.invalidateAll();
 	}
+	
+	private static class CachedAttributeType
+	{
+		public final Optional<AttributeType> attributeType;
+
+		public CachedAttributeType(AttributeType attributeType)
+		{
+			this.attributeType = Optional.ofNullable(attributeType);
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(attributeType);
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CachedAttributeType other = (CachedAttributeType) obj;
+			return Objects.equals(attributeType, other.attributeType);
+		}
+	}
+	
 }

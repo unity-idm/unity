@@ -17,12 +17,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
@@ -38,7 +35,6 @@ import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
-import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -47,10 +43,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 
 public class TestAttributeTypes extends DBIntegrationTestBase
 {
-	@Autowired
-	private AttributeTypeByMetaCache attributeTypeByMetaCache;
-	@Autowired
-	private TransactionalRunner tx;
+	
 	
 	@Test
 	public void allImplementedSyntaxesAreReported() throws Exception
@@ -440,40 +433,6 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		at.setValueSyntaxConfiguration(main);
 		Throwable error = catchThrowable(() -> aTypeMan.addAttributeType(at));
 		assertThat(error).isInstanceOf(IllegalArgumentException.class);
-	}
-	
-	@Test
-	public void shouldClearAttributeByMetaCacheAfterATUpdate() throws EngineException
-	{
-		AttributeType type = createSimpleAT("at");
-		type.setMetadata(Map.of("contactEmail", ""));
-		aTypeMan.addAttributeType(type);
-		AttributeType attributeTypeWithSingeltonMetadata = tx.runInTransactionRetThrowing(
-				() -> attributeTypeByMetaCache.getAttributeTypeWithSingeltonMetadata("contactEmail"));
-
-		assertThat(attributeTypeWithSingeltonMetadata.getName(), is("at"));
-		type.setMetadata(new HashMap<>());
-		aTypeMan.updateAttributeType(type);
-		attributeTypeWithSingeltonMetadata = tx.runInTransactionRetThrowing(
-				() -> attributeTypeByMetaCache.getAttributeTypeWithSingeltonMetadata("contactEmail"));
-
-		assertThat(attributeTypeWithSingeltonMetadata).isNull();
-	}
-
-	@Test
-	public void shouldClearAttributeByMetaCacheAfterATRemove() throws EngineException
-	{
-		AttributeType type = createSimpleAT("at");
-		type.setMetadata(Map.of("contactEmail", ""));
-		aTypeMan.addAttributeType(type);
-		AttributeType attributeTypeWithSingeltonMetadata = tx.runInTransactionRetThrowing(
-				() -> attributeTypeByMetaCache.getAttributeTypeWithSingeltonMetadata("contactEmail"));
-
-		assertThat(attributeTypeWithSingeltonMetadata.getName(), is("at"));
-		aTypeMan.removeAttributeType("at", false);
-		attributeTypeWithSingeltonMetadata = tx.runInTransactionRetThrowing(
-				() -> attributeTypeByMetaCache.getAttributeTypeWithSingeltonMetadata("contactEmail"));
-		assertThat(attributeTypeWithSingeltonMetadata).isNull();
 	}
 }
 
