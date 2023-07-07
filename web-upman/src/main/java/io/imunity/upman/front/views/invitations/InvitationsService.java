@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.AlreadyMemberException;
+import pl.edu.icm.unity.exceptions.EngineException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,51 +121,22 @@ class InvitationsService
 
 	public void addInvitations(InvitationRequest invitationRequest)
 	{
-		List<String> added = new ArrayList<>();
-		List<String> alredyMember = new ArrayList<>();
-
 		List<String> groups = invitationRequest.groups.stream()
 				.map(GroupTreeNode::getPath)
 				.collect(Collectors.toList());
-		for (String email : invitationRequest.emails)
-		{
-			try 
-			{
-				ProjectInvitationParam projectInvitationParam = new ProjectInvitationParam(
-						invitationRequest.projectGroup.path, 
-						email, 
-						groups, 
-						invitationRequest.allowModifyGroups, 
-						invitationRequest.expiration);
-				invitationMan.addInvitation(projectInvitationParam);
-				added.add(projectInvitationParam.contactAddress);
+		Set<ProjectInvitationParam> toAdd = invitationRequest.emails.stream()
+				.map(e -> new ProjectInvitationParam(invitationRequest.projectGroup.path, e, groups,
+						invitationRequest.allowModifyGroups, invitationRequest.expiration))
+				.collect(Collectors.toSet());
 
-			} catch (AlreadyMemberException e)
-			{
-				alredyMember.add(email);
-			} catch (Exception e)
-			{
-				log.warn("Can not add invitations", e);
-				if (added.isEmpty())
-				{
-					notificationPresenter.showError(
-							msg.getMessage("InvitationsController.addInvitationError"),
-							msg.getMessage("InvitationsController.notAdd")
-					);
-				} else {
-					notificationPresenter.showError(
-							msg.getMessage("InvitationsController.addInvitationError"),
-							msg.getMessage("InvitationsController.partiallyAdded", String.join(",", added))
-					);
-				}
-			}
-		}
-		if (!alredyMember.isEmpty())
+		try
 		{
-			notificationPresenter.showWarning(
-					msg.getMessage("InvitationsController.alreadyAMember", String.join(",", alredyMember)),
-					""
-			);
+			invitationMan.addInvitations(toAdd);
+		} catch (EngineException | AlreadyMemberException e)
+		{
+			log.warn("Can not add invitations", e);
+			notificationPresenter.showError(msg.getMessage("InvitationsController.addInvitationError"),
+					msg.getMessage("InvitationsController.notAdd"));
 		}
 
 	}
