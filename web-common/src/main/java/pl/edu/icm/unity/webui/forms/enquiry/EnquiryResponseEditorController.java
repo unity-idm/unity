@@ -329,7 +329,7 @@ public class EnquiryResponseEditorController
 				rewriteComboToEnquiry(rewriteInvitationRequest.get());
 			}
 			String requestId = enquiryManagement.submitEnquiryResponse(response, context);
-			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponseChangedEvent(requestId));
+			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponsesChangedEvent());
 			return getFinalizationHandler(form).getFinalRegistrationConfigurationPostSubmit(requestId,
 					getRequestStatus(requestId));
 		} catch (IdentityExistsException e)

@@ -30,8 +30,8 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponsesChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 
 /**
  * Allows to browse and post request comments. Works with both enquiry and registration requests.
@@ -110,13 +110,13 @@ class RequestCommentPanel extends CustomComponent
 				regMan.processRegistrationRequest(requestState.getRequestId(), 
 					null, RegistrationRequestAction.update, 
 					asPublic ? comment : null, asPublic ? null : comment);
-				bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
+				bus.fireEvent(new RegistrationRequestsChangedEvent());
 			} else
 			{
 				enquiryMan.processEnquiryResponse(requestState.getRequestId(), 
 						null, RegistrationRequestAction.update, 
 						asPublic ? comment : null, asPublic ? null : comment);
-				bus.fireEvent(new EnquiryResponseChangedEvent(requestState.getRequestId()));
+				bus.fireEvent(new EnquiryResponsesChangedEvent());
 			}
 		} catch (EngineException e)
 		{
