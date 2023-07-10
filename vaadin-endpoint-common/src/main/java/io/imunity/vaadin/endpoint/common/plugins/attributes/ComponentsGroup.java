@@ -47,6 +47,8 @@ public class ComponentsGroup implements CompositeLayoutAdapter.ComposableCompone
 		components.add(index, component);
 		if (afterComponentInsertionListener != null)
 			afterComponentInsertionListener.accept(component, after);
+		if (componentInsertionListener != null)
+			componentInsertionListener.accept(component, index);
 	}
 
 	public void removeComponent(Component component)
