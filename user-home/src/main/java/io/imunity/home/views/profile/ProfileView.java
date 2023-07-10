@@ -124,6 +124,11 @@ public class ProfileView extends HomeViewComponent
 			if(iSavable())
 				saveChanges();
 		});
+		mainLayout.addDetachListener(event ->
+		{
+			if(iSavable())
+				saveChanges();
+		});
 
 		EntityRemovalButton entityRemovalButton = new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, insecureIdsMan, authnProcessor, notificationPresenter, config);
 		buttonsLayout.add(entityRemovalButton);
