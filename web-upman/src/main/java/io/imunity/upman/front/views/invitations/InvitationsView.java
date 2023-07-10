@@ -32,6 +32,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.ENVELOPE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 
 @PermitAll
+@Breadcrumb(key = "UpManMenu.invitations")
 @Route(value = "/invitations", layout = UpManMenu.class)
 public class InvitationsView extends UpmanViewComponent
 {

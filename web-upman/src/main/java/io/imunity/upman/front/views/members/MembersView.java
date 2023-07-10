@@ -21,6 +21,7 @@ import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
+import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.SearchField;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -33,6 +34,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @PermitAll
+@Breadcrumb(key = "UpManMenu.members")
 @Route(value = "/members", layout = UpManMenu.class)
 @RouteAlias(value = "/", layout = UpManMenu.class)
 public class MembersView extends UpmanViewComponent

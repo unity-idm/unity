@@ -19,6 +19,7 @@ import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
+import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import org.apache.logging.log4j.Logger;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @PermitAll
+@Breadcrumb(key = "UserHomeUI.signIn")
 @Route(value = "/sign-in", layout = HomeUiMenu.class)
 public class SignInView extends HomeViewComponent
 {

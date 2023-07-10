@@ -17,10 +17,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
-import io.imunity.vaadin.elements.ActionMenu;
-import io.imunity.vaadin.elements.BlankPageAnchor;
-import io.imunity.vaadin.elements.MenuButton;
-import io.imunity.vaadin.elements.SearchField;
+import io.imunity.vaadin.elements.*;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import javax.annotation.security.PermitAll;
@@ -32,6 +29,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.BAN;
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE_O;
 
 @PermitAll
+@Breadcrumb(key = "UpManMenu.userUpdates")
 @Route(value = "/user-updates", layout = UpManMenu.class)
 public class UserUpdatesView extends UpmanViewComponent
 {

@@ -92,6 +92,7 @@
 		<module>vaadin-secured-shared-endpoint</module>
 		<module>vaadin-authentication</module>
 		<module>vaadin-account-association</module>
+		<module>console</module>
 	</modules>
 
 	<developers>

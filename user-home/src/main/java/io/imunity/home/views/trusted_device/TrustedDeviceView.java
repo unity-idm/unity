@@ -19,6 +19,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
+import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @PermitAll
+@Breadcrumb(key = "UserHomeUI.trustedDevices")
 @Route(value = "/trusted-device", layout = HomeUiMenu.class)
 public class TrustedDeviceView extends HomeViewComponent
 {

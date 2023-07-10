@@ -7,15 +7,22 @@ package io.imunity.vaadin.endpoint.common.layout;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
 import io.imunity.vaadin.elements.ExtraLayoutPanel;
 import io.imunity.vaadin.elements.MenuComponent;
+import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.List;
 
@@ -23,7 +30,7 @@ import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrent
 
 
 @PreserveOnRefresh
-public class UnityAppLayout extends FlexLayout implements RouterLayout
+public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNavigationObserver
 {
 
 	private final UnityAppLayoutComponentsHolder appLayoutComponents;
@@ -32,9 +39,10 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout
 
 	public UnityAppLayout(List<MenuComponent> menuComponents,
 	                      VaddinWebLogoutHandler authnProcessor,
+						  MessageSource msg,
 	                      List<Component> additionalIcons)
 	{
-		appLayoutComponents = new UnityAppLayoutComponentsHolder(menuComponents, authnProcessor, additionalIcons);
+		appLayoutComponents = new UnityAppLayoutComponentsHolder(menuComponents, authnProcessor, msg, additionalIcons);
 		vaadinEndpointProperties = getCurrentWebAppVaadinProperties();
 	}
 
@@ -76,5 +84,44 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout
 	public void addToLeftContainerAsFirst(Component component)
 	{
 		leftContainerContent.addComponentAsFirst(component);
+	}
+
+	public void activeLeftContainerMinimization(Image image)
+	{
+		VerticalLayout verticalLayout = new VerticalLayout();
+		Icon leftArrow = VaadinIcon.ANGLE_DOUBLE_LEFT.create();
+		Icon rightArrow = VaadinIcon.ANGLE_DOUBLE_RIGHT.create();
+		rightArrow.setVisible(false);
+		leftArrow.addClickListener(event ->
+		{
+			leftArrow.setVisible(false);
+			rightArrow.setVisible(true);
+			leftContainerContent.getStyle().set("width", "6em");
+			image.getStyle().set("max-width", "2.5em");
+			verticalLayout.setAlignItems(Alignment.CENTER);
+			appLayoutComponents.hiddeTextInTabs();
+		});
+		rightArrow.addClickListener(event ->
+		{
+			leftArrow.setVisible(true);
+			rightArrow.setVisible(false);
+			leftContainerContent.getStyle().remove("width");
+			image.getStyle().set("max-width", "7em");
+			verticalLayout.setAlignItems(Alignment.END);
+			appLayoutComponents.showTextInTabs();
+
+		});
+		verticalLayout.add(leftArrow, rightArrow);
+		verticalLayout.setAlignItems(Alignment.END);
+		verticalLayout.setJustifyContentMode(JustifyContentMode.END);
+		verticalLayout.setHeightFull();
+		verticalLayout.setClassName("minimization-container");
+		leftContainerContent.add(verticalLayout);
+	}
+
+	@Override
+	public void afterNavigation(AfterNavigationEvent event)
+	{
+		appLayoutComponents.reloadBreadCrumb((UnityViewComponent)event.getActiveChain().iterator().next());
 	}
 }

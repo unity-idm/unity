@@ -67,7 +67,7 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 						MenuComponent.builder(AccountUpdateView.class).tabName(msg.getMessage("UserHomeUI.accountUpdate"))
 								.build()
 						)
-						.collect(toList()), standardWebLogoutHandler, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper))
+						.collect(toList()), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper))
 		);
 		this.attributesMan = attributesMan;
 		this.registry = registry;

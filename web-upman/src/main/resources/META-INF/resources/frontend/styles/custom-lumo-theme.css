@@ -35,6 +35,11 @@ html {
   --input-label-top-padding: var(--lumo-space-m);
   --border-radius: var(--lumo-border-radius-m);
   --contrast: var(--lumo-contrast-5pct);
+
+  --base-gap: 1em;
+  --small-gap: calc(0.5 * var(--base-gap));
+  --medium-gap: calc(1.5 * var(--base-gap));
+  --big-gap: calc(2 * var(--base-gap));
 }
 
 h1, h2, h3, h4, h5, h6, b, strong {
@@ -75,10 +80,26 @@ vaadin-tab > vaadin-icon {
     height: var(--lumo-icon-size-m);
 }
 
+vaadin-tab > a > vaadin-icon {
+    color: white;
+    width: var(--lumo-icon-size-m);
+    height: var(--lumo-icon-size-m);
+}
+
 vaadin-icon {
     color: #04859d;
     width: var(--lumo-icon-size-s);
     height: var(--lumo-icon-size-s);
+}
+
+#breadcrumb {
+	display: flex;
+	align-items: center;
+	white-space: pre;
+}
+
+#breadcrumb a, #breadcrumb span {
+	color: var(--lumo-body-text-color);
 }
 
 vaadin-form-item {

@@ -11,12 +11,14 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import io.imunity.home.HomeEndpointProperties;
+import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.endpoint.common.api.StickyEnquiryService;
 
 import javax.annotation.security.PermitAll;
 import java.util.List;
 
 @PermitAll
+@Breadcrumb(key = "UserHomeUI.accountUpdate")
 @Route(value = "/account-update", layout = HomeUiMenu.class)
 public class AccountUpdateView extends HomeViewComponent
 {
@@ -35,6 +37,7 @@ public class AccountUpdateView extends HomeViewComponent
 		if (stickyEnquiryService.anyFormApplicableToCurrentUser(enabledEnquiries))
 		{
 			Component stickyEnquiry = stickyEnquiryService.createApplicableToCurrentUserStickyEnquiryComponent(enabledEnquiries);
+			getContent().removeAll();
 			getContent().add(stickyEnquiry);
 		}
 	}

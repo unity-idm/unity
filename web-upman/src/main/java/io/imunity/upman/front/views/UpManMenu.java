@@ -65,7 +65,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 						MenuComponent.builder(UserUpdatesView.class).tabName(msg.getMessage("UpManMenu.userUpdates"))
 								.icon(USER_CHECK).build()
 						)
-						.collect(toList()), standardWebLogoutHandler, createHomeIcon(homeServiceLinkService)
+						.collect(toList()), standardWebLogoutHandler, msg, createHomeIcon(homeServiceLinkService)
 		);
 		this.projectService = projectService;
 

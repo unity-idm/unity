@@ -7,27 +7,24 @@ package io.imunity.vaadin.endpoint.common.layout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.dom.Element;
-import io.imunity.vaadin.elements.MenuComponent;
-import io.imunity.vaadin.elements.TabComponent;
+import io.imunity.vaadin.elements.*;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.List;
-import java.util.Optional;
 
 class UnityAppLayoutComponentsHolder
 {
+	private final BreadCrumbComponent breadCrumbComponent;
 	private final Div viewContainer = new Div();
-	private final HorizontalLayout leftNavbarSite;
 	private final Tabs tabs;
 
 	private final VaddinWebLogoutHandler authnProcessor;
@@ -36,16 +33,22 @@ class UnityAppLayoutComponentsHolder
 	private final VerticalLayout rightContainerWithNavbarAndViewContent;
 
 
-	UnityAppLayoutComponentsHolder(List<MenuComponent> menuContent, VaddinWebLogoutHandler authnProcessor, List<Component> additionalIcons)
+	UnityAppLayoutComponentsHolder(List<MenuComponent> menuContent, VaddinWebLogoutHandler authnProcessor, MessageSource msg,
+								   List<Component> additionalIcons)
 	{
+		this.breadCrumbComponent = new BreadCrumbComponent(menuContent, msg::getMessage);
 		this.authnProcessor = authnProcessor;
-		this.leftNavbarSite = createLeftNavbarSite();
+		HorizontalLayout leftNavbarSite = createLeftNavbarSite();
 		this.tabs = createLeftMenuTabs(menuContent);
 
 		this.leftContainerWithNavigation = createLeftContainerWithNavigation(tabs);
 		this.rightContainerWithNavbarAndViewContent = createRightContainerWithNavbar(createNavbar(leftNavbarSite, createRightNavbarSite(additionalIcons)));
 
 		viewContainer.setHeightFull();
+	}
+
+	void reloadBreadCrumb(UnityViewComponent unityViewComponent) {
+		breadCrumbComponent.update(unityViewComponent);
 	}
 
 	VerticalLayout getLeftContainerWithNavigation()
@@ -71,15 +74,42 @@ class UnityAppLayoutComponentsHolder
 	private void setTabsMenu(Element contentElement)
 	{
 		tabs.setSelectedTab(null);
-		contentElement.getComponent().flatMap(this::findTabForComponent).ifPresent(tabs::setSelectedTab);
+		contentElement.getComponent().ifPresent(this::selectComponent);
 	}
 
-	private Optional<TabComponent> findTabForComponent(Component component)
+	public void hiddeTextInTabs()
 	{
-		return tabs.getChildren()
-				.map(TabComponent.class::cast)
-				.filter(tab -> tab.componentClass.contains(component.getClass()))
-				.findFirst();
+		tabs.getChildren()
+				.map(TabTextHider.class::cast)
+				.forEach(TabTextHider::hiddeText);
+	}
+
+	public void showTextInTabs()
+	{
+		tabs.getChildren()
+				.map(TabTextHider.class::cast)
+				.forEach(TabTextHider::showText);
+	}
+
+	private void selectComponent(Component component)
+	{
+		tabs.getChildren()
+				.forEach((Component tab) ->
+				{
+					if(tab instanceof TabComponent tabComponent)
+					{
+						if(tabComponent.componentClass.contains(component.getClass()))
+							tabs.setSelectedTab(tabComponent);
+					}
+					if(tab instanceof MultiTabComponent multiTabComponent)
+					{
+						multiTabComponent.components.stream()
+								.filter(x -> x.componentClass.contains(component.getClass()))
+								.findFirst()
+								.ifPresentOrElse(multiTabComponent::select, () -> multiTabComponent.select(null));
+					}
+
+				});
 	}
 
 	private HorizontalLayout createNavbar(HorizontalLayout leftNavbarSite, HorizontalLayout rightNavbarSite)
@@ -95,6 +125,7 @@ class UnityAppLayoutComponentsHolder
 		leftNavbar.setAlignItems(FlexComponent.Alignment.CENTER);
 		leftNavbar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		leftNavbar.setSizeFull();
+		leftNavbar.add(breadCrumbComponent);
 		return leftNavbar;
 	}
 
@@ -146,21 +177,15 @@ class UnityAppLayoutComponentsHolder
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
 		tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
 		Component[] items = menuContent.stream()
-				.map(TabComponent::new)
-				.toArray(Tab[]::new);
+				.map(menu ->
+				{
+					if(menu.subTabs.isEmpty())
+						return new TabComponent(menu);
+					else
+						return new MultiTabComponent(menu);
+				})
+				.toArray(Component[]::new);
 		tabs.add(items);
-		tabs.addSelectedChangeListener(event ->
-		{
-			TabComponent selectedTab;
-			if(event.getSelectedTab() == null)
-				selectedTab = (TabComponent) event.getPreviousTab();
-			else
-				selectedTab = (TabComponent) event.getSelectedTab();
-
-			leftNavbarSite.removeAll();
-			leftNavbarSite.add(new Label(selectedTab.name));
-		});
 		return tabs;
 	}
-
 }

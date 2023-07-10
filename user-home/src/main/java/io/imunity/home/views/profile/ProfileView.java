@@ -22,6 +22,7 @@ import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 import io.imunity.vaadin.auth.sandbox.SandboxWizardDialog;
+import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
@@ -52,6 +53,7 @@ import java.util.*;
 import static io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext.EMPTY;
 
 @PermitAll
+@Breadcrumb(key = "UserHomeUI.profile")
 @RouteAlias(value = "/", layout = HomeUiMenu.class)
 @Route(value = "/profile", layout = HomeUiMenu.class)
 public class ProfileView extends HomeViewComponent

@@ -5,15 +5,14 @@
 package io.imunity.upman.front;
 
 import com.vaadin.flow.component.ComponentUtil;
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.*;
 import io.imunity.upman.front.model.ProjectGroup;
+import io.imunity.vaadin.elements.UnityViewComponent;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppDisplayedName;
 
-public abstract class UpmanViewComponent extends Composite<Div> implements HasUrlParameter<String>, AfterNavigationObserver, HasDynamicTitle
+public abstract class UpmanViewComponent extends UnityViewComponent implements HasUrlParameter<String>, AfterNavigationObserver, HasDynamicTitle
 {
 	public final String pageTitle = getCurrentWebAppDisplayedName();
 

@@ -155,6 +155,12 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-console</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-upman</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

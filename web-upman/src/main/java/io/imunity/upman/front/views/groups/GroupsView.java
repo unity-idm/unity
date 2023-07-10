@@ -20,6 +20,7 @@ import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.ActionMenu;
+import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.MenuButton;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -35,6 +36,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static java.util.stream.Collectors.toSet;
 
 @PermitAll
+@Breadcrumb(key = "UpManMenu.groups")
 @Route(value = "/groups", layout = UpManMenu.class)
 public class GroupsView extends UpmanViewComponent
 {

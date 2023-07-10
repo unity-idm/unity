@@ -15,19 +15,38 @@ import java.util.List;
 
 import static java.util.Optional.ofNullable;
 
-public class TabComponent extends Tab
+public class TabComponent extends Tab implements TabTextHider
 {
 	public final String name;
 	public final List<Class<? extends Component>> componentClass;
+	private final RouterLink routerLink;
+	private final Component icon;
 
 	public TabComponent(MenuComponent menu)
 	{
-		super(new RouterLink(menu.tabName, menu.component));
-		Component icon = ofNullable(menu.icon).map(vaadinIcon -> (Component)vaadinIcon.create()).orElseGet(Div::new);
-		addComponentAsFirst(icon);
+		this.routerLink = new RouterLink(menu.tabName, menu.component);
+		routerLink.getStyle().set("gap", "var(--small-gap)");
+		routerLink.getStyle().set("justify-content", "unset");
+		this.icon = ofNullable(menu.icon).map(vaadinIcon -> (Component)vaadinIcon.create()).orElseGet(Div::new);
+		add(routerLink);
+		routerLink.addComponentAsFirst(icon);
 		name = menu.tabName;
 		List<Class<? extends Component>> components = new ArrayList<>(List.of(menu.component));
 		components.addAll(menu.subViews);
 		this.componentClass = Collections.unmodifiableList(components);
+	}
+
+	@Override
+	public void hiddeText()
+	{
+		routerLink.setText("");
+		routerLink.addComponentAsFirst(icon);
+	}
+
+	@Override
+	public void showText()
+	{
+		routerLink.setText(name);
+		routerLink.addComponentAsFirst(icon);
 	}
 }

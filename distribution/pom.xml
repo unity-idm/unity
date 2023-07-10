@@ -51,7 +51,12 @@
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-console</artifactId>
 			<version>${project.version}</version>
-		</dependency>		
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-console</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-saml</artifactId>

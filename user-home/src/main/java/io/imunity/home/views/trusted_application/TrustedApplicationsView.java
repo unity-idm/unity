@@ -25,6 +25,7 @@ import com.vaadin.flow.server.StreamResource;
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
 import io.imunity.idp.IdPClientData;
+import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -36,6 +37,7 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @PermitAll
+@Breadcrumb(key = "UserHomeUI.trustedApplications")
 @Route(value = "/trusted-applications", layout = HomeUiMenu.class)
 public class TrustedApplicationsView extends HomeViewComponent
 {
