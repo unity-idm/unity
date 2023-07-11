@@ -172,7 +172,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	private void showOutdatedCredentialDialog()
 	{
 		CredentialChangeConfiguration uiConfig = new CredentialChangeConfiguration(
-				config.getValue(VaadinEndpointProperties.AUTHN_LOGO), 
+				config.getAuthnLogo(),
 				getFirstColumnWidth(), 
 				config.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT));
 

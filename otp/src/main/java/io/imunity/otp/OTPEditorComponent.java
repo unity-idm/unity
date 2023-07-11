@@ -245,6 +245,7 @@ class OTPEditorComponent extends VerticalLayout
 			validationLayout.setPadding(false);
 			validationLayout.setSpacing(false);
 			validationLayout.add(code, verify);
+			validationLayout.setSpacing(true);
 
 			confirmed = new Label(msg.getMessage("OTPEditorComponent.codeVerified"));
 			confirmed.setVisible(false);

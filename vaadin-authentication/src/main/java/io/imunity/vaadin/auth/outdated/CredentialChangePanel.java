@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
@@ -83,31 +84,29 @@ class CredentialChangePanel extends VerticalLayout
 				.withCustomWidthUnit(Unit.EM)
 				.withShowLabelInline(uiConfig.compactLayout)
 				.build());
-		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.setSizeUndefined();
-		wrapper.setMargin(false);
+		setMargin(false);
 		
 		Optional<Image> logo = imageAccessService.loadImageFromUri(uiConfig.logoURL);
-		logo.ifPresent(wrapper::add);
-		
+		logo.ifPresent(logoImg -> logoImg.setId("unity-logo-image"));
+		logo.ifPresent(this::add);
+
 		Label info = new Label(msg.getMessage("OutdatedCredentialDialog.info"));
 		info.addClassName("u-outdatedcred-info");
 		info.setWidth(uiConfig.width * 2, Unit.EM);
-		wrapper.add(info);
-		wrapper.setAlignItems(Alignment.CENTER);
+		info.getStyle().set("color", "red");
+		add(info);
+		setAlignItems(Alignment.CENTER);
 		
 		VerticalLayout fixedWidthCol = new VerticalLayout();
 		fixedWidthCol.addClassName("u-outdatedcred-fixedWidthCol");
-		fixedWidthCol.setMargin(false);
+		fixedWidthCol.setPadding(false);
 		fixedWidthCol.setWidth(uiConfig.width, Unit.EM);
 		Component editor = getEditorAsSingle(uiConfig);
 		fixedWidthCol.add(editor);
 		fixedWidthCol.setAlignItems(Alignment.CENTER);
-		
-		fixedWidthCol.add(new Label("&nbsp;"));
-		
+
 		Button update = new Button(msg.getMessage("OutdatedCredentialDialog.update"));
-		update.setWidth(100, Unit.PERCENTAGE);
+		update.setWidthFull();
 		update.addClassName("u-outdatedcred-update");
 		update.addClickListener(event -> {
 			if (updateCredential(false))
@@ -116,22 +115,19 @@ class CredentialChangePanel extends VerticalLayout
 		update.addClickShortcut(Key.ENTER);
 		fixedWidthCol.add(update);
 
-		Button cancel = new Button(msg.getMessage("cancel"));
+		LinkButton cancel = new LinkButton(msg.getMessage("cancel"), e -> cancelHandler.run());
 		cancel.addClassName("u-outdatedcred-cancel");
-		cancel.addClickListener(e -> {
-			cancelHandler.run();
-		});
+		cancel.getStyle().set("align-self", "end");
 		fixedWidthCol.add(cancel);
 		
-		wrapper.add(fixedWidthCol);
-		setSizeUndefined();
+		add(fixedWidthCol);
 		addClassName("u-outdatedcred-panel");
 	}
 
 	private Component getEditorAsSingle(CredentialChangeConfiguration uiConfig)
 	{
 		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.setMargin(false);
+		wrapper.setPadding(false);
 		wrapper.add(credEditorComp.getComponents());
 		wrapper.setWidth(uiConfig.width, Unit.EM);
 		return wrapper;
@@ -148,11 +144,6 @@ class CredentialChangePanel extends VerticalLayout
 	public boolean isChanged()
 	{
 		return changed;
-	}
-
-	public boolean isEmptyEditor()
-	{
-		return credEditorComp.getComponents().length == 0;
 	}
 	
 	public boolean updateCredential(boolean showSuccess)
