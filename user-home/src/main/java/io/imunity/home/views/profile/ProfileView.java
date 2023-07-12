@@ -10,6 +10,7 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -116,22 +117,20 @@ public class ProfileView extends HomeViewComponent
 	private HorizontalLayout createButtonsLayout(VerticalLayout mainLayout)
 	{
 		HorizontalLayout buttonsLayout = new HorizontalLayout();
-		buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+		buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 		buttonsLayout.setMargin(true);
 
-		mainLayout.addClickListener(event ->
-		{
-			if(iSavable())
-				saveChanges();
-		});
-		mainLayout.addDetachListener(event ->
-		{
-			if(iSavable())
-				saveChanges();
-		});
+		Button save = new Button(msg.getMessage("save"));
+		save.setIcon(VaadinIcon.DISC.create());
+		save.addClickListener(event -> saveChanges());
+		save.setVisible(false);
+		mainLayout.addClickListener(event -> save.setVisible(iSavable()));
 
 		EntityRemovalButton entityRemovalButton = new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, insecureIdsMan, authnProcessor, notificationPresenter, config);
-		buttonsLayout.add(entityRemovalButton);
+		HorizontalLayout endButtonsLayout = new HorizontalLayout();
+		endButtonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+		endButtonsLayout.add(entityRemovalButton);
+		buttonsLayout.add(new HorizontalLayout(save), endButtonsLayout);
 
 		if (!config.getDisabledComponents().contains(HomeEndpointProperties.Components.accountLinking.toString()))
 		{
@@ -152,7 +151,7 @@ public class ProfileView extends HomeViewComponent
 				dialog.setHeaderTitle(msg.getMessage("ConnectId.wizardCaption"));
 				dialog.open();
 			});
-			buttonsLayout.add(associationButton);
+			endButtonsLayout.add(associationButton);
 		}
 		return buttonsLayout;
 	}
