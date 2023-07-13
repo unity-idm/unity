@@ -47,11 +47,27 @@ public class NotificationPresenter
 		successNotification.open();
 	}
 
+	public void showSuccess(String caption, String description, Runnable runAfterClose)
+	{
+		SuccessNotification successNotification = new SuccessNotification(caption, description);
+		successNotification.setDuration(DEFAULT_NOTIFICATION_DURATION);
+		successNotification.open();
+		successNotification.addDetachListener(e -> runAfterClose.run());
+	}
+
 	public void showError(String caption, String description)
 	{
 		ErrorNotification errorNotification = new ErrorNotification(caption, description);
 		errorNotification.setDuration(DEFAULT_NOTIFICATION_DURATION);
 		errorNotification.open();
+	}
+
+	public void showError(String caption, String description, Runnable runAfterClose)
+	{
+		ErrorNotification errorNotification = new ErrorNotification(caption, description);
+		errorNotification.setDuration(DEFAULT_NOTIFICATION_DURATION);
+		errorNotification.open();
+		errorNotification.addDetachListener(e -> runAfterClose.run());
 	}
 
 	private static class ErrorNotification extends Notification

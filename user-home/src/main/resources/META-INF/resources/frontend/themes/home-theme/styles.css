@@ -38,6 +38,10 @@ html {
   --medium-margin: calc(1.5 * var(--base-margin));
   --big-margin: calc(2 * var(--base-margin));
 
+  --auth-component-height: var(--lumo-size-m);
+  --auth-component-margin: var(--lumo-space-xs);
+  --auth-full-component-margin: calc(2 * var(--auth-component-margin));
+
   --base-padding: 1em;
   --small-padding: calc(0.5 * var(--base-padding));
   --medium-padding: calc(1.5 * var(--base-padding));
@@ -58,6 +62,14 @@ vaadin-tab {
 	height: var(--lumo-size-l);
 	font-weight: var(--unity-font-weight);
 	color: white;
+}
+
+vaadin-button[theme="primary"] {
+    background-color: #6BBFCE;
+}
+
+vaadin-button[theme="primary"]:hover {
+    background-color: #3199AC;
 }
 
 vaadin-tab:hover {

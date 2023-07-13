@@ -107,7 +107,7 @@ public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 		return servletContextHandler;
 	}
 
-	protected ServletHolder createServletHolder(Servlet servlet)
+	protected final ServletHolder createServletHolder(Servlet servlet)
 	{
 		ServletHolder holder = new ServletHolder(servlet);
 		holder.setInitParameter("closeIdleSessions", "true");

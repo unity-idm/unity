@@ -131,11 +131,11 @@ public class OutdatedCredentialController
 		if (changed)
 		{
 			notificationPresenter.showSuccess(msg.getMessage("OutdatedCredentialDialog.finalOK"),
-					msg.getMessage("OutdatedCredentialDialog.finalInfo"));
+					msg.getMessage("OutdatedCredentialDialog.finalInfo"), this::cleanup);
 		} else
 		{
 			notificationPresenter.showError(msg.getMessage("OutdatedCredentialDialog.finalError"),
-					msg.getMessage("OutdatedCredentialDialog.finalInfoNotChanged"));
+					msg.getMessage("OutdatedCredentialDialog.finalInfoNotChanged"), this::cleanup);
 		}
 	}
 	

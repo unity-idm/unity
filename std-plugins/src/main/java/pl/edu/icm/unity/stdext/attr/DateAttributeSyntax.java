@@ -57,7 +57,7 @@ public class DateAttributeSyntax implements AttributeValueSyntax<LocalDate>
 	public void validate(LocalDate value) throws IllegalAttributeValueException
 	{
 		if (value == null)
-			throw new NullAttributeValueException("");
+			throw new NullAttributeValueException();
 
 	}
 

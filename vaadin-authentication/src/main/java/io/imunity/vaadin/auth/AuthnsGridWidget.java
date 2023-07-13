@@ -11,7 +11,6 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.apache.commons.collections.ListUtils;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -21,7 +20,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import java.text.Collator;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static io.imunity.vaadin.auth.VaadinAuthentication.VaadinAuthenticationUI;
 
@@ -74,6 +72,9 @@ public class AuthnsGridWidget extends VerticalLayout
 					AuthenticationOptionKeyUtils.encodeToCSS(item.getId()));
 		providersChoiceGrid.setSizeUndefined();
 		providersChoiceGrid.setAllRowsVisible(true);
+		providersChoiceGrid.getStyle().set("margin", "var(--auth-component-margin) 0");
+		providersChoiceGrid.getStyle().set("height",
+			"calc(" + height + "* (var(--auth-component-height) + var(--auth-full-component-margin)) - var(--auth-full-component-margin))");
 
 		reloadContents();
 		add(providersChoiceGrid);
@@ -124,11 +125,7 @@ public class AuthnsGridWidget extends VerticalLayout
 		
 		providers.sort(null);
 
-		List<AuthenticationOptionGridEntry> missingEmptyRows = IntStream.range(0, height - providers.size())
-				.boxed()
-				.map(x -> new AuthenticationOptionGridEntry(UUID.randomUUID().toString(), null, new Image(), null))
-				.toList();
-		providersChoiceGrid.setItems(ListUtils.union(providers, missingEmptyRows));
+		providersChoiceGrid.setItems(providers.stream().limit(height).toList());
 
 		setVisible(size() != 0);
 	}

@@ -43,6 +43,10 @@ html {
   --medium-padding: calc(1.5 * var(--base-padding));
   --big-padding: calc(2 * var(--base-padding));
 
+  --auth-component-height: var(--lumo-size-m);
+  --auth-component-margin: var(--lumo-space-xs);
+  --auth-full-component-margin: calc(2 * var(--auth-component-margin));
+
   --base-gap: 1em;
   --small-gap: calc(0.5 * var(--base-gap));
   --medium-gap: calc(1.5 * var(--base-gap));
@@ -51,6 +55,14 @@ html {
 
 h1, h2, h3, h4, h5, h6, b, strong {
 	font-weight: var(--unity-font-weight);
+}
+
+vaadin-button[theme="primary"] {
+    background-color: #6BBFCE;
+}
+
+vaadin-button[theme="primary"]:hover {
+    background-color: #3199AC;
 }
 
 vaadin-tab {

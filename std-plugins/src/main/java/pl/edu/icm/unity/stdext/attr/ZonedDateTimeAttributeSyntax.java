@@ -57,7 +57,7 @@ public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedD
 	public void validate(ZonedDateTime value) throws IllegalAttributeValueException
 	{
 		if (value == null)
-			throw new NullAttributeValueException("");
+			throw new NullAttributeValueException();
 
 	}
 

@@ -94,6 +94,7 @@ class CredentialChangePanel extends VerticalLayout
 		info.addClassName("u-outdatedcred-info");
 		info.setWidth(uiConfig.width * 2, Unit.EM);
 		info.getStyle().set("color", "red");
+		info.getStyle().set("text-align", "center");
 		add(info);
 		setAlignItems(Alignment.CENTER);
 		

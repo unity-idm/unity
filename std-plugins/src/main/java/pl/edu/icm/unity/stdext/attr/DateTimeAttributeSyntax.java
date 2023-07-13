@@ -59,7 +59,7 @@ public class DateTimeAttributeSyntax implements AttributeValueSyntax<LocalDateTi
 	public void validate(LocalDateTime value) throws IllegalAttributeValueException
 	{
 		if (value == null)
-			throw new NullAttributeValueException("");
+			throw new NullAttributeValueException();
 
 	}
 

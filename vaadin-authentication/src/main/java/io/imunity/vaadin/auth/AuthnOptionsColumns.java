@@ -370,7 +370,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 		String message = key.isEmpty() ? "" : resolveSeparatorMessage(key.substring(1));
 		AuthNGridTextWrapper ret = new AuthNGridTextWrapper(new Label(message), Alignment.CENTER);
 		ret.setClassName("u-authn-entriesSeparator");
-		ret.getStyle().set("margin", "1em");
+		ret.setJustifyContentMode(JustifyContentMode.CENTER);
 		return createNonLoginComponent(specEntry, ret);
 	}
 

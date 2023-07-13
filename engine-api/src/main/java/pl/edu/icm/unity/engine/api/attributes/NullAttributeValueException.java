@@ -11,13 +11,8 @@ import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
  */
 public class NullAttributeValueException extends IllegalAttributeValueException
 {
-	public NullAttributeValueException(String msg, Throwable cause)
+	public NullAttributeValueException()
 	{
-		super(msg, cause);
-	}
-
-	public NullAttributeValueException(String msg)
-	{
-		super(msg);
+		super("");
 	}
 }

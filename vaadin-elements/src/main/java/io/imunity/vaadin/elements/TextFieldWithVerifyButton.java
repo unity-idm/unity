@@ -33,7 +33,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	private final Div verifyButtonIcon;
 	private final Div confirmationStatusIcon;
 	private final boolean showLabelInline;
-	private Span requiredDot;
+	private Span requiredIndicator;
 
 	public TextFieldWithVerifyButton(boolean addConfirmCheckbox,
 	                                 String verifyButtonDesc, Icon verifyButtonIcon,
@@ -77,14 +77,14 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	@Override
 	public void setRequiredIndicatorVisible(boolean visible) 
 	{
-		if(requiredDot != null)
-			label.remove(requiredDot);
+		if(requiredIndicator != null)
+			label.remove(requiredIndicator);
 		if(visible)
 		{
 			label.remove();
-			requiredDot = new Span();
-			requiredDot.setClassName("required-label");
-			label.add(requiredDot);
+			requiredIndicator = new Span();
+			requiredIndicator.setClassName("required-label");
+			label.add(requiredIndicator);
 		}
 	}
 
@@ -99,10 +99,10 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		{
 			editor.setInvalid(true);
 			editor.setErrorMessage(error);
-			ofNullable(requiredDot).ifPresent(dot -> dot.addClassName("invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName("invalid"));
 		}
 		else
-			ofNullable(requiredDot).ifPresent(dot -> dot.removeClassName("invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName("invalid"));
 	}
 
 
@@ -111,9 +111,9 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		editor.setInvalid(invalid);
 		if(invalid)
-			ofNullable(requiredDot).ifPresent(dot -> dot.addClassName("invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName("invalid"));
 		else
-			ofNullable(requiredDot).ifPresent(dot -> dot.removeClassName("invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName("invalid"));
 	}
 
 	@Override
