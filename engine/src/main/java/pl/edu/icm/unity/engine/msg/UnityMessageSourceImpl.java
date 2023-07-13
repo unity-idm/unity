@@ -4,19 +4,7 @@
  */
 package pl.edu.icm.unity.engine.msg;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.NoSuchMessageException;
@@ -27,9 +15,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageArea;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -37,6 +22,10 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.LocaleHelper;
+
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * Extension of the {@link ResourceBundleMessageSource} which 
@@ -174,7 +163,16 @@ public class UnityMessageSourceImpl extends ReloadableResourceBundleMessageSourc
 	{
 		return LocaleHelper.getLocale(config.getDefaultLocale());
 	}
-	
+
+	@Override
+	public Locale getLocaleForTimeFormat()
+	{
+		Locale locale = getLocale();
+		if(locale.getLanguage().equals("en"))
+			return Locale.UK;
+		return locale;
+	}
+
 	@Override
 	public Map<String, Locale> getEnabledLocales()
 	{

@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.base.message;
 
+import pl.edu.icm.unity.base.i18n.I18nString;
+
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import pl.edu.icm.unity.base.i18n.I18nString;
 
 public interface MessageSource extends org.springframework.context.MessageSource
 {
@@ -23,7 +23,8 @@ public interface MessageSource extends org.springframework.context.MessageSource
 	String getLocaleCode();
 	Map<String, Locale> getEnabledLocales();
 	Map<String, Locale> getSupportedLocales();	
-	
+	Locale getLocaleForTimeFormat();
+
 	Map<MessageArea, Set<Object>> getKeysByCategory();
 	I18nString getI18nMessage(String code, Object... args);
 	
