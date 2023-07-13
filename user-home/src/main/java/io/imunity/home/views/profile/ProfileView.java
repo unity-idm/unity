@@ -124,13 +124,23 @@ public class ProfileView extends HomeViewComponent
 		save.setIcon(VaadinIcon.DISC.create());
 		save.addClickListener(event -> saveChanges());
 		save.setVisible(false);
-		mainLayout.addClickListener(event -> save.setVisible(iSavable()));
+
+		Button reset = new Button(msg.getMessage("ProfileView.reset"));
+		reset.setIcon(VaadinIcon.REFRESH.create());
+		reset.addClickListener(event -> init());
+		reset.setVisible(false);
+		mainLayout.addClickListener(event ->
+		{
+			boolean savable = iSavable();
+			save.setVisible(savable);
+			reset.setVisible(savable);
+		});
 
 		EntityRemovalButton entityRemovalButton = new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, insecureIdsMan, authnProcessor, notificationPresenter, config);
 		HorizontalLayout endButtonsLayout = new HorizontalLayout();
 		endButtonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		endButtonsLayout.add(entityRemovalButton);
-		buttonsLayout.add(new HorizontalLayout(save), endButtonsLayout);
+		buttonsLayout.add(new HorizontalLayout(save, reset), endButtonsLayout);
 
 		if (!config.getDisabledComponents().contains(HomeEndpointProperties.Components.accountLinking.toString()))
 		{
