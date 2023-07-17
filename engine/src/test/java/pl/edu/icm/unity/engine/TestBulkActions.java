@@ -4,14 +4,13 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
@@ -114,7 +113,7 @@ public class TestBulkActions extends DBIntegrationTestBase
 		
 		bulkMan.removeScheduledRule(id);
 		
-		assertThat(bulkMan.getScheduledRules().isEmpty(), is(true));
+		assertThat(bulkMan.getScheduledRules()).isEmpty();
 	}
 
 	@Test
@@ -130,9 +129,9 @@ public class TestBulkActions extends DBIntegrationTestBase
 		bulkMan.updateScheduledRule(rule2);
 		
 		Collection<ScheduledProcessingRule> scheduledRules = bulkMan.getScheduledRules();
-		assertThat(scheduledRules.size(), is(1));
+		assertThat(scheduledRules).hasSize(1);
 		ScheduledProcessingRule rulePrim = scheduledRules.iterator().next();
-		assertThat(rulePrim, is(rule2));		
+		assertThat(rulePrim).isEqualTo(rule2);		
 	}
 	
 	@Test
@@ -142,12 +141,12 @@ public class TestBulkActions extends DBIntegrationTestBase
 		String id = bulkMan.scheduleRule(rule);
 		
 		Collection<ScheduledProcessingRule> scheduledRules = bulkMan.getScheduledRules();
-		assertThat(scheduledRules.size(), is(1));
+		assertThat(scheduledRules).hasSize(1);
 		ScheduledProcessingRule rulePrim = scheduledRules.iterator().next();
-		assertThat(rulePrim.getAction(), is(rule.getAction()));
-		assertThat(rulePrim.getCondition(), is(rule.getCondition()));
-		assertThat(rulePrim.getCronExpression(), is(rule.getCronExpression()));
-		assertThat(rulePrim.getId(), is(id));
+		assertThat(rulePrim.getAction()).isEqualTo(rule.getAction());
+		assertThat(rulePrim.getCondition()).isEqualTo(rule.getCondition());
+		assertThat(rulePrim.getCronExpression()).isEqualTo(rule.getCronExpression());
+		assertThat(rulePrim.getId()).isEqualTo(id);
 	}
 
 	

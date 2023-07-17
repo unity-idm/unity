@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.base.utils;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +12,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -41,10 +39,12 @@ public class JsonUtilTest
 
 		// then
 		ObjectNode json = Constants.MAPPER.readValue(jsonString, ObjectNode.class);
-		assertThat(json.get("firstFactorAuthenticators").get(0).asText(),
-				equalTo("primary"));
-		assertThat(json.get("secondFactorAuthenticators").get(0).asText(),
-				equalTo("secondary"));
+		assertThat(json.get("firstFactorAuthenticators")
+				.get(0)
+				.asText()).isEqualTo("primary");
+		assertThat(json.get("secondFactorAuthenticators")
+				.get(0)
+				.asText()).isEqualTo("secondary");
 		System.out.println(json);
 
 	}
@@ -60,9 +60,9 @@ public class JsonUtilTest
 				AuthenticationFlowDefinition.class);
 
 		// then
-		assertThat(authn, equalTo(new AuthenticationFlowDefinition("flow", Policy.REQUIRE,
+		assertThat(authn).isEqualTo(new AuthenticationFlowDefinition("flow", Policy.REQUIRE,
 				new HashSet<String>(Arrays.asList("primary")),
-				new ArrayList<String>(Arrays.asList("secondary")))));
+				new ArrayList<String>(Arrays.asList("secondary"))));
 	}
 
 	@Test
@@ -81,14 +81,14 @@ public class JsonUtilTest
 				AuthenticationFlowDefinition.class);
 
 		// then
-		assertThat(authn.size(), equalTo(2));
-		assertThat(authn, hasItems(
+		assertThat(authn).hasSize(2);
+		assertThat(authn).contains(
 				new AuthenticationFlowDefinition("flow1", Policy.REQUIRE,
 						new HashSet<String>(Arrays.asList("primary")),
 						new ArrayList<String>(Arrays.asList("secondary"))),
 				new AuthenticationFlowDefinition("flow2", Policy.REQUIRE,
 						new HashSet<String>(Arrays.asList("primary")),
 						new ArrayList<String>(
-								Arrays.asList("secondary")))));
+								Arrays.asList("secondary"))));
 	}
 }

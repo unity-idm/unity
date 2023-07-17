@@ -5,10 +5,8 @@
 
 package pl.edu.icm.unity.store.export;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -16,12 +14,12 @@ import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.google.common.collect.Sets;
 
@@ -59,13 +57,13 @@ import pl.edu.icm.unity.base.registration.EnquiryResponseBuilder;
 import pl.edu.icm.unity.base.registration.EnquiryResponseState;
 import pl.edu.icm.unity.base.registration.RegistrationContext;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
-import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.base.registration.RegistrationRequestBuilder;
 import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
+import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationAction;
@@ -106,7 +104,7 @@ import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.store.types.StoredCertificate;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = { "classpath*:META-INF/components.xml" })
 public class ImportExportTest
 {
@@ -203,7 +201,7 @@ public class ImportExportTest
 	@Autowired
 	private AuditEventDAO auditDB;
 
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -239,27 +237,27 @@ public class ImportExportTest
 
 				dbCleaner.deletePreImport(DBDumpContentTypeMapper.getElementsForClearDB(el));
 
-				assertThat(realmDB.getAll().size(), is(0));
-				assertThat(authenticatorDB.getAll().size(), is(0));
-				assertThat(authenticationFlowDB.getAll().size(), is(0));
-				assertThat(endpointDB.getAll().size(), is(0));
-				assertThat(fileDB.getAll().size(), is(0));
-				assertThat(inProfileDB.getAll().size(), is(0));
-				assertThat(outProfileDB.getAll().size(), is(0));
-				assertThat(certDB.getAll().size(), is(0));
-				assertThat(notificationChannelDB.getAll().size(), is(0));
-				assertThat(credentialDB.getAll().size(), is(0));
+				assertThat(realmDB.getAll()).hasSize(0);
+				assertThat(authenticatorDB.getAll()).hasSize(0);
+				assertThat(authenticationFlowDB.getAll()).hasSize(0);
+				assertThat(endpointDB.getAll()).hasSize(0);
+				assertThat(fileDB.getAll()).hasSize(0);
+				assertThat(inProfileDB.getAll()).hasSize(0);
+				assertThat(outProfileDB.getAll()).hasSize(0);
+				assertThat(certDB.getAll()).hasSize(0);
+				assertThat(notificationChannelDB.getAll()).hasSize(0);
+				assertThat(credentialDB.getAll()).hasSize(0);
 
 				ie.load(new BufferedInputStream(new FileInputStream("target/afterImport.json")));
 
-				assertThat(realmDB.get("test"), is(notNullValue()));
-				assertThat(certDB.get("test"), is(notNullValue()));
-				assertThat(authenticatorDB.get("test"), is(notNullValue()));
-				assertThat(authenticationFlowDB.get("test2"), is(notNullValue()));
-				assertThat(endpointDB.get("test"), is(notNullValue()));
-				assertThat(fileDB.get("test"), is(notNullValue()));
-				assertThat(inProfileDB.get("test"), is(notNullValue()));
-				assertThat(outProfileDB.get("test2"), is(notNullValue()));
+				assertThat(realmDB.get("test")).isNotNull();
+				assertThat(certDB.get("test")).isNotNull();
+				assertThat(authenticatorDB.get("test")).isNotNull();
+				assertThat(authenticationFlowDB.get("test2")).isNotNull();
+				assertThat(endpointDB.get("test")).isNotNull();
+				assertThat(fileDB.get("test")).isNotNull();
+				assertThat(inProfileDB.get("test")).isNotNull();
+				assertThat(outProfileDB.get("test2")).isNotNull();
 
 			} catch (Exception e)
 			{
@@ -304,27 +302,27 @@ public class ImportExportTest
 
 				dbCleaner.deletePreImport(DBDumpContentTypeMapper.getElementsForClearDB(el));
 
-				assertThat(credReqDB.getAll().size(), is(0));
-				assertThat(procRuleDB.getAll().size(), is(0));
-				assertThat(attributeTypeDB.getAll().size(), is(0));
-				assertThat(groupDAO.getAll().size(), is(1));
-				assertThat(enquiryFormDB.getAll().size(), is(0));
-				assertThat(registrationFormDB.getAll().size(), is(0));
-				assertThat(idTypeDB.getAll().size(), is(0));
-				assertThat(attrClassDB.getAll().size(), is(0));
-				assertThat(msgTemplDB.getAll().size(), is(0));
+				assertThat(credReqDB.getAll()).hasSize(0);
+				assertThat(procRuleDB.getAll()).hasSize(0);
+				assertThat(attributeTypeDB.getAll()).hasSize(0);
+				assertThat(groupDAO.getAll()).hasSize(1);
+				assertThat(enquiryFormDB.getAll()).hasSize(0);
+				assertThat(registrationFormDB.getAll()).hasSize(0);
+				assertThat(idTypeDB.getAll()).hasSize(0);
+				assertThat(attrClassDB.getAll()).hasSize(0);
+				assertThat(msgTemplDB.getAll()).hasSize(0);
 
 				ie.load(new BufferedInputStream(new FileInputStream("target/afterImport.json")));
 
-				assertThat(credReqDB.get("test"), is(notNullValue()));
-				assertThat(procRuleDB.get("test"), is(notNullValue()));
-				assertThat(attributeTypeDB.get("test"), is(notNullValue()));
-				assertThat(groupDAO.get("/test"), is(notNullValue()));
-				assertThat(enquiryFormDB.get("test"), is(notNullValue()));
-				assertThat(registrationFormDB.get("test"), is(notNullValue()));
-				assertThat(idTypeDB.get("test"), is(notNullValue()));
-				assertThat(attrClassDB.get("test"), is(notNullValue()));
-				assertThat(msgTemplDB.get("test"), is(notNullValue()));
+				assertThat(credReqDB.get("test")).isNotNull();
+				assertThat(procRuleDB.get("test")).isNotNull();
+				assertThat(attributeTypeDB.get("test")).isNotNull();
+				assertThat(groupDAO.get("/test")).isNotNull();
+				assertThat(enquiryFormDB.get("test")).isNotNull();
+				assertThat(registrationFormDB.get("test")).isNotNull();
+				assertThat(idTypeDB.get("test")).isNotNull();
+				assertThat(attrClassDB.get("test")).isNotNull();
+				assertThat(msgTemplDB.get("test")).isNotNull();
 
 			} catch (Exception e)
 			{
@@ -360,21 +358,21 @@ public class ImportExportTest
 
 				dbCleaner.deletePreImport(DBDumpContentTypeMapper.getElementsForClearDB(el));
 
-				assertThat(idDB.getAll().size(), is(0));
-				assertThat(entityDB.getAll().size(), is(0));
-				assertThat(attrDB.getAll().size(), is(0));
-				assertThat(membershipDB.getAll().size(), is(0));
-				assertThat(tokenDB.getAll().size(), is(0));
-				assertThat(attributeTypeDB.getAll().size(), is(0));
+				assertThat(idDB.getAll()).hasSize(0);
+				assertThat(entityDB.getAll()).hasSize(0);
+				assertThat(attrDB.getAll()).hasSize(0);
+				assertThat(membershipDB.getAll()).hasSize(0);
+				assertThat(tokenDB.getAll()).hasSize(0);
+				assertThat(attributeTypeDB.getAll()).hasSize(0);
 
 				ie.load(new BufferedInputStream(new FileInputStream("target/afterImport.json")));
 
-				assertThat(idDB.getByEntity(1).size(), is(1));
-				assertThat(entityDB.getAll().size(), is(1));
-				assertThat(attrDB.getAll().size(), is(1));
-				assertThat(membershipDB.getAll().size(), is(1));
-				assertThat(tokenDB.getAll().size(), is(1));
-				assertThat(attributeTypeDB.get("test"), is(notNullValue()));
+				assertThat(idDB.getByEntity(1)).hasSize(1);
+				assertThat(entityDB.getAll()).hasSize(1);
+				assertThat(attrDB.getAll()).hasSize(1);
+				assertThat(membershipDB.getAll()).hasSize(1);
+				assertThat(tokenDB.getAll()).hasSize(1);
+				assertThat(attributeTypeDB.get("test")).isNotNull();
 
 			} catch (Exception e)
 			{
@@ -401,11 +399,11 @@ public class ImportExportTest
 
 				dbCleaner.deletePreImport(DBDumpContentTypeMapper.getElementsForClearDB(el));
 
-				assertThat(auditDB.getAll().size(), is(0));
+				assertThat(auditDB.getAll()).hasSize(0);
 
 				ie.load(new BufferedInputStream(new FileInputStream("target/afterImport.json")));
 
-				assertThat(auditDB.getAll().size(), is(1));
+				assertThat(auditDB.getAll()).hasSize(1);
 
 			} catch (Exception e)
 			{
@@ -450,17 +448,17 @@ public class ImportExportTest
 
 				dbCleaner.deletePreImport(DBDumpContentTypeMapper.getElementsForClearDB(el));
 
-				assertThat(invitationDB.getAll().size(), is(0));
-				assertThat(enquiryResponseDB.getAll().size(), is(0));
-				assertThat(registrationRequestDB.getAll().size(), is(0));
-				assertThat(attributeTypeDB.getAll().size(), is(0));
+				assertThat(invitationDB.getAll()).hasSize(0);
+				assertThat(enquiryResponseDB.getAll()).hasSize(0);
+				assertThat(registrationRequestDB.getAll()).hasSize(0);
+				assertThat(attributeTypeDB.getAll()).hasSize(0);
 
 				ie.load(new BufferedInputStream(new FileInputStream("target/afterImport.json")));
 
-				assertThat(invitationDB.get("test"), is(notNullValue()));
-				assertThat(enquiryResponseDB.get("test"), is(notNullValue()));
-				assertThat(registrationRequestDB.get("test"), is(notNullValue()));
-				assertThat(attributeTypeDB.get("test"), is(notNullValue()));
+				assertThat(invitationDB.get("test")).isNotNull();
+				assertThat(enquiryResponseDB.get("test")).isNotNull();
+				assertThat(registrationRequestDB.get("test")).isNotNull();
+				assertThat(attributeTypeDB.get("test")).isNotNull();
 
 			} catch (Exception e)
 			{

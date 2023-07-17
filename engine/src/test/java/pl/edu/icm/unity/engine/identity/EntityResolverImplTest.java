@@ -6,15 +6,13 @@ package pl.edu.icm.unity.engine.identity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -31,7 +29,7 @@ import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @UnityIntegrationTest
 public class EntityResolverImplTest
 {
@@ -54,7 +52,7 @@ public class EntityResolverImplTest
 	@Qualifier("insecure")
 	protected ServerManagement insecureServerMan;
 	
-	@Before
+	@BeforeEach
 	public void clean() throws Exception
 	{
 		insecureServerMan.resetDatabase();
@@ -97,7 +95,7 @@ public class EntityResolverImplTest
 			long entity = entDAO.create(new EntityInformation());
 			long ret = entityResolver.getEntityId(new EntityParam(entity));
 			
-			assertThat(ret, is(entity));
+			assertThat(ret).isEqualTo(entity);
 		});
 	}
 	@Test
@@ -111,7 +109,7 @@ public class EntityResolverImplTest
 		
 			long ret = entityResolver.getEntityId(new EntityParam(new IdentityTaV("userName", obj.getName())));
 			
-			assertThat(ret, is(entity));
+			assertThat(ret).isEqualTo(entity);
 		});
 	}
 	@Test
@@ -125,7 +123,7 @@ public class EntityResolverImplTest
 
 			long ret = entityResolver.getEntityId(new IdentityTaV("userName", obj.getName()));
 			
-			assertThat(ret, is(entity));
+			assertThat(ret).isEqualTo(entity);
 		});
 	}
 }

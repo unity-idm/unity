@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.base.registration.invite;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -13,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.identity.IdentityParam;
@@ -37,7 +36,7 @@ public class InvitationTest
 		InvitationWithCode minimalParsed = JsonUtil.parse(jsonStr, 
 				InvitationWithCode.class);
 		
-		assertThat(minimalParsed, is(minimal));
+		assertThat(minimalParsed).isEqualTo(minimal);
 	}
 
 	@Test
@@ -63,7 +62,7 @@ public class InvitationTest
 		InvitationWithCode completeParsed = JsonUtil.parse(jsonStr, 
 				InvitationWithCode.class);
 
-		assertThat(completeParsed, is(complete));
+		assertThat(completeParsed).isEqualTo(complete);
 	}
 	
 	@Test
@@ -95,7 +94,7 @@ public class InvitationTest
 		System.out.println(jsonStr);
 		InvitationWithCode completeParsed = JsonUtil.parse(jsonStr, InvitationWithCode.class);
 
-		assertThat(completeParsed, is(complete));
+		assertThat(completeParsed).isEqualTo(complete);
 	}
 
 }

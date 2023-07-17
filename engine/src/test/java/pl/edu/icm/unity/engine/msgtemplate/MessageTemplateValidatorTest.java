@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.engine.msgtemplate;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.i18n.I18nMessage;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -26,7 +26,7 @@ public class MessageTemplateValidatorTest
 		
 		Set<String> variables = MessageTemplateValidator.extractVariables(message);
 		
-		assertThat(variables.toString(), variables, hasItems("var", "var2"));
+		assertThat(variables).contains("var", "var2");
 	}
 	
 	@Test
@@ -38,7 +38,7 @@ public class MessageTemplateValidatorTest
 		
 		Set<String> variables = MessageTemplateValidator.extractVariables(message);
 		
-		assertThat(variables.toString(), variables, hasItems("sNewVar", "sOldVar", "bNewVar", "bOldVar"));
+		assertThat(variables).contains("sNewVar", "sOldVar", "bNewVar", "bOldVar");
 	}
 	
 	@Test
@@ -50,6 +50,6 @@ public class MessageTemplateValidatorTest
 		
 		Set<String> variables = MessageTemplateValidator.extractVariables(message);
 		
-		assertThat(variables.toString(), variables, hasItems("weird.name-foo!$", "new%name-foo!$"));
+		assertThat(variables).contains("weird.name-foo!$", "new%name-foo!$");
 	}
 }

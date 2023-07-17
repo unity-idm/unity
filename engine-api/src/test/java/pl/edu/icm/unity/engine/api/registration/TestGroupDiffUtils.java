@@ -5,16 +5,14 @@
 
 package pl.edu.icm.unity.engine.api.registration;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -34,10 +32,10 @@ public class TestGroupDiffUtils
 		RequestedGroupDiff diff = GroupDiffUtils.getSingleGroupDiff(getAllGroups(), getUsersGroup(),
 				new GroupSelection(Lists.newArrayList()), param);
 
-		assertThat(diff.remain.size(), is(1));
-		assertThat(diff.remain, hasItems("/"));
-		assertThat(diff.toRemove, hasItems("/A", "/A/B"));
-		assertThat(diff.toRemove, not(hasItems("/")));
+		assertThat(diff.remain).hasSize(1);
+		assertThat(diff.remain).contains("/");
+		assertThat(diff.toRemove).contains("/A", "/A/B");
+		assertThat(diff.toRemove).doesNotContain("/");
 	}
 
 	@Test
@@ -50,14 +48,14 @@ public class TestGroupDiffUtils
 		RequestedGroupDiff diff = GroupDiffUtils.getSingleGroupDiff(getAllGroups() ,getUsersGroup(),
 				new GroupSelection(Lists.newArrayList("/A", "/A/AA")), param);
 
-		assertThat(diff.remain.size(), is(1));
-		assertThat(diff.remain, hasItems("/A"));
+		assertThat(diff.remain).hasSize(1);
+		assertThat(diff.remain).contains("/A");
 
-		assertThat(diff.toRemove.size(), is(1));
-		assertThat(diff.toRemove, hasItems("/A/B"));
+		assertThat(diff.toRemove).hasSize(1);
+		assertThat(diff.toRemove).contains("/A/B");
 
-		assertThat(diff.toAdd.size(), is(1));
-		assertThat(diff.toAdd, hasItems("/A/AA"));
+		assertThat(diff.toAdd).hasSize(1);
+		assertThat(diff.toAdd).contains("/A/AA");
 	}
 
 	@Test
@@ -82,14 +80,14 @@ public class TestGroupDiffUtils
 		RequestedGroupDiff diff = GroupDiffUtils.getAllRequestedGroupsDiff(getAllGroups(),userGroups, groupSelections,
 				Arrays.asList(param1, param2));
 
-		assertThat(diff.remain.size(), is(2));
-		assertThat(diff.remain, hasItems("/A", "/B"));
+		assertThat(diff.remain).hasSize(2);
+		assertThat(diff.remain).contains("/A", "/B");
 
-		assertThat(diff.toRemove.size(), is(2));
-		assertThat(diff.toRemove, hasItems("/A/B", "/B/CC"));
+		assertThat(diff.toRemove).hasSize(2);
+		assertThat(diff.toRemove).contains("/A/B", "/B/CC");
 
-		assertThat(diff.toAdd.size(), is(2));
-		assertThat(diff.toAdd, hasItems("/A/AB", "/B/BB"));
+		assertThat(diff.toAdd).hasSize(2);
+		assertThat(diff.toAdd).contains("/A/AB", "/B/BB");
 	}
 
 	private List<Group> getUsersGroup()

@@ -5,13 +5,13 @@
 
 package pl.edu.icm.unity.engine.policyAgreement;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -50,9 +50,9 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 						Arrays.asList(doc1))));
 		List<PolicyAgreementState> policyAgreementsStatus = agreementMan.getPolicyAgreementsStatus(user);
 		
-		assertThat(policyAgreementsStatus.size(), is(1));
-		assertThat(policyAgreementsStatus.get(0).acceptanceStatus, is(PolicyAgreementAcceptanceStatus.ACCEPTED));
-		assertThat(policyAgreementsStatus.get(0).policyDocumentId, is(doc1));
+		assertThat(policyAgreementsStatus).hasSize(1);
+		assertThat(policyAgreementsStatus.get(0).acceptanceStatus).isEqualTo(PolicyAgreementAcceptanceStatus.ACCEPTED);
+		assertThat(policyAgreementsStatus.get(0).policyDocumentId).isEqualTo(doc1);
 	}
 		
 	@Test
@@ -67,9 +67,9 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 				user,
 				Arrays.asList(getConfig(Arrays.asList(doc1, doc2)), getConfig(Arrays.asList(doc3))));
 
-		assertThat(filterAgreementToPresent.size(), is(2));
-		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept, is(Arrays.asList(doc1, doc2)));
-		assertThat(filterAgreementToPresent.get(1).documentsIdsToAccept, is(Arrays.asList(doc3)));
+		assertThat(filterAgreementToPresent).hasSize(2);
+		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept).isEqualTo(Arrays.asList(doc1, doc2));
+		assertThat(filterAgreementToPresent.get(1).documentsIdsToAccept).isEqualTo(Arrays.asList(doc3));
 	}
 
 	@Test
@@ -86,8 +86,8 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 		List<PolicyAgreementConfiguration> filterAgreementToPresent = agreementMan.filterAgreementToPresent(
 				user, Arrays.asList(getConfig(Arrays.asList(doc1)), getConfig(Arrays.asList(doc2))));
 
-		assertThat(filterAgreementToPresent.size(), is(1));
-		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept, is(Arrays.asList(doc2)));	
+		assertThat(filterAgreementToPresent).hasSize(1);
+		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept).isEqualTo(Arrays.asList(doc2));	
 	}
 
 	@Test
@@ -106,9 +106,9 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 				user,
 				Arrays.asList(getConfig(Arrays.asList(doc1, doc2)), getConfig(Arrays.asList(doc3))));
 
-		assertThat(filterAgreementToPresent.size(), is(2));
-		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept, is(Arrays.asList(doc1, doc2)));
-		assertThat(filterAgreementToPresent.get(1).documentsIdsToAccept, is(Arrays.asList(doc3)));
+		assertThat(filterAgreementToPresent).hasSize(2);
+		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept).isEqualTo(Arrays.asList(doc1, doc2));
+		assertThat(filterAgreementToPresent.get(1).documentsIdsToAccept).isEqualTo(Arrays.asList(doc3));
 	}
 
 	@Test
@@ -131,8 +131,8 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 				user,
 				Arrays.asList(getConfig(Arrays.asList(doc1, doc2)), getConfig(Arrays.asList(doc3))));
 
-		assertThat(filterAgreementToPresent.size(), is(1));
-		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept, is(Arrays.asList(doc1, doc2)));
+		assertThat(filterAgreementToPresent).hasSize(1);
+		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept).isEqualTo(Arrays.asList(doc1, doc2));
 	}
 
 	@Test
@@ -158,8 +158,8 @@ public class PolicyAgreementManagementTest extends DBIntegrationTestBase
 				.filterAgreementToPresent(user, Arrays.asList(getConfig(Arrays.asList(doc1)),
 						getConfig(Arrays.asList(doc2)), getConfig(Arrays.asList(doc3))));
 
-		assertThat(filterAgreementToPresent.size(), is(1));
-		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept, is(Arrays.asList(doc2)));
+		assertThat(filterAgreementToPresent).hasSize(1);
+		assertThat(filterAgreementToPresent.get(0).documentsIdsToAccept).isEqualTo(Arrays.asList(doc2));
 	}
 	
 	private Long addDoc(String name, boolean mandatory) throws EngineException

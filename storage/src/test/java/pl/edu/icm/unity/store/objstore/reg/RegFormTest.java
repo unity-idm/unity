@@ -6,12 +6,10 @@ package pl.edu.icm.unity.store.objstore.reg;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -62,8 +60,7 @@ public class RegFormTest extends BaseFormTest<RegistrationForm>
 				new CredentialRequirements("changed", "", Sets.newHashSet("cred")), 
 				crDB);
 		
-		assertThat(afterDependencyRename.getDefaultCredentialRequirement(),
-					is("changed"));
+		assertThat(afterDependencyRename.getDefaultCredentialRequirement()).isEqualTo("changed");
 	}
 	
 	@Override

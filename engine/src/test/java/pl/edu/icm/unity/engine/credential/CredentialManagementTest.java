@@ -6,9 +6,7 @@ package pl.edu.icm.unity.engine.credential;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.stdext.credential.pass.ScryptParams.MIN_WORK_FACTOR;
@@ -19,7 +17,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -95,7 +94,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 	{
 		int automaticCredTypes = 3;
 		Collection<CredentialType> credTypes = credMan.getCredentialTypes();
-		assertEquals(credTypes.toString(), 1+automaticCredTypes, credTypes.size());
+		assertEquals(1+automaticCredTypes, credTypes.size());
 		CredentialType credType = getDescObjectByName(credTypes, MockPasswordVerificatorFactory.ID);
 		assertEquals(MockPasswordVerificatorFactory.ID, credType.getName());	
 	}
@@ -148,17 +147,17 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		credMan.addCredentialDefinition(credDef);
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void shouldNotRemoveCredentialUsedByAuth() throws Exception
 	{
 		addDefaultCredentialDef();
-		
+
 		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypesByBinding("web");
-		AuthenticatorTypeDescription authType = authTypes.iterator().next();
-		authnMan.createAuthenticator("auth1",
-				authType.getVerificationMethod(), "bbb", "credential1");
-		
-		credMan.removeCredentialDefinition("credential1");	
+		AuthenticatorTypeDescription authType = authTypes.iterator()
+				.next();
+		authnMan.createAuthenticator("auth1", authType.getVerificationMethod(), "bbb", "credential1");
+		Assertions.assertThrows(IllegalArgumentException.class,
+				() -> credMan.removeCredentialDefinition("credential1"));
 	}
 	
 	@Test
@@ -188,16 +187,17 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		assertEquals("changed", credReq1.getDescription());
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void shouldNotRemoveCredentialUsedInCredReq() throws Exception
-	{	
+	{
 		CredentialDefinition credDef = addDefaultCredentialDef();
-		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
+		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req",
 				Collections.singleton(credDef.getName()));
 		credReqMan.addCredentialRequirement(cr);
-		credMan.removeCredentialDefinition("credential1");	
+		Assertions.assertThrows(IllegalArgumentException.class,
+				() -> credMan.removeCredentialDefinition("credential1"));
 	}
-	
+
 	@Test
 	public void shouldChangeEnitytCrdentialState() throws Exception
 	{
@@ -259,19 +259,19 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		
 	}
 	
-	@Test(expected = IllegalCredentialException.class)
+	@Test
 	public void shouldNotRemoveCredReqWithoutReplacemant() throws Exception
 	{
 		CredentialDefinition credDef = addDefaultCredentialDef();
-		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
+		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req",
 				Collections.singleton(credDef.getName()));
 		credReqMan.addCredentialRequirement(cr);
-		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test"), 
-				"crMock", EntityState.valid);
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test"), "crMock", EntityState.valid);
 		EntityParam entityP = new EntityParam(id);
-		
+
 		eCredMan.setEntityCredential(entityP, "credential1", "password");
-		credReqMan.removeCredentialRequirement(cr.getName(), null);	
+		Assertions.assertThrows(IllegalCredentialException.class,
+				() -> credReqMan.removeCredentialRequirement(cr.getName(), null));
 	}
 	
 	@Test
@@ -539,7 +539,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 
 		AuthenticatorConfiguration authenticatorUpdated = tx.runInTransactionRet(
 				() -> authenticatorDB.get("auth1"));
-		assertThat(authenticatorUpdated.getRevision(), is(authenticatorInitial.getRevision()+1));
+		assertThat(authenticatorUpdated.getRevision()).isEqualTo(authenticatorInitial.getRevision()+1);
 	}
 
 	@Test

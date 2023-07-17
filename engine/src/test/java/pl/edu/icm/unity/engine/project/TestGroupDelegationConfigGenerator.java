@@ -5,9 +5,7 @@
 
 package pl.edu.icm.unity.engine.project;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -15,12 +13,11 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hamcrest.text.IsEmptyString;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -54,7 +51,7 @@ import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestGroupDelegationConfigGenerator extends TestProjectBase
 {
 	private GroupDelegationConfigGeneratorImpl generator;
@@ -70,7 +67,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	@Mock
 	private RegistrationFormDB mockRegistrationFormDB;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		generator = new GroupDelegationConfigGeneratorImpl(mockMsg, mockRegistrationFormDB, mockMsgTemplateDB,
@@ -88,11 +85,11 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		addTemplates();
 		RegistrationForm form = generator.generateProjectRegistrationForm("/A", "https://logo.url",
 				Arrays.asList("at1"));
-		assertThat(form.getName(), is("aregSuffix"));
-		assertThat(form.getAttributeParams().get(0).getAttributeType(), is("name"));
-		assertThat(form.getAttributeParams().get(1).getAttributeType(), is("at1"));
-		assertThat(form.getGroupParams().get(0).getGroupPath(), is("/A/?*/**"));
-		assertThat(form.getIdentityParams().get(0).getIdentityType(), is(EmailIdentity.ID));
+		assertThat(form.getName()).isEqualTo("aregSuffix");
+		assertThat(form.getAttributeParams().get(0).getAttributeType()).isEqualTo("name");
+		assertThat(form.getAttributeParams().get(1).getAttributeType()).isEqualTo("at1");
+		assertThat(form.getGroupParams().get(0).getGroupPath()).isEqualTo("/A/?*/**");
+		assertThat(form.getIdentityParams().get(0).getIdentityType()).isEqualTo(EmailIdentity.ID);
 		assertAutomationProfile(form.getTranslationProfile(), "/A");
 		assertNotificationTemplates(form.getNotificationsConfiguration());
 	}
@@ -105,9 +102,9 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url");
-		assertThat(form.getName(), is("aenSuffix"));
-		assertThat(form.getTargetCondition(), is("!(groups contains '/A')"));
-		assertThat(form.getGroupParams().get(0).getGroupPath(), is("/A/?*/**"));
+		assertThat(form.getName()).isEqualTo("aenSuffix");
+		assertThat(form.getTargetCondition()).isEqualTo("!(groups contains '/A')");
+		assertThat(form.getGroupParams().get(0).getGroupPath()).isEqualTo("/A/?*/**");
 		assertAutomationProfile(form.getTranslationProfile(), "/A");
 		assertNotificationTemplates(form.getNotificationsConfiguration());
 	}
@@ -118,11 +115,10 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockMsg.getMessage(eq("FormGenerator.updateEnquiryNameSuffix"))).thenReturn("enSuffix");
 		when(mockEnqFormDB.getAll()).thenReturn(List.of());
 		addGroup("/A", "a", true, true);
-		addTemplates();
 		EnquiryForm form = generator.generateProjectUpdateEnquiryForm("/A", "https://logo.url");
-		assertThat(form.getName(), is("aenSuffix"));
-		assertThat(form.getGroupParams().get(0).getGroupPath(), is("/A/?*/**"));
-		assertThat(form.getTargetGroups()[0], is("/A"));
+		assertThat(form.getName()).isEqualTo("aenSuffix");
+		assertThat(form.getGroupParams().get(0).getGroupPath()).isEqualTo("/A/?*/**");
+		assertThat(form.getTargetGroups()[0]).isEqualTo("/A");
 	}
 
 	@Test
@@ -138,14 +134,13 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 				Arrays.asList("at1"));
 		when(mockRegistrationFormDB.get(eq("aregSuffix"))).thenReturn(form);
 		addGroup("/A/B", "ab", true, true);
-		addTemplates();
 		RegistrationForm sform = generator.generateSubprojectRegistrationForm("aregSuffix", "/A", "/A/B",
 				"https://logo.url");
-		assertThat(sform.getName(), is("abregSuffix"));
-		assertThat(sform.getAttributeParams().get(0).getAttributeType(), is("name"));
-		assertThat(sform.getAttributeParams().get(1).getAttributeType(), is("at1"));
-		assertThat(sform.getGroupParams().get(0).getGroupPath(), is("/A/B/?*/**"));
-		assertThat(sform.getIdentityParams().get(0).getIdentityType(), is(EmailIdentity.ID));
+		assertThat(sform.getName()).isEqualTo("abregSuffix");
+		assertThat(sform.getAttributeParams().get(0).getAttributeType()).isEqualTo("name");
+		assertThat(sform.getAttributeParams().get(1).getAttributeType()).isEqualTo("at1");
+		assertThat(sform.getGroupParams().get(0).getGroupPath()).isEqualTo("/A/B/?*/**");
+		assertThat(sform.getIdentityParams().get(0).getIdentityType()).isEqualTo(EmailIdentity.ID);
 		assertAutomationProfile(sform.getTranslationProfile(), "/A");
 		assertNotificationTemplates(sform.getNotificationsConfiguration());
 	}
@@ -160,12 +155,11 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url");
 		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
 		addGroup("/A/B", "ab", true, true);
-		addTemplates();
 		EnquiryForm sform = generator.generateSubprojectJoinEnquiryForm("aenSuffix", "/A", "/A/B",
 				"https://logo.url");
-		assertThat(sform.getName(), is("abenSuffix"));
-		assertThat(sform.getTargetCondition(), is("!(groups contains '/A/B')"));
-		assertThat(sform.getGroupParams().get(0).getGroupPath(), is("/A/B/?*/**"));
+		assertThat(sform.getName()).isEqualTo("abenSuffix");
+		assertThat(sform.getTargetCondition()).isEqualTo("!(groups contains '/A/B')");
+		assertThat(sform.getGroupParams().get(0).getGroupPath()).isEqualTo("/A/B/?*/**");
 		assertAutomationProfile(sform.getTranslationProfile(), "/A/B");
 		assertNotificationTemplates(sform.getNotificationsConfiguration());
 	}
@@ -176,16 +170,14 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockMsg.getMessage(eq("FormGenerator.updateEnquiryNameSuffix"))).thenReturn("enSuffix");
 		when(mockEnqFormDB.getAll()).thenReturn(List.of());
 		addGroup("/A", "a", true, true);
-		addTemplates();
 		EnquiryForm form = generator.generateProjectUpdateEnquiryForm("/A", "https://logo.url");
 		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
 		addGroup("/A/B", "ab", true, true);
-		addTemplates();
 		EnquiryForm sform = generator.generateSubprojectUpdateEnquiryForm("aenSuffix", "/A", "/A/B",
 				"https://logo.url");
-		assertThat(sform.getName(), is("abenSuffix"));
-		assertThat(sform.getGroupParams().get(0).getGroupPath(), is("/A/B/?*/**"));
-		assertThat(sform.getTargetGroups()[0], is("/A/B"));
+		assertThat(sform.getName()).isEqualTo("abenSuffix");
+		assertThat(sform.getGroupParams().get(0).getGroupPath()).isEqualTo("/A/B/?*/**");
+		assertThat(sform.getTargetGroups()[0]).isEqualTo("/A/B");
 	}
 
 	@Test
@@ -202,7 +194,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockRegistrationFormDB.get(eq("aregSuffix"))).thenReturn(form);
 
 		List<String> errors = generator.validateRegistrationForm("/A", "aregSuffix");
-		assertThat(errors.size(), is(0));
+		assertThat(errors.size()).isEqualTo(0);
 	}
 
 	@Test
@@ -215,7 +207,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
 
 		List<String> errors = generator.validateJoinEnquiryForm("/A", "aenSuffix");
-		assertThat(errors.size(), is(0));
+		assertThat(errors.size()).isEqualTo(0);
 	}
 
 	@Test
@@ -224,12 +216,11 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockMsg.getMessage(eq("FormGenerator.updateEnquiryNameSuffix"))).thenReturn("enSuffix");
 		when(mockEnqFormDB.getAll()).thenReturn(List.of());
 		addGroup("/A", "a", true, true);
-		addTemplates();
 		EnquiryForm form = generator.generateProjectUpdateEnquiryForm("/A", "https://logo.url");
 		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
 
 		List<String> errors = generator.validateUpdateEnquiryForm("/A", "aenSuffix");
-		assertThat(errors.size(), is(0));
+		assertThat(errors.size()).isEqualTo(0);
 	}
 
 	@Test
@@ -241,13 +232,13 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockRegistrationFormDB.get(eq("aregSuffix"))).thenReturn(form);
 		when(mockMsg.getMessage(anyString())).thenAnswer(i -> i.getArguments()[0]);
 		List<String> errors = generator.validateRegistrationForm("/A", "aregSuffix");
-		assertThat(errors.get(0), is("FormGenerator.noEmailIdentity"));
-		assertThat(errors.get(1), is("FormGenerator.noAutoAccept"));
-		assertThat(errors.get(2), is("FormGenerator.noAutoGroupAdd"));
-		assertThat(errors.get(3), is("FormGenerator.noInvitationTemplate"));
-		assertThat(errors.get(4), is("FormGenerator.noAcceptTemplate"));
-		assertThat(errors.get(5), is("FormGenerator.noRejectTemplate"));
-		assertThat(errors.get(6), is("FormGenerator.noUpdateTemplate"));
+		assertThat(errors.get(0)).isEqualTo("FormGenerator.noEmailIdentity");
+		assertThat(errors.get(1)).isEqualTo("FormGenerator.noAutoAccept");
+		assertThat(errors.get(2)).isEqualTo("FormGenerator.noAutoGroupAdd");
+		assertThat(errors.get(3)).isEqualTo("FormGenerator.noInvitationTemplate");
+		assertThat(errors.get(4)).isEqualTo("FormGenerator.noAcceptTemplate");
+		assertThat(errors.get(5)).isEqualTo("FormGenerator.noRejectTemplate");
+		assertThat(errors.get(6)).isEqualTo("FormGenerator.noUpdateTemplate");
 	}
 
 	@Test
@@ -259,12 +250,12 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
 		when(mockMsg.getMessage(anyString())).thenAnswer(i -> i.getArguments()[0]);
 		List<String> errors = generator.validateJoinEnquiryForm("/A", "aenSuffix");
-		assertThat(errors.get(0), is("FormGenerator.noAutoAccept"));
-		assertThat(errors.get(1), is("FormGenerator.noAutoGroupAdd"));
-		assertThat(errors.get(2), is("FormGenerator.noInvitationTemplate"));
-		assertThat(errors.get(3), is("FormGenerator.noAcceptTemplate"));
-		assertThat(errors.get(4), is("FormGenerator.noRejectTemplate"));
-		assertThat(errors.get(5), is("FormGenerator.noUpdateTemplate"));
+		assertThat(errors.get(0)).isEqualTo("FormGenerator.noAutoAccept");
+		assertThat(errors.get(1)).isEqualTo("FormGenerator.noAutoGroupAdd");
+		assertThat(errors.get(2)).isEqualTo("FormGenerator.noInvitationTemplate");
+		assertThat(errors.get(3)).isEqualTo("FormGenerator.noAcceptTemplate");
+		assertThat(errors.get(4)).isEqualTo("FormGenerator.noRejectTemplate");
+		assertThat(errors.get(5)).isEqualTo("FormGenerator.noUpdateTemplate");
 	}
 
 	@Test
@@ -276,7 +267,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
 		when(mockMsg.getMessage(anyString())).thenAnswer(i -> i.getArguments()[0]);
 		List<String> errors = generator.validateUpdateEnquiryForm("/A", "aenSuffix");
-		assertThat(errors.get(0), is("FormGenerator.targetGroupWithoutProject"));
+		assertThat(errors.get(0)).isEqualTo("FormGenerator.targetGroupWithoutProject");
 	}
 
 	private void addGroup(String path, String name, boolean groupWithEnabledDelegation, boolean enableSubproject)
@@ -311,20 +302,20 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 						&& !(r.getAction().getParameters().length == 0)
 						&& r.getAction().getParameters()[0]
 								.equals(AutomaticRequestAction.accept.toString()))
-				.findFirst().isPresent(), is(true));
+				.findFirst().isPresent()).isEqualTo(true);
 
 		assertThat(rules.stream()
 				.filter(r -> r.getAction().getName().equals(AddToGroupActionFactory.NAME)
 						&& !(r.getAction().getParameters().length == 0)
 						&& r.getAction().getParameters()[0].contains(group))
-				.findFirst().isPresent(), is(true));
+				.findFirst().isPresent()).isEqualTo(true);
 	}
 
 	private void assertNotificationTemplates(BaseFormNotifications notConfig)
 	{
-		assertThat(notConfig.getInvitationTemplate(), not(IsEmptyString.emptyOrNullString()));
-		assertThat(notConfig.getAcceptedTemplate(), not(IsEmptyString.emptyOrNullString()));
-		assertThat(notConfig.getRejectedTemplate(), not(IsEmptyString.emptyOrNullString()));
-		assertThat(notConfig.getUpdatedTemplate(), not(IsEmptyString.emptyOrNullString()));
+		assertThat(notConfig.getInvitationTemplate()).isNotEmpty();
+		assertThat(notConfig.getAcceptedTemplate()).isNotEmpty();
+		assertThat(notConfig.getRejectedTemplate()).isNotEmpty();
+		assertThat(notConfig.getUpdatedTemplate()).isNotEmpty();
 	}
 }

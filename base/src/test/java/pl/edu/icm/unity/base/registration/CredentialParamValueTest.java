@@ -7,7 +7,7 @@ package pl.edu.icm.unity.base.registration;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CredentialParamValueTest
 {

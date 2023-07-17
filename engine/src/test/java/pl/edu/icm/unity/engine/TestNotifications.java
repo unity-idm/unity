@@ -5,12 +5,8 @@
 package pl.edu.icm.unity.engine;
 
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
@@ -111,7 +107,7 @@ public class TestNotifications extends DBIntegrationTestBase
 		NotificationStatus status = statusFuture.get();
 		if (!status.isSuccessful())
 			status.getProblem().printStackTrace();
-		assertTrue(status.isSuccessful());
+		assertThat(status.isSuccessful()).isTrue();
 	}
 	
 	
@@ -124,14 +120,14 @@ public class TestNotifications extends DBIntegrationTestBase
 		
 		String emailCfg = "";
 		String emailCfg2 = "a=b";
-		assertEquals(4, notMan.getNotificationFacilities().size());
-		assertTrue(notMan.getNotificationFacilities().contains(EmailFacility.NAME));
-		assertEquals(0, notMan.getNotificationChannels().size());
+		assertThat(notMan.getNotificationFacilities()).hasSize(4);
+		assertThat(notMan.getNotificationFacilities().contains(EmailFacility.NAME)).isTrue();
+		assertThat(notMan.getNotificationChannels()).isEmpty();;
 		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
 		Map<String, NotificationChannelInfo> channels = notMan.getNotificationChannels();
-		assertEquals(1, channels.size());
-		assertTrue(channels.containsKey("ch1"));
-		assertEquals(emailCfg, channels.get("ch1").getConfiguration());
+		assertThat(channels).hasSize(1);
+		assertThat(channels.containsKey("ch1")).isTrue();
+		assertThat(channels.get("ch1").getConfiguration()).isEqualTo(emailCfg);
 		
 		try
 		{
@@ -142,9 +138,9 @@ public class TestNotifications extends DBIntegrationTestBase
 		}
 		notMan.updateNotificationChannel("ch1", emailCfg2);
 		channels = notMan.getNotificationChannels();
-		assertEquals(1, channels.size());
-		assertTrue(channels.containsKey("ch1"));
-		assertEquals(emailCfg2, channels.get("ch1").getConfiguration());
+		assertThat(channels).hasSize(1);
+		assertThat(channels.containsKey("ch1")).isTrue();
+		assertThat(channels.get("ch1").getConfiguration()).isEqualTo(emailCfg2);
 
 		try
 		{
@@ -154,13 +150,13 @@ public class TestNotifications extends DBIntegrationTestBase
 		{
 		}
 		notMan.removeNotificationChannel("ch1");
-		assertEquals(0, notMan.getNotificationChannels().size());
+		assertThat(notMan.getNotificationChannels()).isEmpty();;
 
 		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
 		channels = notMan.getNotificationChannels();
-		assertEquals(1, channels.size());
-		assertTrue(channels.containsKey("ch1"));
-		assertEquals(emailCfg, channels.get("ch1").getConfiguration());
+		assertThat(channels).hasSize(1);
+		assertThat(channels.containsKey("ch1")).isTrue();
+		assertThat(channels.get("ch1").getConfiguration()).isEqualTo(emailCfg);
 	}
 	
 	@Test
@@ -194,8 +190,8 @@ public class TestNotifications extends DBIntegrationTestBase
 				Arrays.asList(added3.getEntityId(), added2.getEntityId()), "t1", new HashMap<>(),
 				msg.getDefaultLocaleCode());
 
-		assertThat(addrs.size(), is(3));
-		assertThat(addrs, hasItems("test1@test.pl", "test2@test.pl", "test3@test.pl"));
+		assertThat(addrs).hasSize(3);
+		assertThat(addrs).contains("test1@test.pl", "test2@test.pl", "test3@test.pl");
 
 	}
 }

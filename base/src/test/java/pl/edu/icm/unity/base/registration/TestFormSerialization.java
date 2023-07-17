@@ -6,7 +6,7 @@ package pl.edu.icm.unity.base.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;

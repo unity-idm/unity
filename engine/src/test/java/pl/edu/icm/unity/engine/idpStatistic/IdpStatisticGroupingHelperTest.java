@@ -5,14 +5,14 @@
 
 package pl.edu.icm.unity.engine.idpStatistic;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -42,15 +42,15 @@ public class IdpStatisticGroupingHelperTest
 		List<GroupedIdpStatistic> idpStatisticsByMonth = IdpStatisticGroupingHelper
 				.groupBy(LocalDateTime.now().minusMonths(12), input, GroupBy.month, 100, false);
 
-		assertThat(idpStatisticsByMonth.size(), is(10));
-		assertThat(idpStatisticsByMonth.get(0).sigInStats.size(), is(13));
-		assertThat(idpStatisticsByMonth.get(0).sigInStats.get(12).totatCount, is(2L));
-		assertThat(idpStatisticsByMonth.get(0).sigInStats.get(12).successfullCount, is(1L));
-		assertThat(idpStatisticsByMonth.get(0).sigInStats.get(12).failedCount, is(1L));
+		assertThat(idpStatisticsByMonth).hasSize(10);
+		assertThat(idpStatisticsByMonth.get(0).sigInStats).hasSize(13);
+		assertThat(idpStatisticsByMonth.get(0).sigInStats.get(12).totatCount).isEqualTo(2L);
+		assertThat(idpStatisticsByMonth.get(0).sigInStats.get(12).successfullCount).isEqualTo(1L);
+		assertThat(idpStatisticsByMonth.get(0).sigInStats.get(12).failedCount).isEqualTo(1L);
 
-		assertThat(idpStatisticsByMonth.get(9).sigInStats.get(3).totatCount, is(2L));
-		assertThat(idpStatisticsByMonth.get(9).sigInStats.get(3).successfullCount, is(1L));
-		assertThat(idpStatisticsByMonth.get(9).sigInStats.get(3).failedCount, is(1L));
+		assertThat(idpStatisticsByMonth.get(9).sigInStats.get(3).totatCount).isEqualTo(2L);
+		assertThat(idpStatisticsByMonth.get(9).sigInStats.get(3).successfullCount).isEqualTo(1L);
+		assertThat(idpStatisticsByMonth.get(9).sigInStats.get(3).failedCount).isEqualTo(1L);
 
 	}
 
@@ -70,15 +70,15 @@ public class IdpStatisticGroupingHelperTest
 		List<GroupedIdpStatistic> idpStatisticsByDay = IdpStatisticGroupingHelper
 				.groupBy(LocalDateTime.now().minusDays(12), input, GroupBy.day, 100, false);
 
-		assertThat(idpStatisticsByDay.size(), is(10));
-		assertThat(idpStatisticsByDay.get(0).sigInStats.size(), is(13));
-		assertThat(idpStatisticsByDay.get(0).sigInStats.get(12).totatCount, is(2L));
-		assertThat(idpStatisticsByDay.get(0).sigInStats.get(12).successfullCount, is(1L));
-		assertThat(idpStatisticsByDay.get(0).sigInStats.get(12).failedCount, is(1L));
+		assertThat(idpStatisticsByDay).hasSize(10);
+		assertThat(idpStatisticsByDay.get(0).sigInStats).hasSize(13);
+		assertThat(idpStatisticsByDay.get(0).sigInStats.get(12).totatCount).isEqualTo(2L);
+		assertThat(idpStatisticsByDay.get(0).sigInStats.get(12).successfullCount).isEqualTo(1L);
+		assertThat(idpStatisticsByDay.get(0).sigInStats.get(12).failedCount).isEqualTo(1L);
 
-		assertThat(idpStatisticsByDay.get(9).sigInStats.get(3).totatCount, is(2L));
-		assertThat(idpStatisticsByDay.get(9).sigInStats.get(3).successfullCount, is(1L));
-		assertThat(idpStatisticsByDay.get(9).sigInStats.get(3).failedCount, is(1L));
+		assertThat(idpStatisticsByDay.get(9).sigInStats.get(3).totatCount).isEqualTo(2L);
+		assertThat(idpStatisticsByDay.get(9).sigInStats.get(3).successfullCount).isEqualTo(1L);
+		assertThat(idpStatisticsByDay.get(9).sigInStats.get(3).failedCount).isEqualTo(1L);
 
 	}
 
@@ -99,15 +99,15 @@ public class IdpStatisticGroupingHelperTest
 		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
 				input, GroupBy.none, 100, false);
 
-		assertThat(idpStatistics.size(), is(10));
-		assertThat(idpStatistics.get(0).sigInStats.size(), is(2));
-		assertThat(idpStatistics.get(0).sigInStats.get(0).totatCount, is(1L));
-		assertThat(idpStatistics.get(0).sigInStats.get(0).successfullCount, is(1L));
-		assertThat(idpStatistics.get(0).sigInStats.get(0).failedCount, is(0L));
+		assertThat(idpStatistics).hasSize(10);
+		assertThat(idpStatistics.get(0).sigInStats).hasSize(2);
+		assertThat(idpStatistics.get(0).sigInStats.get(0).totatCount).isEqualTo(1L);
+		assertThat(idpStatistics.get(0).sigInStats.get(0).successfullCount).isEqualTo(1L);
+		assertThat(idpStatistics.get(0).sigInStats.get(0).failedCount).isEqualTo(0L);
 
-		assertThat(idpStatistics.get(0).sigInStats.get(1).totatCount, is(1L));
-		assertThat(idpStatistics.get(0).sigInStats.get(1).successfullCount, is(0L));
-		assertThat(idpStatistics.get(0).sigInStats.get(1).failedCount, is(1L));
+		assertThat(idpStatistics.get(0).sigInStats.get(1).totatCount).isEqualTo(1L);
+		assertThat(idpStatistics.get(0).sigInStats.get(1).successfullCount).isEqualTo(0L);
+		assertThat(idpStatistics.get(0).sigInStats.get(1).failedCount).isEqualTo(1L);
 	}
 	
 	@Test
@@ -127,8 +127,8 @@ public class IdpStatisticGroupingHelperTest
 		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
 				input, GroupBy.none, 5, false);
 
-		assertThat(idpStatistics.size(), is(1));
-		assertThat(idpStatistics.get(0).sigInStats.size(), is(5));
+		assertThat(idpStatistics).hasSize(1);
+		assertThat(idpStatistics.get(0).sigInStats).hasSize(5);
 	}
 	
 	@Test
@@ -148,8 +148,8 @@ public class IdpStatisticGroupingHelperTest
 		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
 				input, GroupBy.day, 100, true);
 
-		assertThat(idpStatistics.size(), is(1));
-		assertThat(idpStatistics.get(0).sigInStats.size(), is(1));
+		assertThat(idpStatistics).hasSize(1);
+		assertThat(idpStatistics.get(0).sigInStats).hasSize(1);
 	}
 
 	@Test
@@ -171,15 +171,15 @@ public class IdpStatisticGroupingHelperTest
 		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
 				input, GroupBy.total, 100, false);
 
-		assertThat(idpStatistics.size(), is(2));
-		assertThat(idpStatistics.get(0).sigInStats.size(), is(1));
-		assertThat(idpStatistics.get(0).sigInStats.get(0).totatCount, is(10L));
-		assertThat(idpStatistics.get(0).sigInStats.get(0).successfullCount, is(5L));
-		assertThat(idpStatistics.get(0).sigInStats.get(0).failedCount, is(5L));
+		assertThat(idpStatistics).hasSize(2);
+		assertThat(idpStatistics.get(0).sigInStats).hasSize(1);
+		assertThat(idpStatistics.get(0).sigInStats.get(0).totatCount).isEqualTo(10L);
+		assertThat(idpStatistics.get(0).sigInStats.get(0).successfullCount).isEqualTo(5L);
+		assertThat(idpStatistics.get(0).sigInStats.get(0).failedCount).isEqualTo(5L);
 
-		assertThat(idpStatistics.get(1).sigInStats.get(0).totatCount, is(10L));
-		assertThat(idpStatistics.get(1).sigInStats.get(0).successfullCount, is(5L));
-		assertThat(idpStatistics.get(1).sigInStats.get(0).failedCount, is(5L));
+		assertThat(idpStatistics.get(1).sigInStats.get(0).totatCount).isEqualTo(10L);
+		assertThat(idpStatistics.get(1).sigInStats.get(0).successfullCount).isEqualTo(5L);
+		assertThat(idpStatistics.get(1).sigInStats.get(0).failedCount).isEqualTo(5L);
 
 	}
 
@@ -197,8 +197,8 @@ public class IdpStatisticGroupingHelperTest
 		List<GroupedIdpStatistic> idpStatistics = IdpStatisticGroupingHelper.groupBy(LocalDateTime.now().minusDays(12),
 				input, GroupBy.total, 100, false);
 
-		assertThat(idpStatistics.get(0).idpName, is("eName0"));
-		assertThat(idpStatistics.get(0).clientName, is("cName0"));
+		assertThat(idpStatistics.get(0).idpName).isEqualTo("eName0");
+		assertThat(idpStatistics.get(0).clientName).isEqualTo("cName0");
 	}
 
 }

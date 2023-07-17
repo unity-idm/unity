@@ -6,20 +6,17 @@ package pl.edu.icm.unity.store.impl.membership;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.google.common.collect.Lists;
 
@@ -32,7 +29,7 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class MembershipTest
 {
@@ -55,14 +52,14 @@ public class MembershipTest
 
 	private long entity2;
 	
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
 		createReferenced();
 	}
 
-	@After
+	@AfterEach
 	public void shutdown()
 	{
 		dbCleaner.shutdown();
@@ -89,10 +86,10 @@ public class MembershipTest
 			dao.create(gm);
 			
 			List<GroupMembership> entityMembership = dao.getEntityMembership(entity);
-			assertThat(entityMembership.size(), is(1));
+			assertThat(entityMembership).hasSize(1);
 			GroupMembership aM = entityMembership.get(0); 
 			
-			assertThat(aM, is(gm));
+			assertThat(aM).isEqualTo(gm);
 		});
 	}	
 
@@ -103,10 +100,10 @@ public class MembershipTest
 			dao.create(new GroupMembership("/A", entity, null));
 			
 			List<GroupMembership> entityMembership = dao.getMembers("/A");
-			assertThat(entityMembership.size(), is(1));
+			assertThat(entityMembership).hasSize(1);
 
-			assertThat(entityMembership.get(0).getGroup(), is("/A"));
-			assertThat(entityMembership.get(0).getEntityId(), is(entity));
+			assertThat(entityMembership.get(0).getGroup()).isEqualTo("/A");
+			assertThat(entityMembership.get(0).getEntityId()).isEqualTo(entity);
 		});
 	}	
 
@@ -117,10 +114,10 @@ public class MembershipTest
 			dao.create(new GroupMembership("/A", entity, null));
 			
 			List<GroupMembership> entityMembership = dao.getAll();
-			assertThat(entityMembership.size(), is(1));
+			assertThat(entityMembership).hasSize(1);
 
-			assertThat(entityMembership.get(0).getGroup(), is("/A"));
-			assertThat(entityMembership.get(0).getEntityId(), is(entity));
+			assertThat(entityMembership.get(0).getGroup()).isEqualTo("/A");
+			assertThat(entityMembership.get(0).getEntityId()).isEqualTo(entity);
 		});
 	}	
 	
@@ -131,7 +128,7 @@ public class MembershipTest
 			dao.create(new GroupMembership("/A", entity, null));
 			
 			boolean membership = dao.isMember(entity, "/A");
-			assertThat(membership, is(true));
+			assertThat(membership).isTrue();
 		});
 	}	
 
@@ -142,7 +139,7 @@ public class MembershipTest
 			dao.create(new GroupMembership("/A", entity, null));
 			
 			boolean membership = dao.isMember(entity, "/B");
-			assertThat(membership, is(false));
+			assertThat(membership).isFalse();
 		});
 	}	
 
@@ -153,7 +150,7 @@ public class MembershipTest
 			dao.create(new GroupMembership("/A", entity, null));
 			
 			boolean membership = dao.isMember(entity2, "/A");
-			assertThat(membership, is(false));
+			assertThat(membership).isFalse();
 		});
 	}	
 
@@ -175,7 +172,7 @@ public class MembershipTest
 			dao.deleteByKey(entity, "/A");
 			
 			List<GroupMembership> entityMembership = dao.getEntityMembership(entity);
-			assertThat(entityMembership.isEmpty(), is(true));
+			assertThat(entityMembership.isEmpty()).isTrue();
 		});
 	}	
 	
@@ -187,7 +184,7 @@ public class MembershipTest
 			dao.deleteByKey(entity, "/A");
 			
 			List<GroupMembership> entityMembership = dao.getMembers("/A");
-			assertThat(entityMembership.isEmpty(), is(true));
+			assertThat(entityMembership.isEmpty()).isTrue();
 		});
 	}
 	
@@ -200,7 +197,7 @@ public class MembershipTest
 			groupDao.create(new Group("/A"));
 			
 			List<GroupMembership> entityMembership = dao.getMembers("/A");
-			assertThat(entityMembership.isEmpty(), is(true));
+			assertThat(entityMembership.isEmpty()).isTrue();
 		});
 	}
 
@@ -212,7 +209,7 @@ public class MembershipTest
 			entDao.deleteByKey(entity);
 			
 			List<GroupMembership> entityMembership = dao.getMembers("/A");
-			assertThat(entityMembership.isEmpty(), is(true));
+			assertThat(entityMembership.isEmpty()).isTrue();
 		});
 	}
 
@@ -227,17 +224,17 @@ public class MembershipTest
 			groupDao.create(new Group("/A"));
 			
 			List<GroupMembership> groupMembersA = dao.getMembers("/A");
-			assertThat(groupMembersA.isEmpty(), is(true));
+			assertThat(groupMembersA.isEmpty()).isTrue();
 			
 			List<GroupMembership> entityMembership = dao.getEntityMembership(entity);
-			assertThat(entityMembership.size(), is(1));
+			assertThat(entityMembership).hasSize(1);
 			GroupMembership aM = entityMembership.get(0); 
-			assertThat(aM.getGroup(), is("/ZZ"));
+			assertThat(aM.getGroup()).isEqualTo("/ZZ");
 
 			List<GroupMembership> groupMembers = dao.getMembers("/ZZ");
-			assertThat(groupMembers.size(), is(1));
-			assertThat(groupMembers.get(0).getGroup(), is("/ZZ"));
-			assertThat(groupMembers.get(0).getEntityId(), is(entity));
+			assertThat(groupMembers).hasSize(1);
+			assertThat(groupMembers.get(0).getGroup()).isEqualTo("/ZZ");
+			assertThat(groupMembers.get(0).getEntityId()).isEqualTo(entity);
 		});
 	}
 	
@@ -253,8 +250,8 @@ public class MembershipTest
 
 			List<GroupMembership> ret = dao.getAll();
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(2));
+			assertThat(ret).isNotNull();
+			assertThat(ret).hasSize(2);
 		});
 	}
 }

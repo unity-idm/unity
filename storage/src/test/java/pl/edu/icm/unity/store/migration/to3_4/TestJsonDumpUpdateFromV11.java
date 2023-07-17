@@ -4,9 +4,10 @@
  */
 package pl.edu.icm.unity.store.migration.to3_4;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -14,12 +15,12 @@ import java.io.FileOutputStream;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.Sets;
@@ -32,7 +33,7 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = { "classpath*:META-INF/components.xml" })
 public class TestJsonDumpUpdateFromV11
 {
@@ -51,7 +52,7 @@ public class TestJsonDumpUpdateFromV11
 	@Autowired
 	private GroupDAO groupDao;
 
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -82,22 +83,21 @@ public class TestJsonDumpUpdateFromV11
 	private void checkProjectRoleAttributeTypeConfig()
 	{
 		AttributeType type = attrTypeDAO.get("sys:ProjectManagementRole");
-		assertThat(type.getValueSyntaxConfiguration().get("allowed").isArray(), is(true));
+		assertThat(type.getValueSyntaxConfiguration().get("allowed").isArray()).isTrue();
 		ArrayNode config = (ArrayNode) type.getValueSyntaxConfiguration().get("allowed");
-		assertThat(config.size(), is(3));
-		assertThat(config.get(0).asText(), is("manager"));
+		assertThat(config).hasSize(3);
+		assertThat(config.get(0).asText()).isEqualTo("manager");
 		assertThat(StreamSupport.stream(config.spliterator(), false).map(a -> a.asText())
 				.collect(Collectors.toSet())
-				.containsAll(Sets.newHashSet("manager", "projectsAdmin", "regular")), is(true));
+				.containsAll(Sets.newHashSet("manager", "projectsAdmin", "regular"))).isTrue();
 
 	}
 
 	
 	private void checkGroups()
 	{
-		assertThat(groupDao.getAll().size(), is(9));
-		assertThat(groupDao.getAll().get(0).getDelegationConfiguration().enableSubprojects, is(false));
-		
+		assertThat(groupDao.getAll()).hasSize(9);
+		assertThat(groupDao.getAll().get(0).getDelegationConfiguration().enableSubprojects).isFalse();
 	}
 	
 	

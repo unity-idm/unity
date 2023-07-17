@@ -11,11 +11,11 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.ConfirmationMode;
@@ -34,7 +34,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InvitationValidatorTest
 {
 	@Mock
@@ -45,7 +45,7 @@ public class InvitationValidatorTest
 	
 	private FormProvider formProvider;
 	
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		formProvider = new FormProviderImpl(registrationFormDB, enquiryFormDB);

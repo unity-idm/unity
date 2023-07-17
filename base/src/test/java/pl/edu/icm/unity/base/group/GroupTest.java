@@ -5,23 +5,20 @@
 
 package pl.edu.icm.unity.base.group;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GroupTest
 {
 
@@ -34,7 +31,7 @@ public class GroupTest
 		Group parent = new Group("/parent");
 		Group child = new Group("/parent/child");
 
-		assertThat(child.isChild(parent), is(true));
+		assertThat(child.isChild(parent)).isEqualTo(true);
 	}
 
 	@Test
@@ -43,7 +40,7 @@ public class GroupTest
 		Group parent = new Group("/parent");
 		Group child = new Group("/parent/child");
 
-		assertThat(child.isChildNotSame(parent), is(true));
+		assertThat(child.isChildNotSame(parent)).isEqualTo(true);
 	}
 
 	@Test
@@ -54,9 +51,9 @@ public class GroupTest
 		Group child1 = new Group("/parent1/child1");
 
 		Set<Group> parents = Group.getRootsOfSet(Set.of(parent1, parent2, child1));
-		assertThat(parents, hasItem(parent1));
-		assertThat(parents, hasItem(parent2));
-		assertThat(parents, not(hasItem(child1)));
+		assertThat(parents).contains(parent1);
+		assertThat(parents).contains(parent2);
+		assertThat(parents).doesNotContain(child1);
 	}
 
 	@Test
@@ -67,9 +64,9 @@ public class GroupTest
 		Group child2 = new Group("/parent1/child2");
 
 		Set<Group> parents = Group.getRootsOfSet(Set.of(parent1, child1, child2));
-		assertThat(parents, hasItem(parent1));
-		assertThat(parents, not(hasItem(child1)));
-		assertThat(parents, not(hasItem(child2)));
+		assertThat(parents).contains(parent1);
+		assertThat(parents).doesNotContain(child1);
+		assertThat(parents).doesNotContain(child2);
 	}
 
 	@Test
@@ -80,9 +77,9 @@ public class GroupTest
 		Group child2 = new Group("/parent1/child1/child2");
 
 		Set<Group> parents = Group.getRootsOfSet(Set.of(parent1, child1, child2));
-		assertThat(parents, hasItem(parent1));
-		assertThat(parents, not(hasItem(child1)));
-		assertThat(parents, not(hasItem(child2)));
+		assertThat(parents).contains(parent1);
+		assertThat(parents).doesNotContain(child1);
+		assertThat(parents).doesNotContain(child2);
 	}
 	
 	@Test
@@ -95,9 +92,9 @@ public class GroupTest
 		Set<Group> childs = Group.getOnlyChildrenOfSet(
 				Set.of(parent1, child1, child2));
 
-		assertThat(childs, not(hasItem(parent1)));
-		assertThat(childs, hasItem(child1));
-		assertThat(childs, hasItem(child2));	
+		assertThat(childs).doesNotContain(parent1);
+		assertThat(childs).contains(child1);
+		assertThat(childs).contains(child2);
 	}
 	
 	@Test
@@ -110,9 +107,9 @@ public class GroupTest
 		Set<Group> childs = Group.getOnlyChildrenOfSet(
 				Set.of(parent1, child1, child2));
 
-		assertThat(childs, not(hasItem(parent1)));
-		assertThat(childs, not(hasItem(child1)));
-		assertThat(childs, hasItem(child2));	
+		assertThat(childs).doesNotContain(parent1);
+		assertThat(childs).doesNotContain(child1);
+		assertThat(childs).contains(child2);	
 	}
 
 	@Test
@@ -126,7 +123,7 @@ public class GroupTest
 		when(msg.getDefaultLocaleCode()).thenReturn("en");
 		when(msg.getLocaleCode()).thenReturn("en");
 
-		assertThat(group.getDisplayedNameShort(msg), is(displayedName));
+		assertThat(group.getDisplayedNameShort(msg)).isEqualTo(displayedName);
 	}
 	
 	@Test
@@ -140,7 +137,7 @@ public class GroupTest
 		when(msg.getDefaultLocaleCode()).thenReturn("en");
 		when(msg.getLocaleCode()).thenReturn("de");
 
-		assertThat(group.getDisplayedNameShort(msg), is(displayedName));
+		assertThat(group.getDisplayedNameShort(msg)).isEqualTo(displayedName);
 	}
 	
 	@Test
@@ -153,7 +150,7 @@ public class GroupTest
 		when(msg.getDefaultLocaleCode()).thenReturn("en");
 		when(msg.getLocaleCode()).thenReturn("en");
 
-		assertThat(group.getDisplayedNameShort(msg), is(new I18nString("parent")));
+		assertThat(group.getDisplayedNameShort(msg)).isEqualTo(new I18nString("parent"));
 	}
 	
 	@Test
@@ -166,6 +163,6 @@ public class GroupTest
 		when(msg.getDefaultLocaleCode()).thenReturn("en");
 		when(msg.getLocaleCode()).thenReturn("en");
 
-		assertThat(group.getDisplayedNameShort(msg), is(displayedName));
+		assertThat(group.getDisplayedNameShort(msg)).isEqualTo(displayedName);
 	}
 }

@@ -6,12 +6,8 @@ package pl.edu.icm.unity.engine.attribute;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
@@ -77,7 +73,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		ats = aTypeMan.getAttributeTypes();
 		assertEquals(sa+1, ats.size());
 		AttributeType at2 = getAttributeTypeByName(ats, "some");
-		assertThat(at, is(at2));
+		assertThat(at).isEqualTo(at2);
 	}
 
 	@Test
@@ -124,7 +120,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 
 		Collection<AttributeType> ats = aTypeMan.getAttributeTypes();
 		AttributeType at2 = getAttributeTypeByName(ats, "some");
-		assertThat(at2, is(nullValue()));
+		assertThat(at2).isNull();
 	}
 	
 	@Test
@@ -158,7 +154,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		
 		Collection<AttributeType> ats = aTypeMan.getAttributeTypes();
 		AttributeType at2 = getAttributeTypeByName(ats, "some");
-		assertThat(at2, is(nullValue()));
+		assertThat(at2).isNull();
 	}
 	
 	@Test
@@ -173,7 +169,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		
 		Collection<AttributeType> ats = aTypeMan.getAttributeTypes();
 		AttributeType at2 = getAttributeTypeByName(ats, "some");
-		assertThat(at, is(at2));
+		assertThat(at).isEqualTo(at2);
 	}
 
 	@Test
@@ -207,7 +203,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		
 		Collection<AttributeType> ats = aTypeMan.getAttributeTypes();
 		AttributeType at2 = getAttributeTypeByName(ats, "some");
-		assertThat(at, is(at2));
+		assertThat(at).isEqualTo(at2);
 	}	
 	
 	@Test
@@ -328,8 +324,8 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		Collection<AttributeType> ats = aTypeMan.getAttributeTypes();
 		AttributeType at1B = getAttributeTypeByName(ats, "at1");
 		AttributeType at2B = getAttributeTypeByName(ats, "at2");
-		assertThat(at1B, is(at1));
-		assertThat(at2B, is(at2));
+		assertThat(at1B).isEqualTo(at1);
+		assertThat(at2B).isEqualTo(at2);
 	}
 	
 	@Test
@@ -351,7 +347,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		aTypeMan.addAttributeType(at1);
 
 		AttributeType ret = getAttributeTypeByName(aTypeMan.getAttributeTypes(), "at1");
-		assertTrue(ret.getMetadata().containsKey(EntityNameMetadataProvider.NAME));
+		assertThat(ret.getMetadata().containsKey(EntityNameMetadataProvider.NAME)).isTrue();
 		
 		aTypeMan.removeAttributeType("at1", false);
 		at1.getMetadata().remove(EntityNameMetadataProvider.NAME);
@@ -396,7 +392,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		Collection<AttributeType> ats = aTypeMan.getAttributeTypes();
 		AttributeType crAt = getAttributeTypeByName(ats, 
 				RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
-		assertTrue((crAt.getFlags() | AttributeType.TYPE_IMMUTABLE_FLAG) != 0);
+		assertThat((crAt.getFlags() | AttributeType.TYPE_IMMUTABLE_FLAG) != 0).isTrue();
 		
 		crAt.setSelfModificable(true);
 		crAt.setDisplayedName(new I18nString("Foo"));
@@ -406,10 +402,10 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		
 		ats = aTypeMan.getAttributeTypes();
 		crAt = getAttributeTypeByName(ats, RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
-		assertTrue((crAt.getFlags() | AttributeType.TYPE_IMMUTABLE_FLAG) != 0);
+		assertThat((crAt.getFlags() | AttributeType.TYPE_IMMUTABLE_FLAG) != 0).isTrue();
 		assertEquals(new I18nString("Foo"), crAt.getDisplayedName());
 		assertEquals(new I18nString("FooDesc"), crAt.getDescription());
-		assertTrue(crAt.isSelfModificable());
+		assertThat(crAt.isSelfModificable()).isTrue();
 	}
 	
 	@Test

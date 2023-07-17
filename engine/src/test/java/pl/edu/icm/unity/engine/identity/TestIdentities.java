@@ -6,20 +6,18 @@ package pl.edu.icm.unity.engine.identity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -50,7 +48,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	@Autowired
 	private EntitiesScheduledUpdater entitiesUpdater;
 	
-	@Before
+	@BeforeEach
 	public void prepare() throws Exception
 	{
 		setupMockAuthn();	
@@ -64,14 +62,14 @@ public class TestIdentities extends DBIntegrationTestBase
 
 		//verify
 		Entity retrieved = idsMan.getEntity(new EntityParam(idParam));
-		assertThat(getByType(retrieved, EmailIdentity.ID).getConfirmationInfo().isConfirmed(), is(false));
+		assertThat(getByType(retrieved, EmailIdentity.ID).getConfirmationInfo().isConfirmed()).isFalse();
 		
 		Identity updated = id.clone();
 		updated.setConfirmationInfo(new ConfirmationInfo(true));
 		idsMan.updateIdentity(idParam, updated);
 		
 		retrieved = idsMan.getEntity(new EntityParam(idParam));
-		assertThat(getByType(retrieved, EmailIdentity.ID).getConfirmationInfo().isConfirmed(), is(true));
+		assertThat(getByType(retrieved, EmailIdentity.ID).getConfirmationInfo().isConfirmed()).isTrue();
 	}
 
 	@Test
@@ -168,7 +166,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		idTypes = idTypeMan.getIdentityTypes();
 		IdentityType updated = getIdentityTypeByName(idTypes, X500Identity.ID);
-		assertThat(updated, is(toUpdate));
+		assertThat(updated).isEqualTo(toUpdate);
 	}
 	
 	@Test
@@ -278,9 +276,9 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		Entity ret = idsMan.getEntity(new EntityParam(id.getEntityId()), null, false, "/");
 		
-		assertThat(ret.getIdentities().size(), is(3));
-		assertThat(getIdentityByType(ret.getIdentities(), UsernameIdentity.ID).getValue(), is("id"));
-		assertThat(getIdentityByType(ret.getIdentities(), IdentifierIdentity.ID).getValue(), is("id"));
+		assertThat(ret.getIdentities()).hasSize(3);
+		assertThat(getIdentityByType(ret.getIdentities(), UsernameIdentity.ID).getValue()).isEqualTo("id");
+		assertThat(getIdentityByType(ret.getIdentities(), IdentifierIdentity.ID).getValue()).isEqualTo("id");
 	}
 
 	@Test

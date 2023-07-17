@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -67,14 +67,14 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	@Autowired
 	protected SessionManagement sessionMan;
 	
-	@Before
+	@BeforeEach
 	public void setupAdmin() throws Exception
 	{
 		setupUserContext("admin", null);
 		authzMan.clearCache();
 	}
 	
-	@After
+	@AfterEach
 	public void clearAuthnCtx() throws EngineException
 	{
 		InvocationContext.setCurrent(null);

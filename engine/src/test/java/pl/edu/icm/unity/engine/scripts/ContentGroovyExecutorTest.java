@@ -4,20 +4,19 @@
  */
 package pl.edu.icm.unity.engine.scripts;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.google.common.collect.Lists;
 
@@ -30,7 +29,7 @@ import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @UnityIntegrationTest
 @TestPropertySource(properties = { "unityConfig: src/test/resources/groovyInitializers.conf" })
 public class ContentGroovyExecutorTest
@@ -58,9 +57,9 @@ public class ContentGroovyExecutorTest
 		
 		// then
 		Collection<CredentialDefinition> creds = credMan.getCredentialDefinitions();
-		assertThat(creds.size(), equalTo(initSizeOfCredentials + 1));
+		assertThat(creds).hasSize(initSizeOfCredentials + 1);
 		CredentialDefinition cred = filterCred(creds, "secured password100");
-		assertThat(cred.getDescription().getDefaultValue(), equalTo("addCredentialsTest"));
+		assertThat(cred.getDescription().getDefaultValue()).isEqualTo("addCredentialsTest");
 	}
 
 	private void removeCredentialDefinitions(String... names) throws EngineException

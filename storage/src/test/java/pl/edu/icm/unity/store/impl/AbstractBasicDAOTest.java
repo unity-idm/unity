@@ -6,10 +6,7 @@ package pl.edu.icm.unity.store.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,13 +14,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.google.common.collect.Lists;
 
@@ -34,7 +31,7 @@ import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.tx.TransactionTL;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public abstract class AbstractBasicDAOTest<T>
 {
@@ -47,14 +44,14 @@ public abstract class AbstractBasicDAOTest<T>
 	@Autowired
 	protected ImportExport ie;
 	
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
 	}
 
 	
-	@After
+	@AfterEach
 	public void shutdown()
 	{
 		dbCleaner.shutdown();
@@ -76,9 +73,9 @@ public abstract class AbstractBasicDAOTest<T>
 			long key2 = dao.create(obj);
 			T ret = dao.getByKey(key2);
 
-			assertThat(key1 != key2, is(true));
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(obj));
+			assertThat(key1 != key2).isTrue();
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(obj);
 		});
 	}
 	
@@ -95,8 +92,8 @@ public abstract class AbstractBasicDAOTest<T>
 
 			T ret = dao.getByKey(key);
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(updated));
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(updated);
 		});
 	}
 
@@ -113,9 +110,9 @@ public abstract class AbstractBasicDAOTest<T>
 			dao.create(obj2);
 			List<T> all = dao.getAll();
 
-			assertThat(all, is(notNullValue()));
+			assertThat(all).isNotNull();
 
-			assertThat(all.size(), is(initial + 2));
+			assertThat(all.size()).isEqualTo(initial + 2);
 
 			boolean objFound = false;
 			boolean obj2Found = false;
@@ -126,8 +123,8 @@ public abstract class AbstractBasicDAOTest<T>
 				if (el.equals(obj2))
 					obj2Found = true;
 			}
-			assertThat(objFound, is(true));
-			assertThat(obj2Found, is(true));
+			assertThat(objFound).isTrue();
+			assertThat(obj2Found).isTrue();
 		});
 	}
 
@@ -147,9 +144,9 @@ public abstract class AbstractBasicDAOTest<T>
 			
 			List<T> all = dao.getAll();
 
-			assertThat(all, is(notNullValue()));
+			assertThat(all).isNotNull();
 
-			assertThat(all.size(), is(initial + 2));
+			assertThat(all.size()).isEqualTo(initial + 2);
 
 			boolean objFound = false;
 			boolean obj2Found = false;
@@ -160,8 +157,8 @@ public abstract class AbstractBasicDAOTest<T>
 				if (el.equals(obj2))
 					obj2Found = true;
 			}
-			assertThat(objFound, is(true));
-			assertThat(obj2Found, is(true));
+			assertThat(objFound).isTrue();
+			assertThat(obj2Found).isTrue();
 		});
 	}
 	
@@ -237,11 +234,11 @@ public abstract class AbstractBasicDAOTest<T>
 
 			List<T> ret = dao.getAll();
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(2));
-			assertThat(ids.size(), is(2));
-			assertThat(ids.get(0), is(notNullValue()));
-			assertThat(ids.get(1), is(notNullValue()));
+			assertThat(ret).isNotNull();
+			assertThat(ret.size()).isEqualTo(2);
+			assertThat(ids.size()).isEqualTo(2);
+			assertThat(ids.get(0)).isNotNull();
+			assertThat(ids.get(1)).isNotNull();
 		});
 	}
 	
@@ -273,8 +270,8 @@ public abstract class AbstractBasicDAOTest<T>
 		tx.runInTransaction(() -> {
 			BasicCRUDDAO<T> dao = getDAO();
 			List<T> all = dao.getAll();
-			assertThat(all.size(), is(1));
-			assertThat(all.get(0), is(obj));
+			assertThat(all.size()).isEqualTo(1);
+			assertThat(all.get(0)).isEqualTo(obj);
 		});
 	}
 	

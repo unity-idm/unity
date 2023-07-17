@@ -5,13 +5,11 @@
 
 package pl.edu.icm.unity.store.export;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.store.impl.identities.IdentityIE;
@@ -33,13 +31,13 @@ public class DBDumpContentMapperTest
 
 		List<String> ret = DBDumpContentTypeMapper.getDBElements(ct);
 		// Dir schema
-		assertThat(ret, hasItem(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE));
+		assertThat(ret).contains(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE);
 		// SignupReq
-		assertThat(ret, hasItem(InvitationHandler.INVITATION_OBJECT_TYPE));
+		assertThat(ret).contains(InvitationHandler.INVITATION_OBJECT_TYPE);
 		// System
-		assertThat(ret, not(hasItem(CredentialHandler.CREDENTIAL_OBJECT_TYPE)));
+		assertThat(ret).doesNotContain(CredentialHandler.CREDENTIAL_OBJECT_TYPE);
 		// Users
-		assertThat(ret, not(hasItem(IdentityIE.IDENTITIES_OBJECT_TYPE)));
+		assertThat(ret).doesNotContain(IdentityIE.IDENTITIES_OBJECT_TYPE);
 	}
 
 	@Test
@@ -49,13 +47,13 @@ public class DBDumpContentMapperTest
 
 		List<String> ret = DBDumpContentTypeMapper.getDBElements(ct);
 		// Dir schema
-		assertThat(ret, hasItem(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE));
+		assertThat(ret).contains(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE);
 		// Users
-		assertThat(ret, hasItem(IdentityIE.IDENTITIES_OBJECT_TYPE));
+		assertThat(ret).contains(IdentityIE.IDENTITIES_OBJECT_TYPE);
 		// SignupReq
-		assertThat(ret, not(hasItem(InvitationHandler.INVITATION_OBJECT_TYPE)));
+		assertThat(ret).doesNotContain(InvitationHandler.INVITATION_OBJECT_TYPE);
 		// System
-		assertThat(ret, not(hasItem(CredentialHandler.CREDENTIAL_OBJECT_TYPE)));
+		assertThat(ret).doesNotContain(CredentialHandler.CREDENTIAL_OBJECT_TYPE);
 	}
 
 	@Test
@@ -65,9 +63,9 @@ public class DBDumpContentMapperTest
 
 		List<String> ret = DBDumpContentTypeMapper.getElementsForClearDB(ct);
 		// Dir schema
-		assertThat(ret, hasItem(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE));
+		assertThat(ret).contains(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE);
 		// Users
-		assertThat(ret, hasItem(IdentityIE.IDENTITIES_OBJECT_TYPE));
+		assertThat(ret).contains(IdentityIE.IDENTITIES_OBJECT_TYPE);
 
 	}
 
@@ -78,8 +76,8 @@ public class DBDumpContentMapperTest
 
 		List<String> ret = DBDumpContentTypeMapper.getElementsForClearDB(ct);
 		// Dir schema
-		assertThat(ret, hasItem(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE));
+		assertThat(ret).contains(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE);
 		// SignupReq
-		assertThat(ret, hasItem(InvitationHandler.INVITATION_OBJECT_TYPE));
+		assertThat(ret).contains(InvitationHandler.INVITATION_OBJECT_TYPE);
 	}
 }

@@ -5,13 +5,12 @@
 
 package pl.edu.icm.unity.engine.api.utils;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FreemarkerUtilsTest
 {
@@ -21,7 +20,7 @@ public class FreemarkerUtilsTest
 		Map<String, Object> vars = new HashMap<>();
 		vars.put("var1", "var1Value");
 		String output = FreemarkerUtils.processStringTemplate(vars, "${var1} ${var2}");
-		assertThat(output, is("var1Value "));
+		assertThat(output).isEqualTo("var1Value ");
 	}
 
 	@Test
@@ -34,6 +33,6 @@ public class FreemarkerUtilsTest
 		vars.put("custom", custom);
 
 		String output = FreemarkerUtils.processStringTemplate(vars, "${custom.var1} ${custom.var2}");
-		assertThat(output, is("var1Value var2Value"));
+		assertThat(output).isEqualTo("var1Value var2Value");
 	}
 }

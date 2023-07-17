@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.AttributeStatement;
 import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution;

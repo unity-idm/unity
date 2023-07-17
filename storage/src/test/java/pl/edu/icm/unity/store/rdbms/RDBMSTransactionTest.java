@@ -6,23 +6,18 @@ package pl.edu.icm.unity.store.rdbms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.StorageConfiguration;
@@ -33,7 +28,7 @@ import pl.edu.icm.unity.store.impl.attributetype.AttributeTypesMapper;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionalRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class RDBMSTransactionTest
 {
@@ -46,14 +41,14 @@ public class RDBMSTransactionTest
 	@Autowired
 	private StorageConfiguration systemCfg;
 	
-	@Before
+	@BeforeEach
 	public void conditionalStart()
 	{
 		StorageEngine engine = systemCfg.getEnumValue(StorageConfiguration.ENGINE, StorageEngine.class);
-		Assume.assumeTrue(engine == StorageEngine.rdbms);
+		assertThat(engine).isEqualTo(StorageEngine.rdbms);
 	}
 	
-	@After
+	@AfterEach
 	public void cleanDB()
 	{
 		initDB.cleanOrDelete();
@@ -68,7 +63,7 @@ public class RDBMSTransactionTest
 		
 		
 		AttributeTypeBean ret = getFromDB("n1");
-		assertThat(ret, is(notNullValue()));
+		assertThat(ret).isNotNull();
 	}
 
 	@Test
@@ -79,7 +74,7 @@ public class RDBMSTransactionTest
 			return getMapper().getByName("n1");
 		});
 		
-		assertThat(ret, is(notNullValue()));
+		assertThat(ret).isNotNull();
 	}
 	
 	@Test
@@ -93,7 +88,7 @@ public class RDBMSTransactionTest
 		
 		AttributeTypeBean ret = getFromDB("n1");
 		assertThat(error).isInstanceOf(RuntimeException.class);
-		assertThat(ret, is(nullValue()));
+		assertThat(ret).isNull();
 	}
 	
 	@Test
@@ -105,7 +100,7 @@ public class RDBMSTransactionTest
 		
 		
 		AttributeTypeBean ret = getFromDB("n1");
-		assertThat(ret, is(nullValue()));
+		assertThat(ret).isNull();
 	}
 
 	@Test
@@ -121,7 +116,7 @@ public class RDBMSTransactionTest
 		
 		
 		AttributeTypeBean ret = getFromDB("n1");
-		assertThat(ret, is(notNullValue()));
+		assertThat(ret).isNotNull();
 	}
 	
 	@Test
@@ -138,8 +133,8 @@ public class RDBMSTransactionTest
 		AttributeTypeBean ret1 = getFromDB("n1");
 		AttributeTypeBean ret2 = getFromDB("n2");
 		
-		assertThat(ret1, is(notNullValue()));
-		assertThat(ret2, is(notNullValue()));
+		assertThat(ret1).isNotNull();
+		assertThat(ret2).isNotNull();
 	}
 	
 	@Test
@@ -156,8 +151,8 @@ public class RDBMSTransactionTest
 		AttributeTypeBean ret1 = getFromDB("n1");
 		AttributeTypeBean ret2 = getFromDB("n2");
 		
-		assertThat(ret1, is(nullValue()));
-		assertThat(ret2, is(nullValue()));
+		assertThat(ret1).isNull();
+		assertThat(ret2).isNull();
 	}
 	
 	@Test
@@ -173,7 +168,7 @@ public class RDBMSTransactionTest
 		
 		AttributeTypeBean ret1 = getFromDB("n1");
 		
-		assertThat(ret1, is(nullValue()));
+		assertThat(ret1).isNull();
 		assertThat(error).isInstanceOf(RuntimeException.class);
 	}
 
@@ -193,10 +188,10 @@ public class RDBMSTransactionTest
 		
 		
 		AttributeTypeBean ret = getFromDB("n1");
-		assertThat(ret, is(notNullValue()));
+		assertThat(ret).isNotNull();
 		
 		AttributeTypeBean ret2 = getFromDB("n2");
-		assertThat(ret2, is(notNullValue()));
+		assertThat(ret2).isNotNull();
 	}
 
 	@Test
@@ -210,10 +205,10 @@ public class RDBMSTransactionTest
 		
 		
 		AttributeTypeBean ret = getFromDB("n1");
-		assertThat(ret, is(notNullValue()));
+		assertThat(ret).isNotNull();
 		
 		AttributeTypeBean ret2 = getFromDB("n2");
-		assertThat(ret2, is(nullValue()));
+		assertThat(ret2).isNull();
 	}
 	
 	private AttributeTypeBean getFromDB(String name)

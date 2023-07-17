@@ -5,12 +5,28 @@
 
 package pl.edu.icm.unity.engine.project;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
@@ -49,24 +65,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestDelegatedGroupManagement extends TestProjectBase
 {
 	private DelegatedGroupManagementImpl dGroupManNoAuthz;
@@ -77,7 +76,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	@Mock
 	private AttributeDAO mockAttrDao;
 	
-	@Before
+	@BeforeEach
 	public void initDelegatedGroupMan() 
 	{
 
@@ -102,7 +101,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).addGroup(argument.capture());
-		assertThat(argument.getValue().getDisplayedName(), is(groupName));
+		assertThat(argument.getValue().getDisplayedName()).isEqualTo(groupName);
 	}
 
 	@Test
@@ -132,7 +131,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		dGroupManNoAuthz.removeGroup("/project1", "/project1/group1");
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockGroupMan).removeGroup(argument.capture(), eq(true));
-		assertThat(argument.getValue(), is("/project1/group1"));
+		assertThat(argument.getValue()).isEqualTo("/project1/group1");
 	}
 	
 	@Test
@@ -186,7 +185,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		dGroupManWithMockAuthz.removeProject("/project", "/project/sub");
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockGroupMan).removeGroup(argument.capture(), eq(true));
-		assertThat(argument.getValue(), is("/project/sub"));
+		assertThat(argument.getValue()).isEqualTo("/project/sub");
 	}
 	
 
@@ -228,9 +227,9 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		Map<String, DelegatedGroupContents> groupAndSubgroups = dGroupManNoAuthz.getGroupAndSubgroups("/project",
 				"/project");
 
-		assertThat(groupAndSubgroups.size(), is(2));
-		assertThat(groupAndSubgroups.get("/project").group.path, is("/project"));
-		assertThat(groupAndSubgroups.get("/project/subgroup").group.path, is("/project/subgroup"));
+		assertThat(groupAndSubgroups.size()).isEqualTo(2);
+		assertThat(groupAndSubgroups.get("/project").group.path).isEqualTo("/project");
+		assertThat(groupAndSubgroups.get("/project/subgroup").group.path).isEqualTo("/project/subgroup");
 	}
 
 	@Test
@@ -240,7 +239,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		DelegatedGroupContents contents = dGroupManNoAuthz.getContents("/project", "/project/subGroup");
 
-		assertThat(contents.group.path, is("/project/subGroup"));
+		assertThat(contents.group.path).isEqualTo("/project/subGroup");
 	}
 
 	@Test
@@ -280,13 +279,13 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		List<DelegatedGroupMember> delegatedGroupMemebers = dGroupManNoAuthz.getDelegatedGroupMembers("/project",
 				"/project");
 
-		assertThat(delegatedGroupMemebers.size(), is(1));
+		assertThat(delegatedGroupMemebers.size()).isEqualTo(1);
 
 		DelegatedGroupMember firstMember = delegatedGroupMemebers.iterator().next();
-		assertThat(firstMember.entityId, is(1L));
-		assertThat(firstMember.email.getValue(), is("demo@demo.com"));
-		assertThat(firstMember.name, is("demo"));
-		assertThat(firstMember.attributes.iterator().next().getValues().iterator().next(), is("extraValue"));
+		assertThat(firstMember.entityId).isEqualTo(1L);
+		assertThat(firstMember.email.getValue()).isEqualTo("demo@demo.com");
+		assertThat(firstMember.name).isEqualTo("demo");
+		assertThat(firstMember.attributes.iterator().next().getValues().iterator().next()).isEqualTo("extraValue");
 
 	}
 
@@ -322,7 +321,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture(), eq("set displayed name"), eq("demoName"));
-		assertThat(argument.getValue().getDisplayedName(), is(newName));
+		assertThat(argument.getValue().getDisplayedName()).isEqualTo(newName);
 	}
 
 	@Test
@@ -339,7 +338,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture(), eq("set access mode"), eq("public"));
-		assertThat(argument.getValue().isPublic(), is(true));
+		assertThat(argument.getValue().isPublic()).isEqualTo(true);
 	}
 
 	@Test
@@ -351,8 +350,8 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		ArgumentCaptor<Attribute> argument = ArgumentCaptor.forClass(Attribute.class);
 		verify(mockAttrHelper).addSystemAttribute(eq(1L), argument.capture(), eq(true));
 
-		assertThat(argument.getValue().getValues().iterator().next(),
-				is(GroupAuthorizationRole.manager.toString()));
+		assertThat(argument.getValue().getValues().iterator().next()).isEqualTo
+				(GroupAuthorizationRole.manager.toString());
 	}
 
 	@Test
@@ -396,8 +395,8 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		List<DelegatedGroup> projectsForEntity = dGroupManNoAuthz.getProjectsForEntity(1L);
 
-		assertThat(projectsForEntity.size(), is(1));
-		assertThat(projectsForEntity.iterator().next().path, is("/project"));
+		assertThat(projectsForEntity.size()).isEqualTo(1);
+		assertThat(projectsForEntity.iterator().next().path).isEqualTo("/project");
 	}
 
 	@Test
@@ -453,9 +452,9 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).updateGroup(eq("/project/sub"), argument.capture());
 
-		assertThat(argument.getValue().getDelegationConfiguration().enabled, is(true));
+		assertThat(argument.getValue().getDelegationConfiguration().enabled).isEqualTo(true);
 
-		assertThat(argument.getValue().getDelegationConfiguration().logoUrl, is("https://test/test.jpg"));
+		assertThat(argument.getValue().getDelegationConfiguration().logoUrl).isEqualTo("https://test/test.jpg");
 	}
 
 	private AttributeExt getAttributeExt(String value)

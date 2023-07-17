@@ -2,8 +2,8 @@ import java.io.File
 
 import org.apache.commons.io.FileUtils
 
-import pl.edu.icm.unity.types.I18nString
-import pl.edu.icm.unity.types.authn.CredentialDefinition
+import pl.edu.icm.unity.base.i18n.I18nString
+import pl.edu.icm.unity.base.authn.CredentialDefinition
 
 log.info("Adding credentials test");
 

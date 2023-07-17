@@ -1,16 +1,13 @@
 package pl.edu.icm.unity.base.audit;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.audit.AuditEvent.AuditEventBuilder;
 import pl.edu.icm.unity.base.json.JsonUtil;
@@ -24,9 +21,9 @@ public class AuditEventTest
 		AuditEvent event = getEvent();
 
 		// than
-		assertThat(event.getTags().size(), is(2));
-		assertThat(event.getTags(), hasItem("TAG1"));
-		assertThat(event.getTags(), hasItem("TAG2"));
+		assertThat(event.getTags()).hasSize(2);
+		assertThat(event.getTags()).contains("TAG1");
+		assertThat(event.getTags()).contains("TAG2");
 	}
 
 	@Test
@@ -79,8 +76,8 @@ public class AuditEventTest
 		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
-		assertThat(ex, instanceOf(NullPointerException.class));
-		assertThat(ex.getMessage(), is("AuditEvent.name field is required!"));
+		assertThat(ex).isInstanceOf(NullPointerException.class);
+		assertThat(ex.getMessage()).isEqualTo("AuditEvent.name field is required!");
 	}
 
 	@Test
@@ -94,8 +91,8 @@ public class AuditEventTest
 		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
-		assertThat(ex, instanceOf(NullPointerException.class));
-		assertThat(ex.getMessage(), is("AuditEvent.type field is required!"));
+		assertThat(ex).isInstanceOf(NullPointerException.class);
+		assertThat(ex.getMessage()).isEqualTo("AuditEvent.type field is required!");
 	}
 
 	@Test
@@ -109,8 +106,8 @@ public class AuditEventTest
 		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
-		assertThat(ex, instanceOf(NullPointerException.class));
-		assertThat(ex.getMessage(), is("AuditEvent.timestamp field is required!"));
+		assertThat(ex).isInstanceOf(NullPointerException.class);
+		assertThat(ex.getMessage()).isEqualTo("AuditEvent.timestamp field is required!");
 
 	}
 
@@ -125,8 +122,8 @@ public class AuditEventTest
 		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
-		assertThat(ex, instanceOf(NullPointerException.class));
-		assertThat(ex.getMessage(), is("AuditEvent.initiator field is required!"));
+		assertThat(ex).isInstanceOf(NullPointerException.class);
+		assertThat(ex.getMessage()).isEqualTo("AuditEvent.initiator field is required!");
 	}
 
 	@Test
@@ -140,8 +137,8 @@ public class AuditEventTest
 		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
-		assertThat(ex, instanceOf(NullPointerException.class));
-		assertThat(ex.getMessage(), is("AuditEvent.action field is required!"));
+		assertThat(ex).isInstanceOf(NullPointerException.class);
+		assertThat(ex.getMessage()).isEqualTo("AuditEvent.action field is required!");
 	}
 
 	@Test
@@ -155,8 +152,8 @@ public class AuditEventTest
 		Throwable ex = Assertions.catchThrowable(eventBuilder::build);
 
 		// than
-		assertThat(ex, instanceOf(NullPointerException.class));
-		assertThat(ex.getMessage(), is("AuditEvent.tags field is required!"));
+		assertThat(ex).isInstanceOf(NullPointerException.class);
+		assertThat(ex.getMessage()).isEqualTo("AuditEvent.tags field is required!");
 	}
 
 	private AuditEvent getEvent()

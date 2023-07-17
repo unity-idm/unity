@@ -4,13 +4,18 @@
  */
 package pl.edu.icm.unity.engine.confirmation;
 
-import static org.junit.Assert.fail;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -113,8 +118,8 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		AttributeExt returned = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
 				.iterator().next();
-		Assert.assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
-		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
+		assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
+		assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
 
 		
 		VerifiableEmail e1P = new VerifiableEmail("a@example.com", new ConfirmationInfo(false));
@@ -129,9 +134,9 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		AttributeExt returnedP = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
 				.iterator().next();
-		Assert.assertFalse(VerifiableEmail.fromJsonString(returnedP.getValues().get(0)).isConfirmed());
-		Assert.assertTrue(VerifiableEmail.fromJsonString(returnedP.getValues().get(1)).isConfirmed());
-		Assert.assertTrue(VerifiableEmail.fromJsonString(returnedP.getValues().get(2)).isConfirmed());
+		assertFalse(VerifiableEmail.fromJsonString(returnedP.getValues().get(0)).isConfirmed());
+		assertTrue(VerifiableEmail.fromJsonString(returnedP.getValues().get(1)).isConfirmed());
+		assertTrue(VerifiableEmail.fromJsonString(returnedP.getValues().get(2)).isConfirmed());
 	}
 
 	@Test
@@ -157,8 +162,8 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		AttributeExt returned = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
 				.iterator().next();
-		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
-		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
+		assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
+		assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
 	}
 
 	@Test
@@ -183,8 +188,8 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		AttributeExt returned = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
 				.iterator().next();
-		Assert.assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
-		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
+		assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
+		assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
 
 		setupUserContext(DEF_USER, null);
 
@@ -198,9 +203,9 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 
 		returned = attrsMan.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
 				.iterator().next();
-		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed()); // reset
-		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed()); // preserved old, reset
-		Assert.assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(2)).isConfirmed()); // preserved old, set
+		assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed()); // reset
+		assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed()); // preserved old, reset
+		assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(2)).isConfirmed()); // preserved old, set
 
 	}
 
@@ -226,8 +231,8 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		AttributeExt returned = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
 				.iterator().next();
-		Assert.assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
-		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
+		assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
+		assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
 
 		setupUserContext(DEF_USER, null);
 		e1 = new VerifiableEmail("c@example.com", new ConfirmationInfo(false));
@@ -266,8 +271,8 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		confirmationMan.sendConfirmationRequest(attrState);
 
 		VerifiableElement vemail = getFirstEmailAttributeValueFromEntity(entity, "/test");
-		Assert.assertFalse(vemail.getConfirmationInfo().isConfirmed());
-		Assert.assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
+		assertFalse(vemail.getConfirmationInfo().isConfirmed());
+		assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
 	}
 
 	@Test
@@ -288,7 +293,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				true,
 				InitializerCommon.EMAIL_ATTR, "demoTemplate", "demoChannel");
 
-		Assert.assertEquals(0,
+		assertEquals(0,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 		
@@ -304,9 +309,9 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		}
 		
 		VerifiableElement vemail = getFirstEmailAttributeValueFromEntity(entity, "/test");
-		Assert.assertFalse(vemail.getConfirmationInfo().isConfirmed());
-		Assert.assertEquals(1, vemail.getConfirmationInfo().getSentRequestAmount());
-		Assert.assertEquals(1, tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
+		assertFalse(vemail.getConfirmationInfo().isConfirmed());
+		assertEquals(1, vemail.getConfirmationInfo().getSentRequestAmount());
+		assertEquals(1, tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 		String token = tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 				.get(0).getValue();
@@ -318,12 +323,12 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 			fail("Cannot proccess confirmation");
 		}
 		
-		Assert.assertEquals(0, tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
+		assertEquals(0, tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 		vemail = getFirstEmailAttributeValueFromEntity(entity, "/test");
-		Assert.assertTrue(vemail.getConfirmationInfo().isConfirmed());
-		Assert.assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
-		Assert.assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());
+		assertTrue(vemail.getConfirmationInfo().isConfirmed());
+		assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
+		assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());
 	}
 
 	@Test
@@ -339,7 +344,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				false,
 				EmailIdentity.ID, "demoTemplate", "demoChannel");
 	
-		Assert.assertEquals(0,
+		assertEquals(0,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 
@@ -353,9 +358,9 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 			fail("Cannot send confirmation request");
 		}
 		VerifiableElement identity = getFirstEmailIdentityFromEntity(entity);
-		Assert.assertFalse(identity.getConfirmationInfo().isConfirmed());
-		Assert.assertEquals(1, identity.getConfirmationInfo().getSentRequestAmount());
-		Assert.assertEquals(1,
+		assertFalse(identity.getConfirmationInfo().isConfirmed());
+		assertEquals(1, identity.getConfirmationInfo().getSentRequestAmount());
+		assertEquals(1,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 		String token = tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -367,13 +372,13 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		{
 			fail("Cannot proccess confirmation");
 		}
-		Assert.assertEquals(0,
+		assertEquals(0,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 		identity = getFirstEmailIdentityFromEntity(entity);
-		Assert.assertTrue(identity.getConfirmationInfo().isConfirmed());
-		Assert.assertEquals(0, identity.getConfirmationInfo().getSentRequestAmount());
-		Assert.assertNotEquals(0, identity.getConfirmationInfo().getConfirmationDate());
+		assertTrue(identity.getConfirmationInfo().isConfirmed());
+		assertEquals(0, identity.getConfirmationInfo().getSentRequestAmount());
+		assertNotEquals(0, identity.getConfirmationInfo().getConfirmationDate());
 
 	}
 
@@ -412,7 +417,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 
 		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
-		Assert.assertEquals(1,
+		assertEquals(1,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 		String token = tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -428,9 +433,9 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		}
 
 		VerifiableElement vemail = getFirstEmailAttributeValueFromRegistration();
-		Assert.assertTrue(vemail.getConfirmationInfo().isConfirmed());
-		Assert.assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
-		Assert.assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());
+		assertTrue(vemail.getConfirmationInfo().isConfirmed());
+		assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
+		assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());
 
 	}
 
@@ -463,7 +468,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 
 		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
-		Assert.assertEquals(1,
+		assertEquals(1,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 		String token = tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -479,11 +484,11 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		}
 
 		VerifiableElement vemail = getFirstEmailIdentityFromRegistration();
-		Assert.assertTrue(vemail.getConfirmationInfo().isConfirmed());
-		Assert.assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
-		Assert.assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());
+		assertTrue(vemail.getConfirmationInfo().isConfirmed());
+		assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
+		assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());
 
-		Assert.assertEquals(0,
+		assertEquals(0,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 	}
@@ -519,14 +524,14 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 
 		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
-		Assert.assertEquals(0,
+		assertEquals(0,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 
 		VerifiableElement vemail = getFirstEmailIdentityFromRegistration();
-		Assert.assertTrue(vemail.getConfirmationInfo().isConfirmed());
-		Assert.assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
-		Assert.assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());
+		assertTrue(vemail.getConfirmationInfo().isConfirmed());
+		assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
+		assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());
 	}
 
 	@Test
@@ -568,14 +573,14 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 
 		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
-		Assert.assertEquals(0,
+		assertEquals(0,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 
 		VerifiableElement vemail = getFirstEmailAttributeValueFromRegistration();
-		Assert.assertTrue(vemail.getConfirmationInfo().isConfirmed());
-		Assert.assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
-		Assert.assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());	
+		assertTrue(vemail.getConfirmationInfo().isConfirmed());
+		assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
+		assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());	
 	}
 	
 	@Test
@@ -618,10 +623,10 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
 
-		Assert.assertEquals(RegistrationRequestStatus.pending, registrationsMan
+		assertEquals(RegistrationRequestStatus.pending, registrationsMan
 				.getRegistrationRequests().get(0).getStatus());
 
-		Assert.assertEquals(1,
+		assertEquals(1,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 		String token = tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -635,7 +640,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 			e.printStackTrace();
 			fail("Cannot proccess confirmation");
 		}
-		Assert.assertEquals(RegistrationRequestStatus.accepted, registrationsMan
+		assertEquals(RegistrationRequestStatus.accepted, registrationsMan
 				.getRegistrationRequests().get(0).getStatus());
 
 	}
@@ -684,10 +689,10 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		String requestId = registrationsMan.submitRegistrationRequest(request, new RegistrationContext(
 				false, TriggeringMode.manualAtLogin));
 
-		Assert.assertEquals(2,
+		assertEquals(2,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
-		Assert.assertEquals(RegistrationRequestStatus.pending, registrationsMan
+		assertEquals(RegistrationRequestStatus.pending, registrationsMan
 				.getRegistrationRequests().get(0).getStatus());
 
 		RegistrationRequestState requestState = registrationsMan.getRegistrationRequests()
@@ -695,10 +700,10 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		registrationsMan.processRegistrationRequest(requestId, requestState.getRequest(),
 				RegistrationRequestAction.accept, "", "");
 
-		Assert.assertEquals(RegistrationRequestStatus.accepted, registrationsMan
+		assertEquals(RegistrationRequestStatus.accepted, registrationsMan
 				.getRegistrationRequests().get(0).getStatus());
 
-		Assert.assertEquals(2,
+		assertEquals(2,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 
@@ -763,10 +768,10 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		String requestId = registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
 		
-		Assert.assertEquals(RegistrationRequestStatus.pending, registrationsMan
+		assertEquals(RegistrationRequestStatus.pending, registrationsMan
 				.getRegistrationRequests().get(0).getStatus());
 
-		Assert.assertEquals(1,
+		assertEquals(1,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 						.size());
 		String token = tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -786,7 +791,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 			fail("Cannot proccess confirmation");
 		}
 		
-		Assert.assertFalse(status.success);
+		assertFalse(status.success);
 	}
 	
 	@Test
@@ -828,11 +833,11 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 			
 		}	
 		attrsMan.setAttribute(entity, at1);
-		Assert.assertTrue(tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE).isEmpty());	
+		assertTrue(tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE).isEmpty());	
 		
 		Collection<AttributeExt>  attrs = attrsMan.getAttributes(entity, "/test", InitializerCommon.EMAIL_ATTR);
 		VerifiableElement vElement = VerifiableEmail.fromJsonString(attrs.iterator().next().getValues().get(0));
-		Assert.assertEquals(0, vElement.getConfirmationInfo().getSentRequestAmount());	
+		assertEquals(0, vElement.getConfirmationInfo().getSentRequestAmount());	
 	}
 	
 	private void addSimpleConfirmationConfiguration(boolean toAttr, String name,

@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.entity.Entity;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.base.group.GroupContents;
  */
 public class TstPerfGetAttrWithStatment extends PerformanceTestBase
 {
-	@Ignore
+	@Disabled
 	@Test
 	public void testGetAttributesWithStatment() throws EngineException, IOException
 	{

@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.engine.project;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -17,15 +17,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.base.registration.EnquiryResponse;
 import pl.edu.icm.unity.base.registration.EnquiryResponseState;
@@ -35,7 +36,6 @@ import pl.edu.icm.unity.base.registration.RegistrationRequest;
 import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
@@ -47,7 +47,7 @@ import pl.edu.icm.unity.engine.api.registration.RequestType;
  * @author P.Piernik
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestRequestManagement extends TestProjectBase
 {
 	@Mock
@@ -55,7 +55,7 @@ public class TestRequestManagement extends TestProjectBase
 
 	private ProjectRequestManagementImpl projectRequestMan;
 
-	@Before
+	@BeforeEach
 	public void initDelegatedGroupMan()
 	{
 		projectRequestMan = new ProjectRequestManagementImpl(mockAuthz, mockRegistrationMan, mockEnquiryMan,
@@ -86,7 +86,7 @@ public class TestRequestManagement extends TestProjectBase
 
 		List<ProjectRequest> requests = projectRequestMan.getRequests("/project");
 
-		assertThat(requests.size(), is(2));
+		assertThat(requests).hasSize(2);
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class TestRequestManagement extends TestProjectBase
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockRegistrationMan).processRegistrationRequest(argument.capture(), any(),
 				eq(RegistrationRequestAction.accept), any(), any());
-		assertThat(argument.getValue(), is(id));
+		assertThat(argument.getValue()).isEqualTo(id);
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class TestRequestManagement extends TestProjectBase
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockEnquiryMan).processEnquiryResponse(argument.capture(), any(),
 				eq(RegistrationRequestAction.accept), any(), any());
-		assertThat(argument.getValue(), is(id));
+		assertThat(argument.getValue()).isEqualTo(id);
 	}
 
 	@Test
@@ -137,7 +137,7 @@ public class TestRequestManagement extends TestProjectBase
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockRegistrationMan).processRegistrationRequest(argument.capture(), any(),
 				eq(RegistrationRequestAction.reject), any(), any());
-		assertThat(argument.getValue(), is(id));
+		assertThat(argument.getValue()).isEqualTo(id);
 	}
 
 	@Test
@@ -154,7 +154,7 @@ public class TestRequestManagement extends TestProjectBase
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockEnquiryMan).processEnquiryResponse(argument.capture(), any(),
 				eq(RegistrationRequestAction.reject), any(), any());
-		assertThat(argument.getValue(), is(id));
+		assertThat(argument.getValue()).isEqualTo(id);
 	}
 
 	@Test
@@ -169,7 +169,7 @@ public class TestRequestManagement extends TestProjectBase
 		
 		Optional<String> projectRegistrationFormLink = projectRequestMan
 				.getProjectRegistrationFormLink("/project");
-		assertThat(projectRegistrationFormLink.isPresent(), is(true));
+		assertThat(projectRegistrationFormLink.isPresent()).isEqualTo(true);
 	}
 
 	@Test
@@ -183,6 +183,6 @@ public class TestRequestManagement extends TestProjectBase
 		when(mockPublicRegistrationURLSupport.getWellknownEnquiryLink("enqForm")).thenReturn("link");
 		
 		Optional<String> projectEnquiryFormLink = projectRequestMan.getProjectSignUpEnquiryFormLink("/project");
-		assertThat(projectEnquiryFormLink.isPresent(), is(true));
+		assertThat(projectEnquiryFormLink.isPresent()).isEqualTo(true);
 	}
 }

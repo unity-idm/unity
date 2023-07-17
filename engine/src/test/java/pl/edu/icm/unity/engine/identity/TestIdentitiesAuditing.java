@@ -6,8 +6,8 @@ package pl.edu.icm.unity.engine.identity;
 
 import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -25,12 +25,13 @@ import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
 
 public class TestIdentitiesAuditing extends DBIntegrationTestBase
 {
@@ -42,7 +43,7 @@ public class TestIdentitiesAuditing extends DBIntegrationTestBase
 	@Autowired
 	private AuditPublisher auditPublisher;
 
-	@Before
+	@BeforeEach
 	public void prepare() throws Exception
 	{
 		setupMockAuthn();	

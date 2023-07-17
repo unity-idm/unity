@@ -4,21 +4,22 @@
  */
 package pl.edu.icm.unity.engine.server;
 
-import static org.junit.Assert.assertNotEquals;
+
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.net.URL;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @UnityIntegrationTest
 public class AllInterfacesBindTest
 {
@@ -27,7 +28,7 @@ public class AllInterfacesBindTest
 	@Autowired
 	protected AdvertisedAddressProvider advertisedAddrProvider;
 	
-	@After
+	@AfterEach
 	public void clear() throws EngineException
 	{
 		httpServer.stop();

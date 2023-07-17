@@ -5,16 +5,15 @@
 
 package pl.edu.icm.unity.engine.mvel;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mvel2.MVEL;
 
 import pl.edu.icm.unity.base.group.Group;
@@ -22,7 +21,7 @@ import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.engine.api.group.GroupsChain;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestMVELGroup
 {
 	@Test
@@ -45,17 +44,20 @@ public class TestMVELGroup
 		groupProvider.put("/", root);
 		groupProvider.put("/a", a);
 		groupProvider.put("/a/b", ab);
-		MVELGroup mvelGroup = new MVELGroup(new GroupsChain(new Group("/a/b").getPathsChain().stream()
-				.map(p -> groupProvider.get(p)).collect(Collectors.toList())));
+		MVELGroup mvelGroup = new MVELGroup(new GroupsChain(new Group("/a/b").getPathsChain()
+				.stream()
+				.map(p -> groupProvider.get(p))
+				.collect(Collectors.toList())));
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("group", mvelGroup);
 
 		assertThat(
-				MVEL.evalToString("disp = def(g) {g.displayedName.getValue(\"en\")}; group.getEncodedGroupPath(':', disp)", map),
-				is("enRoot:enA:enB"));
+				MVEL.evalToString(
+						"disp = def(g) {g.displayedName.getValue(\"en\")}; group.getEncodedGroupPath(':', disp)", map))
+				.isEqualTo("enRoot:enA:enB");
 	}
-	
+
 	@Test
 	public void shouldEncodeGroupPathSkippingFirstElement()
 	{
@@ -76,14 +78,17 @@ public class TestMVELGroup
 		groupProvider.put("/", root);
 		groupProvider.put("/a", a);
 		groupProvider.put("/a/b", ab);
-		MVELGroup mvelGroup = new MVELGroup(new GroupsChain(new Group("/a/b").getPathsChain().stream()
-				.map(p -> groupProvider.get(p)).collect(Collectors.toList())));
+		MVELGroup mvelGroup = new MVELGroup(new GroupsChain(new Group("/a/b").getPathsChain()
+				.stream()
+				.map(p -> groupProvider.get(p))
+				.collect(Collectors.toList())));
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("group", mvelGroup);
 
-		String encoded = MVEL.evalToString("disp = def(g) {g.displayedName.getValue(\"en\")}; group.getEncodedGroupPath(':', 1, disp)", map);
-		assertThat(encoded, is("enA:enB"));
+		String encoded = MVEL.evalToString(
+				"disp = def(g) {g.displayedName.getValue(\"en\")}; group.getEncodedGroupPath(':', 1, disp)", map);
+		assertThat(encoded).isEqualTo("enA:enB");
 	}
 
 }

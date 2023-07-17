@@ -6,16 +6,13 @@ package pl.edu.icm.unity.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -75,8 +72,8 @@ public class TestInvitations  extends DBIntegrationTestBase
 		InvitationWithCode invitationEnh = new InvitationWithCode(invitation, code, null, 0);
 		
 		List<InvitationWithCode> invitations = invitationMan.getInvitations();
-		assertThat(invitations.size(), is(1));
-		assertThat(invitations.get(0), is(invitationEnh));
+		assertThat(invitations).hasSize(1);
+		assertThat(invitations.get(0)).isEqualTo(invitationEnh);
 	}
 
 	@Test
@@ -89,7 +86,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		invitationMan.removeInvitation(code);
 		
 		List<InvitationWithCode> invitations = invitationMan.getInvitations();
-		assertThat(invitations.isEmpty(), is(true));
+		assertThat(invitations).isEmpty();
 	}
 	
 	@Test
@@ -107,13 +104,13 @@ public class TestInvitations  extends DBIntegrationTestBase
 		invitationMan.sendInvitation(code);
 		
 		List<Message> sent = mockNotificationFacility.getSent();
-		assertThat(sent.size(), is(1));
-		assertThat(sent.get(0).address, is("someAddr"));
-		assertThat(sent.get(0).subject, is("Registration invitation"));
+		assertThat(sent).hasSize(1);
+		assertThat(sent.get(0).address).isEqualTo("someAddr");
+		assertThat(sent.get(0).subject).isEqualTo("Registration invitation");
 		
 		InvitationWithCode invitation2 = invitationMan.getInvitation(code);
-		assertThat(invitation2.getLastSentTime(), is(notNullValue()));
-		assertThat(invitation2.getNumberOfSends(), is(1));
+		assertThat(invitation2.getLastSentTime()).isNotNull();
+		assertThat(invitation2.getNumberOfSends()).isEqualTo(1);
 	}
 
 	@Test
@@ -127,7 +124,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 		
 		List<InvitationWithCode> invitations = invitationMan.getInvitations();
-		assertThat(invitations.isEmpty(), is(true));
+		assertThat(invitations).isEmpty();
 	}
 
 	@Test
@@ -174,8 +171,8 @@ public class TestInvitations  extends DBIntegrationTestBase
 		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 	
 		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(storedReq.getRequest().getAttributes().size(), is(1));
-		assertThat(storedReq.getRequest().getAttributes().get(0), is(enforcedAttribute));
+		assertThat(storedReq.getRequest().getAttributes()).hasSize(1);
+		assertThat(storedReq.getRequest().getAttributes().get(0)).isEqualTo(enforcedAttribute);
 	}
 
 	@Test
@@ -191,8 +188,8 @@ public class TestInvitations  extends DBIntegrationTestBase
 		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 	
 		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(storedReq.getRequest().getIdentities().size(), is(1));
-		assertThat(storedReq.getRequest().getIdentities().get(0), is(enforced));
+		assertThat(storedReq.getRequest().getIdentities()).hasSize(1);
+		assertThat(storedReq.getRequest().getIdentities().get(0)).isEqualTo(enforced);
 	}
 	
 	@Test
@@ -208,8 +205,8 @@ public class TestInvitations  extends DBIntegrationTestBase
 		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 	
 		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(storedReq.getRequest().getGroupSelections().size(), is(1));
-		assertThat(storedReq.getRequest().getGroupSelections().get(0), is(enforced));
+		assertThat(storedReq.getRequest().getGroupSelections()).hasSize(1);
+		assertThat(storedReq.getRequest().getGroupSelections().get(0)).isEqualTo(enforced);
 	}
 
 	@Test
@@ -226,11 +223,11 @@ public class TestInvitations  extends DBIntegrationTestBase
 		String requestId = registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 	
 		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(storedReq.getRequestId(), is(requestId));
-		assertThat(storedReq.getRequest().getAttributes().size(), is(1));
-		assertThat(storedReq.getRequest().getAttributes().get(0).getValues().size(), is(1));
-		assertThat(storedReq.getRequest().getAttributes().get(0).getValues().get(0), 
-				is(new VerifiableEmail("enforced@example.com").toJsonString()));
+		assertThat(storedReq.getRequestId()).isEqualTo(requestId);
+		assertThat(storedReq.getRequest().getAttributes()).hasSize(1);
+		assertThat(storedReq.getRequest().getAttributes().get(0).getValues()).hasSize(1);
+		assertThat(storedReq.getRequest().getAttributes().get(0).getValues().get(0)). 
+				isEqualTo(new VerifiableEmail("enforced@example.com").toJsonString());
 	}
 
 	@Test
@@ -246,9 +243,9 @@ public class TestInvitations  extends DBIntegrationTestBase
 		String requestId = registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 	
 		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(storedReq.getRequestId(), is(requestId));
-		assertThat(storedReq.getRequest().getIdentities().size(), is(1));
-		assertThat(storedReq.getRequest().getIdentities().get(0).getValue(), is("some-user"));
+		assertThat(storedReq.getRequestId()).isEqualTo(requestId);
+		assertThat(storedReq.getRequest().getIdentities()).hasSize(1);
+		assertThat(storedReq.getRequest().getIdentities().get(0).getValue()).isEqualTo("some-user");
 	}
 	
 	@Test
@@ -264,9 +261,9 @@ public class TestInvitations  extends DBIntegrationTestBase
 		String requestId = registrationsMan.submitRegistrationRequest(request, REG_CONTEXT);
 	
 		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(storedReq.getRequestId(), is(requestId));
-		assertThat(storedReq.getRequest().getGroupSelections().size(), is(1));
-		assertThat(storedReq.getRequest().getGroupSelections().get(0), is(new GroupSelection("/A")));
+		assertThat(storedReq.getRequestId()).isEqualTo(requestId);
+		assertThat(storedReq.getRequest().getGroupSelections()).hasSize(1);
+		assertThat(storedReq.getRequest().getGroupSelections().get(0)).isEqualTo(new GroupSelection("/A"));
 	}
 
 	

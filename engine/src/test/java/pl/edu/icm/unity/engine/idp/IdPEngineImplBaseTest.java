@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.engine.idp;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -18,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.google.common.collect.Lists;
@@ -78,9 +77,9 @@ public class IdPEngineImplBaseTest
 		ArgumentCaptor<TranslationInput> captor = ArgumentCaptor.forClass(TranslationInput.class);
 		verify(outputProfileExecutor).execute(eq(TranslationProfileGenerator.generateIncludeOutputProfile("profile")), captor.capture());
 		TranslationInput ti = captor.getValue();
-		assertThat(ti.getImportStatus().size(), is(1));
-		assertThat(ti.getImportStatus().get("imp1"), is(notNullValue()));
-		assertThat(ti.getImportStatus().get("imp1"), is(Status.success));
+		assertThat(ti.getImportStatus()).hasSize(1);
+		assertThat(ti.getImportStatus().get("imp1")).isNotNull();
+		assertThat(ti.getImportStatus().get("imp1")).isEqualTo(Status.success);
 	}
 	
 	@Test
@@ -118,9 +117,9 @@ public class IdPEngineImplBaseTest
 		ArgumentCaptor<TranslationInput> captor = ArgumentCaptor.forClass(TranslationInput.class);
 		verify(outputProfileExecutor).execute(eq(TranslationProfileGenerator.generateIncludeOutputProfile("profile")), captor.capture());
 		TranslationInput ti = captor.getValue();
-		assertThat(ti.getImportStatus().size(), is(1));
-		assertThat(ti.getImportStatus().get("imp1"), is(notNullValue()));
-		assertThat(ti.getImportStatus().get("imp1"), is(Status.success));
+		assertThat(ti.getImportStatus()).hasSize(1);
+		assertThat(ti.getImportStatus().get("imp1")).isNotNull();
+		assertThat(ti.getImportStatus().get("imp1")).isEqualTo(Status.success);
 	}
 	
 	@Test
@@ -167,7 +166,7 @@ public class IdPEngineImplBaseTest
 		ArgumentCaptor<TranslationInput> captor = ArgumentCaptor.forClass(TranslationInput.class);
 		verify(outputProfileExecutor).execute(eq(TranslationProfileGenerator.generateIncludeOutputProfile("profile")), captor.capture());
 		TranslationInput ti = captor.getValue();
-		assertThat(ti.getRequesterAttributes().size(), is(1));
-		assertThat(ti.getRequesterAttributes(), is(clientAttributes));
+		assertThat(ti.getRequesterAttributes()).hasSize(1);
+		assertThat(ti.getRequesterAttributes()).isEqualTo(clientAttributes);
 	}
 }

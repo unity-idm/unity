@@ -5,12 +5,12 @@
 package pl.edu.icm.unity.engine;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -67,7 +67,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 	private void check(EntityParam entity, String expected) throws Exception
 	{
 		tx.runInTransactionThrowing(() -> {
-			assertEquals(expected, emailFacility.getAddressForEntity(entity, null, false));
+			assertThat(expected).isEqualTo(emailFacility.getAddressForEntity(entity, null, false));
 		}); 
 	}
 	
@@ -92,11 +92,11 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		attrsMan.setAttribute(entityP, attribute);
 		
 		tx.runInTransactionThrowing(() -> {
-			assertEquals("email2@ex.com", emailFacility.getAddressForEntity(
+			assertThat("email2@ex.com").isEqualTo(emailFacility.getAddressForEntity(
 					entityP, "email2@ex.com", false));
-			assertEquals("email1@ex.com", emailFacility.getAddressForEntity(
+			assertThat("email1@ex.com").isEqualTo(emailFacility.getAddressForEntity(
 					entityP, "email1@ex.com", false));
-			assertEquals("email2@ex.com", emailFacility.getAddressForEntity(
+			assertThat("email2@ex.com").isEqualTo(emailFacility.getAddressForEntity(
 					entityP, "emailNNN@ex.com", false));
 		});
 	}
@@ -197,7 +197,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 	{
 		tx.runInTransactionThrowing(() ->
 		{
-			assertEquals(expected, emailFacility.getAddressForUserRequest(request));
+			assertThat(expected).isEqualTo(emailFacility.getAddressForUserRequest(request));
 		});
 	}
 

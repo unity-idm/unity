@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.base.registration;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -27,6 +26,6 @@ public class TestFormNotification
 		RegistrationFormNotifications notParsed = Constants.MAPPER.convertValue(
 				parsed, RegistrationFormNotifications.class);
 		
-		assertThat(notParsed, is(not));
+		assertThat(notParsed).isEqualTo(not);
 	}
 }

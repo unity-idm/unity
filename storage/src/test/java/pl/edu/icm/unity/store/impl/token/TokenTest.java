@@ -6,15 +6,13 @@ package pl.edu.icm.unity.store.impl.token;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
 
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.entity.EntityInformation;
@@ -33,7 +31,7 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 	private long entityId;
 	private long entityId2;
 
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -97,8 +95,8 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 
 			Token ret = dao.getByKey(key);
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(obj));
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(obj);
 		});
 	}
 
@@ -111,8 +109,8 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 
 			Token ret = dao.get(obj.getType(), obj.getValue());
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(obj));
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(obj);
 		});
 	}	
 	
@@ -153,8 +151,8 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 
 			List<Token> byType = dao.getByType("type1");
 
-			assertThat(byType.size(), is(1));
-			assertThat(byType.get(0), is(obj));
+			assertThat(byType).hasSize(1);
+			assertThat(byType.get(0)).isEqualTo(obj);
 		});
 	}	
 
@@ -169,8 +167,8 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 
 			List<Token> byType = dao.getOwned("type1", entityId);
 
-			assertThat(byType.size(), is(1));
-			assertThat(byType.get(0), is(obj));
+			assertThat(byType).hasSize(1);
+			assertThat(byType.get(0)).isEqualTo(obj);
 		});
 	}	
 
@@ -186,8 +184,8 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 
 			List<Token> byType = dao.getExpired();
 
-			assertThat(byType.size(), is(1));
-			assertThat(byType.get(0), is(expired));
+			assertThat(byType).hasSize(1);
+			assertThat(byType.get(0)).isEqualTo(expired);
 		});
 	}	
 

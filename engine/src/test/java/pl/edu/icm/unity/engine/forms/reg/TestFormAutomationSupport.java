@@ -4,12 +4,11 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.registration.RegistrationContext;
@@ -42,7 +41,7 @@ public class TestFormAutomationSupport extends RegistrationTestBase
 		
 		AutomaticRequestAction autoProcessAction = automationSupport.getAutoProcessAction(request, 
 				RequestSubmitStatus.submitted);
-		assertThat(autoProcessAction, is(AutomaticRequestAction.accept));
+		assertThat(autoProcessAction).isEqualTo(AutomaticRequestAction.accept);
 	}
 
 	/* TODO test the rest
@@ -62,20 +61,20 @@ public class TestFormAutomationSupport extends RegistrationTestBase
 		request.setRequest(rawRequest);
 		
 		String postCancelledRedirectURL = automationSupport.getPostCancelledRedirectURL(context);
-		assertThat(postCancelledRedirectURL, is(""));
+		assertThat(postCancelledRedirectURL).isEqualTo(""));
 
 		String postConfirmationRedirectURL = automationSupport.getPostConfirmationRedirectURL(request, 
 				VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/", "some@ex.com"), 
 				"requestId");
-		assertThat(postConfirmationRedirectURL, is(""));
+		assertThat(postConfirmationRedirectURL).isEqualTo(""));
 
 		I18nMessage postSubmitMessage = automationSupport.getPostSubmitMessage(rawRequest, context, 
 				"requestId");
-		assertThat(postSubmitMessage, is(""));
+		assertThat(postSubmitMessage).isEqualTo(""));
 
 		String postSubmitRedirectURL = automationSupport.getPostSubmitRedirectURL(rawRequest, context, 
 				"requestId");
-		assertThat(postSubmitRedirectURL, is(""));
+		assertThat(postSubmitRedirectURL).isEqualTo(""));
 	}
 	*/
 }

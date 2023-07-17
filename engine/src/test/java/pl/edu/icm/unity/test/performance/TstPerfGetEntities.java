@@ -6,8 +6,8 @@ package pl.edu.icm.unity.test.performance;
 
 import java.io.IOException;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 @ActiveProfiles("test-storage-h2")
 public class TstPerfGetEntities extends PerformanceTestBase
 {	
-	@Ignore
+	@Disabled
 	@Test
 	public void testGetEntities() throws EngineException, IOException
 	{

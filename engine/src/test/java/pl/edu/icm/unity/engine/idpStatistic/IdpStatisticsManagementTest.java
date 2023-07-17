@@ -5,14 +5,13 @@
 
 package pl.edu.icm.unity.engine.idpStatistic;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,7 +31,7 @@ public class IdpStatisticsManagementTest extends DBIntegrationTestBase
 	@Autowired
 	private IdpStatisticManagement statMan;
 
-	@Before
+	@BeforeEach
 	@Override
 	public void setupAdmin() throws Exception
 	{
@@ -49,8 +48,8 @@ public class IdpStatisticsManagementTest extends DBIntegrationTestBase
 				.clientName("cName").timestamp(LocalDateTime.now()).status(Status.SUCCESSFUL).build();
 		statMan.addIdpStatistic(s1);
 		List<IdpStatistic> idpStatisticsSince = statMan.getIdpStatisticsSince(LocalDateTime.now().minusDays(10), 1000);
-		assertThat(idpStatisticsSince.size(), is(1));
-		assertThat(idpStatisticsSince.get(0), is(s1));
+		assertThat(idpStatisticsSince).hasSize(1);
+		assertThat(idpStatisticsSince.get(0)).isEqualTo(s1);
 	}
 
 	@Test
@@ -73,9 +72,9 @@ public class IdpStatisticsManagementTest extends DBIntegrationTestBase
 		statMan.addIdpStatistic(s3);
 		statMan.addIdpStatistic(s4);
 		List<IdpStatistic> idpStatisticsSince = statMan.getIdpStatisticsSince(LocalDateTime.now().minusDays(3), 1000);
-		assertThat(idpStatisticsSince.size(), is(2));
-		assertThat(idpStatisticsSince.contains(s1), is(true));
-		assertThat(idpStatisticsSince.contains(s2), is(true));
+		assertThat(idpStatisticsSince).hasSize(2);
+		assertThat(idpStatisticsSince.contains(s1)).isEqualTo(true);
+		assertThat(idpStatisticsSince.contains(s2)).isEqualTo(true);
 	}
 
 	@Test
@@ -99,11 +98,11 @@ public class IdpStatisticsManagementTest extends DBIntegrationTestBase
 		statMan.addIdpStatistic(s4);
 		List<GroupedIdpStatistic> idpStatisticsSince = statMan
 				.getIdpStatisticsSinceGroupBy(LocalDateTime.now().minusDays(10), GroupBy.total, 1000, false);
-		assertThat(idpStatisticsSince.size(), is(1));
-		assertThat(idpStatisticsSince.get(0).idpId, is("eid"));
-		assertThat(idpStatisticsSince.get(0).clientId, is("c"));
-		assertThat(idpStatisticsSince.get(0).sigInStats.get(0).failedCount, is(1L));
-		assertThat(idpStatisticsSince.get(0).sigInStats.get(0).successfullCount, is(3L));
+		assertThat(idpStatisticsSince).hasSize(1);
+		assertThat(idpStatisticsSince.get(0).idpId).isEqualTo("eid");
+		assertThat(idpStatisticsSince.get(0).clientId).isEqualTo("c");
+		assertThat(idpStatisticsSince.get(0).sigInStats.get(0).failedCount).isEqualTo(1L);
+		assertThat(idpStatisticsSince.get(0).sigInStats.get(0).successfullCount).isEqualTo(3L);
 	}
 
 	@Test
@@ -129,8 +128,8 @@ public class IdpStatisticsManagementTest extends DBIntegrationTestBase
 		statMan.deleteOlderThan(LocalDateTime.now().minusDays(1));
 
 		List<IdpStatistic> idpStatisticsSince = statMan.getIdpStatisticsSince(LocalDateTime.now().minusDays(10), 1000);
-		assertThat(idpStatisticsSince.size(), is(1));
-		assertThat(idpStatisticsSince.get(0), is(s1));
+		assertThat(idpStatisticsSince).hasSize(1);
+		assertThat(idpStatisticsSince.get(0)).isEqualTo(s1);
 	}
 
 }

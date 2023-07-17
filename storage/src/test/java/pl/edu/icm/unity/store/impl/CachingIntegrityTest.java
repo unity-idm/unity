@@ -6,20 +6,18 @@ package pl.edu.icm.unity.store.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.google.common.collect.Lists;
 
@@ -38,7 +36,7 @@ import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class CachingIntegrityTest
 {
@@ -57,20 +55,20 @@ public class CachingIntegrityTest
 	@Autowired
 	private TransactionalRunner tx;
 	
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
 	}
 
 	
-	@After
+	@AfterEach
 	public void shutdown()
 	{
 		dbCleaner.shutdown();
 	}
 	
-	@Ignore("Ignored as currently attributes can be set in a group even without user membership, "
+	@Disabled("Ignored as currently attributes can be set in a group even without user membership, "
 			+ "and also membership removal is not removing attribute. "
 			+ "Although this may be changed in future so the test is here")
 	@Test
@@ -88,14 +86,14 @@ public class CachingIntegrityTest
 
 			//fill cache
 			List<AttributeExt> allEntityAttributes = attributeDAO.getAllEntityAttributes(id);
-			assertThat(allEntityAttributes.size(), is(1));
+			assertThat(allEntityAttributes.size()).isEqualTo(1);
 
 			//when
 			membershipDAO.deleteByKey(id, "/A");
 
 			//then
 			allEntityAttributes = attributeDAO.getAllEntityAttributes(id);
-			assertThat(allEntityAttributes.isEmpty(), is(true));
+			assertThat(allEntityAttributes.isEmpty()).isTrue();
 			Throwable error = catchThrowable(() -> attributeDAO.getByKey(attributeId));
 			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
@@ -113,16 +111,16 @@ public class CachingIntegrityTest
 
 			//fill cache
 			List<GroupMembership> all = membershipDAO.getAll();
-			assertThat(all.size(), is(1));
+			assertThat(all).hasSize(1);
 
 			//when
 			groupDAO.delete("/A");
 
 			//then
 			all = membershipDAO.getAll();
-			assertThat(all.isEmpty(), is(true));
+			assertThat(all.isEmpty()).isTrue();
 			List<GroupMembership> entityMembership = membershipDAO.getEntityMembership(id);
-			assertThat(entityMembership.isEmpty(), is(true));
+			assertThat(entityMembership.isEmpty()).isTrue();
 		});
 	}
 
@@ -141,14 +139,14 @@ public class CachingIntegrityTest
 
 			//fill cache
 			List<AttributeExt> allEntityAttributes = attributeDAO.getAllEntityAttributes(id);
-			assertThat(allEntityAttributes.size(), is(1));
+			assertThat(allEntityAttributes).hasSize(1);
 
 			//when
 			groupDAO.delete("/A");
 
 			//then
 			allEntityAttributes = attributeDAO.getAllEntityAttributes(id);
-			assertThat(allEntityAttributes.isEmpty(), is(true));
+			assertThat(allEntityAttributes).isEmpty();
 			Throwable error = catchThrowable(() -> attributeDAO.getByKey(attributeId));
 			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
@@ -169,14 +167,14 @@ public class CachingIntegrityTest
 
 			//fill cache
 			List<AttributeExt> allEntityAttributes = attributeDAO.getAllEntityAttributes(id);
-			assertThat(allEntityAttributes.size(), is(1));
+			assertThat(allEntityAttributes).hasSize(1);
 
 			//when
 			attributeTypeDAO.deleteAll();
 
 			//then
 			allEntityAttributes = attributeDAO.getAllEntityAttributes(id);
-			assertThat(allEntityAttributes.isEmpty(), is(true));
+			assertThat(allEntityAttributes).isEmpty();;
 			Throwable error = catchThrowable(() -> attributeDAO.getByKey(attributeId));
 			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});
@@ -197,14 +195,14 @@ public class CachingIntegrityTest
 
 			//fill cache
 			List<AttributeExt> allEntityAttributes = attributeDAO.getAllEntityAttributes(id);
-			assertThat(allEntityAttributes.size(), is(1));
+			assertThat(allEntityAttributes).hasSize(1);
 
 			//when
 			entityDAO.deleteByKey(id);
 
 			//then
 			allEntityAttributes = attributeDAO.getAllEntityAttributes(id);
-			assertThat(allEntityAttributes.isEmpty(), is(true));
+			assertThat(allEntityAttributes).isEmpty();;
 			Throwable error = catchThrowable(() -> attributeDAO.getByKey(attributeId));
 			assertThat(error).isInstanceOf(IllegalArgumentException.class);
 		});

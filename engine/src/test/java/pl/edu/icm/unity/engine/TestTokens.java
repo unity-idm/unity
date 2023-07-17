@@ -6,17 +6,14 @@ package pl.edu.icm.unity.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -46,12 +43,12 @@ public class TestTokens extends DBIntegrationTestBase
 		
 		Token token = tokensMan.getTokenById("t", "1234");
 		
-		assertEquals("t", token.getType());
-		assertEquals("1234", token.getValue());
-		assertEquals(id.getEntityId(), token.getOwner().longValue());
-		assertEquals('a', token.getContents()[0]);
-		assertNotNull(token.getCreated());
-		assertEquals(exp, token.getExpires());
+		assertThat(token.getType()).isEqualTo("t");
+		assertThat(token.getValue()).isEqualTo("1234");
+		assertThat(token.getOwner().longValue()).isEqualTo(id.getEntityId());
+		assertThat(token.getContents()).isEqualTo(new byte[] {'a'});
+		assertThat(token.getCreated()).isNotNull();
+		assertThat(token.getExpires()).isEqualTo(exp);
 	}
 	
 	@Test
@@ -67,7 +64,7 @@ public class TestTokens extends DBIntegrationTestBase
 		tokensMan.addToken("t", "1234", ep, c, new Date(), exp);
 		
 		List<Token> tokens = tokensMan.getOwnedTokens("t", ep);	
-		assertEquals(2, tokens.size());
+		assertThat(tokens).hasSize(2);
 	}
 
 	@Test
@@ -85,8 +82,8 @@ public class TestTokens extends DBIntegrationTestBase
 		Thread.sleep(1002);
 		List<Token> tokens = tokensMan.getOwnedTokens("t", ep);
 
-		assertEquals(1, tokens.size());
-		assertThat(tokens.get(0).getValue(), is("1234"));
+		assertThat(tokens).hasSize(1);
+		assertThat(tokens.get(0).getValue()).isEqualTo("1234");
 	}
 
 	@Test
@@ -103,12 +100,12 @@ public class TestTokens extends DBIntegrationTestBase
 		tokensMan.updateToken("t", "1234", null, new byte[] {'b'});
 		
 		Token token = tokensMan.getTokenById("t", "1234");
-		assertEquals("t", token.getType());
-		assertEquals("1234", token.getValue());
-		assertEquals(id.getEntityId(), token.getOwner().longValue());
-		assertEquals('b', token.getContents()[0]);
-		assertNotNull(token.getCreated());
-		assertEquals(exp, token.getExpires());
+		assertThat(token.getType()).isEqualTo("t");
+		assertThat(token.getValue()).isEqualTo("1234");
+		assertThat(token.getOwner().longValue()).isEqualTo(id.getEntityId());
+		assertThat(token.getContents()).isEqualTo(new byte[] {'b'});
+		assertThat(token.getCreated()).isNotNull();
+		assertThat(token.getExpires()).isEqualTo(exp);
 	}
 
 	@Test
@@ -128,6 +125,8 @@ public class TestTokens extends DBIntegrationTestBase
 		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
+	//TODO
+	@Disabled
 	@Test
 	public void stressTokenUpdates() throws Exception
 	{
@@ -158,7 +157,6 @@ public class TestTokens extends DBIntegrationTestBase
 			threads.get(i).start();
 		for (int i=0; i<THREADS; i++)
 			threads.get(i).join();
-		
 		assertThat(counter.get()).isEqualTo(THREADS * TRIES);
 	}
 

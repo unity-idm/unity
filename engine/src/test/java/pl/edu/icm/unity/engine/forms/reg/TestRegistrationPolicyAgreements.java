@@ -5,13 +5,13 @@
 
 package pl.edu.icm.unity.engine.forms.reg;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -63,11 +63,11 @@ public class TestRegistrationPolicyAgreements extends RegistrationTestBase
 		request.setRegistrationCode(null);
 		registrationsMan.submitRegistrationRequest(request, defContext);
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(fromDb.getStatus(), is(RegistrationRequestStatus.accepted));
+		assertThat(fromDb.getStatus()).isEqualTo(RegistrationRequestStatus.accepted);
 
 		List<PolicyAgreementState> policyAgreementStatus = policyAgrMan
 				.getPolicyAgreementsStatus(new EntityParam(fromDb.getCreatedEntityId()));
-		assertThat(policyAgreementStatus.get(0).policyDocumentId, is(docId));
-		assertThat(policyAgreementStatus.get(0).acceptanceStatus, is(PolicyAgreementAcceptanceStatus.ACCEPTED));
+		assertThat(policyAgreementStatus.get(0).policyDocumentId).isEqualTo(docId);
+		assertThat(policyAgreementStatus.get(0).acceptanceStatus).isEqualTo(PolicyAgreementAcceptanceStatus.ACCEPTED);
 	}
 }

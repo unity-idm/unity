@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.store.impl.event;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.event.EventExecution;
@@ -55,8 +54,8 @@ public class EventTest extends AbstractBasicDAOTest<EventExecution>
 			Date date = new Date(ev.getNextProcessing().getTime() + 1);
 			List<EventExecution> eligible = dao.getEligibleForProcessing(date);
 			
-			assertThat(eligible.size(), is(1));
-			assertThat(eligible.get(0), is(ev));
+			assertThat(eligible).hasSize(1);
+			assertThat(eligible.get(0)).isEqualTo(ev);
 		});
 	}
 	
@@ -71,7 +70,7 @@ public class EventTest extends AbstractBasicDAOTest<EventExecution>
 				Date date = new Date(ev.getNextProcessing().getTime() - 1);
 				List<EventExecution> eligible = dao.getEligibleForProcessing(date);
 				
-				assertThat(eligible.isEmpty(), is(true));
+				assertThat(eligible).isEmpty();
 			});
 		});
 	}
@@ -87,8 +86,8 @@ public class EventTest extends AbstractBasicDAOTest<EventExecution>
 			
 			EventExecution updated = dao.getByKey(key);
 			
-			assertThat(updated.getFailures(), is(123));
-			assertThat(updated.getNextProcessing().getTime(), is(2001l));
+			assertThat(updated.getFailures()).isEqualTo(123);
+			assertThat(updated.getNextProcessing().getTime()).isEqualTo(2001l);
 		});
 	}
 	

@@ -6,14 +6,13 @@ package pl.edu.icm.unity.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -83,7 +82,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		setupAdmin();
 		Collection<Token> admTokens = securedTokensMan.getAllTokens("t");
 
-		assertThat(admTokens.size(), is(3));
+		assertThat(admTokens).hasSize(3);
 	}
 
 	@Test
@@ -95,7 +94,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		setupUserContext("u1", null);
 		Collection<Token> u1Tokens = securedTokensMan.getAllTokens("t");
 
-		assertThat(u1Tokens.size(), is(2));
+		assertThat(u1Tokens).hasSize(2);
 	}
 
 	@Test
@@ -121,7 +120,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		setupUserContext("u1", null);
 		Collection<Token> u1Tokens = securedTokensMan.getOwnedTokens("t", ep1);
 
-		assertThat(u1Tokens.size(), is(2));
+		assertThat(u1Tokens).hasSize(2);
 	}
 
 	@Test
@@ -134,9 +133,9 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		Collection<Token> u1Tokens = securedTokensMan.getAllTokens(null);
 
 		assertThat(u1Tokens.stream().filter(t -> t.getType().equals("t"))
-				.collect(Collectors.toList()).size(), is(2));
+				.collect(Collectors.toList())).hasSize(2);
 		assertThat(u1Tokens.stream().filter(t -> t.getType().equals("t2"))
-				.collect(Collectors.toList()).size(), is(1));
+				.collect(Collectors.toList())).hasSize(1);
 
 	}
 
@@ -167,7 +166,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 
 		setupAdmin();
 
-		assertThat(securedTokensMan.getAllTokens("t").size(), is(0));
+		assertThat(securedTokensMan.getAllTokens("t")).hasSize(0);
 	}
 
 	@Test
@@ -186,6 +185,6 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 
 		setupAdmin();
 
-		assertThat(securedTokensMan.getAllTokens("t").size(), is(1));
+		assertThat(securedTokensMan.getAllTokens("t")).hasSize(1);
 	}
 }

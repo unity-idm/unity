@@ -6,18 +6,13 @@ package pl.edu.icm.unity.engine.group;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+
 
 import java.util.List;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.AttributeStatement;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -69,20 +64,20 @@ public class TestGroups extends DBIntegrationTestBase
 		setupUserContext(DEF_USER, null);
 		
 		GroupContents rootC = groupsMan.getContents("/", GroupContents.EVERYTHING);
-		assertEquals(1, rootC.getSubGroups().size());
-		assertEquals("/A", rootC.getSubGroups().get(0));
-		assertNotNull(rootC.getGroup());
-		assertNotNull(rootC.getMembers());
+		assertThat(rootC.getSubGroups()).hasSize(1);
+		assertThat(rootC.getSubGroups().get(0)).isEqualTo("/A");
+		assertThat(rootC.getGroup()).isNotNull();
+		assertThat(rootC.getMembers()).isNotNull();
 		
 		GroupContents aC = groupsMan.getContents("/A", GroupContents.EVERYTHING);
-		assertEquals(1, aC.getSubGroups().size());
-		assertEquals("/A/B", aC.getSubGroups().get(0));
-		assertNotNull(aC.getGroup());
-		assertNotNull(aC.getMembers());
+		assertThat(aC.getSubGroups()).hasSize(1);
+		assertThat(aC.getSubGroups().get(0)).isEqualTo("/A/B");
+		assertThat(aC.getGroup()).isNotNull();
+		assertThat(aC.getMembers()).isNotNull();
 
 		GroupContents abC = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
-		assertNotNull(abC.getGroup());
-		assertEquals(new I18nString("d-n"), abC.getGroup().getDescription());
+		assertThat(abC.getGroup()).isNotNull();
+		assertThat(abC.getGroup().getDescription()).isEqualTo(new I18nString("d-n"));
 	}
 
 	@Test
@@ -170,38 +165,38 @@ public class TestGroups extends DBIntegrationTestBase
 		groupsMan.updateGroup("/", root);
 		
 		GroupContents contentRoot = groupsMan.getContents("/", GroupContents.EVERYTHING);
-		assertEquals(1, contentRoot.getSubGroups().size());
-		assertEquals("/A", contentRoot.getSubGroups().get(0));
-		assertEquals(new I18nString("root desc"), contentRoot.getGroup().getDescription());
+		assertThat(contentRoot.getSubGroups()).hasSize(1);
+		assertThat(contentRoot.getSubGroups().get(0)).isEqualTo("/A");
+		assertThat(contentRoot.getGroup().getDescription()).isEqualTo(new I18nString("root desc"));
 		
 		GroupContents contentA = groupsMan.getContents("/A", GroupContents.EVERYTHING);
-		assertEquals(new I18nString("foo"), contentA.getGroup().getDescription());
-		assertEquals(2, contentA.getSubGroups().size());
-		assertTrue(contentA.getSubGroups().contains("/A/B"));
-		assertTrue(contentA.getSubGroups().contains("/A/C"));
-		assertEquals(2, contentA.getGroup().getAttributeStatements().length);
+		assertThat(contentA.getGroup().getDescription()).isEqualTo(new I18nString("foo"));
+		assertThat(contentA.getSubGroups()).hasSize(2);
+		assertThat(contentA.getSubGroups().contains("/A/B")).isTrue();
+		assertThat(contentA.getSubGroups().contains("/A/C")).isTrue();
+		assertThat(contentA.getGroup().getAttributeStatements().length).isEqualTo(2);
 		AttributeStatement attributeStatement = contentA.getGroup().getAttributeStatements()[0];
-		assertEquals(AttributeStatement.ConflictResolution.skip,
+		assertThat(AttributeStatement.ConflictResolution.skip).isEqualTo(
 				attributeStatement.getConflictResolution());
-		assertEquals("foo", attributeStatement.getAssignedAttributeName());
-		assertNotNull(attributeStatement.getFixedAttribute());
-		assertEquals("val1", attributeStatement.getFixedAttribute().getValues().get(0).toString());
+		assertThat(attributeStatement.getAssignedAttributeName()).isEqualTo("foo");
+		assertThat(attributeStatement.getFixedAttribute()).isNotNull();
+		assertThat(attributeStatement.getFixedAttribute().getValues().get(0).toString()).isEqualTo("val1");
 		
 		GroupContents contentAB = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
-		assertEquals(1, contentAB.getSubGroups().size());
-		assertEquals("/A/B/D", contentAB.getSubGroups().get(0));
+		assertThat(contentAB.getSubGroups()).hasSize(1);
+		assertThat(contentAB.getSubGroups().get(0)).isEqualTo("/A/B/D");
 
 		GroupContents contentAC = groupsMan.getContents("/A/C", GroupContents.EVERYTHING);
-		assertEquals(0, contentAC.getSubGroups().size());
-		assertEquals(new I18nString("goo"), contentAC.getGroup().getDescription());
+		assertThat(contentAC.getSubGroups()).isEmpty();
+		assertThat(contentAC.getGroup().getDescription()).isEqualTo(new I18nString("goo"));
 		
 		groupsMan.removeGroup("/A/B/D", false);
 		contentAB = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
-		assertEquals(0, contentAB.getSubGroups().size());
+		assertThat(contentAB.getSubGroups()).isEmpty();
 		
 		groupsMan.removeGroup("/A", true);
 		contentRoot = groupsMan.getContents("/", GroupContents.EVERYTHING);
-		assertEquals(0, contentRoot.getSubGroups().size());
+		assertThat(contentRoot.getSubGroups()).isEmpty();
 	}
 	
 	@Test
@@ -218,18 +213,18 @@ public class TestGroups extends DBIntegrationTestBase
 
 		Set<String> rootChildren = groupsMan.getChildGroups("/");
 		
-		assertThat(rootChildren.size(), is(5));
-		assertThat(rootChildren.contains("/"), is(true));
-		assertThat(rootChildren.contains("/A"), is(true));
-		assertThat(rootChildren.contains("/A/B"), is(true));
-		assertThat(rootChildren.contains("/A/C"), is(true));
-		assertThat(rootChildren.contains("/A/B/D"), is(true));
+		assertThat(rootChildren).hasSize(5);
+		assertThat(rootChildren.contains("/")).isEqualTo(true);
+		assertThat(rootChildren.contains("/A")).isEqualTo(true);
+		assertThat(rootChildren.contains("/A/B")).isEqualTo(true);
+		assertThat(rootChildren.contains("/A/C")).isEqualTo(true);
+		assertThat(rootChildren.contains("/A/B/D")).isEqualTo(true);
 
 		Set<String> abChildren = groupsMan.getChildGroups("/A/B");
 		
-		assertThat(abChildren.toString(), abChildren.size(), is(2));
-		assertThat(abChildren.contains("/A/B"), is(true));
-		assertThat(abChildren.contains("/A/B/D"), is(true));
+		assertThat(abChildren).hasSize(2);
+		assertThat(abChildren.contains("/A/B")).isEqualTo(true);
+		assertThat(abChildren.contains("/A/B/D")).isEqualTo(true);
 	}
 	
 	@Test 
@@ -237,8 +232,8 @@ public class TestGroups extends DBIntegrationTestBase
 	{
 		Group a = new Group("/A");
 		groupsMan.addGroup(a);
-		assertThat(groupsMan.isPresent("/A"), is(true));
-		assertThat(groupsMan.isPresent("/B"), is(false));
+		assertThat(groupsMan.isPresent("/A")).isEqualTo(true);
+		assertThat(groupsMan.isPresent("/B")).isEqualTo(false);
 	}
 	
 	@Test
@@ -251,8 +246,8 @@ public class TestGroups extends DBIntegrationTestBase
 
 		List<Group> groups = groupsMan.getGroupsByWildcard("/**");
 		
-		assertThat(groups, hasItems(a, ab, new Group("/")));
-		assertThat(groups.size(), is(3));
+		assertThat(groups).contains(a, ab, new Group("/"));
+		assertThat(groups).hasSize(3);
 	}
 
 	@Test
@@ -267,8 +262,8 @@ public class TestGroups extends DBIntegrationTestBase
 
 		List<Group> groups = groupsMan.getGroupsByWildcard("/A/**");
 		
-		assertThat(groups, hasItems(a, ab));
-		assertThat(groups.size(), is(2));
+		assertThat(groups).contains(a, ab);
+		assertThat(groups).hasSize(2);
 	}
 	
 	@Test
@@ -330,11 +325,11 @@ public class TestGroups extends DBIntegrationTestBase
 		groupsMan.addGroup(abd);
 		
 		GroupsChain groupChain = groupsMan.getGroupsChain("/A/B/D");	
-		assertThat(groupChain.groups.size(), is(4));
-		assertThat(groupChain.groups.get(0).getPathEncoded(), is("/"));	
-		assertThat(groupChain.groups.get(1).getPathEncoded(), is("/A"));	
-		assertThat(groupChain.groups.get(2).getPathEncoded(), is("/A/B"));	
-		assertThat(groupChain.groups.get(3).getPathEncoded(), is("/A/B/D"));	
+		assertThat(groupChain.groups).hasSize(4);
+		assertThat(groupChain.groups.get(0).getPathEncoded()).isEqualTo("/");	
+		assertThat(groupChain.groups.get(1).getPathEncoded()).isEqualTo("/A");	
+		assertThat(groupChain.groups.get(2).getPathEncoded()).isEqualTo("/A/B");	
+		assertThat(groupChain.groups.get(3).getPathEncoded()).isEqualTo("/A/B/D");	
 	}
 
 	protected void assertExceptionType(Throwable exception, Class<?> type)

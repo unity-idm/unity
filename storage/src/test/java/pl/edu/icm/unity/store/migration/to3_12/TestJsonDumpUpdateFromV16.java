@@ -4,20 +4,19 @@
  */
 package pl.edu.icm.unity.store.migration.to3_12;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -29,7 +28,7 @@ import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.TokenDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations =
 { "classpath*:META-INF/components.xml" })
 public class TestJsonDumpUpdateFromV16
@@ -46,7 +45,7 @@ public class TestJsonDumpUpdateFromV16
 	@Autowired
 	private TokenDAO tokenDAO;
 
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -77,7 +76,7 @@ public class TestJsonDumpUpdateFromV16
 				.getContents();
 		ObjectNode objContent = JsonUtil.parse(tokenContents);
 		JsonNode jsonNode = objContent.get("audience");
-		assertThat(jsonNode.isArray(), is(true));
-		assertThat(jsonNode.get(0).asText(), is("oauth-client"));
+		assertThat(jsonNode.isArray()).isTrue();
+		assertThat(jsonNode.get(0).asText()).isEqualTo("oauth-client");
 	}
 }

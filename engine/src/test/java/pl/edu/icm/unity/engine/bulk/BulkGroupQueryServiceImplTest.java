@@ -6,16 +6,13 @@ package pl.edu.icm.unity.engine.bulk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
 import static pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider.AUTHORIZATION_ROLE;
 
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -74,9 +71,9 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A");
 		Map<Long, Entity> result = bulkService.getGroupEntitiesNoContextWithTargeted(bulkData);
 		
-		assertThat(result.size(), is(1));
-		assertThat(result.get(added.getEntityId()), is(notNullValue()));
-		assertThat(result.get(added.getEntityId()).getIdentities(), hasItem(added));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(added.getEntityId())).isNotNull();
+		assertThat(result.get(added.getEntityId()).getIdentities()).contains(added);
 	}
 
 	@Test
@@ -106,15 +103,15 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/A", bulkData);
 		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
 
-		assertThat(resultInA.size(), is(1));
-		assertThat(resultInA.get(added.getEntityId()), is(notNullValue()));
-		assertThat(resultInA.get(added.getEntityId()).size(), is(1));
-		assertThat(resultInA.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Inspector"));
+		assertThat(resultInA.size()).isEqualTo(1);
+		assertThat(resultInA.get(added.getEntityId())).isNotNull();
+		assertThat(resultInA.get(added.getEntityId()).size()).isEqualTo(1);
+		assertThat(resultInA.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0)).isEqualTo("Inspector");
 
-		assertThat(resultInRoot.size(), is(1));
-		assertThat(resultInRoot.get(added.getEntityId()), is(notNullValue()));
-		assertThat(resultInRoot.get(added.getEntityId()).size(), is(2)); //+ cred req mandatory attr
-		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Anonymous User"));
+		assertThat(resultInRoot.size()).isEqualTo(1);
+		assertThat(resultInRoot.get(added.getEntityId())).isNotNull();
+		assertThat(resultInRoot.get(added.getEntityId()).size()).isEqualTo(2); //+ cred req mandatory attr
+		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0)).isEqualTo("Anonymous User");
 		changeUsersLimitAllowingToSearchToDefault();
 	}
 
@@ -145,15 +142,15 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/A", bulkData);
 		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
 		
-		assertThat(resultInA.size(), is(1));
-		assertThat(resultInA.get(added.getEntityId()), is(notNullValue()));
-		assertThat(resultInA.get(added.getEntityId()).size(), is(1));
-		assertThat(resultInA.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Inspector"));
+		assertThat(resultInA.size()).isEqualTo(1);
+		assertThat(resultInA.get(added.getEntityId())).isNotNull();
+		assertThat(resultInA.get(added.getEntityId()).size()).isEqualTo(1);
+		assertThat(resultInA.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0)).isEqualTo("Inspector");
 
-		assertThat(resultInRoot.size(), is(1));
-		assertThat(resultInRoot.get(added.getEntityId()), is(notNullValue()));
-		assertThat(resultInRoot.get(added.getEntityId()).size(), is(2)); //+ cred req mandatory attr
-		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Anonymous User"));
+		assertThat(resultInRoot.size()).isEqualTo(1);
+		assertThat(resultInRoot.get(added.getEntityId())).isNotNull();
+		assertThat(resultInRoot.get(added.getEntityId()).size()).isEqualTo(2); //+ cred req mandatory attr
+		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0)).isEqualTo("Anonymous User");
 		changeUsersLimitAllowingToSearchToDefault();
 	}
 	
@@ -180,15 +177,15 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/example", bulkData);
 		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
 		
-		assertThat(resultInA.size(), is(1));
-		assertThat(resultInA.get(added.getEntityId()), is(notNullValue()));
-		assertThat(resultInA.get(added.getEntityId()).size(), is(1));
-		assertThat(resultInA.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Inspector"));
+		assertThat(resultInA.size()).isEqualTo(1);
+		assertThat(resultInA.get(added.getEntityId())).isNotNull();
+		assertThat(resultInA.get(added.getEntityId()).size()).isEqualTo(1);
+		assertThat(resultInA.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0)).isEqualTo("Inspector");
 
-		assertThat(resultInRoot.size(), is(1));
-		assertThat(resultInRoot.get(added.getEntityId()), is(notNullValue()));
-		assertThat(resultInRoot.get(added.getEntityId()).size(), is(2)); //+ cred req mandatory attr
-		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Inspector"));
+		assertThat(resultInRoot.size()).isEqualTo(1);
+		assertThat(resultInRoot.get(added.getEntityId())).isNotNull();
+		assertThat(resultInRoot.get(added.getEntityId()).size()).isEqualTo(2); //+ cred req mandatory attr
+		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0)).isEqualTo("Inspector");
 	}
 	
 	@Test
@@ -205,13 +202,13 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		GroupStructuralData bulkData = bulkService.getBulkStructuralData("/A");
 		Map<String, GroupContents> result = bulkService.getGroupAndSubgroups(bulkData);
 		
-		assertThat(result.size(), is(2));
-		assertThat(result.get("/A"), is(notNullValue()));
-		assertThat(result.get("/A").getGroup(), is(a));
-		assertThat(result.get("/A").getSubGroups(), is(Lists.newArrayList("/A/B")));
-		assertThat(result.get("/A/B"), is(notNullValue()));
-		assertThat(result.get("/A/B").getGroup(), is(ab));
-		assertThat(result.get("/A/B").getSubGroups(), is(Lists.newArrayList()));
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result.get("/A")).isNotNull();
+		assertThat(result.get("/A").getGroup()).isEqualTo(a);
+		assertThat(result.get("/A").getSubGroups()).isEqualTo(Lists.newArrayList("/A/B"));
+		assertThat(result.get("/A/B")).isNotNull();
+		assertThat(result.get("/A/B").getGroup()).isEqualTo(ab);
+		assertThat(result.get("/A/B").getSubGroups()).isEqualTo(Lists.newArrayList());
 	}
 	
 	@Test
@@ -228,13 +225,13 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		
 		GroupStructuralData bulkData = bulkService.getBulkStructuralData("/A");
 		Map<String, GroupContents> result = bulkService.getGroupAndSubgroups(bulkData, "/A/B");
-		assertThat(result.size(), is(2));
-		assertThat(result.get("/A/B"), is(notNullValue()));
-		assertThat(result.get("/A/B").getGroup(), is(ab));
-		assertThat(result.get("/A/B").getSubGroups(), is(Lists.newArrayList("/A/B/D")));
-		assertThat(result.get("/A/B/D"), is(notNullValue()));
-		assertThat(result.get("/A/B/D").getGroup(), is(abd));
-		assertThat(result.get("/A/B/D").getSubGroups(), is(Collections.emptyList()));
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result.get("/A/B")).isNotNull();
+		assertThat(result.get("/A/B").getGroup()).isEqualTo(ab);
+		assertThat(result.get("/A/B").getSubGroups()).isEqualTo(Lists.newArrayList("/A/B/D"));
+		assertThat(result.get("/A/B/D")).isNotNull();
+		assertThat(result.get("/A/B/D").getGroup()).isEqualTo(abd);
+		assertThat(result.get("/A/B/D").getSubGroups()).isEqualTo(Collections.emptyList());
 	}
 
 	
@@ -273,26 +270,26 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		GroupsWithMembers result = bulkService.getMembersWithAttributeForAllGroups("/", Collections.emptySet());
 
 		
-		assertThat(result.entities.size(), is(3));
-		assertThat(result.entities.get(added1.getEntityId()), is(notNullValue()));
-		assertThat(result.entities.get(added1.getEntityId()).getIdentities(), hasItem(added1));
-		assertThat(result.entities.get(added2.getEntityId()), is(notNullValue()));
-		assertThat(result.entities.get(added2.getEntityId()).getIdentities(), hasItem(added2));
+		assertThat(result.entities.size()).isEqualTo(3);
+		assertThat(result.entities.get(added1.getEntityId())).isNotNull();
+		assertThat(result.entities.get(added1.getEntityId()).getIdentities()).contains(added1);
+		assertThat(result.entities.get(added2.getEntityId())).isNotNull();
+		assertThat(result.entities.get(added2.getEntityId()).getIdentities()).contains(added2);
 
-		assertThat(result.membersByGroup.size(), is(3));
-		assertThat(result.membersByGroup.get("/example1"), is(notNullValue()));
-		assertThat(result.membersByGroup.get("/example1").size(), is(1));
-		assertThat(result.membersByGroup.get("/example1").get(0).entityId, is(added1.getEntityId()));
-		assertThat(result.membersByGroup.get("/example1").get(0).attribtues.size(), is(1));
-		assertThat(result.membersByGroup.get("/example1").get(0).attribtues.get(AUTHORIZATION_ROLE).getValues().get(0), 
-				is("Inspector"));
+		assertThat(result.membersByGroup.size()).isEqualTo(3);
+		assertThat(result.membersByGroup.get("/example1")).isNotNull();
+		assertThat(result.membersByGroup.get("/example1").size()).isEqualTo(1);
+		assertThat(result.membersByGroup.get("/example1").get(0).entityId).isEqualTo(added1.getEntityId());
+		assertThat(result.membersByGroup.get("/example1").get(0).attribtues.size()).isEqualTo(1);
+		assertThat(result.membersByGroup.get("/example1").get(0).attribtues.get(AUTHORIZATION_ROLE).getValues().get(0)).isEqualTo 
+				("Inspector");
 
-		assertThat(result.membersByGroup.get("/example2"), is(notNullValue()));
-		assertThat(result.membersByGroup.get("/example2").size(), is(1));
-		assertThat(result.membersByGroup.get("/example2").get(0).entityId, is(added2.getEntityId()));
-		assertThat(result.membersByGroup.get("/example2").get(0).attribtues.size(), is(1));
-		assertThat(result.membersByGroup.get("/example2").get(0).attribtues.get(AUTHORIZATION_ROLE).getValues().get(0), 
-				is("System Manager"));
+		assertThat(result.membersByGroup.get("/example2")).isNotNull();
+		assertThat(result.membersByGroup.get("/example2").size()).isEqualTo(1);
+		assertThat(result.membersByGroup.get("/example2").get(0).entityId).isEqualTo(added2.getEntityId());
+		assertThat(result.membersByGroup.get("/example2").get(0).attribtues.size()).isEqualTo(1);
+		assertThat(result.membersByGroup.get("/example2").get(0).attribtues.get(AUTHORIZATION_ROLE).getValues().get(0)).isEqualTo  
+				("System Manager");
 	}
 
 	
@@ -323,17 +320,16 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		GroupsWithMembers result = bulkService.getMembersWithAttributeForAllGroups("/root/example1", Collections.emptySet());
 
 		
-		assertThat(result.entities.size(), is(1));
-		assertThat(result.entities.get(added1.getEntityId()), is(notNullValue()));
-		assertThat(result.entities.get(added1.getEntityId()).getIdentities(), hasItem(added1));
+		assertThat(result.entities.size()).isEqualTo(1);
+		assertThat(result.entities.get(added1.getEntityId())).isNotNull();
+		assertThat(result.entities.get(added1.getEntityId()).getIdentities()).contains(added1);
 
-		assertThat(result.membersByGroup.size(), is(1));
-		assertThat(result.membersByGroup.get("/root/example1"), is(notNullValue()));
-		assertThat(result.membersByGroup.get("/root/example1").size(), is(1));
-		assertThat(result.membersByGroup.get("/root/example1").get(0).entityId, is(added1.getEntityId()));
-		assertThat(result.membersByGroup.get("/root/example1").get(0).attribtues.size(), is(1));
-		assertThat(result.membersByGroup.get("/root/example1").get(0).attribtues.get(AUTHORIZATION_ROLE).getValues().get(0), 
-				is("Inspector"));
+		assertThat(result.membersByGroup.size()).isEqualTo(1);
+		assertThat(result.membersByGroup.get("/root/example1")).isNotNull();
+		assertThat(result.membersByGroup.get("/root/example1").size()).isEqualTo(1);
+		assertThat(result.membersByGroup.get("/root/example1").get(0).entityId).isEqualTo(added1.getEntityId());
+		assertThat(result.membersByGroup.get("/root/example1").get(0).attribtues.size()).isEqualTo(1);
+		assertThat(result.membersByGroup.get("/root/example1").get(0).attribtues.get(AUTHORIZATION_ROLE).getValues().get(0)).isEqualTo("Inspector");
 	}
 	
 	@Test
@@ -352,12 +348,12 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 
 		GroupsWithMembers result = bulkService.getMembersWithAttributeForAllGroups("/", Sets.newHashSet("/example1"));
 
-		assertThat(result.entities.size(), is(1));
+		assertThat(result.entities.size()).isEqualTo(1);
 
-		assertThat(result.membersByGroup.size(), is(1));
-		assertThat(result.membersByGroup.get("/example1"), is(notNullValue()));
-		assertThat(result.membersByGroup.get("/example1").size(), is(1));
-		assertThat(result.membersByGroup.get("/example1").get(0).attribtues.size(), is(0));
+		assertThat(result.membersByGroup.size()).isEqualTo(1);
+		assertThat(result.membersByGroup.get("/example1")).isNotNull();
+		assertThat(result.membersByGroup.get("/example1").size()).isEqualTo(1);
+		assertThat(result.membersByGroup.get("/example1").get(0).attribtues.size()).isEqualTo(0);
 	}
 	
 	

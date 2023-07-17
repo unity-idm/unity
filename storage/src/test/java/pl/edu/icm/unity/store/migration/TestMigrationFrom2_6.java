@@ -4,11 +4,9 @@
  */
 package pl.edu.icm.unity.store.migration;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -17,12 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.google.common.collect.Lists;
 
@@ -44,7 +42,7 @@ import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class TestMigrationFrom2_6
 {
@@ -75,7 +73,7 @@ public class TestMigrationFrom2_6
 	@Autowired
 	private AttributeDAO attributeDB;
 	
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -127,79 +125,79 @@ public class TestMigrationFrom2_6
 	private void checkEnquiryFormLayout()
 	{
 		List<EnquiryForm> enquiries = enquiryFormDB.getAll();
-		assertThat(enquiries.size(), is(1));
+		assertThat(enquiries).hasSize(1);
 		
 		EnquiryForm enquiry = enquiries.get(0);
-		assertThat(enquiry.getLayout(), notNullValue());
+		assertThat(enquiry.getLayout()).isNotNull();
 	}
 
 	private void checkRegistratoinFormLayout()
 	{
 		List<RegistrationForm> forms = regFormDB.getAll();
-		assertThat(forms.size(), is(2));
+		assertThat(forms).hasSize(2);
 		
 		RegistrationForm fbform = forms.get(0);
-		assertThat(fbform.getName(), is("fb-form"));
-		assertThat(fbform.getFormLayouts().getPrimaryLayout(), nullValue());
-		assertThat(fbform.getFormLayouts().getSecondaryLayout(), nullValue());
-		assertThat(fbform.getLayoutSettings(), notNullValue());
+		assertThat(fbform.getName()).isEqualTo("fb-form");
+		assertThat(fbform.getFormLayouts().getPrimaryLayout()).isNull();
+		assertThat(fbform.getFormLayouts().getSecondaryLayout()).isNull();
+		assertThat(fbform.getLayoutSettings()).isNotNull();
 		
 		RegistrationForm formWithCustomLayout = forms.get(1);
-		assertThat(formWithCustomLayout.getName(), is("registration with layout"));
-		assertThat(formWithCustomLayout.getFormLayouts().getPrimaryLayout(), notNullValue());
-		assertThat(formWithCustomLayout.getFormLayouts().getSecondaryLayout(), nullValue());
-		assertThat(fbform.getLayoutSettings(), notNullValue());
+		assertThat(formWithCustomLayout.getName()).isEqualTo("registration with layout");
+		assertThat(formWithCustomLayout.getFormLayouts().getPrimaryLayout()).isNotNull();
+		assertThat(formWithCustomLayout.getFormLayouts().getSecondaryLayout()).isNull();
+		assertThat(fbform.getLayoutSettings()).isNotNull();
 	}
 
 	private void checkRequests()
 	{
 		List<RegistrationRequestState> all = regRequestDB.getAll();
-		assertThat(all.size(), is(2));
+		assertThat(all).hasSize(2);
 		
 		RegistrationRequestState req1 = all.stream().filter(req -> req.getRequestId().equals("a6acb334-7072-49d2-8983-b995350bd74f")).findFirst().get();
-		assertThat(req1.getRequest().getGroupSelections().size(), is(2));
-		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups().size(), is(1));
-		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0), is("/A"));
-		assertThat(req1.getRequest().getGroupSelections().get(1).getSelectedGroups().size(), is(1));
-		assertThat(req1.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0), is("/A/B/C"));
+		assertThat(req1.getRequest().getGroupSelections()).hasSize(2);
+		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups()).hasSize(1);
+		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0)).isEqualTo("/A");
+		assertThat(req1.getRequest().getGroupSelections().get(1).getSelectedGroups()).hasSize(1);
+		assertThat(req1.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0)).isEqualTo("/A/B/C");
 
 		RegistrationRequestState req2 = all.stream().filter(req -> req.getRequestId().equals("49cd3080-7b16-431b-8bd3-54f1620b53c1")).findFirst().get();
-		assertThat(req2.getRequest().getGroupSelections().size(), is(2));
-		assertThat(req2.getRequest().getGroupSelections().get(0).getSelectedGroups().size(), is(0));
-		assertThat(req2.getRequest().getGroupSelections().get(1).getSelectedGroups().size(), is(1));
-		assertThat(req2.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0), is("/A/B/C"));
+		assertThat(req2.getRequest().getGroupSelections()).hasSize(2);
+		assertThat(req2.getRequest().getGroupSelections().get(0).getSelectedGroups()).hasSize(0);
+		assertThat(req2.getRequest().getGroupSelections().get(1).getSelectedGroups()).hasSize(1);
+		assertThat(req2.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0)).isEqualTo("/A/B/C");
 	}
 	
 	private void checkEnquiries()
 	{
 		List<EnquiryResponseState> all = enquiryResponseDB.getAll();
-		assertThat(all.size(), is(1));
+		assertThat(all).hasSize(1);
 		
 		EnquiryResponseState req1 = all.get(0);
-		assertThat(req1.getRequest().getGroupSelections().size(), is(1));
-		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups().size(), is(1));
-		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0), is("/D"));
+		assertThat(req1.getRequest().getGroupSelections()).hasSize(1);
+		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups()).hasSize(1);
+		assertThat(req1.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0)).isEqualTo("/D");
 	}
 	
 	private void checkInvitations()
 	{
 		List<InvitationWithCode> all = invitationDB.getAll();
-		assertThat(all.size(), is(2));
+		assertThat(all).hasSize(2);
 		
 		Map<String, InvitationWithCode> byCode = all.stream()
 				.collect(Collectors.toMap(i -> i.getRegistrationCode(), i->i));
 		
 		InvitationWithCode i = byCode.get("1e46b209-92ac-4f2d-a4b8-475bbe956424");
 		RegistrationInvitationParam i1 = (RegistrationInvitationParam) i.getInvitation();
-		assertThat(i1.getFormPrefill().getGroupSelections().size(), is(2));
-		assertThat(i1.getFormPrefill().getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
-		assertThat(i1.getFormPrefill().getGroupSelections().get(1).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A/B/C")));
+		assertThat(i1.getFormPrefill().getGroupSelections()).hasSize(2);
+		assertThat(i1.getFormPrefill().getGroupSelections().get(0).getEntry().getSelectedGroups()).isEqualTo(Lists.newArrayList("/A"));
+		assertThat(i1.getFormPrefill().getGroupSelections().get(1).getEntry().getSelectedGroups()).isEqualTo(Lists.newArrayList("/A/B/C"));
 
 		i = byCode.get("7e8d72a8-22e1-40c7-872c-dcb8a85e40cc");
 		RegistrationInvitationParam i2 = (RegistrationInvitationParam) i.getInvitation();
-		assertThat(i2.getFormPrefill().getGroupSelections().size(), is(2));
-		assertThat(i2.getFormPrefill().getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
-		assertThat(i2.getFormPrefill().getGroupSelections().get(1).getEntry().getSelectedGroups().isEmpty(), is(true));	
+		assertThat(i2.getFormPrefill().getGroupSelections()).hasSize(2);
+		assertThat(i2.getFormPrefill().getGroupSelections().get(0).getEntry().getSelectedGroups()).isEqualTo(Lists.newArrayList("/A"));
+		assertThat(i2.getFormPrefill().getGroupSelections().get(1).getEntry().getSelectedGroups()).isEmpty();	
 	}
 	
 	@Test
@@ -225,6 +223,6 @@ public class TestMigrationFrom2_6
 	private void checkAttributes()
 	{
 		List<StoredAttribute> attributes = attributeDB.getAttributes(null, null, "/A");
-		assertThat(attributes.toString(), attributes.size(), is(0));
+		assertThat(attributes).hasSize(0);
 	}
 }

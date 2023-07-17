@@ -6,26 +6,20 @@ package pl.edu.icm.unity.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+
 
 import java.time.Instant;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.google.common.collect.Lists;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
@@ -33,11 +27,11 @@ import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.base.registration.RegistrationRequest;
 import pl.edu.icm.unity.base.registration.RegistrationRequestBuilder;
-import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
@@ -54,14 +48,10 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
-@RunWith(DataProviderRunner.class)
+
+@ExtendWith(SpringExtension.class)
 public class TestAutoProcessInvitations extends DBIntegrationTestBase
 {
-	@ClassRule
-	public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
-	@Rule
-	public final SpringMethodRule springMethodRule = new SpringMethodRule();
-	@DataProvider
 	public static Object[][] notAutoAppliedModesProvider(){
 		return new Object[][] {
 				{
@@ -83,7 +73,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 	@Autowired
 	private InitializerCommon commonInitializer;
 	
-	@Before
+	@BeforeEach
 	public void init() throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();
@@ -119,8 +109,8 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 				.attr(0).hasValues("commonName");
 	}
 	
-	@Test
-	@UseDataProvider("notAutoAppliedModesProvider")
+	@ParameterizedTest
+	@MethodSource("notAutoAppliedModesProvider")
 	public void shouldNotTakePrefilledAttributeWithMode(PrefilledEntryMode mode) throws EngineException
 	{
 		// given
@@ -166,7 +156,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		AttributesAssertion.assertThat(attrsMan, UsernameIdentity.ID, "invitedUser")
 			.hasAttribute(InitializerCommon.EMAIL_ATTR, "/").count(1);
 		GroupContents content = groupsMan.getContents("/A0/A1", GroupContents.MEMBERS);
-		assertThat(content.getMembers().size(), equalTo(0));
+		assertThat(content.getMembers().size()).isEqualTo(0);
 	}
 	
 	@Test
@@ -188,7 +178,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		
 		// expect
 		Throwable error = catchThrowable(() -> invitationMan.getInvitation(codeOfAutoAcceptedInvitation));
-		assertThat(error, nullValue());
+		assertThat(error).isNull();
 		
 		// when
 		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT_TRY_AUTO_ACCEPT);

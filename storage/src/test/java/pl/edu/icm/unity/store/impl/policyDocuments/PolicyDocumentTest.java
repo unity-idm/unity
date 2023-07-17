@@ -4,12 +4,9 @@
  */
 package pl.edu.icm.unity.store.impl.policyDocuments;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -61,9 +58,9 @@ public class PolicyDocumentTest extends AbstractBasicDAOTest<StoredPolicyDocumen
 
 			StoredPolicyDocument ret = dao.getByKey(key);
 
-			assertThat(obj.getId(), is(key));
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(obj));
+			assertThat(obj.getId()).isEqualTo(key);
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(obj);
 		});
 	}
 	
@@ -74,15 +71,15 @@ public class PolicyDocumentTest extends AbstractBasicDAOTest<StoredPolicyDocumen
 			long id1 = dao.create(new StoredPolicyDocument());
 			long id2 = dao.create(new StoredPolicyDocument());
 
-			assertThat(id1, is(not(id2)));
+			assertThat(id1).isNotEqualTo(id2);
 			
 			TransactionTL.manualCommit();
 			
 			StoredPolicyDocument ret1 = dao.getByKey(id1);
 			StoredPolicyDocument ret2 = dao.getByKey(id2);
 
-			assertThat(ret1.getId(), is(id1));
-			assertThat(ret2.getId(), is(id2));
+			assertThat(ret1.getId()).isEqualTo(id1);
+			assertThat(ret2.getId()).isEqualTo(id2);
 		});
 	}
 	
@@ -97,7 +94,7 @@ public class PolicyDocumentTest extends AbstractBasicDAOTest<StoredPolicyDocumen
 			StoredPolicyDocument obj2 = getObject("");
 			dao.create(obj2);
 			
-			assertThat(obj2.getId() != key, is(true));
+			assertThat(obj2.getId()).isNotEqualTo(key);
 		});
 	}
 }

@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.store.migration.to3_10;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -16,12 +15,12 @@ import java.io.StringReader;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -31,7 +30,7 @@ import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations =
 { "classpath*:META-INF/components.xml" })
 public class TestJsonDumpUpdateFromV16
@@ -49,7 +48,7 @@ public class TestJsonDumpUpdateFromV16
 	private EndpointDB endpointDAO;
 
 	
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -79,8 +78,8 @@ public class TestJsonDumpUpdateFromV16
 		Endpoint endpoint = endpointDAO.get("UNITY user's account");
 		String configuration = endpoint.getConfiguration().getConfiguration();
 		Properties configProp = parse(configuration);
-		assertThat(configProp.getProperty("unity.userhome.disabledComponents.2"), nullValue());
-		assertThat(configProp.getProperty("unity.userhome.disabledComponents.8"), nullValue());
+		assertThat(configProp.getProperty("unity.userhome.disabledComponents.2")).isNull();
+		assertThat(configProp.getProperty("unity.userhome.disabledComponents.8")).isNull();
 
 		boolean trustedTabDisabled = false;
 		for (Object key : configProp.keySet().stream().filter(k -> k.toString().startsWith("unity.userhome.disabledComponents.")).collect(Collectors.toSet()))

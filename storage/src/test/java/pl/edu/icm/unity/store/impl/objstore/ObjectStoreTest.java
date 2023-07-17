@@ -6,16 +6,13 @@ package pl.edu.icm.unity.store.impl.objstore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
@@ -44,9 +41,9 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 			
 			Set<String> ret = dao.getNamesOfType("type");
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(1));
-			assertThat(ret.iterator().next(), is("name1"));
+			assertThat(ret).isNotNull();
+			assertThat(ret).hasSize(1);
+			assertThat(ret.iterator().next()).isEqualTo("name1");
 		});
 	}
 	
@@ -62,9 +59,9 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 
 			List<GenericObjectBean> ret = dao.getObjectsOfType("type");
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(1));
-			assertThat(ret.get(0), is(obj));
+			assertThat(ret).isNotNull();
+			assertThat(ret).hasSize(1);
+			assertThat(ret.get(0)).isEqualTo(obj);
 		});
 	}
 
@@ -77,8 +74,8 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 
 			GenericObjectBean ret = dao.getObjectByNameType("name1", "type");
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(obj));
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(obj);
 		});
 	}
 
@@ -87,8 +84,7 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 	{
 		tx.runInTransaction(() -> {
 			GenericObjectBean ret = dao.getObjectByNameType("name1", "type");
-
-			assertThat(ret, is(nullValue()));
+			assertThat(ret).isNull();
 		});
 	}
 
@@ -104,10 +100,10 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 			
 			Set<String> ret = dao.getObjectTypes();
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(2));
-			assertThat(ret.contains("type"), is(true));
-			assertThat(ret.contains("type2"), is(true));
+			assertThat(ret).isNotNull();
+			assertThat(ret).hasSize(2);
+			assertThat(ret).contains("type");
+			assertThat(ret).contains("type2");
 		});
 	}
 
@@ -125,7 +121,7 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 
 			Throwable error = catchThrowable(() -> dao.getByKey(key));
 			assertThat(error).isInstanceOf(IllegalArgumentException.class);
-			assertThat(dao.getAll().size(), is(1));
+			assertThat(dao.getAll()).hasSize(1);
 		});
 	}
 	
@@ -143,7 +139,7 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 
 			Throwable error = catchThrowable(() -> dao.getByKey(key));
 			assertThat(error).isInstanceOf(IllegalArgumentException.class);
-			assertThat(dao.getAll().size(), is(1));
+			assertThat(dao.getAll()).hasSize(1);
 		});
 	}
 
@@ -169,9 +165,9 @@ public class ObjectStoreTest extends AbstractBasicDAOTest<GenericObjectBean>
 			dao.updateObject("name1", "type", obj);
 
 			GenericObjectBean ret = dao.getByKey(key);
-			assertThat(dao.getAll().size(), is(1));
-			assertThat(ret.getContents(), is(new byte[] {'z'}));
-			assertThat(ret.getLastUpdate(), is(obj.getLastUpdate()));
+			assertThat(dao.getAll()).hasSize(1);
+			assertThat(ret.getContents()).isEqualTo(new byte[] {'z'});
+			assertThat(ret.getLastUpdate()).isEqualTo(obj.getLastUpdate());
 		});
 	}
 

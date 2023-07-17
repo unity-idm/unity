@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -49,7 +49,7 @@ import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.engine.server.JettyServer;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = { "unityConfig: src/test/resources/unityServer.conf" })
 @UnityIntegrationTest
 public abstract class SecuredDBIntegrationTestBase
@@ -111,7 +111,7 @@ public abstract class SecuredDBIntegrationTestBase
 	@Autowired
 	protected InternalCapacityLimitVerificator capacityLimit;
 	
-	@Before
+	@BeforeEach
 	public void clear() throws Exception
 	{
 		insecureServerMan.resetDatabase();

@@ -6,12 +6,11 @@ package pl.edu.icm.unity.engine.credential;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
 
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
@@ -40,8 +39,8 @@ public class TestSystemCredential extends DBIntegrationTestBase
 	public void shouldListSystemCredential() throws EngineException
 	{
 		Collection<CredentialDefinition> credentialDefinitions = credMan.getCredentialDefinitions();
-		assertThat(credentialDefinitions.isEmpty(), is(false));		
-		assertThat(credentialDefinitions.iterator().next().isReadOnly(), is(true));
+		assertThat(credentialDefinitions).isNotEmpty();		
+		assertThat(credentialDefinitions.iterator().next().isReadOnly()).isTrue();
 	}
 		
 	@Test
@@ -72,7 +71,7 @@ public class TestSystemCredential extends DBIntegrationTestBase
 		{
 			if (req.getName().equals(SystemAllCredentialRequirements.NAME))
 			{
-				assertThat(req.getRequiredCredentials().contains("new cred"), is(true));
+				assertThat(req.getRequiredCredentials().contains("new cred")).isTrue();
 			}			
 		}	
 	}

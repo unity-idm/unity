@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.engine.server;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URL;
 
@@ -15,14 +14,14 @@ import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
@@ -39,7 +38,7 @@ import pl.edu.icm.unity.engine.api.ServerManagement;
  * 
  * @author K. Benedyczak
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @UnityIntegrationTest
 @TestPropertySource(properties = { "unityConfig: src/test/resources/dosTest.conf" })
 public class TestJettyServer 
@@ -50,13 +49,13 @@ public class TestJettyServer
 	@Qualifier("insecure")
 	protected ServerManagement insecureServerMan;
 	
-	@Before
+	@BeforeEach
 	public void clearDB() throws Exception
 	{
 		insecureServerMan.resetDatabase();
 	}
 	
-	@After
+	@AfterEach
 	public void clear() throws EngineException
 	{
 		httpServer.stop();
@@ -91,7 +90,7 @@ public class TestJettyServer
 					killed ++;
 			}
 			
-			assertThat("Killed: "+ killed, killed > 3, is(true));
+			assertThat(killed > 3).isTrue();
 		
 		} finally
 		{

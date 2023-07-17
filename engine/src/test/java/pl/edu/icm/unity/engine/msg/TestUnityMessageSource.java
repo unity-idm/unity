@@ -4,18 +4,16 @@
  */
 package pl.edu.icm.unity.engine.msg;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -24,7 +22,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.store.api.MessagesDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 @TestPropertySource(properties = { "unityConfig: src/test/resources/unityServer.conf" })
 public class TestUnityMessageSource
@@ -46,7 +44,7 @@ public class TestUnityMessageSource
 	{
 		String message = msg.getMessage("MessageTemplateConsumer.EnquiryFilled.var.user");
 		
-		assertThat(message, is("Identity of the user"));
+		assertThat(message).isEqualTo("Identity of the user");
 	}
 
 	@Test
@@ -54,7 +52,7 @@ public class TestUnityMessageSource
 	{
 		String message = msg.getMessage("MessageUsedForIntegrationTesting.only0");
 		
-		assertThat(message, is("From default bundle"));
+		assertThat(message).isEqualTo("From default bundle");
 	}
 
 	@Test
@@ -62,7 +60,7 @@ public class TestUnityMessageSource
 	{
 		String message = msg.getMessage("MessageUsedForIntegrationTesting.only2");
 		
-		assertThat(message, is("From extra file"));
+		assertThat(message).isEqualTo("From extra file");
 	}
 
 	@Test
@@ -70,7 +68,7 @@ public class TestUnityMessageSource
 	{
 		String message = msg.getMessage("MessageUsedForIntegrationTesting.only1");
 		
-		assertThat(message, is("From extra file"));
+		assertThat(message).isEqualTo("From extra file");
 	}
 
 	@Test
@@ -82,7 +80,7 @@ public class TestUnityMessageSource
 			repository.reload();
 		});
 		String message = msg.getMessage("test.test", Locale.ENGLISH);
-		assertThat(message, is("test val"));
+		assertThat(message).isEqualTo("test val");
 	}
 	
 	@Test
@@ -94,7 +92,7 @@ public class TestUnityMessageSource
 			repository.reload();
 		});
 		I18nString message = msg.getI18nMessage("MessageUsedForIntegrationTesting.only1");
-		assertThat(message.getMap().size(), is(2));
-		assertThat(message.getMap().values(), hasItems("From extra file", "test val"));
+		assertThat(message.getMap().size()).isEqualTo(2);
+		assertThat(message.getMap().values()).contains("From extra file", "test val");
 	}
 }

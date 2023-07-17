@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.store.rdbms;
 
-import static org.junit.Assume.assumeTrue;
 import static pl.edu.icm.unity.store.StorageConfiguration.ALTERNATIVE_DB_CONFIG;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -14,8 +14,8 @@ import javax.sql.DataSource;
 
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -27,10 +27,10 @@ import pl.edu.icm.unity.store.api.StoragePropertiesSource;
 
 public class DataSourceConfigurationTest
 {
-	@Before
+	@BeforeEach
 	public void conditionalStart()
 	{
-		assumeTrue(System.getProperty(ALTERNATIVE_DB_CONFIG) == null);
+		assertThat(System.getProperty(ALTERNATIVE_DB_CONFIG)).isNull();
 	}
 	
 	@Test

@@ -5,10 +5,8 @@
 
 package pl.edu.icm.unity.engine.authn;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,7 +20,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -78,22 +76,21 @@ public class RememberMeTest extends DBIntegrationTestBase
 		addCookieAndToken(getRealm(RememberMePolicy.allowForWholeAuthn), response);
 		
 		verify(response).addCookie(cookieArgument.capture());
-		assertThat(cookieArgument.getValue().getValue(), containsString("|"));
+		assertThat(cookieArgument.getValue().getValue()).containsSequence("|");
 		String[] cookieSplit = cookieArgument.getValue().getValue().split("\\|");
-		assertThat(cookieSplit.length, is(2));
+		assertThat(cookieSplit.length).isEqualTo(2);
 		String rememberMeSeriesToken = cookieSplit[0];
 		
 		Token tokenById = tokenMan.getTokenById(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE,
 				rememberMeSeriesToken);
-		assertThat(tokenById, notNullValue());
+		assertThat(tokenById).isNotNull();
 		RememberMeToken rememberMeUnityToken = RememberMeToken
 				.getInstanceFromJson(tokenById.getContents());
-		assertThat(rememberMeUnityToken.getRememberMePolicy(),
-				is(RememberMePolicy.allowForWholeAuthn));
-		assertThat(rememberMeUnityToken.getEntity(), is(1L));
-		assertThat(rememberMeUnityToken.getFirstFactorAuthnOptionId().getAuthenticatorKey(), is("firstFactor"));
-		assertThat(rememberMeUnityToken.getSecondFactorAuthnOptionId().getAuthenticatorKey(), is("secondFactor"));
-		assertThat(rememberMeUnityToken.getMachineDetails().getIp(), is("0.0.0.0"));
+		assertThat(rememberMeUnityToken.getRememberMePolicy()).isEqualTo(RememberMePolicy.allowForWholeAuthn);
+		assertThat(rememberMeUnityToken.getEntity()).isEqualTo(1L);
+		assertThat(rememberMeUnityToken.getFirstFactorAuthnOptionId().getAuthenticatorKey()).isEqualTo("firstFactor");
+		assertThat(rememberMeUnityToken.getSecondFactorAuthnOptionId().getAuthenticatorKey()).isEqualTo("secondFactor");
+		assertThat(rememberMeUnityToken.getMachineDetails().getIp()).isEqualTo("0.0.0.0");
 	}
 
 	@Test
@@ -107,17 +104,15 @@ public class RememberMeTest extends DBIntegrationTestBase
 		addCookieAndToken(realm, response);
 
 		verify(response).addCookie(cookieArgument.capture());
-		assertThat(cookieArgument.getValue().getValue(), notNullValue());
-		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE).size(),
-				is(1));
+		assertThat(cookieArgument.getValue().getValue()).isNotNull();
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE)).hasSize(1);
 		Cookie added = cookieArgument.getValue();
 		when(request.getCookies()).thenReturn(new Cookie[] { added });
 
 		rememberMeProcessor.removeRememberMeWithWholeAuthn(realm.getName(), request,
 				response);
 
-		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE).size(),
-				is(0));
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE)).hasSize(0);
 	}
 	
 	@Test
@@ -136,11 +131,11 @@ public class RememberMeTest extends DBIntegrationTestBase
 						"0.0.0.0", realm,
 						new DefaultUnsuccessfulAuthenticationCounter(10, 10));
 		
-		assertThat(loginSession.isPresent(), is(true));
-		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey(), is("firstFactor"));
-		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey(), is("secondFactor"));
-		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped, is(true));
-		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped, is(true));
+		assertThat(loginSession.isPresent()).isEqualTo(true);
+		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey()).isEqualTo("firstFactor");
+		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey()).isEqualTo("secondFactor");
+		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped).isEqualTo(true);
+		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped).isEqualTo(true);
 	}
 
 	@Test
@@ -160,11 +155,11 @@ public class RememberMeTest extends DBIntegrationTestBase
 						1, "0.0.0.0", realm,
 						new DefaultUnsuccessfulAuthenticationCounter(10, 10));
 		
-		assertThat(loginSession.isPresent(), is(true));
-		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey(), is("firstFactor"));
-		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey(), is("secondFactor"));
-		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped, is(false));
-		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped, is(true));
+		assertThat(loginSession.isPresent()).isEqualTo(true);
+		assertThat(loginSession.get().getLogin1stFactorOptionId().getAuthenticatorKey()).isEqualTo("firstFactor");
+		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey()).isEqualTo("secondFactor");
+		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped).isEqualTo(false);
+		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped).isEqualTo(true);
 	}
 
 	@Test
@@ -186,16 +181,15 @@ public class RememberMeTest extends DBIntegrationTestBase
 						1, "0.0.0.0", realm,
 						new DefaultUnsuccessfulAuthenticationCounter(10, 10));
 		
-		assertThat(loginSession.isPresent(), is(false));
+		assertThat(loginSession.isPresent()).isEqualTo(false);
 		
 		ArgumentCaptor<Cookie> removedCookieArgument = ArgumentCaptor
 				.forClass(Cookie.class);
 		verify(response2).addCookie(removedCookieArgument.capture());
 		Cookie removedCookie = removedCookieArgument.getValue();
-		assertThat(removedCookie.getMaxAge(), is(0));
+		assertThat(removedCookie.getMaxAge()).isEqualTo(0);
 
-		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE).size(),
-				is(0));
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE)).isEmpty();
 	}
 
 	@Test
@@ -216,15 +210,14 @@ public class RememberMeTest extends DBIntegrationTestBase
 						"0.0.0.0", realm,
 						counter);	
 		
-		assertThat(loginSession.isPresent(), is(false));
+		assertThat(loginSession.isPresent()).isEqualTo(false);
 		
 		ArgumentCaptor<String> counterArgument = ArgumentCaptor.forClass(String.class);
 		verify(counter).unsuccessfulAttempt(counterArgument.capture());
 		
-		assertThat(counterArgument.getValue(), is("0.0.0.0"));
+		assertThat(counterArgument.getValue()).isEqualTo("0.0.0.0");
 
-		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE).size(),
-				is(0));
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE)).isEmpty();
 	}
 	
 }

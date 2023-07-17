@@ -5,12 +5,9 @@
 
 package pl.edu.icm.unity.engine.forms.enquiry;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,8 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -73,7 +70,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 	@Autowired
 	private EnquiryManagement enquiryManagement;
 
-	@Before
+	@BeforeEach
 	public void init() throws EngineException
 	{
 		setupPasswordAuthn();
@@ -152,8 +149,8 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 				.withType(Type.STICKY)
 				.build());
 		
-		assertThat(pendingEnquires.size(), is(1));
-		assertThat(pendingEnquires.get(0), is(form2));
+		assertThat(pendingEnquires).hasSize(1);
+		assertThat(pendingEnquires.get(0)).isEqualTo(form2);
 	}
 
 
@@ -186,13 +183,13 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 
 		Set<EnquiryResponseState> responses = enquiryManagement.getEnquiryResponses().stream()
 				.filter(e -> e.getRequest().getFormId().equals("sticky")).collect(Collectors.toSet());
-		assertThat(responses.size(), is(1));
-		EnquiryResponseState res = responses.iterator().next();
-		assertThat(res, notNullValue());
-		assertThat(res.getRequest().getGroupSelections().size(), is(2));
-		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0), is("/"));
-		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().get(1), is("/A"));
-		assertThat(res.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0), is("/B"));
+		assertThat(responses).hasSize(1);
+		EnquiryResponseState  res = responses.iterator().next();
+		assertThat(res).isNotNull();
+		assertThat(res.getRequest().getGroupSelections()).hasSize(2);
+		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0)).isEqualTo("/");
+		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().get(1)).isEqualTo("/A");
+		assertThat(res.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0)).isEqualTo("/B");
 
 		response.setGroupSelections(Arrays.asList(new GroupSelection(Arrays.asList("/")), new GroupSelection(Arrays.asList("/B"))));
 		setupUserContext("tuser", null);
@@ -203,15 +200,15 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 		setupAdmin();
 		responses = enquiryManagement.getEnquiryResponses().stream()
 				.filter(e -> e.getRequest().getFormId().equals("sticky")).collect(Collectors.toSet());
-		assertThat(responses.size(), is(1));
+		assertThat(responses).hasSize(1);
 
 		res = responses.iterator().next();
 
-		assertThat(res, notNullValue());
-		assertThat(res.getRequest().getGroupSelections().size(), is(2));
-		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().size(), is(1));
-		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0), is("/"));	
-		assertThat(res.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0), is("/B"));
+		assertThat(res).isNotNull();
+		assertThat(res.getRequest().getGroupSelections()).hasSize(2);
+		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups()).hasSize(1);
+		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0)).isEqualTo("/");	
+		assertThat(res.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0)).isEqualTo("/B");
 	}
 	
 	@Test
@@ -250,8 +247,8 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 		setupAdmin();
 		enquiryManagement.removePendingStickyRequest("sticky", new EntityParam(addEntity1.getEntityId()));
 
-		assertThat(enquiryManagement.getEnquiryResponses().stream().filter(e -> e.getEntityId() == addEntity1.getEntityId()).count(), is(0L));
-		assertThat(enquiryManagement.getEnquiryResponses().stream().filter(e -> e.getEntityId() == addEntity2.getEntityId()).count(), is(1L));
+		assertThat(enquiryManagement.getEnquiryResponses().stream().filter(e -> e.getEntityId() == addEntity1.getEntityId()).count()).isEqualTo(0L);
+		assertThat(enquiryManagement.getEnquiryResponses().stream().filter(e -> e.getEntityId() == addEntity2.getEntityId()).count()).isEqualTo(1L);
 	}
 	
 	@Test
@@ -303,9 +300,9 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/B/C", new EntityParam(identity));
 		
 		Map<String, GroupMembership> groups = idsMan.getGroups(new EntityParam(identity));
-		assertThat(groups.size(), is(3));
-		assertThat(groups.keySet().contains("/B/C"), is(true));
-		assertThat(groups.keySet().contains("/A/AA"), is(false));
+		assertThat(groups).hasSize(3);
+		assertThat(groups.keySet()).contains("/B/C");
+		assertThat(groups.keySet()).doesNotContain("/A/AA");
 		
 		setupUserContext("tuser", null);
 		enquiryManagement.submitEnquiryResponse(response, new RegistrationContext(false, 
@@ -313,9 +310,9 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 
 		setupAdmin();
 		groups = idsMan.getGroups(new EntityParam(identity));
-		assertThat(groups.size(), is(5));
-		assertThat(groups.keySet(), hasItems("/A/AA", "/C"));
-		assertThat(groups.keySet(), not(hasItems("/B/C")));	
+		assertThat(groups).hasSize(5);
+		assertThat(groups.keySet()).contains("/A/AA", "/C");
+		assertThat(groups.keySet()).doesNotContain("/B/C");	
 	}
 
 	@Test
@@ -348,10 +345,10 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 		setupAdmin();
 		Collection<AttributeExt> allAttributes = attrsMan.getAllAttributes(new EntityParam(identity), false,
 				"/A", InitializerCommon.EMAIL_ATTR, false);
-		assertThat(allAttributes.size(), is(1));
+		assertThat(allAttributes).hasSize(1);
 		VerifiableEmail email = VerifiableEmail
 				.fromJsonString(allAttributes.iterator().next().getValues().iterator().next());
-		assertThat(email.getValue(), is("email@demo.com"));
+		assertThat(email.getValue()).isEqualTo("email@demo.com");
 
 	}
 	
@@ -379,8 +376,8 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 
 		setupAdmin();
 		Map<String, GroupMembership> groups = idsMan.getGroups(new EntityParam(identity));
-		assertThat(groups.size(), is(4));
-		assertThat(groups.keySet(), hasItems("/", "/A", "/B", "/B/C"));
+		assertThat(groups).hasSize(4);
+		assertThat(groups.keySet()).contains("/", "/A", "/B", "/B/C");
 		
 		setupUserContext("tuser", null);
 		enquiryManagement.submitEnquiryResponse(response,
@@ -388,8 +385,8 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 
 		setupAdmin();
 		groups = idsMan.getGroups(new EntityParam(identity));
-		assertThat(groups.size(), is(2));
-		assertThat(groups.keySet(), hasItems("/", "/B"));
+		assertThat(groups).hasSize(2);
+		assertThat(groups.keySet()).contains("/", "/B");
 	}
 	
 	

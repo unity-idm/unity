@@ -1,18 +1,14 @@
 package pl.edu.icm.unity.engine.group;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
@@ -58,7 +54,7 @@ public class GroupsManagementImplTest extends DBIntegrationTestBase
 		tx.runInTransaction(() -> {
 			Set<String> membership = membershipDAO.getEntityMembership(entityId).stream()
 					.map(GroupMembership::getGroup).collect(Collectors.toSet());
-			assertThat(membership, equalTo(Sets.newHashSet("/", "/test")));
+			assertThat(membership).isEqualTo(Sets.newHashSet("/", "/test"));
 		});
 
 		// when
@@ -68,7 +64,7 @@ public class GroupsManagementImplTest extends DBIntegrationTestBase
 		tx.runInTransaction(() -> {
 			Set<String> membership = membershipDAO.getEntityMembership(entityId).stream()
 					.map(GroupMembership::getGroup).collect(Collectors.toSet());
-			assertThat(membership, equalTo(Sets.newHashSet("/")));
+			assertThat(membership).isEqualTo(Sets.newHashSet("/"));
 		});
 	}
 
@@ -79,11 +75,11 @@ public class GroupsManagementImplTest extends DBIntegrationTestBase
 
 		Set<String> groups = groupsMan.getChildGroups("/");
 
-		assertEquals(4, groups.size());
-		assertTrue(groups.contains("/"));
-		assertTrue(groups.contains("/parent1"));
-		assertTrue(groups.contains("/parent1/parent2"));
-		assertTrue(groups.contains("/parent1/parent2/parent3"));
+		assertThat(groups).hasSize(4);
+		assertThat(groups.contains("/")).isTrue();
+		assertThat(groups.contains("/parent1")).isTrue();
+		assertThat(groups.contains("/parent1/parent2")).isTrue();
+		assertThat(groups.contains("/parent1/parent2/parent3")).isTrue();
 	}
 
 	@Test
@@ -97,8 +93,8 @@ public class GroupsManagementImplTest extends DBIntegrationTestBase
 		groupsMan.addGroups(Sets.newHashSet(toAdd));
 		
 		Set<String> groups = groupsMan.getChildGroups("/");
-		assertThat(groups, hasItems(toAdd.stream().map(Group::toString).toArray(String[]::new)));
-		assertThat(groupsMan.getContents(g1.toString(), GroupContents.EVERYTHING).getGroup(), is(g1));
+		assertThat(groups).contains(toAdd.stream().map(Group::toString).toArray(String[]::new));
+		assertThat(groupsMan.getContents(g1.toString(), GroupContents.EVERYTHING).getGroup()).isEqualTo(g1);
 	}
 	
 	@Test
@@ -117,10 +113,10 @@ public class GroupsManagementImplTest extends DBIntegrationTestBase
 		groupsMan.addGroups(Sets.newHashSet(toAdd));
 		
 		Set<String> groups = groupsMan.getChildGroups("/");
-		assertThat(groups, hasItems(toAdd.stream().map(Group::toString).toArray(String[]::new)));
-		assertThat(groupsMan.getContents(g1.toString(), GroupContents.EVERYTHING).getGroup(), is(g1));
-		assertThat(groupsMan.getContents(g2.toString(), GroupContents.EVERYTHING).getGroup(), is(g2));
-		assertThat(groupsMan.getContents(g3.toString(), GroupContents.EVERYTHING).getGroup(), is(g3));
+		assertThat(groups).contains(toAdd.stream().map(Group::toString).toArray(String[]::new));
+		assertThat(groupsMan.getContents(g1.toString(), GroupContents.EVERYTHING).getGroup()).isEqualTo(g1);
+		assertThat(groupsMan.getContents(g2.toString(), GroupContents.EVERYTHING).getGroup()).isEqualTo(g2);
+		assertThat(groupsMan.getContents(g3.toString(), GroupContents.EVERYTHING).getGroup()).isEqualTo(g3);
 	}
 
 
@@ -137,21 +133,22 @@ public class GroupsManagementImplTest extends DBIntegrationTestBase
 		assertExceptionType(exception, IllegalArgumentException.class);
 
 		Set<String> groups = groupsMan.getChildGroups("/");
-		assertThat(groups, not(hasItems(toAdd.stream().map(Group::toString).toArray(String[]::new))));
+		assertThat(groups).doesNotContain(toAdd.stream().map(Group::toString).toArray(String[]::new));
 	}
 	
-	@Test(expected = CapacityLimitReachedException.class)
+	@Test
 	public void shouldFailWhenCapacityLimitExceeded() throws EngineException
 	{
-		tx.runInTransactionThrowing(() -> {
-			limitDB.create(new CapacityLimit(CapacityLimitName.GroupsCount, groupsMan.getChildGroups("/").size() + 2));
+		tx.runInTransactionThrowing(() ->
+		{
+			limitDB.create(new CapacityLimit(CapacityLimitName.GroupsCount, groupsMan.getChildGroups("/")
+					.size() + 2));
 		});
-	
+
 		Group g1 = new Group("/g1");
 		Group g2 = new Group("/g1/g2");
 		Group g3 = new Group("/g1/g2/g3");
-		
-		groupsMan.addGroups(Sets.newHashSet(g1,g2,g3));
+		assertThrows(CapacityLimitReachedException.class, () -> groupsMan.addGroups(Sets.newHashSet(g1, g2, g3)));
 	}
 	
 	@Test
@@ -162,10 +159,10 @@ public class GroupsManagementImplTest extends DBIntegrationTestBase
 
 		Set<String> groups = groupsMan.getChildGroups("/");
 
-		assertEquals(4, groups.size());
-		assertTrue(groups.contains("/"));
-		assertTrue(groups.contains("/parent1"));
-		assertTrue(groups.contains("/parent1/parent2"));
-		assertTrue(groups.contains("/parent1/parent2/parent3"));
+		assertThat(groups).hasSize(4);
+		assertThat(groups.contains("/")).isTrue();
+		assertThat(groups.contains("/parent1")).isTrue();
+		assertThat(groups.contains("/parent1/parent2")).isTrue();
+		assertThat(groups.contains("/parent1/parent2/parent3")).isTrue();
 	}
 }

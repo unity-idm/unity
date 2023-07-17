@@ -4,15 +4,17 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.audit.AuditEntity;
@@ -86,10 +88,10 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 
 			// than
 			AuditEvent eventFromDB = dao.getByKey(id);
-			assertEquals(event, eventFromDB);
-			assertTrue(eventFromDB.getDetails() == null);
-			assertTrue(eventFromDB.getSubject() == null);
-			assertTrue(eventFromDB.getTags().isEmpty());
+			assertThat(event).isEqualTo(eventFromDB);
+			assertThat(eventFromDB.getDetails()).isNull();
+			assertThat(eventFromDB.getSubject()).isNull();
+			assertThat(eventFromDB.getTags()).isEmpty();
 		});
 	}
 
@@ -402,13 +404,15 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionForIncorrectOrderValue()
 	{
-		tx.runInTransaction(() -> {
+		Assertions.assertThrows(IllegalArgumentException.class, () ->
+
+		tx.runInTransaction(() ->
+		{
 			// when
 			dao.getOrderedLogs(null, null, 100, "incorrectOrder", -1);
-		});
+		}));
 	}
 
 	private List<AuditEvent> prepareAuditEvents()

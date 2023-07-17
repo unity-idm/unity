@@ -6,10 +6,7 @@ package pl.edu.icm.unity.store.impl.groups;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,8 +14,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -46,7 +43,7 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 	@Autowired
 	private AttributeTypeDAO atDao;
 
-	@Before
+	@BeforeEach
 	public void createReferenced()
 	{
 		tx.runInTransaction(() -> {
@@ -70,7 +67,7 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 
 			Group returned2 = dao.getByKey(key);
 
-			assertThat(returned2.getDisplayedName(), is(new I18nString("DN1")));
+			assertThat(returned2.getDisplayedName()).isEqualTo(new I18nString("DN1"));
 		});
 	}
 	
@@ -85,10 +82,10 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 
 			dao.deleteByKey(key);
 
-			assertThat(dao.exists("/A"), is(false));
-			assertThat(dao.exists("/A/B"), is(false));
-			assertThat(dao.exists("/A/B/C"), is(false));
-			assertThat(dao.exists("/A/D"), is(false));
+			assertThat(dao.exists("/A")).isFalse();
+			assertThat(dao.exists("/A/B")).isFalse();
+			assertThat(dao.exists("/A/B/C")).isFalse();
+			assertThat(dao.exists("/A/D")).isFalse();
 		});
 	}
 	
@@ -104,16 +101,16 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 
 			dao.updateByKey(key, new Group("/S"));
 
-			assertThat(dao.exists("/A"), is(false));
-			assertThat(dao.exists("/A/B"), is(false));
-			assertThat(dao.exists("/A/B/C"), is(false));
-			assertThat(dao.exists("/A/D"), is(false));
+			assertThat(dao.exists("/A")).isFalse();
+			assertThat(dao.exists("/A/B")).isFalse();
+			assertThat(dao.exists("/A/B/C")).isFalse();
+			assertThat(dao.exists("/A/D")).isFalse();
 			
-			assertThat(dao.exists("/S"), is(true));
-			assertThat(dao.exists("/S/B"), is(true));
-			assertThat(dao.exists("/S/B/C"), is(true));
-			assertThat(dao.exists("/S/D"), is(true));
-			assertThat(dao.exists("/AAA"), is(true));
+			assertThat(dao.exists("/S")).isTrue();
+			assertThat(dao.exists("/S/B")).isTrue();
+			assertThat(dao.exists("/S/B/C")).isTrue();
+			assertThat(dao.exists("/S/D")).isTrue();
+			assertThat(dao.exists("/AAA")).isTrue();
 		});
 	}
 	
@@ -129,16 +126,16 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 
 			dao.updateByName("/A", new Group("/S"));
 
-			assertThat(dao.exists("/A"), is(false));
-			assertThat(dao.exists("/A/B"), is(false));
-			assertThat(dao.exists("/A/B/C"), is(false));
-			assertThat(dao.exists("/A/D"), is(false));
+			assertThat(dao.exists("/A")).isFalse();
+			assertThat(dao.exists("/A/B")).isFalse();
+			assertThat(dao.exists("/A/B/C")).isFalse();
+			assertThat(dao.exists("/A/D")).isFalse();
 			
-			assertThat(dao.exists("/S"), is(true));
-			assertThat(dao.exists("/S/B"), is(true));
-			assertThat(dao.exists("/S/B/C"), is(true));
-			assertThat(dao.exists("/S/D"), is(true));
-			assertThat(dao.exists("/AAA"), is(true));
+			assertThat(dao.exists("/S")).isTrue();
+			assertThat(dao.exists("/S/B")).isTrue();
+			assertThat(dao.exists("/S/B/C")).isTrue();
+			assertThat(dao.exists("/S/D")).isTrue();
+			assertThat(dao.exists("/AAA")).isTrue();
 		});
 	}
 	
@@ -198,11 +195,11 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 
 			List<Group> all = dao.getAll();
 
-			assertThat(all.size(), is(2));
+			assertThat(all).hasSize(2);
 			Group g = all.get(0);
 			if (g.getName().equals("/"))
 				g = all.get(1);
-			assertThat(g, is(obj));
+			assertThat(g).isEqualTo(obj);
 		});
 
 	}
@@ -218,11 +215,11 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 
 			List<Group> ret = dao.getAll();
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(3)); // + '/'
-			assertThat(ids.size(), is(2));
-			assertThat(ids.get(0), is(notNullValue()));
-			assertThat(ids.get(1), is(notNullValue()));
+			assertThat(ret).isNotNull();
+			assertThat(ret).hasSize(3); // + '/'
+			assertThat(ids).hasSize(2);
+			assertThat(ids.get(0)).isNotNull();
+			assertThat(ids.get(1)).isNotNull();
 		});
 	}
 	
@@ -276,11 +273,11 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			Group g = new Group("/A");
 			g.setProperties(Lists.newArrayList(new GroupProperty("k1", "v1"), new GroupProperty("k2", "v2")));
 			dao.create(g);
-			assertThat(dao.exists("/A"), is(true));
+			assertThat(dao.exists("/A")).isTrue();
 			Map<String, GroupProperty> properties = dao.get("/A").getProperties();
-			assertThat(properties.size(), is(2));
-			assertThat(properties.get("k1").value, is("v1"));
-			assertThat(properties.get("k2").value, is("v2"));
+			assertThat(properties).hasSize(2);
+			assertThat(properties.get("k1").value).isEqualTo("v1");
+			assertThat(properties.get("k2").value).isEqualTo("v2");
 		});
 	}
 }

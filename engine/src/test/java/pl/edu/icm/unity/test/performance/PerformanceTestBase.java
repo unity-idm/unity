@@ -21,7 +21,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -103,7 +103,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 	@Autowired
 	protected SessionManagement sessionMan;
 	
-	@Before
+	@BeforeEach
 	public void setup() throws Exception
 	{
 		LoggerContext ctx = (LoggerContext) LogManager.getContext(false);

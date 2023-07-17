@@ -12,8 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -51,7 +51,7 @@ public class TestMultipleAutoProcessInvitationActions extends DBIntegrationTestB
 	@Autowired
 	private InitializerCommon commonInitializer;
 	
-	@Before
+	@BeforeEach
 	public void init() throws EngineException
 	{
 		commonInitializer.initializeCommonAttributeTypes();

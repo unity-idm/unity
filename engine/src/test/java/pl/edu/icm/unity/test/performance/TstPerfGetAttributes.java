@@ -3,16 +3,15 @@ package pl.edu.icm.unity.test.performance;
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.logging.log4j.Logger;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -44,7 +43,7 @@ public class TstPerfGetAttributes extends PerformanceTestBase2
 
 	private final int ATTRIBUTES = 10; 
 	
-	@Ignore
+	@Disabled
 	@Test
 	public void testGetAttributes() throws EngineException, IOException
 	{
@@ -124,8 +123,8 @@ public class TstPerfGetAttributes extends PerformanceTestBase2
 		end = System.currentTimeMillis();
 		individual.add("getAttributes", end-start);
 		
-		assertThat(entity, is(notNullValue()));
-		assertThat(groups.size(), is(GROUPS_IN_TIER + 1));
+		assertThat(entity).isNotNull();
+		assertThat(groups).hasSize(GROUPS_IN_TIER + 1);
 		//direct and dynamic attrs in group tier plus 2 system (cr + cred) + direct in '/'. 
 //		assertThat(attributes.size(), is((ATTRIBUTES + GROUP_ATTR_STATEMENTS) * GROUPS_IN_TIER + 
 //				2 + ATTRIBUTES));

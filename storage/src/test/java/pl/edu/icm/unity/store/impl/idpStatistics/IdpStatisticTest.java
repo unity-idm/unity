@@ -5,13 +5,12 @@
 
 package pl.edu.icm.unity.store.impl.idpStatistics;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic;
@@ -70,9 +69,9 @@ public class IdpStatisticTest extends AbstractBasicDAOTest<IdpStatistic>
 			dao.deleteOlderThan(LocalDateTime.now().minusDays(1));
 
 			List<IdpStatistic> all = dao.getAll();
-			assertThat(all.size(), is(2));
-			assertThat(all.contains(s1), is(true));
-			assertThat(all.contains(s2), is(true));
+			assertThat(all).hasSize(2);
+			assertThat(all).contains(s1);
+			assertThat(all).contains(s2);
 		});
 	}
 
@@ -98,9 +97,9 @@ public class IdpStatisticTest extends AbstractBasicDAOTest<IdpStatistic>
 
 			List<IdpStatistic> all = dao.getIdpStatistics(LocalDateTime.now().minusDays(1),
 					LocalDateTime.now(), 100);
-			assertThat(all.size(), is(2));
-			assertThat(all.contains(s1), is(true));
-			assertThat(all.contains(s2), is(true));
+			assertThat(all).hasSize(2);
+			assertThat(all).contains(s1);
+			assertThat(all).contains(s2);
 		});
 	}
 

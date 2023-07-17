@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -256,7 +256,7 @@ public class TestRegistrations extends RegistrationTestBase
 		registrationsMan.submitRegistrationRequest(request, 
 				new RegistrationContext(false, TriggeringMode.manualAtLogin));
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(fromDb.getRequest().getRegistrationCode(), is(nullValue()));
+		assertThat(fromDb.getRequest().getRegistrationCode()).isNull();
 	}
 	
 	
@@ -276,13 +276,13 @@ public class TestRegistrations extends RegistrationTestBase
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertEquals(4, fromDb.getAdminComments().size());
 		assertEquals("pub1", fromDb.getAdminComments().get(0).getContents());
-		assertThat(fromDb.getAdminComments().get(0).isPublicComment(), is(true));
+		assertThat(fromDb.getAdminComments().get(0).isPublicComment()).isTrue();
 		assertEquals("priv1", fromDb.getAdminComments().get(1).getContents());
-		assertThat(fromDb.getAdminComments().get(1).isPublicComment(), is(false));
+		assertThat(fromDb.getAdminComments().get(1).isPublicComment()).isFalse();
 		assertEquals("a2", fromDb.getAdminComments().get(2).getContents());
-		assertThat(fromDb.getAdminComments().get(2).isPublicComment(), is(true));
+		assertThat(fromDb.getAdminComments().get(2).isPublicComment()).isTrue();
 		assertEquals("p2", fromDb.getAdminComments().get(3).getContents());
-		assertThat(fromDb.getAdminComments().get(3).isPublicComment(), is(false));
+		assertThat(fromDb.getAdminComments().get(3).isPublicComment()).isFalse();
 	}
 	
 	@Test
@@ -294,8 +294,8 @@ public class TestRegistrations extends RegistrationTestBase
 		String id1 = registrationsMan.submitRegistrationRequest(request, defContext);
 		
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(fromDb.getAdminComments().isEmpty(), is(true));
-		assertThat(fromDb.getRequest(), is(request));
+		assertThat(fromDb.getAdminComments().isEmpty()).isTrue();
+		assertThat(fromDb.getRequest()).isEqualTo(request);
 		assertEquals(0, fromDb.getAdminComments().size());
 		assertEquals(RegistrationRequestStatus.pending, fromDb.getStatus());
 		assertEquals(id1, fromDb.getRequestId());
@@ -360,7 +360,7 @@ public class TestRegistrations extends RegistrationTestBase
 		assertEquals(EntityState.valid, added.getState());
 		assertEquals(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
 				added.getCredentialInfo().getCredentialRequirementId());
-		assertThat(fromDb.getCreatedEntityId(), is(added.getId()));
+		assertThat(fromDb.getCreatedEntityId()).isEqualTo(added.getId());
 		
 		CredentialPublicInformation cpi = added.getCredentialInfo().getCredentialsState().get(
 				EngineInitialization.DEFAULT_CREDENTIAL);
@@ -431,11 +431,11 @@ public class TestRegistrations extends RegistrationTestBase
 		request.setRegistrationCode(null);
 		registrationsMan.submitRegistrationRequest(request, defContext);
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
-		assertThat(fromDb.getStatus(), is(RegistrationRequestStatus.accepted));
+		assertThat(fromDb.getStatus()).isEqualTo(RegistrationRequestStatus.accepted);
 		
 		Map<String, GroupMembership> groups = idsMan.getGroups(
 				new EntityParam(new IdentityTaV(UsernameIdentity.ID, "test-user")));
-		assertThat(groups.containsKey("/A/B/C"), is(true));
+		assertThat(groups.containsKey("/A/B/C")).isTrue();
 	}
 	
 	@Test
