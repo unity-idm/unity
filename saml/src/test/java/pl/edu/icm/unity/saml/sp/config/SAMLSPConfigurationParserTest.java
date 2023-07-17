@@ -15,7 +15,7 @@ import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.REQUESTER_ID;
 
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;

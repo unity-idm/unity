@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;

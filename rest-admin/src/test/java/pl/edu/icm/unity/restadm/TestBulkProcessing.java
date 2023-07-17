@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.entity.EntityState;

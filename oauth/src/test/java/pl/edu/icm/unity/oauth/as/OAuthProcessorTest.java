@@ -4,13 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN;
 
@@ -20,7 +18,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -171,8 +169,7 @@ public class OAuthProcessorTest
 		long endS = (end / 1000) * 1000;
 		assertTrue(token.getCreated().getTime() >= start);
 		assertTrue(token.getCreated().getTime() <= end);
-		assertTrue(token.getExpires().getTime() + " " + (start+expiry*1000),
-				token.getExpires().getTime() >= start+expiry*1000);
+		assertTrue(token.getExpires().getTime() >= start+expiry*1000, token.getExpires().getTime() + " " + (start+expiry*1000));
 		assertTrue(token.getExpires().getTime() <= end+ expiry*1000);
 		
 		OAuthToken internalToken = OAuthToken.getInstanceFromJson(token.getContents());
@@ -210,8 +207,8 @@ public class OAuthProcessorTest
 	private void assertHasATHash(JWTClaimsSet openidClaims) throws com.nimbusds.oauth2.sdk.ParseException
 	{
 		IDTokenClaimsSet idTokenClaimsSet = new IDTokenClaimsSet(openidClaims);
-		assertThat(idTokenClaimsSet.getAccessTokenHash(), is(notNullValue()));
-		assertThat(idTokenClaimsSet.getAccessTokenHash().getValue(), is(notNullValue()));
+		assertThat(idTokenClaimsSet.getAccessTokenHash()).isNotNull();
+		assertThat(idTokenClaimsSet.getAccessTokenHash().getValue()).isNotNull();
 	}
 
 	private void assertHasCHash(AuthenticationSuccessResponse response) throws ParseException, com.nimbusds.oauth2.sdk.ParseException
@@ -230,7 +227,7 @@ public class OAuthProcessorTest
 	{
 		IDTokenClaimsSet idTokenClaimsSet = new IDTokenClaimsSet(openidClaims);
 		
-		assertThat(idTokenClaimsSet.getCodeHash(), is(notNullValue()));
-		assertThat(idTokenClaimsSet.getCodeHash().getValue(), is(notNullValue()));
+		assertThat(idTokenClaimsSet.getCodeHash()).isNotNull();
+		assertThat(idTokenClaimsSet.getCodeHash().getValue()).isNotNull();
 	}
 }

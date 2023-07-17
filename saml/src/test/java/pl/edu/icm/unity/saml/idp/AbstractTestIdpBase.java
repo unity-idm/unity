@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import static org.junit.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
@@ -14,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -92,7 +93,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	private AuthenticationFlowManagement authnFlowMan;
 	
 	
-	@Before
+	@BeforeEach
 	public void setup() throws Exception
 	{
 		setupMockAuthn();

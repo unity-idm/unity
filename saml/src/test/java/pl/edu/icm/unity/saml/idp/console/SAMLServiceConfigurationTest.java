@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.idp.console;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;

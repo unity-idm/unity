@@ -4,14 +4,13 @@
  */
 package pl.edu.icm.unity.saml;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantType;
@@ -40,7 +39,7 @@ public class TestSAMLSessionParticipants
 		sps.addParticipant(sp);
 		String serialized = sps.serialize();
 		sps = new SessionParticipants(serialized, reg);
-		assertThat(sps.getParticipants().size(), is(1));
-		assertThat(sps.getParticipants().iterator().next(), is(sp));
+		assertThat(sps.getParticipants()).hasSize(1);
+		assertThat(sps.getParticipants().iterator().next()).isEqualTo(sp);
 	}
 }

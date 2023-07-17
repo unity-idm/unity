@@ -5,9 +5,8 @@
 
 package pl.edu.icm.unity.oauth.as.token;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 
@@ -31,8 +30,8 @@ public class OAuthTokenParsingTest
 						+ "\"pkcsInfo\":{\"codeChallenge\":null,\"codeChallengeMethod\":null},\"clientId\":3}")
 								.getBytes());
 
-		assertThat(token.getAudience().get(0), is("oauth-client"));
-		assertThat(token.getAudience().get(1), is("oauth-client2"));
+		assertThat(token.getAudience().get(0)).isEqualTo("oauth-client");
+		assertThat(token.getAudience().get(1)).isEqualTo("oauth-client2");
 
 	}
 }

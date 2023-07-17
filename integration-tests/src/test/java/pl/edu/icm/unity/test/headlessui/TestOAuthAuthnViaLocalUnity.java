@@ -5,10 +5,11 @@
 
 package pl.edu.icm.unity.test.headlessui;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Test login via Local OAuth with output profile which create dynamic attribute

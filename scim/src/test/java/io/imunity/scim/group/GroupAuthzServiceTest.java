@@ -5,9 +5,8 @@
 
 package io.imunity.scim.group;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -19,11 +18,11 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.SCIMSystemScopeProvider;
 import io.imunity.scim.config.SCIMEndpointDescription;
@@ -37,7 +36,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GroupAuthzServiceTest
 {
 	@Mock
@@ -48,7 +47,7 @@ public class GroupAuthzServiceTest
 
 	private GroupAuthzService groupAuthzService;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
@@ -97,7 +96,7 @@ public class GroupAuthzServiceTest
 		context.setLoginSession(new LoginSession(null, null, 0, 2, null, null, null, null));
 		InvocationContext.setCurrent(context);
 		Predicate<String> filter = groupAuthzService.getFilter();
-		assertThat(filter.test("/scim/1"), is(true));
+		assertThat(filter.test("/scim/1")).isTrue();
 	}
 
 	@Test
@@ -110,8 +109,8 @@ public class GroupAuthzServiceTest
 				.thenReturn(Map.of("/userGroup", new GroupMembership("/userGroup", 1, new Date())));
 		Predicate<String> filter = groupAuthzService.getFilter();
 
-		assertThat(filter.test("/userGroup"), is(true));
-		assertThat(filter.test("/notUserGroup"), is(false));
+		assertThat(filter.test("/userGroup")).isTrue();
+		assertThat(filter.test("/notUserGroup")).isFalse();
 
 	}
 

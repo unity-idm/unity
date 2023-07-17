@@ -5,18 +5,17 @@
 
 package io.imunity.scim.group;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.config.SCIMEndpointDescription;
@@ -24,12 +23,12 @@ import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.config.SchemaWithMapping;
 import io.imunity.scim.group.GroupMember.MemberType;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GroupAssemblyServiceTest
 {
 	private GroupAssemblyService groupAssemblyService;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
@@ -56,17 +55,17 @@ public class GroupAssemblyServiceTest
 
 		SCIMGroupResource mappedGroup = groupAssemblyService.mapToGroupResource(groupData);
 
-		assertThat(mappedGroup.meta.resourceType.toString(), is("Group"));
-		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
-				is("https://localhost:2443/scim/Groups/%2Fscim%2Fid"));
-		assertThat(mappedGroup.id, is("/scim/id"));
-		assertThat(mappedGroup.members,
-				hasItems(
+		assertThat(mappedGroup.meta.resourceType.toString()).isEqualTo("Group");
+		assertThat(mappedGroup.meta.location.toURL().toExternalForm())
+				.isEqualTo("https://localhost:2443/scim/Groups/%2Fscim%2Fid");
+		assertThat(mappedGroup.id).isEqualTo("/scim/id");
+		assertThat(mappedGroup.members).
+				contains(
 						SCIMGroupMemberResource.builder().withDisplay("Memeber1").withType(MemberType.User.toString())
 								.withValue("1").withRef(URI.create("https://localhost:2443/scim/Users/1")).build(),
 						SCIMGroupMemberResource.builder().withDisplay("Group1").withType(MemberType.Group.toString())
 								.withValue("/scim/id/sub")
-								.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2Fid%2Fsub")).build()));
+								.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2Fid%2Fsub")).build());
 	}
 
 	@Test
@@ -86,24 +85,23 @@ public class GroupAssemblyServiceTest
 
 		ListResponse<SCIMGroupResource> mappedGroups = groupAssemblyService
 				.mapToGroupsResource(List.of(groupData1, groupData2));
-		assertThat(mappedGroups.totalResults, is(2));
+		assertThat(mappedGroups.totalResults).isEqualTo(2);
 		SCIMGroupResource mappedGroup = mappedGroups.resources.stream().filter(g -> g.id.equals("/scim/id1")).findAny()
 				.get();
-		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
-				is("https://localhost:2443/scim/Groups/%2Fscim%2Fid1"));
-		assertThat(mappedGroup.id, is("/scim/id1"));
-		assertThat(mappedGroup.members, hasItems(
+		assertThat(mappedGroup.meta.location.toURL().toExternalForm()).
+				isEqualTo("https://localhost:2443/scim/Groups/%2Fscim%2Fid1");
+		assertThat(mappedGroup.id).isEqualTo("/scim/id1");
+		assertThat(mappedGroup.members).contains(
 				SCIMGroupMemberResource.builder().withDisplay("Memeber1").withType(MemberType.User.toString())
 						.withValue("1").withRef(URI.create("https://localhost:2443/scim/Users/1")).build(),
 				SCIMGroupMemberResource.builder().withDisplay("Group1").withType(MemberType.Group.toString())
 						.withValue("/scim/id1/sub")
-						.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2Fid1%2Fsub")).build()));
+						.withRef(URI.create("https://localhost:2443/scim/Groups/%2Fscim%2Fid1%2Fsub")).build());
 
 		mappedGroup = mappedGroups.resources.stream().filter(g -> g.id.equals("/scim/id2")).findAny().get();
-		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
-				is("https://localhost:2443/scim/Groups/%2Fscim%2Fid2"));
-		assertThat(mappedGroup.id, is("/scim/id2"));
-		assertThat(mappedGroup.members.size(), is(0));
+		assertThat(mappedGroup.meta.location.toURL().toExternalForm()).isEqualTo("https://localhost:2443/scim/Groups/%2Fscim%2Fid2");
+		assertThat(mappedGroup.id).isEqualTo("/scim/id2");
+		assertThat(mappedGroup.members.size()).isEqualTo(0);
 
 	}
 
@@ -113,10 +111,10 @@ public class GroupAssemblyServiceTest
 		GroupData groupData = GroupData.builder().withDisplayName("name1").withId("/scim/id").build();
 		SCIMGroupResource mappedGroup = groupAssemblyService.mapToGroupResource(groupData);
 
-		assertThat(mappedGroup.meta.resourceType.toString(), is("Group"));
-		assertThat(mappedGroup.meta.location.toURL().toExternalForm(),
-				is("https://localhost:2443/scim/Groups/%2Fscim%2Fid"));
-		assertThat(mappedGroup.id, is("/scim/id"));
-		assertThat(mappedGroup.members.size(), is(0));
+		assertThat(mappedGroup.meta.resourceType.toString()).isEqualTo("Group");
+		assertThat(mappedGroup.meta.location.toURL().toExternalForm()).
+				isEqualTo("https://localhost:2443/scim/Groups/%2Fscim%2Fid");
+		assertThat(mappedGroup.id).isEqualTo("/scim/id");
+		assertThat(mappedGroup.members.size()).isEqualTo(0);
 	}
 }

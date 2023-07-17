@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.imunity.rest.api.types.basic.RestAttributeStatement;
 import io.imunity.rest.api.types.basic.RestGroup;

@@ -4,11 +4,10 @@
  */
 package pl.edu.icm.unity.ldap;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static pl.edu.icm.unity.ldap.client.config.LdapProperties.ADV_SEARCH_ATTRIBUTES;
 import static pl.edu.icm.unity.ldap.client.config.LdapProperties.ADV_SEARCH_BASE;
 import static pl.edu.icm.unity.ldap.client.config.LdapProperties.ADV_SEARCH_FILTER;
@@ -42,10 +41,10 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -73,7 +72,7 @@ public class LdapTest
 	
 	private static PKIManagement pkiManagement;
 	
-	@BeforeClass
+	@BeforeAll
 	public static void startEmbeddedServer() throws Exception
 	{
 		KeystoreCredential credential = new KeystoreCredential("src/test/resources/pki/demo-localhost.p12", 
@@ -88,7 +87,7 @@ public class LdapTest
 		pkiManagement = embeddedDirectoryServer.getPKIManagement4Client();
 	}
 	
-	@AfterClass
+	@AfterAll
 	public static void shutdown()
 	{
 		ds.shutDown(true);
@@ -245,7 +244,7 @@ public class LdapTest
 	 * For unknown reason the inmemory unboundID server doesn't handle startTLS correctly.
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	public void testStartTls() throws Exception
 	{
 		Properties p = new Properties();
@@ -642,7 +641,7 @@ public class LdapTest
 	{
 		String extracted = LdapUtils.extractUsername("CN=myId,CN=b,O=foo", Pattern.compile("CN=([^,]+),CN=.*"));
 		
-		assertThat(extracted, is("myId"));
+		assertThat(extracted).isEqualTo("myId");
 	}
 }
 

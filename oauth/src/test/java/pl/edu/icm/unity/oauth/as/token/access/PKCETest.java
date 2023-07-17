@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.token.access;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.net.URI;
@@ -13,7 +13,8 @@ import java.util.Locale;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.google.common.collect.Lists;
@@ -117,27 +118,28 @@ public class PKCETest
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void shouldFailToAcceptTooShortChallenge() throws Exception
 	{
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		setupInvocationContext();
 		String verifier = "TOOSHORT";
-		createContext(config, new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode, 100,
-				verifier, CodeChallengeMethod.S256);
+		Assertions.assertThrows(IllegalArgumentException.class,
+				() -> createContext(config, new ResponseType(ResponseType.Value.CODE), GrantFlow.authorizationCode, 100,
+						verifier, CodeChallengeMethod.S256));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void shouldFailToAcceptTooLongChallenge() throws Exception
 	{
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		setupInvocationContext();
 		String verifier = "TOOLONG________________________________________________________________________"
 				+ "__________________________________________________";
-		createContext(config, new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode, 100,
-				verifier, CodeChallengeMethod.S256);
+
+		Assertions.assertThrows(IllegalArgumentException.class,
+				() -> createContext(config, new ResponseType(ResponseType.Value.CODE), GrantFlow.authorizationCode, 100,
+						verifier, CodeChallengeMethod.S256));
 	}
 
 	@Test

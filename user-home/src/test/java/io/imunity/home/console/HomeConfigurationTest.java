@@ -13,7 +13,7 @@ import static pl.edu.icm.unity.configtester.ConfigurationComparator.createCompar
 import java.util.Arrays;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;

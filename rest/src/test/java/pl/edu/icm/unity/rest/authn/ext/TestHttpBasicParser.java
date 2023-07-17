@@ -4,15 +4,14 @@
  */
 package pl.edu.icm.unity.rest.authn.ext;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jose.util.Base64;
 
@@ -30,8 +29,8 @@ public class TestHttpBasicParser
 		
 		HTTPAuthNTokens tokens = HttpBasicParser.getHTTPCredentials(authorizationHeader, log, true);
 		
-		assertThat(tokens.getUserName(), is(":some user"));
-		assertThat(tokens.getPasswd(), is("p @#$%^&*()-=,."));
+		assertThat(tokens.getUserName()).isEqualTo(":some user");
+		assertThat(tokens.getPasswd()).isEqualTo("p @#$%^&*()-=,.");
 	}
 
 	@Test
@@ -41,8 +40,8 @@ public class TestHttpBasicParser
 		
 		HTTPAuthNTokens tokens = HttpBasicParser.getHTTPCredentials(authorizationHeader, log, false);
 		
-		assertThat(tokens.getUserName(), is("some user"));
-		assertThat(tokens.getPasswd(), is(":p "));
+		assertThat(tokens.getUserName()).isEqualTo("some user");
+		assertThat(tokens.getPasswd()).isEqualTo(":p ");
 	}
 
 	@Test
@@ -52,8 +51,8 @@ public class TestHttpBasicParser
 		
 		HTTPAuthNTokens tokens = HttpBasicParser.getHTTPCredentials(authorizationHeader, log, false);
 		
-		assertThat(tokens.getUserName(), is("some user"));
-		assertThat(tokens.getPasswd(), is(nullValue()));
+		assertThat(tokens.getUserName()).isEqualTo("some user");
+		assertThat(tokens.getPasswd()).isNull();
 	}
 
 	@Test
@@ -63,8 +62,8 @@ public class TestHttpBasicParser
 		
 		HTTPAuthNTokens tokens = HttpBasicParser.getHTTPCredentials(authorizationHeader, log, false);
 		
-		assertThat(tokens.getUserName(), is("some user"));
-		assertThat(tokens.getPasswd(), is(""));
+		assertThat(tokens.getUserName()).isEqualTo("some user");
+		assertThat(tokens.getPasswd()).isEqualTo("");
 	}
 
 	private String toHeaderWithUrlEnc(String username, String pass) throws UnsupportedEncodingException

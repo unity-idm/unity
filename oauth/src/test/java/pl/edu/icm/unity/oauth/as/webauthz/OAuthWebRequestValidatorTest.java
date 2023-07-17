@@ -26,7 +26,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.assertj.core.util.Maps;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;

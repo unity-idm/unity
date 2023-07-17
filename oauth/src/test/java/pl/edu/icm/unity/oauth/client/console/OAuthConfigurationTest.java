@@ -14,7 +14,7 @@ import static pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.P;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

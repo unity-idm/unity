@@ -5,15 +5,14 @@
 
 package pl.edu.icm.unity.oauth.as.token.access;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.client.ClientType;
@@ -54,9 +53,8 @@ public class OAuthRefreshTokenRepositoryTest
 		OAuthRefreshTokenRepository rep = new OAuthRefreshTokenRepository(tokensManagement, null);
 		rep.removeRefreshToken("ref", token, 0);
 
-		assertThat(tokensManagement.getAllTokens(OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN).size(), is(0));
-		assertThat(tokensManagement.getAllTokens(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN).size(),
-				is(0));
+		assertThat(tokensManagement.getAllTokens(OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN)).isEmpty();
+		assertThat(tokensManagement.getAllTokens(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN)).isEmpty();
 	}
 
 	@Test
@@ -74,7 +72,7 @@ public class OAuthRefreshTokenRepositoryTest
 
 		Optional<RefreshToken> refreshToken = rep.rotateRefreshTokenIfNeeded(config, null, oAuthToken, null, null);
 
-		assertThat(refreshToken.isEmpty(), is(true));
+		assertThat(refreshToken.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -91,7 +89,7 @@ public class OAuthRefreshTokenRepositoryTest
 
 		Optional<RefreshToken> refreshToken = rep.rotateRefreshTokenIfNeeded(config, null, oAuthToken, null, null);
 
-		assertThat(refreshToken.isEmpty(), is(true));
+		assertThat(refreshToken.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -107,7 +105,7 @@ public class OAuthRefreshTokenRepositoryTest
 
 		Optional<RefreshToken> refreshToken = rep.rotateRefreshTokenIfNeeded(config, null, oAuthToken, null, null);
 
-		assertThat(refreshToken.isEmpty(), is(true));
+		assertThat(refreshToken.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -131,6 +129,6 @@ public class OAuthRefreshTokenRepositoryTest
 		{ "scope1" });
 		Optional<RefreshToken> refreshToken = rep.rotateRefreshTokenIfNeeded(config, new Date(), oAuthToken, oldRefresh,
 				1L);
-		assertThat(refreshToken.isEmpty(), is(false));
+		assertThat(refreshToken.isEmpty()).isFalse();
 	}
 }

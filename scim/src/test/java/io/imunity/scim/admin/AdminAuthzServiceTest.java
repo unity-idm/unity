@@ -5,17 +5,17 @@
 
 package io.imunity.scim.admin;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.config.SCIMEndpointDescription;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -24,10 +24,10 @@ import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AdminAuthzServiceTest
 {
 	@Mock

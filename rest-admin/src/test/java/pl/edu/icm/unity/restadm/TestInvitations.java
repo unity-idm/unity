@@ -4,10 +4,8 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.UnsupportedEncodingException;
 import java.time.Instant;
@@ -25,8 +23,8 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -59,7 +57,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
  */
 public class TestInvitations extends RESTAdminTestBase
 {
-	@Before
+	@BeforeEach
 	public void addForm() throws EngineException
 	{
 		aTypeMan.addAttributeType(new AttributeType("cn", StringAttributeSyntax.ID));
@@ -75,8 +73,8 @@ public class TestInvitations extends RESTAdminTestBase
 		String contentsGet = executeQuery(get);
 		System.out.println("Response:\n" + contentsGet);
 		RestInvitationWithCode returned = m.readValue(contentsGet, RestInvitationWithCode.class);
-		assertThat(returned.registrationCode, is(code));
-		assertThat(returned.invitation, is(invitation));
+		assertThat(returned.registrationCode).isEqualTo(code);
+		assertThat(returned.invitation).isEqualTo(invitation);
 	}
 
 	@Test
@@ -91,11 +89,11 @@ public class TestInvitations extends RESTAdminTestBase
 		List<RestInvitationWithCode> returned = m.readValue(contentsGet, new TypeReference<List<RestInvitationWithCode>>()
 		{
 		});
-		assertThat(returned.size(), is(1));
+		assertThat(returned.size()).isEqualTo(1);
 		assertThat(returned.get(0)
-				.registrationCode, is(code));
+				.registrationCode).isEqualTo(code);
 		assertThat(returned.get(0)
-				.invitation, is(invitation));
+				.invitation).isEqualTo(invitation);
 	}
 
 	@Test
@@ -115,7 +113,7 @@ public class TestInvitations extends RESTAdminTestBase
 		List<RestInvitationWithCode> returned = m.readValue(contentsGet, new TypeReference<List<RestInvitationWithCode>>()
 		{
 		});
-		assertThat(returned.isEmpty(), is(true));
+		assertThat(returned.isEmpty()).isEqualTo(true);
 	}
 
 	@Test
@@ -142,8 +140,8 @@ public class TestInvitations extends RESTAdminTestBase
 		System.out.println("Response:\n" + contentsGet);
 		RestInvitationWithCode returned = m.readValue(contentsGet, RestInvitationWithCode.class);
 
-		assertThat(returned.numberOfSends, is(1));
-		assertThat(returned.lastSentTime, is(notNullValue()));
+		assertThat(returned.numberOfSends).isEqualTo(1);
+		assertThat(returned.lastSentTime).isNotNull();
 	}
 
 	private String addInvitation(RestInvitationParam invitation) throws Exception

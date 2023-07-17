@@ -12,8 +12,8 @@ import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -45,7 +45,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 {
@@ -61,7 +61,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	@Autowired
 	private MessageSource msg;
 
-	@Before
+	@BeforeEach
 	public void reset()
 	{
 		metadataService.reset();

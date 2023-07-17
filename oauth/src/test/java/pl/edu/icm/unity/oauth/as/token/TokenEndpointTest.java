@@ -4,17 +4,15 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.URI;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -59,7 +57,7 @@ import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
  */
 public class TokenEndpointTest extends TokenTestBase
 {
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
@@ -88,9 +86,9 @@ public class TokenEndpointTest extends TokenTestBase
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
 		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
 		
-		assertThat((int)bearerToken.getLifetime(), is(OAuthTestUtils.DEFAULT_ACCESS_TOKEN_VALIDITY));
-		assertThat(bearerToken.getScope(), is(new Scope("sc1")));
-		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
+		assertThat((int)bearerToken.getLifetime()).isEqualTo(OAuthTestUtils.DEFAULT_ACCESS_TOKEN_VALIDITY);
+		assertThat(bearerToken.getScope()).isEqualTo(new Scope("sc1"));
+		assertThat(bearerToken.getType()).isEqualTo(AccessTokenType.BEARER);
 	}
 	
 	
@@ -128,9 +126,9 @@ public class TokenEndpointTest extends TokenTestBase
 		UserInfo ui = uiResponseS.getUserInfo();
 		JWTClaimsSet claimSet = ui.toJWTClaimsSet();
 
-		Assert.assertEquals("PL", claimSet.getClaim("c"));
-		Assert.assertEquals("example@example.com", claimSet.getClaim("email"));
-		Assert.assertEquals("userA", claimSet.getClaim("sub"));
+		assertEquals("PL", claimSet.getClaim("c"));
+		assertEquals("example@example.com", claimSet.getClaim("email"));
+		assertEquals("userA", claimSet.getClaim("sub"));
 	}
 
 	@Test
@@ -155,7 +153,7 @@ public class TokenEndpointTest extends TokenTestBase
 
 		OIDCTokenResponse parsedResp = OIDCTokenResponse.parse(resp2);
 		JWTClaimsSet claimSet = parsedResp.getOIDCTokens().getIDToken().getJWTClaimsSet();
-		assertThat(claimSet.getClaim("nonce"), is("nonce-VAL"));
+		assertThat(claimSet.getClaim("nonce")).isEqualTo("nonce-VAL");
 	}
 
 	@Test
@@ -175,9 +173,9 @@ public class TokenEndpointTest extends TokenTestBase
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
 		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
 		
-		assertThat(bearerToken.getLifetime(), is(3600l));
-		assertThat(bearerToken.getScope(), is(new Scope("foo")));
-		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
+		assertThat(bearerToken.getLifetime()).isEqualTo(3600l);
+		assertThat(bearerToken.getScope()).isEqualTo(new Scope("foo"));
+		assertThat(bearerToken.getType()).isEqualTo(AccessTokenType.BEARER);
 	}
 
 	
@@ -221,8 +219,8 @@ public class TokenEndpointTest extends TokenTestBase
 
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
 		AccessToken accessToken = parsedResp.getTokens().getAccessToken();
-		assertThat(accessToken.getScope(), is(notNullValue()));
-		assertThat(accessToken.getScope().contains("foo"), is(true));
-		assertThat(accessToken.getScope().size(), is(1));
+		assertThat(accessToken.getScope()).isNotNull();
+		assertThat(accessToken.getScope().contains("foo")).isEqualTo(true);
+		assertThat(accessToken.getScope().size()).isEqualTo(1);
 	}
 }

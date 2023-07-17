@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.xmlbeans.XmlException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.samly2.SAMLUtils;
 import eu.unicore.samly2.messages.XMLExpandedMessage;

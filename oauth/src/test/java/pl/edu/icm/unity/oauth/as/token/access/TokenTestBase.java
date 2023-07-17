@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.token.access;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -180,7 +179,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth",
 					config);
 			List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
-			assertThat(endpoints.size(), is(1));
+			assertThat(endpoints).hasSize(1);
 
 			httpServer.start();
 		} catch (Exception e)

@@ -6,12 +6,10 @@ package pl.edu.icm.unity.stdext.attr;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -67,7 +65,7 @@ public class TestNumericAttribute
 		long before = 123123123123L;
 		String s = ias.convertToString(before);
 		long after = ias.convertFromString(s);
-		assertEquals(before, after);
+		assertThat(before).isEqualTo(after);
 	}
 	
 	@Test
@@ -75,8 +73,8 @@ public class TestNumericAttribute
 	{
 		IntegerAttributeSyntax ias = new IntegerAttributeSyntax();
 		
-		assertTrue(ias.areEqual(1234L, 1234l));
-		assertFalse(ias.areEqual(1235L, 1234l));
+		assertThat(ias.areEqual(1234L, 1234l)).isTrue();
+		assertThat(ias.areEqual(1235L, 1234l)).isFalse();
 	}
 	
 	@Test
@@ -90,8 +88,8 @@ public class TestNumericAttribute
 		IntegerAttributeSyntax ias2 = new IntegerAttributeSyntax();
 		ias2.setSerializedConfiguration(cfg);
 		
-		assertEquals(ias2.getMax(), 12);
-		assertEquals(ias2.getMin(), -33);
+		assertThat(ias2.getMax()).isEqualTo(12);
+		assertThat(ias2.getMin()).isEqualTo(-33);
 	}
 
 	@Test
@@ -121,8 +119,8 @@ public class TestNumericAttribute
 		double after = ias.convertFromString(s);
 		assertEquals(before, after, 0.01);
 
-		assertTrue(ias.areEqual(1234.3, Double.valueOf(1234.3)));
-		assertFalse(ias.areEqual(1235.4, Double.valueOf(1234.3d)));
+		assertThat(ias.areEqual(1234.3, Double.valueOf(1234.3))).isTrue();
+		assertThat(ias.areEqual(1235.4, Double.valueOf(1234.3d))).isFalse();
 		
 		JsonNode cfg = ias.getSerializedConfiguration();
 		

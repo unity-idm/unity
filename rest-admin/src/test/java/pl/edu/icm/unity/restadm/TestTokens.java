@@ -5,9 +5,7 @@
 
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Date;
 import java.util.List;
@@ -20,8 +18,8 @@ import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -44,7 +42,7 @@ public class TestTokens extends RESTAdminTestBase
 	@Autowired
 	TokensManagement tokenMan;
 
-	@Before
+	@BeforeEach
 	public void addTokens() throws Exception
 	{
 		Identity id1 = createUsernameUser("u1", InternalAuthorizationManagerImpl.USER_ROLE,
@@ -70,8 +68,8 @@ public class TestTokens extends RESTAdminTestBase
 	{
 		List<JsonNode> tokens = getTokensFromRESTAPI(getClientContext(host), "type1");
 		
-		assertThat(tokens.size(), is(3));
-		assertThat(tokens.get(0).get("type").asText(), is("type1"));
+		assertThat(tokens).hasSize(3);
+		assertThat(tokens.get(0).get("type").asText()).isEqualTo("type1");
 	}
 	
 	@Test
@@ -85,9 +83,9 @@ public class TestTokens extends RESTAdminTestBase
 				});
 		
 		Set<String> types = returned.stream().map(s -> s.get("type").asText()).collect(Collectors.toSet());
-		assertThat(types, hasItem("type1"));
-		assertThat(types, hasItem("type2"));
-		assertThat(types, hasItem("session"));
+		assertThat(types).contains("type1");
+		assertThat(types).contains("type2");
+		assertThat(types).contains("session");
 	}
 	
 	@Test
@@ -111,7 +109,7 @@ public class TestTokens extends RESTAdminTestBase
 				.get();
 
 		assertThat(jsonToken.get("contents")
-				.get("realm").asText(), is("realmv"));
+				.get("realm").asText()).isEqualTo("realmv");
 
 	}
 	
@@ -128,12 +126,12 @@ public class TestTokens extends RESTAdminTestBase
 	{
 		HttpClientContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
 		List<JsonNode> tokens = getTokensFromRESTAPI(u1, "type1");
-		assertThat(tokens.size(), is(1));
+		assertThat(tokens.size()).isEqualTo(1);
 		HttpClientContext u2 = getClientContext(host, "u2", DEF_PASSWORD);
 		tokens = getTokensFromRESTAPI(u2, "type1");
-		assertThat(tokens.size(), is(2));
+		assertThat(tokens.size()).isEqualTo(2);
 		tokens = getTokensFromRESTAPI(u2, "type2");
-		assertThat(tokens.size(), is(1));
+		assertThat(tokens.size()).isEqualTo(1);
 	}
 	
 	@Test
@@ -141,10 +139,10 @@ public class TestTokens extends RESTAdminTestBase
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v4");
 		try(ClassicHttpResponse response = client.executeOpen(host, del, getClientContext(host, "u2", DEF_PASSWORD))){
-			assertThat(Status.NO_CONTENT.getStatusCode(), is(response.getCode()));
+			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 		List<JsonNode> tokens = getTokensFromRESTAPI(getClientContext(host, "u2", DEF_PASSWORD), "type2");
-		assertThat(tokens.size(), is(0));
+		assertThat(tokens.size()).isEqualTo(0);
 	}
 
 	@Test
@@ -153,7 +151,7 @@ public class TestTokens extends RESTAdminTestBase
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v4");
 		HttpClientContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
 		try(ClassicHttpResponse response = client.executeOpen(host, del, u1)){
-			assertThat(response.getCode(), is(Status.BAD_REQUEST.getStatusCode()));
+			assertThat(response.getCode()).isEqualTo(Status.BAD_REQUEST.getStatusCode());
 		}
 	}
 	
@@ -162,7 +160,7 @@ public class TestTokens extends RESTAdminTestBase
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v5");
 		try(ClassicHttpResponse response = client.executeOpen(host, del, getClientContext(host))){
-			assertThat(response.getCode(), is(Status.BAD_REQUEST.getStatusCode()));
+			assertThat(response.getCode()).isEqualTo(Status.BAD_REQUEST.getStatusCode());
 		}
 	}
 

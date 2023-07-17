@@ -4,12 +4,11 @@
  */
 package pl.edu.icm.unity.stdext.credential.pass;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.ForkJoinPool;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ScrytpEncoderTest
 {
@@ -20,7 +19,7 @@ public class ScrytpEncoderTest
 		
 		int maxAllowedWorkFactor = encoder.getMaxAllowedWorkFactor();
 		
-		assertThat(maxAllowedWorkFactor, is(18));
+		assertThat(maxAllowedWorkFactor).isEqualTo(18);
 	}
 
 	@Test
@@ -30,7 +29,7 @@ public class ScrytpEncoderTest
 		
 		int maxAllowedWorkFactor = encoder.getMaxAllowedWorkFactor();
 		
-		assertThat(maxAllowedWorkFactor, is(20));
+		assertThat(maxAllowedWorkFactor).isEqualTo(20);
 	}
 
 
@@ -41,7 +40,7 @@ public class ScrytpEncoderTest
 		
 		int maxAllowedWorkFactor = encoder.getMaxAllowedWorkFactor();
 		
-		assertThat(maxAllowedWorkFactor, is(19));
+		assertThat(maxAllowedWorkFactor).isEqualTo(19);
 	}
 
 	@Test
@@ -51,7 +50,7 @@ public class ScrytpEncoderTest
 		
 		int maxAllowedWorkFactor = encoder.getMaxAllowedWorkFactor();
 		
-		assertThat(maxAllowedWorkFactor, is(21));
+		assertThat(maxAllowedWorkFactor).isEqualTo(21);
 	}
 
 	
@@ -62,6 +61,6 @@ public class ScrytpEncoderTest
 		
 		int maxAllowedWorkFactor = encoder.getMaxAllowedWorkFactor();
 		
-		assertThat(maxAllowedWorkFactor, is(ScryptParams.MIN_WORK_FACTOR));
+		assertThat(maxAllowedWorkFactor).isEqualTo(ScryptParams.MIN_WORK_FACTOR);
 	}
 }

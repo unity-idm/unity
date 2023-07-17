@@ -7,7 +7,7 @@ package pl.edu.icm.unity.saml.idp.processor;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.attribute.Attribute;

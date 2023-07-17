@@ -5,10 +5,10 @@
 package pl.edu.icm.unity.webui.console.services.authnlayout;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.META;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
@@ -16,8 +16,8 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -36,7 +36,7 @@ public class TestServiceWebConfiguration
 	private ImageAccessService imageAccessSrv = mock(ImageAccessService.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		when(imageAccessSrv.getEditableImageResourceFromUri(eq("file:../common/img/other/logo.pngfoo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource("file:../common/img/other/logo.pngfoo")));

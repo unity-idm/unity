@@ -4,18 +4,16 @@
  */
 package pl.edu.icm.unity.saml.idp.ws;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
@@ -311,6 +309,6 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan, 
 				missing);
 		
-		assertThat(preferences, is(notNullValue()));
+		assertThat(preferences).isNotNull();
 	}
 }

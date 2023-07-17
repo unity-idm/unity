@@ -11,7 +11,7 @@ import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.proto.AuthnRequest;
 import eu.unicore.samly2.trust.EnumeratedTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
 
 import java.time.Duration;

@@ -5,9 +5,9 @@
 
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.Times;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
@@ -41,7 +41,7 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OAuthParseServletTest
 {
 	@Mock
@@ -55,7 +55,7 @@ public class OAuthParseServletTest
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		OAuthWebRequestValidator validator = Mockito.mock(OAuthWebRequestValidator.class);
 		HttpSession session = Mockito.mock(HttpSession.class);
-		when(config.isLocaleSupported(new Locale("pl", "PL"))).thenReturn(true);
+		lenient().when(config.isLocaleSupported(new Locale("pl", "PL"))).thenReturn(true);
 		when(request.getSession()).thenReturn(session);
 		when(request.getQueryString())
 				.thenReturn(new AuthenticationRequest.Builder(new URI("requested"), new ClientID(new Identifier("x")))
@@ -68,7 +68,7 @@ public class OAuthParseServletTest
 
 		ArgumentCaptor<Cookie> cookieArgument = ArgumentCaptor.forClass(Cookie.class);
 		verify(response).addCookie(cookieArgument.capture());
-		assertThat(cookieArgument.getValue().getValue(), is("pl_PL"));
+		assertThat(cookieArgument.getValue().getValue()).isEqualTo("pl_PL");
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class OAuthParseServletTest
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		OAuthWebRequestValidator validator = Mockito.mock(OAuthWebRequestValidator.class);
 		HttpSession session = Mockito.mock(HttpSession.class);
-		when(config.isLocaleSupported(new Locale("pl"))).thenReturn(true);
+		lenient().when(config.isLocaleSupported(new Locale("pl"))).thenReturn(true);
 		when(request.getSession()).thenReturn(session);
 		when(request.getQueryString())
 				.thenReturn(new AuthenticationRequest.Builder(new URI("requested"), new ClientID(new Identifier("x")))
@@ -92,7 +92,7 @@ public class OAuthParseServletTest
 
 		ArgumentCaptor<Cookie> cookieArgument = ArgumentCaptor.forClass(Cookie.class);
 		verify(response).addCookie(cookieArgument.capture());
-		assertThat(cookieArgument.getValue().getValue(), is("pl"));
+		assertThat(cookieArgument.getValue().getValue()).isEqualTo("pl");
 	}
 
 	@Test

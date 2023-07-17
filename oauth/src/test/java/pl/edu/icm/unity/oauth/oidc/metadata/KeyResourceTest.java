@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.oauth.oidc.metadata;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -12,8 +13,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.text.ParseException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -48,7 +48,7 @@ public class KeyResourceTest
 		KeyResource keyResource = new KeyResource(reqFactory);
 		JWKSet jwkSet = keyResource.getJWKSet(request);
 
-		Assert.assertEquals(false, jwkSet.getKeys()
+		assertEquals(false, jwkSet.getKeys()
 				.isEmpty());
 	}
 }

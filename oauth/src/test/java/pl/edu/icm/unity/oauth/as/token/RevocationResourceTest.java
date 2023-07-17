@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -19,8 +18,8 @@ import java.util.Locale;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
@@ -43,7 +42,7 @@ public class RevocationResourceTest
 	private static final long CLIENT_ENTITY_ID = 123l;
 	private static final String CLIENT_ID = "clientId";
 
-	@After
+	@AfterEach
 	public void cleanup()
 	{
 		InvocationContext.setCurrent(null);
@@ -60,8 +59,8 @@ public class RevocationResourceTest
 		
 		Response response = tested.revoke("ac", "clientIdOther", RevocationResource.TOKEN_TYPE_ACCESS, null);
 		
-		assertThat(response.getStatus(), is(HTTPResponse.SC_UNAUTHORIZED));
-		assertThat(response.readEntity(String.class), containsString("invalid_client"));
+		assertThat(response.getStatus()).isEqualTo(HTTPResponse.SC_UNAUTHORIZED);
+		assertThat(response.readEntity(String.class)).containsSequence("invalid_client");
 	}
 	
 	@Test
@@ -75,8 +74,8 @@ public class RevocationResourceTest
 		
 		Response response = tested.revoke("wrong", CLIENT_ID, RevocationResource.TOKEN_TYPE_ACCESS, null);
 		
-		assertThat(response.getStatus(), is(HTTPResponse.SC_OK));
-		assertThat(response.hasEntity(), is(false));
+		assertThat(response.getStatus()).isEqualTo(HTTPResponse.SC_OK);
+		assertThat(response.hasEntity()).isEqualTo(false);
 	}
 	
 	@Test
@@ -90,8 +89,8 @@ public class RevocationResourceTest
 		
 		Response response = tested.revoke(null, CLIENT_ID, RevocationResource.TOKEN_TYPE_ACCESS, null);
 		
-		assertThat(response.getStatus(), is(HTTPResponse.SC_BAD_REQUEST));
-		assertThat(response.readEntity(String.class), containsString("invalid_request"));
+		assertThat(response.getStatus()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
+		assertThat(response.readEntity(String.class)).containsSequence("invalid_request");
 	}
 	
 	@Test
@@ -106,9 +105,9 @@ public class RevocationResourceTest
 		
 		Response response = tested.revoke("ac", CLIENT_ID, RevocationResource.TOKEN_TYPE_ACCESS, null);
 		
-		assertThat(response.getStatus(), is(HTTPResponse.SC_OK));
-		assertThat(response.hasEntity(), is(false));
-		assertThat(tokensManagement.getAllTokens(INTERNAL_ACCESS_TOKEN).size(), is(0));
+		assertThat(response.getStatus()).isEqualTo(HTTPResponse.SC_OK);
+		assertThat(response.hasEntity()).isEqualTo(false);
+		assertThat(tokensManagement.getAllTokens(INTERNAL_ACCESS_TOKEN).size()).isEqualTo(0);
 	}
 
 	@Test
@@ -124,10 +123,10 @@ public class RevocationResourceTest
 		
 		Response response = tested.revoke("ref", CLIENT_ID, RevocationResource.TOKEN_TYPE_REFRESH, null);
 		
-		assertThat(response.getStatus(), is(HTTPResponse.SC_OK));
-		assertThat(response.hasEntity(), is(false));
+		assertThat(response.getStatus()).isEqualTo(HTTPResponse.SC_OK);
+		assertThat(response.hasEntity()).isEqualTo(false);
 
-		assertThat(tokensManagement.getAllTokens(OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN).size(), is(0));
+		assertThat(tokensManagement.getAllTokens(OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN).size()).isEqualTo(0);
 	}
 
 	
@@ -148,8 +147,8 @@ public class RevocationResourceTest
 		
 		Response response = tested.revoke("ac", CLIENT_ID, RevocationResource.TOKEN_TYPE_ACCESS, "true");
 		
-		assertThat(response.getStatus(), is(HTTPResponse.SC_BAD_REQUEST));
-		assertThat(response.readEntity(String.class), containsString("invalid_scope"));
+		assertThat(response.getStatus()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
+		assertThat(response.readEntity(String.class)).containsSequence("invalid_scope");
 		verifyZeroInteractions(sessionManagement);
 	}
 
@@ -170,8 +169,8 @@ public class RevocationResourceTest
 		
 		Response response = tested.revoke("ac", CLIENT_ID, RevocationResource.TOKEN_TYPE_ACCESS, "true");
 
-		assertThat(response.getStatus(), is(HTTPResponse.SC_OK));
-		assertThat(response.hasEntity(), is(false));
+		assertThat(response.getStatus()).isEqualTo(HTTPResponse.SC_OK);
+		assertThat(response.hasEntity()).isEqualTo(false);
 		verify(sessionManagement).removeSession("111", true);
 	}
 	

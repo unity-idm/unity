@@ -4,15 +4,12 @@
  */
 package pl.edu.icm.unity.oauth.rp.verificator;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.oauth2.sdk.Scope;
 
@@ -28,7 +25,7 @@ public class ResultCacheTest
 		cache.cache("id", new TokenStatus(true, new Date(System.currentTimeMillis() + 10000), 
 				Scope.parse("email"), "subject"), mock(AttributeFetchResult.class));
 		
-		assertThat(cache.getCached("id"), is(nullValue()));
+		assertThat(cache.getCached("id")).isNull();
 	}
 
 
@@ -40,7 +37,7 @@ public class ResultCacheTest
 		cache.cache("id", new TokenStatus(true, new Date(System.currentTimeMillis() - 10000), 
 				Scope.parse("email"), "subject"), mock(AttributeFetchResult.class));
 		
-		assertThat(cache.getCached("id"), is(nullValue()));
+		assertThat(cache.getCached("id")).isNull();
 	}
 
 	@Test
@@ -53,8 +50,8 @@ public class ResultCacheTest
 		
 		cache.cache("id", status, mock(AttributeFetchResult.class));
 		
-		assertThat(cache.getCached("id"), is(notNullValue()));
-		assertThat(cache.getCached("id").getTokenStatus(), is(status));
+		assertThat(cache.getCached("id")).isNotNull();
+		assertThat(cache.getCached("id").getTokenStatus()).isEqualTo(status);
 	}
 
 	@Test
@@ -67,8 +64,8 @@ public class ResultCacheTest
 		
 		cache.cache("id", status, mock(AttributeFetchResult.class));
 		
-		assertThat(cache.getCached("id"), is(notNullValue()));
-		assertThat(cache.getCached("id").getTokenStatus(), is(status));
+		assertThat(cache.getCached("id")).isNotNull();
+		assertThat(cache.getCached("id").getTokenStatus()).isEqualTo(status);
 	}
 
 	@Test
@@ -79,7 +76,7 @@ public class ResultCacheTest
 		cache.cache("id", new TokenStatus(true, new Date(System.currentTimeMillis() - 10000), 
 				Scope.parse("email"), "subject"), mock(AttributeFetchResult.class));
 		
-		assertThat(cache.getCached("id"), is(nullValue()));
+		assertThat(cache.getCached("id")).isNull();
 	}
 	
 }

@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN;
 
@@ -14,7 +13,7 @@ import java.util.Date;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
@@ -84,7 +83,7 @@ public class UserInfoResourceTest
 		tested.getToken(token);
 		Token tokenAfter = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
 		
-		assertThat(initialExpiry.before(tokenAfter.getExpires()), is(true));
+		assertThat(initialExpiry.before(tokenAfter.getExpires())).isTrue();
 	}
 
 	@Test
@@ -106,8 +105,8 @@ public class UserInfoResourceTest
 		tested.getToken(token);
 		Token tokenAfter = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
 		
-		assertThat(initialExpiry.before(tokenAfter.getExpires()), is(true));
-		assertThat(tokenAfter.getExpires().getTime(), is(tokenAfter.getCreated().getTime() + 101000));
+		assertThat(initialExpiry.before(tokenAfter.getExpires())).isTrue();
+		assertThat(tokenAfter.getExpires().getTime()).isEqualTo(tokenAfter.getCreated().getTime() + 101000);
 	}
 	
 	@Test
@@ -128,7 +127,7 @@ public class UserInfoResourceTest
 		tested.getToken(token);
 		Token tokenAfter = tokensManagement.getTokenById(INTERNAL_ACCESS_TOKEN, respInit.getAccessToken().getValue());
 		
-		assertThat(initialExpiry.getTime(), is(tokenAfter.getExpires().getTime()));
+		assertThat(initialExpiry.getTime()).isEqualTo(tokenAfter.getExpires().getTime());
 	}
 	
 	private UserInfoResource createUserInfoResource(TokensManagement tokensManagement)

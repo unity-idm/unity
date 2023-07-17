@@ -5,8 +5,7 @@
 
 package io.imunity.attr.introspection.summary;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -15,10 +14,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import io.imunity.attr.introspection.config.AttributePolicy;
@@ -27,7 +26,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestAttributePolicyProcessor
 {
 
@@ -39,7 +38,7 @@ public class TestAttributePolicyProcessor
 	{
 		AttributePolicyProcessor processor = new AttributePolicyProcessor(getConfig(), idpGroupResolver);
 		PolicyProcessingResult result = processor.applyPolicyForRemoteUser(getRemotelyAuthenticatedInput("idp"));
-		assertThat(result.policy.name.get(), is("Policy2"));
+		assertThat(result.policy.name.get()).isEqualTo("Policy2");
 	}
 
 	@Test
@@ -48,7 +47,7 @@ public class TestAttributePolicyProcessor
 		AttributePolicyProcessor processor = new AttributePolicyProcessor(getConfig(), idpGroupResolver);
 		when(idpGroupResolver.resolveGroupForIdp(eq("idp1"))).thenReturn(Optional.of("federation2"));
 		PolicyProcessingResult result = processor.applyPolicyForRemoteUser(getRemotelyAuthenticatedInput("idp1"));
-		assertThat(result.policy.name.get(), is("Policy3"));
+		assertThat(result.policy.name.get()).isEqualTo("Policy3");
 	}
 
 	@Test
@@ -56,10 +55,10 @@ public class TestAttributePolicyProcessor
 	{
 		AttributePolicyProcessor processor = new AttributePolicyProcessor(getConfig(), idpGroupResolver);
 		PolicyProcessingResult result = processor.applyPolicyForRemoteUser(getRemotelyAuthenticatedInput("idp5"));
-		assertThat(result.policy.name.get(), is("Policy5"));
-		assertThat(result.missingMandatory.size(), is(2));
-		assertThat(result.missingMandatory.get(0).name, is("manAttr2"));
-		assertThat(result.missingMandatory.get(1).name, is("manAttr3"));
+		assertThat(result.policy.name.get()).isEqualTo("Policy5");
+		assertThat(result.missingMandatory.size()).isEqualTo(2);
+		assertThat(result.missingMandatory.get(0).name).isEqualTo("manAttr2");
+		assertThat(result.missingMandatory.get(1).name).isEqualTo("manAttr3");
 	}
 
 	@Test
@@ -67,10 +66,10 @@ public class TestAttributePolicyProcessor
 	{
 		AttributePolicyProcessor processor = new AttributePolicyProcessor(getConfig(), idpGroupResolver);
 		PolicyProcessingResult result = processor.applyPolicyForRemoteUser(getRemotelyAuthenticatedInput("idp6"));
-		assertThat(result.policy.name.get(), is("Policy6"));
-		assertThat(result.missingOptional.size(), is(2));
-		assertThat(result.missingOptional.get(0).name, is("optAttr1"));
-		assertThat(result.missingOptional.get(1).name, is("optAttr2"));
+		assertThat(result.policy.name.get()).isEqualTo("Policy6");
+		assertThat(result.missingOptional.size()).isEqualTo(2);
+		assertThat(result.missingOptional.get(0).name).isEqualTo("optAttr1");
+		assertThat(result.missingOptional.get(1).name).isEqualTo("optAttr2");
 	}
 
 	@Test
@@ -78,7 +77,7 @@ public class TestAttributePolicyProcessor
 	{
 		AttributePolicyProcessor processor = new AttributePolicyProcessor(getConfig(), idpGroupResolver);
 		PolicyProcessingResult result = processor.applyPolicyForRemoteUser(getRemotelyAuthenticatedInput("idp2"));
-		assertThat(result.policy.name.get(), is("Policy2"));
+		assertThat(result.policy.name.get()).isEqualTo("Policy2");
 	}
 
 	@Test
@@ -86,9 +85,9 @@ public class TestAttributePolicyProcessor
 	{
 		AttributePolicyProcessor processor = new AttributePolicyProcessor(getConfig(), idpGroupResolver);
 		PolicyProcessingResult result = processor.applyPolicyForRemoteUser(getRemotelyAuthenticatedInput("idpUnknown"));
-		assertThat(result.policy.name.isEmpty(), is(true));
-		assertThat(result.policy.attributes.get(0).name, is("defaultAttr1"));
-		assertThat(result.policy.attributes.get(1).name, is("defaultAttr2"));
+		assertThat(result.policy.name.isEmpty()).isEqualTo(true);
+		assertThat(result.policy.attributes.get(0).name).isEqualTo("defaultAttr1");
+		assertThat(result.policy.attributes.get(1).name).isEqualTo("defaultAttr2");
 	}
 
 	private RemotelyAuthenticatedPrincipal getRemotelyAuthenticatedInput(String idp)

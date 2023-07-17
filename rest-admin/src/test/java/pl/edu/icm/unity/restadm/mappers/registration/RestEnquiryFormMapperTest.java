@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.policyAgreement.RestPolicyAgreementConfiguration;

@@ -24,9 +24,19 @@
  	<dependencies>
 		<!-- test -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId> 
+			<scope>test</scope>
+  		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>

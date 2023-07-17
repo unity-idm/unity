@@ -5,18 +5,31 @@
 
 package pl.edu.icm.unity.saml.idp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import io.imunity.idp.AccessProtocol;
 import io.imunity.idp.ApplicationId;
 import io.imunity.idp.IdPClientData;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -35,18 +48,7 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SAMLTrustedApplicationManagementTest
 {
 	@Mock
@@ -76,12 +78,12 @@ public class SAMLTrustedApplicationManagementTest
 
 		List<IdPClientData> idpClientsData = appMan.getIdpClientsData();
 
-		assertThat(idpClientsData.size(), is(1));
+		assertThat(idpClientsData).hasSize(1);
 		IdPClientData clientData = idpClientsData.get(0);
-		assertThat(clientData.applicationId.id, is("clientEntityId"));
-		assertThat(clientData.accessGrantTime.get(), is(grantTime));
-		assertThat(clientData.lastAccessTime.get(), is(accessTime));
-		assertThat(clientData.applicationDomain.get(), is("URL"));
+		assertThat(clientData.applicationId.id).isEqualTo("clientEntityId");
+		assertThat(clientData.accessGrantTime.get()).isEqualTo(grantTime);
+		assertThat(clientData.lastAccessTime.get()).isEqualTo(accessTime);
+		assertThat(clientData.applicationDomain.get()).isEqualTo("URL");
 	}
 
 	@Test
@@ -97,7 +99,7 @@ public class SAMLTrustedApplicationManagementTest
 		verify(preferencesManagement).setPreference(any(), eq(SamlPreferences.ID), argument.capture());
 		SamlPreferences pref = new SamlPreferences();
 		pref.setSerializedConfiguration(JsonUtil.parse(argument.getValue()));
-		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk(), is(false));
+		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk()).isEqualTo(false);
 
 	}
 
@@ -114,7 +116,7 @@ public class SAMLTrustedApplicationManagementTest
 		verify(preferencesManagement).setPreference(any(), eq(SamlPreferences.ID), argument.capture());
 		SamlPreferences pref = new SamlPreferences();
 		pref.setSerializedConfiguration(JsonUtil.parse(argument.getValue()));
-		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk(), is(false));
+		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk()).isEqualTo(false);
 	}
 
 	private Instant setupAccessTime() throws EngineException

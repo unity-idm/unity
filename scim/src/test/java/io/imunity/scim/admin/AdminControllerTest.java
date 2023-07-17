@@ -5,8 +5,7 @@
 
 package io.imunity.scim.admin;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -16,11 +15,11 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -33,7 +32,7 @@ import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AdminControllerTest
 {
 	@Mock
@@ -66,8 +65,8 @@ public class AdminControllerTest
 		EndpointConfiguration newConfig = configCaptor.getValue();
 		SCIMEndpointConfiguration newScimConfig = SCIMEndpointPropertiesConfigurationMapper
 				.fromProperties(newConfig.getConfiguration());
-		assertThat(newScimConfig.membershipGroups, is(List.of("/membership")));
-		assertThat(newScimConfig.excludedMembershipGroups, is(List.of("/excluded")));
+		assertThat(newScimConfig.membershipGroups).isEqualTo(List.of("/membership"));
+		assertThat(newScimConfig.excludedMembershipGroups).isEqualTo(List.of("/excluded"));
 	}
 
 	@Test

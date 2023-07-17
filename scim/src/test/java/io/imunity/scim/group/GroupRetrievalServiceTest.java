@@ -5,9 +5,7 @@
 
 package io.imunity.scim.group;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -20,10 +18,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -47,7 +45,7 @@ import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GroupRetrievalServiceTest
 {
 	@Mock
@@ -99,8 +97,8 @@ public class GroupRetrievalServiceTest
 		List<GroupData> groupData = groupRetrievalService.getGroups();
 
 		// then
-		assertThat(groupData.size(), is(1));
-		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet()), hasItems("/scim/Members1/Subgroup1"));
+		assertThat(groupData).hasSize(1);
+		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet())).contains("/scim/Members1/Subgroup1");
 	}
 
 	@Test
@@ -146,13 +144,13 @@ public class GroupRetrievalServiceTest
 		GroupData groupData = groupRetrievalService.getGroup(new GroupId("/scim/Members1"));
 
 		// then
-		assertThat(groupData.members.size(), is(2));
-		assertThat(groupData.members.stream().filter(m -> m.type.equals(MemberType.User)).collect(Collectors.toSet()),
-				hasItems(GroupMember.builder().withType(MemberType.User).withValue("0").build()));
+		assertThat(groupData.members).hasSize(2);
+		assertThat(groupData.members.stream().filter(m -> m.type.equals(MemberType.User)).collect(Collectors.toSet())).
+				contains(GroupMember.builder().withType(MemberType.User).withValue("0").build());
 
-		assertThat(groupData.members.stream().filter(m -> m.type.equals(MemberType.Group)).collect(Collectors.toSet()),
-				hasItems(GroupMember.builder().withType(MemberType.Group).withDisplayName("Subgroup1")
-						.withValue("/scim/Members1/Subgroup1").build()));
+		assertThat(groupData.members.stream().filter(m -> m.type.equals(MemberType.Group)).collect(Collectors.toSet())).
+				contains(GroupMember.builder().withType(MemberType.Group).withDisplayName("Subgroup1")
+						.withValue("/scim/Members1/Subgroup1").build());
 
 	}
 
@@ -183,8 +181,8 @@ public class GroupRetrievalServiceTest
 		List<GroupData> groupData = groupRetrievalService.getGroups();
 
 		// then
-		assertThat(groupData.size(), is(2));
-		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet()), hasItems("/",  "/B"));
+		assertThat(groupData).hasSize(2);
+		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet())).contains("/",  "/B");
 
 	
 	}
@@ -215,8 +213,8 @@ public class GroupRetrievalServiceTest
 		List<GroupData> groupData = groupRetrievalService.getGroups();
 
 		// then
-		assertThat(groupData.size(), is(2));
-		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet()), hasItems("/", "/A"));
+		assertThat(groupData).hasSize(2);
+		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet())).contains("/", "/A");
 	}
 
 	private void addTwoMembersGroupWithSubgroups() throws EngineException
@@ -266,53 +264,53 @@ public class GroupRetrievalServiceTest
 		List<GroupData> groupData = groupRetrievalService.getGroups();
 
 		// then
-		assertThat(groupData.size(), is(7));
-		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet()),
-				hasItems("/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members2", "/scim/Members2/Subgroup1"));
+		assertThat(groupData).hasSize(7);
+		assertThat(groupData.stream().map(g -> g.id).collect(Collectors.toSet())).
+				contains("/scim/Members1", "/scim/Members1/Subgroup1", "/scim/Members2", "/scim/Members2/Subgroup1");
 
 		GroupData memberGroup1 = groupData.stream().filter(g -> g.id.equals("/scim/Members1")).findFirst().get();
-		assertThat(memberGroup1.displayName, is("Members1"));
-		assertThat(memberGroup1.members.size(), is(3));
+		assertThat(memberGroup1.displayName).isEqualTo("Members1");
+		assertThat(memberGroup1.members).hasSize(3);
 		assertThat(
-				memberGroup1.members.stream().filter(m -> m.type.equals(MemberType.User)).collect(Collectors.toSet()),
-				hasItems(GroupMember.builder().withDisplayName("User0").withType(MemberType.User).withValue("0")
-						.build()));
+				memberGroup1.members.stream().filter(m -> m.type.equals(MemberType.User)).collect(Collectors.toSet())).
+				contains(GroupMember.builder().withDisplayName("User0").withType(MemberType.User).withValue("0")
+						.build());
 		assertThat(
-				memberGroup1.members.stream().filter(m -> m.type.equals(MemberType.Group)).collect(Collectors.toSet()),
-				hasItems(GroupMember.builder().withDisplayName("Subgroup1").withType(MemberType.Group)
-						.withValue("/scim/Members1/Subgroup1").build()));
+				memberGroup1.members.stream().filter(m -> m.type.equals(MemberType.Group)).collect(Collectors.toSet())).
+				contains(GroupMember.builder().withDisplayName("Subgroup1").withType(MemberType.Group)
+						.withValue("/scim/Members1/Subgroup1").build());
 
 		GroupData member1SubGroup = groupData.stream().filter(g -> g.id.equals("/scim/Members1/Subgroup1")).findFirst()
 				.get();
-		assertThat(member1SubGroup.displayName, is("Subgroup1"));
-		assertThat(member1SubGroup.members.size(), is(1));
+		assertThat(member1SubGroup.displayName).isEqualTo("Subgroup1");
+		assertThat(member1SubGroup.members).hasSize(1);
 		assertThat(
 				member1SubGroup.members.stream().filter(m -> m.type.equals(MemberType.User))
-						.collect(Collectors.toSet()),
-				hasItems(GroupMember.builder().withDisplayName("User0").withType(MemberType.User).withValue("0")
-						.build()));
+						.collect(Collectors.toSet())).
+				contains(GroupMember.builder().withDisplayName("User0").withType(MemberType.User).withValue("0")
+						.build());
 
 		GroupData memberGroup2 = groupData.stream().filter(g -> g.id.equals("/scim/Members2")).findFirst().get();
-		assertThat(memberGroup2.displayName, is("Members2"));
-		assertThat(memberGroup2.members.size(), is(3));
+		assertThat(memberGroup2.displayName).isEqualTo("Members2");
+		assertThat(memberGroup2.members).hasSize(3);
 		assertThat(
-				memberGroup2.members.stream().filter(m -> m.type.equals(MemberType.User)).collect(Collectors.toSet()),
-				hasItems(GroupMember.builder().withDisplayName("User1").withType(MemberType.User).withValue("1")
-						.build()));
+				memberGroup2.members.stream().filter(m -> m.type.equals(MemberType.User)).collect(Collectors.toSet())).
+				contains(GroupMember.builder().withDisplayName("User1").withType(MemberType.User).withValue("1")
+						.build());
 		assertThat(
-				memberGroup2.members.stream().filter(m -> m.type.equals(MemberType.Group)).collect(Collectors.toSet()),
-				hasItems(GroupMember.builder().withDisplayName("Subgroup1").withType(MemberType.Group)
-						.withValue("/scim/Members2/Subgroup1").build()));
+				memberGroup2.members.stream().filter(m -> m.type.equals(MemberType.Group)).collect(Collectors.toSet())).
+				contains(GroupMember.builder().withDisplayName("Subgroup1").withType(MemberType.Group)
+						.withValue("/scim/Members2/Subgroup1").build());
 
 		GroupData member2SubGroup1 = groupData.stream().filter(g -> g.id.equals("/scim/Members2/Subgroup1")).findFirst()
 				.get();
-		assertThat(member2SubGroup1.displayName, is("Subgroup1"));
-		assertThat(member2SubGroup1.members.size(), is(1));
+		assertThat(member2SubGroup1.displayName).isEqualTo("Subgroup1");
+		assertThat(member2SubGroup1.members).hasSize(1);
 		assertThat(
 				member2SubGroup1.members.stream().filter(m -> m.type.equals(MemberType.User))
-						.collect(Collectors.toSet()),
-				hasItems(GroupMember.builder().withDisplayName("User1").withType(MemberType.User).withValue("1")
-						.build()));
+						.collect(Collectors.toSet())).
+				contains(GroupMember.builder().withDisplayName("User1").withType(MemberType.User).withValue("1")
+						.build());
 
 	}
 

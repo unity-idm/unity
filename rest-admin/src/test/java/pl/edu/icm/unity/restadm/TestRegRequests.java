@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -43,7 +43,7 @@ public class TestRegRequests extends RESTAdminTestBase
 	@Autowired
 	private RegistrationsManagement regMan;
 	
-	@Before
+	@BeforeEach
 	public void init() throws EngineException
 	{
 		aTypeMan.addAttributeType(new AttributeType("attr", StringAttributeSyntax.ID));
@@ -66,7 +66,7 @@ public class TestRegRequests extends RESTAdminTestBase
 
 		List<RestRegistrationRequestState> returnedL = m.readValue(contents, 
 				new TypeReference<List<RestRegistrationRequestState>>() {});
-		assertThat(returnedL.size(), is(2));
+		assertThat(returnedL.size()).isEqualTo(2);
 		assertEqual(RegistrationRequestMapper.map(request), returnedL.get(0));
 		assertEqual(RegistrationRequestMapper.map(request), returnedL.get(1));
 	}
@@ -88,10 +88,9 @@ public class TestRegRequests extends RESTAdminTestBase
 
 	private void assertEqual(RestRegistrationRequest expected, RestRegistrationRequestState returned)
 	{
-		assertThat(returned.request.attributes.size(), is(expected.attributes.size()));
-		assertThat(returned.request.attributes.get(0), 
-				is(expected.attributes.get(0)));
-		assertThat(returned.request.identities, is(expected.identities));
+		assertThat(returned.request.attributes.size()).isEqualTo(expected.attributes.size());
+		assertThat(returned.request.attributes.get(0)).isEqualTo(expected.attributes.get(0));
+		assertThat(returned.request.identities).isEqualTo(expected.identities);
 	}
 	
 	private RegistrationRequest getRequest()

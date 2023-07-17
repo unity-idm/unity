@@ -4,17 +4,19 @@
  */
 package io.imunity.fido.service;
 
-import io.imunity.fido.identity.FidoUserHandleIdentity;
-import org.junit.Test;
-
-import pl.edu.icm.unity.base.identity.Identity;
-import pl.edu.icm.unity.stdext.identity.EmailIdentity;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import io.imunity.fido.identity.FidoUserHandleIdentity;
+import pl.edu.icm.unity.base.identity.Identity;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+
 
 /**
  * Test for {@link Identities} class
@@ -28,12 +30,15 @@ public class IdentitiesTest
 	private static final Identity USERNAME_IDENTITY = new Identity(UsernameIdentity.ID, USERNAME, 1, USERNAME);
 	private static final Identity EMAIL_IDENTITY = new Identity(EmailIdentity.ID, EMAIL, 1, EMAIL);
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void identitiesBuilderFailWhenUsernameAndEmailIdentitiesAreMissing() {
 		//given
 		List<Identity> identities = Arrays.asList(USERHANDLE_IDENTITY);
 		//when/then
-		Identities.builder().identities(identities).build();
+		
+		Assertions.assertThrows(IllegalArgumentException.class, () -> Identities.builder()
+				.identities(identities)
+				.build());
 	}
 
 	@Test

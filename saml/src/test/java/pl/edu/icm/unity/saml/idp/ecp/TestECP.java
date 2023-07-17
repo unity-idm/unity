@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.saml.idp.ecp;
 
-import static org.junit.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +29,8 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -86,7 +88,7 @@ public class TestECP extends AbstractTestIdpBase
 	@Autowired
 	private ExternalDataParser parser;
 	
-	@Before
+	@BeforeEach
 	@Override
 	public void setup() throws Exception
 	{
@@ -145,8 +147,8 @@ public class TestECP extends AbstractTestIdpBase
 		
 		HttpClient httpclient = HttpUtils.createClient(ecpUrl, clientCfg);
 		try(ClassicHttpResponse response = httpclient.executeOpen(null, httpPost, HttpClientContext.create())){
-			Assert.assertEquals(HttpServletResponse.SC_OK, response.getCode());
-			Assert.assertTrue(response.getFirstHeader("Content-Type").getValue().startsWith("application/jwt"));
+			assertEquals(HttpServletResponse.SC_OK, response.getCode());
+			assertTrue(response.getFirstHeader("Content-Type").getValue().startsWith("application/jwt"));
 			HttpEntity entity = response.getEntity();
 			if (entity != null)
 			{
@@ -154,10 +156,10 @@ public class TestECP extends AbstractTestIdpBase
 				System.out.println(resp);
 				JWTClaimsSet claims = JWTUtils.parseAndValidate(resp, pkiMan.getCredential("MAIN"));
 				System.out.println("GOT:\n" + claims.toString());
-				Assert.assertTrue(claims.getIssuer().contains("https://localhost:52443"));
+				assertTrue(claims.getIssuer().contains("https://localhost:52443"));
 				response.close();
 			} else
-				Assert.fail("No HTTP response");
+				fail("No HTTP response");
 		}
 	}
 	

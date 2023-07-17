@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -23,7 +22,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -48,17 +47,16 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		List<RestResolvedEndpoint> returnedL = m.readValue(contents,
 				new TypeReference<List<RestResolvedEndpoint>>() {});
 
-		assertThat(returnedL.size(), is(1));
+		assertThat(returnedL).hasSize(1);
 		RestResolvedEndpoint returned = returnedL.get(0);
-		assertThat(returned.endpoint.configuration.authenticationOptions,
-			is(Lists.newArrayList(AUTHENTICATION_FLOW_PASS)));
-		assertThat(returned.endpoint.contextAddress, is("/restadm"));
-		assertThat(returned.endpoint.configuration.description, is("desc"));
-		assertThat(returned.endpoint.configuration.displayedName, 
-				is(RestI18nString.builder().withDefaultValue(("restAdmin")).build()));
-		assertThat(returned.endpoint.name, is("restAdmin"));
-		assertThat(returned.realm.name, is("testr"));
-		assertThat(returned.type.name, is(RESTAdminEndpoint.NAME));
+		assertThat(returned.endpoint.configuration.authenticationOptions).isEqualTo(Lists.newArrayList(AUTHENTICATION_FLOW_PASS));
+		assertThat(returned.endpoint.contextAddress).isEqualTo("/restadm");
+		assertThat(returned.endpoint.configuration.description).isEqualTo("desc");
+		assertThat(returned.endpoint.configuration.displayedName) 
+				.isEqualTo(RestI18nString.builder().withDefaultValue(("restAdmin")).build());
+		assertThat(returned.endpoint.name).isEqualTo("restAdmin");
+		assertThat(returned.realm.name).isEqualTo("testr");
+		assertThat(returned.type.name).isEqualTo(RESTAdminEndpoint.NAME);
 	}
 
 	@Test
@@ -69,15 +67,14 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		String contents = client.execute(host, deploy, getClientContext(host), new BasicHttpClientResponseHandler());
 		RestResolvedEndpoint returned = m.readValue(contents, RestResolvedEndpoint.class);
 		
-		assertThat(returned.endpoint.configuration.authenticationOptions, is(
-				Lists.newArrayList("ApassRESTFlow")));
-		assertThat(returned.endpoint.contextAddress, is("/contextA"));
-		assertThat(returned.endpoint.configuration.description, is("desc"));
-		assertThat(returned.endpoint.configuration.displayedName, 
-				is(RestI18nString.builder().withDefaultValue(("endpoint")).build()));
-		assertThat(returned.endpoint.name, is("newEndpoint"));
-		assertThat(returned.realm.name, is("testr"));
-		assertThat(returned.type.name, is(RESTAdminEndpoint.NAME));
+		assertThat(returned.endpoint.configuration.authenticationOptions).isEqualTo(
+				Lists.newArrayList("ApassRESTFlow"));
+		assertThat(returned.endpoint.contextAddress).isEqualTo("/contextA");
+		assertThat(returned.endpoint.configuration.description).isEqualTo("desc");
+		assertThat(returned.endpoint.configuration.displayedName).isEqualTo(RestI18nString.builder().withDefaultValue(("endpoint")).build());
+		assertThat(returned.endpoint.name).isEqualTo("newEndpoint");
+		assertThat(returned.realm.name).isEqualTo("testr");
+		assertThat(returned.type.name).isEqualTo(RESTAdminEndpoint.NAME);
 	}
 
 	@Test
@@ -95,7 +92,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		List<RestResolvedEndpoint> returnedL = m.readValue(contents,
 				new TypeReference<List<RestResolvedEndpoint>>() {});
 
-		assertThat(returnedL.size(), is(1));
+		assertThat(returnedL.size()).isEqualTo(1);
 	}
 
 	@Test
@@ -115,19 +112,18 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		List<RestResolvedEndpoint> returnedL = m.readValue(contents3,
 				new TypeReference<List<RestResolvedEndpoint>>() {});
 
-		assertThat(returnedL.size(), is(2));
+		assertThat(returnedL.size()).isEqualTo(2);
 
 		RestResolvedEndpoint returned = getEndpointById(returnedL, "newEndpoint");
 		
-		assertThat(returned.endpoint.configuration.authenticationOptions, is(
-				Lists.newArrayList("ApassRESTFlow")));
-		assertThat(returned.endpoint.contextAddress, is("/contextA"));
-		assertThat(returned.endpoint.configuration.description, is("desc2"));
-		assertThat(returned.endpoint.configuration.displayedName, 
-				is(RestI18nString.builder().withDefaultValue(("endpoint2")).build()));
-		assertThat(returned.endpoint.name, is("newEndpoint"));
-		assertThat(returned.realm.name, is("testr"));
-		assertThat(returned.type.name, is(RESTAdminEndpoint.NAME));
+		assertThat(returned.endpoint.configuration.authenticationOptions).isEqualTo(
+				Lists.newArrayList("ApassRESTFlow"));
+		assertThat(returned.endpoint.contextAddress).isEqualTo("/contextA");
+		assertThat(returned.endpoint.configuration.description).isEqualTo("desc2");
+		assertThat(returned.endpoint.configuration.displayedName).isEqualTo(RestI18nString.builder().withDefaultValue(("endpoint2")).build());
+		assertThat(returned.endpoint.name).isEqualTo("newEndpoint");
+		assertThat(returned.realm.name).isEqualTo("testr");
+		assertThat(returned.type.name).isEqualTo(RESTAdminEndpoint.NAME);
 	}
 
 
@@ -147,18 +143,18 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		List<RestResolvedEndpoint> returnedL = m.readValue(contents3,
 				new TypeReference<List<RestResolvedEndpoint>>() {});
 
-		assertThat(returnedL.size(), is(2));
+		assertThat(returnedL.size()).isEqualTo(2);
 
 		RestResolvedEndpoint returned = getEndpointById(returnedL, "newEndpoint");
-		assertThat(returned.endpoint.configuration.authenticationOptions, is(
-				Lists.newArrayList("ApassRESTFlow")));
-		assertThat(returned.endpoint.contextAddress, is("/contextA"));
-		assertThat(returned.endpoint.configuration.description, is("desc"));
-		assertThat(returned.endpoint.configuration.displayedName, 
-				is(RestI18nString.builder().withDefaultValue(("endpoint")).build()));
-		assertThat(returned.endpoint.name, is("newEndpoint"));
-		assertThat(returned.realm.name, is("testr"));
-		assertThat(returned.type.name, is(RESTAdminEndpoint.NAME));
+		assertThat(returned.endpoint.configuration.authenticationOptions).isEqualTo(
+				Lists.newArrayList("ApassRESTFlow"));
+		assertThat(returned.endpoint.contextAddress).isEqualTo("/contextA");
+		assertThat(returned.endpoint.configuration.description).isEqualTo("desc");
+		assertThat(returned.endpoint.configuration.displayedName).isEqualTo( 
+				RestI18nString.builder().withDefaultValue(("endpoint")).build());
+		assertThat(returned.endpoint.name).isEqualTo("newEndpoint");
+		assertThat(returned.realm.name).isEqualTo("testr");
+		assertThat(returned.type.name).isEqualTo(RESTAdminEndpoint.NAME);
 	}
 
 	private RestResolvedEndpoint getEndpointById(List<RestResolvedEndpoint> returnedL, String id)

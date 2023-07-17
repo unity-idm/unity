@@ -4,12 +4,11 @@
  */
 package pl.edu.icm.unity.ldap;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 import com.unboundid.ldap.sdk.Attribute;
@@ -37,10 +36,10 @@ public class GroupFilterTest
 
 		String filter = groupHelper.buildGroupFilter(userEntry, gss, true);
 		
-		assertThat(filter, is("(|"
+		assertThat(filter).isEqualTo("(|"
 				+ "(&(objectClass=gClass)(memberUid=Gloria))"
 				+ "(objectClass=gClass2)"
 				+ "(&(objectClass=gClass3)(memberDN=CN=Gloria Moria))"
-				+ ")"));
+				+ ")");
 	}
 }

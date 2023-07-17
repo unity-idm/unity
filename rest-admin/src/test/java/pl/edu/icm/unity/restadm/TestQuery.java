@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -17,7 +16,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -117,7 +116,7 @@ public class TestQuery extends RESTAdminTestBase
 		String contents = executeQuery(getEntity);
 		log.info("User's info:\n" + formatJson(contents));
 		RestEntity parsed = m.readValue(contents, RestEntity.class);
-		assertThat(parsed.entityInformation.entityId, is(e));
+		assertThat(parsed.entityInformation.entityId).isEqualTo(e);
 	}
 	
 	@Test
@@ -130,14 +129,14 @@ public class TestQuery extends RESTAdminTestBase
 		log.info("User's info:\n" + formatJson(contents));
 
 		RestEntityWithAttributes parsed = m.readValue(contents, RestEntityWithAttributes.class);
-		assertThat(parsed.entity.entityInformation.entityId, is(e));
-		assertThat(parsed.attributesInGroups.keySet().size(), is(2));
-		assertThat(parsed.attributesInGroups.get("/").size(), is(2));
+		assertThat(parsed.entity.entityInformation.entityId).isEqualTo(e);
+		assertThat(parsed.attributesInGroups.keySet().size()).isEqualTo(2);
+		assertThat(parsed.attributesInGroups.get("/").size()).isEqualTo(2);
 		assertThat(parsed.attributesInGroups.get("/").stream().map(a -> a.name)
-				.collect(Collectors.toSet()), hasItems("emailA", "sys:CredentialRequirements"));
+				.collect(Collectors.toSet())).contains("emailA", "sys:CredentialRequirements");
 		assertThat(parsed.attributesInGroups.get("/example").stream().map(a -> a.name).collect(
-				Collectors.toSet()), hasItems("floatA", "emailA", "intA", "jpegA", "enumA", "stringA"));
-		assertThat(parsed.groups.keySet(), hasItems("/", "/example", "/example/sub"));
+				Collectors.toSet())).contains("floatA", "emailA", "intA", "jpegA", "enumA", "stringA");
+		assertThat(parsed.groups.keySet()).contains("/", "/example", "/example/sub");
 	}
 	
 	@Test
@@ -165,10 +164,10 @@ public class TestQuery extends RESTAdminTestBase
 		log.info("Group's /example contents:\n" + formatJson(contents));
 		ArrayNode parsed = JsonUtil.parse(contents, ArrayNode.class);
 		
-		assertThat(parsed.size(), is(1));
+		assertThat(parsed.size()).isEqualTo(1);
 		ObjectNode entityData = (ObjectNode) parsed.get(0);
 		ArrayNode attributes = (ArrayNode) entityData.get("attributes");
-		assertThat(attributes.size(), is(6));
+		assertThat(attributes.size()).isEqualTo(6);
 	}
 	
 	protected long createTestContents() throws Exception

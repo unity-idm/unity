@@ -5,9 +5,8 @@
 
 package pl.edu.icm.unity.oauth.as.token.access;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -21,10 +20,10 @@ import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -40,7 +39,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RefreshTokenHandlerTest
 {
 	@Mock
@@ -66,7 +65,7 @@ public class RefreshTokenHandlerTest
 
 		when(refreshTokensRepository.getUsedRefreshToken("usedRef")).thenReturn(Optional.of(token));
 		Response resp = refreshTokenHandler.handleRefreshTokenGrant("usedRef", "scope", "");
-		assertThat(resp.getStatus(), is(400));
+		assertThat(resp.getStatus()).isEqualTo(400);
 	}
 
 	@Test

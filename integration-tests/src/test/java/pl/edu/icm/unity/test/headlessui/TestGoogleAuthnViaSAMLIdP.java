@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.test.headlessui;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 
 /**
@@ -17,7 +17,7 @@ import org.openqa.selenium.By;
  */
 public class TestGoogleAuthnViaSAMLIdP extends SeleniumTestBase
 {
-	@Ignore
+	@Disabled
 	@Test
 	public void loginTest() throws Exception
 	{

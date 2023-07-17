@@ -4,25 +4,7 @@
  */
 package pl.edu.icm.unity.test.headlessui;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.UnityIntegrationTest;
-import pl.edu.icm.unity.engine.server.JettyServer;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +14,26 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.TestWatcher;
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.UnityIntegrationTest;
+import pl.edu.icm.unity.engine.server.JettyServer;
+
 /**
  * This is a base class for Selenium WebDriver based headless Web UI testing.
  * <p>
@@ -40,9 +42,10 @@ import java.util.function.Supplier;
  * 
  * @author K. Benedyczak
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @UnityIntegrationTest
 @TestPropertySource(properties = { "unityConfig: src/test/resources/selenium/unityServer.conf" })
+@ExtendWith(pl.edu.icm.unity.test.headlessui.SeleniumTestBase.SeleniumTestWatcher.class)
 public abstract class SeleniumTestBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SeleniumTestBase.class);
@@ -57,7 +60,12 @@ public abstract class SeleniumTestBase
 	@Autowired
 	protected JettyServer httpServer;
 	
-	@Before
+	public JettyServer getHttpServer()
+	{
+		return httpServer;
+	}
+
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		httpServer.start();
@@ -72,53 +80,12 @@ public abstract class SeleniumTestBase
 		}
 		driver = new ChromeDriver(chromeOptions);
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(WAIT_TIME_S));
-	}
-
-	@Rule
-	public TestRule watchman = new TestWatcher() 
-	{
-		@Override
-		protected void failed(Throwable e, Description description) 
-		{
-			try
-			{
-				takeScreenshot(description.getClassName() + 
-						"-" + description.getMethodName());
-			} finally
-			{
-				cleanup();
-			}
-		}
-		
-		@Override
-		protected void succeeded(Description description) 
-		{
-			cleanup();
-		}
-
-		private void takeScreenshot(String suffix)
-		{
-			byte[] screenshot = ((TakesScreenshot)driver).getScreenshotAs(OutputType.BYTES);
-			try
-			{
-				OutputStream fos = new FileOutputStream(
-						new File("target/failshot-" + suffix + ".png"));
-				IOUtils.write(screenshot, fos);
-			} catch (Exception e1)
-			{
-				throw new RuntimeException("Can not take screenshot", e1);
-			}
-		}
-
-		private void cleanup()
-		{
-			driver.manage().deleteAllCookies();
-			httpServer.stop();
-			driver.quit();
-		}
-	};
-
+	}	
 	
+	public WebDriver getDriver()
+	{
+		return driver;
+	}
 	
 	protected WebElement waitForElement(By by)
 	{
@@ -131,7 +98,7 @@ public abstract class SeleniumTestBase
 		for (int i = 0;; i++)
 		{
 			if (i >= WAIT_TIME_S*1000/SLEEP_TIME_MS)
-				Assert.fail("timeout");
+				fail("timeout");
 			try
 			{
 				if (awaited.get())
@@ -181,4 +148,53 @@ public abstract class SeleniumTestBase
 			//OK
 		}
 	}
+	
+	public static class SeleniumTestWatcher implements TestWatcher
+	{
+		
+		public SeleniumTestWatcher()
+		{
+		}
+		
+		public  void testSuccessful(org.junit.jupiter.api.extension.ExtensionContext context)
+		{
+			cleanup(context);	
+		};
+
+		public void testFailed(org.junit.jupiter.api.extension.ExtensionContext context, Throwable cause)
+		{
+			SeleniumTestBase requiredTestInstance = (SeleniumTestBase) context.getRequiredTestInstance();
+			try
+			{
+				takeScreenshot(context.getClass().getName() + "-" + context.getTestMethod().get().getName(), requiredTestInstance.getDriver());
+			} finally
+			{
+				
+				cleanup(context);
+			}
+		};
+	
+		private void takeScreenshot(String suffix, WebDriver driver)
+		{
+			byte[] screenshot = ((TakesScreenshot)driver).getScreenshotAs(OutputType.BYTES);
+			try
+			{
+				OutputStream fos = new FileOutputStream(
+						new File("target/failshot-" + suffix + ".png"));
+				IOUtils.write(screenshot, fos);
+			} catch (Exception e1)
+			{
+				throw new RuntimeException("Can not take screenshot", e1);
+			}
+		}
+
+		private void cleanup(org.junit.jupiter.api.extension.ExtensionContext context)
+		{
+			SeleniumTestBase testInstance = (SeleniumTestBase) context.getRequiredTestInstance();
+			WebDriver driver = testInstance.getDriver();
+			driver.manage().deleteAllCookies();
+			testInstance.getHttpServer().stop();
+			driver.quit();
+		}
+	};
 }

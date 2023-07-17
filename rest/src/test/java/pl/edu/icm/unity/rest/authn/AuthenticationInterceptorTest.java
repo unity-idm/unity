@@ -18,13 +18,14 @@ import java.util.Set;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
-import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
@@ -42,7 +43,7 @@ import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.ext.HttpBasicRetrievalBase;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationInterceptorTest
 {
 
@@ -65,7 +66,7 @@ public class AuthenticationInterceptorTest
 		interceptor.handleMessage(message);
 	}
 
-	@Test(expected = Fault.class)
+	@Test
 	public void shouldFaultWhenGoToOptionalPathWhenInvalidCredential() throws AuthenticationException
 	{
 		AuthenticatorInstance mockAuthenticator1 = mock(AuthenticatorInstance.class);
@@ -85,7 +86,7 @@ public class AuthenticationInterceptorTest
 
 		Message message = new MessageImpl();
 		message.put(Message.REQUEST_URI, "/optional");
-		interceptor.handleMessage(message);
+		Assertions.assertThrows(Fault.class, () -> interceptor.handleMessage(message));
 	}
 
 	@Test
@@ -122,7 +123,7 @@ public class AuthenticationInterceptorTest
 		interceptor.handleMessage(new MessageImpl());
 	}
 
-	@Test(expected = Fault.class)
+	@Test
 	public void shouldThrowFaultWhenFirstFlowFail() throws AuthenticationException
 	{
 		AuthenticatorInstance mockAuthenticator1 = mock(AuthenticatorInstance.class);
@@ -141,7 +142,7 @@ public class AuthenticationInterceptorTest
 				List.of(flow1, flow2), new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0),
 				mock(SessionManagement.class), Set.of("/p1"), Set.of("/optional"), null, mock(EntityManagement.class));
 		HTTPRequestContext.setCurrent(new HTTPRequestContext("192.168.0.1", "agent"));
-		interceptor.handleMessage(new MessageImpl());
+		Assertions.assertThrows(Fault.class, () -> interceptor.handleMessage(new MessageImpl()));
 	}
 
 	private static class NotDefCredRetrieval extends HttpBasicRetrievalBase

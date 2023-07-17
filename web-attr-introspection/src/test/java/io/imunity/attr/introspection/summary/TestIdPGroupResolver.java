@@ -5,18 +5,18 @@
 
 package io.imunity.attr.introspection.summary;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 import pl.edu.icm.unity.engine.api.authn.IdPInfo.IdpGroup;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestIdPGroupResolver
 {
 	@Mock
@@ -45,8 +45,8 @@ public class TestIdPGroupResolver
 				List.of(IdPInfo.builder().withId("idp2").withGroup(new IdpGroup("group2", Optional.empty())).build()));
 		when(authenticatorSupportService.getRemoteAuthenticators(VaadinAuthentication.NAME))
 				.thenReturn(List.of(inst1, inst2));
-		assertThat(resolver.resolveGroupForIdp("idp1").get(), is("group1"));
-		assertThat(resolver.resolveGroupForIdp("idp2").get(), is("group2"));
-		assertThat(resolver.resolveGroupForIdp("unknownIdp").isEmpty(), is(true));
+		assertThat(resolver.resolveGroupForIdp("idp1").get()).isEqualTo("group1");
+		assertThat(resolver.resolveGroupForIdp("idp2").get()).isEqualTo("group2");
+		assertThat(resolver.resolveGroupForIdp("unknownIdp")).isEmpty();
 	}
 }

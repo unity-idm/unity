@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.credential.pass;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -14,7 +13,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.Locale;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
@@ -27,7 +26,7 @@ public class StrengthCheckerTest
 		MessageSource msg = mock(MessageSource.class);
 		StrengthInfo result = StrengthChecker.measure("horsedonteathorseradishondisk", 10, Locale.ENGLISH, msg);
 
-		assertThat("" + result.scoreNormalized, result.scoreNormalized, is(1.0));
+		assertThat(result.scoreNormalized).isEqualTo(1.0);
 	}
 
 	@Test
@@ -40,7 +39,7 @@ public class StrengthCheckerTest
 				.thenReturn("ok3");
 		StrengthInfo result = StrengthChecker.measure("soso", 10, Locale.ENGLISH, msg);
 
-		assertThat("" + result.scoreNormalized, result.scoreNormalized < 0.15, is(true));
+		assertThat(result.scoreNormalized < 0.15).isTrue();
 
 	}
 
@@ -56,6 +55,6 @@ public class StrengthCheckerTest
 		when(msg.getMessage(eq("feedback.spatial.warning.straightRowsOfKeys"), any(), any())).thenReturn("ok4");
 		StrengthInfo result = StrengthChecker.measure("asdfghjkl;'", 10, new Locale("pl"), msg);
 
-		assertThat(result.toString(), result.warning, is("ok4"));
+		assertThat(result.warning).isEqualTo("ok4");
 	}
 }

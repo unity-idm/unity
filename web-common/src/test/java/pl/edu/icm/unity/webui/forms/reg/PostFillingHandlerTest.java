@@ -4,13 +4,11 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -103,10 +101,10 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 		
 		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationPostSubmit("requestId", status);
 		
-		assertThat(ret.extraInformation, is(nullValue()));
-		assertThat(ret.mainInformation, is(expectedTitle));
-		assertThat(ret.redirectButtonText, is("Continue"));
-		assertThat(ret.redirectURL, is(nullValue()));
+		assertThat(ret.extraInformation).isNull();
+		assertThat(ret.mainInformation).isEqualTo(expectedTitle);
+		assertThat(ret.redirectButtonText).isEqualTo("Continue");
+		assertThat(ret.redirectURL).isNull();
 	}
 
 	private void shouldHandleDefaultError(TriggeringState state, String expectedTitle) throws EngineException
@@ -117,11 +115,11 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 		
 		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationOnError(state);
 		
-		assertThat(ret.autoRedirect, is(false));
-		assertThat(ret.extraInformation, is(nullValue()));
-		assertThat(ret.mainInformation, is(expectedTitle));
-		assertThat(ret.redirectButtonText, is("Continue"));
-		assertThat(ret.redirectURL, is(nullValue()));
+		assertThat(ret.autoRedirect).isEqualTo(false);
+		assertThat(ret.extraInformation).isNull();
+		assertThat(ret.mainInformation).isEqualTo(expectedTitle);
+		assertThat(ret.redirectButtonText).isEqualTo("Continue");
+		assertThat(ret.redirectURL).isNull();
 	}
 	
 	private void shouldHandleConfiguredSubmitted(RegistrationRequestStatus status, RegistrationWrapUpConfig config) throws EngineException
@@ -136,16 +134,16 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 				config.getState()).build();
 		if (config.isAutomatic())
 		{
-			assertThat(ret.autoRedirect, is(true));
-			assertThat(ret.redirectURL, is(url));
+			assertThat(ret.autoRedirect).isEqualTo(true);
+			assertThat(ret.redirectURL).isEqualTo(url);
 		} else
 		{
-			assertThat(ret.autoRedirect, is(false));
-			assertThat(ret.extraInformation, is(config.getInfo() == null ? null : config.getInfo().getDefaultValue()));
-			assertThat(ret.mainInformation, is(config.getTitle() == null ? "" : config.getTitle().getDefaultValue()));
-			assertThat(ret.redirectButtonText, is(config.getRedirectCaption() == null ? 
-					"Continue" : config.getRedirectCaption().getDefaultValue()));
-			assertThat(ret.redirectURL, is(url));
+			assertThat(ret.autoRedirect).isEqualTo(false);
+			assertThat(ret.extraInformation).isEqualTo(config.getInfo() == null ? null : config.getInfo().getDefaultValue());
+			assertThat(ret.mainInformation).isEqualTo(config.getTitle() == null ? "" : config.getTitle().getDefaultValue());
+			assertThat(ret.redirectButtonText).isEqualTo(config.getRedirectCaption() == null ? 
+					"Continue" : config.getRedirectCaption().getDefaultValue());
+			assertThat(ret.redirectURL).isEqualTo(url);
 		}
 	}
 
@@ -161,16 +159,16 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 				config.getState()).build();
 		if (config.isAutomatic())
 		{
-			assertThat(ret.autoRedirect, is(true));
-			assertThat(ret.redirectURL, is(url));
+			assertThat(ret.autoRedirect).isEqualTo(true);
+			assertThat(ret.redirectURL).isEqualTo(url);
 		} else
 		{
-			assertThat(ret.autoRedirect, is(false));
-			assertThat(ret.extraInformation, is(config.getInfo() == null ? null : config.getInfo().getDefaultValue()));
-			assertThat(ret.mainInformation, is(config.getTitle() == null ? "" : config.getTitle().getDefaultValue()));
-			assertThat(ret.redirectButtonText, is(config.getRedirectCaption() == null ? 
-					"Continue" : config.getRedirectCaption().getDefaultValue()));
-			assertThat(ret.redirectURL, is(url));
+			assertThat(ret.autoRedirect).isEqualTo(false);
+			assertThat(ret.extraInformation).isEqualTo(config.getInfo() == null ? null : config.getInfo().getDefaultValue());
+			assertThat(ret.mainInformation).isEqualTo(config.getTitle() == null ? "" : config.getTitle().getDefaultValue());
+			assertThat(ret.redirectButtonText).isEqualTo(config.getRedirectCaption() == null ? 
+					"Continue" : config.getRedirectCaption().getDefaultValue());
+			assertThat(ret.redirectURL).isEqualTo(url);
 		}
 	}
 

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.test.headlessui.reg;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;

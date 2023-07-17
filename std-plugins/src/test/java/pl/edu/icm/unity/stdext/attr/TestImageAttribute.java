@@ -4,12 +4,14 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Paths;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -52,8 +54,8 @@ public class TestImageAttribute
 		
 		String s = ias.convertToString(bi);
 		UnityImage after = ias.convertFromString(s);
-		assertEquals(bi.getWidth(), after.getWidth());
-		assertEquals(bi.getHeight(), after.getHeight());
+		assertThat(bi.getWidth()).isEqualTo(after.getWidth());
+		assertThat(bi.getHeight()).isEqualTo(after.getHeight());
 		
 		
 		JsonNode cfg = ias.getSerializedConfiguration();

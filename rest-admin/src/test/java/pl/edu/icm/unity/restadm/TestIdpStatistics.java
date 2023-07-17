@@ -5,8 +5,7 @@
 
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -15,7 +14,7 @@ import java.util.List;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -51,14 +50,14 @@ public class TestIdpStatistics extends RESTAdminTestBase
 		List<RestGroupedIdpStatistic> returnedL = m.readValue(contents, new TypeReference<List<RestGroupedIdpStatistic>>()
 		{
 		});
-		assertThat(returnedL.size(), is(1));
-		assertThat(returnedL.get(0).idpId, is("eid"));
-		assertThat(returnedL.get(0).idpName, is("ename"));
-		assertThat(returnedL.get(0).clientId, is("c1"));
-		assertThat(returnedL.get(0).clientName, is("cName"));
-		assertThat(returnedL.get(0).sigInStats.size(), is(1));
-		assertThat(returnedL.get(0).sigInStats.get(0).failedCount, is(1L));
-		assertThat(returnedL.get(0).sigInStats.get(0).successfullCount, is(1L));
+		assertThat(returnedL.size()).isEqualTo(1);
+		assertThat(returnedL.get(0).idpId).isEqualTo("eid");
+		assertThat(returnedL.get(0).idpName).isEqualTo("ename");
+		assertThat(returnedL.get(0).clientId).isEqualTo("c1");
+		assertThat(returnedL.get(0).clientName).isEqualTo("cName");
+		assertThat(returnedL.get(0).sigInStats.size()).isEqualTo(1);
+		assertThat(returnedL.get(0).sigInStats.get(0).failedCount).isEqualTo(1L);
+		assertThat(returnedL.get(0).sigInStats.get(0).successfullCount).isEqualTo(1L);
 
 	}
 }

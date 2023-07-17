@@ -4,14 +4,15 @@
  */
 package io.imunity.fido.credential;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.exception.HexException;
@@ -30,8 +31,8 @@ public class FidoCredentialInfoTest
 		FidoCredentialInfo fidoCredentialInfo = generateCredential();
 
 		//then
-		assertEquals("Null value detected. Make sure FidoCredentialInfoTest::generateCredential() initialize all fields of credential.",
-				-1, FidoCredentialInfo.serializeList(Collections.singletonList(fidoCredentialInfo)).indexOf("null"));
+		assertEquals(-1, FidoCredentialInfo.serializeList(Collections.singletonList(fidoCredentialInfo)).indexOf("null"),
+				"Null value detected. Make sure FidoCredentialInfoTest::generateCredential() initialize all fields of credential.");
 	}
 
 	@Test
@@ -42,8 +43,8 @@ public class FidoCredentialInfoTest
 
 		//then
 		FidoCredentialInfo copy = fidoCredentialInfo.copyBuilder().build();
-		assertEquals("Null value detected. Make sure FidoCredentialInfo::copyBuilder() initialize all fields of credential.",
-				-1, FidoCredentialInfo.serializeList(Collections.singletonList(copy)).indexOf("null"));
+		assertEquals(-1, FidoCredentialInfo.serializeList(Collections.singletonList(copy)).indexOf("null"),
+				"Null value detected. Make sure FidoCredentialInfo::copyBuilder() initialize all fields of credential.");
 	}
 
 	@Test

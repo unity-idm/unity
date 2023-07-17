@@ -20,18 +20,18 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = { "unityConfig: src/test/resources/unityServer.conf" })
 @UnityIntegrationTest
 public class SamlSPPropertiesMemUsageTest
@@ -44,7 +44,7 @@ public class SamlSPPropertiesMemUsageTest
 	 * Requires to download and configure metadata file of a large federation
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	public void measureMemUse() throws IOException, InterruptedException
 	{
 		String stringCfg = configWithTrustedFederation();

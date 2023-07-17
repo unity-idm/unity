@@ -5,9 +5,7 @@
 
 package io.imunity.scim.user;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -21,11 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -54,7 +53,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserRetrievalServiceTest
 {
 	@Mock
@@ -70,7 +69,7 @@ public class UserRetrievalServiceTest
 
 	private UserRetrievalService userRetrievalService;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
@@ -100,16 +99,16 @@ public class UserRetrievalServiceTest
 
 		User user = userRetrievalService.getUser(new PersistentId("1"));
 
-		assertThat(user.entityId, is(1L));
-		assertThat(user.identities.size(), is(2));
-		assertThat(user.identities, hasItems(entity.getIdentities().get(0), entity.getIdentities().get(1)));
-		assertThat(user.groups, hasItems(SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup(),
-				SCIMTestHelper.getGroupContent("/scim/Members1").getGroup()));
-		assertThat(user.attributes, hasItems(attribute1));
+		assertThat(user.entityId).isEqualTo(1L);
+		assertThat(user.identities.size()).isEqualTo(2);
+		assertThat(user.identities).contains(entity.getIdentities().get(0), entity.getIdentities().get(1));
+		assertThat(user.groups).contains(SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup(),
+				SCIMTestHelper.getGroupContent("/scim/Members1").getGroup());
+		assertThat(user.attributes).contains(attribute1);
 
 	}
 
-	@Test(expected = UserNotFoundException.class)
+	@Test
 	public void shouldThrowExceptionWhenNotInScimRootGroup() throws EngineException
 	{
 		addEntityWithTwoIdentitiesToMemebersSubgroup();
@@ -117,7 +116,7 @@ public class UserRetrievalServiceTest
 				Map.of("/scim2/Members1/Subgroup1", new GroupMembership("/scim2/Members1/Subgroup1", 1L, new Date()),
 						"/scim2/Members1", new GroupMembership("/scim2/Members1", 1L, new Date())));
 
-		userRetrievalService.getUser(new PersistentId("1"));
+		Assertions.assertThrows(UserNotFoundException.class, () -> userRetrievalService.getUser(new PersistentId("1")));
 	}
 
 	private Entity addEntityWithTwoIdentitiesToMemebersSubgroup() throws EngineException
@@ -164,9 +163,8 @@ public class UserRetrievalServiceTest
 
 		List<User> users = userRetrievalService.getUsers();
 
-		assertThat(users.size(), is(2));
-		assertThat(users,
-				hasItems(
+		assertThat(users.size()).isEqualTo(2);
+		assertThat(users).contains(
 						User.builder().withEntityId(1L)
 								.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim").getGroup(),
 										SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
@@ -179,7 +177,7 @@ public class UserRetrievalServiceTest
 										SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
 								.withIdentities(entity1.entity.getIdentities()).withAttributes(List.of(attribute1))
 
-								.build()));
+								.build());
 
 	}
 
@@ -196,12 +194,15 @@ public class UserRetrievalServiceTest
 
 		List<User> users = userRetrievalService.getUsers();
 
-		assertThat(users.size(), is(1));
-		assertThat(users,
-				hasItems(User.builder().withEntityId(0L)
-						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim").getGroup(),
-								SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1").getGroup()))
-						.withIdentities(entity1.entity.getIdentities()).build()));
+		assertThat(users.size()).isEqualTo(1);
+		assertThat(users).contains(User.builder()
+				.withEntityId(0L)
+				.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim")
+						.getGroup(),
+						SCIMTestHelper.getGroupContent("/scim/Members1/Subgroup1")
+								.getGroup()))
+				.withIdentities(entity1.entity.getIdentities())
+				.build());
 
 	}
 
@@ -220,12 +221,11 @@ public class UserRetrievalServiceTest
 
 		List<User> users = userRetrievalService.getUsers();
 
-		assertThat(users.size(), is(1));
-		assertThat(users,
-				hasItems(User.builder().withEntityId(1L)
+		assertThat(users.size()).isEqualTo(1);
+		assertThat(users).contains(User.builder().withEntityId(1L)
 						.withGroups(Set.of(SCIMTestHelper.getGroupContent("/scim").getGroup(),
 								SCIMTestHelper.getGroupContent("/scim/Members2").getGroup()))
-						.withIdentities(entity2.entity.getIdentities()).build()));
+						.withIdentities(entity2.entity.getIdentities()).build());
 
 	}
 
