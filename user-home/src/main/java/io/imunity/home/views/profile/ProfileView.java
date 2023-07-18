@@ -10,6 +10,7 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -121,6 +122,7 @@ public class ProfileView extends HomeViewComponent
 		buttonsLayout.setMargin(true);
 
 		Button save = new Button(msg.getMessage("save"));
+		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		save.setIcon(VaadinIcon.DISC.create());
 		save.addClickListener(event -> saveChanges());
 		save.setVisible(false);
