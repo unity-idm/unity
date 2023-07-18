@@ -5,8 +5,7 @@
 
 package pl.edu.icm.unity.webui;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -19,18 +18,18 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.LanguageCookie;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InvocationContextSetupFilterTest
 {
 	@Mock
@@ -50,7 +49,7 @@ public class InvocationContextSetupFilterTest
 		
 		filter.doFilter(request, response, chain);
 	
-		assertThat(chain.getContext().getLocale(), is(new Locale("pl-PL")));
+		assertThat(chain.getContext().getLocale()).isEqualTo(new Locale("pl-PL"));
 	}
 
 	private static class MockFilterChain implements FilterChain

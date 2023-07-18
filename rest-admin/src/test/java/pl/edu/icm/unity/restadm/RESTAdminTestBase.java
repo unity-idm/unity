@@ -9,7 +9,7 @@ import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -33,7 +33,7 @@ public abstract class RESTAdminTestBase extends TestRESTBase
 		m.enable(SerializationFeature.INDENT_OUTPUT);
 	}
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception
 	{
 		setupPasswordAuthn();

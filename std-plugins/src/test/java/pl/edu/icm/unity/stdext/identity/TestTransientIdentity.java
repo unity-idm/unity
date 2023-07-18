@@ -4,15 +4,12 @@
  */
 package pl.edu.icm.unity.stdext.identity;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
@@ -34,12 +31,12 @@ public class TestTransientIdentity
 		
 		Identity generated = tested.createNewIdentity("r1", "t1", 123l);
 		
-		assertThat(generated.getComparableValue(), is(notNullValue()));
-		assertThat(generated.getValue(), is(notNullValue()));
-		assertThat(generated.getMetadata(), is(notNullValue()));
-		assertThat(generated.getRealm(), is("r1"));
-		assertThat(generated.getTarget(), is("t1"));
-		assertThat(generated.getEntityId(), is(123l));
+		assertThat(generated.getComparableValue()).isNotNull();
+		assertThat(generated.getValue()).isNotNull();
+		assertThat(generated.getMetadata()).isNotNull();
+		assertThat(generated.getRealm()).isEqualTo("r1");
+		assertThat(generated.getTarget()).isEqualTo("t1");
+		assertThat(generated.getEntityId()).isEqualTo(123l);
 	}
 	
 	@Test
@@ -55,6 +52,6 @@ public class TestTransientIdentity
 		
 		Identity generated = tested.createNewIdentity("r1", "t1", 123l);
 
-		assertThat(generated.getComparableValue(), containsString("SESS_ID"));
+		assertThat(generated.getComparableValue()).containsSequence("SESS_ID");
 	}
 }

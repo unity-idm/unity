@@ -6,8 +6,7 @@
 package io.imunity.otp.ldap;
 
 import static io.imunity.otp.ldap.OTPWithLDAPProperties.PREFIX;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.PORTS;
 import static pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SERVERS;
@@ -17,11 +16,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Properties;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 
@@ -39,7 +38,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.ldap.EmbeddedDirectoryServer;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OTPWithLDAPVerificatorTest
 {
 	private static InMemoryDirectoryServer ds;
@@ -63,7 +62,7 @@ public class OTPWithLDAPVerificatorTest
 		pkiManagement = embeddedDirectoryServer.getPKIManagement4Client();
 	}
 
-	@After
+	@AfterEach
 	public void shutdown()
 	{
 		ds.shutDown(true);
@@ -98,7 +97,7 @@ public class OTPWithLDAPVerificatorTest
 				.thenReturn(new Identity(UsernameIdentity.ID, "user1", 1l, ""));
 
 		AuthenticationResult result = verificator.verifyCode(correctCode, AuthenticationSubject.entityBased(1));
-		assertThat(result.getStatus(), is(Status.success));
+		assertThat(result.getStatus()).isEqualTo(Status.success);
 	}
 	
 	@Test
@@ -130,7 +129,7 @@ public class OTPWithLDAPVerificatorTest
 				.thenReturn(new Identity(UsernameIdentity.ID, "user1", 1l, ""));
 
 		AuthenticationResult result = verificator.verifyCode(correctCode, AuthenticationSubject.entityBased(1));
-		assertThat(result.getStatus(), is(Status.success));
+		assertThat(result.getStatus()).isEqualTo(Status.success);
 	}
 	
 	
@@ -161,7 +160,7 @@ public class OTPWithLDAPVerificatorTest
 				.thenReturn(new Identity(UsernameIdentity.ID, "user1", 1l, ""));
 
 		AuthenticationResult result = verificator.verifyCode("123456", AuthenticationSubject.entityBased(1));
-		assertThat(result.getStatus(), is(Status.deny));
+		assertThat(result.getStatus()).isEqualTo(Status.deny);
 	}
 	
 	@Test
@@ -193,7 +192,7 @@ public class OTPWithLDAPVerificatorTest
 		String correctCode = TOTPCodeGenerator.generateTOTP("JBSWY3DPEHPK3PXP", currentTime / 1000,
 				new OTPGenerationParams(6, HashFunction.SHA1, 40));
 		AuthenticationResult result = verificator.verifyCode(correctCode, AuthenticationSubject.entityBased(1));
-		assertThat(result.getStatus(), is(Status.deny));
+		assertThat(result.getStatus()).isEqualTo(Status.deny);
 	}
 
 	private String getConfigAsString(OTPWithLDAPProperties otpWithLDAPProperties) throws IOException

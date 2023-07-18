@@ -17,7 +17,7 @@ import java.security.PublicKey;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.validators.ReplayAttackChecker;

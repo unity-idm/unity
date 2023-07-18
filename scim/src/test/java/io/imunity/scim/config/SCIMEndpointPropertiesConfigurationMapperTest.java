@@ -5,10 +5,8 @@
 
 package io.imunity.scim.config;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class SCIMEndpointPropertiesConfigurationMapperTest
 {
@@ -29,7 +27,7 @@ public class SCIMEndpointPropertiesConfigurationMapperTest
 
 		SCIMEndpointConfiguration fromProperties = SCIMEndpointPropertiesConfigurationMapper.fromProperties(properties);
 
-		assertThat(fromProperties.schemas.get(0).name, is("CustomFromFile"));
+		assertThat(fromProperties.schemas.get(0).name).isEqualTo("CustomFromFile");
 	}
 
 	@Test
@@ -46,6 +44,6 @@ public class SCIMEndpointPropertiesConfigurationMapperTest
 				+ "\\\"evaluatorId\\\":\\\"Simple\\\"}}]} \n"
 				+ "unity.endpoint.scim.schemasFile.1=src/test/resources/UserCustom.json\n";
 		SCIMEndpointConfiguration fromProperties = SCIMEndpointPropertiesConfigurationMapper.fromProperties(properties);
-		assertThat(fromProperties.schemas.size(), is(2));
+		assertThat(fromProperties.schemas.size()).isEqualTo(2);
 	}
 }

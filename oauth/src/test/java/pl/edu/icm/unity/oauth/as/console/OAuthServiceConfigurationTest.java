@@ -13,7 +13,7 @@ import static pl.edu.icm.unity.oauth.as.OAuthASProperties.defaults;
 import java.util.Collections;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.objstore.reg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.authn.CredentialDefinition;

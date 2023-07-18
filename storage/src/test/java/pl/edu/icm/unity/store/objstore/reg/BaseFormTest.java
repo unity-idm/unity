@@ -6,10 +6,8 @@ package pl.edu.icm.unity.store.objstore.reg;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -71,8 +69,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 						new I18nString("dName"), new I18nString("desc")), 
 				credentialDB);
 		
-		assertThat(afterDependencyRename.getCredentialParams().get(0).getCredentialName(), 
-					is("cred2"));
+		assertThat(afterDependencyRename.getCredentialParams().get(0).getCredentialName()).isEqualTo("cred2");
 	}
 	
 	protected <X extends NamedObject> T renameTest(X dep, X depRenamed, NamedCRUDDAO<X> dao)
@@ -110,8 +107,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 				new Group("/ZZZ"), 
 				groupDB);
 		
-		assertThat(afterDependencyRename.getAttributeParams().get(0).getGroup(), 
-					is("/ZZZ"));
+		assertThat(afterDependencyRename.getAttributeParams().get(0).getGroup()).isEqualTo("/ZZZ");
 	}
 
 	
@@ -137,8 +133,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 				new Group("/ZZZ"), 
 				groupDB);
 		
-		assertThat(afterDependencyRename.getNotificationsConfiguration().getAdminsNotificationGroup(), 
-					is("/ZZZ"));
+		assertThat(afterDependencyRename.getNotificationsConfiguration().getAdminsNotificationGroup()).isEqualTo("/ZZZ");
 	}
 
 	
@@ -164,8 +159,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 				new Group("/ZZZ"), 
 				groupDB);
 		
-		assertThat(afterDependencyRename.getGroupParams().get(0).getGroupPath(), 
-					is("/ZZZ"));
+		assertThat(afterDependencyRename.getGroupParams().get(0).getGroupPath()).isEqualTo("/ZZZ");
 	}
 	
 	@Test
@@ -182,8 +176,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 			
 			T afterDependencyRename = getDAO().get(obj.getName());
 			
-			assertThat(afterDependencyRename.getGroupParams().get(0).getGroupPath(), 
-					is("/ZZZ/sub"));
+			assertThat(afterDependencyRename.getGroupParams().get(0).getGroupPath()).isEqualTo("/ZZZ/sub");
 		});
 	}
 	
@@ -209,8 +202,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 				new AttributeType("changed", "foo"), 
 				atDB);
 		
-		assertThat(afterDependencyRename.getAttributeParams().get(0).getAttributeType(),
-					is("changed"));
+		assertThat(afterDependencyRename.getAttributeParams().get(0).getAttributeType()).isEqualTo("changed");
 	}
 
 	
@@ -239,8 +231,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 						new I18nString("")), AcceptRegistrationTemplateDef.NAME, MessageType.PLAIN, "channel"), 
 				msgTplDB);
 		
-		assertThat(afterDependencyRename.getNotificationsConfiguration().getAcceptedTemplate(),
-					is("changed"));
+		assertThat(afterDependencyRename.getNotificationsConfiguration().getAcceptedTemplate()).isEqualTo("changed");
 	}
 	
 	@Test

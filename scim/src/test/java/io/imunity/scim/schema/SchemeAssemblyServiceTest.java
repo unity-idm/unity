@@ -5,9 +5,7 @@
 
 package io.imunity.scim.schema;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -15,10 +13,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.config.AttributeDefinition;
@@ -27,12 +25,12 @@ import io.imunity.scim.config.SCIMEndpointDescription;
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.config.SchemaWithMapping;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SchemeAssemblyServiceTest
 {
 	private SchemaAssemblyService schemaAssemblyService;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
@@ -79,10 +77,10 @@ public class SchemeAssemblyServiceTest
 	{
 		ListResponse<SCIMSchemaResource> schemaResources = schemaAssemblyService.getSchemasResource();
 
-		assertThat(schemaResources.totalResults, is(3));
-		assertThat(schemaResources.resources.stream().map(s -> s.id).collect(Collectors.toSet()),
-				hasItems(DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID, DefaultSchemaProvider.DEFAULT_GROUP_SCHEMA_ID,
-						"urn:ietf:params:scim:schemas:UserExt"));
+		assertThat(schemaResources.totalResults).isEqualTo(3);
+		assertThat(schemaResources.resources.stream().map(s -> s.id).collect(Collectors.toSet())).
+				contains(DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID, DefaultSchemaProvider.DEFAULT_GROUP_SCHEMA_ID,
+						"urn:ietf:params:scim:schemas:UserExt");
 	}
 
 	@Test
@@ -90,8 +88,8 @@ public class SchemeAssemblyServiceTest
 	{
 		Optional<SCIMSchemaResource> schemaResource = schemaAssemblyService
 				.getSchemaResource(new SchemaId(DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID));
-		assertThat(schemaResource.isPresent(), is(true));
-		assertThat(schemaResource.get().id, is(DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID));
+		assertThat(schemaResource.isPresent()).isEqualTo(true);
+		assertThat(schemaResource.get().id).isEqualTo(DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID);
 	}
 
 	@Test
@@ -99,15 +97,15 @@ public class SchemeAssemblyServiceTest
 	{
 		Optional<SCIMSchemaResource> schemaResource = schemaAssemblyService
 				.getSchemaResource(new SchemaId(DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID));
-		assertThat(schemaResource.isPresent(), is(true));
-		assertThat(schemaResource.get().id, is(DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID));
+		assertThat(schemaResource.isPresent()).isEqualTo(true);
+		assertThat(schemaResource.get().id).isEqualTo(DefaultSchemaProvider.DEFAULT_USER_SCHEMA_ID);
 		for (SCIMAttributeDefinitionResource attr : schemaResource.get().attributes)
 		{
-			assertThat(attr.required, is(false));
-			assertThat(attr.caseExact, is(true));
-			assertThat(attr.mutability, is(SCIMAttributeMutability.IMMUTABLE.getName()));
-			assertThat(attr.returned, is(SCIMAttributeReturned.DEFAULT.getName()));
-			assertThat(attr.uniqueness, is(SCIMAttributeUniqueness.NONE.getName()));
+			assertThat(attr.required).isEqualTo(false);
+			assertThat(attr.caseExact).isEqualTo(true);
+			assertThat(attr.mutability).isEqualTo(SCIMAttributeMutability.IMMUTABLE.getName());
+			assertThat(attr.returned).isEqualTo(SCIMAttributeReturned.DEFAULT.getName());
+			assertThat(attr.uniqueness).isEqualTo(SCIMAttributeUniqueness.NONE.getName());
 		}
 	}
 
@@ -116,16 +114,16 @@ public class SchemeAssemblyServiceTest
 	{
 		Optional<SCIMSchemaResource> schemaResource = schemaAssemblyService
 				.getSchemaResource(new SchemaId("urn:ietf:params:scim:schemas:UserExt"));
-		assertThat(schemaResource.isPresent(), is(true));
-		assertThat(schemaResource.get().id, is("urn:ietf:params:scim:schemas:UserExt"));
-		assertThat(schemaResource.get().description, is("UserExtDesc"));
-		assertThat(schemaResource.get().description, is("UserExtDesc"));
-		assertThat(schemaResource.get().meta.resourceType.toString(), is("Schema"));
-		assertThat(schemaResource.get().meta.location.toURL().toExternalForm(),
-				is("https://localhost:2443/scim/Schemas/urn%3Aietf%3Aparams%3Ascim%3Aschemas%3AUserExt"));
+		assertThat(schemaResource.isPresent()).isEqualTo(true);
+		assertThat(schemaResource.get().id).isEqualTo("urn:ietf:params:scim:schemas:UserExt");
+		assertThat(schemaResource.get().description).isEqualTo("UserExtDesc");
+		assertThat(schemaResource.get().description).isEqualTo("UserExtDesc");
+		assertThat(schemaResource.get().meta.resourceType.toString()).isEqualTo("Schema");
+		assertThat(schemaResource.get().meta.location.toURL().toExternalForm()).
+				isEqualTo("https://localhost:2443/scim/Schemas/urn%3Aietf%3Aparams%3Ascim%3Aschemas%3AUserExt");
 
-		assertThat(schemaResource.get().attributes,
-				hasItems(
+		assertThat(schemaResource.get().attributes).
+				contains(
 						SCIMAttributeDefinitionResource.builder().withName("userAttr1").withDescription("userAttrDesc1")
 								.withType("string").withMultiValued(false).withCaseExact(true).withRequired(false)
 								.withMutability(SCIMAttributeMutability.IMMUTABLE.getName())
@@ -142,13 +140,13 @@ public class SchemeAssemblyServiceTest
 										.withMutability(SCIMAttributeMutability.IMMUTABLE.getName())
 										.withReturned(SCIMAttributeReturned.DEFAULT.getName())
 										.withUniqueness(SCIMAttributeUniqueness.NONE.getName()).build()))
-								.build()));
+								.build());
 	}
 
 	@Test
 	public void shouldReturnEmptyWhenUnknownId() throws MalformedURLException
 	{
 		Optional<SCIMSchemaResource> schemaResource = schemaAssemblyService.getSchemaResource(new SchemaId("unknown"));
-		assertThat(schemaResource.isEmpty(), is(true));
+		assertThat(schemaResource.isEmpty()).isEqualTo(true);
 	}
 }

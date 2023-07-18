@@ -4,12 +4,11 @@
  */
 package pl.edu.icm.unity.stdext.credential.pass;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
@@ -28,7 +27,7 @@ public class PasswordStrengthChangeTest
 		credCfg.setMinScore(11);
 		boolean outdating = verificator.isCredentialDefinitionChagneOutdatingCredentials(toCredConfig(credCfg));
 		
-		assertThat(outdating, is(true));
+		assertThat(outdating).isTrue();
 	}
 
 	@Test
@@ -42,7 +41,7 @@ public class PasswordStrengthChangeTest
 		credCfg.setMinScore(9);
 		boolean outdating = verificator.isCredentialDefinitionChagneOutdatingCredentials(toCredConfig(credCfg));
 		
-		assertThat(outdating, is(false));
+		assertThat(outdating).isFalse();
 	}
 	
 	@Test
@@ -56,7 +55,7 @@ public class PasswordStrengthChangeTest
 		credCfg.setScryptParams(new ScryptParams(20));
 		boolean outdating = verificator.isCredentialDefinitionChagneOutdatingCredentials(toCredConfig(credCfg));
 		
-		assertThat(outdating, is(true));
+		assertThat(outdating).isTrue();
 	}
 
 	@Test
@@ -70,7 +69,7 @@ public class PasswordStrengthChangeTest
 		credCfg.setScryptParams(new ScryptParams(10));
 		boolean outdating = verificator.isCredentialDefinitionChagneOutdatingCredentials(toCredConfig(credCfg));
 		
-		assertThat(outdating, is(false));
+		assertThat(outdating).isFalse();
 	}
 	
 	@Test
@@ -89,7 +88,7 @@ public class PasswordStrengthChangeTest
 		resetSettings.setEmailSecurityCodeMsgTemplate("foo");
 		boolean outdating = verificator.isCredentialDefinitionChagneOutdatingCredentials(toCredConfig(credCfg));
 		
-		assertThat(outdating, is(false));
+		assertThat(outdating).isFalse();
 	}
 	
 	private String toCredConfig(PasswordCredential credCfg)

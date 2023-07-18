@@ -4,19 +4,16 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
@@ -43,7 +40,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	@Autowired
 	private AuthenticatorsRegistry authenticatorsReg;
 	
-	@Before
+	@BeforeEach
 	public void addRealm() throws Exception
 	{
 		AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
@@ -56,9 +53,9 @@ public class TestEndpoints extends DBIntegrationTestBase
 	{
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
 
-		assertThat(endpointTypes.size(), is(1));
+		assertThat(endpointTypes).hasSize(1);
 		EndpointTypeDescription type = endpointTypes.get(0);
-		assertThat(type.getName(), is(MockEndpoint.NAME));
+		assertThat(type.getName()).isEqualTo(MockEndpoint.NAME);
 	}
 	
 	@Test
@@ -71,11 +68,11 @@ public class TestEndpoints extends DBIntegrationTestBase
 		
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		
-		assertThat(endpoints.size(), is(1));
-		assertThat(endpoints.get(0).getEndpoint().getConfiguration(), is(cfg));
-		assertThat(endpoints.get(0).getRealm().getName(), is(REALM_NAME));
-		assertThat(endpoints.get(0).getEndpoint().getName(), is("endpoint1"));
-		assertThat(endpoints.get(0).getEndpoint().getContextAddress(), is("/foo"));
+		assertThat(endpoints).hasSize(1);
+		assertThat(endpoints.get(0).getEndpoint().getConfiguration()).isEqualTo(cfg);
+		assertThat(endpoints.get(0).getRealm().getName()).isEqualTo(REALM_NAME);
+		assertThat(endpoints.get(0).getEndpoint().getName()).isEqualTo("endpoint1");
+		assertThat(endpoints.get(0).getEndpoint().getContextAddress()).isEqualTo("/foo");
 	}
 	
 	@Test
@@ -91,11 +88,11 @@ public class TestEndpoints extends DBIntegrationTestBase
 		endpointMan.updateEndpoint("endpoint1", cfg2);
 
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
-		assertThat(endpoints.size(), is(1));
-		assertThat(endpoints.get(0).getEndpoint().getConfiguration(), is(cfg2));
-		assertThat(endpoints.get(0).getRealm().getName(), is(REALM_NAME));
-		assertThat(endpoints.get(0).getEndpoint().getName(), is("endpoint1"));
-		assertThat(endpoints.get(0).getEndpoint().getContextAddress(), is("/foo"));
+		assertThat(endpoints).hasSize(1);
+		assertThat(endpoints.get(0).getEndpoint().getConfiguration()).isEqualTo(cfg2);
+		assertThat(endpoints.get(0).getRealm().getName()).isEqualTo(REALM_NAME);
+		assertThat(endpoints.get(0).getEndpoint().getName()).isEqualTo("endpoint1");
+		assertThat(endpoints.get(0).getEndpoint().getContextAddress()).isEqualTo("/foo");
 	}
 	
 	@Test
@@ -110,7 +107,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 		
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		
-		assertThat(endpoints.isEmpty(), is(true));
+		assertThat(endpoints).isEmpty();
 	}
 	
 	@Test
@@ -127,11 +124,11 @@ public class TestEndpoints extends DBIntegrationTestBase
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
-			assertThat(e.getMessage(), containsString("exists"));
+			assertThat(e.getMessage()).containsSequence("exists");
 		}
 		
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
-		assertThat(endpoints.size(), is(1));
+		assertThat(endpoints).hasSize(1);
 	}
 
 	@Test
@@ -146,11 +143,11 @@ public class TestEndpoints extends DBIntegrationTestBase
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
-			assertThat(e.getMessage(), containsString("configuration"));
+			assertThat(e.getMessage()).containsSequence("configuration");
 		}
 		
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
-		assertThat(endpoints.isEmpty(), is(true));
+		assertThat(endpoints).isEmpty();
 	}
 	
 	@Test
@@ -165,7 +162,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
-			assertThat(e.getMessage(), containsString("path"));
+			assertThat(e.getMessage()).containsSequence("path");
 		}
 		try
 		{
@@ -173,7 +170,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
-			assertThat(e.getMessage(), containsString("path"));
+			assertThat(e.getMessage()).containsSequence("path");
 		}
 		try
 		{
@@ -181,11 +178,11 @@ public class TestEndpoints extends DBIntegrationTestBase
 			fail("Should get an exception");
 		} catch (EngineException e)
 		{
-			assertThat(e.getMessage(), containsString("path"));
+			assertThat(e.getMessage()).containsSequence("path");
 		}
 
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
-		assertThat(endpoints.isEmpty(), is(true));
+		assertThat(endpoints).isEmpty();
 	}
 	
 	@Test
@@ -199,7 +196,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 				"desc", new ArrayList<String>(), "", REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint2", "/foo2", cfg3);
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
-		assertEquals(2, endpoints.size());
+		assertThat(endpoints).hasSize(2);
 		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 
 				new EndpointConfiguration(new I18nString("endp1"), 
 				"endp1", null, null, REALM_NAME));
@@ -211,12 +208,12 @@ public class TestEndpoints extends DBIntegrationTestBase
 		internalEndpointMan.undeploy(endpoints.get(1).getEndpoint().getName());
 
 		endpoints = endpointMan.getDeployedEndpoints();
-		assertEquals(0, endpoints.size());
+		assertThat(endpoints).isEmpty();
 		
 		internalEndpointMan.loadPersistedEndpoints();
 		
 		endpoints = endpointMan.getDeployedEndpoints();
-		assertEquals(2, endpoints.size());
+		assertThat(endpoints).hasSize(2);
 		ResolvedEndpoint re1 = endpoints.stream().filter(
 				re -> re.getEndpoint().getConfiguration().getDescription().
 				equals("endp1")).
@@ -225,16 +222,16 @@ public class TestEndpoints extends DBIntegrationTestBase
 				re -> re.getEndpoint().getConfiguration().getDescription().
 				equals("endp2")).
 				findAny().get();
-		assertThat(re1.getEndpoint().getConfiguration().getDisplayedName().getDefaultValue(),
-				is("endp1"));
-		assertThat(re2.getEndpoint().getConfiguration().getDisplayedName().getDefaultValue(),
-				is("endp2"));
+		assertThat(re1.getEndpoint().getConfiguration().getDisplayedName().getDefaultValue()).
+				isEqualTo("endp1");
+		assertThat(re2.getEndpoint().getConfiguration().getDisplayedName().getDefaultValue()).
+				isEqualTo("endp2");
 		
 		//finally test if removal from DB works
 		internalEndpointMan.removeAllPersistedEndpoints();
 		internalEndpointMan.loadPersistedEndpoints();
 		endpoints = endpointMan.getDeployedEndpoints();
-		assertEquals(0, endpoints.size());
+		assertThat(endpoints).isEmpty();
 	}
 	
 	@Test
@@ -255,9 +252,9 @@ public class TestEndpoints extends DBIntegrationTestBase
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/xxx", cfg);
 		List<EndpointInstance> deployedEndpoints = internalEndpointMan.getDeployedEndpoints();
 	
-		assertThat(deployedEndpoints.size() , is(1));
-		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(0).getId() , is("auth1"));
-		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(1).getId() , is("auth2"));
+		assertThat(deployedEndpoints).hasSize(1);
+		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(0).getId() ).isEqualTo("auth1");
+		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(1).getId() ).isEqualTo("auth2");
 	}
 	
 	@Test
@@ -268,8 +265,8 @@ public class TestEndpoints extends DBIntegrationTestBase
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg2);
 		endpointMan.undeploy("endpoint1");	
 		List<Endpoint> endpoints = endpointMan.getEndpoints();
-		assertThat(endpoints.size() , is(1));	
+		assertThat(endpoints.size() ).isEqualTo(1);	
 		Endpoint endpoint = endpoints.get(0);
-		assertThat(endpoint.getState() , is(EndpointState.UNDEPLOYED));	
+		assertThat(endpoint.getState() ).isEqualTo(EndpointState.UNDEPLOYED);	
 	}	
 }

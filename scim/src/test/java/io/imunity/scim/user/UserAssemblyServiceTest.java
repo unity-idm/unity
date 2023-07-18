@@ -5,9 +5,7 @@
 
 package io.imunity.scim.user;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -21,11 +19,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.common.ListResponse;
 import io.imunity.scim.config.SCIMEndpointDescription;
@@ -39,7 +37,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserAssemblyServiceTest
 {
 
@@ -53,7 +51,7 @@ public class UserAssemblyServiceTest
 	private UserAuthzService authzService;
 
 	
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		SCIMEndpointDescription configuration = SCIMEndpointDescription.builder()
@@ -83,9 +81,9 @@ public class UserAssemblyServiceTest
 						.withEnable(true).build())),
 				any());
 
-		assertThat(userRes.id, is("0"));
-		assertThat(userRes.schemas, hasItems("UC", "UE"));
-		assertThat(userRes.meta.location.toURL().toExternalForm(), is("https://localhost:2443/scim/Users/0"));
+		assertThat(userRes.id).isEqualTo("0");
+		assertThat(userRes.schemas).contains("UC", "UE");
+		assertThat(userRes.meta.location.toURL().toExternalForm()).isEqualTo("https://localhost:2443/scim/Users/0");
 	}
 
 	@Test
@@ -111,8 +109,8 @@ public class UserAssemblyServiceTest
 						.withEnable(true).build(), SchemaWithMapping.builder().withType(SchemaType.USER).withName("UserExt").withId("UE")
 						.withEnable(true).build())),
 				any());
-		assertThat(userRes.totalResults, is(2));
-		assertThat(userRes.resources.stream().map(r -> r.id).collect(Collectors.toList()), hasItems("1", "2"));
+		assertThat(userRes.totalResults).isEqualTo(2);
+		assertThat(userRes.resources.stream().map(r -> r.id).collect(Collectors.toList())).contains("1", "2");
 	}
 
 	@Test
@@ -131,8 +129,8 @@ public class UserAssemblyServiceTest
 		User user = User.builder().withEntityId(1L).withIdentities(List.of(id1, id2)).build();
 
 		SCIMUserResource mappedUser = assemblyService.mapToUserResource(user);
-		assertThat(mappedUser.meta.created, is(creation.toInstant()));
-		assertThat(mappedUser.meta.lastModified, is(update.toInstant()));
+		assertThat(mappedUser.meta.created).isEqualTo(creation.toInstant());
+		assertThat(mappedUser.meta.lastModified).isEqualTo(update.toInstant());
 
 	}
 }

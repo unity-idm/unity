@@ -5,9 +5,8 @@
 
 package io.imunity.scim.user;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 
@@ -18,10 +17,10 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.SCIMSystemScopeProvider;
 import io.imunity.scim.config.AttributeDefinition;
@@ -33,7 +32,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserAuthzServiceTest
 {
 	@Mock
@@ -170,12 +169,12 @@ public class UserAuthzServiceTest
 
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("allow").build()).build()),
-				is(true));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("allow").build()).build()))
+				.isTrue();
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr1").build()).build()),
-				is(true));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr1").build()).build()))
+				.isTrue();
 	}
 
 	@Test
@@ -196,16 +195,16 @@ public class UserAuthzServiceTest
 
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("deny").build()).build()),
-				is(false));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("deny").build()).build()))
+				.isFalse();
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr1").build()).build()),
-				is(true));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr1").build()).build()))
+				.isTrue();
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr2").build()).build()),
-				is(true));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr2").build()).build()))
+				.isTrue();
 	}
 
 	@Test
@@ -226,16 +225,16 @@ public class UserAuthzServiceTest
 
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("allow").build()).build()),
-				is(true));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("allow").build()).build()))
+				.isTrue();
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr1").build()).build()),
-				is(false));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr1").build()).build())).
+				isFalse();
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr2").build()).build()),
-				is(false));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr2").build()).build())).
+				isFalse();
 	}
 
 	@Test
@@ -257,16 +256,16 @@ public class UserAuthzServiceTest
 
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("allow").build()).build()),
-				is(true));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("allow").build()).build()))
+				.isTrue();
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr1").build()).build()),
-				is(true));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr1").build()).build()))
+				.isTrue();
 		assertThat(
 				filter.test(AttributeDefinitionWithMapping.builder()
-						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr2").build()).build()),
-				is(true));
+						.withAttributeDefinition(AttributeDefinition.builder().withName("groupAttr2").build()).build()))
+				.isTrue();
 	}
 
 	private UserAuthzService getAuthzService()

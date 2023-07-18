@@ -4,15 +4,12 @@
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
-import org.apache.commons.io.IOUtils;
-import org.awaitility.Awaitility;
-import org.awaitility.Durations;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentMatchers;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader;
-import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+import static java.time.Duration.ofMillis;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
@@ -22,10 +19,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.time.Duration.ofMillis;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import org.apache.commons.io.IOUtils;
+import org.awaitility.Awaitility;
+import org.awaitility.Durations;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 public class RemoteMetadataServiceTest
 {
@@ -33,7 +36,7 @@ public class RemoteMetadataServiceTest
 	private CachedMetadataLoader downloader;
 	private AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader;
 
-	@Before
+	@BeforeEach
 	public void init() throws Exception
 	{
 		executorsService = mock(ExecutorsService.class);
@@ -114,6 +117,6 @@ public class RemoteMetadataServiceTest
 		service.unregisterConsumer(id);
 		int events = gotEvent.get();
 		Thread.sleep(100);
-		assertThat(events, is(gotEvent.get()));
+		assertThat(events).isEqualTo(gotEvent.get());
 	}
 }

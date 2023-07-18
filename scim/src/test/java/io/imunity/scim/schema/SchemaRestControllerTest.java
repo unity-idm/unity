@@ -5,8 +5,7 @@
 
 package io.imunity.scim.schema;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -16,11 +15,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -28,7 +27,7 @@ import io.imunity.scim.SCIMConstants;
 import io.imunity.scim.common.ListResponse;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SchemaRestControllerTest
 {
 	@Mock
@@ -39,7 +38,7 @@ public class SchemaRestControllerTest
 
 	private SchemaRestController controller;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		controller = new SchemaRestController(schemaAssemblyService);
@@ -60,8 +59,8 @@ public class SchemaRestControllerTest
 
 		when(schemaAssemblyService.getSchemaResource(new SchemaId("id"))).thenReturn(Optional.of(schema));
 		Response resp = controller.getSchema("id", uriInfo);
-		assertThat(resp.getStatus(), is(Response.Status.OK.getStatusCode()));
-		assertThat(resp.getEntity(), is(SCIMConstants.MAPPER.writeValueAsString(schema)));
+		assertThat(resp.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+		assertThat(resp.getEntity()).isEqualTo(SCIMConstants.MAPPER.writeValueAsString(schema));
 	}
 
 	@Test
@@ -73,8 +72,8 @@ public class SchemaRestControllerTest
 				.withResources(List.of(schema1, schema2)).withTotalResults(2).build();
 		when(schemaAssemblyService.getSchemasResource()).thenReturn(schemas);
 		Response resp = controller.getSchemas(uriInfo);
-		assertThat(resp.getStatus(), is(Response.Status.OK.getStatusCode()));
-		assertThat(resp.getEntity(), is(SCIMConstants.MAPPER.writeValueAsString(schemas)));
+		assertThat(resp.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+		assertThat(resp.getEntity()).isEqualTo(SCIMConstants.MAPPER.writeValueAsString(schemas));
 	}
 
 }

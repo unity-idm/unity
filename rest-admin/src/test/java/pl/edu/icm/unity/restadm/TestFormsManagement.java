@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -22,7 +21,7 @@ import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -56,8 +55,8 @@ public class TestFormsManagement extends RESTAdminTestBase
 
 		List<RestRegistrationForm> returnedL = m.readValue(contents, 
 				new TypeReference<List<RestRegistrationForm>>() {});
-		assertThat(returnedL.size(), is(1));
-		assertThat(returnedL.get(0), is(getRegistrationForm()));
+		assertThat(returnedL.size()).isEqualTo(1);
+		assertThat(returnedL.get(0)).isEqualTo(getRegistrationForm());
 	}
 
 	@Test
@@ -76,7 +75,7 @@ public class TestFormsManagement extends RESTAdminTestBase
 		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		List<RestRegistrationForm> returnedL = m.readValue(contents, 
 				new TypeReference<List<RestRegistrationForm>>() {});
-		assertThat(returnedL.isEmpty(), is(true));
+		assertThat(returnedL.isEmpty()).isEqualTo(true);
 	}
 
 	@Test
@@ -97,8 +96,8 @@ public class TestFormsManagement extends RESTAdminTestBase
 
 		List<RestRegistrationForm> returnedL = m.readValue(contents, 
 				new TypeReference<List<RestRegistrationForm>>() {});
-		assertThat(returnedL.size(), is(1));
-		assertThat(returnedL.get(0), is(getUpdatedRegistrationForm()));
+		assertThat(returnedL.size()).isEqualTo(1);
+		assertThat(returnedL.get(0)).isEqualTo(getUpdatedRegistrationForm());
 	}
 
 	private RestRegistrationForm getRegistrationForm()

@@ -14,7 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.hc.core5.net.URIBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestURIBuilderFixer
 {

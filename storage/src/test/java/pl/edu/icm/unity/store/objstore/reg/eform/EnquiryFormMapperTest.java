@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;

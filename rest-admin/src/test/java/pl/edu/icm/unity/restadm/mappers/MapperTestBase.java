@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public abstract class MapperTestBase<S, T>
 {

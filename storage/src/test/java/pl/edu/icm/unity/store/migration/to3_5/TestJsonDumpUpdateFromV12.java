@@ -4,25 +4,25 @@
  */
 package pl.edu.icm.unity.store.migration.to3_5;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = { "classpath*:META-INF/components.xml" })
 public class TestJsonDumpUpdateFromV12
 {
@@ -35,7 +35,7 @@ public class TestJsonDumpUpdateFromV12
 	@Autowired
 	protected ImportExport ie;
 
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();

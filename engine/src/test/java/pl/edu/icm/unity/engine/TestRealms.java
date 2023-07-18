@@ -4,11 +4,10 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
@@ -19,21 +18,21 @@ public class TestRealms extends DBIntegrationTestBase
 	public void testRealmsMan() throws Exception
 	{
 		Collection<AuthenticationRealm> realms = realmsMan.getRealms();
-		assertEquals(0, realms.size());
+		assertThat(realms).isEmpty();
 		
 		AuthenticationRealm r = new AuthenticationRealm("some realm", "desc", 
 				10, 11, RememberMePolicy.disallow , 2, 22);
 		realmsMan.addRealm(r);
 		
 		AuthenticationRealm r2 = realmsMan.getRealm(r.getName());
-		assertEquals(r.getName(), r2.getName());
-		assertEquals(r.getDescription(), r2.getDescription());
-		assertEquals(r.getAllowForRememberMeDays(), r2.getAllowForRememberMeDays());
-		assertEquals(r.getBlockAfterUnsuccessfulLogins(), r2.getBlockAfterUnsuccessfulLogins());
-		assertEquals(r.getBlockFor(), r2.getBlockFor());
-		assertEquals(r.getMaxInactivity(), r2.getMaxInactivity());
+		assertThat(r2.getName()).isEqualTo(r.getName());
+		assertThat(r2.getDescription()).isEqualTo(r.getDescription());
+		assertThat(r2.getAllowForRememberMeDays()).isEqualTo(r.getAllowForRememberMeDays());
+		assertThat(r2.getBlockAfterUnsuccessfulLogins()).isEqualTo(r.getBlockAfterUnsuccessfulLogins());
+		assertThat(r2.getBlockFor()).isEqualTo(r.getBlockFor());
+		assertThat(r2.getMaxInactivity()).isEqualTo(r.getMaxInactivity());
 		
-		assertEquals(1, realmsMan.getRealms().size());
+		assertThat(realmsMan.getRealms()).hasSize(1);
 		
 		r = new AuthenticationRealm("some realm", "desc2", 
 				11, 12, RememberMePolicy.disallow , 3, 33);
@@ -41,16 +40,16 @@ public class TestRealms extends DBIntegrationTestBase
 		realmsMan.updateRealm(r);
 		
 		r2 = realmsMan.getRealm(r.getName());
-		assertEquals(r.getName(), r2.getName());
-		assertEquals(r.getDescription(), r2.getDescription());
-		assertEquals(r.getAllowForRememberMeDays(), r2.getAllowForRememberMeDays());
-		assertEquals(r.getBlockAfterUnsuccessfulLogins(), r2.getBlockAfterUnsuccessfulLogins());
-		assertEquals(r.getBlockFor(), r2.getBlockFor());
-		assertEquals(r.getMaxInactivity(), r2.getMaxInactivity());
+		assertThat(r2.getName()).isEqualTo(r.getName());
+		assertThat(r2.getDescription()).isEqualTo(r.getDescription());
+		assertThat(r2.getAllowForRememberMeDays()).isEqualTo(r.getAllowForRememberMeDays());
+		assertThat(r2.getBlockAfterUnsuccessfulLogins()).isEqualTo(r.getBlockAfterUnsuccessfulLogins());
+		assertThat(r2.getBlockFor()).isEqualTo(r.getBlockFor());
+		assertThat(r2.getMaxInactivity()).isEqualTo(r.getMaxInactivity());
 		
 		realmsMan.removeRealm(r.getName());
 		
-		assertEquals(0, realmsMan.getRealms().size());
+		assertThat(realmsMan.getRealms()).isEmpty();
 	}
 }
 

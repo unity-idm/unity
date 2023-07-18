@@ -4,12 +4,9 @@
  */
 package pl.edu.icm.unity.rest;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -27,8 +24,8 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
 
 import com.google.common.collect.Lists;
@@ -54,7 +51,7 @@ public class TestRESTCore extends TestRESTBase
 	private static final String ALLOWED_ORIGIN2 = "http://someorigin.com2";
 	private static final String ALLOWED_HEADER = "authorization";
 	
-	@Before
+	@BeforeEach
 	public void configureEndpoint() throws Exception
 	{
 		setupPasswordAuthn();
@@ -96,7 +93,7 @@ public class TestRESTCore extends TestRESTBase
 
 		ClassicHttpResponse		 response = client.executeOpen(host, get, localcontext);//){
 		System.out.println(EntityUtils.toString(response.getEntity()));
-		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
+		assertEquals(200, response.getCode(), new StatusLine(response).toString());
 	}
 	
 	@Test
@@ -109,7 +106,7 @@ public class TestRESTCore extends TestRESTBase
 		//no password, should fail.
 		HttpResponse response = client.executeOpen(host, get, null);
 
-		assertThat(response.getCode(), is(Status.BAD_REQUEST.getStatusCode()));
+		assertThat(response.getCode()).isEqualTo(Status.BAD_REQUEST.getStatusCode());
 	}
 	
 	@Test
@@ -123,9 +120,9 @@ public class TestRESTCore extends TestRESTBase
 		ClassicHttpResponse response = client.executeOpen(host, get, localcontext);
 		String entity = EntityUtils.toString(response.getEntity());
 		System.out.println(entity);
-		assertThat(response.getCode(), is(Status.FORBIDDEN.getStatusCode()));
-		assertThat(response.getEntity().getContentType(), is(MediaType.APPLICATION_JSON));
-		assertThat(entity, containsString("Test exception"));
+		assertThat(response.getCode()).isEqualTo(Status.FORBIDDEN.getStatusCode());
+		assertThat(response.getEntity().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+		assertThat(entity).containsSequence("Test exception");
 	}
 	
 	@Test
@@ -161,18 +158,15 @@ public class TestRESTCore extends TestRESTBase
 	
 	private void assertCorsAllowed(ClassicHttpResponse response)
 	{
-		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
+		assertEquals(200, response.getCode(), new StatusLine(response).toString());
 		System.out.println(Arrays.toString(response.getHeaders()));
-		assertThat(response.getHeaders("Access-Control-Allow-Origin"), is(notNullValue()));
-		assertThat(response.getHeaders("Access-Control-Allow-Origin").length, is(1));
-		assertThat(response.getHeaders("Access-Control-Allow-Origin")[0].getValue(), is(ALLOWED_ORIGIN2));
-		assertThat(response.getHeaders("Access-Control-Allow-Methods"), is(notNullValue()));
-		assertThat(response.getHeaders("Access-Control-Allow-Methods").length, is(1));
-		assertThat(response.getHeaders("Access-Control-Allow-Methods")[0].getValue(), allOf(
-				containsString("GET"),
-				containsString("POST"),
-				containsString("DELETE"),
-				containsString("PUT")));
+		assertThat(response.getHeaders("Access-Control-Allow-Origin")).isNotNull();
+		assertThat(response.getHeaders("Access-Control-Allow-Origin").length).isEqualTo(1);
+		assertThat(response.getHeaders("Access-Control-Allow-Origin")[0].getValue()).isEqualTo(ALLOWED_ORIGIN2);
+		assertThat(response.getHeaders("Access-Control-Allow-Methods")).isNotNull();
+		assertThat(response.getHeaders("Access-Control-Allow-Methods").length).isEqualTo(1);
+		assertThat(response.getHeaders("Access-Control-Allow-Methods")[0].getValue()).contains("GET", "POST", "DELETE",
+				"PUT");
 	}
 	
 	@Test
@@ -186,12 +180,12 @@ public class TestRESTCore extends TestRESTBase
 		
 		HttpResponse response = client.executeOpen(host, preflight, localcontext);
 		
-		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
+		assertEquals(200, response.getCode(), new StatusLine(response).toString());
 		System.out.println(Arrays.toString(response.getHeaders()));
-		assertThat(response.getHeaders("Access-Control-Allow-Origin"), is(notNullValue()));
-		assertThat(response.getHeaders("Access-Control-Allow-Origin").length, is(0));
-		assertThat(response.getHeaders("Access-Control-Allow-Methods"), is(notNullValue()));
-		assertThat(response.getHeaders("Access-Control-Allow-Methods").length, is(0));
+		assertThat(response.getHeaders("Access-Control-Allow-Origin")).isNotNull();
+		assertThat(response.getHeaders("Access-Control-Allow-Origin").length).isEqualTo(0);
+		assertThat(response.getHeaders("Access-Control-Allow-Methods")).isNotNull();
+		assertThat(response.getHeaders("Access-Control-Allow-Methods").length).isEqualTo(0);
 	}
 	
 	@Test
@@ -207,11 +201,11 @@ public class TestRESTCore extends TestRESTBase
 		
 		HttpResponse response = client.executeOpen(host, preflight, localcontext);
 		
-		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
+		assertEquals(200, response.getCode(), new StatusLine(response).toString());
 		System.out.println(Arrays.toString(response.getHeaders()));
-		assertThat(response.getHeaders("Access-Control-Allow-Origin"), is(notNullValue()));
-		assertThat(response.getHeaders("Access-Control-Allow-Origin").length, is(0));
-		assertThat(response.getHeaders("Access-Control-Allow-Methods"), is(notNullValue()));
-		assertThat(response.getHeaders("Access-Control-Allow-Methods").length, is(0));
+		assertThat(response.getHeaders("Access-Control-Allow-Origin")).isNotNull();
+		assertThat(response.getHeaders("Access-Control-Allow-Origin").length).isEqualTo(0);
+		assertThat(response.getHeaders("Access-Control-Allow-Methods")).isNotNull();
+		assertThat(response.getHeaders("Access-Control-Allow-Methods").length).isEqualTo(0);
 	}
 }

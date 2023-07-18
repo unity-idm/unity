@@ -5,10 +5,8 @@
 
 package pl.edu.icm.unity.engine.project;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,12 +17,12 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.Sets;
 
@@ -32,24 +30,24 @@ import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
-import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.base.registration.invitation.ComboInvitationParam;
 import pl.edu.icm.unity.base.registration.invitation.EnquiryInvitationParam;
 import pl.edu.icm.unity.base.registration.invitation.FormPrefill;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
-import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.IllegalInvitationException;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.NotProjectInvitation;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestProjectInvitationManagement extends TestProjectBase
 {
 	@Mock
@@ -57,7 +55,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 
 	private ProjectInvitationsManagementImpl projectInvMan;
 
-	@Before
+	@BeforeEach
 	public void initProjectInvitationMan()
 	{
 		projectInvMan = new ProjectInvitationsManagementImpl(mockInvitationMan, mockGroupMan, mockRegistrationMan,
@@ -79,12 +77,12 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		verify(mockInvitationMan).addInvitation(argument.capture());
 
 		InvitationParam targetParam = argument.getValue();
-		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
-		assertThat(targetParam.getFormsPrefillData().get(0).getFormId(), is("regForm"));
-		assertThat(targetParam.getFormsPrefillData().get(1).getFormId(), is("enqForm"));
-		assertThat(targetParam.getType(), is(InvitationType.COMBO));
-		assertThat(targetParam.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups(),
-				hasItems("/project/a"));
+		assertThat(targetParam.getContactAddress()).isEqualTo("demo@demo.com");
+		assertThat(targetParam.getFormsPrefillData().get(0).getFormId()).isEqualTo("regForm");
+		assertThat(targetParam.getFormsPrefillData().get(1).getFormId()).isEqualTo("enqForm");
+		assertThat(targetParam.getType()).isEqualTo(InvitationType.COMBO);
+		assertThat(targetParam.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups()
+				).contains("/project/a");
 	}
 	
 	@Test
@@ -102,12 +100,12 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		verify(mockInvitationMan).addInvitation(argument.capture());
 
 		InvitationParam targetParam = argument.getValue();
-		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
-		assertThat(targetParam.getFormsPrefillData().get(0).getFormId(), is("regForm"));
-		assertThat(targetParam.getFormsPrefillData().get(1).getFormId(), is("enqForm"));
-		assertThat(targetParam.getType(), is(InvitationType.COMBO));
-		assertThat(targetParam.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups(),
-				hasItems("/project/a"));
+		assertThat(targetParam.getContactAddress()).isEqualTo("demo@demo.com");
+		assertThat(targetParam.getFormsPrefillData().get(0).getFormId()).isEqualTo("regForm");
+		assertThat(targetParam.getFormsPrefillData().get(1).getFormId()).isEqualTo("enqForm");
+		assertThat(targetParam.getType()).isEqualTo(InvitationType.COMBO);
+		assertThat(targetParam.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups()
+				).contains("/project/a");
 	}
 
 	@Test
@@ -117,19 +115,28 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		when(mockIdMan.getAllEntitiesWithContactEmail("demo@demo.com"))
 				.thenReturn(Sets.newHashSet(new Entity(null, new EntityInformation(1L), null)));
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
-				Arrays.asList("/project/a"), false, Instant.now().plusSeconds(1000));
+				Arrays.asList("/project/a"), false, Instant.now()
+						.plusSeconds(1000));
 		projectInvMan.addInvitation(projectParam);
 
 		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
 		verify(mockInvitationMan).addInvitation(argument.capture());
 
 		InvitationParam targetParam = argument.getValue();
-		assertThat(targetParam.getContactAddress(), is("demo@demo.com"));
-		assertThat(targetParam.getFormsPrefillData().get(0).getFormId(), is("regForm"));
-		assertThat(targetParam.getFormsPrefillData().get(1).getFormId(), is("enqForm"));
-		assertThat(targetParam.getType(), is(InvitationType.COMBO));
-		assertThat(targetParam.getFormsPrefillData().get(0).getGroupSelections().get(0).getEntry().getSelectedGroups(),
-				hasItems("/project/a"));
+		assertThat(targetParam.getContactAddress()).isEqualTo("demo@demo.com");
+		assertThat(targetParam.getFormsPrefillData()
+				.get(0)
+				.getFormId()).isEqualTo("regForm");
+		assertThat(targetParam.getFormsPrefillData()
+				.get(1)
+				.getFormId()).isEqualTo("enqForm");
+		assertThat(targetParam.getType()).isEqualTo(InvitationType.COMBO);
+		assertThat(targetParam.getFormsPrefillData()
+				.get(0)
+				.getGroupSelections()
+				.get(0)
+				.getEntry()
+				.getSelectedGroups()).contains("/project/a");
 	}
 
 	@Test
@@ -161,7 +168,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 
 		List<ProjectInvitation> invitations = projectInvMan.getInvitations("/project");
 
-		assertThat(invitations.size(), is(3));
+		assertThat(invitations.size()).isEqualTo(3);
 	}
 
 	@Test
@@ -213,10 +220,9 @@ public class TestProjectInvitationManagement extends TestProjectBase
 
 		InvitationParam param = argument.getValue();
 
-		assertThat(param.getFormsPrefillData().get(0).getFormId(),
-				is(inv.getInvitation().getFormsPrefillData().get(0).getFormId()));
-		assertThat(param.getContactAddress(), is("demo@demo.com"));
-		assertThat(param.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups().get(0), is("/A"));
+		assertThat(param.getFormsPrefillData().get(0).getFormId()).isEqualTo(inv.getInvitation().getFormsPrefillData().get(0).getFormId());
+		assertThat(param.getContactAddress()).isEqualTo("demo@demo.com");
+		assertThat(param.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups().get(0)).isEqualTo("/A");
 
 		verify(mockInvitationMan).removeInvitation(code);
 		verify(mockInvitationMan).sendInvitation(any());

@@ -8,8 +8,8 @@ package pl.edu.icm.unity.saml.metadata.cfg;
 import org.apache.xmlbeans.XmlException;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
@@ -29,7 +29,7 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 	@Autowired
 	private AsyncExternalLogoFileDownloader fileDownloader;
 
-	@After
+	@AfterEach
 	public void tearDown() throws IOException
 	{
 		deleteDirectory(new File("target/workspace/downloadedIdPLogos"));

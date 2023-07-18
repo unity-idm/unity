@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.entity.EntityState;
@@ -25,8 +24,8 @@ public class TestPreferences extends DBIntegrationTestBase
 				"crMock", EntityState.valid);
 		EntityParam entity = new EntityParam(id.getEntityId());
 
-		assertNull(preferencesMan.getPreference(entity, "foo"));
-		assertNull(preferencesMan.getPreference(entity, "bar"));
+		assertThat(preferencesMan.getPreference(entity, "foo")).isNull();
+		assertThat(preferencesMan.getPreference(entity, "bar")).isNull();
 	}
 	
 	@Test
@@ -40,8 +39,8 @@ public class TestPreferences extends DBIntegrationTestBase
 		preferencesMan.setPreference(entity, "foo", "val1");
 		preferencesMan.setPreference(entity, "bar", "val2");
 
-		assertEquals("val1", preferencesMan.getPreference(entity, "foo"));
-		assertEquals("val2", preferencesMan.getPreference(entity, "bar"));
+		assertThat(preferencesMan.getPreference(entity, "foo")).isEqualTo("val1");
+		assertThat(preferencesMan.getPreference(entity, "bar")).isEqualTo("val2");
 	}
 
 	@Test
@@ -56,7 +55,7 @@ public class TestPreferences extends DBIntegrationTestBase
 		preferencesMan.setPreference(entity, "bar", "val2");
 		
 		preferencesMan.removePreference(entity, "foo");
-		assertNull(preferencesMan.getPreference(entity, "foo"));
-		assertEquals("val2", preferencesMan.getPreference(entity, "bar"));
+		assertThat(preferencesMan.getPreference(entity, "foo")).isNull();
+		assertThat(preferencesMan.getPreference(entity, "bar")).isEqualTo("val2");
 	}
 }

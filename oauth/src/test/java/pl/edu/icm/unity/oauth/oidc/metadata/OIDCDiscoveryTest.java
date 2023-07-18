@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.oauth.oidc.metadata;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -12,8 +13,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
@@ -47,7 +47,7 @@ public class OIDCDiscoveryTest
 		props.setProperty("openIdConnectDiscoveryEndpoint", "https://mock.googole.com");
 		CustomProviderProperties def = new CustomProviderProperties(props, "", null);
 		OIDCProviderMetadata meta = tested.getMetadata(def.generateMetadataRequest());
-		Assert.assertEquals("https://mock-issuer", meta.getIssuer()
+		assertEquals("https://mock-issuer", meta.getIssuer()
 				.getValue());
 	}
 
@@ -77,7 +77,7 @@ public class OIDCDiscoveryTest
 
 		OIDCProviderMetadata meta = tested.getMetadata(def.generateMetadataRequest());
 
-		Assert.assertEquals("https://mock-issuer", meta.getIssuer()
+		assertEquals("https://mock-issuer", meta.getIssuer()
 				.getValue());
 	}
 }

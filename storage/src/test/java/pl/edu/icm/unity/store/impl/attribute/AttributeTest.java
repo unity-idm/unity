@@ -6,8 +6,6 @@ package pl.edu.icm.unity.store.impl.attribute;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,8 +14,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -56,7 +54,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	private long entityId2;
 
 	@Override
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -314,7 +312,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	
 	private void assertAllAndOnlyAllIn(List<AttributeExt> expected, List<AttributeExt> attributes)
 	{
-		assertThat(attributes.size(), is(expected.size()));
+		assertThat(attributes).hasSize(expected.size());
 		Comparator<AttributeExt> cmp = (a, b) -> {
 			String n1 = a.getName() + "@" + a.getGroupPath();
 			String n2 = b.getName() + "@" + b.getGroupPath();
@@ -324,12 +322,12 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 		Collections.sort(expected, cmp);
 		
 		for (int i=0; i<attributes.size(); i++)
-			assertThat(attributes.get(i), is(expected.get(i)));
+			assertThat(attributes.get(i)).isEqualTo(expected.get(i));
 	}
 	
 	private void assertAllAndOnlyAllInSA(List<StoredAttribute> expected, List<StoredAttribute> attributes)
 	{
-		assertThat(attributes.size(), is(expected.size()));
+		assertThat(attributes).hasSize(expected.size());
 		Comparator<StoredAttribute> cmp = (a, b) -> {
 			String n1 = a.getAttribute().getName() + "@" + a.getAttribute().getGroupPath() + "#" + 
 					a.getEntityId();
@@ -341,7 +339,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 		Collections.sort(expected, cmp);
 		
 		for (int i=0; i<attributes.size(); i++)
-			assertThat(attributes.get(i), is(expected.get(i)));
+			assertThat(attributes.get(i)).isEqualTo(expected.get(i));
 	}	
 	
 	@Test
@@ -492,7 +490,7 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			entityDAO.deleteByKey(entityId);
 			
 			List<AttributeExt> attributes = dao.getAllEntityAttributes(entityId);
-			assertThat(attributes.isEmpty(), is(true));
+			assertThat(attributes).isEmpty();
 			
 			attributes = dao.getAllEntityAttributes(entityId2);
 			assertAllAndOnlyAllIn(Lists.newArrayList(obj4.getAttribute()), 

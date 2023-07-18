@@ -10,11 +10,12 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.vaadin.server.VaadinService;
@@ -22,7 +23,7 @@ import com.vaadin.server.VaadinSession;
 
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @UnityIntegrationTest
 public class WebSessionScopeTest
 {

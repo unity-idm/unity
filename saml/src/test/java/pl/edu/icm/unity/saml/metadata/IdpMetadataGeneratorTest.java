@@ -5,9 +5,16 @@
 
 package pl.edu.icm.unity.saml.metadata;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -15,20 +22,13 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 
-import java.util.Map;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 
 public class IdpMetadataGeneratorTest
 {
 	private SAMLIdPConfiguration samlIdpConfiguration;
 	private MessageSource messageSource;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		PKIManagement pkiManagement = mock(PKIManagement.class);
@@ -54,7 +54,7 @@ public class IdpMetadataGeneratorTest
 				new EndpointType[0], new EndpointType[0], new EndpointType[0], displayedNames, messageSource);
 
 		String xmlMetadata = generator.getMetadata().xmlText();
-		Assert.assertNotNull(xmlMetadata);
+		assertNotNull(xmlMetadata);
 		assertThat(xmlMetadata).contains("<urn:OrganizationDisplayName xml:lang=\"pl\">Ala ma kota</urn:OrganizationDisplayName>");
 		assertThat(xmlMetadata).contains("<urn:OrganizationDisplayName xml:lang=\"en\">Ala has a cat</urn:OrganizationDisplayName>");
 	}
@@ -68,7 +68,7 @@ public class IdpMetadataGeneratorTest
 				new EndpointType[0], new EndpointType[0], new EndpointType[0], displayedNames, messageSource);
 
 		String xmlMetadata = generator.getMetadata().xmlText();
-		Assert.assertNotNull(xmlMetadata);
+		assertNotNull(xmlMetadata);
 		assertThat(xmlMetadata).contains("<urn:OrganizationDisplayName xml:lang=\"en\">Ala has a cat</urn:OrganizationDisplayName>");
 	}
 }

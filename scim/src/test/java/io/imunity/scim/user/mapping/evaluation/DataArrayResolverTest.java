@@ -5,9 +5,7 @@
 
 package io.imunity.scim.user.mapping.evaluation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
@@ -15,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.config.DataArray;
 import io.imunity.scim.config.DataArray.DataArrayType;
@@ -35,7 +33,7 @@ import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DataArrayResolverTest
 {
 	@Mock
@@ -43,7 +41,7 @@ public class DataArrayResolverTest
 
 	private DataArrayResolver resolver;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		resolver = new DataArrayResolver(attrValueConverter);
@@ -61,7 +59,7 @@ public class DataArrayResolverTest
 						.withAttributes(List.of(new AttributeExt(
 								new Attribute("attribute", StringAttributeSyntax.ID, "/", List.of("value")), false)))
 						.build()).build());
-		assertThat(resolve, is(List.of("value")));
+		assertThat(resolve).isEqualTo(List.of("value"));
 	}
 
 	@Test
@@ -72,7 +70,7 @@ public class DataArrayResolverTest
 						EvaluatorContext.builder().withUser(User.builder()
 								.withIdentities(List.of(new Identity(UsernameIdentity.ID, "id1", 0, "id1"))).build())
 								.build());
-		assertThat(resolve, is(List.of("id1")));
+		assertThat(resolve).isEqualTo(List.of("id1"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -87,6 +85,6 @@ public class DataArrayResolverTest
 
 						.withUser(User.builder().withGroups(Set.of(new Group("/g1"), new Group("g2"))).build())
 						.build());
-		assertThat((List<MVELGroup>) resolve, hasItems(provider.get("/g1"), provider.get("/g2")));
+		assertThat((List<MVELGroup>) resolve).contains(provider.get("/g1"), provider.get("/g2"));
 	}
 }

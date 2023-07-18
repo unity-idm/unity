@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;

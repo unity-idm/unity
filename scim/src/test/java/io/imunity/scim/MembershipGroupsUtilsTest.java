@@ -5,15 +5,12 @@
 
 package io.imunity.scim;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
@@ -28,8 +25,8 @@ public class MembershipGroupsUtilsTest
 				Collections.emptyList(),
 				Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B"), "/B/C", new Group("/B/C")));
 
-		assertThat(effectiveMembershipGroups.size(), is(2));
-		assertThat(effectiveMembershipGroups, hasItems("/B", "/B/C"));
+		assertThat(effectiveMembershipGroups).hasSize(2);
+		assertThat(effectiveMembershipGroups).contains("/B", "/B/C");
 	}
 
 	@Test
@@ -41,8 +38,8 @@ public class MembershipGroupsUtilsTest
 				Map.of("/", new Group("/"), "/A", new Group("/A"), "/A/B", new Group("/A/B"), "/B", new Group("/B"),
 						"/B/C", new Group("/B/C"), "/A/Bar", new Group("/A/Bar"), "/A/B/C", new Group("/A/B/C")));
 
-		assertThat(effectiveMembershipGroups.size(), is(1));
-		assertThat(effectiveMembershipGroups, hasItems("/A"));
+		assertThat(effectiveMembershipGroups).hasSize(1);
+		assertThat(effectiveMembershipGroups).contains("/A");
 	}
 
 	@Test
@@ -53,8 +50,8 @@ public class MembershipGroupsUtilsTest
 				Map.of("/", new Group("/"), "/A", new Group("/A"), "/A/B", new Group("/A/B"), "/B", new Group("/B"),
 						"/B/C", new Group("/B/C"), "/A/Bar", new Group("/A/Bar"), "/A/B/C", new Group("/A/B/C")));
 
-		assertThat(effectiveMembershipGroups.size(), is(2));
-		assertThat(effectiveMembershipGroups, hasItems("/A", "/A/Bar"));
+		assertThat(effectiveMembershipGroups).hasSize(2);
+		assertThat(effectiveMembershipGroups).contains("/A", "/A/Bar");
 	}
 
 	@Test
@@ -64,8 +61,8 @@ public class MembershipGroupsUtilsTest
 		List<String> effectiveMembershipGroups = MembershipGroupsUtils.getEffectiveMembershipGroups(List.of("/A"),
 				Collections.emptyList(), Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B")));
 
-		assertThat(effectiveMembershipGroups.size(), is(1));
-		assertThat(effectiveMembershipGroups, hasItems("/A"));
+		assertThat(effectiveMembershipGroups).hasSize(1);
+		assertThat(effectiveMembershipGroups).contains("/A");
 	}
 
 	@Test
@@ -75,8 +72,8 @@ public class MembershipGroupsUtilsTest
 		List<String> effectiveMembershipGroups = MembershipGroupsUtils.getEffectiveMembershipGroups(List.of("/**"),
 				List.of("/A"), Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B")));
 
-		assertThat(effectiveMembershipGroups.size(), is(2));
-		assertThat(effectiveMembershipGroups, hasItems("/", "/B"));
+		assertThat(effectiveMembershipGroups).hasSize(2);
+		assertThat(effectiveMembershipGroups).contains("/", "/B");
 	}
 
 	@Test
@@ -87,7 +84,7 @@ public class MembershipGroupsUtilsTest
 				Collections.emptyList(),
 				Map.of("/", new Group("/"), "/A", new Group("/A"), "/A/C", new Group("/A/C"), "/B", new Group("/B")));
 
-		assertThat(effectiveMembershipGroups.size(), is(2));
-		assertThat(effectiveMembershipGroups, hasItems("/A", "/A/C"));
+		assertThat(effectiveMembershipGroups).hasSize(2);
+		assertThat(effectiveMembershipGroups).contains("/A", "/A/C");
 	}
 }

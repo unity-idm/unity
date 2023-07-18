@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.i18n;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -11,8 +12,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -36,7 +36,7 @@ public class I18nRichTextFieldTest
 		original.addValue("pl", "Wartość 1");
 		tf.setValue(original);
 		I18nString ret = tf.getValue();
-		Assert.assertEquals(original, ret);
+		assertEquals(original, ret);
 	}
 	
 }

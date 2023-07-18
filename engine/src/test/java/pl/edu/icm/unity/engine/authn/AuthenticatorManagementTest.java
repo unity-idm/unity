@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
@@ -75,7 +75,7 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 		MockEndpoint endpoint = (MockEndpoint) internalEndpointMan.getDeployedEndpoints().iterator().next();
 		Throwable error = Assertions.catchThrowable(() -> endpoint.authenticate());
 		
-		Assertions.assertThat(error).isInstanceOf(IllegalCredentialException.class);
+		assertThat(error).isInstanceOf(IllegalCredentialException.class);
 	}
 
 	@Test
@@ -112,14 +112,11 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 	}
 	
 	
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldThrowExceptionWhenAddAuthFlowWithMissingAuthenticator()
-			throws EngineException
+	public void shouldThrowExceptionWhenAddAuthFlowWithMissingAuthenticator() throws EngineException
 	{
-		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
-				"flow1", Policy.NEVER, Sets.newHashSet("wrong")));
+		assertThrows(IllegalArgumentException.class, () -> authnFlowMan.addAuthenticationFlow(
+				new AuthenticationFlowDefinition("flow1", Policy.NEVER, Sets.newHashSet("wrong"))));
 	}
-	
 	
 	@Test
 	public void shouldReturnAllAuthnTypes() throws Exception
@@ -145,11 +142,11 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 		Collection<AuthenticatorInfo> auths = authnMan.getAuthenticators("web");
 		assertEquals(1, auths.size());
 		AuthenticatorInfo authInstanceR = auths.iterator().next();
-		assertThat(authInstanceR.getId(), is("auth0"));
-		assertThat(authInstanceR.getTypeDescription(), is(authType));
-		assertThat(authInstanceR.getConfiguration(), is("CONFIG"));
-		assertThat(authInstanceR.getLocalCredentialName().get(), is("credential1"));
-		assertThat(authInstanceR.getSupportedBindings(), is(Sets.newHashSet("web", "web2")));
+		assertThat(authInstanceR.getId()).isEqualTo("auth0");
+		assertThat(authInstanceR.getTypeDescription()).isEqualTo(authType);
+		assertThat(authInstanceR.getConfiguration()).isEqualTo("CONFIG");
+		assertThat(authInstanceR.getLocalCredentialName().get()).isEqualTo("credential1");
+		assertThat(authInstanceR.getSupportedBindings()).isEqualTo(Sets.newHashSet("web", "web2"));
 	}
 
 	@Test
@@ -165,11 +162,11 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 		Collection<AuthenticatorInfo> auths = authnMan.getAuthenticators("web");
 		assertEquals(1, auths.size());
 		AuthenticatorInfo authInstanceR = auths.iterator().next();
-		assertThat(authInstanceR.getId(), is("auth1"));
-		assertThat(authInstanceR.getTypeDescription(), is(authType));
-		assertThat(authInstanceR.getConfiguration(), is("UPDATED"));
-		assertThat(authInstanceR.getLocalCredentialName().get(), is("credential1"));
-		assertThat(authInstanceR.getSupportedBindings(), is(Sets.newHashSet("web", "web2")));
+		assertThat(authInstanceR.getId()).isEqualTo("auth1");
+		assertThat(authInstanceR.getTypeDescription()).isEqualTo(authType);
+		assertThat(authInstanceR.getConfiguration()).isEqualTo("UPDATED");
+		assertThat(authInstanceR.getLocalCredentialName().get()).isEqualTo("credential1");
+		assertThat(authInstanceR.getSupportedBindings()).isEqualTo(Sets.newHashSet("web", "web2"));
 	}
 	
 	@Test
@@ -184,10 +181,10 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 				"flow1", Policy.NEVER, Sets.newHashSet("auth0")));
 
 		Collection<AuthenticationFlowDefinition> authFlows = authnFlowMan.getAuthenticationFlows();
-		assertThat(authFlows.size(), is(1));
+		assertThat(authFlows.size()).isEqualTo(1);
 		AuthenticationFlowDefinition flow = authFlows.iterator().next();
-		assertThat(flow.getFirstFactorAuthenticators(), is(Sets.newHashSet("auth0")));
-		assertThat(flow.getPolicy(), is(Policy.NEVER));
+		assertThat(flow.getFirstFactorAuthenticators()).isEqualTo(Sets.newHashSet("auth0"));
+		assertThat(flow.getPolicy()).isEqualTo(Policy.NEVER);
 	}
 	
 	@Test
@@ -205,10 +202,10 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 				"flow1", Policy.REQUIRE, Sets.newHashSet("auth1")));
 		
 		Collection<AuthenticationFlowDefinition> authFlows = authnFlowMan.getAuthenticationFlows();
-		assertThat(authFlows.size(), is(1));
+		assertThat(authFlows.size()).isEqualTo(1);
 		AuthenticationFlowDefinition flow = authFlows.iterator().next();
-		assertThat(flow.getFirstFactorAuthenticators(), is(Sets.newHashSet("auth1")));
-		assertThat(flow.getPolicy(), is(Policy.REQUIRE));
+		assertThat(flow.getFirstFactorAuthenticators()).isEqualTo(Sets.newHashSet("auth1"));
+		assertThat(flow.getPolicy()).isEqualTo(Policy.REQUIRE);
 	}
 	
 	
@@ -246,7 +243,7 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 
 		List<String> endpointFlows = endpointMan.getDeployedEndpoints().get(0).
 				getEndpoint().getConfiguration().getAuthenticationOptions();
-		assertThat(endpointFlows.size(), is(1));
+		assertThat(endpointFlows.size()).isEqualTo(1);
 		
 		//remove a used authenticator
 		try
@@ -272,10 +269,10 @@ public class AuthenticatorManagementTest extends DBIntegrationTestBase
 
 		authnFlowMan.removeAuthenticationFlow("flow1");
 		Collection<AuthenticationFlowDefinition> authFlows = authnFlowMan.getAuthenticationFlows();
-		assertThat(authFlows.size(), is(0));
+		assertThat(authFlows.size()).isEqualTo(0);
 
 		authnMan.removeAuthenticator(authInstance1.getId());
 		Collection<AuthenticatorInfo> auths = authnMan.getAuthenticators(null);
-		assertThat(auths.size(), is(0));	
+		assertThat(auths.size()).isEqualTo(0);	
 	}
 }

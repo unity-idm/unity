@@ -5,15 +5,14 @@
 package pl.edu.icm.unity.engine.attribute;
 
 import static java.util.Collections.singleton;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -307,7 +306,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, StringAttribute.of("a2", "/A/B", "direct"));
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
 		assertEquals(1, aRet.size());
-		assertEquals(aRet.iterator().next().getValues().toString(), 2, aRet.iterator().next().getValues().size());
+		assertEquals(2, aRet.iterator().next().getValues().size());
 		assertEquals("direct", aRet.iterator().next().getValues().get(0));
 		assertEquals("merge2", aRet.iterator().next().getValues().get(1));
 	}
@@ -379,18 +378,18 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 //				0, 0, 0, 0,  0, 0); //a2
 		
 		Collection<AttributeExt> aRet = attrsMan.getAllAttributes(entity, true, "/A", "a1", false);
-		assertEquals(aRet.toString(), 1, aRet.size());
+		assertEquals(1, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A", "a2", false);
-		assertEquals(aRet.toString(), 0, aRet.size());
+		assertEquals(0, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A", null, false);
-		assertEquals(aRet.toString(), 1, aRet.size());
+		assertEquals(1, aRet.size());
 		
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a1", false);
-		assertEquals(aRet.toString(), 0, aRet.size());
+		assertEquals(0, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a2", false);
-		assertEquals(aRet.toString(), 0, aRet.size());
+		assertEquals( 0, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", null, false);
-		assertEquals(aRet.toString(), 1, aRet.size());
+		assertEquals(1, aRet.size());
 	}
 	
 	@Test
@@ -451,9 +450,9 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 
 
 		Collection<AttributeExt> aRet = attrsMan.getAllAttributes(entity2, true, "/A", "a2", false);
-		assertThat(aRet.isEmpty(), is(true));
+		assertThat(aRet.isEmpty()).isTrue();
 		Collection<AttributeExt> aRet2 = attrsMan.getAllAttributes(entity, true, "/A", "a2", false);
-		assertThat(aRet2.size(), is(1));
+		assertThat(aRet2).hasSize(1);
 	}
 
 	
@@ -516,56 +515,56 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 			int a2InRoot, int a2InA, int a2InAB, int a2InABC, int a2InAD, int a2InAZ) throws Exception
 	{
 		Collection<AttributeExt> aRet = attrsMan.getAllAttributes(entity, true, "/", "a1", false);
-		assertEquals(aRet.toString(), a1InRoot, aRet.size());
+		assertEquals(a1InRoot, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/", "a2", false);
-		assertEquals(aRet.toString(), a2InRoot, aRet.size());
+		assertEquals(a2InRoot, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/", null, false);
-		assertEquals(aRet.toString(), a2InRoot+a1InRoot+systemAttributes, aRet.size());
+		assertEquals(a2InRoot+a1InRoot+systemAttributes, aRet.size());
 		
 		aRet = attrsMan.getAllAttributes(entity, true, "/A", "a1", false);
-		assertEquals(aRet.toString(), a1InA, aRet.size());
+		assertEquals(a1InA, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A", "a2", false);
-		assertEquals(aRet.toString(), a2InA, aRet.size());
+		assertEquals(a2InA, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A", null, false);
-		assertEquals(aRet.toString(), a1InA+a2InA, aRet.size());
+		assertEquals(a1InA+a2InA, aRet.size());
 		
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a1", false);
-		assertEquals(aRet.toString(), a1InAB, aRet.size());
+		assertEquals(a1InAB, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
-		assertEquals(aRet.toString(), a2InAB, aRet.size());
+		assertEquals(a2InAB, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", null, false);
-		assertEquals(aRet.toString(), a1InAB+a2InAB, aRet.size());
+		assertEquals(a1InAB+a2InAB, aRet.size());
 
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B/C", "a1", false);
-		assertEquals(aRet.toString(), a1InABC, aRet.size());
+		assertEquals(a1InABC, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B/C", "a2", false);
-		assertEquals(aRet.toString(), a2InABC, aRet.size());
+		assertEquals(a2InABC, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B/C", null, false);
-		assertEquals(aRet.toString(), a1InABC+a2InABC, aRet.size());
+		assertEquals(a1InABC+a2InABC, aRet.size());
 
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a1", false);
-		assertEquals(aRet.toString(), a1InAD, aRet.size());
+		assertEquals(a1InAD, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a2", false);
-		assertEquals(aRet.toString(), a2InAD, aRet.size());
+		assertEquals(a2InAD, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", null, false);
-		assertEquals(aRet.toString(), a1InAD+a2InAD, aRet.size());
+		assertEquals(a1InAD+a2InAD, aRet.size());
 		
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/Z", "a1", false);
-		assertEquals(aRet.toString(), a1InAZ, aRet.size());
+		assertEquals(a1InAZ, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/Z", "a2", false);
-		assertEquals(aRet.toString(), a2InAZ, aRet.size());
+		assertEquals(a2InAZ, aRet.size());
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/Z", null, false);
-		assertEquals(aRet.toString(), a1InAZ+a2InAZ, aRet.size());
+		assertEquals(a1InAZ+a2InAZ, aRet.size());
 		
 		aRet = attrsMan.getAllAttributes(entity, true, (String)null, null, false);
-		assertEquals(aRet.toString(), a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ+
+		assertEquals(a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ+
 				a2InRoot+a2InA+a2InAB+a2InABC+a2InAD+a2InAZ+systemAttributes, aRet.size());
 
 		aRet = attrsMan.getAllAttributes(entity, true, (String)null, "a2", false);
-		assertEquals(aRet.toString(), a2InRoot+a2InA+a2InAB+a2InABC+a2InAD+a2InAZ, aRet.size());
+		assertEquals(a2InRoot+a2InA+a2InAB+a2InABC+a2InAD+a2InAZ, aRet.size());
 		
 		aRet = attrsMan.getAllAttributes(entity, true, (String)null, "a1", false);
-		assertEquals(aRet.toString(), a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ, aRet.size());
+		assertEquals(a1InRoot+a1InA+a1InAB+a1InABC+a1InAD+a1InAZ, aRet.size());
 	}
 	
 	private void setStatments(Group group, AttributeStatement... statements) throws EngineException

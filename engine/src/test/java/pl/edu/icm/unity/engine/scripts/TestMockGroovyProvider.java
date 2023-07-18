@@ -4,19 +4,16 @@
  */
 package pl.edu.icm.unity.engine.scripts;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.google.common.collect.Lists;
 
@@ -25,14 +22,14 @@ import pl.edu.icm.unity.base.event.PersistableEvent;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @UnityIntegrationTest
 public class TestMockGroovyProvider
 {
 	@Autowired
 	protected MainGroovyExecutor groovyExecutor;
 	
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void mockAndProdBindingsShouldBeTheSame()
 	{
@@ -40,20 +37,20 @@ public class TestMockGroovyProvider
 		Binding mockBinding = MockGroovyBindingProvider.getBinding(event);
 		Binding binding = groovyExecutor.getBinding(event);
 		Map variables = binding.getVariables();
-		assertThat(mockBinding.getVariables().size(), is(variables.size()));
+		assertThat(mockBinding.getVariables()).hasSize(variables.size());
 		for (Object entryO: variables.entrySet())
 		{
 			Map.Entry entry = (Entry) entryO;
 			String key = (String) entry.getKey();
 			Object value = entry.getValue();
 			Object mockValue = mockBinding.getVariable(key);
-			assertThat(key, mockValue, is(notNullValue()));
+			assertThat(mockValue).isNotNull();
 			for (Class<?> implementedIface: value.getClass().getInterfaces())
 			{
 				if (!implementedIface.getPackage().getName().startsWith("pl.edu.icm"))
 					continue;
-				assertThat(Lists.newArrayList(value.getClass().getInterfaces()), 
-						hasItem(implementedIface));
+				assertThat(Lists.newArrayList(value.getClass().getInterfaces())). 
+						contains(implementedIface);
 			}
 		}
 	}

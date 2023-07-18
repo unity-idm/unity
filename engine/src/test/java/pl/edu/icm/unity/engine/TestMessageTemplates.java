@@ -1,15 +1,13 @@
 package pl.edu.icm.unity.engine;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -35,7 +33,7 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 	@Test
 	public void testPersistence() throws Exception
 	{
-		assertEquals(2, msgTempMan.listTemplates().size());
+		assertThat(msgTempMan.listTemplates()).hasSize(2);
 		I18nString subject = new I18nString("stest");
 		subject.addValue("pl", "Tytuł");
 		subject.addValue("en", "Title");
@@ -46,13 +44,13 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 				"EmailPasswordResetCode", MessageType.PLAIN,
 				UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
 		msgTempMan.addTemplate(template);
-		assertEquals(3, msgTempMan.listTemplates().size());
+		assertThat(msgTempMan.listTemplates()).hasSize(3);
 		MessageTemplate added = msgTempMan.getTemplate("tName");
-		assertEquals("tName", added.getName());
-		assertEquals("tDesc", added.getDescription());
-		assertEquals("EmailPasswordResetCode", added.getConsumer());
-		assertEquals(subject, added.getMessage().getSubject());
-		assertEquals(body, added.getMessage().getBody());
+		assertThat(added.getName()).isEqualTo("tName");
+		assertThat(added.getDescription()).isEqualTo("tDesc");
+		assertThat(added.getConsumer()).isEqualTo("EmailPasswordResetCode");
+		assertThat(added.getMessage().getSubject()).isEqualTo(subject);
+		assertThat(added.getMessage().getBody()).isEqualTo(body);
 		
 		I18nMessage imsg2 = new I18nMessage(new I18nString("stest${code}"), new I18nString("btest${code}"));
 		template.setMessage(imsg2);	
@@ -61,13 +59,13 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		Map<String, String> params = new HashMap<>();
 		params.put("code", "svalue");
 		added = msgTempMan.getTemplate("tName");
-		assertEquals("stestsvalue", new MessageTemplateProcessor().getMessage(added, "pl", "en", params, 
-				Collections.emptyMap()).getSubject());
-		assertEquals("btestsvalue", new MessageTemplateProcessor().getMessage(added, null, "en", params, 
-				Collections.emptyMap()).getBody());
+		assertThat(new MessageTemplateProcessor().getMessage(added, "pl", "en", params, 
+				Collections.emptyMap()).getSubject()).isEqualTo("stestsvalue");
+		assertThat(new MessageTemplateProcessor().getMessage(added, null, "en", params, 
+				Collections.emptyMap()).getBody()).isEqualTo("btestsvalue");
 		
 		msgTempMan.removeTemplate("tName");
-		assertEquals(2, msgTempMan.listTemplates().size());		
+		assertThat(msgTempMan.listTemplates()).hasSize(2);		
 	}
 	
 	@Test
@@ -161,6 +159,6 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 				MessageType.PLAIN, null);
 		
 		msgTempMan.addTemplate(template);
-		assertThat(msgTempMan.getTemplate("tName").getConsumer(), is(GenericMessageTemplateDef.NAME));		
+		assertThat(msgTempMan.getTemplate("tName").getConsumer()).isEqualTo(GenericMessageTemplateDef.NAME);		
 	}
 }

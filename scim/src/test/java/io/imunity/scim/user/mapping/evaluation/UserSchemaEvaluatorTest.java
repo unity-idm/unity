@@ -5,8 +5,7 @@
 
 package io.imunity.scim.user.mapping.evaluation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -17,12 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -46,7 +45,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserSchemaEvaluatorTest
 {
 	private UserSchemaEvaluator evaluator;
@@ -60,7 +59,7 @@ public class UserSchemaEvaluatorTest
 	@Mock
 	private SimpleMappingEvaluator simpleMappingEvaluator;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		when(complexMappingEvaluator.getId()).thenReturn(ComplexAttributeMapping.id);
@@ -174,6 +173,6 @@ public class UserSchemaEvaluatorTest
 
 		verify(complexMappingEvaluator).eval(attrWithMappingCaptor.capture(), contextCaptor.capture(),
 				eq(mappingEvaluatorRegistry));
-		assertThat(attrWithMappingCaptor.getValue(), is(complexAttr));
+		assertThat(attrWithMappingCaptor.getValue()).isEqualTo(complexAttr);
 	}
 }

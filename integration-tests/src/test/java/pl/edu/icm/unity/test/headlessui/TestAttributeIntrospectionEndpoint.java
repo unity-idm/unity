@@ -5,10 +5,10 @@
 
 package pl.edu.icm.unity.test.headlessui;
 
-import org.junit.Test;
-import org.openqa.selenium.By;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
 
 public class TestAttributeIntrospectionEndpoint extends SeleniumTestBase
 {

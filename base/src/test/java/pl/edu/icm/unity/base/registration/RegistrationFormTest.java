@@ -6,13 +6,11 @@ package pl.edu.icm.unity.base.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 
 import org.assertj.core.util.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
@@ -41,7 +39,7 @@ public class RegistrationFormTest
 		String jsonStr = JsonUtil.toJsonString(minimal);
 		RegistrationForm minimalParsed = JsonUtil.parse(jsonStr, RegistrationForm.class);
 		
-		assertThat(minimalParsed, is(minimal));
+		assertThat(minimalParsed).isEqualTo(minimal);
 	}
 
 	@Test
@@ -59,7 +57,7 @@ public class RegistrationFormTest
 		System.err.println(jsonStr);
 		RegistrationForm completeParsed = JsonUtil.parse(jsonStr, RegistrationForm.class);
 
-		assertThat(completeParsed, is(complete));
+		assertThat(completeParsed).isEqualTo(complete);
 	}
 	
 	@Test

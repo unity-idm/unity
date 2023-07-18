@@ -4,20 +4,19 @@
  */
 package pl.edu.icm.unity.store.migration.to3_12;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
@@ -25,7 +24,7 @@ import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations =
 { "classpath*:META-INF/components.xml" })
 public class TestJsonDumpUpdateFromV17
@@ -42,7 +41,7 @@ public class TestJsonDumpUpdateFromV17
 	@Autowired
 	private AttributeTypeDAO atTypeDAO;
 
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -72,6 +71,6 @@ public class TestJsonDumpUpdateFromV17
 		assertThat(atTypeDAO.get("sys:AuthorizationRole")
 				.getDescription()
 				.getValue("en")
-				.contains("Policy documents manager"), is(true));
+				.contains("Policy documents manager")).isTrue();
 	}
 }

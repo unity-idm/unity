@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.pam;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jvnet.libpam.PAM;
 import org.jvnet.libpam.PAMException;
@@ -42,7 +41,7 @@ public class TestPAM
 		UnixUser uu = new UnixUser("golbi");
 		RemotelyAuthenticatedInput rai = LibPAMUtils.unixUser2RAI(uu, "idp");
 		
-		assertThat(rai.getAttributes().get("name").getValues().get(0), 
-				is("Krzysztof Benedyczak"));
+		assertThat(rai.getAttributes().get("name").getValues().get(0)). 
+				isEqualTo("Krzysztof Benedyczak");
 	}
 }

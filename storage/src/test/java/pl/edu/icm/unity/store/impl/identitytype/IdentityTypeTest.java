@@ -4,14 +4,12 @@
  */
 package pl.edu.icm.unity.store.impl.identitytype;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.identity.IdentityType;
@@ -64,13 +62,13 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 
 			List<IdentityType> all = idTypeDAO.getAll();
 
-			assertThat(all, is(notNullValue()));
+			assertThat(all).isNotNull();
 
-			assertThat(all.size(), is(1));
+			assertThat(all).hasSize(1);
 
 			IdentityType fromList = all.get(0);
 
-			assertThat(fromList, is(obj));
+			assertThat(fromList).isEqualTo(obj);
 		});
 	}
 	
@@ -84,13 +82,13 @@ public class IdentityTypeTest extends AbstractNamedDAOTest<IdentityType>
 
 			Map<String, IdentityType> asMap = idTypeDAO.getAllAsMap();
 
-			assertThat(asMap, is(notNullValue()));
+			assertThat(asMap).isNotNull();
 
-			assertThat(asMap.size(), is(1));
+			assertThat(asMap).hasSize(1);
 
-			assertThat(asMap.containsKey(obj.getName()), is(true));
+			assertThat(asMap.keySet()).contains(obj.getName());
 
-			assertThat(asMap.get(obj.getName()), is(obj));
+			assertThat(asMap.get(obj.getName())).isEqualTo(obj);
 		});
 	}
 	

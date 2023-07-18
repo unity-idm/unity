@@ -4,13 +4,11 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -28,7 +26,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -337,7 +335,7 @@ public class TestWrite extends RESTAdminTestBase
 		}
 		
 		Entity entity = idsMan.getEntity(new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user-triggered")));
-		assertThat(entity, is(notNullValue()));
+		assertThat(entity).isNotNull();
 	}
 	
 	@Test
@@ -347,8 +345,8 @@ public class TestWrite extends RESTAdminTestBase
 				"cr-pass", EntityState.valid);
 		long entityId = identity.getEntityId();
 		Entity entity = idsMan.getEntity(new EntityParam((entityId)));
-		assertThat(entity, is(notNullValue()));
-		assertThat(entity.getEntityInformation().getEntityState(), is(EntityState.valid));
+		assertThat(entity).isNotNull();
+		assertThat(entity.getEntityInformation().getEntityState()).isEqualTo(EntityState.valid);
 		
 		HttpPut changeStatus = new HttpPut("/restadm/v1/entity/" + entityId + "/status/" + EntityState.disabled.toString());		
 		try(ClassicHttpResponse response = client.executeOpen(host, changeStatus, getClientContext(host))){
@@ -356,7 +354,7 @@ public class TestWrite extends RESTAdminTestBase
 		}
 		
 		entity = idsMan.getEntity(new EntityParam((entityId)));
-		assertThat(entity, is(notNullValue()));
-		assertThat(entity.getEntityInformation().getEntityState(), is(EntityState.disabled));
+		assertThat(entity).isNotNull();
+		assertThat(entity.getEntityInformation().getEntityState()).isEqualTo(EntityState.disabled);
 	}
 }

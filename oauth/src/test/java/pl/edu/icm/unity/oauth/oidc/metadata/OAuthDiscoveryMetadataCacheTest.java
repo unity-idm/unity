@@ -17,9 +17,9 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.Properties;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
@@ -27,7 +27,7 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OAuthDiscoveryMetadataCacheTest
 {
 	@Test

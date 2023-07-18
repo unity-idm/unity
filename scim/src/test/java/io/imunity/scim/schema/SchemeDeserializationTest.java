@@ -5,15 +5,13 @@
 
 package io.imunity.scim.schema;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
@@ -31,35 +29,35 @@ public class SchemeDeserializationTest
 
 		SCIMSchemaResource schema = mapper.readValue(new File("src/test/resources/UserScheme.json"), SCIMSchemaResource.class);
 
-		assertThat(schema.id, is("urn:ietf:params:scim:schemas:core:2.0:User"));
-		assertThat(schema.name, is("User"));
-		assertThat(schema.description, is("User Schema"));
-		assertThat(schema.attributes.size(), is(21));
+		assertThat(schema.id).isEqualTo("urn:ietf:params:scim:schemas:core:2.0:User");
+		assertThat(schema.name).isEqualTo("User");
+		assertThat(schema.description).isEqualTo("User Schema");
+		assertThat(schema.attributes.size()).isEqualTo(21);
 
 		SCIMAttributeDefinitionResource attr = schema.attributes.get(0);
 
-		assertThat(attr.name, is("userName"));
-		assertThat(attr.required, is(true));
-		assertThat(attr.multiValued, is(false));
-		assertThat(attr.caseExact, is(false));
-		assertThat(attr.returned, is("default"));
-		assertThat(attr.uniqueness, is("server"));
-		assertThat(attr.mutability, is("readWrite"));
+		assertThat(attr.name).isEqualTo("userName");
+		assertThat(attr.required).isEqualTo(true);
+		assertThat(attr.multiValued).isEqualTo(false);
+		assertThat(attr.caseExact).isEqualTo(false);
+		assertThat(attr.returned).isEqualTo("default");
+		assertThat(attr.uniqueness).isEqualTo("server");
+		assertThat(attr.mutability).isEqualTo("readWrite");
 
-		assertThat(attr.description.startsWith("Unique identifier"), is(true));
+		assertThat(attr.description.startsWith("Unique identifier")).isEqualTo(true);
 
 		SCIMAttributeDefinitionResource complexAttr = schema.attributes.get(1);
 
-		assertThat(complexAttr.name, is("name"));
-		assertThat(complexAttr.required, is(false));
-		assertThat(complexAttr.multiValued, is(false));
-		assertThat(complexAttr.caseExact, is(false));
-		assertThat(complexAttr.returned, is("default"));
-		assertThat(complexAttr.uniqueness, is("none"));
-		assertThat(complexAttr.mutability, is("readWrite"));
-		assertThat(complexAttr.description.startsWith("The components of the user's real name."), is(true));
-		assertThat(complexAttr.subAttributes.size(), is(6));
-		assertThat(complexAttr.subAttributes.stream().map(a -> a.name).collect(Collectors.toSet()),
-				hasItems("formatted", "familyName", "givenName", "middleName", "honorificPrefix", "honorificSuffix"));
+		assertThat(complexAttr.name).isEqualTo("name");
+		assertThat(complexAttr.required).isEqualTo(false);
+		assertThat(complexAttr.multiValued).isEqualTo(false);
+		assertThat(complexAttr.caseExact).isEqualTo(false);
+		assertThat(complexAttr.returned).isEqualTo("default");
+		assertThat(complexAttr.uniqueness).isEqualTo("none");
+		assertThat(complexAttr.mutability).isEqualTo("readWrite");
+		assertThat(complexAttr.description.startsWith("The components of the user's real name.")).isEqualTo(true);
+		assertThat(complexAttr.subAttributes.size()).isEqualTo(6);
+		assertThat(complexAttr.subAttributes.stream().map(a -> a.name).collect(Collectors.toSet())).
+				contains("formatted", "familyName", "givenName", "middleName", "honorificPrefix", "honorificSuffix");
 	}
 }

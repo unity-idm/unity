@@ -4,9 +4,10 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.event.Event;
@@ -17,14 +18,13 @@ import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.events.EventProducingAspect;
 import pl.edu.icm.unity.engine.events.InvocationEventContents;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+
 
 /**
  * Tests the core events mechanism
  * @author K. Benedyczak
  */
-@Ignore
+@Disabled
 public class TestEvents extends DBIntegrationTestBase
 {
 	@Autowired
@@ -52,31 +52,31 @@ public class TestEvents extends DBIntegrationTestBase
 		aTypeMan.getAttributeTypes();
 		Thread.sleep(800);
 		testInvocationTries(0, true);
-		assertEquals(0, eventProcessor.getPendingEventsNumber());
+		assertThat(eventProcessor.getPendingEventsNumber()).isEqualTo(0);
 		
 		idTypeMan.getIdentityTypes();
 		int i=0;
 		do 
 		{
 			Thread.sleep(500);
-			assertNotEquals(10, i++);
+			assertThat(i++).isNotEqualTo(10);
 		} while (!testInvocationTries(1, false) || !testInvocations(1, false));
 		
 		testInvocationTries(1, true);
 		testInvocations(1, true);
-		assertEquals(2, eventProcessor.getPendingEventsNumber());
+		assertThat(eventProcessor.getPendingEventsNumber()).isEqualTo(2);
 
 		idTypeMan.getIdentityTypes();
 		i=0;
 		do 
 		{
 			Thread.sleep(500);
-			assertNotEquals(40, i++);
+			assertThat(i++).isNotEqualTo(40);
 		} while (!testInvocationTries(2, false) || !testInvocations(2, false));
 
 		testInvocationTries(2, true);
 		testInvocations(2, true);
-		assertEquals(2, eventProcessor.getPendingEventsNumber());
+		assertThat(eventProcessor.getPendingEventsNumber()).isEqualTo(2);
 		
 		eventProcessor.removeEventListener(hConsumer2);
 		eventProcessor.removeEventListener(hConsumer1);
@@ -88,10 +88,10 @@ public class TestEvents extends DBIntegrationTestBase
 	{
 		if (fail)
 		{
-			assertEquals(expected, hConsumer1.invocationTries);
-			assertEquals(expected, hConsumer2.invocationTries);
-			assertEquals(expected, lConsumer1.invocationTries);
-			assertEquals(expected, lConsumer2.invocationTries);
+			assertThat(expected).isEqualTo(hConsumer1.invocationTries);
+			assertThat(expected).isEqualTo(hConsumer2.invocationTries);
+			assertThat(expected).isEqualTo(lConsumer1.invocationTries);
+			assertThat(expected).isEqualTo(lConsumer2.invocationTries);
 			return true;
 		} else
 		{
@@ -104,10 +104,10 @@ public class TestEvents extends DBIntegrationTestBase
 	{
 		if (fail)
 		{
-			assertEquals(expected, hConsumer1.invocations);
-			assertEquals(expected, hConsumer2.invocations);
-			assertEquals(expected, lConsumer1.invocations);
-			assertEquals(expected, lConsumer2.invocations);
+			assertThat(expected).isEqualTo(hConsumer1.invocations);
+			assertThat(expected).isEqualTo(hConsumer2.invocations);
+			assertThat(expected).isEqualTo(lConsumer1.invocations);
+			assertThat(expected).isEqualTo(lConsumer2.invocations);
 			return true;
 		} else
 		{

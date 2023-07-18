@@ -4,9 +4,11 @@
  */
 package pl.edu.icm.unity.ldap;
 
-import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.ldap.client.LdapUnsafeArgsEscaper;
 

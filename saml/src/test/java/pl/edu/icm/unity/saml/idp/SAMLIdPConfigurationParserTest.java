@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.saml.idp;
 
 import eu.unicore.samly2.SAMLConstants;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;

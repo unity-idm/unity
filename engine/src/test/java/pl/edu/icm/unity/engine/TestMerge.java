@@ -4,16 +4,17 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
@@ -46,7 +47,7 @@ public class TestMerge extends DBIntegrationTestBase
 	@Autowired
 	private CredentialRequirementManagement crMan;
 	
-	@Before
+	@BeforeEach
 	public void setup() throws Exception
 	{
 		setupPasswordAuthn(1, false);
@@ -86,25 +87,25 @@ public class TestMerge extends DBIntegrationTestBase
 		
 		//regular - simply added
 		Collection<Identity> idT = getIdentitiesByType(result.getIdentities(), IdentifierIdentity.ID);
-		assertEquals(1, idT.size());
-		assertEquals("id", idT.iterator().next().getValue());
+		assertThat(idT).hasSize(1);
+		assertThat(idT.iterator().next().getValue()).isEqualTo("id");
 
 		//dynamic but added as target has no one of this type
 		Collection<Identity> srcT = getIdentitiesByType(mergedFull.getIdentities(), 
 				TargetedPersistentIdentity.ID);
-		assertEquals(1, srcT.size());
+		assertThat(srcT).hasSize(1);
 		idT = getIdentitiesByType(result.getIdentities(), TargetedPersistentIdentity.ID);
-		assertEquals(1, idT.size());
-		assertEquals(srcT.iterator().next().getValue(), idT.iterator().next().getValue());
+		assertThat(idT).hasSize(1);
+		assertThat(srcT.iterator().next().getValue()).isEqualTo(idT.iterator().next().getValue());
 
 		//dynamic not added as target has one
 		idT = getIdentitiesByType(result.getIdentities(), PersistentIdentity.ID);
 		System.out.println("srcT: " + srcT + "\nidT: " + idT + "\nresult: " + result + 
 				"\nmerged: " + mergedFull + "\ntarget: " + targetFull);
-		assertEquals(1, idT.size());
+		assertThat(idT).hasSize(1);
 		srcT = getIdentitiesByType(targetFull.getIdentities(), PersistentIdentity.ID);
-		assertEquals(1, srcT.size());
-		assertEquals(srcT.iterator().next().getValue(), idT.iterator().next().getValue());
+		assertThat(srcT).hasSize(1);
+		assertThat(srcT.iterator().next().getValue()).isEqualTo(idT.iterator().next().getValue());
 	}
 	
 	@Test
@@ -125,9 +126,9 @@ public class TestMerge extends DBIntegrationTestBase
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);
 		
 		Collection<String> groups = idsMan.getGroups(new EntityParam(target)).keySet();
-		assertTrue(groups.contains("/A"));
-		assertTrue(groups.contains("/B"));
-		assertTrue(groups.contains("/B/C"));
+		assertThat(groups.contains("/A")).isTrue();
+		assertThat(groups.contains("/B")).isTrue();
+		assertThat(groups.contains("/B/C")).isTrue();
 	}
 
 	@Test
@@ -153,19 +154,18 @@ public class TestMerge extends DBIntegrationTestBase
 		
 		Collection<AttributeExt> a = attrsMan.getAllAttributes(
 				new EntityParam(target), false, "/", "a", false);
-		assertEquals(1, a.size());
-		assertEquals(1, a.iterator().next().getValues().size());
-		assertEquals("v1", a.iterator().next().getValues().get(0));
+		assertThat(a).hasSize(1);
+		assertThat(a.iterator().next().getValues()).hasSize(1);
+		assertThat(a.iterator().next().getValues().get(0)).isEqualTo("v1");
 		
 		a = attrsMan.getAllAttributes(new EntityParam(target), false, "/", "b", false);
-		assertEquals(1, a.size());
-		assertEquals(1, a.iterator().next().getValues().size());
-		assertEquals("v1", a.iterator().next().getValues().get(0));
+		assertThat(a).hasSize(1);
+		assertThat(a.iterator().next().getValues()).hasSize(1);
 		
 		a = attrsMan.getAllAttributes(new EntityParam(target), false, "/A", "a", false);
-		assertEquals(1, a.size());
-		assertEquals(1, a.iterator().next().getValues().size());
-		assertEquals("v1", a.iterator().next().getValues().get(0));
+		assertThat(a).hasSize(1);
+		assertThat(a.iterator().next().getValues()).hasSize(1);
+		assertThat(a.iterator().next().getValues().get(0)).isEqualTo("v1");
 	}
 	
 	@Test
@@ -185,8 +185,8 @@ public class TestMerge extends DBIntegrationTestBase
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);
 
 		Collection<AttributesClass> ac = acMan.getEntityAttributeClasses(new EntityParam(target), "/");
-		assertEquals(1, ac.size());
-		assertEquals("acT", ac.iterator().next().getName());
+		assertThat(ac).hasSize(1);
+		assertThat(ac.iterator().next().getName()).isEqualTo("acT");
 	}
 
 	@Test
@@ -203,7 +203,7 @@ public class TestMerge extends DBIntegrationTestBase
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);
 
 		Entity entity = idsMan.getEntity(new EntityParam(target));
-		assertEquals("crT", entity.getCredentialInfo().getCredentialRequirementId());
+		assertThat(entity.getCredentialInfo().getCredentialRequirementId()).isEqualTo("crT");
 	}
 
 	
@@ -224,8 +224,8 @@ public class TestMerge extends DBIntegrationTestBase
 		Entity result = idsMan.getEntity(new EntityParam(target.getEntityId()));
 		Map<String, CredentialPublicInformation> credentialsState = 
 				result.getCredentialInfo().getCredentialsState();
-		assertEquals(LocalCredentialState.notSet, credentialsState.get("credential1").getState());
-		assertEquals(LocalCredentialState.correct, credentialsState.get("credential2").getState());
+		assertThat(credentialsState.get("credential1").getState()).isEqualTo(LocalCredentialState.notSet);
+		assertThat(credentialsState.get("credential2").getState()).isEqualTo(LocalCredentialState.correct);
 
 		
 		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), false);
@@ -233,8 +233,8 @@ public class TestMerge extends DBIntegrationTestBase
 		result = idsMan.getEntity(new EntityParam(target.getEntityId()));
 		credentialsState = result.getCredentialInfo().getCredentialsState();
 		
-		assertEquals(LocalCredentialState.correct, credentialsState.get("credential1").getState());
-		assertEquals(LocalCredentialState.correct, credentialsState.get("credential2").getState());
+		assertThat(credentialsState.get("credential1").getState()).isEqualTo(LocalCredentialState.correct);
+		assertThat(credentialsState.get("credential2").getState()).isEqualTo(LocalCredentialState.correct);
 	}
 
 	@Test

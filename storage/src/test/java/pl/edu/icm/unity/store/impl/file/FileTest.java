@@ -7,7 +7,7 @@ package pl.edu.icm.unity.store.impl.file;
 
 import java.util.Date;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.file.FileData;
@@ -20,7 +20,7 @@ public class FileTest extends AbstractNamedDAOTest<FileData>
 	@Autowired
 	private FileDAO dao;
 
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();

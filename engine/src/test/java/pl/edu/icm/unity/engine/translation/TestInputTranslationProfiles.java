@@ -4,15 +4,14 @@
  */
 package pl.edu.icm.unity.engine.translation;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -108,7 +107,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 	@Test
 	public void testInputPersistence() throws Exception
 	{
-		assertThat(listDefaultModeProfiles().size(), is(0));
+		assertThat(listDefaultModeProfiles()).isEmpty();
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction( 
 				MapIdentityActionFactory.NAME, new String[] {
@@ -142,7 +141,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		assertEquals("'/A'", profiles.get("p1").getRules().get(0).getAction().getParameters()[0]);
 		
 		tprofMan.removeProfile(ProfileType.INPUT, "p1");
-		assertThat(listDefaultModeProfiles().size(), is(0));
+		assertThat(listDefaultModeProfiles()).hasSize(0);
 	}
 	
 	private List<TranslationProfile> listDefaultModeProfiles() throws EngineException
@@ -561,8 +560,8 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 				}
 			}
 		}
-		assertTrue("New not added", hasNew);
-		assertTrue("Old not preserved", hasBase);
+		assertTrue(hasNew);
+		assertTrue(hasBase);
 		
 		Collection<AttributeExt> atrs = attrsMan.getAttributes(baseUserP, "/A", "o");
 		assertEquals(1, atrs.size());
@@ -639,13 +638,13 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		boolean hasTagged = entity.getIdentities().stream().
 				map(i -> i.getValue()).
 				anyMatch(iv -> iv.equals("a+tag@example.com"));
-		assertThat(hasTagged, is(true));
+		assertThat(hasTagged).isTrue();
 		
 		Collection<AttributeExt> attrs = attrsMan.getAllAttributes(ep, false, "/", "email", true);
-		assertThat(attrs.size(), is(1));
+		assertThat(attrs).hasSize(1);
 		List<String> values = attrs.iterator().next().getValues();
-		assertThat(values.size(), is(1));
-		assertThat((VerifiableEmail.fromJsonString(values.get(0))).getValue(), is("b+tag@example.com"));
+		assertThat(values).hasSize(1);
+		assertThat((VerifiableEmail.fromJsonString(values.get(0))).getValue()).isEqualTo("b+tag@example.com");
 	}
 	
 	
@@ -678,7 +677,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 			InputTranslationProfile profileInstance = new InputTranslationProfile(retProfile, inputProfileRepo, intactionReg);
 			TranslationActionInstance firstActionInstance = profileInstance.getRuleInstances().
 					get(0).getActionInstance();
-			assertThat(firstActionInstance, is(instanceOf(BlindStopperInputAction.class)));
+			assertThat(firstActionInstance).isInstanceOf(BlindStopperInputAction.class);
 		});
 	}
 	
@@ -734,8 +733,8 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		Entity entity = idsMan.getEntity(ep);
 		Identity emailIdentity = entity.getIdentities().stream()
 				.filter(e -> e.getTypeId().equals(EmailIdentity.ID)).findAny().get();
-		assertThat(emailIdentity.getValue(), is("id@example.com"));
-		assertThat(emailIdentity.getConfirmationInfo().isConfirmed(), is(true));
+		assertThat(emailIdentity.getValue()).isEqualTo("id@example.com");
+		assertThat(emailIdentity.getConfirmationInfo().isConfirmed()).isTrue();
 	}
 	
 	
@@ -782,12 +781,12 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		assertEquals(1, atrs.size());
 		AttributeExt at = atrs.iterator().next();
 		assertEquals(1, at.getValues().size());
-		assertThat(at.getRemoteIdp(), is("remoteIDP_Y"));
-		assertThat(at.getTranslationProfile(), is("p_Y"));
+		assertThat(at.getRemoteIdp()).isEqualTo("remoteIDP_Y");
+		assertThat(at.getTranslationProfile()).isEqualTo("p_Y");
 		
 		VerifiableEmail e1 = VerifiableEmail.fromJsonString(at.getValues().get(0));
 		assertEquals("attr_NEW@example.com", e1.getValue());
-		assertThat(e1.isConfirmed(), is(false));
+		assertThat(e1.isConfirmed()).isFalse();
 	}
 	
 	@Test

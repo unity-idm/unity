@@ -1,14 +1,14 @@
 
 package pl.edu.icm.unity.oauth.rp.local;
 
-import static org.junit.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URL;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -72,7 +72,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 
 	private Identity client;
 
-	@Before
+	@BeforeEach
 	public void setup()
 	{
 		try
@@ -128,7 +128,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
-		Assert.assertEquals(200, response.getStatusCode());
+		assertEquals(200, response.getStatusCode());
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
-		Assert.assertEquals(500, response.getStatusCode());
+		assertEquals(500, response.getStatusCode());
 	}
 
 	@Test
@@ -156,7 +156,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
-		Assert.assertEquals(500, response.getStatusCode());
+		assertEquals(500, response.getStatusCode());
 	}
 
 	@Test
@@ -174,6 +174,6 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
-		Assert.assertEquals(500, response.getStatusCode());
+		assertEquals(500, response.getStatusCode());
 	}
 }

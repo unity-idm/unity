@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.engine.authz;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -18,8 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -37,7 +36,7 @@ public class TestCachingRolesResolver
 	private Map<String, AuthzRole> rolesMap;
 	private AuthzRole r1;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		dbAttributes = mock(AttributesHelper.class);
@@ -61,8 +60,8 @@ public class TestCachingRolesResolver
 		
 		Set<AuthzRole> roles = resolver.establishRoles(1, new Group("/A"));
 		
-		assertThat(roles.size(), is(1));
-		assertThat(roles, hasItem(r1));
+		assertThat(roles).hasSize(1);
+		assertThat(roles).contains(r1);
 	}
 
 	@Test
@@ -79,8 +78,8 @@ public class TestCachingRolesResolver
 		resolver.establishRoles(1, new Group("/A"));
 		Set<AuthzRole> roles = resolver.establishRoles(1, new Group("/A"));
 		
-		assertThat(roles.size(), is(1));
-		assertThat(roles, hasItem(r1));
+		assertThat(roles).hasSize(1);
+		assertThat(roles).contains(r1);
 		verify(dbAttributes).getAttributeOneGroup(eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
 		verify(dbAttributes).getAttributeOneGroup(eq(1L), eq("/A"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
 	}
@@ -101,8 +100,8 @@ public class TestCachingRolesResolver
 		Thread.sleep(10);
 		Set<AuthzRole> roles = resolver.establishRoles(1, new Group("/A"));
 
-		assertThat(roles.size(), is(1));
-		assertThat(roles, hasItem(r1));
+		assertThat(roles).hasSize(1);
+		assertThat(roles).contains(r1);
 		verify(dbAttributes, times(2)).getAttributeOneGroup(eq(1L), eq("/"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
 		verify(dbAttributes, times(2)).getAttributeOneGroup(eq(1L), eq("/A"), eq(RoleAttributeTypeProvider.AUTHORIZATION_ROLE));
 	}

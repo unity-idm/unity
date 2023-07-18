@@ -5,16 +5,15 @@
 
 package pl.edu.icm.unity.engine.forms.enquiry;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -90,7 +89,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 					true);
 		});
 
-		assertThat(response.getIdentities().get(0).isConfirmed(), is(true));
+		assertThat(response.getIdentities().get(0).isConfirmed()).isTrue();
 	}
 
 	@Test
@@ -105,7 +104,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 					getEnquiryResponseState(response), true);
 		});
 
-		assertThat(response.getIdentities().get(0).isConfirmed(), is(true));
+		assertThat(response.getIdentities().get(0).isConfirmed()).isTrue();
 	}
 
 	@Test
@@ -121,7 +120,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		});
 
 		String rawValue = response.getAttributes().get(0).getValues().get(0);
-		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed(), is(true));
+		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed()).isTrue();
 	}
 
 	@Test
@@ -137,7 +136,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		});
 
 		String rawValue = response.getAttributes().get(0).getValues().get(0);
-		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed(), is(true));
+		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed()).isTrue();
 	}
 
 	@Test
@@ -152,7 +151,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 					true);
 		});
 
-		assertThat(response.getIdentities().get(0).isConfirmed(), is(false));
+		assertThat(response.getIdentities().get(0).isConfirmed()).isFalse();
 	}
 
 	@Test
@@ -168,7 +167,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		});
 
 		String rawValue = response.getAttributes().get(0).getValues().get(0);
-		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed(), is(false));
+		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed()).isFalse();
 	}
 
 	@Test
@@ -184,7 +183,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		invitationMan.updateInvitation(code, invitation);
 
 		InvitationWithCode returnedInvitation = invitationMan.getInvitation(code);
-		assertThat(((EnquiryInvitationParam) returnedInvitation.getInvitation()).getFormPrefill().getMessageParams().get("added"), is("param"));
+		assertThat(((EnquiryInvitationParam) returnedInvitation.getInvitation()).getFormPrefill().getMessageParams().get("added")).isEqualTo("param");
 	}
 
 	@Test
@@ -243,7 +242,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 				.withContactAddress("demo@demo.com").build();
 
 		String code = invitationMan.addInvitation(invitation);
-		assertThat(invitationMan.getInvitations().size(), is(1));
+		assertThat(invitationMan.getInvitations()).hasSize(1);
 
 		return new EnquiryResponseBuilder().withRegistrationCode(code).withFormId("form")
 				.withIdentities(Lists.newArrayList(newIdentity))
@@ -277,7 +276,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 				.withContactAddress("demo@demo.com").build();
 
 		String code = invitationMan.addInvitation(invitation);
-		assertThat(invitationMan.getInvitations().size(), is(1));
+		assertThat(invitationMan.getInvitations()).hasSize(1);
 
 		// Submit response related to the invitation
 		Attribute email = VerifiableEmailAttribute.of("email", "/",
@@ -290,7 +289,7 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		String id = enquiryMan.submitEnquiryResponse(response,
 				new RegistrationContext(false, TriggeringMode.manualStandalone));
 		
-		assertThat(invitationMan.getInvitations().size(), is(0));
+		assertThat(invitationMan.getInvitations()).hasSize(0);
 
 		// Accept request
 		enquiryMan.processEnquiryResponse(id, response, RegistrationRequestAction.accept, null, null);
@@ -299,15 +298,15 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		Entity entity = idsMan.getEntity(new EntityParam(added.getEntityId()));
 		Collection<AttributeExt> allAttributes = attrsMan.getAllAttributes(new EntityParam(entity.getId()),
 				false, "/", "email", false);
-		assertThat(allAttributes.size(), is(1));
-		assertThat(allAttributes.iterator().next().getValues().get(0), is(email.getValues().iterator().next()));
+		assertThat(allAttributes).hasSize(1);
+		assertThat(allAttributes.iterator().next().getValues().get(0)).isEqualTo(email.getValues().iterator().next());
 		Identity emailId = entity.getIdentities().stream().filter(i -> i.getTypeId().equals(EmailIdentity.ID))
 				.findFirst().orElse(null);
-		assertThat(emailId, is(notNullValue()));
-		assertThat(emailId.getValue(), is("test@example.com"));
+		assertThat(emailId).isNotNull();
+		assertThat(emailId.getValue()).isEqualTo("test@example.com");
 		GroupContents contents = groupsMan.getContents("/A/B", GroupContents.MEMBERS);
-		assertThat(contents.getMembers().size(), is(1));
-		assertThat(contents.getMembers().iterator().next().getEntityId(), is(entity.getId()));
+		assertThat(contents.getMembers()).hasSize(1);
+		assertThat(contents.getMembers().iterator().next().getEntityId()).isEqualTo(entity.getId());
 	}
 
 	private EnquiryResponseState getEnquiryResponseState(EnquiryResponse response)

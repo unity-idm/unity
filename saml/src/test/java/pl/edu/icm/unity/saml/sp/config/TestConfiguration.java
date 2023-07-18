@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.saml.sp.config;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.CREDENTIAL;
 import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.DEF_SIGN_REQUEST;
@@ -16,8 +18,7 @@ import static pl.edu.icm.unity.saml.sp.SAMLSPProperties.REQUESTER_ID;
 
 import java.util.Properties;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.saml.SimplePKIManagement;
@@ -40,7 +41,7 @@ public class TestConfiguration
 		p.setProperty(P+IDP_PREFIX+"K1."+IDP_BINDING, "HTTP_POST");
 		
 		SAMLSPProperties config = new SAMLSPProperties(p, new SimplePKIManagement());
-		Assert.assertTrue(config.isSignRequest("K1"));
+		assertTrue(config.isSignRequest("K1"));
 	}
 	
 	@Test
@@ -59,7 +60,7 @@ public class TestConfiguration
 		SPMetadataGenerator generator = new SPMetadataGenerator(configuration, 
 				new IndexedEndpointType[0], new EndpointType[0]);
 		
-		Assert.assertNotNull(generator.getMetadata());
+		assertNotNull(generator.getMetadata());
 	}
 	
 }

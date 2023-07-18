@@ -8,7 +8,7 @@ package pl.edu.icm.unity.webui;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.http.MetaData;
 import org.eclipse.jetty.server.Request;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.jetty.http.HttpFields.EMPTY;

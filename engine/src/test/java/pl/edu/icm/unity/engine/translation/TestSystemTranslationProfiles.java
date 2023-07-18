@@ -6,14 +6,12 @@ package pl.edu.icm.unity.engine.translation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.translation.ProfileMode;
@@ -66,14 +64,14 @@ public class TestSystemTranslationProfiles extends DBIntegrationTestBase
 	@Test
 	public void shouldListSystemProfilesFromAllProviders() throws Exception
 	{
-		assertThat(tprofMan.listInputProfiles().size(), not(0));
-		assertThat(tprofMan.listOutputProfiles().size(), not(0));		
+		assertThat(tprofMan.listInputProfiles()).isNotEmpty();
+		assertThat(tprofMan.listOutputProfiles()).isNotEmpty();	
 	}
 	
 	@Test
 	public void shouldGetSystemProfile() throws Exception
 	{
-		assertThat(tprofMan.getInputProfile("sys:oidc"), notNullValue());
-		assertThat(tprofMan.getOutputProfile("sys:oidc"), notNullValue());		
+		assertThat(tprofMan.getInputProfile("sys:oidc")).isNotNull();
+		assertThat(tprofMan.getOutputProfile("sys:oidc")).isNotNull();
 	}
 }

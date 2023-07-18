@@ -4,16 +4,14 @@
  */
 package pl.edu.icm.unity.oauth.as.token.access;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -68,9 +66,9 @@ public class RefreshTokenTest extends TokenTestBase
 		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca, "foo", "bar");
 		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
 
-		assertThat(bearerToken.getLifetime(), is(3600l));
-		assertThat(bearerToken.getScope(), is(new Scope("foo", "bar")));
-		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
+		assertThat(bearerToken.getLifetime()).isEqualTo(3600l);
+		assertThat(bearerToken.getScope()).isEqualTo(new Scope("foo", "bar"));
+		assertThat(bearerToken.getType()).isEqualTo(AccessTokenType.BEARER);
 	}
 
 	@Test
@@ -80,7 +78,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
 		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
-		assertThat(refreshToken, nullValue());
+		assertThat(refreshToken).isNull();
 	}
 
 	@Test
@@ -90,7 +88,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
 		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
-		assertThat(refreshToken, nullValue());
+		assertThat(refreshToken).isNull();
 	}
 
 	@Test
@@ -101,7 +99,7 @@ public class RefreshTokenTest extends TokenTestBase
 
 		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar", OIDCScopeValue.OFFLINE_ACCESS.getValue()),
 				ca);
-		assertThat(refreshToken, notNullValue());
+		assertThat(refreshToken).isNotNull();
 	}
 
 	@Test
@@ -116,9 +114,9 @@ public class RefreshTokenTest extends TokenTestBase
 		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca);
 		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
 		
-		assertThat(bearerToken.getLifetime(), is(3600l));
-		assertThat(bearerToken.getScope(), is(new Scope("foo", "bar")));
-		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
+		assertThat(bearerToken.getLifetime()).isEqualTo(3600l);
+		assertThat(bearerToken.getScope()).isEqualTo(new Scope("foo", "bar"));
+		assertThat(bearerToken.getType()).isEqualTo(AccessTokenType.BEARER);
 	}
 	
 	@Test
@@ -132,9 +130,9 @@ public class RefreshTokenTest extends TokenTestBase
 
 		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");
 
-		assertThat(claimSet.getClaim("c"), is("PL"));
-		assertThat(claimSet.getClaim("email"), is("example@example.com"));
-		assertThat(claimSet.getClaim("sub"), is("userA"));
+		assertThat(claimSet.getClaim("c")).isEqualTo("PL");
+		assertThat(claimSet.getClaim("email")).isEqualTo("example@example.com");
+		assertThat(claimSet.getClaim("sub")).isEqualTo("userA");
 	}
 
 	@Test
@@ -155,8 +153,8 @@ public class RefreshTokenTest extends TokenTestBase
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 		HTTPResponse refreshResp = wrapped.send();
 		AccessTokenResponse refreshParsedResp = AccessTokenResponse.parse(refreshResp);
-		assertThat(refreshParsedResp.getTokens().getAccessToken(), notNullValue());
-		assertThat(refreshParsedResp.getCustomParameters().get("id_token"), notNullValue());
+		assertThat(refreshParsedResp.getTokens().getAccessToken()).isNotNull();
+		assertThat(refreshParsedResp.getCustomParameters().get("id_token")).isNotNull();
 	
 	}
 
@@ -179,7 +177,7 @@ public class RefreshTokenTest extends TokenTestBase
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 
 		HTTPResponse errorResp = wrapped.send();
-		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_BAD_REQUEST));
+		assertThat(errorResp.getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
 	}
 
 	@Test
@@ -202,7 +200,7 @@ public class RefreshTokenTest extends TokenTestBase
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 
 		HTTPResponse errorResp = wrapped.send();
-		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_BAD_REQUEST));
+		assertThat(errorResp.getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
 
 	}
 	
@@ -217,14 +215,14 @@ public class RefreshTokenTest extends TokenTestBase
 
 		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");	
 		
-		assertThat(claimSet.getClaim("c"), is("PL"));
+		assertThat(claimSet.getClaim("c")).isEqualTo("PL");
 		
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		attrsMan.setAttribute(new EntityParam(identity),
 				StringAttribute.of("c", "/oauth-users", "new"));
 		
 		claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");
-		assertThat(claimSet.getClaim("c"), is("new"));	
+		assertThat(claimSet.getClaim("c")).isEqualTo("new");	
 		
 	}
 
@@ -246,8 +244,7 @@ public class RefreshTokenTest extends TokenTestBase
 			ClientAuthentication ca, String... scopes) throws Exception
 	{
 		AccessTokenResponse refreshParsedResp = getRefreshedAccessToken(token, ca, scopes);
-		assertThat(refreshParsedResp.getTokens().getAccessToken(), notNullValue());
-		
+		assertThat(refreshParsedResp.getTokens().getAccessToken()).isNotNull();
 		return getUserInfo(refreshParsedResp.getTokens().getAccessToken());
 	}
 

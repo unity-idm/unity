@@ -5,16 +5,18 @@
 
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityInformation;
@@ -26,11 +28,7 @@ import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
-
+@ExtendWith(MockitoExtension.class)
 public class EnquiryInvitationEntityRepresentationProviderTest
 {
 
@@ -53,7 +51,7 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 		), new EntityInformation(1L), null);
 
 		String rep = repProvider.getEntityRepresentation(entity);
-		assertThat(rep, is("disp1: linked with remoteIdp1 & remoteIdp2"));
+		assertThat(rep).isEqualTo("disp1: linked with remoteIdp1 & remoteIdp2");
 
 	}
 
@@ -72,7 +70,7 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 		), new EntityInformation(1L), null);
 
 		String rep = repProvider.getEntityRepresentation(entity);
-		assertThat(rep, is("disp1: linked with account.google.com & remoteIdp2"));
+		assertThat(rep).isEqualTo("disp1: linked with account.google.com & remoteIdp2");
 
 	}
 
@@ -89,7 +87,7 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 		), new EntityInformation(1L), null);
 
 		String rep = repProvider.getEntityRepresentation(entity);
-		assertThat(rep, is("disp1: local@test.com & X500"));
+		assertThat(rep).isEqualTo("disp1: local@test.com & X500");
 	}
 
 	@Test
@@ -108,7 +106,7 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 				), new EntityInformation(1L), null);
 
 		String rep = repProvider.getEntityRepresentation(entity);
-		assertThat(rep, is("disp1: local@test.com & X500"));
+		assertThat(rep).isEqualTo("disp1: local@test.com & X500");
 	}
 
 	@Test
@@ -124,7 +122,7 @@ public class EnquiryInvitationEntityRepresentationProviderTest
 		), new EntityInformation(1L), null);
 
 		String rep = repProvider.getEntityRepresentation(entity);
-		assertThat(rep, is("local@test.com"));
+		assertThat(rep).isEqualTo("local@test.com");
 	}
 
 }

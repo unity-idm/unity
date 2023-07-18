@@ -8,7 +8,7 @@ package pl.edu.icm.unity.engine.files;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.engine.api.files.IllegalURIException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;

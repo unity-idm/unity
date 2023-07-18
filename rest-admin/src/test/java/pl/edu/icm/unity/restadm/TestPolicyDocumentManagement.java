@@ -5,11 +5,17 @@
 
 package pl.edu.icm.unity.restadm;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.imunity.rest.api.types.policy.RestPolicyDocument;
-import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
-import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -17,27 +23,24 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.imunity.rest.api.types.policy.RestPolicyDocument;
+import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
+import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
-
-import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.Assert.assertEquals;
 
 
 public class TestPolicyDocumentManagement extends RESTAdminTestBase
 {
 	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 
-	@Before
+	@BeforeEach
 	public void setUp()
 	{
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);

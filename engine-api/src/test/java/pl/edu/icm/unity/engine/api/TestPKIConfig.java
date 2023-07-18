@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.config.UnityPKIConfiguration;
@@ -25,11 +25,11 @@ public class TestPKIConfig
 		p.setProperty(UnityPKIConfiguration.P + UnityPKIConfiguration.CREDENTIALS + "n." + "path", "sss");
 		UnityPKIConfiguration cfg = new UnityPKIConfiguration(p);
 		Set<String> valNames = cfg.getStructuredListKeys(UnityPKIConfiguration.TRUSTSTORES);
-		assertEquals(1, valNames.size());
-		assertEquals("m", cfg.getTruststoreName(valNames.iterator().next()));
+		assertThat(valNames).hasSize(1);
+		assertThat(cfg.getTruststoreName(valNames.iterator().next())).isEqualTo("m");
 		
 		Set<String> credNames = cfg.getStructuredListKeys(UnityPKIConfiguration.CREDENTIALS);
-		assertEquals(1, credNames.size());
-		assertEquals("n", cfg.getTruststoreName(credNames.iterator().next()));
+		assertThat(credNames).hasSize(1);
+		assertThat(cfg.getTruststoreName(credNames.iterator().next())).isEqualTo("n");
 	}
 }

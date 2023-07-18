@@ -4,21 +4,22 @@
  */
 package pl.edu.icm.unity.store.migration;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -41,7 +42,7 @@ import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
 import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class TestMigrationFrom2_0
 {
@@ -63,7 +64,7 @@ public class TestMigrationFrom2_0
 	private IdentityTypeDAO itDAO;
 	
 	
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -96,29 +97,28 @@ public class TestMigrationFrom2_0
 	
 	private void checkAttributeType()
 	{
-		assertThat(atDAO.getAll().size(), is(67));
+		assertThat(atDAO.getAll()).hasSize(67);
 		AttributeType emailAttrType = atDAO.get("email");
 		assertThat(emailAttrType.getValueSyntaxConfiguration()
-				.get("messageTemplate").asText(), is("emailConfirmation"));
+				.get("messageTemplate").asText()).isEqualTo("emailConfirmation");
 		assertThat(emailAttrType.getValueSyntaxConfiguration().get("validityTime")
-				.asInt(), is(2880));
+				.asInt()).isEqualTo(2880);
 	}
 	
 	private void checkIdentityType()
 	{
-		assertThat(itDAO.getAll().size(), is(7));	
+		assertThat(itDAO.getAll()).hasSize(7);	
 		IdentityType emailIdentityType = itDAO.get("email");
 		assertThat(emailIdentityType.getEmailConfirmationConfiguration()
-				.getMessageTemplate(), is("emailConfirmation"));
+				.getMessageTemplate()).isEqualTo("emailConfirmation");
 		assertThat(emailIdentityType.getEmailConfirmationConfiguration()
-				.getValidityTime(), is(2880));
+				.getValidityTime()).isEqualTo(2880);
 	}
 	
 	private void checkMessageTemplate()
 	{
 		assertThat(genericDao.getObjectsOfType(
-				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE).size(),
-				is(11));
+				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE)).hasSize(11);
 
 		for (GenericObjectBean msg : genericDao.getObjectsOfType(
 				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE))
@@ -134,19 +134,18 @@ public class TestMigrationFrom2_0
 				fail("Import failed " + e);
 			}
 			if (!template.getConsumer().equals("Generic"))
-				assertThat(template.getNotificationChannel(),
-						is("default_email"));
+				assertThat(template.getNotificationChannel()).
+						isEqualTo("default_email");
 
 			if (template.getName().equals("emailConfirmation"))
-				assertThat(template.getConsumer(), is("EmailConfirmation"));
+				assertThat(template.getConsumer()).isEqualTo("EmailConfirmation");
 		}
 	}
 	
 	private void checkNotificationChannel()
 	{
 		assertThat(genericDao.getObjectsOfType(
-				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID).size(),
-				is(1));
+				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID)).hasSize(1);
 
 		for (GenericObjectBean rawChannel : genericDao.getObjectsOfType(
 				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID))
@@ -163,21 +162,19 @@ public class TestMigrationFrom2_0
 				fail("Import failed " + e);
 			}
 			if (channel.getDescription().equals("Default email channel"))
-				assertThat(channel.getName(), is("default_email"));
+				assertThat(channel.getName()).isEqualTo("default_email");
 		}
 	}
 	
 	private void checkConfirmationConfiguration()
 	{
-		assertThat(genericDao.getObjectsOfType("confirmationConfiguration").size(),
-				is(0));
+		assertThat(genericDao.getObjectsOfType("confirmationConfiguration")).isEmpty();
 	}
 	
 	private void checkCredentialResetSettings()
 	{
 		assertThat(genericDao.getObjectsOfType(
-				CredentialHandler.CREDENTIAL_OBJECT_TYPE).size(), 
-				is(2));
+				CredentialHandler.CREDENTIAL_OBJECT_TYPE)).hasSize(2);
 		
 		for (GenericObjectBean cred : genericDao
 				.getObjectsOfType(CredentialHandler.CREDENTIAL_OBJECT_TYPE))
@@ -194,13 +191,12 @@ public class TestMigrationFrom2_0
 							credential.getConfiguration());
 					
 					JsonNode resetSet = config.get("resetSettings");				
-					assertThat(resetSet.get("enable").asBoolean(),
-							is(true));
+					assertThat(resetSet.get("enable").asBoolean()).isTrue();
 					assertThat(resetSet.get("confirmationMode")
-							.asText(), is("RequireEmail"));
+							.asText()).isEqualTo("RequireEmail");
 					assertThat(resetSet
 							.get("emailSecurityCodeMsgTemplate")
-							.asText(), is("passwordResetCode"));
+							.asText()).isEqualTo("passwordResetCode");
 				}
 
 			} catch (IOException e)

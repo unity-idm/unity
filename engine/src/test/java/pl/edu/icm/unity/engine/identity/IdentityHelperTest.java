@@ -5,12 +5,16 @@
 
 package pl.edu.icm.unity.engine.identity;
 
-import junit.framework.TestCase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
@@ -25,13 +29,8 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
-public class IdentityHelperTest extends TestCase
+@ExtendWith(MockitoExtension.class)
+public class IdentityHelperTest
 {
 	@Mock
 	private IdentityTypesRegistry idTypesRegistry;

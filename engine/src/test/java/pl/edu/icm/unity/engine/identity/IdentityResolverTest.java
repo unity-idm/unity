@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityInformation;
@@ -32,8 +32,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.store.api.EntityDAO;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
 
 
 public class IdentityResolverTest
@@ -101,7 +100,7 @@ public class IdentityResolverTest
 
 		Identity id = resolver.resolveSubject(AuthenticationSubject.entityBased(123l), UsernameIdentity.ID);
 
-		assertThat(id.getValue(), is("id"));
+		assertThat(id.getValue()).isEqualTo("id");
 	}
 	
 	@Test
@@ -115,7 +114,7 @@ public class IdentityResolverTest
 
 		IdentityResolver resolver = new IdentityResolverImpl(null, dbIdentities, dbResolver, null, null, null, null);
 		Identity id = resolver.resolveSubject(AuthenticationSubject.identityBased("id"), UsernameIdentity.ID);
-		assertThat(id.getValue(), is("id"));
+		assertThat(id.getValue()).isEqualTo("id");
 	}
 	
 	@Test

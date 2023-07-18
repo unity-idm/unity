@@ -5,7 +5,8 @@
 
 package pl.edu.icm.unity.engine.capacityLimit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.capacity_limit.CapacityLimit;
@@ -28,14 +29,17 @@ public class CapacityLimitVerificatorTest extends DBIntegrationTestBase
 	@Autowired
 	private TransactionalRunner txRunner;
 
-	@Test(expected = CapacityLimitReachedException.class)
+	@Test
 	public void shouldThrowLimitExceededException() throws EngineException
 	{
-		txRunner.runInTransactionThrowing(() -> {
+		txRunner.runInTransactionThrowing(() ->
+		{
 			limitDB.create(new CapacityLimit(CapacityLimitName.GroupsCount, 1));
 		});
-		txRunner.runInTransactionThrowing(() -> {
+
+		Assertions.assertThrows(CapacityLimitReachedException.class, () -> txRunner.runInTransactionThrowing(() ->
+		{
 			capacityLimitVerificator.assertInSystemLimitForSingleAdd(CapacityLimitName.GroupsCount, () -> 2L);
-		});
+		}));
 	}
 }

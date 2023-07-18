@@ -4,14 +4,12 @@
  */
 package pl.edu.icm.unity.oauth.as.token.access;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
@@ -20,7 +18,7 @@ import java.util.Locale;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.google.common.collect.Sets;
@@ -185,9 +183,9 @@ public class AccessTokenResourceTest
 		httpResp.setContentType("application/json");
 		AccessTokenResponse parsed = AccessTokenResponse.parse(httpResp);
 		AccessToken accessToken = parsed.getTokens().getAccessToken();
-		assertThat(accessToken.getScope(), is(notNullValue()));
-		assertThat(accessToken.getScope().contains("sc1"), is(true));
-		assertThat(accessToken.getScope().size(), is(1));
+		assertThat(accessToken.getScope()).isNotNull();
+		assertThat(accessToken.getScope().contains("sc1")).isTrue();
+		assertThat(accessToken.getScope()).hasSize(1);
 	}
 
 	@Test
@@ -268,7 +266,7 @@ public class AccessTokenResourceTest
 
 		Token refreshTokenInternal = tokensManagement.getTokenById(OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN,
 				parsed.getTokens().getRefreshToken().getValue());
-		assertThat(refreshTokenInternal.getExpires(), is(nullValue()));
+		assertThat(refreshTokenInternal.getExpires()).isNull();
 	}
 
 	private AccessTokenResource createAccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,

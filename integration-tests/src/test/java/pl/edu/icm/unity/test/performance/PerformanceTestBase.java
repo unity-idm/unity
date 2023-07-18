@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
@@ -67,7 +67,7 @@ public abstract class PerformanceTestBase extends TestRESTBase
 			
 	protected TimeHelper timer;
 	
-	@Before
+	@BeforeEach
 	public void setup() throws Exception
 	{
 		LoggerContext ctx = (LoggerContext) LogManager.getContext(false);

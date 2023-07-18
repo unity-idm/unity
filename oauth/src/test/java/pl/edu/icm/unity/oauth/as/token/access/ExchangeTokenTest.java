@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.oauth.as.token.access;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -15,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -74,7 +73,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare,
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 		HTTPResponse errorResp = wrapped.send();
-		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_BAD_REQUEST));
+		assertThat(errorResp.getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
 	}
 	
 	@Test
@@ -100,7 +99,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare,
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 		HTTPResponse errorResp = wrapped.send();
-		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_BAD_REQUEST));
+		assertThat(errorResp.getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
 	}
 
 
@@ -127,18 +126,18 @@ public class ExchangeTokenTest extends TokenTestBase
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse exchangeResp = wrapped.send();
 		AccessTokenResponse exchangeParsedResp = AccessTokenResponse.parse(exchangeResp);
-		assertThat(exchangeParsedResp.getTokens().getAccessToken(), notNullValue());
-		assertThat(exchangeParsedResp.getCustomParameters().get("id_token"), notNullValue());
-		assertThat(exchangeParsedResp.getTokens().getAccessToken().getIssuedTokenType().getURI().toASCIIString(),
-				is(AccessTokenResource.ACCESS_TOKEN_TYPE_ID));
+		assertThat(exchangeParsedResp.getTokens().getAccessToken()).isNotNull();
+		assertThat(exchangeParsedResp.getCustomParameters().get("id_token")).isNotNull();
+		assertThat(exchangeParsedResp.getTokens().getAccessToken().getIssuedTokenType().getURI().toASCIIString()).
+				isEqualTo(AccessTokenResource.ACCESS_TOKEN_TYPE_ID);
 
 		// check new token info
 		JSONObject parsed = getTokenInfo(exchangeParsedResp.getTokens().getAccessToken());
-		assertThat(parsed.get("sub"), is("userA"));
-		assertThat(parsed.get("client_id"), is("client2"));
-		assertThat(parsed.get("aud"), is("client2"));
-		assertThat(((JSONArray) parsed.get("scope")).get(0), is("foo"));
-		assertThat(parsed.get("exp"), notNullValue());
+		assertThat(parsed.get("sub")).isEqualTo("userA");
+		assertThat(parsed.get("client_id")).isEqualTo("client2");
+		assertThat(parsed.get("aud")).isEqualTo("client2");
+		assertThat(((JSONArray) parsed.get("scope")).get(0)).isEqualTo("foo");
+		assertThat(parsed.get("exp")).isNotNull();
 	}
 	
 	@Test
@@ -165,18 +164,18 @@ public class ExchangeTokenTest extends TokenTestBase
 		HTTPResponse exchangeResp = wrapped.send();
 		AccessTokenResponse exchangeParsedResp = AccessTokenResponse.parse(exchangeResp);
 		
-		assertThat(exchangeParsedResp.getTokens().getAccessToken(), notNullValue());	
-		assertThat(exchangeParsedResp.getTokens().getAccessToken().getIssuedTokenType().getURI().toASCIIString(), 
-				is(AccessTokenResource.ACCESS_TOKEN_TYPE_ID));
+		assertThat(exchangeParsedResp.getTokens().getAccessToken()).isNotNull();	
+		assertThat(exchangeParsedResp.getTokens().getAccessToken().getIssuedTokenType().getURI().toASCIIString()) 
+				.isEqualTo(AccessTokenResource.ACCESS_TOKEN_TYPE_ID);
 	
 		// check new token info
 		JSONObject parsed = getTokenInfo(exchangeParsedResp.getTokens().getAccessToken());
 		assertEquals("userA", parsed.get("sub"));
-		assertThat(parsed.get("sub"), is("userA"));
-		assertThat(parsed.get("client_id"), is("client2"));
-		assertThat(parsed.get("aud"), is("client2"));
-		assertThat(((JSONArray) parsed.get("scope")).get(0), is("foo"));
-		assertThat(parsed.get("exp"), notNullValue());
+		assertThat(parsed.get("sub")).isEqualTo("userA");
+		assertThat(parsed.get("client_id")).isEqualTo("client2");
+		assertThat(parsed.get("aud")).isEqualTo("client2");
+		assertThat(((JSONArray) parsed.get("scope")).get(0)).isEqualTo("foo");
+		assertThat(parsed.get("exp")).isNotNull();
 	}
 	
 	/**

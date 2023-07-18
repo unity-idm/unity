@@ -4,14 +4,15 @@
  */
 package pl.edu.icm.unity.engine.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.AttributesClass;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
@@ -43,19 +44,19 @@ public class TestAttributesClassHelper
 		knownClasses.put(ac4.getName(), ac4);
 		
 		AttributeClassHelper.cleanupClass(ac1, knownClasses);
-		Assert.assertFalse(ac1.isAllowArbitrary());
+		assertThat(ac1.isAllowArbitrary()).isFalse();
 		
 		AttributeClassHelper.cleanupClass(tested, knownClasses);
 		
-		Assert.assertEquals(2, tested.getParentClasses().size());
-		Assert.assertTrue(tested.getParentClasses().contains("ac4"));
-		Assert.assertTrue(tested.getParentClasses().contains("ac3"));
+		assertThat(tested.getParentClasses()).hasSize(2);
+		assertThat(tested.getParentClasses().contains("ac4")).isTrue();
+		assertThat(tested.getParentClasses().contains("ac3")).isTrue();
 		
-		Assert.assertFalse(tested.isAllowArbitrary());
-		Assert.assertEquals(1, tested.getAllowed().size());
-		Assert.assertTrue(tested.getAllowed().contains("a5"));
+		assertThat(tested.isAllowArbitrary()).isFalse();
+		assertThat(tested.getAllowed()).hasSize(1);
+		assertThat(tested.getAllowed().contains("a5")).isTrue();
 		
-		Assert.assertEquals(0, tested.getMandatory().size());
+		assertThat(tested.getMandatory()).hasSize(0);
 		
 		
 		
@@ -65,8 +66,8 @@ public class TestAttributesClassHelper
 				new HashSet<String>(Arrays.asList("m1", "m3", "m4")), 
 				false, new HashSet<String>(Arrays.asList("ac3", "ac4", "ac1", "ac2")));
 		AttributeClassHelper.cleanupClass(tested, knownClasses);
-		Assert.assertEquals(0, tested.getAllowed().size());
-		Assert.assertTrue(tested.isAllowArbitrary());
+		assertThat(tested.getAllowed()).hasSize(0);
+		assertThat(tested.isAllowArbitrary()).isTrue();
 
 	}
 }

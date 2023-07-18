@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.idp;
 
-import org.junit.Test;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
@@ -13,6 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

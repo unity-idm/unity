@@ -4,12 +4,11 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.util.Collection;
 import java.util.List;
 
-import org.hamcrest.MatcherAssert;
+import org.assertj.core.api.Assertions;
 
 import com.google.common.collect.Lists;
 
@@ -29,7 +28,7 @@ public class AttributesListAssertion extends AttributesAssertion
 
 	public AttributesListAssertion count(int expectedNumberOfAttrs)
 	{
-		MatcherAssert.assertThat(attrs.size(), equalTo(expectedNumberOfAttrs));
+		Assertions.assertThat(attrs).hasSize(expectedNumberOfAttrs);
 		return this;
 	}
 

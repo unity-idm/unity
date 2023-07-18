@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.Duration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.oauth2.sdk.ParseException;

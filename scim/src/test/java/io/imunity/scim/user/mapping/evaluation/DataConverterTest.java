@@ -5,8 +5,7 @@
 
 package io.imunity.scim.user.mapping.evaluation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
@@ -15,11 +14,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.schema.SCIMAttributeType;
 import io.imunity.scim.user.User;
@@ -31,7 +30,7 @@ import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DataConverterTest
 {
 	@Mock
@@ -39,7 +38,7 @@ public class DataConverterTest
 
 	private UnityToSCIMDataConverter converter;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		converter = new UnityToSCIMDataConverter(attrValueConverter);
@@ -54,7 +53,7 @@ public class DataConverterTest
 				.withAttributes(List.of(new AttributeExt(
 						new Attribute("attrName", StringAttributeSyntax.ID, "/", List.of("value")), false)))
 				.build(), "attrName", SCIMAttributeType.STRING);
-		assertThat(converted.get(), is("value"));
+		assertThat(converted.get()).isEqualTo("value");
 	}
 
 	@Test
@@ -63,14 +62,14 @@ public class DataConverterTest
 		Optional<Object> converted = converter.convertUserIdentityToType(User.builder()
 				.withIdentities(List.of(new Identity(UsernameIdentity.ID, "userName0", 0l, "userName0"))).build(),
 				UsernameIdentity.ID, SCIMAttributeType.STRING);
-		assertThat(converted.get(), is("userName0"));
+		assertThat(converted.get()).isEqualTo("userName0");
 	}
 
 	@Test
 	public void shouldConvertFromStringToBoolean() throws IllegalAttributeValueException
 	{
 		Object convertToType = converter.convertToType("true", SCIMAttributeType.BOOLEAN);
-		assertThat(convertToType, is(true));
+		assertThat(convertToType).isEqualTo(true);
 	}
 
 	@Test
@@ -78,7 +77,7 @@ public class DataConverterTest
 	{
 		Date date = new Date();
 		Object convertToType = converter.convertToType(date, SCIMAttributeType.DATETIME);
-		assertThat(convertToType, is(date.toInstant()));
+		assertThat(convertToType).isEqualTo(date.toInstant());
 	}
 
 	@Test
@@ -86,7 +85,7 @@ public class DataConverterTest
 	{
 		String date = "2007-12-03T10:15:30.00Z";
 		Object convertToType = converter.convertToType(date, SCIMAttributeType.DATETIME);
-		assertThat(convertToType, is(Instant.parse(date)));
+		assertThat(convertToType).isEqualTo(Instant.parse(date));
 	}
 
 }

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.oauth.as.token.access;
 import java.util.Date;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.token.AccessToken;

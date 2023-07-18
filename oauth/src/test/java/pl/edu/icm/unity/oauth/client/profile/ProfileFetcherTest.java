@@ -5,8 +5,7 @@
 
 package pl.edu.icm.unity.oauth.client.profile;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,7 +14,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jose.util.JSONObjectUtils;
 
@@ -32,7 +31,7 @@ public class ProfileFetcherTest
 		JSONParser p = new JSONParser(JSONParser.MODE_RFC4627);
 		JSONObject o = (JSONObject)p.parse(s);
 		Map<String,List<String>> m = ProfileFetcherUtils.convertToAttributes(o);
-		assertThat(m.size(), is(0));
+		assertThat(m.size()).isEqualTo(0);
 	}
 	
 
@@ -42,7 +41,7 @@ public class ProfileFetcherTest
 		JSONObject ob = new JSONObject(JSONObjectUtils.parse(new String(Files
 				.readAllBytes(Paths.get("src/test/resources/orcidOutput.json")))));
 		JSONObject converted = ProfileFetcherUtils.convertToRawAttributes(ob);
-		assertThat(converted.entrySet().size(), is(ob.entrySet().size()));
+		assertThat(converted.entrySet().size()).isEqualTo(ob.entrySet().size());
 
 		JSONArray res = (JSONArray) getFromObject(
 					(JSONObject) getFromObject(
@@ -52,7 +51,7 @@ public class ProfileFetcherTest
 						"contact-details"), 
 					"email");
 
-		assertThat(res.size(), is(2));
+		assertThat(res.size()).isEqualTo(2);
 	}
 
 	private Object getFromObject(JSONObject source, String key)

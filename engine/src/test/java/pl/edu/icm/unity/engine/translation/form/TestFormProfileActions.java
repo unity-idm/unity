@@ -5,9 +5,6 @@
 package pl.edu.icm.unity.engine.translation.form;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -21,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -92,10 +89,10 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getAttributes().size(), is(1));
+		assertThat(state.getAttributes().size()).isEqualTo(1);
 		Attribute a = state.getAttributes().iterator().next();
-		assertThat(a.getName(), is("stringA"));
-		assertThat(a.getValues().get(0), is("a1"));
+		assertThat(a.getName()).isEqualTo("stringA");
+		assertThat(a.getValues().get(0)).isEqualTo("a1");
 	}
 
 	@Test
@@ -119,11 +116,11 @@ public class TestFormProfileActions
 
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 
-		assertThat(state.getAttributes().size(), is(1));
+		assertThat(state.getAttributes().size()).isEqualTo(1);
 		Attribute a = state.getAttributes().iterator().next();
-		assertThat(a.getName(), is("stringA"));
-		assertThat(a.getValues().get(0), is("a1"));
-		assertThat(a.getGroupPath(), is("/local"));
+		assertThat(a.getName()).isEqualTo("stringA");
+		assertThat(a.getValues().get(0)).isEqualTo("a1");
+		assertThat(a.getGroupPath()).isEqualTo("/local");
 	}
 
 	
@@ -144,10 +141,10 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getAttributes().size(), is(1));
+		assertThat(state.getAttributes().size()).isEqualTo(1);
 		Attribute a = state.getAttributes().iterator().next();
-		assertThat(a.getName(), is("other"));
-		assertThat(a.getValues().get(0), is("a2"));
+		assertThat(a.getName()).isEqualTo("other");
+		assertThat(a.getValues().get(0)).isEqualTo("a2");
 	}
 	
 	@Test
@@ -161,9 +158,9 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getGroups().size(), is(1));
+		assertThat(state.getGroups().size()).isEqualTo(1);
 		GroupParam g = state.getGroups().iterator().next();
-		assertThat(g.getGroup(), is("/A"));
+		assertThat(g.getGroup()).isEqualTo("/A");
 	}
 
 	@Test
@@ -179,9 +176,9 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getGroups().size(), is(1));
+		assertThat(state.getGroups().size()).isEqualTo(1);
 		GroupParam a = state.getGroups().iterator().next();
-		assertThat(a.getGroup(), is("/Z"));
+		assertThat(a.getGroup()).isEqualTo("/Z");
 	}
 
 	@Test
@@ -197,9 +194,9 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getIdentities().size(), is(1));
+		assertThat(state.getIdentities().size()).isEqualTo(1);
 		IdentityParam a = state.getIdentities().iterator().next();
-		assertThat(a.getValue(), is("bbb"));
+		assertThat(a.getValue()).isEqualTo("bbb");
 	}
 	
 	@Test
@@ -218,7 +215,7 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getIdentities().size(), is(1));
+		assertThat(state.getIdentities().size()).isEqualTo(1);
 		IdentityParam mappedId = state.getIdentities().iterator().next();
 		assertThat(mappedId).isEqualTo(id);
 	}
@@ -235,9 +232,9 @@ public class TestFormProfileActions
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
 		Map<String, Set<String>> attributeClasses = state.getAttributeClasses();
-		assertThat(attributeClasses.size(), is(1));
-		assertThat(attributeClasses.get("/A").size(), is(1));
-		assertThat(attributeClasses.get("/A").iterator().next(), is("ac"));
+		assertThat(attributeClasses.size()).isEqualTo(1);
+		assertThat(attributeClasses.get("/A").size()).isEqualTo(1);
+		assertThat(attributeClasses.get("/A").iterator().next()).isEqualTo("ac");
 	}
 	
 	@Test
@@ -250,7 +247,7 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getAutoAction(), is(AutomaticRequestAction.accept));
+		assertThat(state.getAutoAction()).isEqualTo(AutomaticRequestAction.accept);
 	}	
 
 	@Test
@@ -264,12 +261,12 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getEntityChange().getScheduledOperation(), is(EntityScheduledOperation.REMOVE));
+		assertThat(state.getEntityChange().getScheduledOperation()).isEqualTo(EntityScheduledOperation.REMOVE);
 		LocalDate expected = LocalDate.now();
 		expected = expected.plus(4, ChronoUnit.DAYS);
 		LocalDate received = state.getEntityChange().getScheduledTime().toInstant().atZone(
 				ZoneId.systemDefault()).toLocalDate();
-		assertThat(received, is(expected));
+		assertThat(received).isEqualTo(expected);
 	}
 	
 	@Test
@@ -282,7 +279,7 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getCredentialRequirement(), is("credReq"));
+		assertThat(state.getCredentialRequirement()).isEqualTo("credReq");
 	}
 	
 	@Test
@@ -295,7 +292,7 @@ public class TestFormProfileActions
 		
 		action.invoke(state, createMvelContext(), createContext(), "testProf");
 		
-		assertThat(state.getEntityState(), is(EntityState.disabled));
+		assertThat(state.getEntityState()).isEqualTo(EntityState.disabled);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -304,67 +301,66 @@ public class TestFormProfileActions
 	{
 		Map<String, Object> context = createMvelContext();
 		
-		assertThat(((Map<String, Object>)context.get("attr")).containsKey("attribute"), is(true));
-		assertThat(((Map<String, Object>)context.get("attrs")).containsKey("attribute"), is(true));
-		assertThat(((Map<String, Object>)context.get("attr")).containsKey("other"), is(true));
-		assertThat(((Map<String, Object>)context.get("attrs")).containsKey("other"), is(true));
+		assertThat(((Map<String, Object>)context.get("attr")).containsKey("attribute")).isTrue();
+		assertThat(((Map<String, Object>)context.get("attrs")).containsKey("attribute")).isTrue();
+		assertThat(((Map<String, Object>)context.get("attr")).containsKey("other")).isTrue();
+		assertThat(((Map<String, Object>)context.get("attrs")).containsKey("other")).isTrue();
 
-		assertThat(((Map<String, Object>)context.get("rattr")).containsKey("attribute"), is(false));
-		assertThat(((Map<String, Object>)context.get("rattrs")).containsKey("attribute"), is(false));
-		assertThat(((Map<String, Object>)context.get("rattr")).containsKey("other"), is(true));
-		assertThat(((Map<String, Object>)context.get("rattrs")).containsKey("other"), is(true));
+		assertThat(((Map<String, Object>)context.get("rattr")).containsKey("attribute")).isFalse();
+		assertThat(((Map<String, Object>)context.get("rattrs")).containsKey("attribute")).isFalse();
+		assertThat(((Map<String, Object>)context.get("rattr")).containsKey("other")).isTrue();
+		assertThat(((Map<String, Object>)context.get("rattrs")).containsKey("other")).isTrue();
 
-		assertThat(((Map<String, Object>)context.get("rattr")).containsKey("attribute"), is(false));
-		assertThat(((Map<String, Object>)context.get("rattrs")).containsKey("attribute"), is(false));
-		assertThat(((Map<String, Object>)context.get("rattr")).containsKey("other"), is(true));
-		assertThat(((Map<String, Object>)context.get("rattrs")).containsKey("other"), is(true));
+		assertThat(((Map<String, Object>)context.get("rattr")).containsKey("attribute")).isFalse();
+		assertThat(((Map<String, Object>)context.get("rattrs")).containsKey("attribute")).isFalse();
+		assertThat(((Map<String, Object>)context.get("rattr")).containsKey("other")).isTrue();
+		assertThat(((Map<String, Object>)context.get("rattrs")).containsKey("other")).isTrue();
 
-		assertThat(((Map<String, List<String>>)context.get("idsByType")).containsKey("identifier"), is(true));
-		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).containsKey("identifier"), is(true));
-		assertThat(((Map<String, List<String>>)context.get("idsByType")).containsKey("username"), is(true));
-		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).containsKey("username"), is(true));
+		assertThat(((Map<String, List<String>>)context.get("idsByType")).containsKey("identifier")).isTrue();
+		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).containsKey("identifier")).isTrue();
+		assertThat(((Map<String, List<String>>)context.get("idsByType")).containsKey("username")).isTrue();
+		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).containsKey("username")).isTrue();
 
-		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("identifier").size(), is(1));
-		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("identifier").size(), is(1));
-		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("identifier").get(0), is("id"));
-		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("identifier").get(0), 
-				is(instanceOf(IdentityParam.class)));
+		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("identifier").size()).isEqualTo(1);
+		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("identifier").size()).isEqualTo(1);
+		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("identifier").get(0)).isEqualTo("id");
+		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("identifier").get(0)) 
+				.isInstanceOf(IdentityParam.class);
 
-		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("username").size(), is(1));
-		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("username").size(), is(1));
-		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("username").get(0), is("user"));
-		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("username").get(0), 
-				is(instanceOf(IdentityParam.class)));
+		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("username").size()).isEqualTo(1);
+		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("username").size()).isEqualTo(1);
+		assertThat(((Map<String, List<String>>)context.get("idsByType")).get("username").get(0)).isEqualTo("user");
+		assertThat(((Map<String, List<Object>>)context.get("idsByTypeObj")).get("username").get(0))
+				.isInstanceOf(IdentityParam.class);
 
-		assertThat(((Map<String, List<String>>)context.get("ridsByType")).containsKey("identifier"), is(false));
-		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).containsKey("identifier"), is(false));
-		assertThat(((Map<String, List<String>>)context.get("ridsByType")).containsKey("username"), is(true));
-		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).containsKey("username"), is(true));
+		assertThat(((Map<String, List<String>>)context.get("ridsByType")).containsKey("identifier")).isFalse();
+		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).containsKey("identifier")).isFalse();
+		assertThat(((Map<String, List<String>>)context.get("ridsByType")).containsKey("username")).isTrue();
+		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).containsKey("username")).isTrue();
 
-		assertThat(((Map<String, List<String>>)context.get("ridsByType")).get("username").size(), is(1));
-		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).get("username").size(), is(1));
-		assertThat(((Map<String, List<String>>)context.get("ridsByType")).get("username").get(0), is("user"));
-		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).get("username").get(0), 
-				is(instanceOf(IdentityParam.class)));
+		assertThat(((Map<String, List<String>>)context.get("ridsByType")).get("username").size()).isEqualTo(1);
+		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).get("username").size()).isEqualTo(1);
+		assertThat(((Map<String, List<String>>)context.get("ridsByType")).get("username").get(0)).isEqualTo("user");
+		assertThat(((Map<String, List<Object>>)context.get("ridsByTypeObj")).get("username").get(0)).isInstanceOf(IdentityParam.class);
 		
-		assertThat(((List<String>)context.get("groups")).size(), is(2));
-		assertThat(((List<String>)context.get("rgroups")).size(), is(1));
-		assertThat(((List<String>)context.get("groups")).contains("/local"), is(true));
-		assertThat(((List<String>)context.get("groups")).contains("/remote"), is(true));
-		assertThat(((List<String>)context.get("rgroups")).contains("/local"), is(false));
-		assertThat(((List<String>)context.get("rgroups")).contains("/remote"), is(true));
+		assertThat(((List<String>)context.get("groups")).size()).isEqualTo(2);
+		assertThat(((List<String>)context.get("rgroups")).size()).isEqualTo(1);
+		assertThat(((List<String>)context.get("groups")).contains("/local")).isEqualTo(true);
+		assertThat(((List<String>)context.get("groups")).contains("/remote")).isEqualTo(true);
+		assertThat(((List<String>)context.get("rgroups")).contains("/local")).isEqualTo(false);
+		assertThat(((List<String>)context.get("rgroups")).contains("/remote")).isEqualTo(true);
 		
-		assertThat(((List<String>)context.get("agrs")).size(), is(1));
-		assertThat(((List<String>)context.get("agrs")).get(0), is("true"));
+		assertThat(((List<String>)context.get("agrs")).size()).isEqualTo(1);
+		assertThat(((List<String>)context.get("agrs")).get(0)).isEqualTo("true");
 		
-		assertThat(((String)context.get(RegistrationMVELContextKey.userLocale.name())), is("en"));
-		assertThat(((String)context.get(RegistrationMVELContextKey.requestId.name())), is("requestId"));
-		assertThat(((Boolean)context.get(RegistrationMVELContextKey.onIdpEndpoint.name())), is(false));
-		assertThat(((String)context.get(RegistrationMVELContextKey.triggered.name())), 
-				is(TriggeringMode.manualAtLogin.toString()));
-		assertThat(((String)context.get(RegistrationMVELContextKey.status.name())), 
-				is(RequestSubmitStatus.submitted.toString()));
-		assertThat(((String)context.get(RegistrationMVELContextKey.registrationForm.name())), is("form"));
+		assertThat(((String)context.get(RegistrationMVELContextKey.userLocale.name()))).isEqualTo("en");
+		assertThat(((String)context.get(RegistrationMVELContextKey.requestId.name()))).isEqualTo("requestId");
+		assertThat(((Boolean)context.get(RegistrationMVELContextKey.onIdpEndpoint.name()))).isFalse();
+		assertThat(((String)context.get(RegistrationMVELContextKey.triggered.name()))). 
+				isEqualTo(TriggeringMode.manualAtLogin.toString());
+		assertThat(((String)context.get(RegistrationMVELContextKey.status.name()))). 
+				isEqualTo(RequestSubmitStatus.submitted.toString());
+		assertThat(((String)context.get(RegistrationMVELContextKey.registrationForm.name()))).isEqualTo("form");
 	}
 	
 	private RegistrationContext createContext()

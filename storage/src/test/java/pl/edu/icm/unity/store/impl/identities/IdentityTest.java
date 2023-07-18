@@ -4,16 +4,13 @@
  */
 package pl.edu.icm.unity.store.impl.identities;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +51,7 @@ public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 	private long entity;
 	private long entity2;
 	
-	@Before
+	@BeforeEach
 	public void createReferenced()
 	{
 		tx.runInTransaction(() -> {
@@ -77,8 +74,8 @@ public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 			
 			List<StoredIdentity> ret = dao.getAll();
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.isEmpty(), is(true));
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEmpty();
 		});
 	}	
 	
@@ -93,8 +90,8 @@ public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 			
 			List<StoredIdentity> ret = dao.getByEntityFull(entity);
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(2));
+			assertThat(ret).isNotNull();
+			assertThat(ret).hasSize(2);
 			if (ret.get(0).getIdentity().getValue().equals("name2"))
 			{
 				StoredIdentity tmp = ret.get(0);
@@ -102,8 +99,8 @@ public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 				ret.add(1, tmp);
 			}
 			
-			assertEquals(obj, ret.get(0));
-			assertEquals(obj2, ret.get(1));
+			assertThat(obj).isEqualTo(ret.get(0));
+			assertThat(obj2).isEqualTo(ret.get(1));
 		});
 	}
 
@@ -127,17 +124,17 @@ public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 			
 			List<StoredIdentity> ret = dao.getByGroup("/C");
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(2));
+			assertThat(ret).isNotNull();
+			assertThat(ret).hasSize(2);
 			if (ret.get(0).getIdentity().getValue().equals("name2"))
 			{
 				StoredIdentity tmp = ret.get(0);
 				ret.add(0, ret.get(1));
 				ret.add(1, tmp);
 			}
-			
-			assertEquals(obj, ret.get(0));
-			assertEquals(obj2, ret.get(1));
+
+			assertThat(obj).isEqualTo(ret.get(0));
+			assertThat(obj2).isEqualTo(ret.get(1));
 		});
 	}
 	

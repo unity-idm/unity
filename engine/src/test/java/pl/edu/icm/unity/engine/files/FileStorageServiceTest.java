@@ -5,19 +5,18 @@
 
 package pl.edu.icm.unity.engine.files;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.file.FileData;
@@ -33,7 +32,7 @@ import pl.edu.icm.unity.test.utils.ExceptionsUtils;
  *
  */
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FileStorageServiceTest
 {
 	@Mock
@@ -47,7 +46,7 @@ public class FileStorageServiceTest
 
 	private FileStorageService fileService;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		when(conf.getValue(eq(UnityServerConfiguration.WORKSPACE_DIRECTORY))).thenReturn("target/workspace");
@@ -62,9 +61,9 @@ public class FileStorageServiceTest
 		
 		ArgumentCaptor<FileData> argument = ArgumentCaptor.forClass(FileData.class);
 		verify(dao).create(argument.capture());
-		assertThat(argument.getValue().getContents(), is("demo".getBytes()));
-		assertThat(argument.getValue().getOwnerType(), is("o"));
-		assertThat(argument.getValue().getOwnerId(), is("i"));
+		assertThat(argument.getValue().getContents()).isEqualTo("demo".getBytes());
+		assertThat(argument.getValue().getOwnerType()).isEqualTo("o");
+		assertThat(argument.getValue().getOwnerId()).isEqualTo("i");
 	}
 
 	@Test
@@ -81,7 +80,7 @@ public class FileStorageServiceTest
 
 		fileService.storeFileInWorkspace(new String("test").getBytes(), "demo/demo/test.txt");
 		FileData fileFromWorkspace = fileService.readFileFromWorkspace("demo/demo/test.txt");
-		assertThat(new String(fileFromWorkspace.getContents()), is("test"));
+		assertThat(new String(fileFromWorkspace.getContents())).isEqualTo("test");
 	}
 
 	@Test

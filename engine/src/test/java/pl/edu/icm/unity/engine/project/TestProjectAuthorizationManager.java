@@ -15,10 +15,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestProjectAuthorizationManager
 {
 	@Mock
@@ -44,8 +44,10 @@ public class TestProjectAuthorizationManager
 	@Test
 	public void shouldThrowAuthzExceptionWhenDelegationIsNotEnabled()
 	{
-		assertAuthzException(checkAuthz(false, GroupAuthorizationRole.manager));
-
+		setupInvocationContext();
+		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
+		addGroup("/project", false);
+		assertAuthzException(catchThrowable(() -> mockAuthz.assertManagerAuthorization("/project")));
 	}
 
 	@Test
@@ -127,7 +129,6 @@ public class TestProjectAuthorizationManager
 		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
 
 		addGroup("/project", true);
-		addGroup("/project/sub", true);
 		addGroup("/project/sub/sub2", true);
 
 		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project"))).thenReturn(Arrays
@@ -165,8 +166,6 @@ public class TestProjectAuthorizationManager
 		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
 
 		addGroup("/project", true);
-		addGroup("/project/sub", true);
-
 		
 		Throwable ex = catchThrowable(
 				() -> mockAuthz.assertProjectsAdminAuthorization("/project", "/project/sub"));
@@ -180,7 +179,6 @@ public class TestProjectAuthorizationManager
 		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
 
 		addGroup("/project", true, true);
-		addGroup("/project/sub", true, true);
 
 		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project")))
 				.thenReturn(Arrays.asList(new StoredAttribute(new AttributeExt(

@@ -6,13 +6,11 @@ package pl.edu.icm.unity.store.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -36,8 +34,8 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			dao.create(obj);
 			T ret = dao.get(obj.getName());
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(obj));
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(obj);
 		});
 	}
 	
@@ -51,7 +49,7 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			dao.create(obj);
 			boolean ret = dao.exists(obj.getName());
 
-			assertThat(ret, is(true));
+			assertThat(ret).isTrue();
 		});
 	}
 
@@ -63,7 +61,7 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 
 			boolean ret = dao.exists("name1");
 
-			assertThat(ret, is(false));
+			assertThat(ret).isFalse();
 		});
 	}
 
@@ -108,9 +106,9 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			
 			T ret = dao.get(changed.getName());
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(changed));
-			assertThat(changed != ret, is(true));
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(changed);
+			assertThat(changed != ret).isTrue();
 		});
 	}
 	
@@ -127,15 +125,15 @@ public abstract class AbstractNamedDAOTest<T extends NamedObject> extends Abstra
 			dao.create(obj2);
 			Map<String, T> asMap = dao.getAllAsMap();
 
-			assertThat(asMap, is(notNullValue()));
+			assertThat(asMap).isNotNull();
 
-			assertThat(asMap.size(), is(2 + initial));
+			assertThat(asMap.size()).isEqualTo(2 + initial);
 
-			assertThat(asMap.containsKey(obj.getName()), is(true));
-			assertThat(asMap.containsKey(obj2.getName()), is(true));
+			assertThat(asMap.containsKey(obj.getName())).isTrue();
+			assertThat(asMap.containsKey(obj2.getName())).isTrue();
 
-			assertThat(asMap.get(obj.getName()), is(obj));
-			assertThat(asMap.get(obj2.getName()), is(obj2));
+			assertThat(asMap.get(obj.getName())).isEqualTo(obj);
+			assertThat(asMap.get(obj2.getName())).isEqualTo(obj2);
 		});
 	}
 

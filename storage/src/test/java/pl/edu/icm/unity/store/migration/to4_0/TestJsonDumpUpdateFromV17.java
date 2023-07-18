@@ -4,24 +4,25 @@
  */
 package pl.edu.icm.unity.store.migration.to4_0;
 
-import static org.junit.Assert.fail;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations =
 { "classpath*:META-INF/components.xml" })
 public class TestJsonDumpUpdateFromV17
@@ -39,7 +40,7 @@ public class TestJsonDumpUpdateFromV17
 	private RegistrationFormDB registrationFormDB;
 
 	
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();

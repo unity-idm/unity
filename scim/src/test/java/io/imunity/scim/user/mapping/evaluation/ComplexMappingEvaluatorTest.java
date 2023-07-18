@@ -5,8 +5,7 @@
 
 package io.imunity.scim.user.mapping.evaluation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -16,12 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.config.AttributeDefinition;
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
@@ -34,7 +33,7 @@ import io.imunity.scim.config.SimpleAttributeMapping;
 import io.imunity.scim.schema.SCIMAttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ComplexMappingEvaluatorTest
 {
 	private ComplexMappingEvaluator evaluator;
@@ -47,7 +46,7 @@ public class ComplexMappingEvaluatorTest
 
 	private MappingEvaluatorRegistry mappingEvaluatorRegistry;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		evaluator = new ComplexMappingEvaluator(dataArrayResolver);
@@ -99,8 +98,8 @@ public class ComplexMappingEvaluatorTest
 
 		
 
-		assertThat(contextCaptor.getAllValues().get(0).arrayObj, is("f1"));
-		assertThat(contextCaptor.getAllValues().get(1).arrayObj, is("f2"));
+		assertThat(contextCaptor.getAllValues().get(0).arrayObj).isEqualTo("f1");
+		assertThat(contextCaptor.getAllValues().get(1).arrayObj).isEqualTo("f2");
 	}
 
 	@Test
@@ -138,8 +137,8 @@ public class ComplexMappingEvaluatorTest
 		EvaluationResult value = evaluator.eval(complexAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(value.attributeName, is("name"));
-		assertThat(value.value.get(), is(Map.of("familyName", "f1")));
+		assertThat(value.attributeName).isEqualTo("name");
+		assertThat(value.value.get()).isEqualTo(Map.of("familyName", "f1"));
 	}
 
 	@Test
@@ -181,8 +180,8 @@ public class ComplexMappingEvaluatorTest
 		EvaluationResult value = evaluator.eval(complexAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(value.attributeName, is("name"));
-		assertThat(value.value.get(), is(List.of(Map.of("familyName", "f1"), Map.of("familyName", "f1"))));
+		assertThat(value.attributeName).isEqualTo("name");
+		assertThat(value.value.get()).isEqualTo(List.of(Map.of("familyName", "f1"), Map.of("familyName", "f1")));
 	}
 	
 	@Test
@@ -224,8 +223,8 @@ public class ComplexMappingEvaluatorTest
 		EvaluationResult value = evaluator.eval(complexAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(value.attributeName, is("name"));
-		assertThat(value.value.get(), is(List.of(Map.of("familyName", "f1"), Map.of("familyName", "f2"))));
+		assertThat(value.attributeName).isEqualTo("name");
+		assertThat(value.value.get()).isEqualTo(List.of(Map.of("familyName", "f1"), Map.of("familyName", "f2")));
 	}
 
 }

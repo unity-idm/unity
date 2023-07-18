@@ -6,10 +6,8 @@ package pl.edu.icm.unity.stdext.identity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
@@ -55,6 +53,6 @@ public class TestEmailIdentity
 		String id1 = idType.getComparableValue("UppeR@example.com", null, null);
 		String id2 = idType.getComparableValue("uPPer@examplE.com", null, null);
 		
-		assertThat(id1, is(id2));
+		assertThat(id1).isEqualTo(id2);
 	}
 }

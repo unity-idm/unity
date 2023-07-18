@@ -4,14 +4,13 @@
  */
 package pl.edu.icm.unity.engine.msgtemplate;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -39,7 +38,7 @@ public class MessageTemplateProcessorTest
 		MessageTemplate restore = new MessageTemplate(objNode);
 		
 		// then
-		assertThat(restore.getType(), equalTo(MessageType.PLAIN));
+		assertThat(restore.getType()).isEqualTo(MessageType.PLAIN);
 	}
 
 	
@@ -68,7 +67,7 @@ public class MessageTemplateProcessorTest
 				Collections.emptyMap(), genericTemplates);
 		
 		// then
-		assertThat(message.getBody(), equalTo("PREFheaderBODYfooterPOST"));
+		assertThat(message.getBody()).isEqualTo("PREFheaderBODYfooterPOST");
 	}
 	
 	@Test
@@ -98,7 +97,7 @@ public class MessageTemplateProcessorTest
 				Collections.emptyMap(), genericTemplates);
 		
 		// then
-		assertThat(message.getBody(), equalTo("PREFheaderBODYfooterPOST"));
+		assertThat(message.getBody()).isEqualTo("PREFheaderBODYfooterPOST");
 	}
 	
 	@Test
@@ -130,6 +129,6 @@ public class MessageTemplateProcessorTest
 				Collections.emptyMap(), genericTemplates);
 		
 		// then
-		assertThat(message.getBody(), equalTo("PREFheaderBODYfooterPOST"));
+		assertThat(message.getBody()).isEqualTo("PREFheaderBODYfooterPOST");
 	}
 }

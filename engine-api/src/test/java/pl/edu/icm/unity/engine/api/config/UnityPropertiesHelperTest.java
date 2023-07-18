@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.config;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +14,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.util.configuration.PropertyMD;
 
@@ -45,9 +44,9 @@ public class UnityPropertiesHelperTest
 		tested.addCachedPrefixes("p.multi\\.[^.]+\\.cached.");
 		
 		Set<String> sortedStringKeys = tested.getSortedStringKeys("p.multi.foo.cached.", true);
-		assertThat(sortedStringKeys, hasItems("p.multi.foo.cached.1", "p.multi.foo.cached.2"));
+		assertThat(sortedStringKeys).contains("p.multi.foo.cached.1", "p.multi.foo.cached.2");
 		Set<String> sortedStringKeys2 = tested.getSortedStringKeys("p.multi.bar.cached.", true);
-		assertThat(sortedStringKeys2, hasItems("p.multi.bar.cached.1", "p.multi.bar.cached.2"));
+		assertThat(sortedStringKeys2).contains("p.multi.bar.cached.1", "p.multi.bar.cached.2");
 	}
 
 	@Test
@@ -64,8 +63,8 @@ public class UnityPropertiesHelperTest
 		tested.setProperty("multi.foo.cached.3", "v");
 		
 		Set<String> sortedStringKeys = tested.getSortedStringKeys("p.multi.foo.cached.", true);
-		assertThat(sortedStringKeys, hasItems("p.multi.foo.cached.1", 
-				"p.multi.foo.cached.2", "p.multi.foo.cached.3"));
+		assertThat(sortedStringKeys).contains("p.multi.foo.cached.1", 
+				"p.multi.foo.cached.2", "p.multi.foo.cached.3");
 	}
 
 	@Test
@@ -84,7 +83,7 @@ public class UnityPropertiesHelperTest
 		tested.addCachedPrefixes("p.multi\\.[^.]+\\.cached.");
 		
 		Set<String> sortedStringKeys = tested.getSortedStringKeys("p.multi.tar.not.", true);
-		assertThat(sortedStringKeys, hasItems("p.multi.tar.not.1", "p.multi.tar.not.2"));
+		assertThat(sortedStringKeys).contains("p.multi.tar.not.1", "p.multi.tar.not.2");
 	}
 
 	@Test
@@ -97,6 +96,6 @@ public class UnityPropertiesHelperTest
 		tested.addCachedPrefixes("p.multi\\.[^.]+\\.cached.");
 		
 		Set<String> sortedStringKeys = tested.getSortedStringKeys("p.multi.foo.cached.", true);
-		assertThat(sortedStringKeys.size(), is(0));
+		assertThat(sortedStringKeys).hasSize(0);
 	}
 }

@@ -14,7 +14,7 @@ import static pl.edu.icm.unity.configtester.ConfigurationComparator.createCompar
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.imunity.otp.OTPRetrievalProperties;
 import pl.edu.icm.unity.base.exceptions.EngineException;

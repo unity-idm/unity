@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.saml.metadata.cfg;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.saml.sp.config.TrustedIdPKey.metadataEntity;
 
@@ -18,8 +18,8 @@ import java.util.Set;
 
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -51,7 +51,7 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 	@Qualifier("insecure")
 	private  PKIManagement pkiManagement;
 	
-	@Before
+	@BeforeEach
 	public void reset()
 	{
 		metadataService.reset();

@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.attribute.image.LinkableImage;

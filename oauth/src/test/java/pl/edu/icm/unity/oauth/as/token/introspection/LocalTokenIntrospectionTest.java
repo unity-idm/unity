@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.oauth.as.token.introspection;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
@@ -15,7 +15,7 @@ import java.util.Locale;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;

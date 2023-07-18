@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -66,9 +66,9 @@ public class TestUserImportService
 				Lists.newArrayList(new UserImportSpec("key", "id", "type")));
 
 		//then
-		assertThat(importUser.size(), is(1));
-		assertThat(importUser.get(0).authenticationResult.getStatus(), is(Status.notApplicable));
-		assertThat(importUser.get(0).importerKey, is("key"));
+		assertThat(importUser).hasSize(1);
+		assertThat(importUser.get(0).authenticationResult.getStatus()).isEqualTo(Status.notApplicable);
+		assertThat(importUser.get(0).importerKey).isEqualTo("key");
 		verify(factory).getInstance(getCfgProperties(), "idp");
 		verify(importer).importUser("id", "type");
 		
@@ -76,16 +76,16 @@ public class TestUserImportService
 		reset(importer); //just to have nice 'never'below
 		List<ImportResult> importUser2 = impl.importUser(
 				Lists.newArrayList(new UserImportSpec("key", "id", "type")));
-		assertThat(importUser2.size(), is(1));
-		assertThat(importUser2.get(0).authenticationResult.getStatus(), is(Status.notApplicable));
+		assertThat(importUser2).hasSize(1);
+		assertThat(importUser2.get(0).authenticationResult.getStatus()).isEqualTo(Status.notApplicable);
 		verify(importer, never()).importUser("id", "type");
 		
 		//again - should expire negative resolve cache
 		Thread.sleep(1001);
 		List<ImportResult> importUser3 = impl.importUser(
 				Lists.newArrayList(new UserImportSpec("key", "id", "type")));
-		assertThat(importUser3.size(), is(1));
-		assertThat(importUser3.get(0).authenticationResult.getStatus(), is(Status.notApplicable));
+		assertThat(importUser3).hasSize(1);
+		assertThat(importUser3.get(0).authenticationResult.getStatus()).isEqualTo(Status.notApplicable);
 		verify(importer).importUser("id", "type");
 	}
 	
@@ -122,11 +122,10 @@ public class TestUserImportService
 				Lists.newArrayList(UserImportSpec.withAllImporters("id", "type")));
 
 		//then
-		assertThat(importUser.size(), is(2));
-		assertThat(importUser.get(0).importerKey, is("key1"));
-		assertThat(importUser.get(0).authenticationResult.getStatus(), 
-				is(Status.notApplicable));
-		assertThat(importUser.get(1).importerKey, is("key2"));
+		assertThat(importUser).hasSize(2);
+		assertThat(importUser.get(0).importerKey).isEqualTo("key1");
+		assertThat(importUser.get(0).authenticationResult.getStatus()).isEqualTo(Status.notApplicable);
+		assertThat(importUser.get(1).importerKey).isEqualTo("key2");
 		verify(factory, times(2)).getInstance(getCfgProperties(), "idp");
 		verify(importer, times(2)).importUser("id", "type");
 	}

@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.engine.session;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,16 +16,16 @@ import java.util.Collections;
 import java.util.Date;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AdditionalAuthenticationServiceTest
 {
 	@Mock
@@ -278,11 +278,11 @@ public class AdditionalAuthenticationServiceTest
 	{
 		AuthenticatorInstance auth1 = mock(AuthenticatorInstance.class);
 		AuthenticatorInstanceMetadata instance1 = mock(AuthenticatorInstanceMetadata.class);
-		when(instance1.getLocalCredentialName()).thenReturn(credential);
-		when(instance1.getId()).thenReturn(authenticator);
-		when(auth1.getMetadata()).thenReturn(instance1);
+		lenient().when(instance1.getLocalCredentialName()).thenReturn(credential);
+		lenient().when(instance1.getId()).thenReturn(authenticator);
+		lenient().when(auth1.getMetadata()).thenReturn(instance1);
 		CredentialRetrieval retrieval = mock(CredentialRetrieval.class);
-		when(auth1.getRetrieval()).thenReturn(retrieval);
+		lenient().when(auth1.getRetrieval()).thenReturn(retrieval);
 		return auth1;
 	}
 
@@ -312,7 +312,7 @@ public class AdditionalAuthenticationServiceTest
 	{
 		Assertions.assertThat(exception).isNotNull()
 			.isInstanceOf(AdditionalAuthenticationRequiredException.class);
-		assertThat(((AdditionalAuthenticationRequiredException)exception).authenticationOption,
-				is(optionId));
+		assertThat(((AdditionalAuthenticationRequiredException)exception).authenticationOption).
+				isEqualTo(optionId);
 	}
 }

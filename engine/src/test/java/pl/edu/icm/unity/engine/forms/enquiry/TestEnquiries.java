@@ -6,18 +6,15 @@ package pl.edu.icm.unity.engine.forms.enquiry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -77,7 +74,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	private EnquiryManagement enquiryManagement;
 
 
-	@Before
+	@BeforeEach
 	public void init() throws EngineException
 	{
 		setupPasswordAuthn();
@@ -95,8 +92,8 @@ public class TestEnquiries extends DBIntegrationTestBase
 		
 		List<EnquiryForm> forms = enquiryManagement.getEnquires();
 		
-		assertThat(forms.size(), is(1));
-		assertThat(forms.get(0), is(form));
+		assertThat(forms.size()).isEqualTo(1);
+		assertThat(forms.get(0)).isEqualTo(form);
 	}
 	
 	@Test 
@@ -106,7 +103,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		
 		enquiryManagement.removeEnquiry("f1", true);
 		
-		assertThat(enquiryManagement.getEnquires().isEmpty(), is(true));
+		assertThat(enquiryManagement.getEnquires()).isEmpty();
 	}
 
 	@Test 
@@ -210,8 +207,8 @@ public class TestEnquiries extends DBIntegrationTestBase
 		
 		Entity entity = idsMan.getEntity(new EntityParam(new IdentityParam(UsernameIdentity.ID, "test-user")));
 		Collection<Identity> usernames = getIdentitiesByType(entity.getIdentities(), UsernameIdentity.ID);
-		assertThat(usernames.size(), is(2));
-		assertThat(usernames, hasItem(identity));
+		assertThat(usernames.size()).isEqualTo(2);
+		assertThat(usernames).contains(identity);
 	}
 
 	@Test
@@ -234,8 +231,8 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withType(Type.REGULAR)
 				.build());
 		
-		assertThat(pendingEnquires.size(), is(1));
-		assertThat(pendingEnquires.get(0), is(form));
+		assertThat(pendingEnquires.size()).isEqualTo(1);
+		assertThat(pendingEnquires.get(0)).isEqualTo(form);
 	}
 	
 	@Test
@@ -254,8 +251,8 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withType(Type.REGULAR)
 				.build());
 
-		assertThat(pendingEnquires.size(), is(1));
-		assertThat(pendingEnquires.get(0), is(form));
+		assertThat(pendingEnquires.size()).isEqualTo(1);
+		assertThat(pendingEnquires.get(0)).isEqualTo(form);
 	}
 	
 	@Test
@@ -274,7 +271,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withAccessMode(AccessMode.NOT_BY_INVITATION_ONLY)
 				.withType(Type.REGULAR)
 				.build());
-		assertThat(pendingEnquires.size(), is(0));	
+		assertThat(pendingEnquires.size()).isEqualTo(0);	
 	}
 	
 	@Test
@@ -305,8 +302,8 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withType(Type.REGULAR)
 				.build());
 		
-		assertThat(pendingEnquires.size(), is(1));
-		assertThat(pendingEnquires.get(0), is(form2));
+		assertThat(pendingEnquires.size()).isEqualTo(1);
+		assertThat(pendingEnquires.get(0)).isEqualTo(form2);
 	}
 	
 	@Test
@@ -336,7 +333,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableEnquires(entityParam, EnquirySelector.builder()
 				.withType(Type.ALL).withAccessMode(AccessMode.ANY).build());
 		
-		assertThat(pendingEnquires.size(), is(2));
+		assertThat(pendingEnquires.size()).isEqualTo(2);
 	}
 
 	@Test
@@ -357,7 +354,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withType(Type.REGULAR)
 				.build());
 		
-		assertThat(pendingEnquires.isEmpty(), is(true));
+		assertThat(pendingEnquires.isEmpty()).isEqualTo(true);
 	}
 	
 	@Test
@@ -386,7 +383,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withType(Type.REGULAR)
 				.build());
 		
-		assertThat(pendingEnquires.isEmpty(), is(true));
+		assertThat(pendingEnquires.isEmpty()).isEqualTo(true);
 	}
 	
 	@Test
@@ -408,7 +405,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withType(Type.REGULAR)
 				.build());
 		
-		assertThat(pendingEnquires.isEmpty(), is(true));
+		assertThat(pendingEnquires.isEmpty()).isEqualTo(true);
 	}
 	
 	@Test
@@ -467,9 +464,9 @@ public class TestEnquiries extends DBIntegrationTestBase
 				new EntityParam(identity.getEntityId()), "/", 
 				InitializerCommon.CN_ATTR);
 		
-		assertThat(attributes.size(), is(1));
-		assertThat(attributes.iterator().next().getName(), is(InitializerCommon.CN_ATTR));
-		assertThat(attributes.iterator().next().getValues().get(0), is("some"));
+		assertThat(attributes.size()).isEqualTo(1);
+		assertThat(attributes.iterator().next().getName()).isEqualTo(InitializerCommon.CN_ATTR);
+		assertThat(attributes.iterator().next().getValues().get(0)).isEqualTo("some");
 	}
 	
 	private EnquiryFormBuilder getFormBuilder(String autoAcceptCondition)
@@ -575,7 +572,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 			fail("Added the form with illegal " + msg);
 		} catch (Exception e) 
 		{
-			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
+			assertTrue(e.getClass().isAssignableFrom(exception));
 		}
 		try
 		{
@@ -583,7 +580,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 			fail("Updated the form with illegal " + msg);
 		} catch (Exception e) 
 		{
-			assertTrue(e.toString(), e.getClass().isAssignableFrom(exception));
+			assertTrue(e.getClass().isAssignableFrom(exception));
 		}
 	}
 	

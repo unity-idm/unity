@@ -4,10 +4,21 @@
  */
 package pl.edu.icm.unity.engine.audit;
 
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static pl.edu.icm.unity.base.audit.AuditEventTag.USERS;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.audit.AuditEvent;
@@ -19,16 +30,6 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static pl.edu.icm.unity.base.audit.AuditEventTag.USERS;
-
 public class AuditManagerTest extends DBIntegrationTestBase
 {
 	@Autowired
@@ -38,7 +39,7 @@ public class AuditManagerTest extends DBIntegrationTestBase
 	@Autowired
 	private TransactionalRunner tx;
 
-	@Before
+	@BeforeEach
 	@Override
 	public void setupAdmin() throws Exception
 	{
@@ -49,7 +50,7 @@ public class AuditManagerTest extends DBIntegrationTestBase
 		auditManager.enableAuditEvents();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		auditManager.disableAuditEvents();
 	}

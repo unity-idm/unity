@@ -6,13 +6,12 @@ package pl.edu.icm.unity.engine.forms.reg;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
 
 import java.time.Instant;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -67,7 +66,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 			validator.validateSubmittedRequest(getIdentityForm(ConfirmationMode.ON_SUBMIT), request, true);
 		});
 		
-		assertThat(request.getIdentities().get(0).isConfirmed(), is(true));
+		assertThat(request.getIdentities().get(0).isConfirmed()).isTrue();
 	}
 
 	@Test
@@ -82,7 +81,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 			validator.validateSubmittedRequest(getIdentityForm(ConfirmationMode.ON_ACCEPT), request, true);
 		});
 		
-		assertThat(request.getIdentities().get(0).isConfirmed(), is(true));
+		assertThat(request.getIdentities().get(0).isConfirmed()).isTrue();
 	}
 	
 	@Test
@@ -97,7 +96,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 		});
 		
 		String rawValue = request.getAttributes().get(0).getValues().get(0);
-		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed(), is(true));
+		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed()).isTrue();
 	}
 
 	@Test
@@ -112,7 +111,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 		});
 		
 		String rawValue = request.getAttributes().get(0).getValues().get(0);
-		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed(), is(true));
+		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed()).isTrue();
 	}
 
 	
@@ -127,7 +126,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 			validator.validateSubmittedRequest(getIdentityForm(ConfirmationMode.DONT_CONFIRM), request, true);
 		});
 		
-		assertThat(request.getIdentities().get(0).isConfirmed(), is(false));
+		assertThat(request.getIdentities().get(0).isConfirmed()).isFalse();
 	}
 
 	@Test
@@ -142,7 +141,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 		});
 		
 		String rawValue = request.getAttributes().get(0).getValues().get(0);
-		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed(), is(false));
+		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed()).isFalse();
 	}
 
 	@Test
@@ -165,7 +164,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 		invitationMan.updateInvitation(code, invitation);
 		
 		InvitationWithCode returnedInvitation = invitationMan.getInvitation(code);
-		assertThat(((RegistrationInvitationParam) returnedInvitation.getInvitation()).getFormPrefill().getMessageParams().get("added"), is("param"));
+		assertThat(((RegistrationInvitationParam) returnedInvitation.getInvitation()).getFormPrefill().getMessageParams().get("added")).isEqualTo("param");
 	}
 	
 	@Test

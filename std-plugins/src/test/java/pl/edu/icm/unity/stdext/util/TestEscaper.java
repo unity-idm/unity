@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import pl.edu.icm.unity.base.utils.Escaper;
 
@@ -16,16 +16,16 @@ public class TestEscaper
 	{
 		String a = Escaper.encode("aa", "bb", "cc");
 		String[] sp = Escaper.decode(a);
-		Assert.assertEquals(3, sp.length);
-		Assert.assertEquals("aa", sp[0]);
-		Assert.assertEquals("bb", sp[1]);
-		Assert.assertEquals("cc", sp[2]);
+		assertThat(3).isEqualTo(sp.length);
+		assertThat("aa").isEqualTo( sp[0]);
+		assertThat("bb").isEqualTo(sp[1]);
+		assertThat("cc").isEqualTo(sp[2]);
 
 		a = Escaper.encode("$a$", "\\b", "cc\\$");
 		sp = Escaper.decode(a);
-		Assert.assertEquals(3, sp.length);
-		Assert.assertEquals("$a$", sp[0]);
-		Assert.assertEquals("\\b", sp[1]);
-		Assert.assertEquals("cc\\$", sp[2]);
+		assertThat(3).isEqualTo(sp.length);
+		assertThat("$a$").isEqualTo(sp[0]);
+		assertThat("\\b").isEqualTo(sp[1]);
+		assertThat("cc\\$").isEqualTo(sp[2]);
 	}
 }

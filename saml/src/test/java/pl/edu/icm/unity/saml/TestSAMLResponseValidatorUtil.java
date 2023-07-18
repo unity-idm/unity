@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.saml;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.saml.SAMLResponseValidatorUtil.AUTHN_CONTEXT_CLASS_REF_ATTR;
@@ -15,7 +13,7 @@ import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.samly2.SAMLUtils;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
@@ -51,10 +49,10 @@ public class TestSAMLResponseValidatorUtil
 		
 		
 		RemoteAttribute authnCtxAttr = authnInput.getAttributes().get(AUTHN_CONTEXT_CLASS_REF_ATTR);
-		assertThat(authnCtxAttr, is(notNullValue()));
-		assertThat(authnCtxAttr.getValues().isEmpty(), is(false));
-		assertThat(authnInput.getAttributes().get(AUTHN_CONTEXT_CLASS_REF_ATTR).getValues().get(0), 
-				is("urn:oasis:names:tc:SAML:2.0:ac:classes:Password"));
+		assertThat(authnCtxAttr).isNotNull();
+		assertThat(authnCtxAttr.getValues().isEmpty()).isFalse();
+		assertThat(authnInput.getAttributes().get(AUTHN_CONTEXT_CLASS_REF_ATTR).getValues().get(0)). 
+				isEqualTo("urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
 		
 	}
 }

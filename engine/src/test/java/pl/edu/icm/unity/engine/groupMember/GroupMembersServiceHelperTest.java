@@ -1,9 +1,7 @@
 package pl.edu.icm.unity.engine.groupMember;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider.AUTHORIZATION_ROLE;
 
 import java.util.Collection;
@@ -11,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -56,10 +54,10 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 
 		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of(AUTHORIZATION_ROLE));
 
-		assertThat(groupMembers.size(), is(1));
-		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
-		assertThat(groupMembers.get(0).getIdentities(), hasItem(added));
-		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList()), hasItem(AUTHORIZATION_ROLE));
+		assertThat(groupMembers).hasSize(1);
+		assertThat(groupMembers.get(0).getEntityInformation().getId()).isEqualTo(added.getEntityId());
+		assertThat(groupMembers.get(0).getIdentities()).contains(added);
+		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList())).contains(AUTHORIZATION_ROLE);
 	}
 
 	@Test
@@ -88,11 +86,11 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 
 		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of(AUTHORIZATION_ROLE));
 
-		assertThat(groupMembers.size(), is(1));
-		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
-		assertThat(groupMembers.get(0).getIdentities(), hasItem(added));
-		assertThat(groupMembers.get(0).getAttributes().size(), is(1));
-		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList()), hasItem(AUTHORIZATION_ROLE));
+		assertThat(groupMembers).hasSize(1);
+		assertThat(groupMembers.get(0).getEntityInformation().getId()).isEqualTo(added.getEntityId());
+		assertThat(groupMembers.get(0).getIdentities()).contains(added);
+		assertThat(groupMembers.get(0).getAttributes()).hasSize(1);
+		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList())).contains(AUTHORIZATION_ROLE);
 	}
 
 	@Test
@@ -121,11 +119,11 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 
 		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of());
 
-		assertThat(groupMembers.size(), is(1));
-		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
-		assertThat(groupMembers.get(0).getIdentities(), hasItem(added));
-		assertThat(groupMembers.get(0).getAttributes().size(), is(2));
-		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList()), hasItems(AUTHORIZATION_ROLE, "name"));
+		assertThat(groupMembers).hasSize(1);
+		assertThat(groupMembers.get(0).getEntityInformation().getId()).isEqualTo(added.getEntityId());
+		assertThat(groupMembers.get(0).getIdentities()).contains(added);
+		assertThat(groupMembers.get(0).getAttributes()).hasSize(2);
+		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList())).contains(AUTHORIZATION_ROLE, "name");
 	}
 
 	@Test
@@ -156,12 +154,12 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 
 		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of());
 
-		assertThat(groupMembers.size(), is(1));
-		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
-		assertThat(groupMembers.get(0).getIdentities(), hasItem(added));
-		assertThat(groupMembers.get(0).getAttributes().size(), is(2));
-		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList()), hasItems(AUTHORIZATION_ROLE, "name"));
-		assertThat(groupMembers.get(0).getAttributes().stream().flatMap(attributeExt -> attributeExt.getValues().stream()).collect(Collectors.toList()), hasItems("ola"));
+		assertThat(groupMembers).hasSize(1);
+		assertThat(groupMembers.get(0).getEntityInformation().getId()).isEqualTo(added.getEntityId());
+		assertThat(groupMembers.get(0).getIdentities()).contains(added);
+		assertThat(groupMembers.get(0).getAttributes()).hasSize(2);
+		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList())).contains(AUTHORIZATION_ROLE, "name");
+		assertThat(groupMembers.get(0).getAttributes().stream().flatMap(attributeExt -> attributeExt.getValues().stream()).collect(Collectors.toList())).contains("ola");
 	}
 
 	@Test
@@ -189,12 +187,12 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 
 		List<GroupMemberWithAttributes> groupMembers = groupMembersService.getGroupMembersWithSelectedAttributes("/A", List.of());
 
-		assertThat(groupMembers.size(), is(1));
-		assertThat(groupMembers.get(0).getEntityInformation().getId(), is(added.getEntityId()));
-		assertThat(groupMembers.get(0).getIdentities(), hasItem(added));
-		assertThat(groupMembers.get(0).getAttributes().size(), is(2));
-		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList()), hasItems(AUTHORIZATION_ROLE, "name"));
-		assertThat(groupMembers.get(0).getAttributes().stream().flatMap(attributeExt -> attributeExt.getValues().stream()).collect(Collectors.toList()), hasItems("ala"));
+		assertThat(groupMembers).hasSize(1);
+		assertThat(groupMembers.get(0).getEntityInformation().getId()).isEqualTo(added.getEntityId());
+		assertThat(groupMembers.get(0).getIdentities()).contains(added);
+		assertThat(groupMembers.get(0).getAttributes()).hasSize(2);
+		assertThat(groupMembers.get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList())).contains(AUTHORIZATION_ROLE, "name");
+		assertThat(groupMembers.get(0).getAttributes().stream().flatMap(attributeExt -> attributeExt.getValues().stream()).collect(Collectors.toList())).contains("ala");
 	}
 
 	@Test
@@ -220,28 +218,22 @@ public class GroupMembersServiceHelperTest extends DBIntegrationTestBase
 
 		Map<String, List<GroupMemberWithAttributes>> groupMembers = groupMembersService.getGroupsMembersInGroupsWithSelectedAttributes(List.of("/A", "/B"), List.of(AUTHORIZATION_ROLE));
 
-		assertThat(groupMembers.size(), is(2));
-		assertThat(groupMembers.get("/A").get(0).getEntityInformation().getId(), is(added.getEntityId()));
-		assertThat(groupMembers.get("/A").get(0).getIdentities(), hasItem(added));
+		assertThat(groupMembers).hasSize(2);
+		assertThat(groupMembers.get("/A").get(0).getEntityInformation().getId()).isEqualTo(added.getEntityId());
+		assertThat(groupMembers.get("/A").get(0).getIdentities()).contains(added);
 		assertThat(
-				groupMembers.get("/A").get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList()),
-				hasItem(AUTHORIZATION_ROLE)
-		);
+				groupMembers.get("/A").get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList())).contains(AUTHORIZATION_ROLE);
 		assertThat(
-				groupMembers.get("/A").get(0).getAttributes().stream().map(Attribute::getValues).flatMap(Collection::stream).collect(Collectors.toList()),
-				hasItem("Inspector")
-		);
+				groupMembers.get("/A").get(0).getAttributes().stream().map(Attribute::getValues).flatMap(Collection::stream).collect(Collectors.toList())).contains("Inspector");
 
-		assertThat(groupMembers.get("/B").get(0).getEntityInformation().getId(), is(added.getEntityId()));
-		assertThat(groupMembers.get("/B").get(0).getIdentities(), hasItem(added));
+		assertThat(groupMembers.get("/B").get(0).getEntityInformation().getId()).isEqualTo(added.getEntityId());
+		assertThat(groupMembers.get("/B").get(0).getIdentities()).contains(added);
 		assertThat(
-				groupMembers.get("/B").get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList()),
-				hasItem(AUTHORIZATION_ROLE)
-		);
+				groupMembers.get("/B").get(0).getAttributes().stream().map(Attribute::getName).collect(Collectors.toList())).
+				contains(AUTHORIZATION_ROLE);
 		assertThat(
-				groupMembers.get("/B").get(0).getAttributes().stream().map(Attribute::getValues).flatMap(Collection::stream).collect(Collectors.toList()),
-				hasItem("Anonymous User")
-		);
+				groupMembers.get("/B").get(0).getAttributes().stream().map(Attribute::getValues).flatMap(Collection::stream).collect(Collectors.toList())).
+				contains("Anonymous User");
 
 	}
 }

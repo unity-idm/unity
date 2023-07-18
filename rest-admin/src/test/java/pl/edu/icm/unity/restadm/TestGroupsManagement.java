@@ -4,10 +4,8 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Set;
@@ -24,7 +22,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -63,7 +61,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 
 		String contents = client.execute(host, getGroupContents, getClientContext(host), new BasicHttpClientResponseHandler());
 		RestGroupContents groupContent = JsonUtil.parse(contents, RestGroupContents.class);
-		assertThat(groupContent.subGroups.contains("/subgroup"), is(true));
+		assertThat(groupContent.subGroups.contains("/subgroup")).isTrue();
 	}
 	
 	@Test
@@ -83,18 +81,18 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		ClassicHttpResponse response = client.executeOpen(host, getGroupContents, getClientContext(host));
 		String contents = EntityUtils.toString(response.getEntity());
 
-		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
+		assertEquals(Status.OK.getStatusCode(), response.getCode(), contents);
 		RestGroupContents groupContent = JsonUtil.parse(contents, RestGroupContents.class);
-		assertThat(groupContent.subGroups.contains("/g1"), is(true));
+		assertThat(groupContent.subGroups.contains("/g1")).isTrue();
 
 		
 		getGroupContents = new HttpGet("/restadm/v1/group/%2Fg1");
 		response = client.executeOpen(host, getGroupContents, getClientContext(host));
 		String contents2 = EntityUtils.toString(response.getEntity());
 
-		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
+		assertEquals(Status.OK.getStatusCode(), response.getCode(), contents);
 		groupContent = JsonUtil.parse(contents2, RestGroupContents.class);
-		assertThat(groupContent.subGroups.contains("/g1/g2"), is(true));
+		assertThat(groupContent.subGroups.contains("/g1/g2")).isTrue();
 	}
 	
 	@Test
@@ -122,10 +120,10 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		ClassicHttpResponse response = client.executeOpen(host, getGroupContents, getClientContext(host));
 		String contents = EntityUtils.toString(response.getEntity());
 
-		assertEquals(contents, Status.OK.getStatusCode(), response.getCode());
+		assertEquals(Status.OK.getStatusCode(), response.getCode(), contents);
 		RestGroup group = JsonUtil.parse(contents, RestGroup.class);
-		assertThat(group.properties.get(0).value, is("v1"));
-		assertThat(group.properties.get(0).key, is("k1"));
+		assertThat(group.properties.get(0).value).isEqualTo("v1");
+		assertThat(group.properties.get(0).key).isEqualTo("k1");
 	}
 
 
@@ -145,7 +143,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 
 		String contents = client.execute(host, getGroupContents, getClientContext(host), new BasicHttpClientResponseHandler());
 		RestGroupContents groupContent = JsonUtil.parse(contents, RestGroupContents.class);
-		assertThat(groupContent.subGroups.contains("/subgroup1/subgroup2/subgroup3"), is(true));
+		assertThat(groupContent.subGroups.contains("/subgroup1/subgroup2/subgroup3")).isTrue();
 	}
 
 	@Test
@@ -164,7 +162,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/%2F");
 		String contents = client.execute(host, getGroupContents, getClientContext(host), new BasicHttpClientResponseHandler());
 		RestGroupContents groupContent = JsonUtil.parse(contents, RestGroupContents.class);
-		assertThat(groupContent.subGroups.contains("/subgroup"), is(false));
+		assertThat(groupContent.subGroups.contains("/subgroup")).isEqualTo(false);
 	}
 	
 	@Test
@@ -195,7 +193,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 
 		List<RestAttributeStatement> groupStatements = Constants.MAPPER.readValue(contents, 
 				new TypeReference<List<RestAttributeStatement>>(){});
-		assertThat(groupStatements.size(), is(1));
+		assertThat(groupStatements.size()).isEqualTo(1);
 	}
 	
 	@Test
@@ -214,7 +212,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		
 		// expect
 		Set<String> existingGroups = idsMan.getGroups(entityParam).keySet();
-		assertThat(existingGroups, equalTo(Sets.newHashSet("/", "/A")));
+		assertThat(existingGroups).isEqualTo(Sets.newHashSet("/", "/A"));
 		
 		HttpPost add = new HttpPost("/restadm/v1/group/%2FA%2FB%2FC/entity/" +  DEF_USER + "?identityType=" + UsernameIdentity.ID);
 		
@@ -224,7 +222,7 @@ public class TestGroupsManagement extends RESTAdminTestBase
 			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
 		}
 		existingGroups = idsMan.getGroups(entityParam).keySet();
-		assertThat(existingGroups, equalTo(Sets.newHashSet("/", "/A", "/A/B", "/A/B/C")));
+		assertThat(existingGroups).isEqualTo(Sets.newHashSet("/", "/A", "/A/B", "/A/B/C"));
 	}
 	
 	@Test
@@ -239,6 +237,6 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		String contents = client.execute(host, get, getClientContext(host), new BasicHttpClientResponseHandler());
 		List<RestGroupMember> groupContent = Constants.MAPPER.readValue(contents, 
 				new TypeReference<List<RestGroupMember>>(){});
-		assertThat(groupContent.size(), is(2));
+		assertThat(groupContent.size()).isEqualTo(2);
 	}
 }

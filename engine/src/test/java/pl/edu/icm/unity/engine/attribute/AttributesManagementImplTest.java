@@ -8,17 +8,17 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
@@ -49,7 +49,7 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 {
 	private EntityParam entity;
 	
-	@Before
+	@BeforeEach
 	public void setup() throws Exception
 	{
 		setupMockAuthn();
@@ -221,7 +221,7 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 		groupsMan.removeMember("/test", entity);
 
 		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, null, null);
-		assertEquals(allAts.toString(), DEF_ATTRS, allAts.size());
+		assertEquals(DEF_ATTRS, allAts.size());
 	}
 
 	
@@ -236,7 +236,7 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/test", entity);
 
 		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, "/test", null);
-		assertEquals(allAts.toString(), 0, allAts.size());
+		assertEquals(0, allAts.size());
 	}
 	
 	@Test

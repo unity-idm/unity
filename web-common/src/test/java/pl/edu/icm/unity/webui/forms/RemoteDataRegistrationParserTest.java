@@ -6,12 +6,11 @@ package pl.edu.icm.unity.webui.forms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 
@@ -44,9 +43,9 @@ public class RemoteDataRegistrationParserTest
 
 		Map<String, IdentityTaV> identities = RemoteDataRegistrationParser.parseRemoteIdentities(form, remoteCtx);
 		
-		assertThat(identities.size(), is(1));
-		assertThat(identities.containsKey(UsernameIdentity.ID), is(true));
-		assertThat(identities.get(UsernameIdentity.ID), is(remoteCtx.getIdentities().iterator().next()));
+		assertThat(identities.size()).isEqualTo(1);
+		assertThat(identities.containsKey(UsernameIdentity.ID)).isEqualTo(true);
+		assertThat(identities.get(UsernameIdentity.ID)).isEqualTo(remoteCtx.getIdentities().iterator().next());
 	}
 
 	@Test
@@ -84,10 +83,10 @@ public class RemoteDataRegistrationParserTest
 		
 		Map<String, Attribute> attributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remoteCtx);
 		
-		assertThat(attributes.size(), is(1));
+		assertThat(attributes.size()).isEqualTo(1);
 		String key = RemoteDataRegistrationParser.getAttributeKey(form.getAttributeParams().get(0));
-		assertThat(attributes.containsKey(key), is(true));
-		assertThat(attributes.get(key), is(remoteCtx.getAttributes().iterator().next()));
+		assertThat(attributes.containsKey(key)).isEqualTo(true);
+		assertThat(attributes.get(key)).isEqualTo(remoteCtx.getAttributes().iterator().next());
 	}
 
 	@Test
@@ -107,10 +106,10 @@ public class RemoteDataRegistrationParserTest
 		
 		Map<String, Attribute> attributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remoteCtx);
 		
-		assertThat(attributes.size(), is(1));
+		assertThat(attributes.size()).isEqualTo(1);
 		String key = RemoteDataRegistrationParser.getAttributeKey(form.getAttributeParams().get(0));
-		assertThat(attributes.containsKey(key), is(true));
-		assertThat(attributes.get(key), is(remoteCtx.getAttributes().iterator().next()));
+		assertThat(attributes.containsKey(key)).isEqualTo(true);
+		assertThat(attributes.get(key)).isEqualTo(remoteCtx.getAttributes().iterator().next());
 	}
 	
 	@Test

@@ -15,7 +15,7 @@ import static pl.edu.icm.unity.ldap.client.config.LdapProperties.PREFIX;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 

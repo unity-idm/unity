@@ -5,8 +5,7 @@
 
 package io.imunity.scim.user.mapping.evaluation;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -16,12 +15,12 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.scim.config.AttributeDefinition;
 import io.imunity.scim.config.AttributeDefinitionWithMapping;
@@ -33,7 +32,7 @@ import io.imunity.scim.config.SimpleAttributeMapping;
 import io.imunity.scim.schema.SCIMAttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SimpleMappingEvaluatorTest
 {
 	private SimpleMappingEvaluator evaluator;
@@ -48,7 +47,7 @@ public class SimpleMappingEvaluatorTest
 	@Mock
 	private MappingEvaluatorRegistry mappingEvaluatorRegistry;
 
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		evaluator = new SimpleMappingEvaluator(dataArrayResolver, targetDataConverter, mvelEvaluator);
@@ -72,7 +71,7 @@ public class SimpleMappingEvaluatorTest
 		evaluator.eval(simpleAttr, EvaluatorContext.builder().build(), mappingEvaluatorRegistry);
 		ArgumentCaptor<EvaluatorContext> contextCaptor = ArgumentCaptor.forClass(EvaluatorContext.class);
 		verify(mvelEvaluator).evalMVEL(eq("arrayObj"), contextCaptor.capture());
-		assertThat(contextCaptor.getAllValues().get(0).arrayObj, is("f1"));
+		assertThat(contextCaptor.getAllValues().get(0).arrayObj).isEqualTo("f1");
 	}
 
 	@Test
@@ -90,8 +89,8 @@ public class SimpleMappingEvaluatorTest
 		EvaluationResult eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(eval.attributeName, is("familyName"));
-		assertThat(eval.value.get(), is("attributeValue"));
+		assertThat(eval.attributeName).isEqualTo("familyName");
+		assertThat(eval.value.get()).isEqualTo("attributeValue");
 	}
 
 	@Test
@@ -113,8 +112,8 @@ public class SimpleMappingEvaluatorTest
 		EvaluationResult eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(eval.attributeName, is("familyName"));
-		assertThat(eval.value.get(), is(List.of("attributeValue", "attributeValue")));
+		assertThat(eval.attributeName).isEqualTo("familyName");
+		assertThat(eval.value.get()).isEqualTo(List.of("attributeValue", "attributeValue"));
 	}
 
 	@Test
@@ -138,8 +137,8 @@ public class SimpleMappingEvaluatorTest
 		EvaluationResult eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(eval.attributeName, is("familyName"));
-		assertThat(eval.value.get(), is(List.of("f1", "f2")));
+		assertThat(eval.attributeName).isEqualTo("familyName");
+		assertThat(eval.value.get()).isEqualTo(List.of("f1", "f2"));
 	}
 
 	@Test
@@ -160,8 +159,8 @@ public class SimpleMappingEvaluatorTest
 		EvaluationResult eval = evaluator.eval(simpleAttr, EvaluatorContext.builder().build(),
 				mappingEvaluatorRegistry);
 
-		assertThat(eval.attributeName, is("time"));
-		assertThat(eval.value.get(), is("datetime"));
+		assertThat(eval.attributeName).isEqualTo("time");
+		assertThat(eval.value.get()).isEqualTo("datetime");
 	}
 
 }

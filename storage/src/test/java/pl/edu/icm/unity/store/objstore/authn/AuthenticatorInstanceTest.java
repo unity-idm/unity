@@ -6,12 +6,10 @@ package pl.edu.icm.unity.store.objstore.authn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
@@ -76,7 +74,7 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 			credentialDB.updateByName("localCred", cred);
 			Date ts2 = dao.getUpdateTimestamp("name1");
 			
-			assertThat(ts2.getTime() > ts.getTime(), is(true));
+			assertThat(ts2.getTime() > ts.getTime()).isTrue();
 		});
 	}	
 	@Override

@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -14,7 +13,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -41,9 +40,9 @@ public class AuthenticationOptionsHandlerTest
 		
 		List<AuthNOption> result = handler.getRemainingAuthnOptions();
 		
-		assertThat(result.size(), is(2));
-		assertThat(result.get(0).authenticatorUI.getId(), is("o1"));
-		assertThat(result.get(1).authenticatorUI.getId(), is("o3"));
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result.get(0).authenticatorUI.getId()).isEqualTo("o1");
+		assertThat(result.get(1).authenticatorUI.getId()).isEqualTo("o3");
 	}
 	
 	@Test
@@ -56,9 +55,9 @@ public class AuthenticationOptionsHandlerTest
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn1");
 		
-		assertThat(result.size(), is(2));
-		assertThat(result.get(0).authenticatorUI.getId(), is("o1"));
-		assertThat(result.get(1).authenticatorUI.getId(), is("o2"));
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result.get(0).authenticatorUI.getId()).isEqualTo("o1");
+		assertThat(result.get(1).authenticatorUI.getId()).isEqualTo("o2");
 	}
 
 	@Test
@@ -71,8 +70,8 @@ public class AuthenticationOptionsHandlerTest
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn1.o2");
 		
-		assertThat(result.size(), is(1));
-		assertThat(result.get(0).authenticatorUI.getId(), is("o2"));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(0).authenticatorUI.getId()).isEqualTo("o2");
 	}
 	
 	@Test
@@ -86,8 +85,8 @@ public class AuthenticationOptionsHandlerTest
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn2");
 		
-		assertThat(result.size(), is(1));
-		assertThat(result.get(0).authenticatorUI.getId(), is("o3"));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(0).authenticatorUI.getId()).isEqualTo("o3");
 	}
 
 	@Test
@@ -99,8 +98,8 @@ public class AuthenticationOptionsHandlerTest
 		
 		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn.o2");
 		
-		assertThat(result.size(), is(1));
-		assertThat(result.get(0).authenticatorUI.getId(), is("o2"));
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(0).authenticatorUI.getId()).isEqualTo("o2");
 	}
 	
 	private AuthenticationFlow getMock2FAuthnOption(String authenticator, 

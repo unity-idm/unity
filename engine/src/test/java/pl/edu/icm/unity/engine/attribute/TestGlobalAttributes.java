@@ -8,8 +8,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
@@ -33,7 +33,7 @@ public class TestGlobalAttributes extends DBIntegrationTestBase
 	private EntityParam entity;
 	private Group groupA;
 
-	@Before
+	@BeforeEach
 	@Override
 	public void setupAdmin() throws Exception
 	{

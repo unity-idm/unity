@@ -7,8 +7,8 @@ package pl.edu.icm.unity.saml.metadata.cfg;
 import org.apache.commons.io.FileUtils;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -179,7 +179,7 @@ public class IdpRemoteMetaManagerTest extends DBIntegrationTestBase
 		}
 	}
 	
-	@Ignore
+	@Disabled
 	@Test
 	public void testDownloadFromHttps() throws IOException
 	{

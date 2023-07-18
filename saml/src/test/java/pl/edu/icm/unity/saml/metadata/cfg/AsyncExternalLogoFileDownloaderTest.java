@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.internal.stubbing.answers.Returns;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;

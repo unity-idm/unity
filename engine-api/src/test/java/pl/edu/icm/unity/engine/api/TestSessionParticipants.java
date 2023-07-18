@@ -4,12 +4,13 @@
  */
 package pl.edu.icm.unity.engine.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantType;
@@ -64,6 +65,6 @@ public class TestSessionParticipants
 		sps.addParticipant(sp);
 		String serialized = sps.serialize();
 		sps = new SessionParticipants(serialized, reg);
-		Assert.assertEquals(1, sps.getParticipants().size());
+		assertThat(sps.getParticipants()).hasSize(1);
 	}
 }

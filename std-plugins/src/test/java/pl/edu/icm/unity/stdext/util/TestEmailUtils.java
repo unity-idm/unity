@@ -4,11 +4,9 @@
  */
 package pl.edu.icm.unity.stdext.util;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
@@ -19,19 +17,19 @@ public class TestEmailUtils
 	public void parsingWorks()
 	{
 		VerifiableEmail converted = EmailUtils.convertFromString("a@b.com[CONFIRMED]");
-		Assert.assertTrue(converted.isConfirmed());
-		Assert.assertEquals("a@b.com", converted.getValue());
+		assertThat(converted.isConfirmed()).isTrue();
+		assertThat("a@b.com").isEqualTo(converted.getValue());
 
 		VerifiableEmail converted2 = EmailUtils.convertFromString("a@b.com[UNCONFIRMED]");
-		Assert.assertFalse(converted2.isConfirmed());
-		Assert.assertEquals("a@b.com", converted2.getValue());
+		assertThat(converted2.isConfirmed()).isFalse();
+		assertThat("a@b.com").isEqualTo(converted2.getValue());
 
 		VerifiableEmail converted3 = EmailUtils.convertFromString("a@b.com");
-		Assert.assertFalse(converted3.isConfirmed());
-		Assert.assertEquals("a@b.com", converted3.getValue());
+		assertThat(converted3.isConfirmed()).isFalse();
+		assertThat("a@b.com").isEqualTo(converted3.getValue());
 		
 		VerifiableEmail converted4 = EmailUtils.convertFromString(" a@b.com   ");
-		Assert.assertEquals("a@b.com", converted4.getValue());
+		assertThat("a@b.com").isEqualTo(converted4.getValue());
 	}
 	
 	@Test
@@ -39,7 +37,7 @@ public class TestEmailUtils
 	{
 		VerifiableEmail email = new VerifiableEmail("a+tag1@ex.com");
 		
-		assertThat(email, equalTo(new VerifiableEmail("a@ex.com ")));
+		assertThat(email).isEqualTo(new VerifiableEmail("a@ex.com "));
 	}
 
 	@Test
@@ -47,7 +45,7 @@ public class TestEmailUtils
 	{
 		VerifiableEmail email = new VerifiableEmail("a@ex.com");
 		
-		assertThat(email, equalTo(new VerifiableEmail("a+tag@ex.com ")));
+		assertThat(email).isEqualTo(new VerifiableEmail("a+tag@ex.com "));
 	}
 
 	@Test
@@ -55,7 +53,7 @@ public class TestEmailUtils
 	{
 		VerifiableEmail email = new VerifiableEmail("a+tag1@ex.com");
 		
-		assertThat(email, equalTo(new VerifiableEmail(" a+tag1@ex.com ")));
+		assertThat(email).isEqualTo(new VerifiableEmail(" a+tag1@ex.com "));
 	}
 	
 	@Test
@@ -63,6 +61,6 @@ public class TestEmailUtils
 	{
 		String status = EmailUtils.validate("some@some.inc");
 		
-		assertThat(status, equalTo(null));
+		assertThat(status).isNull();
 	}
 }

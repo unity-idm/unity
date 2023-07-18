@@ -4,16 +4,13 @@
  */
 package pl.edu.icm.unity.store.impl.entities;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.entity.EntityInformation;
@@ -75,9 +72,9 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 
 			EntityInformation ret = dao.getByKey(key);
 
-			assertThat(obj.getId(), is(key));
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret, is(obj));
+			assertThat(obj.getId()).isEqualTo(key);
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(obj);
 		});
 	}
 	
@@ -88,15 +85,15 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 			long id1 = dao.create(new EntityInformation());
 			long id2 = dao.create(new EntityInformation());
 
-			assertThat(id1, is(not(id2)));
+			assertThat(id1).isNotEqualTo(id2);
 			
 			TransactionTL.manualCommit();
 			
 			EntityInformation ret1 = dao.getByKey(id1);
 			EntityInformation ret2 = dao.getByKey(id2);
 
-			assertThat(ret1.getId(), is(id1));
-			assertThat(ret2.getId(), is(id2));
+			assertThat(ret1.getId()).isEqualTo(id1);
+			assertThat(ret2.getId()).isEqualTo(id2);
 		});
 	}
 	
@@ -111,7 +108,7 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 			EntityInformation obj2 = getObject("");
 			dao.create(obj2);
 			
-			assertThat(obj2.getId() != key, is(true));
+			assertThat(obj2.getId()).isNotEqualTo(key);
 		});
 	}
 	
@@ -131,9 +128,9 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 			
 			List<EntityInformation> ret = dao.getByGroup("/C");
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(2));
-			assertThat(ret, hasItems(dao.getByKey(id1), dao.getByKey(id2)));
+			assertThat(ret).isNotNull();
+			assertThat(ret).hasSize(2);
+			assertThat(ret).contains(dao.getByKey(id1), dao.getByKey(id2));
 		});
 	}
 	

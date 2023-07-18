@@ -5,18 +5,16 @@
 
 package pl.edu.icm.unity.engine;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
@@ -38,7 +36,7 @@ public class TestPKICertificates extends DBIntegrationTestBase
 	@Autowired
 	private PKIManagement pkiMan;
 
-	@Before
+	@BeforeEach
 	public void clear() throws Exception
 	{
 		insecureServerMan.resetDatabase();
@@ -52,14 +50,14 @@ public class TestPKICertificates extends DBIntegrationTestBase
 	public void shouldAddPersistedCert() throws Exception
 	{
 		pkiMan.addPersistedCertificate(new NamedCertificate("cert1", getX509Cert()));
-		assertThat(pkiMan.getCertificate("cert1"), is(notNullValue()));
+		assertThat(pkiMan.getCertificate("cert1")).isNotNull();
 	}
 
 	@Test
 	public void shouldAddVolatileCert() throws Exception
 	{
 		pkiMan.addVolatileCertificate("cert1", getX509Cert());
-		assertThat(pkiMan.getCertificate("cert1"), is(notNullValue()));
+		assertThat(pkiMan.getCertificate("cert1")).isNotNull();
 	}
 	
 	@Test
@@ -69,7 +67,7 @@ public class TestPKICertificates extends DBIntegrationTestBase
 		pkiMan.addPersistedCertificate(new NamedCertificate("cert2", getX509Cert()));
 		pkiMan.removeCertificate("cert1");
 		pkiMan.removeCertificate("cert2");
-		assertThat(pkiMan.getAllCertificateNames().size(), is(0));	
+		assertThat(pkiMan.getAllCertificateNames()).hasSize(0);	
 	}
 
 	@Test
@@ -91,8 +89,8 @@ public class TestPKICertificates extends DBIntegrationTestBase
 		pkiMan.addVolatileCertificate("cert1", getX509Cert());
 		pkiMan.addVolatileCertificate("cert2", getX509Cert());
 		pkiMan.addPersistedCertificate(new NamedCertificate("cert3", getX509Cert()));
-		assertThat(pkiMan.getAllCertificateNames().size(), is(3));
-		assertThat(pkiMan.getAllCertificateNames(), hasItems("cert1", "cert2", "cert3"));	
+		assertThat(pkiMan.getAllCertificateNames()).hasSize(3);
+		assertThat(pkiMan.getAllCertificateNames()).contains("cert1", "cert2", "cert3");	
 	}
 	
 	@Test

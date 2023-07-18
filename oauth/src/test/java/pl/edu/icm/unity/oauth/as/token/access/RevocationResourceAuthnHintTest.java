@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.oauth.as.token.access;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.oauth.as.OAuthTestUtils.TOKEN_OWNING_CLIENT_CLIENT_ID;
 import static pl.edu.icm.unity.oauth.as.OAuthTestUtils.TOKEN_OWNING_CLIENT_ENTITY_ID;
@@ -16,8 +16,8 @@ import java.util.Locale;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
@@ -47,7 +47,7 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 public class RevocationResourceAuthnHintTest
 {
-	@After
+	@AfterEach
 	public void cleanup()
 	{
 		InvocationContext.setCurrent(null);

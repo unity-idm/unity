@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -14,7 +16,7 @@ import java.util.List;
 
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlBase64Binary;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.image.ImageType;

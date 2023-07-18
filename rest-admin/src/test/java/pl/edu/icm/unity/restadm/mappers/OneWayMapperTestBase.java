@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.restadm.mappers;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 

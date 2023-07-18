@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.time.Duration;
 
 import org.apache.xmlbeans.XmlException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.translation.TranslationProfile;

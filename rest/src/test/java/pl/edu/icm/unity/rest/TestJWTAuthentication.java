@@ -4,10 +4,8 @@
  */
 package pl.edu.icm.unity.rest;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
@@ -21,8 +19,8 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
 
 import com.google.common.collect.Lists;
@@ -47,7 +45,7 @@ public class TestJWTAuthentication extends TestRESTBase
 	private static final String JWT_CONFIG = "unity.jwtauthn.tokenTtl=2\n"
 			+ "unity.jwtauthn.credential=MAIN\n";
 	
-	@Before
+	@BeforeEach
 	public void setup() throws Exception
 	{
 		setupPasswordAuthn();
@@ -76,7 +74,7 @@ public class TestJWTAuthentication extends TestRESTBase
 	{
 		HttpGet get = new HttpGet("/jwt/token");
 		ClassicHttpResponse response = executeWithLC(get);
-		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
+		assertEquals(200, response.getCode(), new StatusLine(response).toString());
 		String token = EntityUtils.toString(response.getEntity());
 		System.out.println("Received token: " + token);
 	}	
@@ -86,7 +84,7 @@ public class TestJWTAuthentication extends TestRESTBase
 	{
 		HttpGet get = new HttpGet("/jwt/token");
 		ClassicHttpResponse response = execute(get);
-		assertEquals(new StatusLine(response).toString(), 500, response.getCode());
+		assertEquals(500, response.getCode(), new StatusLine(response).toString());
 	}	
 
 	@Test
@@ -101,8 +99,8 @@ public class TestJWTAuthentication extends TestRESTBase
 		post.setEntity(new StringEntity(token));
 		response = execute(post);
 		String token2 = EntityUtils.toString(response.getEntity());
-		assertEquals(new StatusLine(response).toString(), 200, response.getCode());
-		assertThat(token2, is(not(token)));
+		assertEquals(200, response.getCode(), new StatusLine(response).toString());
+		assertThat(token2).isNotEqualTo(token);
 	}
 
 	@Test
@@ -116,13 +114,13 @@ public class TestJWTAuthentication extends TestRESTBase
 		post.setHeader("Authorization", "Bearer " + token);
 		post.setEntity(new StringEntity(token));
 		response = execute(post);
-		assertEquals(new StatusLine(response).toString(), 204, response.getCode());
+		assertEquals(204, response.getCode(), new StatusLine(response).toString());
 
 		HttpPost post2 = new HttpPost("/jwt/refreshToken");
 		post2.setHeader("Authorization", "Bearer " + token);
 		post2.setEntity(new StringEntity(token));
 		response = execute(post2);
-		assertEquals(new StatusLine(response).toString(), 410, response.getCode());
+		assertEquals(410, response.getCode(), new StatusLine(response).toString());
 	}
 	
 	@Test
@@ -139,7 +137,7 @@ public class TestJWTAuthentication extends TestRESTBase
 		post.setEntity(new StringEntity(token));
 		response = execute(post);
 		
-		assertEquals(new StatusLine(response).toString(), 500, response.getCode());
+		assertEquals(500, response.getCode(), new StatusLine(response).toString());
 	}
 	
 

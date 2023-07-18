@@ -37,10 +37,12 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
 
 /**
  * Utility methods for registration tests
@@ -159,7 +161,7 @@ public abstract class RegistrationTestBase extends DBIntegrationTestBase
 			fail("Added the form with illegal " + msg);
 		} catch (Exception e) 
 		{
-			assertTrue(e.toString(), exception.isAssignableFrom(e.getClass()));
+			assertTrue(exception.isAssignableFrom(e.getClass()));
 		}
 		try
 		{
@@ -167,7 +169,7 @@ public abstract class RegistrationTestBase extends DBIntegrationTestBase
 			fail("Updated the form with illegal " + msg);
 		} catch (Exception e) 
 		{
-			assertTrue(e.toString(), exception.isAssignableFrom(e.getClass()));
+			assertTrue(exception.isAssignableFrom(e.getClass()));
 		}
 	}
 	

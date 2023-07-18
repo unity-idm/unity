@@ -9,7 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 public abstract class MapperTestBase<S, T>
 {
@@ -19,7 +20,6 @@ public abstract class MapperTestBase<S, T>
 	
 	protected abstract Pair<Function<S, T>, Function<T, S>> getMapper();
 
-	@Test
 	public void shouldMapToFullRestObject()
 	{
 		T mapped = getMapper().left

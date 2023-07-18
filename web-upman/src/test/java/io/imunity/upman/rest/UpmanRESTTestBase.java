@@ -37,12 +37,12 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
-import pl.edu.icm.unity.engine.DBIntegrationTestBase5;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 
-abstract class UpmanRESTTestBase extends DBIntegrationTestBase5
+abstract class UpmanRESTTestBase extends DBIntegrationTestBase
 {
 	public static final String AUTHENTICATOR_REST_PASS = "ApassREST";
 	public static final String CONFIGURATION = "#\n" +

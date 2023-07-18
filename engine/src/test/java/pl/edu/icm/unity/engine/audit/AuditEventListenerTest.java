@@ -4,8 +4,9 @@
  */
 package pl.edu.icm.unity.engine.audit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -13,9 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -40,20 +41,20 @@ public class AuditEventListenerTest extends DBIntegrationTestBase
 
 	private AttributeType typeWithEntityName;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception
 	{
 		typeWithEntityName = getType();
 		auditManager.enableAuditEvents();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup()
 	{
 		auditManager.disableAuditEvents();
 	}
 
-	@After
+	@AfterEach
 	public void after() 
 	{
 		// make sure entityNameAttribute is to null after test

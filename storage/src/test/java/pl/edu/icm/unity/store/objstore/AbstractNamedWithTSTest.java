@@ -6,10 +6,7 @@ package pl.edu.icm.unity.store.objstore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.describedObject.NamedObject;
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
@@ -40,10 +37,10 @@ public abstract class AbstractNamedWithTSTest<T extends NamedObject> extends Abs
 			dao.create(obj);
 			List<Entry<T, Date>> ret = dao.getAllWithUpdateTimestamps();
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(1));
-			assertThat(ret.get(0).getKey(), is (obj));
-			assertThat(ret.get(0).getValue(), is(notNullValue()));
+			assertThat(ret).isNotNull();
+			assertThat(ret.size()).isEqualTo(1);
+			assertThat(ret.get(0).getKey()).isEqualTo(obj);
+			assertThat(ret.get(0).getValue()).isNotNull();
 		});
 	}
 	
@@ -60,10 +57,10 @@ public abstract class AbstractNamedWithTSTest<T extends NamedObject> extends Abs
 
 			List<Entry<String, Date>> ret = dao.getAllNamesWithUpdateTimestamps();
 
-			assertThat(ret, is(notNullValue()));
-			assertThat(ret.size(), is(1));
-			assertThat(ret.get(0).getKey(), is(obj.getName()));
-			assertThat(System.currentTimeMillis() - ret.get(0).getValue().getTime() < 5000, is(true));
+			assertThat(ret).isNotNull();
+			assertThat(ret).hasSize(1);
+			assertThat(ret.get(0).getKey()).isEqualTo(obj.getName());
+			assertThat(System.currentTimeMillis() - ret.get(0).getValue().getTime() < 5000).isTrue();
 		});
 	}
 	
@@ -127,11 +124,11 @@ public abstract class AbstractNamedWithTSTest<T extends NamedObject> extends Abs
 
 			List<T> all = dao.getAll();
 			
-			assertThat(all.size(), is(1));
-			assertThat(all.get(0), is(obj));
+			assertThat(all).hasSize(1);
+			assertThat(all.get(0)).isEqualTo(obj);
 			
 			Date updateTimestamp2 = dao.getUpdateTimestamp(obj.getName());
-			assertThat(updateTimestamp2, is(updateTimestamp));
+			assertThat(updateTimestamp2).isEqualTo(updateTimestamp);
 		});
 	}
 }

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.oauth.rp.local.web;
 import java.util.Collections;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 

@@ -5,12 +5,9 @@
 package pl.edu.icm.unity.engine.translation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
@@ -22,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.assertj.core.groups.Tuple;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -108,7 +105,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 	@Test
 	public void testOutputPersistence() throws Exception
 	{
-		assertThat(listDefaultModeProfiles().size(), is(0));
+		assertThat(listDefaultModeProfiles()).hasSize(0);
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, new String[] {
 				"dynAttr", 
@@ -141,7 +138,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		
 		tprofMan.removeProfile(ProfileType.OUTPUT, "p1");
 	
-		assertThat(listDefaultModeProfiles().size(), is(0));
+		assertThat(listDefaultModeProfiles()).hasSize(0);
 
 	}
 	
@@ -265,15 +262,15 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		});
 		
 		Collection<DynamicAttribute> attributes = result.getAttributes();
-		assertThat(attributes.size(), is(6));
+		assertThat(attributes).hasSize(6);
 		for (DynamicAttribute da: attributes)
 		{
 			Attribute a = da.getAttribute();
 			if (a.getName().startsWith("a"))
 			{
-				assertThat(a.getValueSyntax(), is(StringAttributeSyntax.ID));
+				assertThat(a.getValueSyntax()).isEqualTo(StringAttributeSyntax.ID);
 				for (Object val: a.getValues())
-					assertThat(val, is(instanceOf(String.class)));
+					assertThat(val).isInstanceOf(String.class);
 			}
 		}
 	}
@@ -339,24 +336,24 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 
 		Collection<DynamicAttribute> attributes = res.getAttributes();
 
-		assertThat(attributes.size(), is(5));
+		assertThat(attributes).hasSize(5);
 		for (DynamicAttribute da : attributes)
 		{
 			Attribute attr = da.getAttribute();
 		
 			if (attr.getName().equals("a0"))
 			{
-				assertThat(attr.getValues().get(0), is("v1"));
+				assertThat(attr.getValues().get(0)).isEqualTo("v1");
 			}
 			
 			if (attr.getName().equals("a1"))
 			{
-				assertThat(attr.getValues().get(0), is("v1"));
+				assertThat(attr.getValues().get(0)).isEqualTo("v1");
 			}
 
 			if (attr.getName().equals("a2"))
 			{
-				assertThat(attr.getValues().get(0), is("email@example.com"));
+				assertThat(attr.getValues().get(0)).isEqualTo("email@example.com");
 			}
 
 		}
@@ -405,13 +402,13 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 
 		Collection<DynamicAttribute> attributes = res.getAttributes();
 
-		assertThat(attributes.size(), is(1));
+		assertThat(attributes).hasSize(1);
 		for (DynamicAttribute da : attributes)
 		{
 			Attribute attr = da.getAttribute();
 			if (attr.getName().equals("a1"))
 			{
-				assertThat(attr.getValues().get(0), is("x2"));
+				assertThat(attr.getValues().get(0)).isEqualTo("x2");
 			}
 		}
 	}
@@ -447,13 +444,13 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		});
 
 		Collection<DynamicAttribute> attributes = result.getAttributes();
-		assertThat(attributes.size(), is(2));
+		assertThat(attributes).hasSize(2);
 		for (DynamicAttribute da : attributes)
 		{
 			Attribute a = da.getAttribute();
 			if (a.getName().equals("o"))
 			{
-				assertThat(a.getValues().get(0), is("v2"));
+				assertThat(a.getValues().get(0)).isEqualTo("v2");
 			}
 		}
 	}
@@ -485,13 +482,13 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		});
 
 		Collection<DynamicAttribute> attributes = result.getAttributes();
-		assertThat(attributes.size(), is(2));
+		assertThat(attributes).hasSize(2);
 		for (DynamicAttribute da : attributes)
 		{
 			Attribute a = da.getAttribute();
 			if (a.getName().equals("a2"))
 			{
-				assertThat(a.getValues().get(0), is("email@example.com"));
+				assertThat(a.getValues().get(0)).isEqualTo("email@example.com");
 			}
 		}
 	}
@@ -532,12 +529,12 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 			return tp1.translate(input);
 		});
 
-		assertThat(result.getIdentities().size(), is(2));
+		assertThat(result.getIdentities()).hasSize(2);
 
 		for (IdentityParam id : result.getIdentities())
 		{
 			if (id.getTypeId().equals(EmailIdentity.ID))
-				assertThat(id.getValue(), is("x"));
+				assertThat(id.getValue()).isEqualTo("x");
 
 		}
 
@@ -566,12 +563,12 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 			return tp1.translate(input);
 		});
 
-		assertThat(result.getIdentities().size(), is(2));
+		assertThat(result.getIdentities()).hasSize(2);
 
 		for (IdentityParam id : result.getIdentities())
 		{
 			if (id.getTypeId().equals(UsernameIdentity.ID))
-				assertThat(id.getValue(), is("x"));
+				assertThat(id.getValue()).isEqualTo("x");
 
 		}
 	}
@@ -605,8 +602,8 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 			return tp1.translate(input);
 		});
-		assertThat(result.getAttributes().size(), is(0));
-		assertThat(result.getAttributesToPersist().size(), is(0));
+		assertThat(result.getAttributes()).hasSize(0);
+		assertThat(result.getAttributesToPersist()).hasSize(0);
 	}
 	
 	@Test
@@ -634,8 +631,8 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 						outputProfileRepo, outtactionReg, attrConverter, groupsMan);
 				return tp1.translate(input);
 			});
-			assertThat(result.getAttributes().size(), is(0));
-			assertThat(result.getAttributesToPersist().size(), is(0));
+			assertThat(result.getAttributes()).hasSize(0);
+			assertThat(result.getAttributesToPersist()).hasSize(0);
 		} catch (Exception e)
 		{
 			fail("Exception throw when run misconfigured action");

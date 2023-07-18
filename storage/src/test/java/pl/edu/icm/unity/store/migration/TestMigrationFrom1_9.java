@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.store.migration;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -15,12 +14,12 @@ import java.io.FileOutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
@@ -52,7 +51,7 @@ import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
 public class TestMigrationFrom1_9
 {
@@ -84,7 +83,7 @@ public class TestMigrationFrom1_9
 	private MembershipDAO memberDAO;	
 	
 	
-	@Before
+	@BeforeEach
 	public void cleanDB()
 	{
 		dbCleaner.cleanOrDelete();
@@ -108,63 +107,47 @@ public class TestMigrationFrom1_9
 				fail("Import failed " + e);
 			}
 			
-			assertThat(atDAO.getAll().size(), is(25));
-			assertThat(itDAO.getAll().size(), is(7));
-			assertThat(attrDAO.getAll().size(), is(58));
-			assertThat(identityDAO.getAll().size(), is(46));
-			assertThat(entDAO.getAll().size(), is(14));
-			assertThat(groupDAO.getAll().size(), is(14));
-			assertThat(memberDAO.getAll().size(), is(26));
+			assertThat(atDAO.getAll()).hasSize(25);
+			assertThat(itDAO.getAll()).hasSize(7);
+			assertThat(attrDAO.getAll()).hasSize(58);
+			assertThat(identityDAO.getAll()).hasSize(46);
+			assertThat(entDAO.getAll()).hasSize(14);
+			assertThat(groupDAO.getAll()).hasSize(14);
+			assertThat(memberDAO.getAll()).hasSize(26);
 			
 			
 			assertThat(genericDao.getObjectsOfType(
-					AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE).size(), 
-					is(3)); 
+					AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE)).hasSize(3); 
 			assertThat(genericDao.getObjectsOfType(
-					AuthenticatorConfigurationHandler.AUTHENTICATOR_OBJECT_TYPE ).size(), 
-					is(8)); 
+					AuthenticatorConfigurationHandler.AUTHENTICATOR_OBJECT_TYPE )).hasSize(8); 
 			assertThat(genericDao.getObjectsOfType(
-					CredentialHandler.CREDENTIAL_OBJECT_TYPE).size(), 
-					is(3)); 
+					CredentialHandler.CREDENTIAL_OBJECT_TYPE)).hasSize(3); 
 			assertThat(genericDao.getObjectsOfType(
-					CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE).size(), 
-					is(3)); 
+					CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE)).hasSize(3); 
 			assertThat(genericDao.getObjectsOfType(
-					MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE).size(), 
-					is(8)); 
+					MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE)).hasSize(8); 
 			assertThat(genericDao.getObjectsOfType(
-					NotificationChannelHandler.NOTIFICATION_CHANNEL_ID).size(), 
-					is(1)); 
+					NotificationChannelHandler.NOTIFICATION_CHANNEL_ID)).hasSize(1); 
 			assertThat(genericDao.getObjectsOfType(
-					RealmHandler.REALM_OBJECT_TYPE).size(), 
-					is(3)); 
+					RealmHandler.REALM_OBJECT_TYPE)).hasSize(3); 
 			assertThat(genericDao.getObjectsOfType(
-					InputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE).size(),
-					is(8)); 
+					InputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE)).hasSize(8); 
 			assertThat(genericDao.getObjectsOfType(
-					OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE).size(), 
-					is(1)); 
+					OutputTranslationProfileHandler.TRANSLATION_PROFILE_OBJECT_TYPE)).hasSize(1); 
 			assertThat(genericDao.getObjectsOfType(
-					ProcessingRuleHandler.PROCESSING_RULE_OBJECT_TYPE).size(), 
-					is(1)); 
+					ProcessingRuleHandler.PROCESSING_RULE_OBJECT_TYPE)).hasSize(1); 
 			assertThat(genericDao.getObjectsOfType(
-					EndpointHandler.ENDPOINT_OBJECT_TYPE).size(), 
-					is(9)); 
+					EndpointHandler.ENDPOINT_OBJECT_TYPE)).hasSize(9); 
 			assertThat(genericDao.getObjectsOfType(
-					RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE).size(), 
-					is(5)); 
+					RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE)).hasSize(5); 
 			assertThat(genericDao.getObjectsOfType(
-					EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE).size(), 
-					is(1)); 
+					EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE)).hasSize(1); 
 			assertThat(genericDao.getObjectsOfType(
-					RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE).size(), 
-					is(12)); 
+					RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE)).hasSize(12); 
 			assertThat(genericDao.getObjectsOfType(
-					EnquiryResponseHandler.ENQUIRY_RESPONSE_OBJECT_TYPE).size(), 
-					is(1)); 
+					EnquiryResponseHandler.ENQUIRY_RESPONSE_OBJECT_TYPE)).hasSize(1); 
 			assertThat(genericDao.getObjectsOfType(
-					InvitationHandler.INVITATION_OBJECT_TYPE).size(), 
-					is(1));
+					InvitationHandler.INVITATION_OBJECT_TYPE)).hasSize(1);
 		});
 	}
 	
@@ -192,7 +175,7 @@ public class TestMigrationFrom1_9
 			for (StoredAttribute sa: attributes)
 			{
 				String value = sa.getAttribute().getValues().get(0);
-				assertThat(value, containsString("SHA256"));
+				assertThat(value).containsSequence("SHA256");
 			}
 		});
 	}

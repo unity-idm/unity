@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.engine.msgtemplate;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -46,10 +45,10 @@ public class MessageTemplateLoaderTest
 		verify(man).addTemplate(captor.capture());
 		
 		I18nMessage msg = captor.getValue().getMessage();
-		assertThat(msg.getSubject().getDefaultValue(), is("sub"));
-		assertThat(msg.getSubject().getMap().size(), is(0));
-		assertThat(msg.getBody().getDefaultValue(), is("body"));
-		assertThat(msg.getBody().getMap().size(), is(0));
+		assertThat(msg.getSubject().getDefaultValue()).isEqualTo("sub");
+		assertThat(msg.getSubject().getMap().size()).isEqualTo(0);
+		assertThat(msg.getBody().getDefaultValue()).isEqualTo("body");
+		assertThat(msg.getBody().getMap().size()).isEqualTo(0);
 	}
 
 	@Test
@@ -70,12 +69,12 @@ public class MessageTemplateLoaderTest
 		verify(man).addTemplate(captor.capture());
 		
 		I18nMessage msg = captor.getValue().getMessage();
-		assertThat(msg.getSubject().getDefaultValue(), is(nullValue()));
-		assertThat(msg.getBody().getDefaultValue(), is(nullValue()));
-		assertThat(msg.getSubject().getValueRaw("en"), is("sub"));
-		assertThat(msg.getBody().getValueRaw("en"), is("body"));
-		assertThat(msg.getSubject().getMap().size(), is(1));
-		assertThat(msg.getBody().getMap().size(), is(1));
+		assertThat(msg.getSubject().getDefaultValue()).isNull();
+		assertThat(msg.getBody().getDefaultValue()).isNull();
+		assertThat(msg.getSubject().getValueRaw("en")).isEqualTo("sub");
+		assertThat(msg.getBody().getValueRaw("en")).isEqualTo("body");
+		assertThat(msg.getSubject().getMap().size()).isEqualTo(1);
+		assertThat(msg.getBody().getMap().size()).isEqualTo(1);
 	}
 
 	@Test
@@ -98,12 +97,12 @@ public class MessageTemplateLoaderTest
 		verify(man).addTemplate(captor.capture());
 		
 		I18nMessage msg = captor.getValue().getMessage();
-		assertThat(msg.getSubject().getDefaultValue(), is("sub"));
-		assertThat(msg.getBody().getDefaultValue(), is("body"));
-		assertThat(msg.getBody().getValueRaw("pl"), is("body-pl"));
-		assertThat(msg.getBody().getValueRaw("en"), is("body-en"));
-		assertThat(msg.getSubject().getMap().size(), is(0));
-		assertThat(msg.getBody().getMap().size(), is(2));
+		assertThat(msg.getSubject().getDefaultValue()).isEqualTo("sub");
+		assertThat(msg.getBody().getDefaultValue()).isEqualTo("body");
+		assertThat(msg.getBody().getValueRaw("pl")).isEqualTo("body-pl");
+		assertThat(msg.getBody().getValueRaw("en")).isEqualTo("body-en");
+		assertThat(msg.getSubject().getMap().size()).isEqualTo(0);
+		assertThat(msg.getBody().getMap().size()).isEqualTo(2);
 	}
 
 	@Test
@@ -125,12 +124,11 @@ public class MessageTemplateLoaderTest
 		verify(man).addTemplate(captor.capture());
 		
 		I18nMessage msg = captor.getValue().getMessage();
-		assertThat(msg.getSubject().getDefaultValue(), is("sub"));
-		assertThat(msg.getBody().getDefaultValue(), is(nullValue()));
-		assertThat(msg.getBody().getValueRaw("en"), is("FILE"));
-		assertThat(msg.getSubject().getMap().size(), is(0));
-		assertThat(msg.getBody().getMap().toString(), 
-				msg.getBody().getMap().size(), is(1));
+		assertThat(msg.getSubject().getDefaultValue()).isEqualTo("sub");
+		assertThat(msg.getBody().getDefaultValue()).isNull();
+		assertThat(msg.getBody().getValueRaw("en")).isEqualTo("FILE");
+		assertThat(msg.getSubject().getMap().size()).isEqualTo(0);
+		assertThat(msg.getBody().getMap()).hasSize(1);
 
 	}
 	

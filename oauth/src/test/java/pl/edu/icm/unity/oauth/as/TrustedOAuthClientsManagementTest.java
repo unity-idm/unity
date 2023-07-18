@@ -5,8 +5,7 @@
 
 package pl.edu.icm.unity.oauth.as;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -21,12 +20,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
@@ -72,7 +71,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TrustedOAuthClientsManagementTest
 {
 	@Mock
@@ -100,7 +99,7 @@ public class TrustedOAuthClientsManagementTest
 
 	private TrustedOAuthClientsManagement appMan;
 	
-	@Before
+	@BeforeEach
 	public void init()
 	{
 		 appMan = new TrustedOAuthClientsManagement(tokenMan, preferencesManagement,
@@ -120,14 +119,14 @@ public class TrustedOAuthClientsManagementTest
 		Instant accessTime = setupAccessTime();
 
 		List<IdPClientData> idpClientsData = appMan.getIdpClientsData();
-		assertThat(idpClientsData.size(), is(1));
+		assertThat(idpClientsData.size()).isEqualTo(1);
 		IdPClientData clientData = idpClientsData.get(0);
-		assertThat(clientData.applicationId.id, is("clientEntityId"));
-		assertThat(clientData.accessGrantTime.get(), is(grantTime));
-		assertThat(clientData.lastAccessTime.get(), is(accessTime));
-		assertThat(clientData.applicationDomain.get(), is("localhost"));
-		assertThat(clientData.technicalInformations.size(), is(1));
-		assertThat(clientData.technicalInformations.get(0).value.contains("ac"), is(true));
+		assertThat(clientData.applicationId.id).isEqualTo("clientEntityId");
+		assertThat(clientData.accessGrantTime.get()).isEqualTo(grantTime);
+		assertThat(clientData.lastAccessTime.get()).isEqualTo(accessTime);
+		assertThat(clientData.applicationDomain.get()).isEqualTo("localhost");
+		assertThat(clientData.technicalInformations.size()).isEqualTo(1);
+		assertThat(clientData.technicalInformations.get(0).value.contains("ac")).isEqualTo(true);
 
 	}
 
@@ -142,13 +141,13 @@ public class TrustedOAuthClientsManagementTest
 		Instant accessTime = setupAccessTime();
 
 		List<IdPClientData> idpClientsData = appMan.getIdpClientsData();
-		assertThat(idpClientsData.size(), is(1));
+		assertThat(idpClientsData.size()).isEqualTo(1);
 		IdPClientData clientData = idpClientsData.get(0);
-		assertThat(clientData.applicationId.id, is("clientEntityId"));
-		assertThat(clientData.accessGrantTime.get(), is(grantTime));
-		assertThat(clientData.lastAccessTime.get(), is(accessTime));
-		assertThat(clientData.technicalInformations.size(), is(0));
-		assertThat(clientData.applicationDomain.get(), is("localhost"));
+		assertThat(clientData.applicationId.id).isEqualTo("clientEntityId");
+		assertThat(clientData.accessGrantTime.get()).isEqualTo(grantTime);
+		assertThat(clientData.lastAccessTime.get()).isEqualTo(accessTime);
+		assertThat(clientData.technicalInformations.size()).isEqualTo(0);
+		assertThat(clientData.applicationDomain.get()).isEqualTo("localhost");
 	}
 
 	@Test
@@ -166,13 +165,13 @@ public class TrustedOAuthClientsManagementTest
 		Instant accessTime = setupAccessTime();
 
 		List<IdPClientData> idpClientsData = appMan.getIdpClientsData();
-		assertThat(idpClientsData.size(), is(1));
+		assertThat(idpClientsData.size()).isEqualTo(1);
 		IdPClientData clientData = idpClientsData.get(0);
-		assertThat(clientData.applicationId.id, is("clientEntityId"));
-		assertThat(clientData.lastAccessTime.get(), is(accessTime));
-		assertThat(clientData.applicationDomain.get(), is("localhost"));
-		assertThat(clientData.technicalInformations.size(), is(1));
-		assertThat(clientData.technicalInformations.get(0).value.contains("ref"), is(true));
+		assertThat(clientData.applicationId.id).isEqualTo("clientEntityId");
+		assertThat(clientData.lastAccessTime.get()).isEqualTo(accessTime);
+		assertThat(clientData.applicationDomain.get()).isEqualTo("localhost");
+		assertThat(clientData.technicalInformations.size()).isEqualTo(1);
+		assertThat(clientData.technicalInformations.get(0).value.contains("ref")).isEqualTo(true);
 	}
 	
 	@Test
@@ -186,7 +185,7 @@ public class TrustedOAuthClientsManagementTest
 		verify(preferencesManagement).setPreference(any(), eq(OAuthPreferences.ID), argument.capture());
 		OAuthPreferences pref = new OAuthPreferences();
 		pref.setSerializedConfiguration(JsonUtil.parse(argument.getValue()));
-		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk(), is(false));
+		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk()).isEqualTo(false);
 		verify(tokenMan).removeToken(eq(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN), eq("ac"));
 	}
 
@@ -200,7 +199,7 @@ public class TrustedOAuthClientsManagementTest
 		verify(preferencesManagement).setPreference(any(), eq(OAuthPreferences.ID), argument.capture());
 		OAuthPreferences pref = new OAuthPreferences();
 		pref.setSerializedConfiguration(JsonUtil.parse(argument.getValue()));
-		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk(), is(false));
+		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk()).isEqualTo(false);
 	}
 
 	private Instant setupAccessTime() throws EngineException
