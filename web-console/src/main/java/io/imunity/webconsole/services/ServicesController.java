@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.console.services.ServiceControllersRegistry;
  * @author P.Piernik
  *
  */
-@Component
+@Component("ServicesControllerV8")
 class ServicesController extends ServiceControllerBase
 {
 	ServicesController(MessageSource msg, EndpointManagement endpointMan,

@@ -117,6 +117,8 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(classPathElements));
 		context.setConfigurationDiscovered(true);
 		context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+		context.getServerClassMatcher().exclude("org.eclipse.jetty.");
+
 		ServletHolder servletHolder = context.addServlet(servletClass, "/*");
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");

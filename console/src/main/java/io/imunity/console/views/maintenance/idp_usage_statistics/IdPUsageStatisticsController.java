@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.maintenance;
+package io.imunity.console.views.maintenance.idp_usage_statistics;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.stereotype.Component;
