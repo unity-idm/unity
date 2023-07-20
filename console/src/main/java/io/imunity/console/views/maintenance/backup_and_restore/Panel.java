@@ -22,7 +22,7 @@ class Panel extends VerticalLayout
 		Label label = new Label(header);
 		label.getStyle().set("margin", "var(--small-margin)");
 		horizontalLayout.add(label);
-		horizontalLayout.getStyle().set("background-color", "var(--lumo-contrast-5pct)");
+		horizontalLayout.getStyle().set("background-color", "var(--contrast)");
 		add(horizontalLayout);
 		setSizeUndefined();
 	}
