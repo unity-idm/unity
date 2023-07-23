@@ -829,7 +829,7 @@ public class EntityManagementImpl implements EntityManagement
 	{
 		Set<EntityWithContactInfo> entitiesIds = byEmailUserFinder.getEntitiesIdsByContactAddresses(contactEmails);
 		if (entitiesIds.isEmpty())
-			throw new UnknownEmailException("Contact emails " + contactEmails + " is not assigned to any entity");
+			throw new UnknownEmailException("Contact emails " + contactEmails + " are not assigned to any entity");
 		
 		return entitiesIds;
 	}

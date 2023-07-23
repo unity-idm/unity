@@ -95,9 +95,9 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	}
 
 	@Override
-	public void addInvitations(Set<ProjectInvitationParam> params) throws EngineException
+	public void addInvitations(Set<ProjectInvitationParam> invitationParams) throws EngineException
 	{
-		for (String project: params.stream().map(p -> p.project).collect(Collectors.toSet()))
+		for (String project: invitationParams.stream().map(p -> p.project).collect(Collectors.toSet()))
 		{
 			authz.assertManagerAuthorization(project);
 		}
@@ -105,7 +105,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		Set<EntityWithContactInfo> entities = null;
 		try
 		{
-			entities = entityMan.getAllEntitiesWithContactEmails(params.stream()
+			entities = entityMan.getAllEntitiesWithContactEmails(invitationParams.stream()
 					.map(p -> p.contactAddress)
 					.collect(Collectors.toSet()));
 		} catch (UnknownEmailException e)
@@ -115,7 +115,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		if (entities != null && !entities.isEmpty())
 		{
 
-			for (ProjectInvitationParam invitation : params)
+			for (ProjectInvitationParam invitation : invitationParams)
 			{
 				assertNotMemberAlready(entities.stream()
 						.filter(e -> e.contactEmail.equals(invitation.contactAddress))
@@ -123,7 +123,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			}
 
 		}
-		for (ProjectInvitationParam param : params)
+		for (ProjectInvitationParam param : invitationParams)
 		{
 			String code = invitationMan.addInvitation(createComboInvitation(param));
 			invitationMan.sendInvitation(code);
