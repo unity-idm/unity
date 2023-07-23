@@ -82,19 +82,19 @@ class ExistingUserFinder
 		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
 		Map<Long, EntityInGroupData> members = bulkService.getMembershipInfo(bulkMembershipData);
 
-		Set<String> searchedComparable = contactAddress.stream().map(e -> new VerifiableEmail(e).getComparableValue()).collect(Collectors.toSet());
+		Set<String> searchedComparableEmails = contactAddress.stream().map(e -> new VerifiableEmail(e).getComparableValue()).collect(Collectors.toSet());
 		
 		for (EntityInGroupData info : members.values())
 		{
 			Identity emailId = info.entity.getIdentities().stream()
 					.filter(id -> id.getTypeId().equals(EmailIdentity.ID))
-					.filter(id -> emailsEqual(searchedComparable, id))
+					.filter(id -> emailsEqual(searchedComparableEmails, id))
 					.findAny().orElse(null);
 			if (emailId != null)
 				entitiesWithContactAddress.add(new EntityWithContactInfo(info.entity, emailId.getComparableValue(), info.groups));
 		}
 
-		Set<EntityWithContactInfo> entitiesByEmailAttr = searchEntitiesByEmailAttrs(members, searchedComparable);
+		Set<EntityWithContactInfo> entitiesByEmailAttr = searchEntitiesByEmailAttrs(members, searchedComparableEmails);
 		entitiesWithContactAddress.addAll(entitiesByEmailAttr);
 		return entitiesWithContactAddress;
 		

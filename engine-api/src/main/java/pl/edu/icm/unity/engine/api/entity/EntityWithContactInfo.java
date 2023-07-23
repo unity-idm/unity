@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.engine.api.entity;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import pl.edu.icm.unity.types.basic.Entity;
@@ -20,7 +21,7 @@ public class EntityWithContactInfo
 	{
 		this.entity = entity;
 		this.contactEmail = contactEmail;
-		this.groups = groups;
+		this.groups = Optional.ofNullable(groups).map(Set::copyOf).orElse(null);
 	}
 
 	@Override
