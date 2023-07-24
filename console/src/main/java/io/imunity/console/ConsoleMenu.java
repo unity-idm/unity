@@ -14,7 +14,7 @@ import io.imunity.console.views.DirectoryBrowserView;
 import io.imunity.console.views.ServicesEditView;
 import io.imunity.console.views.ServicesView;
 import io.imunity.console.views.maintenance.AboutView;
-import io.imunity.console.views.maintenance.AuditLogView;
+import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;
 import io.imunity.console.views.maintenance.idp_usage_statistics.IdPUsageStatisticsView;
 import io.imunity.vaadin.elements.MenuComponent;

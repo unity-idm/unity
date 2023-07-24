@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.confirmations;
+package io.imunity.console.views.maintenance.audit_log;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,13 +12,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.sql.Date;
 
-/**
- * Helper to generate string with confirmation info
- * @author P.Piernik
- *
- */
-@Component("ConfirmationInfoFormatterV8")
-public class ConfirmationInfoFormatter
+@Component
+class ConfirmationInfoFormatter
 {
 	@Autowired
 	private MessageSource msg;

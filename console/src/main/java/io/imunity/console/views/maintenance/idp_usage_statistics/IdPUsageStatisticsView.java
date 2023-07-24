@@ -7,8 +7,6 @@ package io.imunity.console.views.maintenance.idp_usage_statistics;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
-import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -23,6 +21,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.ColumnToggleMenu;
 import io.imunity.vaadin.elements.FormLayoutLabel;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.idp.statistic.GroupedIdpStatistic;
@@ -143,21 +142,6 @@ public class IdPUsageStatisticsView extends ConsoleViewComponent
 	public void refresh()
 	{
 		statisticGrid.setItems(idpStatisticController.getIdpStatistics(since.getValue()));
-	}
-
-	private static class ColumnToggleMenu extends ContextMenu
-	{
-		public ColumnToggleMenu()
-		{
-			super(VaadinIcon.ELLIPSIS_DOTS_V.create());
-			setOpenOnClick(true);
-		}
-
-		void addColumn(String label, Grid.Column<GroupedIdpStatistic> column) {
-			MenuItem menuItem = this.addItem(label, event -> column.setVisible(event.getSource().isChecked()));
-			menuItem.setCheckable(true);
-			menuItem.setChecked(column.isVisible());
-		}
 	}
 
 }

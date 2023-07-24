@@ -2,25 +2,18 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.identities;
+package io.imunity.console.views.maintenance.audit_log;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
-/**
- * Utility class presenting an {@link Identity} or {@link IdentityParam} in web-ready and readable form.
- * 
- * @author K. Benedyczak
- */
-@Component("IdentityFormatterV8")
-public class IdentityFormatter
+@Component
+class IdentityFormatter
 {
 	@Autowired
 	private MessageSource msg;
