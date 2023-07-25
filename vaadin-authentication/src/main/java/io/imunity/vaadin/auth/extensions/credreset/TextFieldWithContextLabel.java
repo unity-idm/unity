@@ -26,7 +26,7 @@ public class TextFieldWithContextLabel extends TextField implements ComponentWit
 		if (showLabelInline)
 			setPlaceholder(normalizedLabel);
 		else
-			setLabel(normalizedLabel + ":");
+			super.setLabel(normalizedLabel + ":");
 	}
 
 }
