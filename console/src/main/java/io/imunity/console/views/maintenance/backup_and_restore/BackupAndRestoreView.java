@@ -193,6 +193,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 		upload.addFinishedListener(e -> fileUploaded.setText(msg.getMessage("ImportExport.dumpUploaded", new Date())));
 		upload.getElement().addEventListener("file-remove", e -> fileUploaded.setText(msg.getMessage("ImportExport.noFileUploaded")));
 		upload.setDropAllowed(false);
+		upload.setWidth("21em");
 		InputLabel inputLabel = new InputLabel(msg.getMessage("ImportExport.uploadCaption"));
 
 		Button importDump = new Button(msg.getMessage("ImportExport.import"));
