@@ -334,7 +334,6 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		if(realm.getName().equals(InvocationContext.safeGetRealm()))
 			sessionBinder.bindHttpSession(httpSession, ls);
 
-
 		if (rememberMe)
 		{
 			rememberMeProcessor.addRememberMeCookieAndUnityToken(httpResponse, realm, machineDetails, ls.getEntityId(),
@@ -348,7 +347,6 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		if (ls.isUsedOutdatedCredential())
 			log.info("User {} logged with outdated credential", ls.getEntityId());
 		AuthenticationPolicy.setPolicy(httpSession, AuthenticationPolicy.DEFAULT);
-
 		
 		log.info("Logged with session: {}, first factor authn option: {}, second factor authn option: {}"
 				+ ", first factor skipped: {}, second factor skipped: {}",
