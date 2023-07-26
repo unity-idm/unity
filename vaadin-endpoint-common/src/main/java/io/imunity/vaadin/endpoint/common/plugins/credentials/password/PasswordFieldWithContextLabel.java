@@ -15,6 +15,8 @@ public class PasswordFieldWithContextLabel extends PasswordField
 	public PasswordFieldWithContextLabel(boolean showLabelInline)
 	{
 		this.showLabelInline = showLabelInline;
+		getElement().executeJs("Array.from(document.body.getElementsByTagName('vaadin-password-field-button'))" +
+				".forEach(function (element) {element.setAttribute('tabindex', '-1')});");
 	}
 
 	@Override
