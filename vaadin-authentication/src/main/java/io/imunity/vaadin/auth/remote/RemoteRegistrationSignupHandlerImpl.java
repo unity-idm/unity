@@ -7,12 +7,14 @@ package io.imunity.vaadin.auth.remote;
 
 import com.google.common.collect.Lists;
 import com.vaadin.flow.component.HasEnabled;
-import io.imunity.vaadin.auth.AuthNOption;
-import io.imunity.vaadin.auth.AuthnsGridWidget;
-import io.imunity.vaadin.auth.VaadinAuthentication;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinServletRequest;
+import io.imunity.vaadin.auth.*;
+import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationGrid;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationOption;
-import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolver;
+import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupHandler;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -20,14 +22,17 @@ import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec;
 import pl.edu.icm.unity.base.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-class RemoteRegistrationSignupResolverImpl implements RemoteRegistrationSignupResolver
+class RemoteRegistrationSignupHandlerImpl implements RemoteRegistrationSignupHandler
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RemoteRegistrationSignupHandlerImpl.class);
+
 	private final AuthenticatorSupportService authnSupport;
 	private final MessageSource msg;
 	private final RegistrationForm form;
@@ -35,8 +40,8 @@ class RemoteRegistrationSignupResolverImpl implements RemoteRegistrationSignupRe
 	private final String regCodeProvided;
 	private final Map<AuthenticationOptionKey, AuthNOption> remoteSignupOptions;
 
-	RemoteRegistrationSignupResolverImpl(AuthenticatorSupportService authnSupport, MessageSource msg,
-	                                     RegistrationForm form, ResolvedInvitationParam invitation, String regCodeProvided)
+	RemoteRegistrationSignupHandlerImpl(AuthenticatorSupportService authnSupport, MessageSource msg,
+										RegistrationForm form, ResolvedInvitationParam invitation, String regCodeProvided)
 	{
 		this.authnSupport = authnSupport;
 		this.msg = msg;
@@ -76,6 +81,53 @@ class RemoteRegistrationSignupResolverImpl implements RemoteRegistrationSignupRe
 
 		AuthnsGridWidget authnsGridWidget = new AuthnsGridWidget(authNOptions, msg, new RegGridAuthnPanelFactory(form, regCodeProvided, enabled), height);
 		return new RemoteRegistrationGridImpl(msg, authnsGridWidget,authNOptions.isEmpty());
+	}
+
+	@Override
+	public boolean performAutomaticRemoteSignupIfNeeded()
+	{
+		Map<AuthenticationOptionKey, AuthNOption> externalSignupOptions = resolveRemoteSignupOptions();
+		if (isAutomatedAuthenticationDesired() && externalSignupOptions.size() > 0)
+		{
+			VaadinServletRequest httpRequest = (VaadinServletRequest) VaadinRequest.getCurrent();
+			String requestedAuthnOption = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
+			if (externalSignupOptions.size() > 1 && requestedAuthnOption == null)
+			{
+				log.warn("There are more multiple remote signup options are installed, "
+								+ "and automated signup was requested without specifying (with "
+								+  "{}) which one should be used. Automatic signup is skipped.",
+						PreferredAuthenticationHelper.IDP_SELECT_PARAM);
+				return false;
+			}
+			AuthNOption authnOption = requestedAuthnOption != null ?
+					externalSignupOptions.get(AuthenticationOptionKey.valueOf(requestedAuthnOption)) :
+					externalSignupOptions.values().iterator().next();
+			if (authnOption == null)
+			{
+				log.warn("Remote signup option {} specified for auto signup is invalid. "
+						+ "Automatic signup is skipped.", requestedAuthnOption);
+				return false;
+			}
+			if (authnOption.authenticator instanceof ProxyAuthenticationCapable)
+			{
+				ProxyAuthenticationCapable proxyAuthn = (ProxyAuthenticationCapable) authnOption.authenticator;
+				proxyAuthn.triggerAutomatedUIAuthentication(authnOption.authenticatorUI);
+				return true;
+			} else
+			{
+				log.warn("Automatic signup was requested but the selected remote authenticator "
+						+ "is not capable of automatic triggering");
+				return false;
+			}
+		}
+		return false;
+	}
+
+	private boolean isAutomatedAuthenticationDesired()
+	{
+		VaadinServletRequest httpRequest = (VaadinServletRequest) VaadinRequest.getCurrent();
+		String autoLogin = httpRequest.getParameter(ProxyAuthenticationFilter.TRIGGERING_PARAM);
+		return Boolean.parseBoolean(autoLogin);
 	}
 
 	private List<AuthNOption> getSignupOptions(AuthenticationOptionsSelector selector)

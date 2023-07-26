@@ -17,7 +17,6 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
-import com.vaadin.server.Page;
 import io.imunity.vaadin.auth.outdated.CredentialChangeConfiguration;
 import io.imunity.vaadin.auth.outdated.OutdatedCredentialController;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -215,7 +214,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		if (config.getRegistrationConfiguration().getExternalRegistrationURL().isPresent())
 		{
 			String redirectURL = config.getRegistrationConfiguration().getExternalRegistrationURL().get();
-			Page.getCurrent().open(redirectURL, null);
+			UI.getCurrent().getPage().open(redirectURL, null);
 		} else
 		{
 			showRegistrationLayout();

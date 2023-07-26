@@ -125,7 +125,7 @@ public class AuthnsGridWidget extends VerticalLayout
 		
 		providers.sort(null);
 
-		providersChoiceGrid.setItems(providers.stream().limit(height).toList());
+		providersChoiceGrid.setItems(providers);
 
 		setVisible(size() != 0);
 	}

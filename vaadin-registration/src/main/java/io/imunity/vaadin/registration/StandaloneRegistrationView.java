@@ -221,6 +221,7 @@ class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTit
 		} else
 		{
 			showEditorContent(editor, mode);
+			editor.performAutomaticRemoteSignupIfNeeded();
 		}
 	}
 	

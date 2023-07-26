@@ -24,8 +24,8 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import javax.servlet.DispatcherType;
@@ -94,10 +94,12 @@ public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows,
 			description.getEndpoint().getContextAddress(),
-			false,
+			genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN),
 			description.getRealm());
-		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
+		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), "/",
 			EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		contextSetupFilter = new InvocationContextSetupFilter(serverConfig, description.getRealm(),
 			getServletUrl(uiServletPath), getAuthenticationFlows());

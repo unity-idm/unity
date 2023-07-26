@@ -17,7 +17,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationGrid;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationOption;
-import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolver;
+import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupHandler;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolverFactory;
 import io.imunity.vaadin.endpoint.common.forms.BaseRequestEditor;
 import io.imunity.vaadin.endpoint.common.forms.RegistrationLayoutsContainer;
@@ -79,7 +79,7 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 	private final AuthenticationOptionKey authnOptionKey;
 	private final RemoteRegistrationSignupResolverFactory remoteRegistrationSignupResolverFactory;
 	private final AuthenticatorSupportService authnSupport;
-	private RemoteRegistrationSignupResolver remoteRegistrationSignupResolver;
+	private RemoteRegistrationSignupHandler remoteRegistrationSignupHandler;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -209,7 +209,7 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 		RegistrationInvitationParam regInv = invitation == null ? null : invitation.getAsRegistration();
 
 		RegistrationLayoutsContainer layoutContainer = createLayouts(buildVarsToFreemarkerTemplates(Optional.ofNullable(regInv)));
-		remoteRegistrationSignupResolver = remoteRegistrationSignupResolverFactory.create(authnSupport, msg, form, invitation, regCodeProvided);
+		remoteRegistrationSignupHandler = remoteRegistrationSignupResolverFactory.create(authnSupport, msg, form, invitation, regCodeProvided);
 		PrefilledSet prefilled = new PrefilledSet();
 		if (regInv != null)
 		{	
@@ -221,6 +221,11 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 		}
 		prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
 		createControls(layoutContainer, effectiveLayout, prefilled);
+	}
+
+	void performAutomaticRemoteSignupIfNeeded()
+	{
+		remoteRegistrationSignupHandler.performAutomaticRemoteSignupIfNeeded();
 	}
 
 	@Override
@@ -286,7 +291,7 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 
 	private boolean createRemoteSignupButton(VerticalLayout layout, FormParameterElement element)
 	{
-		List<RemoteRegistrationOption> options = remoteRegistrationSignupResolver.getOptions(element, enableRemoteRegistration);
+		List<RemoteRegistrationOption> options = remoteRegistrationSignupHandler.getOptions(element, enableRemoteRegistration);
 		if (options.isEmpty())
 			return false;
 
@@ -307,7 +312,7 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 		{
 			gridSettings = new ExternalSignupGridSpec.AuthnGridSettings();
 		}
-		RemoteRegistrationGrid grid = remoteRegistrationSignupResolver.getGrid(enableRemoteRegistration, gridSettings.height);
+		RemoteRegistrationGrid grid = remoteRegistrationSignupHandler.getGrid(enableRemoteRegistration, gridSettings.height);
 
 		if (grid.isEmpty())
 			return false;

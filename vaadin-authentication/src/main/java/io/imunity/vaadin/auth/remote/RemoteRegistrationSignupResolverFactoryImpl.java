@@ -5,7 +5,7 @@
 
 package io.imunity.vaadin.auth.remote;
 
-import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolver;
+import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupHandler;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolverFactory;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +18,10 @@ import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 class RemoteRegistrationSignupResolverFactoryImpl implements RemoteRegistrationSignupResolverFactory
 {
 	@Override
-	public RemoteRegistrationSignupResolver create(AuthenticatorSupportService authnSupport, MessageSource msg,
-	                                               RegistrationForm form, ResolvedInvitationParam invitation, String regCodeProvided)
+	public RemoteRegistrationSignupHandler create(AuthenticatorSupportService authnSupport, MessageSource msg,
+												  RegistrationForm form, ResolvedInvitationParam invitation, String regCodeProvided)
 	{
-		return new RemoteRegistrationSignupResolverImpl(
+		return new RemoteRegistrationSignupHandlerImpl(
 				authnSupport, msg, form, invitation, regCodeProvided
 		);
 	}

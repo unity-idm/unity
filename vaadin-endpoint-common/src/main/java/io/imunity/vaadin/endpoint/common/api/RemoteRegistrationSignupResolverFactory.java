@@ -12,6 +12,6 @@ import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 public interface RemoteRegistrationSignupResolverFactory
 {
-	RemoteRegistrationSignupResolver create(AuthenticatorSupportService authnSupport, MessageSource msg,
-	                                        RegistrationForm form, ResolvedInvitationParam invitation, String regCodeProvided);
+	RemoteRegistrationSignupHandler create(AuthenticatorSupportService authnSupport, MessageSource msg,
+										   RegistrationForm form, ResolvedInvitationParam invitation, String regCodeProvided);
 }

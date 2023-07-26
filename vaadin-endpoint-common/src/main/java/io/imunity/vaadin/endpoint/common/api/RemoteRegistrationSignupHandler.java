@@ -5,12 +5,13 @@
 
 package io.imunity.vaadin.endpoint.common.api;
 
-import java.util.List;
-
 import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
 
-public interface RemoteRegistrationSignupResolver
+import java.util.List;
+
+public interface RemoteRegistrationSignupHandler
 {
 	List<RemoteRegistrationOption> getOptions(FormParameterElement element, boolean enabled);
 	RemoteRegistrationGrid getGrid(boolean enabled, int height);
+	boolean performAutomaticRemoteSignupIfNeeded();
 }

@@ -11,8 +11,10 @@ import com.vaadin.flow.server.startup.ServletContextListeners;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.server.AuthenticationFilter;
+import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
 import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
-import io.imunity.vaadin.endpoint.common.*;
+import io.imunity.vaadin.endpoint.common.EopException;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -23,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -51,7 +52,6 @@ import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticRepo
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import javax.servlet.DispatcherType;
