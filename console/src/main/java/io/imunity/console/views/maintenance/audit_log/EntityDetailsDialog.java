@@ -7,14 +7,17 @@ package io.imunity.console.views.maintenance.audit_log;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 
 class EntityDetailsDialog extends Dialog
 {
-	EntityDetailsDialog(Component component)
+	EntityDetailsDialog(Component component, String buttonName)
 	{
 		add(component);
-		getFooter().add(new Button("cancel", e -> close()));
+		Button button = new Button(buttonName, e -> close());
+		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		getFooter().add(button);
 		setWidth("50em");
 	}
 }

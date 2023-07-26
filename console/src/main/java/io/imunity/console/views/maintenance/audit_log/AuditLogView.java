@@ -106,7 +106,7 @@ public class AuditLogView extends ConsoleViewComponent
 		auditEventsGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
 		initGridColumns();
-		HorizontalLayout filterLayout = createFiltersLayout();
+		VerticalLayout filterLayout = createFiltersLayout();
 
 		titleLabel.addClassName("u-AuditEventsGridTitle");
 
@@ -249,46 +249,40 @@ public class AuditLogView extends ConsoleViewComponent
 		return horizontalLayout;
 	}
 
-	private HorizontalLayout createFiltersLayout()
+	private VerticalLayout createFiltersLayout()
 	{
-		HorizontalLayout filterLayout = new HorizontalLayout();
+		VerticalLayout filterLayout = new VerticalLayout();
 		filterLayout.addClassName("u-auditEvents-filterLayout");
 		filterLayout.setWidthFull();
+		filterLayout.setPadding(false);
 
 		LocalDateTime initialDate = LocalDateTime.now().minusDays(1);
 		fromFilter.setValue(initialDate);
 		fromFilter.setDatePickerI18n(DATETIME_FORMAT_SHORT_PATTERN);
 		fromFilter.setLocale(msg.getLocaleForTimeFormat());
 		fromFilter.setLabel(msg.getMessage("AuditEventsView.from"));
-		fromFilter.setWidth("13.5em");
 
 		untilFilter.setDatePickerI18n(DATETIME_FORMAT_SHORT_PATTERN);
 		untilFilter.setLocale(msg.getLocaleForTimeFormat());
 		untilFilter.setLabel(msg.getMessage("AuditEventsView.until"));
-		untilFilter.setWidth("13.5em");
 
 		typeFilter.setItems(Arrays.stream(AuditEventType.values()).map(AuditEventType::toString).collect(Collectors.toList()));
 		typeFilter.setLabel(msg.getMessage("AuditEventsView.type"));
-		typeFilter.setWidth("8.3em");
 
 		actionFilter.setItems(Arrays.stream(AuditEventAction.values()).map(AuditEventAction::toString).collect(Collectors.toList()));
 		actionFilter.setLabel(msg.getMessage("AuditEventsView.action"));
-		actionFilter.setWidth("8.3em");
 
 		searchFilter.setLabel(msg.getMessage("search"));
 		searchFilter.setValueChangeMode(ValueChangeMode.EAGER);
-		searchFilter.setWidth("8.3em");
 
 		tagsFilter.setItems(eventManagement.getAllTags().stream().sorted().collect(Collectors.toList()));
 		tagsFilter.setLabel(msg.getMessage("AuditEventsView.tags"));
-		tagsFilter.setWidth("8.3em");
 
 		limitFilter.setItems(100, 1000, 10000);
 		limitFilter.setValue(DEFAULT_LIMIT);
 		limitFilter.setLabel(msg.getMessage("AuditEventsView.limit"));
-		limitFilter.setWidth("6em");
 
-		filterLayout.add(limitFilter, fromFilter, untilFilter, typeFilter, actionFilter, tagsFilter, searchFilter);
+		filterLayout.add(new HorizontalLayout(limitFilter, fromFilter, untilFilter), new HorizontalLayout(typeFilter, actionFilter, tagsFilter, searchFilter));
 
 		GridListDataView<AuditEventEntry> auditEventEntryGridListDataView = reloadGrid();
 		AuditLogFilter auditLogFilter = new AuditLogFilter(auditEventEntryGridListDataView);
@@ -421,7 +415,7 @@ public class AuditLogView extends ConsoleViewComponent
 			return;
 		}
 		FormLayout formLayout = EntityDetailsPanelFactory.create(msg, identityFormatter, entity, label, groups);
-		new EntityDetailsDialog(formLayout).open();
+		new EntityDetailsDialog(formLayout, msg.getMessage("close")).open();
 	}
 
 }
