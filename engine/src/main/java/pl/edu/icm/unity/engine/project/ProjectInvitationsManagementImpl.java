@@ -23,12 +23,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.base.entity.Entity;
-import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
-import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition;
@@ -41,23 +38,25 @@ import pl.edu.icm.unity.base.registration.invitation.ComboInvitationParam;
 import pl.edu.icm.unity.base.registration.invitation.EnquiryInvitationParam;
 import pl.edu.icm.unity.base.registration.invitation.FormPrefill;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
+import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
-import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+
 
 @Component
 @Primary
@@ -97,36 +96,49 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	}
 
 	@Override
-	public String addInvitation(ProjectInvitationParam param) throws EngineException
+	public void addInvitations(Set<ProjectInvitationParam> invitationParams) throws EngineException
 	{
-		authz.assertManagerAuthorization(param.project);
+		for (String project: invitationParams.stream().map(p -> p.project).collect(Collectors.toSet()))
+		{
+			authz.assertManagerAuthorization(project);
+		}
 		
-		Set<Entity> entities = null;
+		Set<EntityWithContactInfo> entities = null;
 		try
 		{
-			entities = entityMan.getAllEntitiesWithContactEmail(param.contactAddress);
+			entities = entityMan.getAllEntitiesWithContactEmails(invitationParams.stream()
+					.map(p -> p.contactAddress)
+					.collect(Collectors.toSet()));
 		} catch (UnknownEmailException e)
 		{
 			// ok
 		}
 		if (entities != null && !entities.isEmpty())
 		{
-			for (Entity en : entities)
+
+			for (ProjectInvitationParam invitation : invitationParams)
 			{
-				assertNotMemberAlready(en.getId(), param.project);
+				assertNotMemberAlready(entities.stream()
+						.filter(e -> e.contactEmail.equals(invitation.contactAddress))
+						.collect(Collectors.toSet()), invitation.project);
 			}
+
+		}
+		for (ProjectInvitationParam param : invitationParams)
+		{
+			String code = invitationMan.addInvitation(createComboInvitation(param));
+			invitationMan.sendInvitation(code);
 		}
 	
-		String code = invitationMan.addInvitation(createComboInvitation(param));
-		invitationMan.sendInvitation(code);
-		return code;
 	}
 
-	private void assertNotMemberAlready(long entityId, String projectGroup) throws EngineException
+	private void assertNotMemberAlready(Set<EntityWithContactInfo> collect, String project)
 	{
-		Map<String, GroupMembership> groups = entityMan.getGroups(new EntityParam(entityId));
-		if (groups.containsKey(projectGroup))
+		if (collect.stream().filter(e -> e.groups.contains(project)).findAny().isPresent())
+		{
 			throw new AlreadyMemberException();
+		}
+		
 	}
 
 	private ComboInvitationParam createComboInvitation(ProjectInvitationParam param) throws EngineException

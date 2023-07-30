@@ -132,7 +132,7 @@ class InvitationsService
 		{
 			try {
 				ProjectInvitationParam projectInvitationParam = new ProjectInvitationParam(invitationRequest.projectGroup.path, email, groups, invitationRequest.allowModifyGroups, invitationRequest.expiration);
-				invitationMan.addInvitation(projectInvitationParam);
+				invitationMan.addInvitations(Set.of(projectInvitationParam));
 				added.add(projectInvitationParam.contactAddress);
 
 			} catch (AlreadyMemberException e)

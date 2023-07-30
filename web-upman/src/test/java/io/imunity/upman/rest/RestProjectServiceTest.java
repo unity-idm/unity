@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
@@ -338,8 +339,8 @@ class RestProjectServiceTest
 	{
 		long id = 2L;
 		Entity entity = mock(Entity.class);
-		when(idsMan.getAllEntitiesWithContactEmail("email"))
-			.thenReturn(Set.of(entity));
+		when(idsMan.getAllEntitiesWithContactEmails(Set.of("email")))
+		.thenReturn(Set.of(new EntityWithContactInfo(entity, "email", Set.of("/"))));
 		when(entity.getId()).thenReturn(id);
 		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
@@ -359,7 +360,7 @@ class RestProjectServiceTest
 	@Test
 	void shouldNotAddProjectMemberWhenUserIdentityDoesntExist() throws EngineException
 	{
-		when(idsMan.getAllEntitiesWithContactEmail("email"))
+		when(idsMan.getAllEntitiesWithContactEmails(Set.of("email")))
 			.thenThrow(UnknownEmailException.class);
 		when(groupMan.isPresent("/A/B")).thenReturn(true);
 
@@ -444,8 +445,8 @@ class RestProjectServiceTest
 	{
 		long id = 2L;
 		Entity entity = mock(Entity.class);
-		when(idsMan.getAllEntitiesWithContactEmail("email"))
-			.thenReturn(Set.of(entity));
+		when(idsMan.getAllEntitiesWithContactEmails(Set.of("email")))
+			.thenReturn(Set.of(new EntityWithContactInfo(entity, "email", Set.of("/"))));
 		when(entity.getId()).thenReturn(id);
 		when(groupMan.isPresent("/A/B")).thenReturn(true);
 

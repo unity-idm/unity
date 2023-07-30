@@ -44,8 +44,8 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponsesChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 
 /**
  * Responsible for displaying a submitted request ({@link RegistrationRequestState}), its editing and processing.
@@ -222,14 +222,14 @@ class RequestProcessingPanel extends CustomComponent
 			{
 				regMan.processRegistrationRequest(requestState.getRequestId(), 
 						requestReviewPanel.getUpdatedRequest(), action, null, null);
-				bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
+				bus.fireEvent(new RegistrationRequestsChangedEvent());
 				if (action == RegistrationRequestAction.accept)
 					bus.fireEvent(new GroupChangedEvent(new Group("/")));
 			} else
 			{
 				enquiryMan.processEnquiryResponse(requestState.getRequestId(), 
 						requestReviewPanel.getUpdatedResponse(), action, null, null);
-				bus.fireEvent(new EnquiryResponseChangedEvent(requestState.getRequestId()));
+				bus.fireEvent(new EnquiryResponsesChangedEvent());
 			}
 		} catch (EngineException e)
 		{

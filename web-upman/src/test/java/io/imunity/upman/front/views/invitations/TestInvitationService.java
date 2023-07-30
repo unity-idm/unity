@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -63,16 +64,20 @@ public class TestInvitationService
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/", new I18nString("group"), "group", false, false, "", false, 0);
 		GroupTreeNode node = new GroupTreeNode(group, 0);
-		service.addInvitations(new InvitationRequest(project, Set.of("demo@demo.com"), Set.of(node), false, expiration));
+		service.addInvitations(new InvitationRequest(project, Set.of("demo@demo.com", "demo2@demo.com"), Set.of(node),
+				false, expiration));
 
-		ArgumentCaptor<ProjectInvitationParam> argument = ArgumentCaptor.forClass(ProjectInvitationParam.class);
-		verify(mockInvitationMan, times(1)).addInvitation(argument.capture());
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<Set<ProjectInvitationParam>> argument = ArgumentCaptor.forClass(Set.class);
+		verify(mockInvitationMan, times(1)).addInvitations(argument.capture());
 
-		List<ProjectInvitationParam> arguments = argument.getAllValues();
-		assertThat(arguments.get(0).project).isEqualTo("/project");
-		assertThat(arguments.get(0).contactAddress).isEqualTo("demo@demo.com");
-		assertThat(arguments.get(0).groups.iterator().next()).isEqualTo("/");
-		assertThat(arguments.get(0).expiration).isEqualTo(expiration);
+		List<Set<ProjectInvitationParam>> arguments = argument.getAllValues();
+		assertThat(arguments.get(0).size()).isEqualTo(2);
+
+		assertThat(arguments.get(0).iterator().next().project).isEqualTo("/project");
+		assertThat(arguments.get(0).stream().map(p -> p.contactAddress).collect(Collectors.toSet())).isEqualTo(Set.of("demo@demo.com", "demo2@demo.com"));
+		assertThat(arguments.get(0).iterator().next().groups.iterator().next()).isEqualTo("/");
+		assertThat(arguments.get(0).iterator().next().expiration).isEqualTo(expiration);
 	}
 
 	@Test

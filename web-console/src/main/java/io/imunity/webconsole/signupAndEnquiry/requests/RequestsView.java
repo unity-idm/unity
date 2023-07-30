@@ -27,8 +27,8 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponsesChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 import pl.edu.icm.unity.webui.sessionscope.WebSessionComponent;
 
 /**
@@ -59,8 +59,8 @@ class RequestsView extends CustomComponent implements UnityView
 	{
 		RequestsGrid requestGrid = new RequestsGrid(msg, controller);
 		EventsBus eventBus = WebSession.getCurrent().getEventBus();
-		eventBus.addListener(e -> requestGrid.refresh(), RegistrationRequestChangedEvent.class);
-		eventBus.addListener(e -> requestGrid.refresh(), EnquiryResponseChangedEvent.class);
+		eventBus.addListener(e -> requestGrid.refresh(), RegistrationRequestsChangedEvent.class);
+		eventBus.addListener(e -> requestGrid.refresh(), EnquiryResponsesChangedEvent.class);
 	
 		requestGrid.addValueChangeListener(new RequestSelectionListener()
 		{

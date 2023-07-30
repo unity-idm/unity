@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,7 @@ import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.IllegalInvitationException;
@@ -66,12 +68,12 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerWithAllowedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockIdMan.getAllEntitiesWithContactEmail("demo@demo.com"))
-				.thenReturn(Sets.newHashSet(new Entity(null, new EntityInformation(1L), null)));
+		when(mockIdMan.getAllEntitiesWithContactEmails(Set.of("demo@demo.com")))
+				.thenReturn(Sets.newHashSet(new EntityWithContactInfo(new Entity(null, new EntityInformation(1L), null), "demo@demo.com", Set.of("/"))));
 		
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), true, Instant.now().plusSeconds(1000));
-		projectInvMan.addInvitation(projectParam);
+		projectInvMan.addInvitations(Set.of(projectParam));
 
 		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
 		verify(mockInvitationMan).addInvitation(argument.capture());
@@ -89,12 +91,12 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerWhenEntitiesIsEmpty() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockIdMan.getAllEntitiesWithContactEmail("demo@demo.com"))
+		when(mockIdMan.getAllEntitiesWithContactEmails(Set.of("demo@demo.com")))
 				.thenReturn(null);
 
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), true, Instant.now().plusSeconds(1000));
-		projectInvMan.addInvitation(projectParam);
+		projectInvMan.addInvitations(Set.of(projectParam));
 
 		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
 		verify(mockInvitationMan).addInvitation(argument.capture());
@@ -112,12 +114,13 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	public void shouldForwardToCoreManagerParamWithFixedGroups() throws EngineException
 	{
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-		when(mockIdMan.getAllEntitiesWithContactEmail("demo@demo.com"))
-				.thenReturn(Sets.newHashSet(new Entity(null, new EntityInformation(1L), null)));
+		when(mockIdMan.getAllEntitiesWithContactEmails(Set.of("demo@demo.com")))
+		.thenReturn(Sets.newHashSet(new EntityWithContactInfo(new Entity(null, new EntityInformation(1L), null), "demo@demo.com", Set.of("/"))));
+
 		ProjectInvitationParam projectParam = new ProjectInvitationParam("/project", "demo@demo.com",
 				Arrays.asList("/project/a"), false, Instant.now()
 						.plusSeconds(1000));
-		projectInvMan.addInvitation(projectParam);
+		projectInvMan.addInvitations(Set.of(projectParam));
 
 		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
 		verify(mockInvitationMan).addInvitation(argument.capture());

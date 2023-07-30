@@ -22,6 +22,7 @@ import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
@@ -69,12 +70,68 @@ class ExistingUserFinder
 		return entitiesWithContactAddress;
 		
 	}
+	
+	Set<EntityWithContactInfo> getEntitiesIdsByContactAddresses(Set<String> contactAddress) throws EngineException
+	{
+		Set<EntityWithContactInfo> entitiesWithContactAddress = new HashSet<>();
+		if (contactAddress == null || contactAddress.isEmpty())
+		{
+			return entitiesWithContactAddress;
+		}
+		
+		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
+		Map<Long, EntityInGroupData> members = bulkService.getMembershipInfo(bulkMembershipData);
+
+		Set<String> searchedComparableEmails = contactAddress.stream().map(e -> new VerifiableEmail(e).getComparableValue()).collect(Collectors.toSet());
+		
+		for (EntityInGroupData info : members.values())
+		{
+			Identity emailId = info.entity.getIdentities().stream()
+					.filter(id -> id.getTypeId().equals(EmailIdentity.ID))
+					.filter(id -> emailsEqual(searchedComparableEmails, id))
+					.findAny().orElse(null);
+			if (emailId != null)
+				entitiesWithContactAddress.add(new EntityWithContactInfo(info.entity, emailId.getComparableValue(), info.groups));
+		}
+
+		Set<EntityWithContactInfo> entitiesByEmailAttr = searchEntitiesByEmailAttrs(members, searchedComparableEmails);
+		entitiesWithContactAddress.addAll(entitiesByEmailAttr);
+		return entitiesWithContactAddress;
+		
+	}
 
 	private boolean emailsEqual(String comparableEmail1, Identity emailIdentity)
 	{
 		VerifiableEmail verifiableEmail = EmailIdentity.fromIdentityParam(emailIdentity);
 		return comparableEmail1.equals(verifiableEmail.getComparableValue());
 	}
+	
+	private boolean emailsEqual(Set<String> comparableEmails, Identity emailIdentity)
+	{
+		VerifiableEmail verifiableEmail = EmailIdentity.fromIdentityParam(emailIdentity);
+		return comparableEmails.contains(verifiableEmail.getComparableValue());
+	}
+	
+	
+	private Set<EntityWithContactInfo> searchEntitiesByEmailAttrs(Map<Long, EntityInGroupData> membersWithGroups, Set<String> comparableContactAddresses)
+			throws EngineException
+	{
+		Set<EntityWithContactInfo> entitiesWithContactAddressAttr = new HashSet<>();
+		for (EntityInGroupData info : membersWithGroups.values())
+		{
+			VerifiableElementBase contactEmail = attrHelper.getFirstVerifiableAttributeValueFilteredByMeta(ContactEmailMetadataProvider.NAME,
+					info.groupAttributesByName.values().stream().map(e -> (Attribute) e)
+							.collect(Collectors.toList())).orElse(null);
+			if (contactEmail != null && contactEmail.getValue() != null)
+			{
+				VerifiableEmail verifiableEmail = (VerifiableEmail)contactEmail;
+				if (comparableContactAddresses.contains(verifiableEmail.getComparableValue()))
+					entitiesWithContactAddressAttr.add(new EntityWithContactInfo(info.entity, verifiableEmail.getComparableValue(), info.groups));
+			}
+		}
+
+		return entitiesWithContactAddressAttr;
+	}	
 	
 	private Set<Entity> searchEntitiesByEmailAttr(Map<Long, EntityInGroupData> membersWithGroups, String comparableContactAddress)
 			throws EngineException

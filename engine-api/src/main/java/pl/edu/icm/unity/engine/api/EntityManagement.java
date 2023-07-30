@@ -23,6 +23,7 @@ import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 
 /**
  * Engine API for (closely related) entities and identities management.
@@ -157,7 +158,7 @@ public interface EntityManagement
 	 * 
 	 * @param contactEmail email assigned to the entity
 	 */
-	Set<Entity> getAllEntitiesWithContactEmail(String contactEmail) throws EngineException;
+	Set<EntityWithContactInfo> getAllEntitiesWithContactEmails(Set<String> contactEmails) throws EngineException;
 
 	/**
 	 * Returns a collection with all groups where the entity is a member. For convenience returned 

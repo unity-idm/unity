@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.engine.api.project;
 
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -19,14 +20,16 @@ import pl.edu.icm.unity.base.exceptions.InternalException;
 
 public interface ProjectInvitationsManagement
 {
+
 	/**
-	 * Ads invitation
+	 * Ads invitations
 	 * 
 	 * @param param
 	 * @return 
 	 * @throws EngineException
 	 */
-	String addInvitation(ProjectInvitationParam param) throws EngineException;
+	void addInvitations(Set<ProjectInvitationParam> param) throws EngineException;
+
 
 	/**
 	 * Gets all project invitations
