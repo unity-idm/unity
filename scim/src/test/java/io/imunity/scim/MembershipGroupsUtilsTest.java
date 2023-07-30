@@ -25,8 +25,7 @@ public class MembershipGroupsUtilsTest
 				Collections.emptyList(),
 				Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B"), "/B/C", new Group("/B/C")));
 
-		assertThat(effectiveMembershipGroups).hasSize(2);
-		assertThat(effectiveMembershipGroups).contains("/B", "/B/C");
+		assertThat(effectiveMembershipGroups).containsExactlyInAnyOrder("/B", "/B/C");
 	}
 
 	@Test
@@ -38,8 +37,7 @@ public class MembershipGroupsUtilsTest
 				Map.of("/", new Group("/"), "/A", new Group("/A"), "/A/B", new Group("/A/B"), "/B", new Group("/B"),
 						"/B/C", new Group("/B/C"), "/A/Bar", new Group("/A/Bar"), "/A/B/C", new Group("/A/B/C")));
 
-		assertThat(effectiveMembershipGroups).hasSize(1);
-		assertThat(effectiveMembershipGroups).contains("/A");
+		assertThat(effectiveMembershipGroups).containsExactlyInAnyOrder("/A");
 	}
 
 	@Test
@@ -50,8 +48,7 @@ public class MembershipGroupsUtilsTest
 				Map.of("/", new Group("/"), "/A", new Group("/A"), "/A/B", new Group("/A/B"), "/B", new Group("/B"),
 						"/B/C", new Group("/B/C"), "/A/Bar", new Group("/A/Bar"), "/A/B/C", new Group("/A/B/C")));
 
-		assertThat(effectiveMembershipGroups).hasSize(2);
-		assertThat(effectiveMembershipGroups).contains("/A", "/A/Bar");
+		assertThat(effectiveMembershipGroups).containsExactlyInAnyOrder("/A", "/A/Bar");
 	}
 
 	@Test
@@ -61,8 +58,7 @@ public class MembershipGroupsUtilsTest
 		List<String> effectiveMembershipGroups = MembershipGroupsUtils.getEffectiveMembershipGroups(List.of("/A"),
 				Collections.emptyList(), Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B")));
 
-		assertThat(effectiveMembershipGroups).hasSize(1);
-		assertThat(effectiveMembershipGroups).contains("/A");
+		assertThat(effectiveMembershipGroups).containsExactlyInAnyOrder("/A");
 	}
 
 	@Test
@@ -72,8 +68,7 @@ public class MembershipGroupsUtilsTest
 		List<String> effectiveMembershipGroups = MembershipGroupsUtils.getEffectiveMembershipGroups(List.of("/**"),
 				List.of("/A"), Map.of("/", new Group("/"), "/A", new Group("/A"), "/B", new Group("/B")));
 
-		assertThat(effectiveMembershipGroups).hasSize(2);
-		assertThat(effectiveMembershipGroups).contains("/", "/B");
+		assertThat(effectiveMembershipGroups).containsExactlyInAnyOrder("/", "/B");
 	}
 
 	@Test
@@ -84,7 +79,6 @@ public class MembershipGroupsUtilsTest
 				Collections.emptyList(),
 				Map.of("/", new Group("/"), "/A", new Group("/A"), "/A/C", new Group("/A/C"), "/B", new Group("/B")));
 
-		assertThat(effectiveMembershipGroups).hasSize(2);
-		assertThat(effectiveMembershipGroups).contains("/A", "/A/C");
+		assertThat(effectiveMembershipGroups).containsExactlyInAnyOrder("/A", "/A/C");
 	}
 }
