@@ -6,9 +6,9 @@ package io.imunity.webconsole.signupAndEnquiry.formfill;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.IdentityExistsException;
@@ -17,9 +17,9 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryResponse;
 import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -31,10 +31,10 @@ import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditor;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorControllerV8;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponsesChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 
 
 
@@ -83,7 +83,7 @@ public class AdminEnquiryFormLauncher
 				enquiryManagement.processEnquiryResponse(id, response, 
 						RegistrationRequestAction.accept, null, 
 						msg.getMessage("AdminFormLauncher.autoAccept"));
-				bus.fireEvent(new RegistrationRequestChangedEvent(id));
+				bus.fireEvent(new RegistrationRequestsChangedEvent());
 				status = getRequestStatus(id);
 			}	
 		} catch (EngineException e)
@@ -100,7 +100,7 @@ public class AdminEnquiryFormLauncher
 		try
 		{
 			String requestId = enquiryManagement.submitEnquiryResponse(response, context);
-			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponseChangedEvent(requestId));
+			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponsesChangedEvent());
 			return requestId;
 		} catch (IdentityExistsException e)
 		{

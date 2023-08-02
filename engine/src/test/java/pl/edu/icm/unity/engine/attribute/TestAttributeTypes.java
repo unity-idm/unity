@@ -39,6 +39,8 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 
 public class TestAttributeTypes extends DBIntegrationTestBase
 {
+	
+	
 	@Test
 	public void allImplementedSyntaxesAreReported() throws Exception
 	{

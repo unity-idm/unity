@@ -35,7 +35,7 @@ import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguratio
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 
 
 /**
@@ -75,7 +75,7 @@ public class InsecureRegistrationFormLauncher extends AbstractRegistrationFormDi
 		try
 		{
 			String requestId = registrationsManagement.submitRegistrationRequest(request, context);
-			bus.fireEvent(new RegistrationRequestChangedEvent(requestId));
+			bus.fireEvent(new RegistrationRequestsChangedEvent());
 			RegistrationRequestState requestState = getRequestStatus(requestId);
 			
 			boolean isAutoLogin = autoLoginProcessor.signInIfPossible(editor, requestState);

@@ -99,7 +99,7 @@ public class SAMLTrustedApplicationManagementTest
 		verify(preferencesManagement).setPreference(any(), eq(SamlPreferences.ID), argument.capture());
 		SamlPreferences pref = new SamlPreferences();
 		pref.setSerializedConfiguration(JsonUtil.parse(argument.getValue()));
-		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk()).isEqualTo(false);
+		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk()).isFalse();
 
 	}
 
@@ -116,7 +116,7 @@ public class SAMLTrustedApplicationManagementTest
 		verify(preferencesManagement).setPreference(any(), eq(SamlPreferences.ID), argument.capture());
 		SamlPreferences pref = new SamlPreferences();
 		pref.setSerializedConfiguration(JsonUtil.parse(argument.getValue()));
-		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk()).isEqualTo(false);
+		assertThat(pref.getSPSettings("clientEntityId").isDoNotAsk()).isFalse();
 	}
 
 	private Instant setupAccessTime() throws EngineException

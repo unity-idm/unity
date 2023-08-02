@@ -59,6 +59,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.engine.api.exceptions.SchemaConsistencyException;
@@ -824,11 +825,11 @@ public class EntityManagementImpl implements EntityManagement
 
 	@Override
 	@Transactional
-	public Set<Entity> getAllEntitiesWithContactEmail(String contactEmail) throws EngineException
+	public Set<EntityWithContactInfo> getAllEntitiesWithContactEmails(Set<String> contactEmails) throws EngineException
 	{
-		Set<Entity> entitiesIds = byEmailUserFinder.getEntitiesIdsByContactAddress(contactEmail);
+		Set<EntityWithContactInfo> entitiesIds = byEmailUserFinder.getEntitiesIdsByContactAddresses(contactEmails);
 		if (entitiesIds.isEmpty())
-			throw new UnknownEmailException("Contact email " + contactEmail + " is not assigned to any entity");
+			throw new UnknownEmailException("Contact emails " + contactEmails + " are not assigned to any entity");
 		
 		return entitiesIds;
 	}

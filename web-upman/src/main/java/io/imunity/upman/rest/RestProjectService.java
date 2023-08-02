@@ -5,7 +5,19 @@
 
 package io.imunity.upman.rest;
 
-import pl.edu.icm.unity.base.entity.Entity;
+import static java.util.Optional.ofNullable;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+
+import io.imunity.upman.rest.DelegationComputer.RollbackState;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
@@ -18,6 +30,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
+import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
@@ -29,19 +42,6 @@ import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 
-import javax.transaction.Transactional;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-
-import io.imunity.upman.rest.DelegationComputer.RollbackState;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.util.Optional.ofNullable;
 
 class RestProjectService
 {
@@ -337,10 +337,10 @@ class RestProjectService
 
 	private Long getId(String email) throws EngineException
 	{
-		Set<Entity> entities;
+		Set<EntityWithContactInfo> entities;
 		try
 		{
-			entities = idsMan.getAllEntitiesWithContactEmail(email);
+			entities = idsMan.getAllEntitiesWithContactEmails(Set.of(email));
 		}
 		catch (UnknownEmailException e)
 		{
@@ -351,7 +351,7 @@ class RestProjectService
 			throw new BadRequestException("Ambiguous user");
 		if(entities.size() == 0)
 			throw new NotFoundException(String.format("Email %s not found", email));
-		return entities.iterator().next().getId();
+		return entities.iterator().next().entity.getId();
 	}
 
 	private String getProjectPath(String projectId)

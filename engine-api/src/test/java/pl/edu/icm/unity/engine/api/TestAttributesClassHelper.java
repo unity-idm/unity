@@ -48,9 +48,7 @@ public class TestAttributesClassHelper
 		
 		AttributeClassHelper.cleanupClass(tested, knownClasses);
 		
-		assertThat(tested.getParentClasses()).hasSize(2);
-		assertThat(tested.getParentClasses().contains("ac4")).isTrue();
-		assertThat(tested.getParentClasses().contains("ac3")).isTrue();
+		assertThat(tested.getParentClasses()).containsExactlyInAnyOrder("ac4", "ac3");		
 		
 		assertThat(tested.isAllowArbitrary()).isFalse();
 		assertThat(tested.getAllowed()).hasSize(1);
