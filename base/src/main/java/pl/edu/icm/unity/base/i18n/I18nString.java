@@ -4,19 +4,19 @@
  */
 package pl.edu.icm.unity.base.i18n;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.context.NoSuchMessageException;
+import pl.edu.icm.unity.base.message.MessageSource;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.springframework.context.NoSuchMessageException;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.JsonNode;
-
-import pl.edu.icm.unity.base.message.MessageSource;
+import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -126,6 +126,11 @@ public class I18nString
 	public Map<String, String> getMap()
 	{
 		return new HashMap<>(values);
+	}
+
+	public Map<Locale, String> getLocalizedMap()
+	{
+		return values.entrySet().stream().collect(toMap(key -> new Locale(key.getKey()), Entry::getValue));
 	}
 
 	public String getDefaultLocaleValue(MessageSource msg)

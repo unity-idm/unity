@@ -17,6 +17,10 @@ import io.imunity.console.views.maintenance.AboutView;
 import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;
 import io.imunity.console.views.maintenance.idp_usage_statistics.IdPUsageStatisticsView;
+import io.imunity.console.views.settings.PKIViews;
+import io.imunity.console.views.settings.PolicyDocumentsView;
+import io.imunity.console.views.settings.message_templates.MessageTemplateEditView;
+import io.imunity.console.views.settings.message_templates.MessageTemplatesView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
@@ -44,6 +48,24 @@ public class ConsoleMenu extends UnityAppLayout
 								.tabName(msg.getMessage("WebConsoleMenu.services"))
 								.icon(VaadinIcon.SERVER)
 								.subViews(ServicesEditView.class)
+								.build(),
+						MenuComponent.builder(
+										MenuComponent.builder(MessageTemplatesView.class)
+												.tabName(msg.getMessage("WebConsoleMenu.settings.messageTemplates"))
+												.icon(VaadinIcon.ENVELOPES_O)
+												.subViews(MessageTemplateEditView.class)
+												.build(),
+										MenuComponent.builder(PolicyDocumentsView.class)
+												.tabName(msg.getMessage("WebConsoleMenu.settings.policyDocuments"))
+												.icon(VaadinIcon.CHECK_SQUARE_O)
+												.build(),
+										MenuComponent.builder(PKIViews.class)
+												.tabName(msg.getMessage("WebConsoleMenu.settings.publicKeyInfrastructure"))
+												.icon(VaadinIcon.DIPLOMA)
+												.build()
+								)
+								.tabName(msg.getMessage("WebConsoleMenu.settings"))
+								.icon(VaadinIcon.COGS)
 								.build(),
 						MenuComponent.builder(
 										MenuComponent.builder(AuditLogView.class)
