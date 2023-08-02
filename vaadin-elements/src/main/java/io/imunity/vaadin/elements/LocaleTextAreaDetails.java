@@ -23,12 +23,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@CssImport("./styles/components/locale-text-field-details.css")
-public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
+@CssImport(value = "./styles/components/form-item.css", themeFor = "vaadin-form-item")
+@CssImport(value = "./styles/components/combo-box.css", themeFor = "vaadin-combo-box")
+public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 {
-	public Map<Locale, LocaleTextField> fields = new LinkedHashMap<>();
+	public Map<Locale, LocaleTextArea> fields = new LinkedHashMap<>();
 
-	public LocaleTextFieldDetails(Set<Locale> enabledLocales, Locale currentLocale, String label, Function<Locale, String> valueGenerator)
+	public LocaleTextAreaDetails(Set<Locale> enabledLocales, Locale currentLocale, String label, Function<Locale, String> valueGenerator)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
@@ -52,7 +53,7 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 			content.setVisible(false);
 		});
 
-		LocaleTextField defaultField = new LocaleTextField(currentLocale);
+		LocaleTextArea defaultField = new LocaleTextArea(currentLocale);
 		defaultField.setValue(valueGenerator.apply(currentLocale));
 		defaultField.setLabel(label);
 		fields.put(currentLocale, defaultField);
@@ -66,27 +67,23 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 				.filter(locale -> !currentLocale.equals(locale))
 				.forEach(locale ->
 				{
-					LocaleTextField localeTextField = new LocaleTextField(locale);
+					LocaleTextArea localeTextField = new LocaleTextArea(locale);
 					localeTextField.setValue(valueGenerator.apply(locale));
 					content.add(localeTextField);
 					fields.put(locale, localeTextField);
 				});
 
-		fields.values().forEach(field -> field.addValueChangeListener(event ->
-		{
-			if(!event.getValue().isBlank())
-				setInvalid(false);
-		}));
-
 		add(summary, content);
 	}
 
+	@Override
 	public void setWidthFull()
 	{
 		super.setWidthFull();
 		fields.values().forEach(HasSize::setWidthFull);
 	}
 
+	@Override
 	public void focus()
 	{
 		fields.values().iterator().next().focus();
@@ -114,13 +111,6 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 		return fields.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getValue()));
 	}
 
-	@Override
-	public void setReadOnly(boolean readOnly)
-	{
-		super.setReadOnly(readOnly);
-		fields.values().forEach(field -> field.setReadOnly(readOnly));
-	}
-
 	public void addValuesChangeListener(BiConsumer<HasValue<?, String>, Integer> consumer)
 	{
 		fields.values().forEach(field -> field.getElement().addEventListener(
@@ -128,11 +118,17 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 				e -> field.getElement().executeJs("return this.inputElement.selectionStart")
 						.then(Integer.class, pos -> consumer.accept(field, pos)))
 		);
-
 		fields.values().forEach(field -> field.addFocusListener(
 				e -> field.getElement().executeJs("return this.inputElement.selectionStart")
 						.then(Integer.class, pos -> consumer.accept(field, pos)))
 		);
+	}
+
+	@Override
+	public void setReadOnly(boolean readOnly)
+	{
+		super.setReadOnly(readOnly);
+		fields.values().forEach(field -> field.setReadOnly(readOnly));
 	}
 
 	@Override

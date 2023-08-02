@@ -5,16 +5,16 @@
 
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.util.Locale;
 
-public class LocaleTextField extends TextField
+public class LocaleTextArea extends TextArea
 {
 	public final Locale locale;
 
-	public LocaleTextField(Locale locale)
+	public LocaleTextArea(Locale locale)
 	{
 		this.locale = locale;
 		addToSuffix();

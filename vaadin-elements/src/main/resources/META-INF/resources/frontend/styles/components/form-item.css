@@ -1,0 +1,11 @@
+:host(.valid) [part='required-indicator']::after {
+    color: var(--lumo-required-field-indicator-color, var(--lumo-primary-text-color)) !important;
+}
+
+:host(.invalid) [part='required-indicator']::after {
+    color: var(--lumo-required-field-indicator-color, var(--lumo-error-text-color)) !important;
+}
+
+:host() [id='content'] {
+    display: flex;
+}

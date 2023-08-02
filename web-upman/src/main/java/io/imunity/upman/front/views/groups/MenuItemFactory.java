@@ -158,7 +158,7 @@ class MenuItemFactory
 		Button saveButton = new SubmitButton(msg::getMessage);
 		saveButton.addClickListener(event ->
 		{
-			Map<Locale, String> localeToTxt = localeTextFieldDetails.fields.stream()
+			Map<Locale, String> localeToTxt = localeTextFieldDetails.fields.values().stream()
 					.collect(Collectors.toMap(field -> field.locale, TextField::getValue));
 			groupService.addGroup(projectGroup, group, localeToTxt, isPublic.getValue());
 			if(subProjectConfigurationLayout.enableDelegation.getValue())
@@ -212,7 +212,7 @@ class MenuItemFactory
 		dialogLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 		dialog.add(dialogLayout);
 
-		Button saveButton = createRenameButton(projectGroup, group, dialog, details.fields);
+		Button saveButton = createRenameButton(projectGroup, group, dialog, details.fields.values());
 		dialog.getFooter().add(saveButton);
 
 		return dialog;
@@ -223,7 +223,7 @@ class MenuItemFactory
 		return new BaseDialog(header, msg.getMessage("Cancel"), content);
 	}
 
-	private Button createRenameButton(ProjectGroup projectGroup, Group group, Dialog dialog, List<LocaleTextField> fields)
+	private Button createRenameButton(ProjectGroup projectGroup, Group group, Dialog dialog, Collection<LocaleTextField> fields)
 	{
 		Button button = new SubmitButton(msg::getMessage);
 		button.addClassName("submit-button");
