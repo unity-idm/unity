@@ -4,6 +4,7 @@
  */
 package io.imunity.vaadin.auth;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
@@ -86,7 +87,7 @@ class RedirectedAuthnResultProcessor
 	
 	private void handleError(String authenticatorError, String clientIp)
 	{
-		notificationPresenter.showError(authenticatorError, "");
+		UI.getCurrent().access(() -> notificationPresenter.showError(authenticatorError, ""));
 		showWaitScreenIfNeeded(clientIp);
 	}
 	
