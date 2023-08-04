@@ -86,7 +86,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 		leftContainerContent.addComponentAsFirst(component);
 	}
 
-	public void activeLeftContainerMinimization(Image image)
+	public void activateLeftContainerMinimization(Image image)
 	{
 		VerticalLayout verticalLayout = new VerticalLayout();
 		Icon leftArrow = VaadinIcon.ANGLE_DOUBLE_LEFT.create();
@@ -96,7 +96,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 		{
 			leftArrow.setVisible(false);
 			rightArrow.setVisible(true);
-			leftContainerContent.getStyle().set("width", "6em");
+			leftContainerContent.getStyle().set("width", "4em");
 			image.getStyle().set("max-width", "2.5em");
 			verticalLayout.setAlignItems(Alignment.CENTER);
 			appLayoutComponents.hiddeTextInTabs();
@@ -106,7 +106,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 			leftArrow.setVisible(true);
 			rightArrow.setVisible(false);
 			leftContainerContent.getStyle().remove("width");
-			image.getStyle().set("max-width", "7em");
+			image.getStyle().set("max-width", "5rem");
 			verticalLayout.setAlignItems(Alignment.END);
 			appLayoutComponents.showTextInTabs();
 

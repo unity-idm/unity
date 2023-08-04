@@ -41,6 +41,7 @@ public class TabComponent extends Tab implements TabTextHider
 	{
 		routerLink.setText("");
 		routerLink.addComponentAsFirst(icon);
+		getElement().setProperty("title", name);
 	}
 
 	@Override
@@ -48,5 +49,6 @@ public class TabComponent extends Tab implements TabTextHider
 	{
 		routerLink.setText(name);
 		routerLink.addComponentAsFirst(icon);
+		getElement().removeProperty("title");
 	}
 }

@@ -47,7 +47,8 @@ class UnityAppLayoutComponentsHolder
 		viewContainer.setHeightFull();
 	}
 
-	void reloadBreadCrumb(UnityViewComponent unityViewComponent) {
+	void reloadBreadCrumb(UnityViewComponent unityViewComponent)
+	{
 		breadCrumbComponent.update(unityViewComponent);
 	}
 

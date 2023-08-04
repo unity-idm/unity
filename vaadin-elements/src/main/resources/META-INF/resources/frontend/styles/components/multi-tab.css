@@ -1,10 +1,14 @@
 :host(.multi-tab) [role='heading']:hover {
-	background-color: var(--lumo-contrast-5pct);
+    background-color: var(--lumo-contrast-5pct);
 }
 
 :host(.multi-tab) [part='toggle'] {
-	transform: rotate(90deg);
-	color: white !important;
+    transform: rotate(90deg);
+    color: white !important;
+}
+
+:host(.multi-tab-mini) [part='toggle'] {
+    display: none !important;
 }
 
 :host(.multi-tab[opened]) [part='toggle'] {
@@ -13,5 +17,15 @@
 }
 
 :host(.multi-tab) [part='content'] {
-	margin-left: var(--big-margin);
+    margin-left: var(--base-margin);
+    margin-top: -1em;
+    margin-bottom: -1em;
+}
+
+:host(.multi-tab) [role=heading]:hover {
+    background-color: var(--vaadin-tab-hover-color);
+}
+
+:host(.multi-tab) [role=heading] {
+    padding: 0.3em 0;
 }
