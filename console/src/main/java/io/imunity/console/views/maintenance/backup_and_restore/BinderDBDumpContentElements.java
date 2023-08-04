@@ -14,11 +14,6 @@ class BinderDBDumpContentElements
 	private boolean signupRequests = true;
 	private boolean idpStatistics = true;
 
-	public BinderDBDumpContentElements()
-	{
-
-	}
-
 	public boolean isSystemConfig()
 	{
 		return systemConfig;

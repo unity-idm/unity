@@ -149,7 +149,10 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 				() ->
 				{
 					BinderDBDumpContentElements type = configBinder.getBean();
-					DBDumpContentElements dbDumpContentElements = new DBDumpContentElements(type.isSystemConfig(), type.isDirectorySchema(), type.isUsers(), type.isAuditLogs(), type.isSignupRequests(), type.isIdpStatistics());
+					DBDumpContentElements dbDumpContentElements =
+							new DBDumpContentElements(type.isSystemConfig(), type.isDirectorySchema(), type.isUsers(),
+									type.isAuditLogs(), type.isSignupRequests(), type.isIdpStatistics()
+							);
 					try
 					{
 						return new FileInputStream(serverManagement.exportDb(dbDumpContentElements));

@@ -56,6 +56,9 @@ html {
   --vaadin-text-field-big: 40em;
   --icon-size: 1.2em;
   --vaadin-tab-hover-color: #025D6E;
+
+  --medium-dialog-width: 45em;
+  --big-dialog-width: 65em;
 }
 
 h1, h2, h3, h4, h5, h6, b, strong {

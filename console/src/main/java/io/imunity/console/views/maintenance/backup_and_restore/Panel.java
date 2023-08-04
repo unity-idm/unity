@@ -11,7 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 class Panel extends VerticalLayout
 {
-	public Panel(String header)
+	Panel(String header)
 	{
 		setMargin(true);
 		setPadding(false);

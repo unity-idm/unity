@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-public class ServicesController
+class ServicesController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ServicesController.class);
 
