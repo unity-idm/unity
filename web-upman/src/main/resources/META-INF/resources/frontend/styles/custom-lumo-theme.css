@@ -44,6 +44,9 @@ html {
   --small-gap: calc(0.5 * var(--base-gap));
   --medium-gap: calc(1.5 * var(--base-gap));
   --big-gap: calc(2 * var(--base-gap));
+
+  --medium-dialog-width: 45em;
+  --big-dialog-width: 65em;
 }
 
 h1, h2, h3, h4, h5, h6, b, strong {

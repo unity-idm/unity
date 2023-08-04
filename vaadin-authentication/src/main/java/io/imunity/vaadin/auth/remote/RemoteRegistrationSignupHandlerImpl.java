@@ -93,7 +93,7 @@ class RemoteRegistrationSignupHandlerImpl implements RemoteRegistrationSignupHan
 			String requestedAuthnOption = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
 			if (externalSignupOptions.size() > 1 && requestedAuthnOption == null)
 			{
-				log.warn("There are more multiple remote signup options are installed, "
+				log.warn("There are multiple remote signup options installed, "
 								+ "and automated signup was requested without specifying (with "
 								+  "{}) which one should be used. Automatic signup is skipped.",
 						PreferredAuthenticationHelper.IDP_SELECT_PARAM);

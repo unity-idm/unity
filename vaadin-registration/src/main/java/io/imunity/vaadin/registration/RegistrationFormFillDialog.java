@@ -54,7 +54,7 @@ public class RegistrationFormFillDialog extends Dialog
 
 	private void init()
 	{
-		setWidth("45em");
+		setWidth("var(--medium-dialog-width)");
 		Button cancelButton = new Button(msg.getMessage("cancel"), e ->
 		{
 			callback.cancelled();
