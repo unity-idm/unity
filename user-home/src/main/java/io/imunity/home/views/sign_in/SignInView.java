@@ -111,8 +111,8 @@ public class SignInView extends HomeViewComponent
 		details.getStyle().set("margin-top", "var(--big-margin)");
 		details.setWidthFull();
 		layout.add(details);
-
-		layout.setWidth("35em");
+		layout.setSizeUndefined();
+		layout.setId("credential-layout");
 		layout.setSpacing(false);
 		getContent().add(layout);
 	}

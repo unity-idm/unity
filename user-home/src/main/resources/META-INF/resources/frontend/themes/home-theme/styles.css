@@ -51,6 +51,9 @@ html {
   --small-gap: calc(0.5 * var(--base-gap));
   --medium-gap: calc(1.5 * var(--base-gap));
   --big-gap: calc(2 * var(--base-gap));
+
+  --medium-dialog-width: 45em;
+  --big-dialog-width: 65em;
 }
 
 h1, h2, h3, h4, h5, h6, b, strong {
@@ -228,4 +231,18 @@ label[disabled] {
     color: orange;
     width: var(--lumo-icon-size-l);
     height: var(--lumo-icon-size-l);
+}
+
+#technical-info-content {
+    align-self: end;
+    box-shadow: 0 0 5px 2px grey;
+    padding: var(--base-padding);
+}
+
+#credential-layout {
+    width: 35em;
+}
+
+#sticky-enquiry {
+    height: 20em;
 }

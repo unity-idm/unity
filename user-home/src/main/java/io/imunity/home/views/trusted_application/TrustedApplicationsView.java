@@ -171,9 +171,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 		technicalInfoContent.addFormItem(new Label(application.accessProtocol.toString()), msg.getMessage("TrustedApplications.accessProtocol"));
 		technicalInfoContent.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		technicalInfoContent.setSizeUndefined();
-		technicalInfoContent.getStyle().set("align-self", "end");
-		technicalInfoContent.getStyle().set("box-shadow", "0 0 5px 2px grey");
-		technicalInfoContent.getStyle().set("padding", "var(--base-padding)");
+		technicalInfoContent.setId("technical-info-content");
 		application.technicalInformations.forEach(es ->
 				technicalInfoContent.addFormItem(new Html("<div>" + es.value + "</div>"), es.titleKey));
 		return content;
