@@ -18,9 +18,10 @@ import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;
 import io.imunity.console.views.maintenance.idp_usage_statistics.IdPUsageStatisticsView;
 import io.imunity.console.views.settings.PKIViews;
-import io.imunity.console.views.settings.PolicyDocumentsView;
 import io.imunity.console.views.settings.message_templates.MessageTemplateEditView;
 import io.imunity.console.views.settings.message_templates.MessageTemplatesView;
+import io.imunity.console.views.settings.policy_documents.PolicyDocumentEditView;
+import io.imunity.console.views.settings.policy_documents.PolicyDocumentsView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
@@ -57,6 +58,7 @@ public class ConsoleMenu extends UnityAppLayout
 								MenuComponent.builder(PolicyDocumentsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.settings.policyDocuments"))
 										.icon(VaadinIcon.CHECK_SQUARE_O)
+										.subViews(PolicyDocumentEditView.class)
 										.build(),
 								MenuComponent.builder(PKIViews.class)
 										.tabName(msg.getMessage("WebConsoleMenu.settings.publicKeyInfrastructure"))

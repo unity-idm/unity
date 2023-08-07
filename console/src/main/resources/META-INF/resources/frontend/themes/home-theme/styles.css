@@ -59,6 +59,7 @@ html {
 
   --medium-dialog-width: 45em;
   --big-dialog-width: 65em;
+  --wysiwyg-toolbar-background: #E4E8ED;
 }
 
 h1, h2, h3, h4, h5, h6, b, strong {

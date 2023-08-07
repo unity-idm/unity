@@ -5,11 +5,7 @@
 
 package io.imunity.webconsole.settings.policyDocuments;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
@@ -18,7 +14,10 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentUpdateRequest;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
-@Component
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+@Component("PolicyDocumentsControllerV8")
 class PolicyDocumentsController
 {
 	private MessageSource msg;
