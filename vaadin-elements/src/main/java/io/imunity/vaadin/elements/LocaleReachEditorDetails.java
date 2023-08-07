@@ -6,9 +6,7 @@
 package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -19,25 +17,22 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@CssImport(value = "./styles/components/form-item.css", themeFor = "vaadin-form-item")
-@CssImport(value = "./styles/components/combo-box.css", themeFor = "vaadin-combo-box")
-public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
+public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 {
-	public Map<Locale, LocaleTextArea> fields = new LinkedHashMap<>();
+	public Map<Locale, LocaleReachEditor> fields = new LinkedHashMap<>();
 
-	public LocaleTextAreaDetails(Set<Locale> enabledLocales, Locale currentLocale, String label, Function<Locale, String> valueGenerator)
+	public LocaleReachEditorDetails(Set<Locale> enabledLocales, Locale currentLocale, Function<Locale, String> valueGenerator)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
 		content.setPadding(false);
 		content.setSpacing(false);
 
-		Icon angleDown = crateIcon(VaadinIcon.ANGLE_DOWN, label);
-		Icon angleUp = crateIcon(VaadinIcon.ANGLE_UP, label);
+		Icon angleDown = crateIcon(VaadinIcon.ANGLE_DOWN);
+		Icon angleUp = crateIcon(VaadinIcon.ANGLE_UP);
 
 		angleUp.setVisible(false);
 		angleDown.addClickListener(event ->
@@ -53,9 +48,8 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 			content.setVisible(false);
 		});
 
-		LocaleTextArea defaultField = new LocaleTextArea(currentLocale);
+		LocaleReachEditor defaultField = new LocaleReachEditor(currentLocale);
 		defaultField.setValue(valueGenerator.apply(currentLocale));
-		defaultField.setLabel(label);
 		fields.put(currentLocale, defaultField);
 
 		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
@@ -67,10 +61,10 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 				.filter(locale -> !currentLocale.equals(locale))
 				.forEach(locale ->
 				{
-					LocaleTextArea localeTextField = new LocaleTextArea(locale);
-					localeTextField.setValue(valueGenerator.apply(locale));
-					content.add(localeTextField);
-					fields.put(locale, localeTextField);
+					LocaleReachEditor wysiwygE = new LocaleReachEditor(locale);
+					wysiwygE.setValue(valueGenerator.apply(locale));
+					content.add(wysiwygE);
+					fields.put(locale, wysiwygE);
 				});
 
 		add(summary, content);
@@ -83,19 +77,11 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 		fields.values().forEach(HasSize::setWidthFull);
 	}
 
-	@Override
-	public void focus()
-	{
-		fields.values().iterator().next().focus();
-	}
-
-	private Icon crateIcon(VaadinIcon angleDown, String label)
+	private Icon crateIcon(VaadinIcon angleDown)
 	{
 		Icon icon = angleDown.create();
 		icon.setColor("unset");
 		icon.getStyle().set("cursor", "pointer");
-		if(!label.isBlank())
-			icon.getStyle().set("margin-top", "2em");
 		return icon;
 	}
 
@@ -111,36 +97,11 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 		return fields.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getValue()));
 	}
 
-	public void addValuesChangeListener(BiConsumer<HasValue<?, String>, Integer> consumer)
-	{
-		fields.values().forEach(field -> field.getElement().addEventListener(
-				"keyup",
-				e -> field.getElement().executeJs("return this.inputElement.selectionStart")
-						.then(Integer.class, pos -> consumer.accept(field, pos)))
-		);
-		fields.values().forEach(field -> field.addFocusListener(
-				e -> field.getElement().executeJs("return this.inputElement.selectionStart")
-						.then(Integer.class, pos -> consumer.accept(field, pos)))
-		);
-	}
-
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
 		super.setReadOnly(readOnly);
 		fields.values().forEach(field -> field.setReadOnly(readOnly));
-	}
-
-	@Override
-	public void setErrorMessage(String errorMessage)
-	{
-		fields.values().iterator().next().setErrorMessage(errorMessage);
-	}
-
-	@Override
-	public String getErrorMessage()
-	{
-		return fields.values().iterator().next().getErrorMessage();
 	}
 
 	@Override
@@ -153,14 +114,5 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 	protected void setPresentationValue(Map<Locale, String> newPresentationValue)
 	{
 		setValue(newPresentationValue);
-	}
-
-	@Override
-	public void setInvalid(boolean invalid)
-	{
-		super.setInvalid(invalid);
-		fields.values().forEach(field -> field.setInvalid(invalid));
-		getElement().getParent().getClassList().set("invalid", invalid);
-		getElement().getParent().getClassList().set("valid", !invalid);
 	}
 }

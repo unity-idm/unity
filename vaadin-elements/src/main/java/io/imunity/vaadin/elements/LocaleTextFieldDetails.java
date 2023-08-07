@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 {
 	public Map<Locale, LocaleTextField> fields = new LinkedHashMap<>();
+	private final HorizontalLayout summary;
 
 	public LocaleTextFieldDetails(Set<Locale> enabledLocales, Locale currentLocale, String label, Function<Locale, String> valueGenerator)
 	{
@@ -57,7 +58,7 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 		defaultField.setLabel(label);
 		fields.put(currentLocale, defaultField);
 
-		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
+		summary = new HorizontalLayout(defaultField, angleDown, angleUp);
 		summary.setAlignItems(FlexComponent.Alignment.CENTER);
 		summary.setWidthFull();
 		summary.getStyle().set("gap", "0.3em");
@@ -87,6 +88,12 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 		fields.values().forEach(HasSize::setWidthFull);
 	}
 
+	public void setWidth(String width)
+	{
+		summary.setWidth(width);
+		fields.values().forEach(HasSize::setWidthFull);
+	}
+
 	public void focus()
 	{
 		fields.values().iterator().next().focus();
@@ -105,7 +112,7 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 	@Override
 	public void setValue(Map<Locale, String> value)
 	{
-		value.forEach((key, val) -> fields.get(key).setValue(val));
+		fields.forEach((key, val) -> fields.get(key).setValue(value.getOrDefault(key, "")));
 	}
 
 	@Override
