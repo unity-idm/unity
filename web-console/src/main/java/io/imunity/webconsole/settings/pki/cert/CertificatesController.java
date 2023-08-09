@@ -5,14 +5,13 @@
 
 package io.imunity.webconsole.settings.pki.cert;
 
-import java.util.List;
-
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.List;
 
 /**
  * Controller for all trusted certificates views
@@ -20,7 +19,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-@Component
+@Component("CertificatesControllerV8")
 public class CertificatesController
 {
 	private PKIManagement pkiMan;
