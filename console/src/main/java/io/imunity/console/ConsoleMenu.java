@@ -17,6 +17,7 @@ import io.imunity.console.views.maintenance.AboutView;
 import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;
 import io.imunity.console.views.maintenance.idp_usage_statistics.IdPUsageStatisticsView;
+import io.imunity.console.views.settings.pki.PKIEditView;
 import io.imunity.console.views.settings.pki.PKIView;
 import io.imunity.console.views.settings.message_templates.MessageTemplateEditView;
 import io.imunity.console.views.settings.message_templates.MessageTemplatesView;
@@ -63,6 +64,7 @@ public class ConsoleMenu extends UnityAppLayout
 								MenuComponent.builder(PKIView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.settings.publicKeyInfrastructure"))
 										.icon(VaadinIcon.DIPLOMA)
+										.subViews(PKIEditView.class)
 										.build()
 								)
 								.tabName(msg.getMessage("WebConsoleMenu.settings"))
