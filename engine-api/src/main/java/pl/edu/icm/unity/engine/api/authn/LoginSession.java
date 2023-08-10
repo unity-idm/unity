@@ -4,6 +4,15 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.token.Token;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -12,17 +21,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.base.Constants;
-import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.base.json.JsonUtil;
-import pl.edu.icm.unity.base.token.Token;
 
 /**
  * Represents login session. Session expiration can be stored in two ways: either
@@ -375,6 +375,21 @@ public class LoginSession
 		{
 			this.firstFactorSkipped = firstFactorSkipped;
 			this.secondFactorSkipped = secondFactorSkipped;
+		}
+
+		@Override
+		public boolean equals(Object o)
+		{
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			RememberMeInfo that = (RememberMeInfo) o;
+			return firstFactorSkipped == that.firstFactorSkipped && secondFactorSkipped == that.secondFactorSkipped;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(firstFactorSkipped, secondFactorSkipped);
 		}
 	}
 	

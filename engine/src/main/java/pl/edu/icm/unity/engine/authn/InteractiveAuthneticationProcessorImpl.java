@@ -4,22 +4,9 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.base.authn.AuthenticationRealm;
-import pl.edu.icm.unity.base.entity.EntityParam;
-import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
@@ -30,11 +17,11 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
-import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.ErrorDetail;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.SecondFactorDetail;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.UnknownRemoteUserDetail;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LastAuthenticationCookie;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
@@ -53,6 +40,18 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.session.SessionParticipants;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.basic.EntityParam;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Optional;
 
 @Primary
 @Component
@@ -332,7 +331,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 
 		//prevent session fixation
 		HttpSession httpSession = sessionReinitializer.reinitialize();
-		sessionBinder.bindHttpSession(httpSession, ls);
+		if(realm.getName().equals(InvocationContext.safeGetRealm()))
+			sessionBinder.bindHttpSession(httpSession, ls);
 
 		if (rememberMe)
 		{
@@ -347,8 +347,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		if (ls.isUsedOutdatedCredential())
 			log.info("User {} logged with outdated credential", ls.getEntityId());
 		AuthenticationPolicy.setPolicy(httpSession, AuthenticationPolicy.DEFAULT);
-		
-		
+
 		log.info("Logged with session: {}, first factor authn option: {}, second factor authn option: {}"
 				+ ", first factor skipped: {}, second factor skipped: {}",
 				ls.toString(), ls.getLogin1stFactorOptionId(), ls.getLogin2ndFactorOptionId(),
