@@ -8,21 +8,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents login session. Session expiration can be stored in two ways: either

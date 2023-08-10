@@ -5,36 +5,29 @@
 
 package pl.edu.icm.unity.engine.authn;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.EntityParam;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InteractiveAuthenticationProcessorTest
 {
 	@Mock

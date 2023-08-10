@@ -123,6 +123,13 @@ public class AuthenticationFilter implements Filter
 				.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		if (loginSession == null)
 			return;
+		if(!loginSession.getRealm().equals(realm.getName()))
+		{
+			log.error("Critical error - wrong realm {} has been bound to login session, expect {}",
+					loginSession.getRealm(), realm.getName());
+			forwardtoAuthn(httpRequest, httpResponse, chain);
+			throw new EopException();
+		}
 		if (loginSession.isExpiredAt(System.currentTimeMillis()))
 			return;
 		
