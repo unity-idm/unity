@@ -108,14 +108,19 @@ public class ProfileView extends HomeViewComponent
 		theUser = InvocationContext.getCurrent().getLoginSession();
 		Set<String> keys = config.getStructuredListKeys(HomeEndpointProperties.ATTRIBUTES);
 
-		VerticalLayout mainLayout = getAttributes(keys);
-		getContent().add(mainLayout);
+		Set<String> disabledComponents = config.getDisabledComponents();
+		VerticalLayout mainLayout = new VerticalLayout();
+		if (!disabledComponents.contains(HomeEndpointProperties.Components.attributesManagement.toString()))
+		{
+			mainLayout = getAttributes(keys);
+		}
 
-		HorizontalLayout buttonsLayout = createButtonsLayout(mainLayout);
+		getContent().add(mainLayout);
+		HorizontalLayout buttonsLayout = createButtonsLayout(mainLayout, disabledComponents);
 		getContent().add(buttonsLayout);
 	}
 
-	private HorizontalLayout createButtonsLayout(VerticalLayout mainLayout)
+	private HorizontalLayout createButtonsLayout(VerticalLayout mainLayout, Set<String> disabledComponents)
 	{
 		HorizontalLayout buttonsLayout = new HorizontalLayout();
 		buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -138,13 +143,18 @@ public class ProfileView extends HomeViewComponent
 			reset.setVisible(savable);
 		});
 
-		EntityRemovalButton entityRemovalButton = new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, insecureIdsMan, authnProcessor, notificationPresenter, config);
 		HorizontalLayout endButtonsLayout = new HorizontalLayout();
 		endButtonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		endButtonsLayout.add(entityRemovalButton);
 		buttonsLayout.add(new HorizontalLayout(save, reset), endButtonsLayout);
 
-		if (!config.getDisabledComponents().contains(HomeEndpointProperties.Components.accountLinking.toString()))
+		if (!disabledComponents.contains(HomeEndpointProperties.Components.accountRemoval.toString()))
+		{
+			EntityRemovalButton entityRemovalButton =
+					new EntityRemovalButton(msg, theUser.getEntityId(), idsMan, insecureIdsMan, authnProcessor, notificationPresenter, config);
+			endButtonsLayout.add(entityRemovalButton);
+		}
+
+		if (!disabledComponents.contains(HomeEndpointProperties.Components.accountLinking.toString()))
 		{
 			Button associationButton = new Button(msg.getMessage("EntityDetailsWithActions.associateAccount"));
 			associationButton.setId("EntityDetailsWithActions.associateAccount");

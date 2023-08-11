@@ -35,12 +35,12 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Set;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
-import static java.util.stream.Collectors.toList;
 
 @CssImport(value = "./styles/components/vaadin-accordion-panel.css", themeFor = "vaadin-accordion-panel")
 public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
@@ -55,20 +55,7 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 					  ProjectManagementHelper projectManagementHelper, AttributesManagement attributesMan,
 					  AttributeHandlerRegistry registry)
 	{
-		super(Stream.of(
-						MenuComponent.builder(ProfileView.class).tabName(msg.getMessage("UserHomeUI.profile"))
-								.build(),
-						MenuComponent.builder(SignInView.class).tabName(msg.getMessage("UserHomeUI.signIn"))
-								.build(),
-						MenuComponent.builder(TrustedApplicationsView.class).tabName(msg.getMessage("UserHomeUI.trustedApplications"))
-								.build(),
-						MenuComponent.builder(TrustedDeviceView.class).tabName(msg.getMessage("UserHomeUI.trustedDevices"))
-								.build(),
-						MenuComponent.builder(AccountUpdateView.class).tabName(msg.getMessage("UserHomeUI.accountUpdate"))
-								.build()
-						)
-						.collect(toList()), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper))
-		);
+		super(createMenuComponents(msg), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper)));
 		this.attributesMan = attributesMan;
 		this.registry = registry;
 		this.homeEndpointProperties = new HomeEndpointProperties(getCurrentWebAppContextProperties());
@@ -79,6 +66,25 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 		super.initView();
 
 		addToLeftContainerAsFirst(imageLayout);
+	}
+
+	private static List<MenuComponent> createMenuComponents(MessageSource msg)
+	{
+		HomeEndpointProperties homeEndpointProperties = new HomeEndpointProperties(getCurrentWebAppContextProperties());
+		Set<String> disabled = homeEndpointProperties.getDisabledComponents();
+		List<MenuComponent> menuComponents = new ArrayList<>();
+
+		if (!disabled.contains(HomeEndpointProperties.Components.userDetailsTab.toString()))
+			menuComponents.add(MenuComponent.builder(ProfileView.class).tabName(msg.getMessage("UserHomeUI.profile")).build());
+		if (!disabled.contains(HomeEndpointProperties.Components.credentialTab.toString()))
+			menuComponents.add(MenuComponent.builder(SignInView.class).tabName(msg.getMessage("UserHomeUI.signIn")).build());
+		if (!disabled.contains(HomeEndpointProperties.Components.trustedApplications.toString()))
+			menuComponents.add(MenuComponent.builder(TrustedApplicationsView.class).tabName(msg.getMessage("UserHomeUI.trustedApplications")).build());
+		if (!disabled.contains(HomeEndpointProperties.Components.trustedDevices.toString()))
+			menuComponents.add(MenuComponent.builder(TrustedDeviceView.class).tabName(msg.getMessage("UserHomeUI.trustedDevices")).build());
+		if (!disabled.contains(HomeEndpointProperties.Components.accountUpdateTab.toString()))
+			menuComponents.add(MenuComponent.builder(AccountUpdateView.class).tabName(msg.getMessage("UserHomeUI.accountUpdate")).build());
+		return menuComponents;
 	}
 
 	private HorizontalLayout createImageLayout(HomeEndpointProperties homeEndpointProperties)

@@ -25,7 +25,7 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, HomeEndpointProperties.class);
 
 	public enum Components {credentialTab, trustedApplications, userDetailsTab, accountUpdateTab, 
-		accountRemoval, attributesManagement, accountLinking}
+		accountRemoval, attributesManagement, accountLinking, trustedDevices}
 
 	public enum RemovalModes {remove, disable, blockAuthentication};
 	
