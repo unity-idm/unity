@@ -6,9 +6,7 @@
 package pl.edu.icm.unity.webui;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -28,7 +26,6 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 public class AuthenticationFilterTest
 {
 	@Test
