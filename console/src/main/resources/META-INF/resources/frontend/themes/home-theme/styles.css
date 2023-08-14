@@ -81,13 +81,13 @@ vaadin-tab {
     color: white;
 }
 
-.multi-tab > label {
+.multi-tab-details > label {
     font-size: var(--lumo-font-size-l);
     font-weight: var(--unity-font-weight);
     color: white;
 }
 
-.multi-tab > label > vaadin-icon {
+.multi-tab-details > label > vaadin-icon {
     color: white;
     min-width: var(--icon-size);
     width: var(--icon-size);
@@ -149,6 +149,10 @@ vaadin-icon {
 
 vaadin-form-item {
     --vaadin-form-item-label-width: 11em;
+}
+
+.big-vaadin-form-item > vaadin-form-item {
+    --vaadin-form-item-label-width: 20em;
 }
 
 vaadin-text-field > label {

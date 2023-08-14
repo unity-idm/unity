@@ -8,25 +8,29 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 
 import java.util.List;
 
-@CssImport(value = "./styles/components/multi-tab.css", themeFor = "vaadin-details")
-public class MultiTabComponent extends Details implements TabTextHider
+@CssImport(value = "./styles/components/multi-tab.css")
+@CssImport(value = "./styles/components/multi-tab-details.css", themeFor = "vaadin-details")
+public class MultiTabComponent extends Tab implements TabTextHider
 {
 	public final MenuComponent menuComponent;
 	public final Label label;
 	public final Tabs content;
 	public final List<TabComponent> components;
+	public final Details details;
 
 	public MultiTabComponent(MenuComponent menuComponent)
 	{
+		details = new Details();
 		this.menuComponent = menuComponent;
 		label = new Label(menuComponent.tabName);
 		label.addComponentAsFirst(menuComponent.icon.create());
-		setSummary(label);
+		details.setSummary(label);
 		components = menuComponent.subTabs.stream()
 				.map(TabComponent::new)
 				.toList();
@@ -34,16 +38,19 @@ public class MultiTabComponent extends Details implements TabTextHider
 		content.setOrientation(Tabs.Orientation.VERTICAL);
 		content.addThemeVariants(TabsVariant.LUMO_MINIMAL);
 		content.setSelectedTab(null);
-		setContent(content);
-		addThemeVariants(DetailsVariant.REVERSE);
+		details.setContent(content);
+		details.addThemeVariants(DetailsVariant.REVERSE);
+		details.setClassName("multi-tab-details");
+		details.getStyle().set("margin", "0");
+		details.setWidthFull();
+		add(details);
 		setClassName("multi-tab");
-		getStyle().set("margin", "0");
 	}
 
 	public void select(TabComponent tabComponent)
 	{
 		if(tabComponent != null)
-			setOpened(true);
+			details.setOpened(true);
 		content.setSelectedTab(tabComponent);
 	}
 
@@ -53,7 +60,7 @@ public class MultiTabComponent extends Details implements TabTextHider
 		label.setText("");
 		label.addComponentAsFirst(menuComponent.icon.create());
 		components.forEach(TabComponent::hiddeText);
-		addClassName("multi-tab-mini");
+		addClassName("multi-tab-details-mini");
 		getElement().setProperty("title", menuComponent.tabName);
 	}
 

@@ -13,14 +13,20 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.console.views.DirectoryBrowserView;
 import io.imunity.console.views.ServicesEditView;
 import io.imunity.console.views.ServicesView;
+import io.imunity.console.views.authentication.CredentialRequirementsView;
+import io.imunity.console.views.authentication.CredentialsView;
+import io.imunity.console.views.authentication.FacilitiesView;
+import io.imunity.console.views.authentication.RemoteDataProfilesView;
+import io.imunity.console.views.authentication.realms.RealmEditView;
+import io.imunity.console.views.authentication.realms.RealmsView;
 import io.imunity.console.views.maintenance.AboutView;
 import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;
 import io.imunity.console.views.maintenance.idp_usage_statistics.IdPUsageStatisticsView;
-import io.imunity.console.views.settings.pki.PKIEditView;
-import io.imunity.console.views.settings.pki.PKIView;
 import io.imunity.console.views.settings.message_templates.MessageTemplateEditView;
 import io.imunity.console.views.settings.message_templates.MessageTemplatesView;
+import io.imunity.console.views.settings.pki.PKIEditView;
+import io.imunity.console.views.settings.pki.PKIView;
 import io.imunity.console.views.settings.policy_documents.PolicyDocumentEditView;
 import io.imunity.console.views.settings.policy_documents.PolicyDocumentsView;
 import io.imunity.vaadin.elements.MenuComponent;
@@ -44,6 +50,32 @@ public class ConsoleMenu extends UnityAppLayout
 						MenuComponent.builder(DirectoryBrowserView.class)
 								.tabName(msg.getMessage("WebConsoleMenu.directoryBrowser"))
 								.icon(VaadinIcon.GROUP)
+								.build(),
+						MenuComponent.builder(
+								MenuComponent.builder(FacilitiesView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.authentication.facilities"))
+										.icon(VaadinIcon.SIGN_IN)
+										.build(),
+								MenuComponent.builder(CredentialsView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.authentication.localCredentials"))
+										.icon(VaadinIcon.LOCK)
+										.build(),
+								MenuComponent.builder(CredentialRequirementsView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.authentication.credentialRequirements"))
+										.icon(VaadinIcon.OPTION_A)
+										.build(),
+								MenuComponent.builder(RealmsView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.authentication.realms"))
+										.icon(VaadinIcon.GRID_BIG)
+										.subViews(RealmEditView.class)
+										.build(),
+								MenuComponent.builder(RemoteDataProfilesView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.authentication.inputTranslation"))
+										.icon(VaadinIcon.DOWNLOAD)
+										.build()
+								)
+								.tabName(msg.getMessage("WebConsoleMenu.authentication"))
+								.icon(VaadinIcon.KEY_O)
 								.build(),
 						MenuComponent.builder(ServicesView.class)
 								.tabName(msg.getMessage("WebConsoleMenu.services"))
