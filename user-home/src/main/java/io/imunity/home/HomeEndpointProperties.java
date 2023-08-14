@@ -59,7 +59,7 @@ public class HomeEndpointProperties extends UnityPropertiesHelper
 	static
 	{
 		META.put(DISABLED_COMPONENTS, new PropertyMD().setList(false).setDescription("List of tags of UI components "
-				+ "which should be disabled. Valid tags: '" + Arrays.asList(Components.values() + "'")));
+				+ "which should be disabled. Valid tags: '" + Arrays.asList(Components.values()) + "'"));
 		META.put(REMOVAL_MODE, new PropertyMD(RemovalModes.remove).
 				setDescription("Relevant ONLY if the " + DISABLE_REMOVAL_SCHEDULE + " is true. "
 				+ "Controls what action should be performed when user "
