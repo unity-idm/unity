@@ -64,7 +64,7 @@ public class X500IdentityEditor implements IdentityEditor
 		if(context.isRequired())
 		{
 			field.setRequiredIndicatorVisible(true);
-			field.getElement().setProperty("title", msg.getMessage("fieldRequired"));
+			field.setTooltipText(msg.getMessage("fieldRequired"));
 		}
 		setLabel(new X500Identity().getHumanFriendlyName(msg));
 		

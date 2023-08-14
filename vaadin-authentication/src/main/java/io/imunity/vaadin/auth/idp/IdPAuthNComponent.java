@@ -29,7 +29,7 @@ public class IdPAuthNComponent extends VerticalLayout
 		providerB.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		if (logo != null)
 			providerB.setIcon(logo);
-		providerB.getElement().setProperty("title", name);
+		providerB.setTooltipText(name);
 		add(providerB);
 		setMargin(false);
 		setPadding(false);

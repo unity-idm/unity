@@ -10,7 +10,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import io.imunity.vaadin.elements.TooltipAttacher;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
 
@@ -50,8 +49,8 @@ public class EmailModel
 			return new Div();
 		Icon iconInstance = icon.create();
 		confirmedAt.ifPresentOrElse(
-				time -> TooltipAttacher.attachTooltip(msg.getMessage("SimpleConfirmationInfo.confirmed", formatter.format(time)), iconInstance, container),
-				() -> TooltipAttacher.attachTooltip(msg.getMessage("SimpleConfirmationInfo.unconfirmed"), iconInstance, container)
+				time -> iconInstance.setTooltipText(msg.getMessage("SimpleConfirmationInfo.confirmed", formatter.format(time))),
+				() -> iconInstance.setTooltipText(msg.getMessage("SimpleConfirmationInfo.unconfirmed"))
 		);
 		return new Div(iconInstance, new Label(" " + value));
 	}

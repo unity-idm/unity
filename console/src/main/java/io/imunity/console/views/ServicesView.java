@@ -123,11 +123,11 @@ public class ServicesView extends ConsoleViewComponent
 		});
 
 		Icon generalSettings = COGS.create();
-		generalSettings.getElement().setProperty("title", msg.getMessage("ServicesView.generalConfig"));
+		generalSettings.setTooltipText(msg.getMessage("ServicesView.generalConfig"));
 		generalSettings.addClickListener(e -> UI.getCurrent().navigate(ServicesEditView.class));
 
 		Icon signIn = SIGN_IN.create();
-		signIn.getElement().setProperty("title", msg.getMessage("ServicesView.authenticationConfig"));
+		signIn.setTooltipText(msg.getMessage("ServicesView.authenticationConfig"));
 		signIn.addClickListener(e -> UI.getCurrent().navigate(ServicesEditView.class));
 
 		return new HorizontalLayout(generalSettings, signIn, actionMenu.getTarget());

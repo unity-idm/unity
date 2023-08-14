@@ -5,6 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.shared.Tooltip;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ public class ComponentsContainer
 	
 	public void setDescription(String description)
 	{
-		components.get(0).getElement().setProperty("title", description);
+		Tooltip.forComponent(components.get(0)).setText(description);
 	}
 	
 	public void setLabel(String label)

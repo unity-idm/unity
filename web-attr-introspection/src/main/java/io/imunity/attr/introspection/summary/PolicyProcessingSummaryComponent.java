@@ -18,7 +18,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import io.imunity.attr.introspection.config.Attribute;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.TooltipAttacher;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -278,7 +277,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 			valueLabel.getStyle().set("overflow-wrap", "anywhere");
 			Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
 			if (description.isPresent())
-				TooltipAttacher.attachTooltip(description.get(), icon, container);
+				icon.setTooltipText(description.get());
 			else
 				icon.setVisible(false);
 			add(valueLabel, icon);

@@ -94,7 +94,7 @@ public class AttributeHandlerHelper
 	public static LayoutWithIcon getRepresentationWithWarning(Component representation, MessageSource msg)
 	{
 		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE_O.create();
-		icon.getElement().setProperty("title", msg.getMessage("SimpleConfirmationInfo.unconfirmed"));
+		icon.setTooltipText(msg.getMessage("SimpleConfirmationInfo.unconfirmed"));
 		return new LayoutWithIcon(representation, icon);
 	}
 

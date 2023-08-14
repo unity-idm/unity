@@ -11,7 +11,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.upman.front.model.Group;
 import io.imunity.vaadin.elements.FormLayoutLabel;
-import io.imunity.vaadin.elements.TooltipAttacher;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import static com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition.ASIDE;
@@ -49,7 +48,7 @@ class SubProjectConfigurationLayout extends FormLayout
 		});
 		enableDelegation.focus();
 
-		TooltipAttacher.attachTooltip(msg.getMessage("SubprojectDialog.enableDelegationDescription"), enableDelegation, tooltipAttachment);
+		enableDelegation.setTooltipText(msg.getMessage("SubprojectDialog.enableDelegationDescription"));
 
 		logoUrl.setEnabled(false);
 		enableSubprojects.setEnabled(false);

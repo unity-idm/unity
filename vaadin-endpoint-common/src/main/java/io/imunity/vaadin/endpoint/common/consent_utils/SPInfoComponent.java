@@ -10,6 +10,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import com.vaadin.flow.component.shared.Tooltip;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
 
@@ -50,7 +51,7 @@ public class SPInfoComponent extends VerticalLayout
 
 		if (logo != null)
 		{
-			getElement().setProperty("title", msg.getMessage("SPInfoComponent.requesterName", name));
+			Tooltip.forComponent(this).setText(msg.getMessage("SPInfoComponent.requesterName", name));
 			add(logo);
 			setAlignItems(Alignment.CENTER);
 

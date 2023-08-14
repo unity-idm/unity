@@ -9,8 +9,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.elements.MultiSelectGrid;
-import io.imunity.vaadin.elements.TooltipAttacher;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.time.ZoneId;
@@ -38,7 +38,7 @@ class UpdateRequestGrid extends MultiSelectGrid<UpdateRequestModel>
 				.setAutoWidth(true)
 				.setSortable(true)
 				.setResizable(true);
-		addComponentColumn(model -> createGroupsLabel(model, container))
+		addComponentColumn(this::createGroupsLabel)
 				.setHeader(msg.getMessage("UpdateRequest.groups"))
 				.setAutoWidth(true)
 				.setSortable(true)
@@ -54,11 +54,11 @@ class UpdateRequestGrid extends MultiSelectGrid<UpdateRequestModel>
 				.setResizable(true);
 	}
 
-	private Label createGroupsLabel(UpdateRequestModel model, HtmlContainer container)
+	private Label createGroupsLabel(UpdateRequestModel model)
 	{
 		String groups = String.join(", ", model.groupsDisplayedNames);
 		Label label = new Label();
-		TooltipAttacher.attachTooltip(groups, label, container);
+		Tooltip.forComponent(label).withText(groups);
 		if(groups.length() > 30)
 			groups = groups.substring(0, 30) + "...";
 		label.setText(groups);

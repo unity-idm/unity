@@ -88,12 +88,12 @@ public class PKIView extends ConsoleViewComponent
 	private Component createRowActionMenu(CertificateEntry entry)
 	{
 		Icon generalSettings = EDIT.create();
-		generalSettings.getElement().setProperty("title", msg.getMessage("edit"));
+		generalSettings.setTooltipText(msg.getMessage("edit"));
 		generalSettings.getStyle().set("cursor", "pointer");
 		generalSettings.addClickListener(e -> UI.getCurrent().navigate(PKIEditView.class, String.valueOf(entry.getName())));
 
 		Icon remove = TRASH.create();
-		remove.getElement().setProperty("title", msg.getMessage("remove"));
+		remove.setTooltipText(msg.getMessage("remove"));
 		remove.getStyle().set("cursor", "pointer");
 		remove.addClickListener(e -> tryRemove(entry));
 

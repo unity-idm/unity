@@ -181,7 +181,7 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		});
 
 		Icon generalSettings = EDIT.create();
-		generalSettings.getElement().setProperty("title", msg.getMessage("edit"));
+		generalSettings.setTooltipText(msg.getMessage("edit"));
 		generalSettings.getStyle().set("cursor", "pointer");
 		generalSettings.addClickListener(e -> UI.getCurrent().navigate(MessageTemplateEditView.class, entry.messageTemplate.getName()));
 

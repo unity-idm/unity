@@ -7,6 +7,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes;
 import com.vaadin.flow.component.Component;
 
 import com.vaadin.flow.component.HasLabel;
+import com.vaadin.flow.component.shared.Tooltip;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -72,7 +73,7 @@ public class AttributeViewer
 					if(description != null)
 					{
 						String descSafe = HtmlConfigurableLabel.conditionallyEscape(description);
-						representation.getElement().setProperty("title", descSafe);
+						Tooltip.forComponent(representation).setText(descSafe);
 					}
 					return representation;
 				}).toList();

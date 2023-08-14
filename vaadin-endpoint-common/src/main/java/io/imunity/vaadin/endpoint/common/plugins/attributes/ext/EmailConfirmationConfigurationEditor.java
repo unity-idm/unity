@@ -41,7 +41,7 @@ class EmailConfirmationConfigurationEditor extends FormLayout
 		CompatibleTemplatesComboBox msgTemplate = new CompatibleTemplatesComboBox(EmailConfirmationTemplateDef.NAME, msgTemplateMan);
 		msgTemplate.setLabel(msg.getMessage(
 				"EmailConfirmationConfiguration.confirmationMsgTemplate"));
-		msgTemplate.getElement().setProperty("title", msg.getMessage(
+		msgTemplate.setTooltipText(msg.getMessage(
 				"EmailConfirmationConfiguration.confirmationMsgTemplateDesc"));
 		msgTemplate.setRequired(false);
 

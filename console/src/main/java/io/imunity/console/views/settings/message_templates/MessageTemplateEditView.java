@@ -426,7 +426,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 			Button button = new Button();
 			button.setText(var.getKey());
 			button.addThemeVariants(ButtonVariant.LUMO_SMALL);
-			button.getElement().setProperty("title", msg.getMessage(var.getValue().getDescriptionKey()));
+			button.setTooltipText(msg.getMessage(var.getValue().getDescriptionKey()));
 			button.addClickListener(event ->
 			{
 				if (focussedField.isSet())

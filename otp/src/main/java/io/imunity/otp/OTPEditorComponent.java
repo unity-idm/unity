@@ -237,7 +237,7 @@ class OTPEditorComponent extends VerticalLayout
 			code.setWidthFull();
 			Button verify = new Button();
 			verify.setIcon(VaadinIcon.CHECK.create());
-			verify.getElement().setProperty("title" ,msg.getMessage("OTPEditorComponent.verifyButton"));
+			verify.setTooltipText(msg.getMessage("OTPEditorComponent.verifyButton"));
 			verify.addClickListener(e -> this.verify());
 			verify.addClassName("u-otp-verification-button");
 			validationLayout = new HorizontalLayout();

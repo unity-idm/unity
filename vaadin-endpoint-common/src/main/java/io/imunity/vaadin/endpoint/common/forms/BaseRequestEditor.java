@@ -830,7 +830,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		{
 			if (groupParam.getDescription() != null)
 			{
-				groupMultiComboBox.getElement().setProperty("title", HtmlConfigurableLabel.conditionallyEscape(groupParam.getDescription()));
+				groupMultiComboBox.setTooltipText(HtmlConfigurableLabel.conditionallyEscape(groupParam.getDescription()));
 			}
 
 			GroupSelection allowedGroupSel = allowedFromInvitation.get(index);

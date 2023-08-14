@@ -9,6 +9,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
@@ -90,8 +91,8 @@ public class CredentialResetCodeVerificationUI extends CredentialResetLayout
 		});
 		wrapper.addClassName("u-credreset-resend");
 		resend.addClassName("u-credreset-resend-button");
-		resend.getElement().setProperty("title", resendDesc);
-		
+		Tooltip.forComponent(resend).setText(resendDesc);
+
 		Label resendPfx = new Label(msg.getMessage("CredentialReset.resendPrefix"));
 		Label resendSuffix = new Label(msg.getMessage("CredentialReset.resendSuffix"));
 		wrapper.add(resendPfx, resend, resendSuffix);

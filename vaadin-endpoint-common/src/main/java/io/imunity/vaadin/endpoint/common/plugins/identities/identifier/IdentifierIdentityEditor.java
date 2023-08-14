@@ -38,7 +38,7 @@ public class IdentifierIdentityEditor implements IdentityEditor
 		if(context.isRequired())
 		{
 			field.setRequiredIndicatorVisible(true);
-			field.getElement().setProperty("title", msg.getMessage("fieldRequired"));
+			field.setTooltipText(msg.getMessage("fieldRequired"));
 		}
 		binder.forField(field, context.isRequired()).bind("value");
 		binder.setBean(new StringBindingValue(""));

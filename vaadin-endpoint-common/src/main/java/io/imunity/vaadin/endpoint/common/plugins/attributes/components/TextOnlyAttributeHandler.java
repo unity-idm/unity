@@ -8,6 +8,7 @@ import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -93,7 +94,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
 				sb.append(hint).append("\n");
-			field.getElement().setProperty("title", sb.toString());
+			Tooltip.forComponent(field).setText(sb.toString());
 			if (label != null)
 				field.setId("ValueEditor."+label);
 			

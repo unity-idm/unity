@@ -181,7 +181,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 				authenticateButton.addClassName("u-x509SignInButton");
 				authenticateButton.setWidthFull();
 				authenticateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-				authenticateButton.getElement().setProperty("title", info);
+				authenticateButton.setTooltipText(info);
 				add(authenticateButton);
 			}
 		}

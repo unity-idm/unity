@@ -123,7 +123,7 @@ public class ExposedAttributesComponent extends VerticalLayout
 		identityField.setReadOnly(true);
 		if (!identityField.getValue().equals(identity.getValue()))
 		{
-			identityField.getElement().setProperty("title", msg.getMessage(
+			identityField.setTooltipText(msg.getMessage(
 					"IdentitySelectorComponent.fullValue", identity.getValue()));
 		}
 		return identityField;

@@ -16,6 +16,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
@@ -102,7 +103,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 	{
 		image.setSrc("");
 		image.setVisible(false);
-		image.getElement().setProperty("title", null);
+		Tooltip.forComponent(image).setText(null);
 	}
 
 	private void setErrorMode()
@@ -138,7 +139,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 			image.setSrc(streamResource);
 			error.setVisible(false);
 			image.setVisible(true);
-			image.getElement().setProperty("title", msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
+			Tooltip.forComponent(image).setText(msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
 		} catch (Exception e)
 		{
 			LOG.warn("Problem getting value's image as resource for editing: " + e, e);

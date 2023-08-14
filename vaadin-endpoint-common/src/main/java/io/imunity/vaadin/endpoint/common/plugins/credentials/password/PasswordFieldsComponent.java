@@ -84,8 +84,8 @@ public class PasswordFieldsComponent extends VerticalLayout implements Focusable
 		
 		if (context.isRequired())
 		{
-			password1.getElement().setProperty("title", msg.getMessage("fieldRequired"));
-			password2.getElement().setProperty("title", msg.getMessage("fieldRequired"));
+			password1.setTooltipText(msg.getMessage("fieldRequired"));
+			password2.setTooltipText(msg.getMessage("fieldRequired"));
 			password2.setRequiredIndicatorVisible(true);
 		}
 		

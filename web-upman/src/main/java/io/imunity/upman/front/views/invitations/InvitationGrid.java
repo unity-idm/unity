@@ -11,9 +11,9 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.elements.BlankPageAnchor;
 import io.imunity.vaadin.elements.MultiSelectGrid;
-import io.imunity.vaadin.elements.TooltipAttacher;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.time.Instant;
@@ -35,7 +35,7 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 				.setAutoWidth(true)
 				.setSortable(true)
 				.setResizable(true);
-		addComponentColumn(model -> createGroupsLabel(model, container))
+		addComponentColumn(this::createGroupsLabel)
 				.setHeader(msg.getMessage("Invitation.groups"))
 				.setFlexGrow(5)
 				.setSortable(true)
@@ -73,11 +73,12 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 		return formatter.format(instant);
 	}
 
-	private Label createGroupsLabel(InvitationModel model, HtmlContainer container)
+	private Label createGroupsLabel(InvitationModel model)
 	{
 		String groups = String.join(", ", model.groupsDisplayedNames);
 		Label label = new Label(groups);
-		TooltipAttacher.attachTooltip(groups, label, container);
+		Tooltip.forComponent(label)
+				.withText(groups);
 		return label;
 	}
 }

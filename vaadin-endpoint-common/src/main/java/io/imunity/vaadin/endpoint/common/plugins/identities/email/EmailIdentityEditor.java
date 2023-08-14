@@ -123,7 +123,7 @@ public class EmailIdentityEditor implements IdentityEditor
 		if(context.isRequired())
 		{
 			editor.setRequiredIndicatorVisible(true);
-			editor.getElement().setProperty("title", msg.getMessage("fieldRequired"));
+			editor.setTooltipText(msg.getMessage("fieldRequired"));
 		}
 
 		binder.forField(editor, context.isRequired())

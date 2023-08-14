@@ -23,7 +23,7 @@ public class IdPAuthNGridComponent extends VerticalLayout
 		providerB = new Button();
 		providerB.addClassName("u-idpAuthentication-" + id);
 		providerB.setText(name);
-		providerB.getElement().setProperty("title", name);
+		providerB.setTooltipText(name);
 		providerB.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		providerB.setWidthFull();
 		add(providerB);

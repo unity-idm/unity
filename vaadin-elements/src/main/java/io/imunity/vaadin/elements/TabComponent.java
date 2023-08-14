@@ -6,6 +6,7 @@ package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.router.RouterLink;
 
@@ -41,7 +42,7 @@ public class TabComponent extends Tab implements TabTextHider
 	{
 		routerLink.setText("");
 		routerLink.addComponentAsFirst(icon);
-		getElement().setProperty("title", name);
+		setTooltipText(name).setPosition(Tooltip.TooltipPosition.END);
 	}
 
 	@Override
@@ -49,6 +50,6 @@ public class TabComponent extends Tab implements TabTextHider
 	{
 		routerLink.setText(name);
 		routerLink.addComponentAsFirst(icon);
-		getElement().removeProperty("title");
+		setTooltipText(null);
 	}
 }

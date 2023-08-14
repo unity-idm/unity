@@ -9,6 +9,7 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -131,7 +132,7 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 		Label content = new Label(identityPresenter.getIdentityVisualValue(identity));
 		if (!content.getText().equals(identity.getValue()))
 		{
-			content.getElement().setProperty("title", msg.getMessage(
+			Tooltip.forComponent(content).setText(msg.getMessage(
 					"IdentitySelectorComponent.fullValue", identity.getValue()));
 		}
 		VerticalLayout verticalLayout = new VerticalLayout(title, content);

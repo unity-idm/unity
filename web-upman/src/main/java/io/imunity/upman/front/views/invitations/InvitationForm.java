@@ -15,7 +15,6 @@ import com.vaadin.flow.data.binder.Binder;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin.elements.FormLayoutLabel;
-import io.imunity.vaadin.elements.TooltipAttacher;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
 
@@ -51,7 +50,7 @@ class InvitationForm extends FormLayout
 		emailsTextArea.setPlaceholder(msg.getMessage("NewInvitationDialog.emailsPrompt"));
 		emailsTextArea.setWidth("24em");
 		emailsTextArea.focus();
-		TooltipAttacher.attachTooltip(msg.getMessage("NewInvitationDialog.emailsDesc"), emailsTextArea, container);
+		emailsTextArea.setTooltipText(msg.getMessage("NewInvitationDialog.emailsDesc"));
 
 		allowModifyGroupsCheckbox = new Checkbox(msg.getMessage("NewInvitationDialog.allowModifyGroups"));
 		allowModifyGroupsCheckbox.setEnabled(false);
@@ -68,7 +67,7 @@ class InvitationForm extends FormLayout
 			} else
 				allowModifyGroupsCheckbox.setEnabled(true);
 		});
-		TooltipAttacher.attachTooltip(msg.getMessage("NewInvitationDialog.groupsDesc"), groupsComboBox, container);
+		groupsComboBox.setTooltipText(msg.getMessage("NewInvitationDialog.groupsDesc"));
 
 		expirationDateTimePicker = new DateTimePicker();
 		expirationDateTimePicker.setLocale(EUROPEAN_FORMAT_LOCALE);

@@ -87,7 +87,7 @@ public class CaptchaComponent
 		answer.setWidthFull();
 		resetChallenge = new Button();
 		resetChallenge.addClassName("u-captcha-reset");
-		resetChallenge.getElement().setProperty("title", msg.getMessage("CaptchaComponent.resetDesc"));
+		resetChallenge.setTooltipText(msg.getMessage("CaptchaComponent.resetDesc"));
 		resetChallenge.setIcon(VaadinIcon.REFRESH.create());
 		resetChallenge.getStyle().set("background-color", "transparent");
 		resetChallenge.addClickListener(event -> reset());

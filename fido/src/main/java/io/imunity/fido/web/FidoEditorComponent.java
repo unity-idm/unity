@@ -76,7 +76,7 @@ class FidoEditorComponent extends VerticalLayout
 		credentialsLayout.setClassName("u-fido-layout");
 
 		addButton = new Button();
-		addButton.getElement().setProperty("title", msg.getMessage("Fido.newRegistration"));
+		addButton.setTooltipText(msg.getMessage("Fido.newRegistration"));
 		addButton.setText(msg.getMessage("Fido.register"));
 		addButton.setWidthFull();
 		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue(), loginLessAllowed.getValue()));
@@ -93,7 +93,7 @@ class FidoEditorComponent extends VerticalLayout
 		});
 
 		loginLessAllowed = new Checkbox(msg.getMessage("Fido.credEditor.loginLess"));
-		loginLessAllowed.getElement().setProperty("title", msg.getMessage("Fido.credEditor.loginLess.tip"));
+		loginLessAllowed.setTooltipText(msg.getMessage("Fido.credEditor.loginLess.tip"));
 		loginLessAllowed.setValue(loginLessSupported);
 
 		VerticalLayout buttons = new VerticalLayout(addButton, advancedOptionsButton);

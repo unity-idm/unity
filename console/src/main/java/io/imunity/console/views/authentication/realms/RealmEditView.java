@@ -177,7 +177,7 @@ public class RealmEditView extends ConsoleViewComponent
 	private Component getTooltipIcon(String code)
 	{
 		Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
-		icon.getElement().setProperty("title", msg.getMessage(code));
+		icon.setTooltipText(msg.getMessage(code));
 		icon.getStyle().set("align-self", "center");
 		icon.getStyle().set("margin-left", "var(--small-margin)");
 		return icon;

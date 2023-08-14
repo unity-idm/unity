@@ -32,10 +32,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.vaadin.componentfactory</groupId>
-            <artifactId>tooltip</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.vaadin.barcodes</groupId>
             <artifactId>barcode-bwipjs</artifactId>
         </dependency>

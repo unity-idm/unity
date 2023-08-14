@@ -47,7 +47,7 @@ public class ListOfEmbeddedElementsStub<T>
 		
 		Button lonelyAdd = new Button();
 		lonelyAdd.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
-		lonelyAdd.getElement().setProperty("title" ,msg.getMessage("add"));
+		lonelyAdd.setTooltipText(msg.getMessage("add"));
 		lonelyAdd.addClickListener(event -> addEntry(null, null));
 		
 		lonelyBar = new HorizontalLayout(lonelyAdd);
@@ -201,11 +201,11 @@ public class ListOfEmbeddedElementsStub<T>
 			
 			add = VaadinIcon.PLUS_CIRCLE_O.create();
 			add.setClassName("small-icon");
-			add.getElement().setProperty("title", msg.getMessage("add"));
+			add.setTooltipText(msg.getMessage("add"));
 			add.addClickListener(event -> addEntry(null, Entry.this));
 			remove = VaadinIcon.TRASH.create();
 			remove.setClassName("small-icon");
-			remove.getElement().setProperty("title", msg.getMessage("remove"));
+			remove.setTooltipText(msg.getMessage("remove"));
 			remove.addClickListener(event -> remove(Entry.this));
 			
 			addRemoveBar = new HorizontalLayout();

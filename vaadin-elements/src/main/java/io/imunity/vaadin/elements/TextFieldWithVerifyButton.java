@@ -42,7 +42,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		this.showLabelInline = showLabelInline;
 		this.verifyButtonIcon = new Div(verifyButtonIcon);
 		this.label = new InputLabel("");
-		verifyButtonIcon.getElement().setProperty("title", verifyButtonDesc);
+		verifyButtonIcon.setTooltipText(verifyButtonDesc);
 		verifyButtonIcon.getStyle().set("cursor", "pointer");
 		editor = new TextField();
 		editor.setWidthFull();
@@ -162,8 +162,9 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		confirmationStatusIcon.removeAll();
 		confirmationStatusIcon.setVisible(true);
-		confirmationStatusIcon.add(confirmed ? VaadinIcon.CHECK_CIRCLE_O.create() : VaadinIcon.EXCLAMATION_CIRCLE_O.create());
-		confirmationStatusIcon.getElement().setProperty("title", value);
+		Icon icon = confirmed ? VaadinIcon.CHECK_CIRCLE_O.create() : VaadinIcon.EXCLAMATION_CIRCLE_O.create();
+		confirmationStatusIcon.add(icon);
+		icon.setTooltipText(value);
 	}
 
 	public void setConfirmationStatusIconVisiable(boolean visible)

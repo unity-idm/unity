@@ -162,7 +162,7 @@ class EnumAttributeHandler implements WebAttributeHandler
 			hl.add(value);
 			Button add = new Button();
 			add.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
-			add.getElement().setProperty("title", msg.getMessage("StringAttributeHandler.add"));
+			add.setTooltipText(msg.getMessage("StringAttributeHandler.add"));
 			add.addClickListener(event ->  {
 					String v = value.getValue(); 
 					if (!v.equals(""))

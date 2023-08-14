@@ -43,7 +43,7 @@ public class UsernameIdentityEditor implements IdentityEditor
 		if(context.isRequired())
 		{
 			field.setRequiredIndicatorVisible(true);
-			field.getElement().setProperty("title", msg.getMessage("fieldRequired"));
+			field.setTooltipText(msg.getMessage("fieldRequired"));
 		}
 		binder = new SingleStringFieldBinder(msg);
 		binder.forField(field, context.isRequired()).bind("value");

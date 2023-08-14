@@ -8,6 +8,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
@@ -61,7 +62,7 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		label.addComponentAsFirst(menuComponent.icon.create());
 		components.forEach(TabComponent::hiddeText);
 		addClassName("multi-tab-details-mini");
-		getElement().setProperty("title", menuComponent.tabName);
+		setTooltipText(menuComponent.tabName).setPosition(Tooltip.TooltipPosition.END);
 	}
 
 	@Override
@@ -71,6 +72,6 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		label.addComponentAsFirst(menuComponent.icon.create());
 		components.forEach(TabComponent::showText);
 		removeClassName("multi-tab-mini");
-		getElement().removeProperty("title");
+		setTooltipText(null);
 	}
 }
