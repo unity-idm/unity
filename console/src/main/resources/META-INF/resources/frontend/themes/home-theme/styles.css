@@ -74,12 +74,6 @@ vaadin-button[theme="primary"]:hover {
     background-color: #3199AC;
 }
 
-vaadin-tab > vaadin-tooltip >  {
-    background-color: var(--lumo-contrast-5pct);
-    font-size: 1em;
-    color: white;
-}
-
 vaadin-tab {
     font-size: var(--lumo-font-size-l);
     height: var(--lumo-size-l);
