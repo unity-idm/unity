@@ -96,8 +96,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 		{
 			leftArrow.setVisible(false);
 			rightArrow.setVisible(true);
-			rightArrow.getStyle().set("margin-right", "-1.7em");
-			leftContainerContent.getStyle().set("width", "4.3em");
+			leftContainerContent.getStyle().set("width", "4em");
 			image.getStyle().set("max-width", "2.5em");
 			verticalLayout.setAlignItems(Alignment.CENTER);
 			appLayoutComponents.hiddeTextInTabs();

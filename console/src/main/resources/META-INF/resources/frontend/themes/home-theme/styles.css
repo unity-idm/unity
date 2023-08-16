@@ -134,10 +134,6 @@ vaadin-tab > a > vaadin-icon {
     height: var(--icon-size);
 }
 
-.minimization-container {
-    padding-right: 0;
-}
-
 .minimization-container > vaadin-icon {
     color: white;
     min-width: var(--icon-size);

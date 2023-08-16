@@ -61,7 +61,7 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		label.setText("");
 		label.addComponentAsFirst(menuComponent.icon.create());
 		components.forEach(TabComponent::hiddeText);
-		addClassName("multi-tab-details-mini");
+		details.addClassName("multi-tab-details-mini");
 		setTooltipText(menuComponent.tabName)
 				.setPosition(Tooltip.TooltipPosition.END);
 	}
@@ -72,7 +72,7 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		label.setText(menuComponent.tabName);
 		label.addComponentAsFirst(menuComponent.icon.create());
 		components.forEach(TabComponent::showText);
-		removeClassName("multi-tab-mini");
+		details.removeClassName("multi-tab-details-mini");
 		setTooltipText(null);
 	}
 }
