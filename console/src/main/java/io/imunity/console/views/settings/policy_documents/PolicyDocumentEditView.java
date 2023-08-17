@@ -62,7 +62,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String policyDocumentId) {
 		getContent().removeAll();
-
+		contentItem = null;
 		PolicyDocumentEntry policyDocumentEntry;
 		if(policyDocumentId == null)
 		{
@@ -131,7 +131,8 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 					else
 						return ValidationResult.ok();
 				}).bind(PolicyDocumentEntry::getName, PolicyDocumentEntry::setName);
-		binder.forField(displayedName).bind(PolicyDocumentEntry::getDisplayedName, PolicyDocumentEntry::setDisplayedName);
+		binder.forField(displayedName)
+				.bind(PolicyDocumentEntry::getDisplayedName, PolicyDocumentEntry::setDisplayedName);
 		binder.forField(optional).bind(PolicyDocumentEntry::isMandatory, PolicyDocumentEntry::setMandatory);
 		binder.forField(type).bind(PolicyDocumentEntry::getContentType, PolicyDocumentEntry::setContentType);
 	}
@@ -191,7 +192,6 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 			content = new LocaleReachEditorDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.text"));
 			contentBind = binder.forField(content)
-					.withValidator((val, context) -> ValidationResult.ok())
 					.bind(PolicyDocumentEntry::getContent, PolicyDocumentEntry::setContent);
 		} else
 		{
@@ -214,7 +214,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 
 			}).bind(PolicyDocumentEntry::getContent, PolicyDocumentEntry::setContent);
 		}
-		contentItem.getStyle().set("align-items", "center");
+		contentItem.getStyle().set("align-items", "flex-start");
 		content.setValue(Map.of());
 	}
 }

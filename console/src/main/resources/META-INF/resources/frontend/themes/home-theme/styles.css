@@ -59,8 +59,18 @@ html {
 
   --medium-dialog-width: 45em;
   --big-dialog-width: 65em;
-  --wysiwyg-toolbar-background: #E4E8ED;
 }
+
+.ck.ck-editor__main>.ck-editor__editable {
+    --ck-color-base-border: transparent;
+    --ck-color-base-background: #E7EBEF;
+    --ck-border-radius 0.4em;
+}
+
+.invalid>.ck-editor>.ck-editor__main>.ck-editor__editable {
+    background-color: #FDE8E7 !important;
+}
+
 
 h1, h2, h3, h4, h5, h6, b, strong {
     font-weight: var(--unity-font-weight);

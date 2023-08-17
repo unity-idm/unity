@@ -36,8 +36,8 @@
             <artifactId>barcode-bwipjs</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.vaadin.pekka</groupId>
-            <artifactId>wysiwyg_e-java</artifactId>
+            <groupId>com.wontlost</groupId>
+            <artifactId>ckeditor-vaadin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

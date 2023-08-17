@@ -32,7 +32,9 @@ public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 		content.setSpacing(false);
 
 		Icon angleDown = crateIcon(VaadinIcon.ANGLE_DOWN);
+		angleDown.getStyle().set("margin-left", "2em");
 		Icon angleUp = crateIcon(VaadinIcon.ANGLE_UP);
+		angleUp.getStyle().set("margin-left", "2em");
 
 		angleUp.setVisible(false);
 		angleDown.addClickListener(event ->
@@ -50,10 +52,11 @@ public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 
 		LocaleReachEditor defaultField = new LocaleReachEditor(currentLocale);
 		defaultField.setValue(valueGenerator.apply(currentLocale));
+		defaultField.addValueChangeListener(e -> setInvalid(false));
 		fields.put(currentLocale, defaultField);
 
 		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
-		summary.setAlignItems(FlexComponent.Alignment.CENTER);
+		summary.setAlignItems(FlexComponent.Alignment.BASELINE);
 		summary.setWidthFull();
 		summary.getStyle().set("gap", "0.3em");
 
@@ -61,10 +64,10 @@ public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 				.filter(locale -> !currentLocale.equals(locale))
 				.forEach(locale ->
 				{
-					LocaleReachEditor wysiwygE = new LocaleReachEditor(locale);
-					wysiwygE.setValue(valueGenerator.apply(locale));
-					content.add(wysiwygE);
-					fields.put(locale, wysiwygE);
+					LocaleReachEditor editor = new LocaleReachEditor(locale);
+					editor.setValue(valueGenerator.apply(locale));
+					content.add(editor);
+					fields.put(locale, editor);
 				});
 
 		add(summary, content);
@@ -114,5 +117,26 @@ public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 	protected void setPresentationValue(Map<Locale, String> newPresentationValue)
 	{
 		setValue(newPresentationValue);
+	}
+
+	@Override
+	public void setErrorMessage(String errorMessage)
+	{
+		fields.values().iterator().next().setErrorMessage(errorMessage);
+	}
+
+	@Override
+	public String getErrorMessage()
+	{
+		return fields.values().iterator().next().getErrorMessage();
+	}
+
+	@Override
+	public void setInvalid(boolean invalid)
+	{
+		super.setInvalid(invalid);
+		fields.values().forEach(field -> field.setInvalid(invalid));
+		getElement().getParent().getClassList().set("invalid", invalid);
+		getElement().getParent().getClassList().set("valid", !invalid);
 	}
 }

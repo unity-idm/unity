@@ -100,7 +100,10 @@ class PolicyDocumentsController
 	private I18nString convert(Map<Locale, String> localizedValues)
 	{
 		I18nString i18nString = new I18nString();
-		i18nString.addAllValues(localizedValues.entrySet().stream().collect(Collectors.toMap(x -> x.getKey().toString(), Map.Entry::getValue)));
+		Map<String, String> map = localizedValues.entrySet().stream()
+				.filter(entry -> !entry.getValue().isBlank())
+				.collect(Collectors.toMap(entry -> entry.getKey().toString(), Map.Entry::getValue));
+		i18nString.addAllValues(map);
 		return i18nString;
 	}
 }
