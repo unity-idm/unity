@@ -17,7 +17,7 @@ public class LocaleTextArea extends TextArea
 	public LocaleTextArea(Locale locale)
 	{
 		this.locale = locale;
-		addToSuffix();
+		setMaxHeight("20em");
 		setValueChangeMode(ValueChangeMode.EAGER);
 		setSuffixComponent(new FlagIcon(locale.getLanguage()));
 	}

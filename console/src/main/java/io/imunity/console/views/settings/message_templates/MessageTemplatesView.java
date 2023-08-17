@@ -65,7 +65,9 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		MainMenu globalHamburgerHandlers = createMainMenu();
 		initGrid(globalHamburgerHandlers);
 		Scroller bottomPanel = createScrollablePanel();
-		getContent().add(new VerticalLayout(createHeaderLayout(globalHamburgerHandlers.menu), messageTemplateGrid, bottomPanel));
+		VerticalLayout layout = new VerticalLayout(createHeaderLayout(globalHamburgerHandlers.menu), messageTemplateGrid, bottomPanel);
+		layout.setSpacing(false);
+		getContent().add(layout);
 		refresh();
 	}
 
@@ -82,7 +84,9 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		messageTemplateGrid = new Grid<>();
 		messageTemplateGrid.setSelectionMode(Grid.SelectionMode.MULTI);
 		messageTemplateGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-		messageTemplateGrid.setHeight("15em");
+		messageTemplateGrid.setHeight("20em");
+		messageTemplateGrid.getStyle().set("resize", "vertical");
+		messageTemplateGrid.getStyle().set("overflow", "auto");
 		Grid.Column<MessageTemplateEntry> nameColumn = messageTemplateGrid
 				.addComponentColumn(m -> new RouterLink(m.messageTemplate.getName(), MessageTemplateEditView.class, m.messageTemplate.getName()))
 				.setHeader(msg.getMessage("MessageTemplatesView.nameCaption"))
@@ -105,7 +109,7 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		messageTemplateGrid.addComponentColumn(this::createRowActionMenu)
 				.setHeader(msg.getMessage("actions"))
 				.setTextAlign(ColumnTextAlign.END);
-		messageTemplateGrid.sort(GridSortOrder.desc(nameColumn).build());
+		messageTemplateGrid.sort(GridSortOrder.asc(nameColumn).build());
 
 		selectedMessageTemplateDetails = new FormLayout();
 		selectedMessageTemplateDetails.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
@@ -125,6 +129,7 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		headerLayout.setPadding(false);
 		Button addButton = new Button(msg.getMessage("addNew"), e -> UI.getCurrent().navigate(MessageTemplateEditView.class));
 		addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		addButton.setIcon(PLUS_CIRCLE_O.create());
 		search.setValueChangeMode(ValueChangeMode.EAGER);
 		search.setPlaceholder(msg.getMessage("search"));
 		headerLayout.setAlignItems(FlexComponent.Alignment.END);
@@ -133,6 +138,7 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		lowerHeaderLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 		lowerHeaderLayout.setAlignItems(FlexComponent.Alignment.END);
 		headerLayout.add(addButton, lowerHeaderLayout);
+		headerLayout.setSpacing(false);
 		return headerLayout;
 	}
 
@@ -179,6 +185,9 @@ public class MessageTemplatesView extends ConsoleViewComponent
 			tryRemove(Set.of(entry));
 			refresh();
 		});
+
+		MenuButton resetButton = new MenuButton(msg.getMessage("MessageTemplatesView.resetToDefault"), RETWEET);
+		actionMenu.addItem(resetButton, e -> resetFromConfig(Set.of(entry)));
 
 		Icon generalSettings = EDIT.create();
 		generalSettings.setTooltipText(msg.getMessage("edit"));
