@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat;
 public class PKIEditView extends ConsoleViewComponent
 {
 	public static final int MAX_FILE_SIZE = 50000000;
+	public static final String MONOSPACE_FONT = "Consolas";
 	private final CertificatesController controller;
 	private final NotificationPresenter notificationPresenter;
 	private final MessageSource msg;
@@ -100,7 +101,8 @@ public class PKIEditView extends ConsoleViewComponent
 		upload.setUploadButton(new Button(msg.getMessage("CertificateEditor.uploadButtonCaption")));
 
 		value = new TextArea();
-		value.setWidth("var(--vaadin-text-field-big)");
+		value.setWidthFull();
+		value.getStyle().set("font-family", MONOSPACE_FONT);
 		value.setHeight("var(--vaadin-text-field-medium)");
 		value.addValueChangeListener(e -> refreshDetails());
 
@@ -121,7 +123,9 @@ public class PKIEditView extends ConsoleViewComponent
 		editorLayout.addFormItem(value, msg.getMessage("Certificate.value"));
 
 		certDetails = new FormLayout();
+		certDetails.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		Details details = new Details(new Label(msg.getMessage("CertificateEditor.certficateDetails")), certDetails);
+		details.setOpened(true);
 		editorLayout.add(details);
 		binder.setBean(certificateEntry);
 
@@ -132,7 +136,7 @@ public class PKIEditView extends ConsoleViewComponent
 	{
 		Button cancelButton = new Button(msg.getMessage("cancel"));
 		cancelButton.addClickListener(event -> UI.getCurrent().navigate(PKIView.class));
-		Button updateButton = new Button(msg.getMessage("update"));
+		Button updateButton = new Button(edit ? msg.getMessage("update") : msg.getMessage("create"));
 		updateButton.addClickListener(event -> onConfirm());
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		return new HorizontalLayout(cancelButton, updateButton);
@@ -165,12 +169,19 @@ public class PKIEditView extends ConsoleViewComponent
 			return;
 		}
 
-		certDetails.addFormItem(new Label(cert.getSubjectDN().toString()), msg.getMessage("Certificate.subject"));
-		certDetails.addFormItem(new Label(cert.getIssuerDN().toString()), msg.getMessage("Certificate.issuer"));
-		certDetails.addFormItem(new Label(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(cert.getNotBefore())), msg.getMessage("Certificate.validFrom"));
-		certDetails.addFormItem(new Label(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(cert.getNotAfter())), msg.getMessage("Certificate.validTo"));
-		certDetails.addFormItem(new Label(cert.getSigAlgName()), msg.getMessage("Certificate.signatureAlgorithm"));
-		certDetails.addFormItem(new Label(cert.getPublicKey().getAlgorithm()), msg.getMessage("Certificate.publicKey"));
+		certDetails.addFormItem(getMonospaceLabel(cert.getSubjectDN().toString()), msg.getMessage("Certificate.subject"));
+		certDetails.addFormItem(getMonospaceLabel(cert.getIssuerDN().toString()), msg.getMessage("Certificate.issuer"));
+		certDetails.addFormItem(getMonospaceLabel(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(cert.getNotBefore())), msg.getMessage("Certificate.validFrom"));
+		certDetails.addFormItem(getMonospaceLabel(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(cert.getNotAfter())), msg.getMessage("Certificate.validTo"));
+		certDetails.addFormItem(getMonospaceLabel(cert.getSigAlgName()), msg.getMessage("Certificate.signatureAlgorithm"));
+		certDetails.addFormItem(getMonospaceLabel(cert.getPublicKey().getAlgorithm()), msg.getMessage("Certificate.publicKey"));
+	}
+
+	private static Label getMonospaceLabel(String value)
+	{
+		Label label = new Label(value);
+		label.getStyle().set("font-family", MONOSPACE_FONT);
+		return label;
 	}
 
 	private boolean validateCert(String s)

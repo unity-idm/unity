@@ -17,6 +17,7 @@ import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -80,6 +81,7 @@ public class PKIView extends ConsoleViewComponent
 		headerLayout.setPadding(false);
 		Button addButton = new Button(msg.getMessage("addNew"), e -> UI.getCurrent().navigate(PKIEditView.class));
 		addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		addButton.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
 		headerLayout.setAlignItems(FlexComponent.Alignment.END);
 		headerLayout.add(addButton);
 		return headerLayout;
