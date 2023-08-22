@@ -15,6 +15,7 @@ import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -79,7 +80,7 @@ public abstract class AbstractRegistrationFormDialogProvider implements Registra
 			AsyncErrorHandler errorHandler)
 	{
 		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();
-		editorCreator.init(form, false, remoteContext, registrationCode, null);
+		editorCreator.init(form, false, remoteContext, registrationCode, null, Map.of());
 		EditorCreatedCallbackImpl callback = new EditorCreatedCallbackImpl(
 				errorHandler, (editor) -> createDialog(form, editor, mode));
 		editorCreator.createSecondStage(callback, true);

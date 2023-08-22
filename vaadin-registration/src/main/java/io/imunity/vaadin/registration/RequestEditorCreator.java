@@ -7,6 +7,7 @@ package io.imunity.vaadin.registration;
 import com.vaadin.server.Page;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolverFactory;
+import io.imunity.vaadin.endpoint.common.forms.URLQueryPrefillCreator;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
@@ -14,7 +15,6 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegi
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
@@ -30,8 +30,9 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.forms.InvitationResolver;
 import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
-import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -61,6 +62,7 @@ class RequestEditorCreator
 	private String registrationCode;
 	private boolean enableRemoteSignup;
 	private AuthenticationOptionKey authenticationOptionKey;
+	private Map<String, List<String>> parameters;
 
 	RequestEditorCreator(MessageSource msg,
 	                            IdentityEditorRegistry identityEditorRegistry,
@@ -100,20 +102,22 @@ class RequestEditorCreator
 
 	public RequestEditorCreator init(RegistrationForm form, boolean enableRemoteSignup,
 	                                 RemotelyAuthenticatedPrincipal context, String presetRegistrationCode,
-	                                 AuthenticationOptionKey authenticationOptionKey)
+	                                 AuthenticationOptionKey authenticationOptionKey,
+									 Map<String, List<String>> parameters)
 	{
 		this.form = form;
 		this.enableRemoteSignup = enableRemoteSignup;
 		this.remotelyAuthenticated = context;
 		this.registrationCode = presetRegistrationCode;
 		this.authenticationOptionKey = authenticationOptionKey;
+		this.parameters = parameters;
 		return this;
 	}
 
 	public RequestEditorCreator init(RegistrationForm form, RemotelyAuthenticatedPrincipal context,
 	                                 AuthenticationOptionKey authenticationOptionKey)
 	{
-		return init(form, false, context, null, authenticationOptionKey);
+		return init(form, false, context, null, authenticationOptionKey, parameters);
 	}
 
 	public void createFirstStage(RequestEditorCreatedCallback callback, InvitationCodeConsumer onLocalSignupHandler)
@@ -243,7 +247,7 @@ class RequestEditorCreator
 				urlQueryPrefillCreator, policyAgreementsRepresentationBuilder,
 				toEnquirySwitchLabelProvider,
 				enableRemoteSignup,
-				authenticationOptionKey, logoImageLoader, remoteRegistrationSignupResolverFactory);
+				authenticationOptionKey, logoImageLoader, remoteRegistrationSignupResolverFactory, parameters);
 	}
 
 	private Optional<ResolvedInvitationParam> getInvitationByCode(String registrationCode) throws RegCodeException

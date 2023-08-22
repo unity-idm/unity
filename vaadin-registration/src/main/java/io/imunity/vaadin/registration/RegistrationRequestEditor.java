@@ -21,6 +21,7 @@ import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupHandler;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolverFactory;
 import io.imunity.vaadin.endpoint.common.forms.BaseRequestEditor;
 import io.imunity.vaadin.endpoint.common.forms.RegistrationLayoutsContainer;
+import io.imunity.vaadin.endpoint.common.forms.URLQueryPrefillCreator;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
@@ -51,7 +52,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
-import pl.edu.icm.unity.webui.forms.URLQueryPrefillCreator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +80,7 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 	private final RemoteRegistrationSignupResolverFactory remoteRegistrationSignupResolverFactory;
 	private final AuthenticatorSupportService authnSupport;
 	private RemoteRegistrationSignupHandler remoteRegistrationSignupHandler;
+	private Map<String, List<String>> parameters;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -101,7 +102,8 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 	                                 boolean enableRemoteRegistration,
 	                                 AuthenticationOptionKey authnOptionKey,
 	                                 VaadinLogoImageLoader logoImageLoader,
-	                                 RemoteRegistrationSignupResolverFactory remoteRegistrationSignupResolverFactory)
+	                                 RemoteRegistrationSignupResolverFactory remoteRegistrationSignupResolverFactory,
+									 Map<String, List<String>> parameters)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, notificationPresenter,
@@ -115,6 +117,7 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 		this.authnOptionKey = authnOptionKey;
 		this.authnSupport = authnSupport;
 		this.remoteRegistrationSignupResolverFactory = remoteRegistrationSignupResolverFactory;
+		this.parameters = parameters;
 	}
 	
 	public void showFirstStage(RequestEditorCreator.InvitationCodeConsumer onLocalSignupHandler) throws AuthenticationException
@@ -219,7 +222,7 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 					formPrefill.getAttributes(),
 					formPrefill.getAllowedGroups());
 		}
-		prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
+		prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form, parameters));
 		createControls(layoutContainer, effectiveLayout, prefilled);
 	}
 

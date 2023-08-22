@@ -15,6 +15,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 
+import org.vaadin.firitin.util.WebStorage;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -181,28 +182,29 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 
 	private void startFreshLogin(WrappedSession session)
 	{
-		UI.getCurrent().getPage().fetchCurrentURL(currentRelativeURI ->
-		{
-			try
-			{
-				LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
-				OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
-						authenticationStepContext, loginMachineDetails,
-						currentRelativeURI.getPath(), callback.getTriggeringContext());
-				idpComponent.setEnabled(false);
-				callback.onStartedAuthentication();
-				String path = currentRelativeURI.getPath() + (currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "");
-				context.setReturnUrl(path);
-				session.setAttribute(RedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
-			} catch (Exception e)
-			{
-				notificationPresenter.showError(msg.getMessage("OAuth2Retrieval.configurationError"), e.getMessage());
-				log.error("Can not create OAuth2 request", e);
-				clear();
-				return;
-			}
-			UI.getCurrent().getPage().open(currentRelativeURI.getPath() + "?" + redirectParam, SELF_WINDOW_NAME);
-	});
+		WebStorage.getItem(WebStorage.Storage.sessionStorage, "redirect-url", ultimateReturnURL ->
+			UI.getCurrent().getPage().fetchCurrentURL(currentRelativeURI ->
+				{
+					try
+					{
+						LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
+						OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
+								authenticationStepContext, loginMachineDetails,
+								ultimateReturnURL, callback.getTriggeringContext());
+						idpComponent.setEnabled(false);
+						callback.onStartedAuthentication();
+						String path = currentRelativeURI.getPath() + (currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "");
+						context.setReturnUrl(path);
+						session.setAttribute(RedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
+					} catch (Exception e)
+					{
+						notificationPresenter.showError(msg.getMessage("OAuth2Retrieval.configurationError"), e.getMessage());
+						log.error("Can not create OAuth2 request", e);
+						clear();
+						return;
+					}
+					UI.getCurrent().getPage().open(currentRelativeURI.getPath() + "?" + redirectParam, SELF_WINDOW_NAME);
+				}));
 	}
 
 	@Override

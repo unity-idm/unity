@@ -53,6 +53,7 @@ import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
@@ -79,7 +80,8 @@ class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTit
 	private Runnable customCancelHandler;
 	private Runnable completedRegistrationHandler;
 	private Runnable gotoSignInRedirector;
-	
+	private Map<String, List<String>> parameters;
+
 	@Autowired
 	StandaloneRegistrationView(MessageSource msg,
 	                                  @Qualifier("insecure") RegistrationsManagement regMan,
@@ -130,6 +132,7 @@ class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTit
 		form = event.getRouteParameters().get(FORM_PARAM)
 				.map(this::getForm)
 				.orElse(null);
+		parameters = event.getLocation().getQueryParameters().getParameters();
 		if(form == null)
 		{
 			notificationPresenter.showError(msg.getMessage("RegistrationErrorName.title"), msg.getMessage("RegistrationErrorName.description"));
@@ -200,7 +203,7 @@ class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTit
 	{
 		main.removeAll();
 		
-		editorCreator.init(form, true, context, registrationCode, null);
+		editorCreator.init(form, true, context, registrationCode, null, parameters);
 		editorCreator.createFirstStage(new EditorCreatedCallback(mode), this::onLocalSignupClickHandler);
 	}
 
@@ -209,7 +212,7 @@ class StandaloneRegistrationView extends Composite<Div> implements HasDynamicTit
 	{
 		main.removeAll();
 
-		editorCreator.init(form, true, context, presetRegistrationCode, authnOptionKey);
+		editorCreator.init(form, true, context, presetRegistrationCode, authnOptionKey, parameters);
 		editorCreator.createSecondStage(new EditorCreatedCallback(mode), withCredentials);
 	}
 	

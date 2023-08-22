@@ -2,11 +2,10 @@
  * Copyright (c) 2020 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.forms;
+package io.imunity.vaadin.endpoint.common.forms;
 
 import com.google.common.collect.Lists;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
@@ -19,43 +18,33 @@ import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
+import pl.edu.icm.unity.webui.forms.PrefilledSet;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
-/**
- * Creates {@link PrefilledSet} basing on form configuration and URL query parameters
- */
-@Component("URLQueryPrefillCreatorV8")
+import static java.util.Collections.emptyList;
+
+@Component
 public class URLQueryPrefillCreator
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, URLQueryPrefillCreator.class);
 	private final ExternalDataParser externalDataParser;
-	private final Function<String, String> urlParamAccessor;
 
-	@Autowired
 	URLQueryPrefillCreator(ExternalDataParser externalDataParser)
 	{
-		this(externalDataParser, param -> RegistrationFormDialogProvider.getParamOrNullFromURL(param));
-	}
-
-	URLQueryPrefillCreator(ExternalDataParser externalDataParser, Function<String, String> urlParamAccessor)
-	{
 		this.externalDataParser = externalDataParser;
-		this.urlParamAccessor = urlParamAccessor;
 	}
 
-	public PrefilledSet create(BaseForm form)
+	public PrefilledSet create(BaseForm form, Map<String, List<String>> parameters)
 	{
-		return new PrefilledSet(getPrefilledIdentities(form.getIdentityParams()), null, 
-				getPrefilledAttributes(form.getAttributeParams()), null);
+		return new PrefilledSet(getPrefilledIdentities(form.getIdentityParams(), parameters), null,
+				getPrefilledAttributes(form.getAttributeParams(), parameters), null);
 	}
 
 	private Map<Integer, PrefilledEntry<Attribute>> getPrefilledAttributes(
-			List<AttributeRegistrationParam> attributeParams)
+			List<AttributeRegistrationParam> attributeParams, Map<String, List<String>> parameters)
 	{
 		Map<Integer, PrefilledEntry<Attribute>> prefilled = new HashMap<>();
 		for (int i = 0; i < attributeParams.size(); i++)
@@ -64,7 +53,7 @@ public class URLQueryPrefillCreator
 			URLQueryPrefillConfig urlQueryPrefill = attributeParam.getUrlQueryPrefill();
 			if (urlQueryPrefill == null)
 				continue;
-			String value = urlParamAccessor.apply(urlQueryPrefill.paramName);
+			String value = parameters.getOrDefault(urlQueryPrefill.paramName, emptyList()).stream().findFirst().orElse(null);
 			if (value == null)
 				continue;
 		
@@ -85,7 +74,7 @@ public class URLQueryPrefillCreator
 	}
 
 	private Map<Integer, PrefilledEntry<IdentityParam>> getPrefilledIdentities(
-			List<IdentityRegistrationParam> identityParams)
+			List<IdentityRegistrationParam> identityParams, Map<String, List<String>> parameters)
 	{
 		Map<Integer, PrefilledEntry<IdentityParam>> prefilled = new HashMap<>();
 		for (int i = 0; i < identityParams.size(); i++)
@@ -94,7 +83,7 @@ public class URLQueryPrefillCreator
 			URLQueryPrefillConfig urlQueryPrefill = param.getUrlQueryPrefill();
 			if (urlQueryPrefill == null)
 				continue;
-			String value = urlParamAccessor.apply(urlQueryPrefill.paramName);
+			String value = parameters.getOrDefault(urlQueryPrefill.paramName, emptyList()).stream().findFirst().orElse(null);
 			if (value == null)
 				continue;
 		

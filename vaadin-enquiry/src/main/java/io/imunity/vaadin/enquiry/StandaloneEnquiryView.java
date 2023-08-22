@@ -21,12 +21,12 @@ import com.vaadin.flow.router.*;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.forms.URLQueryPrefillCreator;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -50,8 +50,11 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.forms.*;
+import pl.edu.icm.unity.webui.forms.InvitationResolver;
+import pl.edu.icm.unity.webui.forms.PrefilledSet;
+import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
+import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 import javax.annotation.security.PermitAll;
 import java.net.URLDecoder;
@@ -89,6 +92,8 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 	private ResolvedInvitationParam invitation;
 	private Long selectedEntity;
 	private RewriteComboToEnquiryRequest comboToEnquiryRequest;
+	private Map<String, List<String>> parameters;
+
 
 	@Autowired
 	public StandaloneEnquiryView(EnquiryResponseEditorController editorController,
@@ -127,6 +132,8 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 		form = event.getRouteParameters().get(FORM_PARAM)
 				.map(this::getForm)
 				.orElse(null);
+		parameters = event.getLocation().getQueryParameters().getParameters();
+
 		if(form == null)
 		{
 			notificationPresenter.showError(msg.getMessage("EnquiryErrorName.title"), msg.getMessage("EnquiryErrorName.description"));
@@ -182,7 +189,7 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 		}
 
 		ResolvedInvitationParam resolvedInvitationParam = null;
-		PrefilledSet prefilledSet = new PrefilledSet();
+		PrefilledSet prefilledSet = urlQueryPrefillCreator.create(form, parameters);
 		if (registrationCode != null)
 		{
 			try
@@ -295,7 +302,7 @@ class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, B
 			PrefilledSet currentUserData = editorController.getPrefilledSetForSticky(form,
 					new EntityParam(enqInvitation.getEntity()));
 			PrefilledSet prefilled = mergeInvitationAndCurrentUserData(enqInvitation, currentUserData);
-			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form));
+			prefilled = prefilled.mergeWith(urlQueryPrefillCreator.create(form, parameters));
 
 			editor = editorController.getEditorInstanceForUnauthenticatedUser(form,
 					enqInvitation.getFormPrefill()
