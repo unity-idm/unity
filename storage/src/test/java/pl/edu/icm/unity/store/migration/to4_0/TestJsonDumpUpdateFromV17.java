@@ -5,22 +5,28 @@
 package pl.edu.icm.unity.store.migration.to4_0;
 
 
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
+import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
+import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations =
@@ -39,7 +45,10 @@ public class TestJsonDumpUpdateFromV17
 	@Autowired
 	private RegistrationFormDB registrationFormDB;
 
-	
+	@Autowired
+	private ObjectStoreDAO genericObjectsDAO;
+
+
 	@BeforeEach
 	public void cleanDB()
 	{
@@ -60,6 +69,7 @@ public class TestJsonDumpUpdateFromV17
 				fail("Import failed " + e);
 			}
 			checkFidoIdentityHasBeenRemoved();
+			checkHomeUIConfigurationMigration();
 		});
 	}
 	
@@ -69,6 +79,23 @@ public class TestJsonDumpUpdateFromV17
 				.flatMap(form -> form.getIdentityParams().stream())
 				.filter(identity -> identity.getIdentityType().equals("fidoUserHandle"))
 				.findAny().ifPresent(identity -> fail("fidoUserHandle identity should be removed"));
+	}
+
+	private void checkHomeUIConfigurationMigration()
+	{
+		List<GenericObjectBean> endpoints = genericObjectsDAO.getObjectsOfType(EndpointHandler.ENDPOINT_OBJECT_TYPE);
+		for(GenericObjectBean endpoint : endpoints)
+		{
+			ObjectNode node = JsonUtil.parse(endpoint.getContents());
+			if (node.get("typeId").textValue().equals("UserHomeUI"))
+			{
+				String conf = node.get("configuration").get("configuration").textValue();
+				assertThat(conf).contains("unity.userhome.disabledComponents.10=trustedDevices") ;
+				assertThat(conf).doesNotContain("unity.userhome.disabledComponents.3=userInfo") ;
+				assertThat(conf).doesNotContain("unity.userhome.disabledComponents.4=identitiesManagement") ;
+			}
+		}
+
 	}
 
 }

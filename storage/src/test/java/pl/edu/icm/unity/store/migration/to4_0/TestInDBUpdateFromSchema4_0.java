@@ -4,20 +4,22 @@
  */
 package pl.edu.icm.unity.store.migration.to4_0;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import org.junit.jupiter.api.Test;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.json.JsonUtil;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
+import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
+import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
+import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
 
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.base.Constants;
-import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
+import static org.mockito.Mockito.*;
 
 public class TestInDBUpdateFromSchema4_0
 {
@@ -150,15 +152,47 @@ public class TestInDBUpdateFromSchema4_0
 	public void shouldRemoveUnwantedIdentityTypes() throws IOException
 	{
 		RegistrationFormDB registrationFormDB = mock(RegistrationFormDB.class);
+		ObjectStoreDAO objectStoreDAO = mock(ObjectStoreDAO.class);
 		RegistrationForm first = new RegistrationForm((ObjectNode) Constants.MAPPER.readTree(FORM_WITH_FIDO));
 		RegistrationForm second = new RegistrationForm((ObjectNode) Constants.MAPPER.readTree(FORM_WITHOUT_FIDO));
-
 		when(registrationFormDB.getAll()).thenReturn(List.of(first, second));
-		InDBUpdateFromSchema18 hotfix = new InDBUpdateFromSchema18(registrationFormDB);
+		InDBUpdateFromSchema18 hotfix = new InDBUpdateFromSchema18(registrationFormDB, objectStoreDAO);
 
 		hotfix.update();
 
 		RegistrationForm toUpdate = new RegistrationForm((ObjectNode) Constants.MAPPER.readTree(FIXED_FORM));
 		verify(registrationFormDB).update(toUpdate);
 	}
+
+	@Test
+	public void checkHomeUIConfigurationMigration() throws IOException
+	{
+		RegistrationFormDB registrationFormDB = mock(RegistrationFormDB.class);
+		ObjectStoreDAO objectStoreDAO = mock(ObjectStoreDAO.class);
+		GenericObjectBean endpoint = mock(GenericObjectBean.class);
+
+		String properties = """
+		unity.userhome.disabledComponents.1=credentialTab
+		unity.userhome.disabledComponents.2=userDetailsTab
+		unity.userhome.disabledComponents.3=identitiesManagement
+		unity.userhome.disabledComponents.4=userInfo
+		""".replaceAll("\n", System.lineSeparator());
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode root = mapper.createObjectNode();
+		ObjectNode configurationNode = mapper.createObjectNode();
+		configurationNode.set("configuration", new TextNode(properties));
+		root.set("name", new TextNode("Home"));
+		root.set("typeId", new TextNode("UserHomeUI"));
+		root.set("configuration", configurationNode);
+
+		when(objectStoreDAO.getObjectsOfType(EndpointHandler.ENDPOINT_OBJECT_TYPE)).thenReturn(List.of(endpoint));
+		when(endpoint.getId()).thenReturn(1L);
+		when(endpoint.getContents()).thenReturn(JsonUtil.serialize2Bytes(root));
+		InDBUpdateFromSchema18 hotfix = new InDBUpdateFromSchema18(registrationFormDB, objectStoreDAO);
+
+		hotfix.update();
+
+		verify(objectStoreDAO).updateByKey(1L, endpoint);
+	}
+
 }

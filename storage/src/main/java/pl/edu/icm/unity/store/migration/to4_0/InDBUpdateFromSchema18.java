@@ -5,20 +5,26 @@
 
 package pl.edu.icm.unity.store.migration.to4_0;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
+import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
+import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
+import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class InDBUpdateFromSchema18 implements InDBContentsUpdater
@@ -28,11 +34,14 @@ public class InDBUpdateFromSchema18 implements InDBContentsUpdater
 	private static final Set<String> unwantedIdentityTypes = Set.of("fidoUserHandle", "persistent", "targetedPersistent", "transient");
 
 	private final RegistrationFormDB formsDB;
+	private final ObjectStoreDAO genericObjectsDAO;
+
 
 	@Autowired
-	public InDBUpdateFromSchema18(RegistrationFormDB formsDB)
+	public InDBUpdateFromSchema18(RegistrationFormDB formsDB, ObjectStoreDAO genericObjectsDAO)
 	{
 		this.formsDB = formsDB;
+		this.genericObjectsDAO = genericObjectsDAO;
 	}
 
 	@Override
@@ -45,6 +54,23 @@ public class InDBUpdateFromSchema18 implements InDBContentsUpdater
 	public void update() throws IOException
 	{
 		removeFidoIdentityFromForms();
+		migrateHomeUiDisabledComponentsConfiguration();
+	}
+
+	public void migrateHomeUiDisabledComponentsConfiguration()
+	{
+		List<GenericObjectBean> endpoints = genericObjectsDAO.getObjectsOfType(EndpointHandler.ENDPOINT_OBJECT_TYPE);
+		for(GenericObjectBean endpoint : endpoints)
+		{
+			ObjectNode node = JsonUtil.parse(endpoint.getContents());
+			Optional<TextNode> configuration = UpdateHelperTo4_0.updateHomeUIConfiguration(node);
+			configuration.ifPresent(conf ->
+			{
+				((ObjectNode) node.get("configuration")).set("configuration", conf);
+				endpoint.setContents(JsonUtil.serialize2Bytes(node));
+				genericObjectsDAO.updateByKey(endpoint.getId(), endpoint);
+			});
+		}
 	}
 
 	void removeFidoIdentityFromForms()
