@@ -161,7 +161,7 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 						LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
 						context = credentialExchange.createSAMLRequest(configKey, path,
 								authenticationStepContext,
-								loginMachineDetails, path, callback.getTriggeringContext());
+								loginMachineDetails, ultimateReturnURL, callback.getTriggeringContext());
 					} catch (Exception e)
 					{
 						notificationPresenter.showError(msg.getMessage("WebSAMLRetrieval.configurationError"), e.getMessage());
