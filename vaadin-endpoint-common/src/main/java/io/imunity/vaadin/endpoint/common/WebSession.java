@@ -5,7 +5,7 @@
 package io.imunity.vaadin.endpoint.common;
 
 import com.vaadin.flow.server.VaadinSession;
-import pl.edu.icm.unity.webui.bus.EventsBus;
+import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 
 public class WebSession
 {

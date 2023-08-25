@@ -13,7 +13,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.console.views.DirectoryBrowserView;
 import io.imunity.console.views.ServicesEditView;
 import io.imunity.console.views.ServicesView;
-import io.imunity.console.views.authentication.CredentialRequirementsView;
+import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsEditView;
+import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsView;
 import io.imunity.console.views.authentication.CredentialsView;
 import io.imunity.console.views.authentication.FacilitiesView;
 import io.imunity.console.views.authentication.RemoteDataProfilesView;
@@ -63,6 +64,7 @@ public class ConsoleMenu extends UnityAppLayout
 								MenuComponent.builder(CredentialRequirementsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.authentication.credentialRequirements"))
 										.icon(VaadinIcon.OPTION_A)
+										.subViews(CredentialRequirementsEditView.class)
 										.build(),
 								MenuComponent.builder(RealmsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.authentication.realms"))

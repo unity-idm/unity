@@ -4,19 +4,6 @@
  */
 package io.imunity.vaadin.enquiry;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -24,6 +11,10 @@ import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreement
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegistry;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -34,30 +25,14 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
-import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.*;
 import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.base.registration.EnquiryResponse;
-import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.base.registration.GroupSelection;
-import pl.edu.icm.unity.base.registration.RegistrationContext;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
-import pl.edu.icm.unity.base.registration.invitation.EnquiryInvitationParam;
-import pl.edu.icm.unity.base.registration.invitation.FormPrefill;
+import pl.edu.icm.unity.base.registration.invitation.*;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
-import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
-import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
-import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
@@ -67,7 +42,9 @@ import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponsesChangedEvent;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 class EnquiryResponseEditorController
