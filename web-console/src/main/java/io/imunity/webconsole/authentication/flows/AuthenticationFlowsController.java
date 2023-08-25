@@ -5,15 +5,9 @@
 
 package io.imunity.webconsole.authentication.flows;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import io.imunity.webconsole.common.EndpointController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import io.imunity.webconsole.common.EndpointController;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -21,13 +15,18 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Controller for all authentication flow views
  * 
  * @author P.Piernik
  *
  */
-@Component
+@Component("AuthenticationFlowsControllerV8")
 public class AuthenticationFlowsController
 {
 	private AuthenticationFlowManagement flowMan;

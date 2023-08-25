@@ -16,7 +16,7 @@ import io.imunity.console.views.ServicesView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsEditView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsView;
 import io.imunity.console.views.authentication.CredentialsView;
-import io.imunity.console.views.authentication.FacilitiesView;
+import io.imunity.console.views.authentication.facilities.FacilitiesView;
 import io.imunity.console.views.authentication.RemoteDataProfilesView;
 import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.console.views.authentication.realms.RealmsView;
