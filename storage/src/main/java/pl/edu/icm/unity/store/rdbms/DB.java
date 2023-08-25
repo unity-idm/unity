@@ -91,6 +91,7 @@ public class DB implements StoreLoaderInternal
 		verifyDBVersion(sessionMan);
 		
 		updateDatabase();
+		connect();
 		
 		if (config.getBooleanValue(StorageConfiguration.WIPE_DB_AT_STARTUP))
 			initDB.resetDatabase();
@@ -139,5 +140,10 @@ public class DB implements StoreLoaderInternal
 	{
 		initDB.deletePreImport(SQLTransactionTL.getSql(), contentType);
 		
+	}
+
+	private void connect()
+	{
+		initDB.connect();
 	}
 }

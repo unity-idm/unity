@@ -285,4 +285,16 @@ public class InitDB
 			createRootGroup(session);
 		}
 	}
+
+	void connect()
+	{
+		SqlSession session = db.getSqlSession(false);
+		try
+		{
+			session.update("connect");
+		} finally
+		{
+			session.close();
+		}
+	}
 }

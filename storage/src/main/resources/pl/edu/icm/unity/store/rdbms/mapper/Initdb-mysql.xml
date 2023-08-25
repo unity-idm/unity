@@ -36,7 +36,11 @@
 	<sql id="tableOpts">
 		)  engine=InnoDB, character set utf8
 	</sql>
-
+	
+	<update id="connect">
+		select 1
+	</update>
+	
 	<!-- Empty query - descending index is not needed in MySQL DB-->
 	<sql id="sql-auditEventsTimestampDescIdx">
 		select 1

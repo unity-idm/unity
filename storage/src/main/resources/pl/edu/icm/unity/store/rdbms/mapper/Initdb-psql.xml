@@ -36,7 +36,11 @@
 	<sql id="tableOpts">
 		);
 	</sql>
-
+	
+	<update id="connect">
+		select 1
+	</update>
+	
 	<!-- Empty query - descending index is not needed in Postgres DB-->
 	<sql id="sql-auditEventsTimestampDescIdx">
 		select 1
