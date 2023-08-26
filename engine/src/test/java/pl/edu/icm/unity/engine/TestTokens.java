@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -125,8 +124,6 @@ public class TestTokens extends DBIntegrationTestBase
 		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
-	//TODO
-	@Disabled
 	@Test
 	public void stressTokenUpdates() throws Exception
 	{
