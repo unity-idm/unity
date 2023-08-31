@@ -13,13 +13,19 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.console.views.DirectoryBrowserView;
 import io.imunity.console.views.ServicesEditView;
 import io.imunity.console.views.ServicesView;
+import io.imunity.console.views.authentication.CredentialsView;
+import io.imunity.console.views.authentication.RemoteDataProfilesView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsEditView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsView;
-import io.imunity.console.views.authentication.CredentialsView;
 import io.imunity.console.views.authentication.facilities.FacilitiesView;
-import io.imunity.console.views.authentication.RemoteDataProfilesView;
 import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.console.views.authentication.realms.RealmsView;
+import io.imunity.console.views.directory_setup.AttributeClassesView;
+import io.imunity.console.views.directory_setup.AttributeTypesView;
+import io.imunity.console.views.directory_setup.IdentityTypesView;
+import io.imunity.console.views.directory_setup.automation.AutomationEditView;
+import io.imunity.console.views.directory_setup.automation.AutomationRunView;
+import io.imunity.console.views.directory_setup.automation.AutomationView;
 import io.imunity.console.views.maintenance.AboutView;
 import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;
@@ -83,6 +89,28 @@ public class ConsoleMenu extends UnityAppLayout
 								.tabName(msg.getMessage("WebConsoleMenu.services"))
 								.icon(VaadinIcon.SERVER)
 								.subViews(ServicesEditView.class)
+								.build(),
+						MenuComponent.builder(
+								MenuComponent.builder(AttributeTypesView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.directorySetup.attributeTypes"))
+										.icon(VaadinIcon.TAGS)
+										.build(),
+								MenuComponent.builder(IdentityTypesView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.directorySetup.identityTypes"))
+										.icon(VaadinIcon.CLIPBOARD_USER)
+										.build(),
+								MenuComponent.builder(AttributeClassesView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.directorySetup.attributeClasses"))
+										.icon(VaadinIcon.ARCHIVES)
+										.build(),
+								MenuComponent.builder(AutomationView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.directorySetup.automation"))
+										.icon(VaadinIcon.CALENDAR_USER)
+										.subViews(AutomationEditView.class, AutomationRunView.class)
+										.build()
+								)
+								.tabName(msg.getMessage("WebConsoleMenu.directorySetup"))
+								.icon(VaadinIcon.FILE_TREE)
 								.build(),
 						MenuComponent.builder(
 								MenuComponent.builder(MessageTemplatesView.class)
