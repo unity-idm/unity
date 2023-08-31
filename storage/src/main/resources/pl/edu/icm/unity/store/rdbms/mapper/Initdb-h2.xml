@@ -41,6 +41,10 @@
 		SHUTDOWN;
 	</update>
 
+	<update id="connect">
+		SET DEFAULT_LOCK_TIMEOUT 30000
+	</update>
+
 	<sql id="sql-auditEventsTimestampDescIdx">
 		CREATE INDEX AUDIT_EVENTS_TIMESTAMP_DESC_IDX ON AUDIT_EVENTS(TIMESTAMP DESC);
 	</sql>
