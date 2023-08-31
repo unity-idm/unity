@@ -8,7 +8,7 @@ package io.imunity.webconsole.utils.tprofile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
@@ -25,7 +25,7 @@ public class InputTranslationProfileFieldFactory extends TranslationProfileField
 	@Autowired
 	InputTranslationProfileFieldFactory(MessageSource msg,
 			InputTranslationActionsRegistry inputActionsRegistry,
-			ActionParameterComponentProvider actionComponentProvider)
+			ActionParameterComponentProviderV8 actionComponentProvider)
 	{
 
 		super(msg.getMessage("InputTranslationProfileSection.caption"), msg, ProfileType.INPUT,

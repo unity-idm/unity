@@ -8,7 +8,7 @@ package io.imunity.webconsole.utils.tprofile;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
@@ -26,12 +26,12 @@ class TranslationProfileFieldFactoryBase
 	private MessageSource msg;
 	private ProfileType type;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
-	private ActionParameterComponentProvider actionComponentProvider;
+	private ActionParameterComponentProviderV8 actionComponentProvider;
 	private String caption;
 
 	TranslationProfileFieldFactoryBase(String caption, MessageSource msg, ProfileType type,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry,
-			ActionParameterComponentProvider actionComponentProvider)
+			ActionParameterComponentProviderV8 actionComponentProvider)
 	{
 
 		this.caption = caption;

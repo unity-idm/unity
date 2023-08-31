@@ -3,25 +3,26 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.tprofile;
+package io.imunity.console.tprofile;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import com.vaadin.data.Binder;
-import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.dnd.EffectAllowed;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.dnd.DragSourceExtension;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.dnd.DragSource;
+import com.vaadin.flow.component.dnd.EffectAllowed;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.Binder;
+import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
+import io.imunity.vaadin.elements.ActionMenu;
+import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.elements.MenuButton;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.MessageHumanizer;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -42,12 +43,10 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.HamburgerMenu;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Responsible for editing of a single TranslationRule
@@ -56,7 +55,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  * @contributor Roman Krysinski
  * 
  */
-public class RuleComponent extends CustomComponent
+public class RuleComponent extends VerticalLayout
 {
 	private MessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
@@ -67,25 +66,27 @@ public class RuleComponent extends CustomComponent
 	private MenuItem top;
 	private MenuItem bottom;
 	private boolean editMode;
-	private ActionParameterComponentProviderV8 actionComponentProvider;
+	private ActionParameterComponentProvider actionComponentProvider;
 	private FormLayout content;
 	private Label info;
-	private Button showHide;
+	private LinkButton showHide;
 	private Binder<TranslationRule> binder;
-	private Button dragImg;
-	private HamburgerMenu<String> menuBar;
+	private LinkButton dragImg;
+	private Component menuBar;
 	private MenuItem embedProfileMenuItem;
 	private final ProfileType profileType;
-	
+	private final NotificationPresenter notificationPresenter;
+
 	public RuleComponent(MessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
-						 TranslationRule toEdit, ActionParameterComponentProviderV8 actionComponentProvider, ProfileType profileType,
-						 Callback callback)
+						 TranslationRule toEdit, ActionParameterComponentProvider actionComponentProvider, ProfileType profileType,
+						 Callback callback, NotificationPresenter notificationPresenter)
 	{
 		this.callback = callback;
 		this.msg = msg;
 		this.tc = tc;
 		this.actionComponentProvider = actionComponentProvider;
 		this.profileType = profileType;
+		this.notificationPresenter = notificationPresenter;
 		editMode = toEdit != null;
 		initUI(toEdit);
 	}
@@ -100,71 +101,59 @@ public class RuleComponent extends CustomComponent
 		header.setSizeFull();
 		header.setMargin(false);
 	
-		showHide = new Button(Images.downArrow.getResource());
-		showHide.addStyleName(Styles.vButtonLink.toString());
-		showHide.addStyleName(Styles.toolbarButton.toString());
-		showHide.addStyleName(Styles.vButtonBorderless.toString());
-		showHide.addClickListener(event -> showHideContent(!content.isVisible()));
-		header.addComponent(showHide);
-		header.setComponentAlignment(showHide, Alignment.MIDDLE_LEFT);
+		showHide = new LinkButton("", event -> showHideContent(!content.isVisible()));
+		showHide.add(VaadinIcon.ANGLE_DOWN.create());
+		header.add(showHide);
+		header.setAlignItems(Alignment.CENTER);
 		
 		info = new Label("");
 		info.setSizeFull();
-		header.addComponent(info);	
-		header.setComponentAlignment(info, Alignment.MIDDLE_LEFT);
-		header.setExpandRatio(info, 1);
+		header.add(info);
 
-		dragImg = new Button(Images.resize.getResource());
+		dragImg = new LinkButton("", e -> {});
+		dragImg.add(VaadinIcon.RESIZE_V.create());
 		dragImg.setSizeFull();
 		dragImg.setWidth(1, Unit.EM);
-		dragImg.setStyleName(Styles.vButtonLink.toString());
-		dragImg.addStyleName(Styles.vButtonBorderless.toString());
-		dragImg.addStyleName(Styles.link.toString());
-		dragImg.addStyleName(Styles.dragButton.toString());
-		
-		DragSourceExtension<Button> dragSource = new DragSourceExtension<>(dragImg);
+
+		DragSource<LinkButton> dragSource =  DragSource.create(dragImg);
 		dragSource.setEffectAllowed(EffectAllowed.MOVE);
 		dragSource.setDragData(this);
 		
-		header.addComponent(dragImg);	
-		header.setComponentAlignment(dragImg, Alignment.MIDDLE_RIGHT);
-		
-		menuBar = new HamburgerMenu<String>();			
-		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), 
-				Images.remove.getResource(), s -> callback.remove(RuleComponent.this));
-		embedProfileMenuItem = menuBar.addItem(msg.getMessage("TranslationProfileEditor.embedProfile"), 
-				Images.embed.getResource(), this::onEmbedProfileAction);
-		top = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), 
-				Images.topArrow.getResource(), 
-				s -> callback.moveTop(RuleComponent.this));	
-		bottom = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), 
-				Images.bottomArrow.getResource(), 
-				s -> callback.moveBottom(RuleComponent.this));
-		
+		header.add(dragImg);
 
-		header.addComponent(menuBar);
-		header.setComponentAlignment(menuBar, Alignment.MIDDLE_RIGHT);
-		header.setExpandRatio(menuBar, 0);
+		ActionMenu actionMenu = new ActionMenu();
+		actionMenu.addItem(new MenuButton(msg.getMessage("TranslationProfileEditor.remove"),
+				VaadinIcon.TRASH), s -> callback.remove(RuleComponent.this));
+		embedProfileMenuItem = actionMenu.addItem(new MenuButton(msg.getMessage("TranslationProfileEditor.embedProfile"),
+				VaadinIcon.EXPAND_SQUARE), e -> onEmbedProfileAction(embedProfileMenuItem));
+		top = actionMenu.addItem(new MenuButton(msg.getMessage("TranslationProfileEditor.moveTop"),
+				VaadinIcon.ARROW_UP),
+				s -> callback.moveTop(RuleComponent.this));	
+		bottom = actionMenu.addItem(new MenuButton(msg.getMessage("TranslationProfileEditor.moveBottom"),
+				VaadinIcon.ARROW_DOWN),
+				s -> callback.moveBottom(RuleComponent.this));
+		menuBar = actionMenu.getTarget();
+
+		header.add(menuBar);
 				
-		header.addLayoutClickListener(event ->
+		header.addClickListener(event ->
 		{
-			if (!event.isDoubleClick())
+			if (event.getClickCount() != 2)
 				return;
 			showHideContent(!content.isVisible());			
 		});
 		
-		headerWrapper.addComponent(header);
-		headerWrapper.addComponent(HtmlTag.horizontalLine());
+		headerWrapper.add(header);
+		headerWrapper.add(new Hr());
 			
 		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"),
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder().withTitleKey("TranslationProfileEditor.ruleConditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(getConditionContextVars())
 						.build());
-		condition.setStyleName(Styles.vTiny.toString());
 		condition.setWidth(100, Unit.PERCENTAGE);
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
-				actionComponentProvider, this::onActionChanged);
+				actionComponentProvider, this::onActionChanged, notificationPresenter);
 		
 		mappingResultComponent = new MappingResultComponent(msg);	
 		
@@ -172,18 +161,15 @@ public class RuleComponent extends CustomComponent
 		main.setMargin(false);
 		main.setSpacing(false);
 		content = new FormLayout();	
-		content.addComponent(condition);
+		content.add(condition);
 		actionEditor.addToLayout(content);
-		content.addComponents(mappingResultComponent);
-		content.setMargin(false);
-		content.setSpacing(true);
+		content.add(mappingResultComponent);
 		showHideContent(false);
 		
-		main.addComponent(headerWrapper);
-		main.addComponent(content);
+		main.add(headerWrapper);
+		main.add(content);
 	
-		setCompositionRoot(main);
-		info.setValue(actionEditor.getStringRepresentation());
+		info.setText(actionEditor.getStringRepresentation());
 		
 		binder = new Binder<>(TranslationRule.class);
 		condition.configureBinding(binder, "condition", true);		
@@ -192,18 +178,13 @@ public class RuleComponent extends CustomComponent
 	
 	private Map<String, String> getConditionContextVars()
 	{
-		switch(profileType) {
-		case BULK_ENTITY_OPS:
-			return EntityMVELContextKey.toMap();
-		case INPUT:
-			return InputTranslationMVELContextKey.toMap();
-		case OUTPUT:
-			return OutputTranslationMVELContextKey.toMap();
-		case REGISTRATION:
-			return RegistrationMVELContextKey.toMap();
-		default:
-			return new HashMap<>();		
-		}
+		return switch (profileType)
+		{
+			case BULK_ENTITY_OPS -> EntityMVELContextKey.toMap();
+			case INPUT -> InputTranslationMVELContextKey.toMap();
+			case OUTPUT -> OutputTranslationMVELContextKey.toMap();
+			case REGISTRATION -> RegistrationMVELContextKey.toMap();
+		};
 	}
 
 	private void onEmbedProfileAction(MenuItem item)
@@ -214,7 +195,7 @@ public class RuleComponent extends CustomComponent
 			action = actionEditor.getAction();
 		} catch (FormValidationException e)
 		{
-			NotificationPopup.showFormError(msg);
+			notificationPresenter.showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
 			return;
 		}
 		String profile = action.getParameters()[0];
@@ -225,7 +206,7 @@ public class RuleComponent extends CustomComponent
 	
 	private void onActionChanged(String actionStr, Optional<TranslationAction> action)
 	{
-		info.setValue(actionStr);
+		info.setText(actionStr);
 		if (action.isPresent())
 		{
 			String actionName = action.get().getName();
@@ -314,7 +295,7 @@ public class RuleComponent extends CustomComponent
 		try 
 		{
 			boolean result = conditionRule.evaluate(mvelCtx);
-			setLayoutForEvaludatedCondition(result);
+			setLayoutForEvaluatedCondition(result);
 		} catch (EngineException e) 
 		{
 			indicateConditionError(e);
@@ -331,7 +312,7 @@ public class RuleComponent extends CustomComponent
 		}
 	}
 	
-	private void setLayoutForEvaludatedCondition(boolean conditionResult) 
+	private void setLayoutForEvaluatedCondition(boolean conditionResult)
 	{
 		removeRuleComponentEvaluationStyle();
 		setColorForInputComponents((conditionResult ? 
@@ -346,8 +327,8 @@ public class RuleComponent extends CustomComponent
 	
 	private void indicateConditionError(Exception e) 
 	{
-		condition.setStyleName(Styles.errorBackground.toString());
-		condition.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
+		condition.addClassName(Styles.errorBackground.toString());
+		condition.setErrorMessage(MessageHumanizer.getMessage(e));
 	}
 
 
@@ -360,16 +341,16 @@ public class RuleComponent extends CustomComponent
 	
 	private void setColorForInputComponents(String style)
 	{
-		condition.setStyleName(style);
+		condition.addClassName(style);
 		actionEditor.setStyle(style);
 	}
 	
 	private void removeRuleComponentEvaluationStyle()
 	{
-		condition.removeStyleName(Styles.trueConditionBackground.toString());
-		condition.removeStyleName(Styles.errorBackground.toString());
-		condition.removeStyleName(Styles.falseConditionBackground.toString());
-		condition.setComponentError(null);
+		condition.removeClassName(Styles.trueConditionBackground.toString());
+		condition.removeClassName(Styles.errorBackground.toString());
+		condition.removeClassName(Styles.falseConditionBackground.toString());
+		condition.setErrorMessage(null);
 		
 		actionEditor.removeComponentEvaluationStyle();
 	}
@@ -387,8 +368,8 @@ public class RuleComponent extends CustomComponent
 	
 	private void showHideContent(boolean show)
 	{
-		showHide.setIcon(show ? Images.upArrow.getResource()
-				: Images.downArrow.getResource());
+		showHide.add(show ? VaadinIcon.ARROW_UP.create()
+				: VaadinIcon.ARROW_DOWN.create());
 		content.setVisible(show);
 	}
 	

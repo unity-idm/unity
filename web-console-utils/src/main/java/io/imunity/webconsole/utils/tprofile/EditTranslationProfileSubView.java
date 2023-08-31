@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -38,7 +38,7 @@ public class EditTranslationProfileSubView extends CustomComponent implements Un
 
 	public EditTranslationProfileSubView(MessageSource msg,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type,
-			ActionParameterComponentProvider actionComponentProvider,
+			ActionParameterComponentProviderV8 actionComponentProvider,
 			Consumer<TranslationProfile> onConfirm, Runnable onCancel)
 	{
 

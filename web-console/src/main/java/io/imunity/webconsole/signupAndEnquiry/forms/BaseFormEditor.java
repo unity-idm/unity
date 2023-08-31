@@ -23,7 +23,7 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import io.imunity.webconsole.tprofile.DynamicGroupParamWithLabel;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
@@ -78,7 +78,7 @@ public class BaseFormEditor extends VerticalLayout
 	private PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory;
 	private final Map<String, IdentityTypeDefinition> allowedIdentitiesByName;
 	private final AttributeTypeSupport attributeTypeSupport;
-	protected ActionParameterComponentProvider actionComponentProvider;
+	protected ActionParameterComponentProviderV8 actionComponentProvider;
 	private Collection<AttributeType> attributeTypes;
 	private List<String> groups;
 	private List<String> credentialTypes;
@@ -106,7 +106,7 @@ public class BaseFormEditor extends VerticalLayout
 			CredentialManagement authenticationMan, 
 			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
 			AttributeTypeSupport attributeTypeSupport,
-			ActionParameterComponentProvider actionComponentProvider)
+			ActionParameterComponentProviderV8 actionComponentProvider)
 			throws EngineException
 	{
 		this.attributeTypeSupport = attributeTypeSupport;

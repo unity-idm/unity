@@ -3,26 +3,22 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.tprofile;
+package io.imunity.console.tprofile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
-import com.vaadin.data.Binder;
-import com.vaadin.shared.ui.dnd.DropEffect;
-import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.dnd.DropTargetExtension;
-
-import io.imunity.webconsole.tprofile.RuleComponent.Callback;
-import io.imunity.webconsole.tprofile.StartStopButton.ClickStartEvent;
-import io.imunity.webconsole.tprofile.StartStopButton.ClickStopEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dnd.DropEffect;
+import com.vaadin.flow.component.dnd.DropTarget;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -31,26 +27,21 @@ import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
 
-/**
- * Generic component to edit or add translation profile of any type
- * 
- * @author P. Piernik
- * 
- */
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 public class TranslationProfileEditor extends VerticalLayout
 {
 	protected MessageSource msg;
+	protected NotificationPresenter notificationPresenter;
 	protected ProfileType type;
 	protected TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
 	protected TextField name;
-	protected DescriptionTextField description;
+	protected TextField description;
 	private HorizontalLayout rulesHeader;
 	protected VerticalLayout rulesLayout;
 	protected List<RuleComponent> rules;
@@ -58,19 +49,20 @@ public class TranslationProfileEditor extends VerticalLayout
 	
 	private RemotelyAuthenticatedInput remoteAuthnInput;
 	private StartStopButton testProfileButton;
-	private ActionParameterComponentProviderV8 actionComponentProvider;
+	private ActionParameterComponentProvider actionComponentProvider;
 	private Binder<TranslationProfile> binder;
 	private boolean readOnlyMode;
 	
 	public TranslationProfileEditor(MessageSource msg,
-			TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type, 
-			ActionParameterComponentProviderV8 actionComponentProvider)
+									TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type,
+									ActionParameterComponentProvider actionComponentProvider, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.registry = registry;
 		this.type = type;
 		this.actionComponentProvider = actionComponentProvider;
 		this.rules = new ArrayList<>();
+		this.notificationPresenter = notificationPresenter;
 		initUI();
 	}
 
@@ -115,60 +107,45 @@ public class TranslationProfileEditor extends VerticalLayout
 		rulesLayout = new VerticalLayout();
 		rulesLayout.setSpacing(false);
 		rulesLayout.setMargin(false);
-		rulesLayout.setHeightUndefined();
-		rulesLayout.setWidth(100, Unit.PERCENTAGE);
-		rulesLayout.setStyleName(Styles.vDropLayout.toString());
-		
-		name = new TextField(msg.getMessage("TranslationProfileEditor.name"));
+		rulesLayout.setSizeUndefined();
+		rulesLayout.setWidthFull();
 
-		description = new DescriptionTextField(msg);
+		name = new TextField();
+
+		description = new TextField();
 
 		rulesHeader = new HorizontalLayout();
 		rulesHeader.setMargin(false);
 		addRule = new Button();
-		addRule.setDescription(msg.getMessage("TranslationProfileEditor.newRule"));
-		addRule.setIcon(Images.add.getResource());
-		addRule.addStyleName(Styles.vButtonLink.toString());
-		addRule.addStyleName(Styles.toolbarButton.toString());
+		addRule.setTooltipText(msg.getMessage("TranslationProfileEditor.newRule"));
+		addRule.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
 		addRule.addClickListener(event -> addRuleComponent(null));
 		
 		testProfileButton = new StartStopButton();
 		testProfileButton.setVisible(false);
-		testProfileButton.setDescription(msg.getMessage("TranslationProfileEditor.testProfile"));
-		testProfileButton.addClickListener(new StartStopButton.StartStopListener() 
-		{
-			@Override
-			public void onStop(ClickStopEvent event) 
-			{
-				clearTestResults();
-			}
-			
-			@Override
-			public void onStart(ClickStartEvent event) 
-			{
-				testRules();
-			}
-		});
+		testProfileButton.setTooltipText(msg.getMessage("TranslationProfileEditor.testProfile"));
+		testProfileButton.addClickListener(e -> clearTestResults(), e -> testRules());
 
 		Label t = new Label(msg.getMessage("TranslationProfileEditor.rules"));
-		rulesHeader.addComponents(t, addRule, testProfileButton);
+		rulesHeader.add(t, addRule, testProfileButton);
 
-		FormLayout main = new CompactFormLayout();
-		main.addComponents(name, description);
+		FormLayout main = new FormLayout();
+		main.addFormItem(name, msg.getMessage("TranslationProfileEditor.name"));
+		main.addFormItem(description, msg.getMessage("ServiceEditorBase.description"));
 		main.setSizeFull();
 
 		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.addComponents(main, rulesHeader, rulesLayout);
+		wrapper.add(main, rulesHeader, rulesLayout);
 			
 		binder = new Binder<>(TranslationProfile.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
 		binder.bind(description, "description");
 		binder.setBean(new TranslationProfile(
 				msg.getMessage("TranslationProfileEditor.defaultName"), null, type,
-				new ArrayList<TranslationRule>()));
+				new ArrayList<>()));
 		setSpacing(false);
 		setMargin(false);
-		addComponents(wrapper);
+		add(wrapper);
 		refreshRules();
 	}
 
@@ -195,17 +172,17 @@ public class TranslationProfileEditor extends VerticalLayout
 	private RuleComponent addRuleComponentAt(TranslationRule trule, int index)
 	{
 		RuleComponent r = new RuleComponent(msg, registry, 
-				trule, actionComponentProvider, type, new CallbackImplementation());
+				trule, actionComponentProvider, type, new CallbackImplementation(), notificationPresenter);
 		rules.add(index, r);
 		return r;
 	}
 	
 	protected void refreshRules()
 	{
-		rulesLayout.removeAllComponents();
+		rulesLayout.removeAll();
 		if (rules.size() == 0)
 			return;
-		rulesLayout.addComponent(getDropElement(0));
+		rulesLayout.add(getDropElement(0));
 		for (RuleComponent r : rules)
 		{
 			if (rules.size() > 1)
@@ -223,8 +200,8 @@ public class TranslationProfileEditor extends VerticalLayout
 		rules.get(rules.size() - 1).setBottomVisible(false);		
 		for (RuleComponent r : rules)
 		{
-			rulesLayout.addComponent(r);
-			rulesLayout.addComponent(getDropElement(rules.indexOf(r)));	
+			rulesLayout.add(r);
+			rulesLayout.add(getDropElement(rules.indexOf(r)));
 		}	
 	}
 	
@@ -236,13 +213,13 @@ public class TranslationProfileEditor extends VerticalLayout
 	private HorizontalLayout getDropElement(int pos)
 	{
 		HorizontalLayout drop = new HorizontalLayout();
-		drop.setWidth(100, Unit.PERCENTAGE);
+		drop.setWidthFull();
 		drop.setHeight(1, Unit.EM);
 
-		DropTargetExtension<HorizontalLayout> dropTarget = new DropTargetExtension<>(drop);
-		dropTarget.setDropEffect(DropEffect.MOVE);	
+		DropTarget<HorizontalLayout> dropTarget = DropTarget.create(drop);
+		dropTarget.setDropEffect(DropEffect.MOVE);
 		dropTarget.addDropListener(event -> {
-			Optional<AbstractComponent> dragSource = event.getDragSourceComponent();
+			Optional<Component> dragSource = event.getDragSourceComponent();
 			if (dragSource.isPresent() && dragSource.get() instanceof Button)
 			{
 				event.getDragData().ifPresent(data -> {
@@ -290,9 +267,8 @@ public class TranslationProfileEditor extends VerticalLayout
 	
 	public void rulesOnlyMode()
 	{
-		removeAllComponents();
-		addComponent(rulesHeader);
-		addComponent(rulesLayout);
+		removeAll();
+		add(rulesHeader, rulesLayout);
 	}
 	
 	public void focusFirst()
@@ -300,7 +276,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		addRule.focus();
 	}
 	
-	private final class CallbackImplementation implements Callback
+	private final class CallbackImplementation implements RuleComponent.Callback
 	{
 		@Override
 		public boolean remove(RuleComponent rule)

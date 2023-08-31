@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.common.EndpointController;
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import io.imunity.webconsole.translationProfile.TranslationsControllerBase;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -26,8 +26,8 @@ public class OutputTranslationsController extends TranslationsControllerBase
 {
 	@Autowired
 	public OutputTranslationsController(MessageSource msg, TranslationProfileManagement profileMan,
-			OutputTranslationActionsRegistry outputActionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory, EndpointController endpointController)
+										OutputTranslationActionsRegistry outputActionsRegistry,
+										ActionParameterComponentProviderV8 actionComponentFactory, EndpointController endpointController)
 	{
 		super(msg, profileMan, outputActionsRegistry, actionComponentFactory, ProfileType.OUTPUT);
 	}

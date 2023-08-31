@@ -13,7 +13,7 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.server.StreamResource;
 
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -30,13 +30,13 @@ public abstract class TranslationsControllerBase
 	protected TranslationProfileManagement profileMan;
 	
 	protected TypesRegistryBase<? extends TranslationActionFactory<?>> actionsRegistry;
-	private ActionParameterComponentProvider actionComponentFactory;
+	private ActionParameterComponentProviderV8 actionComponentFactory;
 	private ProfileType type;
 	
 	@Autowired
 	public TranslationsControllerBase(MessageSource msg, TranslationProfileManagement profileMan,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> actionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory,
+			ActionParameterComponentProviderV8 actionComponentFactory,
 			ProfileType type)
 	{
 		this.msg = msg;

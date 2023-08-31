@@ -4,19 +4,8 @@
  */
 package io.imunity.webconsole.tprofile;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.base.Supplier;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -26,15 +15,13 @@ import pl.edu.icm.unity.base.msg_template.UserNotificationTemplateDef;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Responsible for creating {@link ActionParameterComponent}s.
@@ -42,7 +29,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class ActionParameterComponentProvider
+public class ActionParameterComponentProviderV8
 {
 	private MessageSource msg;
 	
@@ -65,12 +52,12 @@ public class ActionParameterComponentProvider
 	private List<Supplier<List<DynamicGroupParamWithLabel>>> dynamicGroupProviders;
 	
 	@Autowired
-	public ActionParameterComponentProvider(MessageSource msg,
-			AttributeTypeManagement attrsMan, IdentityTypeSupport idTypeSupport,
-			CredentialRequirementManagement credReqMan, GroupsManagement groupsMan,
-			TranslationProfileManagement profileMan,
-			MessageTemplateManagement msgTemplateMan,
-			RegistrationsManagement registrationMan)
+	public ActionParameterComponentProviderV8(MessageSource msg,
+											  AttributeTypeManagement attrsMan, IdentityTypeSupport idTypeSupport,
+											  CredentialRequirementManagement credReqMan, GroupsManagement groupsMan,
+											  TranslationProfileManagement profileMan,
+											  MessageTemplateManagement msgTemplateMan,
+											  RegistrationsManagement registrationMan)
 	{
 		this.msg = msg;
 		this.attrsMan = attrsMan;

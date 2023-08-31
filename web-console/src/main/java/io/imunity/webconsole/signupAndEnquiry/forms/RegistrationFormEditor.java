@@ -24,7 +24,7 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import io.imunity.webconsole.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
@@ -124,7 +124,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan, CredentialManagement credMan,
 			RegistrationActionsRegistry actionsRegistry, CredentialRequirementManagement credReqMan,
-			ActionParameterComponentProvider actionComponentFactory,
+			ActionParameterComponentProviderV8 actionComponentFactory,
 			AuthenticatorSupportService authenticatorSupport, RealmsManagement realmsManagement,
 			FileStorageService fileStorageService, URIAccessService uriAccessService,
 			ImageAccessService imageAccessService,

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import io.imunity.webconsole.translationProfile.TranslationsControllerBase;
 import io.imunity.webconsole.translationProfile.dryrun.DryRunWizardProvider;
@@ -40,8 +40,8 @@ public class InputTranslationsController extends TranslationsControllerBase
 
 	@Autowired
 	public InputTranslationsController(MessageSource msg, TranslationProfileManagement profileMan,
-			InputTranslationActionsRegistry inputActionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory, EndpointController endpointController)
+									   InputTranslationActionsRegistry inputActionsRegistry,
+									   ActionParameterComponentProviderV8 actionComponentFactory, EndpointController endpointController)
 	{
 		super(msg, profileMan, inputActionsRegistry, actionComponentFactory, ProfileType.INPUT);
 		this.endpointController = endpointController;

@@ -5,16 +5,10 @@
 
 package io.imunity.webconsole.directorySetup.automation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
+import io.imunity.webconsole.tprofile.ActionEditor;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import io.imunity.webconsole.tprofile.ActionEditor;
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -26,23 +20,28 @@ import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionsRegistry;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Bulk processing controller
  * 
  * @author P.Piernik
  *
  */
-@Component
+@Component("AutomationControllerV8")
 class AutomationController
 {
 	private MessageSource msg;
 	private BulkProcessingManagement bulkMan;
 	private EntityActionsRegistry registry;
-	private ActionParameterComponentProvider parameterFactory;
+	private ActionParameterComponentProviderV8 parameterFactory;
 
 	@Autowired
 	AutomationController(MessageSource msg, BulkProcessingManagement bulkMan, EntityActionsRegistry registry,
-			ActionParameterComponentProvider parameterFactory)
+			ActionParameterComponentProviderV8 parameterFactory)
 	{
 		this.msg = msg;
 		this.bulkMan = bulkMan;

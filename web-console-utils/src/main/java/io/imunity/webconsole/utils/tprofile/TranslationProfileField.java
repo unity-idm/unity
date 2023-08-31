@@ -14,7 +14,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import io.imunity.webconsole.tprofile.TranslationRulesPresenter;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -40,14 +40,14 @@ public class TranslationProfileField extends CustomField<TranslationProfile>
 	private TranslationRulesPresenter viewer;
 	private MessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
-	private ActionParameterComponentProvider actionComponentProvider;
+	private ActionParameterComponentProviderV8 actionComponentProvider;
 	private ProfileType type;
 	private SubViewSwitcher subViewSwitcher;
 	private TranslationProfile value;
 
 	TranslationProfileField(MessageSource msg, ProfileType type,
-			TypesRegistryBase<? extends TranslationActionFactory<?>> registry,
-			ActionParameterComponentProvider actionComponentProvider, SubViewSwitcher subViewSwitcher)
+							TypesRegistryBase<? extends TranslationActionFactory<?>> registry,
+							ActionParameterComponentProviderV8 actionComponentProvider, SubViewSwitcher subViewSwitcher)
 	{
 		this.msg = msg;
 		this.type = type;

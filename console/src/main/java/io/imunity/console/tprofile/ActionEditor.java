@@ -3,12 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.tprofile;
+package io.imunity.console.tprofile;
 
-import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Label;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Label;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.MessageHumanizer;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
@@ -17,8 +19,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 
 import java.util.ArrayList;
@@ -26,54 +26,56 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Responsible for editing of a single {@link TranslationAction}
- * 
  */
-public class ActionEditor extends LayoutEmbeddable
+public class ActionEditor extends FormLayoutEmbeddable
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ActionEditor.class);
 	private MessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
-	
+	private NotificationPresenter notificationPresenter;
+
 	private ComboBox<String> actions;
 	private Label actionParams;
-	private ActionParameterComponentProviderV8 actionComponentProvider;
+	private ActionParameterComponentProvider actionComponentProvider;
 	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
 	private BiConsumer<String, Optional<TranslationAction>> callback;
 	
 	public ActionEditor(MessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
-			TranslationAction toEdit, ActionParameterComponentProviderV8 actionComponentProvider,
-			BiConsumer<String, Optional<TranslationAction>> callback)
+			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider,
+			BiConsumer<String, Optional<TranslationAction>> callback, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.tc = tc;
 		this.actionComponentProvider = actionComponentProvider;
 		this.callback = callback;
+		this.notificationPresenter = notificationPresenter;
 		initUI(toEdit);
 	}
 	
 	
 	public ActionEditor(MessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
-			TranslationAction toEdit, ActionParameterComponentProviderV8 actionComponentProvider)
+						TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider,
+						NotificationPresenter notificationPresenter)
 	{
-		this(msg, tc, toEdit, actionComponentProvider, null);
+		this(msg, tc, toEdit, actionComponentProvider, null, notificationPresenter);
 	}
 
 	private void initUI(TranslationAction toEdit)
 	{
-		actions = new ComboBox<String>(msg.getMessage("ActionEditor.ruleAction"));	
+		actions = new ComboBox<>(msg.getMessage("ActionEditor.ruleAction"));
 		ArrayList<String> items = new ArrayList<>();
-		tc.getAll().stream().
-			map(af -> af.getActionType().getName()).
-			sorted().
-			forEach(actionName -> items.add(actionName));
+		tc.getAll().stream()
+				.map(af -> af.getActionType().getName())
+				.sorted()
+				.forEach(items::add);
 	
-		actions.setStyleName(Styles.vTiny.toString());
 		actions.setItems(items);
-		actions.setEmptySelectionAllowed(false);
 		actions.setRequiredIndicatorVisible(true);
-		actions.addSelectionListener(e -> 
+		actions.addValueChangeListener(e ->
 		{
 			setParams(actions.getValue(), null);
 			if (callback != null)
@@ -81,7 +83,7 @@ public class ActionEditor extends LayoutEmbeddable
 		});
 		
 		actionParams = new Label();
-		actionParams.setCaption(msg.getMessage("ActionEditor.actionParameters"));
+		actionParams.setText(msg.getMessage("ActionEditor.actionParameters"));
 
 		addComponents(actions, actionParams);
 		
@@ -93,7 +95,7 @@ public class ActionEditor extends LayoutEmbeddable
 			if (!items.isEmpty())
 			{
 				actions.setValue(items.iterator().next());
-				setParams((String) actions.getValue(), null);
+				setParams(actions.getValue(), null);
 			}
 		}
 	}
@@ -121,26 +123,27 @@ public class ActionEditor extends LayoutEmbeddable
 			if (callback != null)
 				callback.accept(getStringRepresentation(), getActionIfValid()); 
 		};
-		removeComponents(paramComponents);
+		removeComponents(paramComponents.stream()
+				.map(component -> (Component)component)
+				.collect(toList()));
 		paramComponents.clear();
 		
 		TranslationActionFactory<?> factory = getActionFactory(action);
 		if (factory == null)
 			return;
 		
-		actions.setDescription(msg.getMessage(factory.getActionType().getDescriptionKey()));
+		actions.setTooltipText(msg.getMessage(factory.getActionType().getDescriptionKey()));
 		ActionParameterDefinition[] params = factory.getActionType().getParameters();	
 		for (int i = 0; i < params.length; i++)
 		{
 			ActionParameterComponent p = actionComponentProvider.getParameterComponent(params[i]);
-			p.setStyleName(Styles.vTiny.toString());
 			p.addValueChangeCallback(paramCallback);
 			if (values != null && values.length > i)
 			{
 				p.setActionValue(values[i]);
 			}		
 			paramComponents.add(p);
-			addComponent(p);
+			addComponent((Component) p);
 		}
 		actionParams.setVisible(!paramComponents.isEmpty());
 	}
@@ -175,7 +178,7 @@ public class ActionEditor extends LayoutEmbeddable
 			factory = tc.getByName(action);
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("ActionEditor.errorGetActions"), e);
+			notificationPresenter.showError(msg.getMessage("ActionEditor.errorGetActions"), e.getMessage());
 		}
 		return factory;
 	}
@@ -194,9 +197,8 @@ public class ActionEditor extends LayoutEmbeddable
 		{
 			log.debug("Got profile's action validation exception", e);
 			String error = msg.getMessage("ActionEditor.parametersError", e.getMessage());
-			UserError ue = new UserError(error);
 			for (ActionParameterComponent tc: paramComponents)
-				((AbstractComponent)tc).setComponentError(ue);
+				((Component)tc).getElement().setProperty("errorMessage", error);
 			throw new FormValidationException(error);
 		}
 	}
@@ -216,8 +218,7 @@ public class ActionEditor extends LayoutEmbeddable
 			if (c instanceof ExpressionActionParameterComponent)
 			{
 				ExpressionActionParameterComponent extension = (ExpressionActionParameterComponent) c;
-				extension.setStyleName(Styles.errorBackground.toString());
-				extension.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
+				extension.setErrorMessage(MessageHumanizer.getMessage(e));
 				break;
 			}
 		}	
@@ -226,25 +227,25 @@ public class ActionEditor extends LayoutEmbeddable
 	
 	public void setStyle(String style)
 	{
-		actions.setStyleName(style);
+		actions.addClassName(style);
 		for (ActionParameterComponent c: paramComponents)
-			c.setStyleName(style);
+			((HasStyle)c).addClassName(style);
 	}
 	
 	public void removeComponentEvaluationStyle()
 	{
-		actions.removeStyleName(Styles.falseConditionBackground.toString());
-		actions.removeStyleName(Styles.trueConditionBackground.toString());
+		actions.removeClassName(Styles.falseConditionBackground.toString());
+		actions.removeClassName(Styles.trueConditionBackground.toString());
 		
 		for (ActionParameterComponent c: paramComponents)
 		{
-			c.removeStyleName(Styles.falseConditionBackground.toString());
-			c.removeStyleName(Styles.trueConditionBackground.toString());
-			c.removeStyleName(Styles.errorBackground.toString());
+			((HasStyle)c).removeClassName(Styles.falseConditionBackground.toString());
+			((HasStyle)c).removeClassName(Styles.trueConditionBackground.toString());
+			((HasStyle)c).removeClassName(Styles.errorBackground.toString());
 			if (c instanceof ExpressionActionParameterComponent)
 			{
 				ExpressionActionParameterComponent extension = (ExpressionActionParameterComponent) c;
-				extension.setComponentError(null);
+				extension.setErrorMessage(null);
 			}			
 		}	
 	}
@@ -256,7 +257,7 @@ public class ActionEditor extends LayoutEmbeddable
 		rep.append("|");
 		for (ActionParameterComponent tc: paramComponents)
 		{
-			String caption = tc.getCaption();
+			String caption = tc.getLabel();
 			if (caption != null && !caption.endsWith(":"))
 				caption = caption + ":";
 			rep.append(caption + " "
@@ -273,8 +274,8 @@ public class ActionEditor extends LayoutEmbeddable
 
 	public void refresh()
 	{
-		setParams(actions.getValue(),
-				paramComponents.stream().map(pc -> pc.getActionValue()).toArray(String[]::new));
+		setParams(actions.getValue(), paramComponents.stream().map(ActionParameterComponent::getActionValue)
+				.toArray(String[]::new));
 		if (callback != null)
 			callback.accept(getStringRepresentation(), getActionIfValid());
 	}

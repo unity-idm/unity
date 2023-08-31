@@ -3,26 +3,23 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.tprofile;
+package io.imunity.console.tprofile;
 
-import pl.edu.icm.unity.base.exceptions.EngineException;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 
 /**
  * Component to edit or add a registration form translation profile
- * 
- * @author K. Benedyczak
- * 
  */
 public class RegistrationTranslationProfileEditor extends TranslationProfileEditor
 {
 	public RegistrationTranslationProfileEditor(MessageSource msg,
-			RegistrationActionsRegistry registry, ActionParameterComponentProviderV8 actionComponentProvider)
-					throws EngineException
+												RegistrationActionsRegistry registry, ActionParameterComponentProvider actionComponentProvider,
+												NotificationPresenter notificationPresenter)
 	{
-		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider);
+		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider, notificationPresenter);
 	}
 
 	@Override

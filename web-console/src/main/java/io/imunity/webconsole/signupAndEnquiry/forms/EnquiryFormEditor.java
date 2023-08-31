@@ -19,7 +19,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.tprofile.ActionParameterComponentProvider;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import io.imunity.webconsole.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -94,14 +94,14 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	@Autowired
 	public EnquiryFormEditor(MessageSource msg, UnityServerConfiguration serverConfig,
-			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
-			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
-			AttributeTypeManagement attributeMan, CredentialManagement authenticationMan,
-			RegistrationActionsRegistry actionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService,
-			URIAccessService uriAccessService, ImageAccessService imageAccessService,
-			PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
-			AttributeTypeSupport attributeTypeSupport)
+							 GroupsManagement groupsMan, NotificationsManagement notificationsMan,
+							 MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
+							 AttributeTypeManagement attributeMan, CredentialManagement authenticationMan,
+							 RegistrationActionsRegistry actionsRegistry,
+							 ActionParameterComponentProviderV8 actionComponentFactory, FileStorageService fileStorageService,
+							 URIAccessService uriAccessService, ImageAccessService imageAccessService,
+							 PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
+							 AttributeTypeSupport attributeTypeSupport)
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, authenticationMan, policyAgreementConfigurationListFactory,
