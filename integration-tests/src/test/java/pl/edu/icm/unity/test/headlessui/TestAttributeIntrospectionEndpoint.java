@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class TestAttributeIntrospectionEndpoint extends SeleniumTestBase
 {
 	@Test
-	public void attributeIntrospectionTest() throws Exception
+	public void attributeIntrospectionTest()
 	{		
 		driver.get(baseUrl + "/introspection");
 		waitForElement(By.className("u-idpAuthentication-saml-7")).click();
@@ -32,7 +32,5 @@ public class TestAttributeIntrospectionEndpoint extends SeleniumTestBase
 		waitForElement(By.xpath("//*[contains(text(), 'Good')]"));
 		waitForElement(By.xpath("//*[contains(text(), '50% (1/2) optional attributes were provided')]"));
 		waitForElement(By.xpath("//*[contains(text(), 'All mandatory attributes were provided')]"));
-
-		waitForPageLoad(By.id("PolicyProcessingSummaryComponent.TryAgain")).click();
 	}
 }
