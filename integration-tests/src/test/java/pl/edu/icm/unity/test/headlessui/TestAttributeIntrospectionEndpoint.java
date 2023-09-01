@@ -5,18 +5,17 @@
 
 package pl.edu.icm.unity.test.headlessui;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestAttributeIntrospectionEndpoint extends SeleniumTestBase
 {
 	@Test
-	public void attributeInstrospectionTest() throws Exception
+	public void attributeIntrospectionTest() throws Exception
 	{		
 		driver.get(baseUrl + "/introspection");
-		
 		waitForElement(By.className("u-idpAuthentication-saml-7")).click();
 		
 		//saml login
@@ -28,12 +27,12 @@ public class TestAttributeIntrospectionEndpoint extends SeleniumTestBase
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();
 
 		//summary component
-		assertTrue(waitForPageLoad(By.id("PolicyProcessingSummaryComponent.TryAgain")) != null);
+		assertNotNull(waitForPageLoad(By.id("PolicyProcessingSummaryComponent.TryAgain")));
 
 		waitForElement(By.xpath("//*[contains(text(), 'Good')]"));
 		waitForElement(By.xpath("//*[contains(text(), '50% (1/2) optional attributes were provided')]"));
 		waitForElement(By.xpath("//*[contains(text(), 'All mandatory attributes were provided')]"));
 
-		//waitForPageLoad(By.id("PolicyProcessingSummaryComponent.TryAgain")).click();
+		waitForPageLoad(By.id("PolicyProcessingSummaryComponent.TryAgain")).click();
 	}
 }

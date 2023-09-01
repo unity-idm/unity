@@ -11,9 +11,7 @@ import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.UIInitListener;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
-import com.vaadin.flow.spring.SpringInstantiator;
 import org.springframework.context.ApplicationContext;
-
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.NoOpLoginCounter;
@@ -38,7 +36,7 @@ public class SpringVaadin2XServletService extends VaadinServletService
 	@Override
 	protected Optional<Instantiator> loadInstantiators()
 	{
-		return Optional.of(new SpringInstantiator(this, context));
+		return Optional.of(new BaseSpringInstantiator(this, context));
 	}
 
 	@Override

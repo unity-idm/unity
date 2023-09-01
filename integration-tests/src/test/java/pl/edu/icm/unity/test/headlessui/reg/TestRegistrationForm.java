@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.test.headlessui.reg;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class TestRegistrationForm extends SeleniumTestBase

@@ -104,6 +104,6 @@ class RedirectedAuthnResultProcessor
 	private void showUnknownUserDialog(UnknownRemotePrincipalResult result)
 	{
 		Dialog dialog = unknownUserDialogProvider.apply(result);
-		dialog.open();
+		UI.getCurrent().access(dialog::open);
 	}
 }
