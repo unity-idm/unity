@@ -27,15 +27,13 @@ import java.util.function.Consumer;
 
 class MVELExpressionEditorDialog extends Dialog
 {
-	public static final int CHEET_SHEET_LINES_COUNT = 4;
-	public static final String MONOSPACE_FONT = "Consolas";
-
-	public final MessageSource msg;
-
+	private static final int CHEET_SHEET_LINES_COUNT = 4;
+	private static final String MONOSPACE_FONT = "Consolas";
+	private final MessageSource msg;
 	private final Consumer<String> valueConsumer;
-	InputLabel inputLabel;
 	private final TextArea value;
 	private final MVELExpressionContext context;
+	private InputLabel inputLabel;
 
 	MVELExpressionEditorDialog(MessageSource msg, MVELExpressionContext context,
 			 boolean mandatory, String initValue, Consumer<String> valueConsumer)

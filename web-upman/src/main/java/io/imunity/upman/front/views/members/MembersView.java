@@ -95,7 +95,7 @@ public class MembersView extends UpmanViewComponent
 	{
 		HorizontalLayout layout = new HorizontalLayout(new Label(msg.getMessage("GroupMemberView.subGroupComboCaption")), groupsComboBox);
 		layout.setAlignItems(FlexComponent.Alignment.CENTER);
-		layout.getStyle().set("margin-top", "2em");
+		layout.getStyle().set("margin-top", "var(--big-margin)");
 		return layout;
 	}
 

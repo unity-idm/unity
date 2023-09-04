@@ -125,7 +125,7 @@ public class AuthenticationFilter implements Filter
 			return;
 		if(!loginSession.getRealm().equals(realm.getName()))
 		{
-			log.error("Critical error - wrong realm {} has been bound to login session, expect {}",
+			log.error("Critical error - wrong realm {} has been bound to login session, expected {}",
 					loginSession.getRealm(), realm.getName());
 			forwardtoAuthn(httpRequest, httpResponse, chain);
 			throw new EopException();

@@ -58,7 +58,7 @@ public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
 		summary.setAlignItems(FlexComponent.Alignment.BASELINE);
 		summary.setWidthFull();
-		summary.getStyle().set("gap", "0.3em");
+		summary.getStyle().set("gap", "var(--small-gap)");
 
 		enabledLocales.stream()
 				.filter(locale -> !currentLocale.equals(locale))

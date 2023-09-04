@@ -166,7 +166,7 @@ class AuditEventEntry
 				nonNull(entity.getEmail()) ? entity.getEmail() : "-");
 	}
 
-	public boolean anyFieldContains(String searched)
+	boolean anyFieldContains(String searched)
 	{
 		if(searched == null)
 			return true;

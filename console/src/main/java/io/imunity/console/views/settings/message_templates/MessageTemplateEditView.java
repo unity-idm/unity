@@ -71,10 +71,11 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 	private Binder<I18nMessage> messageBinder;
 	private Map<String, NotificationChannelInfo> notificationChannelsMap;
 	private MultiSelectComboBox<String> customVariablesPicker;
+
 	MessageTemplateEditView(MessageSource msg, MessageTemplateController controller,
-								   NotificationPresenter notificationPresenter, MessageTemplateConsumersRegistry registry,
-							       MessageTemplateManagement msgTemplateMgr,
-								   NotificationsManagement notChannelsMan)
+			NotificationPresenter notificationPresenter, MessageTemplateConsumersRegistry registry,
+			MessageTemplateManagement msgTemplateMgr,
+			NotificationsManagement notChannelsMan)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -86,17 +87,17 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String messageTemplateName) {
+	public void setParameter(BeforeEvent event, @OptionalParameter String messageTemplateName)
+	{
 		getContent().removeAll();
 
 		MessageTemplate messageTemplate;
-		if(messageTemplateName == null)
+		if (messageTemplateName == null)
 		{
 			messageTemplate = new MessageTemplate();
 			messageTemplate.setMessage(new I18nMessage(new I18nString(), new I18nString()));
 			editMode = false;
-		}
-		else
+		} else
 		{
 			messageTemplate = controller.getMessageTemplate(messageTemplateName);
 			editMode = true;
@@ -168,7 +169,8 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		setBean(toEdit, name, consumers);
 	}
 
-	private FormLayout createFormLayout(TextField name, TextField description, LocaleTextFieldDetails subject, ComboBox<MessageType> messageType, LocaleTextAreaDetails body)
+	private FormLayout createFormLayout(TextField name, TextField description, LocaleTextFieldDetails subject,
+			ComboBox<MessageType> messageType, LocaleTextAreaDetails body)
 	{
 		FormLayout formLayout = new FormLayout();
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
@@ -223,7 +225,8 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		}
 	}
 
-	private void configBinder(TextField name, TextField description, LocaleTextFieldDetails subject, ComboBox<MessageType> messageType, LocaleTextAreaDetails body)
+	private void configBinder(TextField name, TextField description, LocaleTextFieldDetails subject,
+			ComboBox<MessageType> messageType, LocaleTextAreaDetails body)
 	{
 		binder = new Binder<>(MessageTemplate.class);
 		binder.forField(name)
@@ -232,33 +235,35 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		binder.forField(description)
 				.bind(MessageTemplate::getDescription, MessageTemplate::setDescription);
 		binder.forField(customVariablesPicker)
-						.withValidator(
-								str -> str.stream().allMatch(val -> val.matches("[a-zA-Z0-9_\\-.]*")),
-								msg.getMessage("MessageTemplatesEditor.customVariableIllegalCharsError")
-						).bind(ignore -> null, (x, y) -> {});
+				.withValidator(
+						str -> str.stream().allMatch(val -> val.matches("[a-zA-Z0-9_\\-.]*")),
+						msg.getMessage("MessageTemplatesEditor.customVariableIllegalCharsError")
+				).bind(ignore -> null, (x, y) ->
+				{
+				});
 		binder.forField(consumer)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind(MessageTemplate::getConsumer, MessageTemplate::setConsumer);
 		binder.forField(notificationChannels)
 				.withNullRepresentation("")
 				.withValidator((value, context) ->
-				{
-					EnumSet<CommunicationTechnology> compatibleTechnologies = registry
-						.getByName(consumer.getValue()).getCompatibleTechnologies();
-					if (compatibleTechnologies.isEmpty())
-					{
-						return ValidationResult.ok();
-					} else if (value == null || value.isEmpty())
-					{
-						return ValidationResult.error(msg.getMessage("fieldRequired"));
-					} else if (notificationChannelsMap.get(value) == null)
-					{
-						return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.undefinedChannel"));
-					}
+						{
+							EnumSet<CommunicationTechnology> compatibleTechnologies = registry
+									.getByName(consumer.getValue()).getCompatibleTechnologies();
+							if (compatibleTechnologies.isEmpty())
+							{
+								return ValidationResult.ok();
+							} else if (value == null || value.isEmpty())
+							{
+								return ValidationResult.error(msg.getMessage("fieldRequired"));
+							} else if (notificationChannelsMap.get(value) == null)
+							{
+								return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.undefinedChannel"));
+							}
 
-					return ValidationResult.ok();
-				}
-			).bind(MessageTemplate::getNotificationChannel, MessageTemplate::setNotificationChannel);
+							return ValidationResult.ok();
+						}
+				).bind(MessageTemplate::getNotificationChannel, MessageTemplate::setNotificationChannel);
 		binder.forField(messageType)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind(MessageTemplate::getType, MessageTemplate::setType);
@@ -319,7 +324,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		if (template == null)
 			return;
 
-		if(editMode)
+		if (editMode)
 			controller.updateMessageTemplate(template);
 		else
 			controller.addMessageTemplate(template);
@@ -334,8 +339,8 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 	}
 
 	private void toggleSubjectAndBody(String channel,
-									  Set<FormLayout.FormItem> notTemplateItems,
-									  Set<FormLayout.FormItem> templateItems)
+			Set<FormLayout.FormItem> notTemplateItems,
+			Set<FormLayout.FormItem> templateItems)
 	{
 
 		NotificationChannelInfo notificationChannel = notificationChannelsMap.get(channel);
@@ -502,15 +507,15 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
 
 			if (value == null)
-				return  ValidationResult.error(msg.getMessage("fieldRequired"));
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			if (value.values().stream().allMatch(String::isBlank))
-				return  ValidationResult.error(msg.getMessage("fieldRequired"));
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			try
 			{
 				MessageTemplateValidator.validateText(c, value.toString(), checkMandatory);
 			} catch (MessageTemplateValidator.IllegalVariablesException e)
 			{
-				return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.errorUnknownVars" ,
+				return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.errorUnknownVars",
 						e.getUnknown().toString()));
 
 			} catch (MessageTemplateValidator.MandatoryVariablesException e)

@@ -9,11 +9,16 @@ package pl.edu.icm.unity.store.migration.to4_0;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.apache.logging.log4j.Logger;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
 
-import java.util.Arrays;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class UpdateHelperTo4_0
 {
@@ -24,29 +29,61 @@ public class UpdateHelperTo4_0
 		if (node.get("typeId").textValue().equals("UserHomeUI"))
 		{
 			String originalConfiguration = node.get("configuration").get("configuration").textValue();
-			String configuration = originalConfiguration;
-			String newLine = System.lineSeparator();
-			List<String> disabledComponents = Arrays.stream(configuration.split(newLine))
-					.filter(line -> line.contains("unity.userhome.disabledComponents"))
-					.toList();
-			for (String disabledRow : disabledComponents)
+			boolean edited = false;
+			Properties appProps = loadProperties(originalConfiguration);
+			Map<String, String> disabledComponents = appProps
+					.entrySet().stream()
+					.filter(entry -> entry.getKey().toString().contains("unity.userhome.disabledComponents."))
+					.collect(Collectors.toMap(entry -> entry.getKey().toString(), entry -> entry.getValue().toString()));
+
+			for (Map.Entry<String, String> entry : disabledComponents.entrySet())
 			{
-				if (disabledRow.contains("userInfo") || disabledRow.contains("identitiesManagement"))
+				String key = entry.getKey();
+				String value = entry.getValue();
+				if (value.equals("userInfo") || value.equals("identitiesManagement"))
 				{
-					configuration = configuration.replace(disabledRow + newLine, "");
-					if (!disabledRow.startsWith("#"))
-						log.info("This row {} has been removed from endpoint configuration {}", disabledRow, node.get("name").textValue());
+					appProps.remove(key);
+					log.info("This row {} has been removed from endpoint configuration {}", value,
+							node.get("name").textValue());
+					edited = true;
 				}
-				if (disabledRow.contains("credentialTab") && !disabledRow.startsWith("#"))
+				if (value.equals("credentialTab"))
 				{
-					String trustedDevice = "unity.userhome.disabledComponents.10=trustedDevices";
-					configuration += trustedDevice + newLine;
-					log.info("This row {} has been add to endpoint configuration {}", trustedDevice, node.get("name").textValue());
+					appProps.put("unity.userhome.disabledComponents.10", "trustedDevices");
+					log.info("This row {} has been add to endpoint configuration {}", "trustedDevices",
+							node.get("name").textValue());
+					edited = true;
 				}
 			}
-			if(!originalConfiguration.equals(configuration))
-				return Optional.of(new TextNode(configuration));
+			if(edited)
+				return Optional.of(new TextNode(getAsString(appProps)));
 		}
 		return Optional.empty();
+	}
+
+	private static Properties loadProperties(String originalConfiguration)
+	{
+		Properties appProps = new Properties();
+		try
+		{
+			appProps.load(new ByteArrayInputStream(originalConfiguration.getBytes()));
+		} catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+		return appProps;
+	}
+
+	private static String getAsString(Properties properties)
+	{
+		StringWriter writer = new StringWriter();
+		try
+		{
+			properties.store(writer, "");
+		} catch (IOException e)
+		{
+			throw new InternalException("Can not save properties to string");
+		}
+		return writer.getBuffer().toString();
 	}
 }

@@ -31,7 +31,6 @@ class MessageTemplateController
 	MessageTemplateController(MessageSource msg, MessageTemplateManagement msgMan, NotificationsManagement notChannelsMan,
 							  MessageTemplateConsumersRegistry consumersRegistry, NotificationPresenter notificationPresenter)
 	{
-		super();
 		this.msg = msg;
 		this.msgMan = msgMan;
 		this.consumersRegistry = consumersRegistry;
@@ -52,7 +51,6 @@ class MessageTemplateController
 	}
 	
 	void updateMessageTemplate(MessageTemplate toUpdate)
-
 	{
 		try
 		{

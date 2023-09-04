@@ -7,6 +7,6 @@ package io.imunity.vaadin.elements;
 
 public interface TabTextHider
 {
-	void hiddeText();
+	void hideText();
 	void showText();
 }

@@ -16,34 +16,19 @@ class MessageTemplateEntry
 		this.messageTemplate = messageTemplate;
 	}
 
-	public boolean anyFieldContains(String searched)
+	boolean anyFieldContains(String searched)
 	{
 		if(searched == null || searched.isBlank())
 			return true;
 		String textLower = searched.toLowerCase();
 
 		if (messageTemplate.getName().toLowerCase().contains(textLower))
-		{
 			return true;
-		}
-
 		if (messageTemplate.getType().toString().toLowerCase().contains(textLower))
-		{
 			return true;
-		}
-
-		if (messageTemplate.getNotificationChannel() != null && messageTemplate.getNotificationChannel()
-				.toString().toLowerCase().contains(textLower))
-		{
+		if (messageTemplate.getNotificationChannel() != null && messageTemplate.getNotificationChannel().toLowerCase().contains(textLower))
 			return true;
-		}
-
-		if (messageTemplate.getConsumer().toString().toLowerCase().contains(textLower))
-		{
-			return true;
-		}
-
-		return false;
+		return messageTemplate.getConsumer().toLowerCase().contains(textLower);
 	}
 
 }

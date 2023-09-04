@@ -22,7 +22,7 @@ import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.MessageHumanizer;
+import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -328,7 +328,7 @@ public class RuleComponent extends VerticalLayout
 	private void indicateConditionError(Exception e) 
 	{
 		condition.addClassName(Styles.errorBackground.toString());
-		condition.setErrorMessage(MessageHumanizer.getMessage(e));
+		condition.setErrorMessage(ExceptionMessageHumanizer.getHumanReadableMessage(e));
 	}
 
 

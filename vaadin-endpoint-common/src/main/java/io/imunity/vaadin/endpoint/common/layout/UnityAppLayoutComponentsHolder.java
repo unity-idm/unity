@@ -82,7 +82,7 @@ class UnityAppLayoutComponentsHolder
 	{
 		tabs.getChildren()
 				.map(TabTextHider.class::cast)
-				.forEach(TabTextHider::hiddeText);
+				.forEach(TabTextHider::hideText);
 	}
 
 	public void showTextInTabs()

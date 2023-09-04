@@ -61,7 +61,7 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 		summary = new HorizontalLayout(defaultField, angleDown, angleUp);
 		summary.setAlignItems(FlexComponent.Alignment.CENTER);
 		summary.setWidthFull();
-		summary.getStyle().set("gap", "0.3em");
+		summary.getStyle().set("gap", "var(--small-gap)");
 
 		enabledLocales.stream()
 				.filter(locale -> !currentLocale.equals(locale))
@@ -102,10 +102,9 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 	private Icon crateIcon(VaadinIcon angleDown, String label)
 	{
 		Icon icon = angleDown.create();
-		icon.setColor("unset");
-		icon.getStyle().set("cursor", "pointer");
+		icon.addClassName("details-icon");
 		if(!label.isBlank())
-			icon.getStyle().set("margin-top", "2em");
+			icon.getStyle().set("margin-top", "var(--big-margin)");
 		return icon;
 	}
 

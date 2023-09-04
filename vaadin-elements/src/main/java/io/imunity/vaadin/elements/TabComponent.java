@@ -38,12 +38,11 @@ public class TabComponent extends Tab implements TabTextHider
 	}
 
 	@Override
-	public void hiddeText()
+	public void hideText()
 	{
 		routerLink.setText("");
 		routerLink.addComponentAsFirst(icon);
-		Tooltip tooltip = setTooltipText(name);
-				tooltip.setPosition(Tooltip.TooltipPosition.END);
+		setTooltipText(name).setPosition(Tooltip.TooltipPosition.END);
 	}
 
 	@Override

@@ -26,7 +26,8 @@ class PolicyDocumentsController
 	private final PolicyDocumentManagement docMan;
 	private final NotificationPresenter notificationPresenter;
 
-	PolicyDocumentsController(MessageSource msg, PolicyDocumentManagement docMan, NotificationPresenter notificationPresenter)
+	PolicyDocumentsController(MessageSource msg, PolicyDocumentManagement docMan,
+			NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.docMan = docMan;
@@ -47,13 +48,16 @@ class PolicyDocumentsController
 
 	public void addPolicyDocument(PolicyDocumentEntry createRequest)
 	{
-		PolicyDocumentCreateRequest policyDocumentCreateRequest = new PolicyDocumentCreateRequest(createRequest.name, convert(createRequest.displayedName), createRequest.mandatory, createRequest.contentType, convert(createRequest.content));
+		PolicyDocumentCreateRequest policyDocumentCreateRequest = new PolicyDocumentCreateRequest(createRequest.name,
+				convert(createRequest.displayedName), createRequest.mandatory, createRequest.contentType,
+				convert(createRequest.content));
 		try
 		{
 			docMan.addPolicyDocument(policyDocumentCreateRequest);
 		} catch (Exception e)
 		{
-			notificationPresenter.showError(msg.getMessage("PolicyDocumentsController.addError", createRequest.name), e.getMessage());
+			notificationPresenter.showError(msg.getMessage("PolicyDocumentsController.addError", createRequest.name),
+					e.getMessage());
 		}
 	}
 
@@ -71,7 +75,9 @@ class PolicyDocumentsController
 
 	public void updatePolicyDocument(PolicyDocumentEntry updateRequest, boolean withRevsion)
 	{
-		PolicyDocumentUpdateRequest policyDocumentUpdateRequest = new PolicyDocumentUpdateRequest(updateRequest.id, updateRequest.name, convert(updateRequest.displayedName), updateRequest.mandatory, updateRequest.contentType, convert(updateRequest.content));
+		PolicyDocumentUpdateRequest policyDocumentUpdateRequest = new PolicyDocumentUpdateRequest(updateRequest.id,
+				updateRequest.name, convert(updateRequest.displayedName), updateRequest.mandatory,
+				updateRequest.contentType, convert(updateRequest.content));
 		try
 		{
 			if (withRevsion)
@@ -81,7 +87,8 @@ class PolicyDocumentsController
 
 		} catch (Exception e)
 		{
-			notificationPresenter.showError(msg.getMessage("PolicyDocumentsController.updateError", updateRequest.id), e.getMessage());
+			notificationPresenter.showError(msg.getMessage("PolicyDocumentsController.updateError", updateRequest.id),
+					e.getMessage());
 		}
 
 	}
@@ -93,7 +100,8 @@ class PolicyDocumentsController
 			docMan.removePolicyDocument(id);
 		} catch (Exception e)
 		{
-			notificationPresenter.showError(msg.getMessage("PolicyDocumentsController.removeError", id), e.getMessage());
+			notificationPresenter.showError(msg.getMessage("PolicyDocumentsController.removeError", id),
+					e.getMessage());
 		}
 	}
 

@@ -605,7 +605,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 		PolicyAgreementRepresentation ar = policyAgreementsRepresentationBuilder.getAgreementRepresentation(aParam);
 		policyAgreementSelectors.add(ar);
-		ar.getStyle().set("margin-top", "0.5em");
+		ar.getStyle().set("margin-top", "var(--small-margin)");
 		layout.add(ar);
 		return true;	
 	}

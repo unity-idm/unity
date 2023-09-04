@@ -10,7 +10,7 @@ import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.MessageHumanizer;
+import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
@@ -34,9 +34,9 @@ import static java.util.stream.Collectors.toList;
 public class ActionEditor extends FormLayoutEmbeddable
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ActionEditor.class);
-	private MessageSource msg;
+	private final MessageSource msg;
+	private final NotificationPresenter notificationPresenter;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
-	private NotificationPresenter notificationPresenter;
 
 	private ComboBox<String> actions;
 	private Label actionParams;
@@ -218,7 +218,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 			if (c instanceof ExpressionActionParameterComponent)
 			{
 				ExpressionActionParameterComponent extension = (ExpressionActionParameterComponent) c;
-				extension.setErrorMessage(MessageHumanizer.getMessage(e));
+				extension.setErrorMessage(ExceptionMessageHumanizer.getHumanReadableMessage(e));
 				break;
 			}
 		}	

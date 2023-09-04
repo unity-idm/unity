@@ -14,7 +14,7 @@ import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import java.util.List;
 
 @Component
-public class CertificatesController
+class CertificatesController
 {
 	private final PKIManagement pkiMan;
 	private final MessageSource msg;

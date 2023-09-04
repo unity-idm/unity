@@ -12,13 +12,13 @@ import java.util.Set;
 
 class MainMenu
 {
-	Component menu;
-	Set<MenuButton> menuButtons;
+	final Component menu;
+	final Set<MenuButton> menuButtons;
 
 	public MainMenu(Component menu, Set<MenuButton> menuButtons)
 	{
 		this.menu = menu;
-		this.menuButtons = menuButtons;
+		this.menuButtons = Set.copyOf(menuButtons);
 	}
 
 	void setEnabled(boolean value)

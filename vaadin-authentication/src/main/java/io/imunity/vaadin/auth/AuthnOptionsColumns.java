@@ -353,7 +353,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 	private ComponentWithId getExpandAllOptionsButton()
 	{
 		LinkButton expand = new LinkButton(msg.getMessage("AuthenticationUI.showAllOptions"), event -> showAllOptions());
-		expand.getStyle().set("margin-top", "2em");
+		expand.getStyle().set("margin-top", "var(--big-margin)");
 		return createNonLoginComponent(SPECIAL_ENTRY_EXPAND, expand);
 	}
 

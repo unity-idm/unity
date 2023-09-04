@@ -269,3 +269,8 @@ label[disabled] {
     width: var(--lumo-icon-size-l);
     height: var(--lumo-icon-size-l);
 }
+
+.details-icon {
+    color: unset;
+    cursor: pointer;
+}

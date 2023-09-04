@@ -35,7 +35,7 @@ class AutomationController
 	private final ActionParameterComponentProvider parameterFactory;
 
 	AutomationController(MessageSource msg, BulkProcessingManagement bulkMan, EntityActionsRegistry registry,
-						 NotificationPresenter notificationPresenter, ActionParameterComponentProvider parameterFactory)
+			NotificationPresenter notificationPresenter, ActionParameterComponentProvider parameterFactory)
 	{
 		this.msg = msg;
 		this.bulkMan = bulkMan;
@@ -56,7 +56,6 @@ class AutomationController
 	}
 
 	void scheduleRule(ScheduledProcessingRuleParam rule)
-
 	{
 		try
 		{
@@ -68,7 +67,6 @@ class AutomationController
 	}
 
 	void removeScheduledRules(Set<ScheduledProcessingRule> toRemove)
-
 	{
 		for (ScheduledProcessingRule r : toRemove)
 		{
@@ -83,7 +81,6 @@ class AutomationController
 	}
 
 	void updateScheduledRule(String id, ScheduledProcessingRuleParam toAdd)
-
 	{
 		try
 		{
@@ -159,6 +156,8 @@ class AutomationController
 		{
 			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
 		}
-		return new ActionEditor(msg, registry, translationRule.getAction(), parameterFactory,(name, translationAction) -> translationAction.ifPresent(translationRule::setTranslationAction), notificationPresenter);
+		return new ActionEditor(msg, registry, translationRule.getAction(), parameterFactory,
+				(name, translationAction) -> translationAction.ifPresent(translationRule::setTranslationAction),
+				notificationPresenter);
 	}
 }

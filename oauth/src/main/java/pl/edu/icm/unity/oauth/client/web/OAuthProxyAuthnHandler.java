@@ -83,7 +83,7 @@ public class OAuthProxyAuthnHandler
 			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
-		String currentRelativeURI = endpointPath + ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
+		String currentURI = endpointPath + ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
 		OAuthContext context;
 		try
@@ -91,9 +91,9 @@ public class OAuthProxyAuthnHandler
 			context = credentialExchange.createRequest(idpConfigKey, Optional.empty(), 
 					new AuthenticationStepContext(authnContext, getAuthnOptionId(idpConfigKey)),
 					loginMachineDetails,
-					currentRelativeURI,
+					currentURI,
 					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
-			context.setReturnUrl(currentRelativeURI);
+			context.setReturnUrl(currentURI);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 		} catch (Exception e)
 		{

@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 @Component
 class RealmsController
 {
-	private RealmsManagement realmMan;
-	private MessageSource msg;
-	private EndpointManagement endpointMan;
-	private NotificationPresenter notificationPresenter;
+	private final RealmsManagement realmMan;
+	private final MessageSource msg;
+	private final EndpointManagement endpointMan;
+	private final NotificationPresenter notificationPresenter;
 
 	RealmsController(MessageSource msg, RealmsManagement realmMan,
 					 EndpointManagement endpointMan, NotificationPresenter notificationPresenter)

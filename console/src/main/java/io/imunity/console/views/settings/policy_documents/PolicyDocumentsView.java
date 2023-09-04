@@ -56,7 +56,6 @@ public class PolicyDocumentsView extends ConsoleViewComponent
 
 	public void init()
 	{
-
 		policyDocsGrid = new Grid<>();
 		policyDocsGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		Grid.Column<PolicyDocumentEntry> nameColumn = policyDocsGrid
@@ -125,7 +124,6 @@ public class PolicyDocumentsView extends ConsoleViewComponent
 
 	private void tryRemove(PolicyDocumentEntry entry)
 	{
-
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(entry.name));
 		new ConfirmDialog(
 				msg.getMessage("ConfirmDialog.confirm"),

@@ -51,8 +51,8 @@ public class InteractiveAuthenticationProcessorTest
 	{
 		AuthenticatedEntity authenticatedEntity = mock(AuthenticatedEntity.class);
 		AuthenticationOptionKey authenticationOptionKey = mock(AuthenticationOptionKey.class);
-		AuthenticationRealm authenticationRealm = mock(AuthenticationRealm.class);
-		AuthenticationRealm authenticationRealmInContext = mock(AuthenticationRealm.class);
+		AuthenticationRealm userRealm = mock(AuthenticationRealm.class);
+		AuthenticationRealm endpointRealm = mock(AuthenticationRealm.class);
 		LoginMachineDetails loginMachineDetails = mock(LoginMachineDetails.class);
 		InteractiveAuthenticationProcessor.SessionReinitializer sessionReinitializer =
 			mock(InteractiveAuthenticationProcessor.SessionReinitializer.class);
@@ -62,19 +62,20 @@ public class InteractiveAuthenticationProcessorTest
 		LoginSession.RememberMeInfo rememberMeInfo = new LoginSession.RememberMeInfo(false, false);
 
 
-		when(authenticationRealm.getName()).thenReturn("admin");
-		when(authenticationRealmInContext.getName()).thenReturn("admin");
+		String realmName = "realm1";
+		when(userRealm.getName()).thenReturn(realmName);
+		when(endpointRealm.getName()).thenReturn(realmName);
 
 		when(loginSession.getRememberMeInfo()).thenReturn(rememberMeInfo);
 		when(authenticatedEntity.getEntityId()).thenReturn(1L);
 		when(authenticatedEntity.getOutdatedCredentialId()).thenReturn("out");
 		when(sessionReinitializer.reinitialize()).thenReturn(httpSession);
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
-		when(sessionMan.getCreateSession(1, authenticationRealm, "label", "out",
+		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
 			rememberMeInfo, authenticationOptionKey, null)).thenReturn(loginSession);
-		InvocationContext.setCurrent(new InvocationContext(null, authenticationRealmInContext, List.of()));
+		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
-		processor.syntheticAuthenticate(authenticatedEntity, List.of(), authenticationOptionKey, authenticationRealm,
+		processor.syntheticAuthenticate(authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
 			loginMachineDetails, false, httpResponse, sessionReinitializer);
 
 		verify(sessionBinder).bindHttpSession(httpSession, loginSession);
@@ -85,8 +86,8 @@ public class InteractiveAuthenticationProcessorTest
 	{
 		AuthenticatedEntity authenticatedEntity = mock(AuthenticatedEntity.class);
 		AuthenticationOptionKey authenticationOptionKey = mock(AuthenticationOptionKey.class);
-		AuthenticationRealm authenticationRealm = mock(AuthenticationRealm.class);
-		AuthenticationRealm authenticationRealmInContext = mock(AuthenticationRealm.class);
+		AuthenticationRealm userRealm = mock(AuthenticationRealm.class);
+		AuthenticationRealm endpointRealm = mock(AuthenticationRealm.class);
 		LoginMachineDetails loginMachineDetails = mock(LoginMachineDetails.class);
 		InteractiveAuthenticationProcessor.SessionReinitializer sessionReinitializer =
 			mock(InteractiveAuthenticationProcessor.SessionReinitializer.class);
@@ -95,20 +96,19 @@ public class InteractiveAuthenticationProcessorTest
 		LoginSession loginSession = mock(LoginSession.class);
 		LoginSession.RememberMeInfo rememberMeInfo = new LoginSession.RememberMeInfo(false, false);
 
-
-		when(authenticationRealm.getName()).thenReturn("admin");
-		when(authenticationRealmInContext.getName()).thenReturn("home");
+		when(userRealm.getName()).thenReturn("realm1");
+		when(endpointRealm.getName()).thenReturn("ANOTHER_REALM");
 
 		when(loginSession.getRememberMeInfo()).thenReturn(rememberMeInfo);
 		when(authenticatedEntity.getEntityId()).thenReturn(1L);
 		when(authenticatedEntity.getOutdatedCredentialId()).thenReturn("out");
 		when(sessionReinitializer.reinitialize()).thenReturn(httpSession);
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
-		when(sessionMan.getCreateSession(1, authenticationRealm, "label", "out",
+		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
 			rememberMeInfo, authenticationOptionKey, null)).thenReturn(loginSession);
-		InvocationContext.setCurrent(new InvocationContext(null, authenticationRealmInContext, List.of()));
+		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
-		processor.syntheticAuthenticate(authenticatedEntity, List.of(), authenticationOptionKey, authenticationRealm,
+		processor.syntheticAuthenticate(authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
 			loginMachineDetails, false, httpResponse, sessionReinitializer);
 
 		verify(sessionBinder, times(0)).bindHttpSession(httpSession, loginSession);

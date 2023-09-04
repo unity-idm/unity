@@ -5,14 +5,6 @@
 
 package io.imunity.webconsole.authentication.inputTranslation;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
 import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
@@ -20,6 +12,9 @@ import io.imunity.webconsole.tprofile.TranslationProfileEditor;
 import io.imunity.webconsole.translationProfile.TranslationsControllerBase;
 import io.imunity.webconsole.translationProfile.dryrun.DryRunWizardProvider;
 import io.imunity.webconsole.translationProfile.wizard.ProfileWizardProvider;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -32,6 +27,10 @@ import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 @Component
 public class InputTranslationsController extends TranslationsControllerBase
 {
@@ -40,8 +39,8 @@ public class InputTranslationsController extends TranslationsControllerBase
 
 	@Autowired
 	public InputTranslationsController(MessageSource msg, TranslationProfileManagement profileMan,
-									   InputTranslationActionsRegistry inputActionsRegistry,
-									   ActionParameterComponentProviderV8 actionComponentFactory, EndpointController endpointController)
+			InputTranslationActionsRegistry inputActionsRegistry,
+			ActionParameterComponentProviderV8 actionComponentFactory, EndpointController endpointController)
 	{
 		super(msg, profileMan, inputActionsRegistry, actionComponentFactory, ProfileType.INPUT);
 		this.endpointController = endpointController;

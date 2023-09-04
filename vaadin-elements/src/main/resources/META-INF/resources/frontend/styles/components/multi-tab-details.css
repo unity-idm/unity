@@ -30,3 +30,7 @@
 :host(.multi-tab-details) [role=heading] {
     padding: 0.3em 0;
 }
+
+:host(.multi-tab-details) {
+    margin: 0;
+}

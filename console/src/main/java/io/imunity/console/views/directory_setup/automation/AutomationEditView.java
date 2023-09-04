@@ -32,16 +32,13 @@ import javax.annotation.security.PermitAll;
 @Route(value = "/automation/edit", layout = ConsoleMenu.class)
 public class AutomationEditView extends ConsoleViewComponent
 {
-	private MessageSource msg;
-	private AutomationController controller;
+	private final MessageSource msg;
+	private final AutomationController controller;
 	private boolean edit;
 	private String id;
 	private Binder<ScheduledProcessingRuleParam> binder;
 
-	private MVELExpressionField condition;
-	private CronExpressionField cronExpression;
-
-	public AutomationEditView(MessageSource msg, AutomationController controller)
+	AutomationEditView(MessageSource msg, AutomationController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -71,8 +68,8 @@ public class AutomationEditView extends ConsoleViewComponent
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		cronExpression = new CronExpressionField(msg, "");
-		condition = new MVELExpressionField(msg, "",
+		CronExpressionField cronExpression = new CronExpressionField(msg, "");
+		MVELExpressionField condition = new MVELExpressionField(msg, "",
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder().withTitleKey("RuleEditor.conditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(EntityMVELContextKey.toMap())

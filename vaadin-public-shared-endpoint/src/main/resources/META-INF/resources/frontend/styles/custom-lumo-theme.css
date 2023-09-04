@@ -9,6 +9,11 @@ html {
   --input-label-top-padding: var(--lumo-space-m);
   --border-radius: var(--lumo-border-radius-m);
   --contrast: var(--lumo-contrast-5pct);
+
+  --base-margin: 1em;
+  --small-margin: calc(0.5 * var(--base-margin));
+  --medium-margin: calc(1.5 * var(--base-margin));
+  --big-margin: calc(2 * var(--base-margin));
 }
 
 .u-fido-layout {

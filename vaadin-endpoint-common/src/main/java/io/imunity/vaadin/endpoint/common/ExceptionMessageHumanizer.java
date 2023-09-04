@@ -9,14 +9,14 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
-public class MessageHumanizer
+public class ExceptionMessageHumanizer
 {
-	public static String getMessage(Throwable e)
+	public static String getHumanReadableMessage(Throwable e)
 	{
-		return getMessage(e, "; ");
+		return getHumanReadableMessage(e, "; ");
 	}
 
-	public static String getMessage(Throwable e, String separator)
+	public static String getHumanReadableMessage(Throwable e, String separator)
 	{
 		StringBuilder sb = new StringBuilder();
 		if (e instanceof AuthorizationException)

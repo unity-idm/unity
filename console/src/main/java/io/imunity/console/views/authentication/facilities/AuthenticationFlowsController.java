@@ -17,7 +17,6 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,8 +93,6 @@ public class AuthenticationFlowsController
 
 	Collection<AuthenticationFlowEntry> getFlows()
 	{
-
-		List<AuthenticationFlowEntry> ret = new ArrayList<>();
 		Collection<AuthenticationFlowDefinition> flows;
 		try
 		{
@@ -107,12 +104,9 @@ public class AuthenticationFlowsController
 		}
 		List<ResolvedEndpoint> endpoints = getEndpoints();
 
-		for (AuthenticationFlowDefinition flow : flows)
-		{
-			ret.add(new AuthenticationFlowEntry(flow, filterEndpoints(flow.getName(), endpoints)));
-		}
-
-		return ret;
+		return flows.stream()
+				.map(flow -> new AuthenticationFlowEntry(flow, filterEndpoints(flow.getName(), endpoints)))
+				.collect(Collectors.toList());
 	}
 
 	AuthenticationFlowEntry getFlow(String flowName)

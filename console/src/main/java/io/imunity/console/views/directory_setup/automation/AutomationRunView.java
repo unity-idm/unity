@@ -33,14 +33,12 @@ import javax.annotation.security.PermitAll;
 @Route(value = "/automation/run", layout = ConsoleMenu.class)
 public class AutomationRunView extends ConsoleViewComponent
 {
-	private MessageSource msg;
-	private AutomationController controller;
-	private NotificationPresenter notificationPresenter;
+	private final MessageSource msg;
+	private final AutomationController controller;
+	private final NotificationPresenter notificationPresenter;
 	private Binder<TranslationRule> binder;
 
-	private MVELExpressionField condition;
-
-	public AutomationRunView(MessageSource msg, AutomationController controller, NotificationPresenter notificationPresenter)
+	AutomationRunView(MessageSource msg, AutomationController controller, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -68,7 +66,7 @@ public class AutomationRunView extends ConsoleViewComponent
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		condition = new MVELExpressionField(msg, "",
+		MVELExpressionField condition = new MVELExpressionField(msg, "",
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder().withTitleKey("RuleEditor.conditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(EntityMVELContextKey.toMap())
