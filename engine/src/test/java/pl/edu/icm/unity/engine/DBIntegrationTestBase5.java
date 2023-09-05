@@ -56,7 +56,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 public abstract class DBIntegrationTestBase5 extends SecuredDBIntegrationTestBase5
 {
 	public static final String DEMO_KS_PASS = "the!unity";
-	public static final String DEMO_KS_ALIAS = "unity-test-server";
+	public static final String DEMO_KS_ALIAS = "unity-demo";
 	public static final String DEMO_SERVER_DN = "CN=Unity Test Server,O=Unity,L=Warsaw,C=EU";
 	public static final String CRED_REQ_PASS = "cr-pass";
 	public static final String DEF_USER = "mockuser1";
