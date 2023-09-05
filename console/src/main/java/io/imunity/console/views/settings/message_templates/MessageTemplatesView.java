@@ -23,6 +23,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
@@ -64,9 +65,14 @@ public class MessageTemplatesView extends ConsoleViewComponent
 
 		MainMenu globalHamburgerHandlers = createMainMenu();
 		initGrid(globalHamburgerHandlers);
-		Scroller bottomPanel = createScrollablePanel();
-		VerticalLayout layout = new VerticalLayout(createHeaderLayout(globalHamburgerHandlers.menu), messageTemplateGrid, bottomPanel);
+		Component bottomPanel = createScrollablePanel();
+		SplitLayout splitLayout = new SplitLayout(messageTemplateGrid, bottomPanel, SplitLayout.Orientation.VERTICAL);
+		splitLayout.setSizeFull();
+		splitLayout.setSplitterPosition(60);
+		VerticalLayout layout = new VerticalLayout(createHeaderLayout(globalHamburgerHandlers.menu), splitLayout);
 		layout.setSpacing(false);
+		layout.setSizeFull();
+		getContent().setHeightFull();
 		getContent().add(layout);
 		refresh();
 	}
@@ -75,7 +81,6 @@ public class MessageTemplatesView extends ConsoleViewComponent
 	{
 		Scroller scroller = new Scroller(selectedMessageTemplateDetails);
 		scroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
-		scroller.setHeight("15em");
 		return scroller;
 	}
 
@@ -85,8 +90,13 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		messageTemplateGrid.setSelectionMode(Grid.SelectionMode.MULTI);
 		messageTemplateGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		messageTemplateGrid.setHeight("20em");
-		messageTemplateGrid.getStyle().set("resize", "vertical");
-		messageTemplateGrid.getStyle().set("overflow", "auto");
+		messageTemplateGrid.addItemClickListener(e ->
+		{
+			if(messageTemplateGrid.getSelectedItems().contains(e.getItem()))
+				messageTemplateGrid.deselect(e.getItem());
+			else
+				messageTemplateGrid.select(e.getItem());
+		});
 		Grid.Column<MessageTemplateEntry> nameColumn = messageTemplateGrid
 				.addComponentColumn(m -> new RouterLink(m.messageTemplate.getName(), MessageTemplateEditView.class, m.messageTemplate.getName()))
 				.setHeader(msg.getMessage("MessageTemplatesView.nameCaption"))
@@ -154,10 +164,12 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		I18nString bodyContent = messageTemplate.getMessage().getBody();
 
 		if (!subjectContent.isEmpty())
-			selectedMessageTemplateDetails.addFormItem(new Span(new FlagIcon(msg.getLocale().getLanguage()), new Span(" "), new Label(subjectContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.subject"));
+			selectedMessageTemplateDetails.addFormItem(new Span(new FlagIcon(msg.getLocale().getLanguage()), new Span(" "),
+					new Label(subjectContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.subject"));
 
 		if (!bodyContent.isEmpty())
-			selectedMessageTemplateDetails.addFormItem(new Span(new FlagIcon(msg.getLocale().getLanguage()), new Span(" "), new Label(bodyContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.body"));
+			selectedMessageTemplateDetails.addFormItem(new Span(new FlagIcon(msg.getLocale().getLanguage()), new Span(" "),
+					new Label(bodyContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.body"));
 	}
 
 	private void refresh()

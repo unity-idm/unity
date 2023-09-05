@@ -132,6 +132,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 		consumer = new ComboBox<>();
 		consumer.setWidth("var(--vaadin-text-field-medium)");
+		consumer.getStyle().set("text-wrap", "nowrap");
 		Collection<String> consumers = registry.getAll().stream()
 				.map(MessageTemplateDefinition::getName)
 				.collect(Collectors.toList());
@@ -147,15 +148,25 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 			messageBinder.validate();
 		});
 
-		LocaleTextFieldDetails subject = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> Optional.ofNullable(toEdit.getMessage().getSubject().getValueRaw(locale.getLanguage())).orElse(""));
-		subject.addValuesChangeListener(focussedField::set);
+		LocaleTextFieldDetails subject = new LocaleTextFieldDetails(
+				new HashSet<>(msg.getEnabledLocales().values()),
+				msg.getLocale(),
+				"",
+				locale -> Optional.ofNullable(toEdit.getMessage().getSubject().getValueRaw(locale.getLanguage())).orElse("")
+		);
 		subject.setWidthFull();
+		subject.addValuesChangeListener(focussedField::set);
 
 		ComboBox<MessageType> messageType = new ComboBox<>();
 		messageType.setItems(MessageType.values());
 		messageType.setItemLabelGenerator(Enum::name);
 
-		LocaleTextAreaDetails body = new LocaleTextAreaDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> Optional.ofNullable(toEdit.getMessage().getBody().getValueRaw(locale.getLanguage())).orElse(""));
+		LocaleTextAreaDetails body = new LocaleTextAreaDetails(
+				new HashSet<>(msg.getEnabledLocales().values()),
+				msg.getLocale(),
+				"",
+				locale -> Optional.ofNullable(toEdit.getMessage().getBody().getValueRaw(locale.getLanguage())).orElse("")
+		);
 		body.setWidthFull();
 		body.addValuesChangeListener(focussedField::set);
 
@@ -291,11 +302,10 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 	{
 		Button cancelButton = new Button(msg.getMessage("cancel"));
 		cancelButton.addClickListener(event -> UI.getCurrent().navigate(MessageTemplatesView.class));
-		Button updateButton = new Button(msg.getMessage("update"));
+		Button updateButton = new Button(editMode ? msg.getMessage("update") : msg.getMessage("create"));
 		updateButton.addClickListener(event -> onConfirm());
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		HorizontalLayout horizontalLayout = new HorizontalLayout(cancelButton, updateButton);
-		return horizontalLayout;
+		return new HorizontalLayout(cancelButton, updateButton);
 	}
 
 	public void reloadNotificationChannels(EnumSet<CommunicationTechnology> supportedTechnologies)
@@ -427,7 +437,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		MessageTemplateDefinition consumer = getConsumer();
 		if (consumer == null)
 			return;
-		notificationChannels.setLabel(msg.getMessage(consumer.getDescriptionKey()));
+		this.consumer.setHelperText(msg.getMessage(consumer.getDescriptionKey()));
 		updateVarButtons(consumer);
 	}
 

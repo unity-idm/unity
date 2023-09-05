@@ -84,7 +84,7 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 
 	public void setWidthFull()
 	{
-		super.setWidthFull();
+		super.setWidth("100%");
 		fields.values().forEach(HasSize::setWidthFull);
 	}
 
