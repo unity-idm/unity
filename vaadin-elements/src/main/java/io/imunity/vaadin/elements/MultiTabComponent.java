@@ -17,6 +17,7 @@ import java.util.List;
 
 @CssImport(value = "./styles/components/multi-tab.css")
 @CssImport(value = "./styles/components/multi-tab-details.css", themeFor = "vaadin-details")
+@CssImport(value = "./styles/components/vaadin-tooltip-overlay.css", themeFor = "vaadin-tooltip-overlay")
 public class MultiTabComponent extends Tab implements TabTextHider
 {
 	public final MenuComponent menuComponent;
@@ -61,7 +62,8 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		label.addComponentAsFirst(menuComponent.icon.create());
 		components.forEach(TabComponent::hideText);
 		details.addClassName("multi-tab-details-mini");
-		setTooltipText(menuComponent.tabName).setPosition(Tooltip.TooltipPosition.END);
+		Tooltip tooltip = setTooltipText(menuComponent.tabName);
+		tooltip.setPosition(Tooltip.TooltipPosition.END_TOP);
 	}
 
 	@Override
