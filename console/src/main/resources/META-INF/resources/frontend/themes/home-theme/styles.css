@@ -151,6 +151,14 @@ vaadin-tab > a > vaadin-icon {
     height: var(--icon-size);
 }
 
+vaadin-text-area > div {
+    font-family: var(--lumo-font-family);
+}
+
+vaadin-button > vaadin-icon {
+    color: white;
+}
+
 vaadin-icon {
     color: #04859d;
     width: var(--lumo-icon-size-s);

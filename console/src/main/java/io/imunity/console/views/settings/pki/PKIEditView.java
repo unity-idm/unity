@@ -70,13 +70,17 @@ public class PKIEditView extends ConsoleViewComponent
 		if(certName == null)
 		{
 			certificateEntry = new CertificateEntry();
-			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
+			breadCrumbParameter = new BreadCrumbParameter(
+					null, msg.getMessage("TrustedCertificates.navCaption") + " > " + msg.getMessage("new")
+			);
 			edit = false;
 		}
 		else
 		{
 			certificateEntry = controller.getCertificate(certName);
-			breadCrumbParameter = new BreadCrumbParameter(certName, certName);
+			breadCrumbParameter = new BreadCrumbParameter(
+					certName, msg.getMessage("TrustedCertificates.navCaption") + " > " + certName
+			);
 			edit = true;
 		}
 		initUI(certificateEntry);
