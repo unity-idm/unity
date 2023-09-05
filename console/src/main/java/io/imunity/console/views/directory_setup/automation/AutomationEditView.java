@@ -19,16 +19,16 @@ import io.imunity.console.ConsoleMenu;
 import io.imunity.console.tprofile.ActionEditor;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
-import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.BreadCrumbParameter;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 
 import javax.annotation.security.PermitAll;
+import java.util.Optional;
 
 @PermitAll
-@Breadcrumb(key = "edit")
 @Route(value = "/automation/edit", layout = ConsoleMenu.class)
 public class AutomationEditView extends ConsoleViewComponent
 {
@@ -37,6 +37,8 @@ public class AutomationEditView extends ConsoleViewComponent
 	private boolean edit;
 	private String id;
 	private Binder<ScheduledProcessingRuleParam> binder;
+	private BreadCrumbParameter breadCrumbParameter;
+
 
 	AutomationEditView(MessageSource msg, AutomationController controller)
 	{
@@ -45,7 +47,8 @@ public class AutomationEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String ruleId) {
+	public void setParameter(BeforeEvent event, @OptionalParameter String ruleId)
+	{
 		getContent().removeAll();
 		id = ruleId;
 
@@ -53,14 +56,22 @@ public class AutomationEditView extends ConsoleViewComponent
 		if(ruleId == null)
 		{
 			translationRule = new ScheduledProcessingRuleParam("status == 'disabled'", null, "0 0 6 * * ?");
+			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
 		}
 		else
 		{
 			translationRule = controller.getScheduledRule(ruleId);
+			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("edit"));
 			edit = true;
 		}
 		initUI(translationRule);
+	}
+
+	@Override
+	public Optional<BreadCrumbParameter> getDynamicParameter()
+	{
+		return Optional.ofNullable(breadCrumbParameter);
 	}
 
 	protected void initUI(ScheduledProcessingRuleParam translationRule)

@@ -48,7 +48,6 @@ import java.util.stream.Collectors;
 import static pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition.CUSTOM_VAR_PREFIX;
 
 @PermitAll
-@Breadcrumb(key = "edit")
 @Route(value = "/message-templates/edit", layout = ConsoleMenu.class)
 public class MessageTemplateEditView extends ConsoleViewComponent
 {
@@ -71,6 +70,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 	private Binder<I18nMessage> messageBinder;
 	private Map<String, NotificationChannelInfo> notificationChannelsMap;
 	private MultiSelectComboBox<String> customVariablesPicker;
+	private BreadCrumbParameter breadCrumbParameter;
 
 	MessageTemplateEditView(MessageSource msg, MessageTemplateController controller,
 			NotificationPresenter notificationPresenter, MessageTemplateConsumersRegistry registry,
@@ -96,13 +96,21 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		{
 			messageTemplate = new MessageTemplate();
 			messageTemplate.setMessage(new I18nMessage(new I18nString(), new I18nString()));
+			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			editMode = false;
 		} else
 		{
 			messageTemplate = controller.getMessageTemplate(messageTemplateName);
+			breadCrumbParameter = new BreadCrumbParameter(messageTemplateName, messageTemplateName);
 			editMode = true;
 		}
 		initUI(messageTemplate);
+	}
+
+	@Override
+	public Optional<BreadCrumbParameter> getDynamicParameter()
+	{
+		return Optional.ofNullable(breadCrumbParameter);
 	}
 
 	private void initUI(MessageTemplate toEdit)

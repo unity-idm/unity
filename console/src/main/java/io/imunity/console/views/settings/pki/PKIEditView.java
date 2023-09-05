@@ -24,7 +24,7 @@ import com.vaadin.flow.router.Route;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -35,9 +35,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 
 @PermitAll
-@Breadcrumb(key = "edit")
 @Route(value = "/pki/edit", layout = ConsoleMenu.class)
 public class PKIEditView extends ConsoleViewComponent
 {
@@ -51,6 +51,8 @@ public class PKIEditView extends ConsoleViewComponent
 	private TextArea value;
 	private Binder<CertificateEntry> binder;
 	private FormLayout certDetails;
+	private BreadCrumbParameter breadCrumbParameter;
+
 
 	PKIEditView(MessageSource msg, CertificatesController controller, NotificationPresenter notificationPresenter)
 	{
@@ -60,21 +62,30 @@ public class PKIEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String certName) {
+	public void setParameter(BeforeEvent event, @OptionalParameter String certName)
+	{
 		getContent().removeAll();
 
 		CertificateEntry certificateEntry;
 		if(certName == null)
 		{
 			certificateEntry = new CertificateEntry();
+			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
 		}
 		else
 		{
 			certificateEntry = controller.getCertificate(certName);
+			breadCrumbParameter = new BreadCrumbParameter(certName, certName);
 			edit = true;
 		}
 		initUI(certificateEntry);
+	}
+
+	@Override
+	public Optional<BreadCrumbParameter> getDynamicParameter()
+	{
+		return Optional.ofNullable(breadCrumbParameter);
 	}
 
 	private void initUI(CertificateEntry certificateEntry)

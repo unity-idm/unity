@@ -38,7 +38,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.authentication.inputTranslation")
+@Breadcrumb(key = "WebConsoleMenu.authentication.realms")
 @Route(value = "/realms", layout = ConsoleMenu.class)
 public class RealmsView extends ConsoleViewComponent
 {

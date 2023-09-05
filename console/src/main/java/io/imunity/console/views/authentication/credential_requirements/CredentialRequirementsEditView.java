@@ -18,7 +18,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import org.vaadin.tatu.TwinColSelect;
@@ -29,9 +29,9 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import javax.annotation.security.PermitAll;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 
 @PermitAll
-@Breadcrumb(key = "edit")
 @Route(value = "/credential-requirements/edit", layout = ConsoleMenu.class)
 public class CredentialRequirementsEditView extends ConsoleViewComponent
 {
@@ -40,6 +40,7 @@ public class CredentialRequirementsEditView extends ConsoleViewComponent
 	private final EventsBus bus;
 	private Binder<CredentialRequirements> binder;
 	private boolean edit;
+	private BreadCrumbParameter breadCrumbParameter;
 
 	CredentialRequirementsEditView(MessageSource msg, CredentialRequirementsController controller)
 	{
@@ -57,14 +58,22 @@ public class CredentialRequirementsEditView extends ConsoleViewComponent
 		if(credReqName == null)
 		{
 			certificateEntry = new CredentialRequirements();
+			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
 		}
 		else
 		{
 			certificateEntry = controller.getCredentialRequirements(credReqName);
+			breadCrumbParameter = new BreadCrumbParameter(credReqName, credReqName);
 			edit = true;
 		}
 		initUI(certificateEntry);
+	}
+
+	@Override
+	public Optional<BreadCrumbParameter> getDynamicParameter()
+	{
+		return Optional.ofNullable(breadCrumbParameter);
 	}
 
 	private void initUI(CredentialRequirements initial)

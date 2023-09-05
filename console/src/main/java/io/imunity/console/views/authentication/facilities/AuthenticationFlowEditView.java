@@ -23,25 +23,21 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.BreadCrumbParameter;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import javax.annotation.security.PermitAll;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @PermitAll
-@Breadcrumb(key = "edit")
 @Route(value = "/facilities/authentication-flow", layout = ConsoleMenu.class)
 public class AuthenticationFlowEditView extends ConsoleViewComponent
 {
 	private final MessageSource msg;
 	private final AuthenticationFlowsController flowsController;
 	private boolean edit;
-
+	private BreadCrumbParameter breadCrumbParameter;
 	private Binder<AuthenticationFlowDefinition> binder;
 
 	AuthenticationFlowEditView(MessageSource msg, AuthenticationFlowsController flowsController)
@@ -60,14 +56,22 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 		{
 			AuthenticationFlowDefinition flow = new AuthenticationFlowDefinition("", AuthenticationFlowDefinition.Policy.REQUIRE, Set.of(), List.of());
 			definition = new AuthenticationFlowEntry(flow, List.of());
+			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
 		}
 		else
 		{
 			definition = flowsController.getFlow(flowName);
+			breadCrumbParameter = new BreadCrumbParameter(flowName, flowName);
 			edit = true;
 		}
 		initUI(definition, flowsController.getAllAuthenticators());
+	}
+
+	@Override
+	public Optional<BreadCrumbParameter> getDynamicParameter()
+	{
+		return Optional.ofNullable(breadCrumbParameter);
 	}
 
 	private void initUI(AuthenticationFlowEntry toEdit, List<String> authenticators)

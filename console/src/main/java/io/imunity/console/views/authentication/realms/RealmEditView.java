@@ -24,21 +24,21 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.BreadCrumbParameter;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import javax.annotation.security.PermitAll;
+import java.util.Optional;
 
 @PermitAll
-@Breadcrumb(key = "edit")
 @Route(value = "/realms/edit", layout = ConsoleMenu.class)
 public class RealmEditView extends ConsoleViewComponent
 {
 	private final RealmsController realmsController;
 	private final MessageSource msg;
-
+	private BreadCrumbParameter breadCrumbParameter;
 	private Binder<AuthenticationRealm> binder;
 	private boolean edit;
 
@@ -57,14 +57,22 @@ public class RealmEditView extends ConsoleViewComponent
 		if(realmName == null)
 		{
 			certificateEntry = new AuthenticationRealmEntry();
+			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
 		}
 		else
 		{
 			certificateEntry = realmsController.getRealm(realmName);
+			breadCrumbParameter = new BreadCrumbParameter(realmName, realmName);
 			edit = true;
 		}
 		initUI(certificateEntry);
+	}
+
+	@Override
+	public Optional<BreadCrumbParameter> getDynamicParameter()
+	{
+		return Optional.ofNullable(breadCrumbParameter);
 	}
 
 	void initUI(AuthenticationRealmEntry toEdit)

@@ -23,7 +23,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.LocaleReachEditorDetails;
 import io.imunity.vaadin.elements.LocaleTextFieldDetails;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -31,14 +31,10 @@ import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 
 import javax.annotation.security.PermitAll;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @PermitAll
-@Breadcrumb(key = "edit")
 @Route(value = "/policy-documents/edit", layout = ConsoleMenu.class)
 public class PolicyDocumentEditView extends ConsoleViewComponent
 {
@@ -52,6 +48,8 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 	private FormLayout.FormItem contentItem;
 	private Binder.Binding<PolicyDocumentEntry, Map<Locale, String>> contentBind;
 	private boolean edit;
+	private BreadCrumbParameter breadCrumbParameter;
+
 
 	PolicyDocumentEditView(MessageSource msg, PolicyDocumentsController controller)
 	{
@@ -60,26 +58,32 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String policyDocumentId) {
+	public void setParameter(BeforeEvent event, @OptionalParameter String policyDocumentId)
+	{
 		getContent().removeAll();
 		contentItem = null;
 		PolicyDocumentEntry policyDocumentEntry;
 		if(policyDocumentId == null)
 		{
 			policyDocumentEntry = new PolicyDocumentEntry();
+			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
 		}
 		else
 		{
 			policyDocumentEntry = controller.getPolicyDocument(Long.parseLong(policyDocumentId));
+			breadCrumbParameter = new BreadCrumbParameter(policyDocumentId, policyDocumentEntry.name);
 			edit = true;
 		}
-		if(policyDocumentEntry != null)
-		{
-			Set<String> allNames = controller.getPolicyDocuments().stream().map(d -> d.name)
-					.filter(d -> !d.equals(policyDocumentEntry.name)).collect(Collectors.toSet());
-			initUI(policyDocumentEntry, allNames);
-		}
+		Set<String> allNames = controller.getPolicyDocuments().stream().map(d -> d.name)
+				.filter(d -> !d.equals(policyDocumentEntry.name)).collect(Collectors.toSet());
+		initUI(policyDocumentEntry, allNames);
+	}
+
+	@Override
+	public Optional<BreadCrumbParameter> getDynamicParameter()
+	{
+		return Optional.ofNullable(breadCrumbParameter);
 	}
 
 	private void initUI(PolicyDocumentEntry toEdit, Set<String> allNames)

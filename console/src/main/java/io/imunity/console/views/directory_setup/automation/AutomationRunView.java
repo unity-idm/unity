@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import javax.annotation.security.PermitAll;
 
 @PermitAll
-@Breadcrumb(key = "edit")
+@Breadcrumb(key = "RunImmediateView.caption")
 @Route(value = "/automation/run", layout = ConsoleMenu.class)
 public class AutomationRunView extends ConsoleViewComponent
 {
@@ -46,7 +46,8 @@ public class AutomationRunView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String ruleId) {
+	public void setParameter(BeforeEvent event, @OptionalParameter String ruleId)
+	{
 		getContent().removeAll();
 
 		TranslationRule translationRule;

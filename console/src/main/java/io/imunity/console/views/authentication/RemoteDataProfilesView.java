@@ -13,7 +13,7 @@ import io.imunity.vaadin.elements.Breadcrumb;
 import javax.annotation.security.PermitAll;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.authentication.realms")
+@Breadcrumb(key = "WebConsoleMenu.authentication.inputTranslation")
 @Route(value = "/remote-data-profiles", layout = ConsoleMenu.class)
 public class RemoteDataProfilesView extends ConsoleViewComponent
 {
