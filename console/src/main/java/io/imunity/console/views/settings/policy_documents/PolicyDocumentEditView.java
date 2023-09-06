@@ -6,8 +6,6 @@
 package io.imunity.console.views.settings.policy_documents;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
@@ -23,6 +21,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.LocaleReachEditorDetails;
 import io.imunity.vaadin.elements.LocaleTextFieldDetails;
@@ -33,6 +32,8 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import javax.annotation.security.PermitAll;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 
 @PermitAll
 @Route(value = "/policy-documents/edit", layout = ConsoleMenu.class)
@@ -104,7 +105,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		initFormLayout(name, displayedName, optional, revision, type);
 		initBinder(allNames, name, displayedName, optional, type);
 
-		getContent().add(new VerticalLayout(mainLayout, createActionLayout()));
+		getContent().add(new VerticalLayout(mainLayout, createActionLayout(msg, edit, PolicyDocumentsView.class, this::onConfirm)));
 		binder.setBean(toEdit);
 		content.setValue(toEdit.content);
 	}
@@ -139,16 +140,6 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 				.bind(PolicyDocumentEntry::getDisplayedName, PolicyDocumentEntry::setDisplayedName);
 		binder.forField(optional).bind(PolicyDocumentEntry::isMandatory, PolicyDocumentEntry::setMandatory);
 		binder.forField(type).bind(PolicyDocumentEntry::getContentType, PolicyDocumentEntry::setContentType);
-	}
-
-	private HorizontalLayout createActionLayout()
-	{
-		Button cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addClickListener(event -> UI.getCurrent().navigate(PolicyDocumentsView.class));
-		Button updateButton = new Button(msg.getMessage("update"));
-		updateButton.addClickListener(event -> onConfirm());
-		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		return new HorizontalLayout(cancelButton, updateButton);
 	}
 
 	private void onConfirm()

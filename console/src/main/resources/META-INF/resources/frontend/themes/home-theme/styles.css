@@ -159,7 +159,7 @@ vaadin-text-area > div {
     font-family: var(--lumo-font-family);
 }
 
-vaadin-button > vaadin-icon {
+vaadin-button[theme="primary"] > vaadin-icon {
     color: white;
 }
 

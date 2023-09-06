@@ -7,14 +7,11 @@ package io.imunity.console.views.authentication.realms;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -31,6 +28,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 
 import javax.annotation.security.PermitAll;
 import java.util.Optional;
+
+import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 
 @PermitAll
 @Route(value = "/realms/edit", layout = ConsoleMenu.class)
@@ -95,7 +94,7 @@ public class RealmEditView extends ConsoleViewComponent
 
 		configBinder(toEdit, name, description, blockAfterUnsuccessfulLogins, blockFor, rememberMePolicy, allowForRememberMeDays, maxInactivity);
 		FormLayout mainLayout = createMainLayout(toEdit, name, description, blockAfterUnsuccessfulLogins, blockFor, rememberMePolicy, allowForRememberMeDays, maxInactivity);
-		getContent().add(new VerticalLayout(mainLayout, createActionLayout()));
+		getContent().add(new VerticalLayout(mainLayout, createActionLayout(msg, edit, RealmEditView.class, this::onConfirm)));
 	}
 
 	private IntegerField getIntegerField()
@@ -129,6 +128,7 @@ public class RealmEditView extends ConsoleViewComponent
 		if (!toEdit.endpoints.isEmpty())
 		{
 			VerticalLayout field = new VerticalLayout(toEdit.endpoints.stream().map(Label::new).toArray(Component[]::new));
+			field.setPadding(false);
 			mainLayout.addFormItem(field, msg.getMessage("AuthenticationRealm.endpoints"));
 		}
 
@@ -170,16 +170,6 @@ public class RealmEditView extends ConsoleViewComponent
 				realmsController.addRealm(bean);
 			UI.getCurrent().navigate(RealmsView.class);
 		}
-	}
-
-	private HorizontalLayout createActionLayout()
-	{
-		Button cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addClickListener(event -> UI.getCurrent().navigate(RealmsView.class));
-		Button updateButton = new Button(edit ? msg.getMessage("update") : msg.getMessage("create"));
-		updateButton.addClickListener(event -> onConfirm());
-		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		return new HorizontalLayout(cancelButton, updateButton);
 	}
 
 	private Component getTooltipIcon(String code)

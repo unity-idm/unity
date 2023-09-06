@@ -7,11 +7,9 @@ package io.imunity.console.views.settings.pki;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -36,6 +34,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+
+import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 
 @PermitAll
 @Route(value = "/pki/edit", layout = ConsoleMenu.class)
@@ -144,17 +144,7 @@ public class PKIEditView extends ConsoleViewComponent
 		editorLayout.add(details);
 		binder.setBean(certificateEntry);
 
-		getContent().add(new VerticalLayout(editorLayout, createActionLayout()));
-	}
-
-	private HorizontalLayout createActionLayout()
-	{
-		Button cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addClickListener(event -> UI.getCurrent().navigate(PKIView.class));
-		Button updateButton = new Button(edit ? msg.getMessage("update") : msg.getMessage("create"));
-		updateButton.addClickListener(event -> onConfirm());
-		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		return new HorizontalLayout(cancelButton, updateButton);
+		getContent().add(new VerticalLayout(editorLayout, createActionLayout(msg, edit, PKIView.class, this::onConfirm)));
 	}
 
 	private void onConfirm()

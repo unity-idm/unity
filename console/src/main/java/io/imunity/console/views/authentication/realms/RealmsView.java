@@ -28,6 +28,7 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.FormLayoutLabel;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 
@@ -95,7 +96,11 @@ public class RealmsView extends ConsoleViewComponent
 	private FormLayout getDetailsComponent(AuthenticationRealmEntry realm)
 	{
 		FormLayout wrapper = new FormLayout();
-		wrapper.addFormItem(new Label(String.join(", ", realm.endpoints)), msg.getMessage("AuthenticationRealmsView.endpointsCaption"));
+		wrapper.addFormItem(
+				new Label(String.join(", ", realm.endpoints)),
+				new FormLayoutLabel(msg.getMessage("AuthenticationRealmsView.endpointsCaption"))
+		);
+		wrapper.getStyle().set("margin-bottom", "0.75em");
 		return wrapper;
 	}
 
@@ -105,7 +110,7 @@ public class RealmsView extends ConsoleViewComponent
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(entry.realm.getName()));
 		new ConfirmDialog(
 				msg.getMessage("ConfirmDialog.confirm"),
-				msg.getMessage("CertificatesComponent.confirmDeleteCertificate", confirmText),
+				msg.getMessage("AuthenticationRealmsView.confirmDelete", confirmText),
 				msg.getMessage("ok"),
 				e -> remove(entry),
 				msg.getMessage("cancel"),

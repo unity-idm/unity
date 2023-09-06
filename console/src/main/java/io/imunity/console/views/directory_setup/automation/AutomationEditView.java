@@ -6,10 +6,7 @@
 package io.imunity.console.views.directory_setup.automation;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
@@ -18,6 +15,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.tprofile.ActionEditor;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
@@ -27,6 +25,8 @@ import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 
 import javax.annotation.security.PermitAll;
 import java.util.Optional;
+
+import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 
 @PermitAll
 @Route(value = "/automation/edit", layout = ConsoleMenu.class)
@@ -95,17 +95,7 @@ public class AutomationEditView extends ConsoleViewComponent
 		main.addFormItem(condition, msg.getMessage("RuleEditor.condition"));
 		actionEditor.addToLayout(main);
 
-		getContent().add(new VerticalLayout(main, createActionLayout()));
-	}
-
-	private HorizontalLayout createActionLayout()
-	{
-		Button cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addClickListener(event -> UI.getCurrent().navigate(AutomationView.class));
-		Button updateButton = new Button(edit ? msg.getMessage("update") : msg.getMessage("create"));
-		updateButton.addClickListener(event -> onConfirm());
-		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		return new HorizontalLayout(cancelButton, updateButton);
+		getContent().add(new VerticalLayout(main, createActionLayout(msg, edit, AutomationView.class, this::onConfirm)));
 	}
 
 	private void onConfirm()

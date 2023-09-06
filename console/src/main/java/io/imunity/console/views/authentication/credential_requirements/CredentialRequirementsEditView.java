@@ -6,10 +6,7 @@
 package io.imunity.console.views.authentication.credential_requirements;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -18,6 +15,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
@@ -30,6 +28,8 @@ import javax.annotation.security.PermitAll;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
+
+import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 
 @PermitAll
 @Route(value = "/credential-requirements/edit", layout = ConsoleMenu.class)
@@ -107,17 +107,7 @@ public class CredentialRequirementsEditView extends ConsoleViewComponent
 		binder.forField(requiredCredentials).bind(CredentialRequirements::getRequiredCredentials, CredentialRequirements::setRequiredCredentials);
 		binder.setBean(cr);
 
-		getContent().add(new VerticalLayout(formLayout, createActionLayout()));
-	}
-
-	private HorizontalLayout createActionLayout()
-	{
-		Button cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addClickListener(event -> UI.getCurrent().navigate(CredentialRequirementsView.class));
-		Button updateButton = new Button(edit ? msg.getMessage("update") : msg.getMessage("create"));
-		updateButton.addClickListener(event -> onConfirm());
-		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		return new HorizontalLayout(cancelButton, updateButton);
+		getContent().add(new VerticalLayout(formLayout, createActionLayout(msg, edit, CredentialRequirementsView.class, this::onConfirm)));
 	}
 
 	private void onConfirm()

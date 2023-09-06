@@ -7,13 +7,10 @@ package io.imunity.console.views.authentication.facilities;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -29,6 +26,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 
 import javax.annotation.security.PermitAll;
 import java.util.*;
+
+import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 
 @PermitAll
 @Route(value = "/facilities/authentication-flow", layout = ConsoleMenu.class)
@@ -120,7 +119,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 			mainLayout.addFormItem(field, msg.getMessage("AuthenticationFlow.endpoints"));
 		}
 
-		getContent().add(new VerticalLayout(mainLayout, createActionLayout()));
+		getContent().add(new VerticalLayout(mainLayout, createActionLayout(msg, edit, FacilitiesView.class, this::onConfirm)));
 	}
 
 	private void onConfirm()
@@ -135,15 +134,5 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 				flowsController.addFlow(bean);
 			UI.getCurrent().navigate(FacilitiesView.class);
 		}
-	}
-
-	private HorizontalLayout createActionLayout()
-	{
-		Button cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addClickListener(event -> UI.getCurrent().navigate(FacilitiesView.class));
-		Button updateButton = new Button(edit ? msg.getMessage("update") : msg.getMessage("create"));
-		updateButton.addClickListener(event -> onConfirm());
-		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		return new HorizontalLayout(cancelButton, updateButton);
 	}
 }

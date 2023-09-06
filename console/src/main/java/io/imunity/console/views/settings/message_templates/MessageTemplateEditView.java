@@ -24,6 +24,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.vaadin.elements.*;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -45,6 +46,7 @@ import javax.annotation.security.PermitAll;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 import static pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition.CUSTOM_VAR_PREFIX;
 
 @PermitAll
@@ -182,7 +184,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		customVariablesPicker.setWidth("var(--vaadin-text-field-big)");
 
 		FormLayout formLayout = createFormLayout(name, description, subject, messageType, body);
-		getContent().add(new VerticalLayout(formLayout, createActionLayout()));
+		getContent().add(new VerticalLayout(formLayout, createActionLayout(msg, editMode, MessageTemplatesView.class, this::onConfirm)));
 
 		configBinder(name, description, subject, messageType, body);
 		setBean(toEdit, name, consumers);
@@ -296,16 +298,6 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 				.asRequired(getRequiredValidatorTemplatesShownAware(body))
 				.withValidator(bodyValidator)
 				.bind(i18nMessage -> i18nMessage.getBody().getLocalizedMap(), (localizedValues, localizedValues2) -> localizedValues.setBody(convert(localizedValues2)));
-	}
-
-	private HorizontalLayout createActionLayout()
-	{
-		Button cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addClickListener(event -> UI.getCurrent().navigate(MessageTemplatesView.class));
-		Button updateButton = new Button(editMode ? msg.getMessage("update") : msg.getMessage("create"));
-		updateButton.addClickListener(event -> onConfirm());
-		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		return new HorizontalLayout(cancelButton, updateButton);
 	}
 
 	public void reloadNotificationChannels(EnumSet<CommunicationTechnology> supportedTechnologies)
