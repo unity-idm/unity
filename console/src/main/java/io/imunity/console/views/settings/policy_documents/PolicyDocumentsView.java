@@ -127,7 +127,7 @@ public class PolicyDocumentsView extends ConsoleViewComponent
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(entry.name));
 		new ConfirmDialog(
 				msg.getMessage("ConfirmDialog.confirm"),
-				msg.getMessage("MessageTemplatesView.confirmDelete", confirmText),
+				msg.getMessage("PolicyDocumentsView.confirmDelete", confirmText),
 				msg.getMessage("ok"),
 				e -> remove(entry),
 				msg.getMessage("cancel"),
