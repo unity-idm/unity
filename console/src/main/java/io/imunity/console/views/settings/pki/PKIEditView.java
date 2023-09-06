@@ -42,7 +42,7 @@ import static io.imunity.console.views.EditViewActionLayoutFactory.createActionL
 public class PKIEditView extends ConsoleViewComponent
 {
 	public static final int MAX_FILE_SIZE = 50000000;
-	public static final String MONOSPACE_FONT = "Consolas";
+	public static final String MONOSPACE_FONT = "\"Open Sans\", sans-serif";
 	private final CertificatesController controller;
 	private final NotificationPresenter notificationPresenter;
 	private final MessageSource msg;
