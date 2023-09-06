@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -40,6 +42,7 @@ import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.types.basic.DBDumpContentElements;
@@ -59,7 +62,9 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class ImportExportComponent extends VerticalLayout
 {
-	private static final int MAX_SIZE = 50000000;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImportExportComponent.class);
+
+	
 	private final MessageSource msg;
 	private final ServerManagement serverManagement;
 	private final UnityServerConfiguration serverConfig;
@@ -313,7 +318,7 @@ class ImportExportComponent extends VerticalLayout
 					target.delete();
 				target = createImportFile();
 				setUploading(true);
-				fos = new LimitedOuputStream(MAX_SIZE, new BufferedOutputStream(
+				fos = new LimitedOuputStream(getDBDumbFileSizeLimit(), new BufferedOutputStream(
 						new FileOutputStream(target)));
 				return fos;
 			} catch (IOException e)
@@ -322,6 +327,26 @@ class ImportExportComponent extends VerticalLayout
 			}
 		}
 
+		private int getDBDumbFileSizeLimit()
+		{
+			Optional<Integer> dbBackupFileSizeLimit = serverConfig.getDBBackupFileSizeLimit();
+			if (dbBackupFileSizeLimit.isPresent())
+			{
+				log.trace("Set static db dump file size limit to " + dbBackupFileSizeLimit.get());
+				return dbBackupFileSizeLimit.get();
+			}
+			
+			return calculateFileSizeLimitBasedOnFreeMemory();	
+		}
+		
+		private int calculateFileSizeLimitBasedOnFreeMemory()
+		{
+			System.gc();
+			long initialMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			Long filesize = (Runtime.getRuntime().maxMemory() - initialMemory) * 70/100;
+			log.trace("Calculated dynamic db dumb file size limit: " + filesize);
+			return filesize.intValue();
+		}
 		private synchronized void setUploading(boolean how)
 		{
 			this.uploading = how;
