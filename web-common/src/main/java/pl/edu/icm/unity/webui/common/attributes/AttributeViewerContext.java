@@ -24,6 +24,7 @@ public class AttributeViewerContext
 	private boolean showCaption = true;
 	private Integer maxTextSize = null;
 	private boolean showAsLabel = false;
+	private boolean showConfirmation = true;
 
 	private AttributeViewerContext()
 	{
@@ -94,6 +95,16 @@ public class AttributeViewerContext
 		return imageScaleWidth != null && imageScaleHeight != null;
 	}
 
+	public boolean isShowConfirmation()
+	{
+		return showConfirmation;
+	}
+
+	public void setShowConfirmation(boolean showConfirmation)
+	{
+		this.showConfirmation = showConfirmation;
+	}
+
 	public static class Builder
 	{
 		private AttributeViewerContext obj;
@@ -154,6 +165,12 @@ public class AttributeViewerContext
 		public Builder withImageScaleHeight(int imageScaleHeight)
 		{
 			this.obj.imageScaleHeight = imageScaleHeight;
+			return this;
+		}
+		
+		public Builder withShowConfirmation(boolean showConfirmation)
+		{
+			this.obj.showConfirmation = showConfirmation;
 			return this;
 		}
 

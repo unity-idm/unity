@@ -768,6 +768,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withCustomWidth(formWidth())
 					.withCustomWidthUnit(formWidthUnit())
 					.withShowCaption(!(form.getLayoutSettings().isCompactInputs()))
+					.withShowConfirmation(false)
 					.build();
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, 
 					aType, readOnlyAttribute, false, context);
