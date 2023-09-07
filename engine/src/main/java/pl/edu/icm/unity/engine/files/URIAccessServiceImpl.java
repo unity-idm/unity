@@ -269,7 +269,6 @@ public class URIAccessServiceImpl implements URIAccessService
 			return Paths.get(root, filePath).toRealPath();
 		} catch (Exception e)
 		{
-			log.warn("Can not read file: " + e.toString());
 			throw new IOException("File does not exists");
 		}
 	}
