@@ -602,7 +602,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	protected boolean createLabelControl(AbstractOrderedLayout layout, FormElement previousInserted, 
 			FormElement next, FormCaptionElement element)
 	{
-		if (previousInserted == null || next == null)
+		if (next == null)
 			return false;
 		if (previousInserted instanceof FormCaptionElement)
 			return false;
