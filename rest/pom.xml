@@ -98,8 +98,8 @@
 			<artifactId>nimbus-jose-jwt</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlets</artifactId>
+			<groupId>org.eclipse.jetty.ee8</groupId>
+			<artifactId>jetty-ee8-servlets</artifactId>
 		</dependency>
 	</dependencies>
 	
