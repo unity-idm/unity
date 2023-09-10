@@ -11,7 +11,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

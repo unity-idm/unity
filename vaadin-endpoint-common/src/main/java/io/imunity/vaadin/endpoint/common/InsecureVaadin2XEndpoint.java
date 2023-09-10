@@ -5,9 +5,9 @@
 package io.imunity.vaadin.endpoint.common;
 
 import com.vaadin.flow.server.startup.ServletContextListeners;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee8.servlet.FilterHolder;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.base.message.MessageSource;

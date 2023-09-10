@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.server;
 
 import java.util.Set;
 
-import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;

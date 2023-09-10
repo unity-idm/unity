@@ -25,7 +25,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import net.minidev.json.JSONObject;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
 import org.springframework.beans.factory.ObjectFactory;

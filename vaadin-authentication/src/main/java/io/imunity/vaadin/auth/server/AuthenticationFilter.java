@@ -9,7 +9,7 @@ import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.security.DefaultUserIdentity;
-import org.eclipse.jetty.security.UserAuthentication;
+import org.eclipse.jetty.ee8.security.UserAuthentication;
 import org.eclipse.jetty.server.Request;
 
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;

@@ -8,10 +8,10 @@ import com.vaadin.flow.server.startup.ServletContextListeners;
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
 import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee8.servlet.FilterHolder;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.base.message.MessageSource;

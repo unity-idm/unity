@@ -16,7 +16,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
-import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;

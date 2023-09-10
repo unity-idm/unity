@@ -6,8 +6,9 @@ package pl.edu.icm.unity.engine.api.endpoint;
 
 import java.util.List;
 
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.servlet.FilterHolder;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
+
 
 public interface ServletProvider
 {

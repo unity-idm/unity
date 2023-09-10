@@ -10,9 +10,9 @@ import java.util.List;
 
 import javax.servlet.DispatcherType;
 
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.servlet.FilterHolder;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.base.message.MessageSource;

@@ -5,7 +5,7 @@
 
 package io.imunity.vaadin.endpoint.common;
 
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;

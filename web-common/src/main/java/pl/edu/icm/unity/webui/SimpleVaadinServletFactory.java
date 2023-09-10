@@ -10,8 +10,8 @@ import java.util.Properties;
 
 import javax.servlet.Servlet;
 
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.servlet.FilterHolder;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 
 import com.google.common.collect.Lists;

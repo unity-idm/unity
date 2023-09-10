@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
