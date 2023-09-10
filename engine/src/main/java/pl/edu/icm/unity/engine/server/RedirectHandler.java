@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
-import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.ee8.nested.Request;
 
 import pl.edu.icm.unity.base.utils.Log;
 

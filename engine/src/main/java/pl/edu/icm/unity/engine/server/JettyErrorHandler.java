@@ -13,8 +13,8 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.ee8.nested.ErrorHandler;
 import org.eclipse.jetty.http.HttpStatus;
-import org.eclipse.jetty.server.handler.ErrorHandler;
 
 import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;

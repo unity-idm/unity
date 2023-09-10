@@ -8,9 +8,9 @@ import io.imunity.vaadin.endpoint.common.EopException;
 import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.security.DefaultUserIdentity;
 import org.eclipse.jetty.ee8.security.UserAuthentication;
-import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.security.internal.DefaultUserIdentity;
+import org.eclipse.jetty.ee8.nested.Request;
 
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.utils.Log;
@@ -262,16 +262,6 @@ public class AuthenticationFilter implements Filter
 			MDC.remove(MDCKeys.USER.key);
 			MDC.remove(MDCKeys.ENTITY_ID.key);
 		}
-	}
-
-	private void gotoNotProtectedResource(HttpServletRequest httpRequest,
-			ServletResponse response, FilterChain chain)
-			throws IOException, ServletException
-	{
-		if (log.isTraceEnabled())
-			log.trace("Request to not protected address: "
-					+ httpRequest.getRequestURI());
-		chain.doFilter(httpRequest, response);
 	}
 
 	private void clearSessionCookie(HttpServletResponse response)

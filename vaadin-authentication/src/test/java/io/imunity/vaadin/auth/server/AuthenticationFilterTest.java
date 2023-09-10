@@ -6,7 +6,7 @@
 package io.imunity.vaadin.auth.server;
 
 import io.imunity.vaadin.endpoint.common.EopException;
-import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.ee8.nested.Request;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
