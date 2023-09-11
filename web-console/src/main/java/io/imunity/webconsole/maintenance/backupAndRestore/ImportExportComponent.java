@@ -62,6 +62,8 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class ImportExportComponent extends VerticalLayout
 {
+	private final int MAX_OF_FREE_MEMORY_USAGE_IN_PERCENT = 70;
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImportExportComponent.class);
 
 	
@@ -343,9 +345,9 @@ class ImportExportComponent extends VerticalLayout
 		{
 			System.gc();
 			long initialMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-			Long filesize = (Runtime.getRuntime().maxMemory() - initialMemory) * 70/100;
-			log.trace("Calculated dynamic db dumb file size limit: " + filesize);
-			return filesize.intValue();
+			long filesizeLimit = ((Runtime.getRuntime().maxMemory() - initialMemory) * MAX_OF_FREE_MEMORY_USAGE_IN_PERCENT)/100;
+			log.trace("Calculated dynamic db dumb file size limit: " + filesizeLimit);
+			return (int)filesizeLimit;
 		}
 		private synchronized void setUploading(boolean how)
 		{

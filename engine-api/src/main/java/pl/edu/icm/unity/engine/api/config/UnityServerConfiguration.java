@@ -201,7 +201,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(FILE_SIZE_LIMIT, new PropertyMD("2000000").setPositive().setCategory(mainCat).
 				setDescription("Max file size in bytes which can be saved by file storage service in the database"));		
 		defaults.put(DB_BACKUP_FILE_SIZE_LIMIT, new PropertyMD().setCategory(mainCat).
-				setDescription("Max database backup file size in bytes which can be uploaded. Changing this limit must be revised carefully as the whole content is loaded into memory,"
+				setDescription("If set then provides a maximum database backup file size (in bytes) which can be uploaded. "
+						+ "If unset then the limit is determined at runtime, depending on the about of free memory."
+						+ "Changing this limit must be revised carefully as the whole content is loaded into memory,"
 						+ " and JVM may hit out of memory error."));			
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
 				setDescription("List of enabled locales. " +
