@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.export;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -59,6 +60,10 @@ public abstract class AbstractIEBase<T>
 	 */
 	protected abstract void createSingle(T toCreate);
 	
+	protected List<T> sortBeforeImport(List<T> toSort)
+	{
+		return toSort;
+	}
 	
 	public int getSortKey()
 	{
@@ -89,17 +94,25 @@ public abstract class AbstractIEBase<T>
 			throws IOException
 	{
 		JsonUtils.expect(input, JsonToken.START_ARRAY);
+		
+		List<T> toImportElements = new ArrayList<T>();
 		while(input.nextToken() == JsonToken.START_OBJECT)
 		{
 			T obj = deserializeFromJson(input);
 			if (obj != null)
 			{
-				createSingle(obj);
+				toImportElements.add(obj);
 			}
 		}
+		List<T> toImportElementsSorted = sortBeforeImport(toImportElements);
+		for (T e: toImportElementsSorted)
+		{
+			createSingle(e);
+		}
+		
 		JsonUtils.expect(input, JsonToken.END_ARRAY);
 	}
-
+	
 	private T deserializeFromJson(JsonParser input)
 			throws IOException
 	{
