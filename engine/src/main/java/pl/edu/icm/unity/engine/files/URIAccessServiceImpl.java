@@ -269,7 +269,7 @@ public class URIAccessServiceImpl implements URIAccessService
 			return Paths.get(root, filePath).toRealPath();
 		} catch (Exception e)
 		{
-			throw new IOException("File does not exists");
+			throw new IOException("File does not exists", e);
 		}
 	}
 
