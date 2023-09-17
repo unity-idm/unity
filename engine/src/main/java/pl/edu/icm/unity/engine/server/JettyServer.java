@@ -4,49 +4,68 @@
  */
 package pl.edu.icm.unity.engine.server;
 
-import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.PlainServerConnector;
-import eu.unicore.util.jetty.SecuredServerConnector;
-import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
-import org.eclipse.jetty.rewrite.handler.RewriteHandler;
-import org.eclipse.jetty.rewrite.handler.Rule;
-import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.AbstractHandlerContainer;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
-import org.eclipse.jetty.server.session.DefaultSessionIdManager;
-import org.eclipse.jetty.ee8.servlet.FilterHolder;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee8.servlets.CrossOriginFilter;
-import org.eclipse.jetty.ee8.servlets.DoSFilter;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.Lifecycle;
-import org.springframework.stereotype.Component;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOWED_IMMEDIATE_CLIENTS;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOW_NOT_PROXIED_TRAFFIC;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.PROXY_COUNT;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.SNI_HOSTNAME_CHECK;
 
-import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
 
-import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.*;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.ee8.servlet.FilterHolder;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlets.CrossOriginFilter;
+import org.eclipse.jetty.ee8.servlets.DoSFilter;
+import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
+import org.eclipse.jetty.rewrite.handler.RewriteHandler;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler.AbstractContainer;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.NetworkConnector;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.session.DefaultSessionIdManager;
+import org.eclipse.jetty.session.SessionIdManager;
+import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.Lifecycle;
+import org.springframework.stereotype.Component;
+
+import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.jetty.PlainServerConnector;
+import eu.unicore.util.jetty.SecuredServerConnector;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
+import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.XFrameOptions;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
@@ -64,7 +83,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
-	private Map<String, Handler> usedContextPaths;
+	private Map<String, org.eclipse.jetty.server.Handler> usedContextPaths;
 	private ContextHandlerCollection mainContextHandler;
 	private FilterHolder dosFilter = null;
 	private UnityServerConfiguration cfg;
@@ -172,7 +191,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 
 		initRootHandler();
 		
-		AbstractHandlerContainer headersRewriteHandler = configureHttpHeaders(mainContextHandler);
+		AbstractContainer headersRewriteHandler = configureHttpHeaders(mainContextHandler);
 		configureGzipHandler(headersRewriteHandler);
 		configureErrorHandler();
 	}
@@ -181,28 +200,26 @@ public class JettyServer implements Lifecycle, NetworkServer
 	{
 		Server server = new Server(getThreadPool())
 		{
+			//FIXME KB rewrite to use a wrapping handler
 			@Override
-			public void handle(HttpChannel connection) throws IOException, ServletException
+			public boolean handle(Request request, Response response, Callback callback) throws Exception
 			{
-				Request request = connection.getRequest();
-				Response response = connection.getResponse();
-
 				if ("TRACE".equals(request.getMethod()))
 				{
-					request.setHandled(true);
 					response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+					return true;
 				} else
 				{
-					super.handle(connection);
+					return super.handle(request, response, callback);
 				}
 			}
 		};
 		return server;
 	}
 
-	private void configureGzipHandler(AbstractHandlerContainer headersRewriteHandler)
+	private void configureGzipHandler(AbstractContainer headersRewriteHandler)
 	{
-		Handler withGzip = configureGzip(headersRewriteHandler);
+		org.eclipse.jetty.server.Handler withGzip = configureGzip(headersRewriteHandler);
 		theServer.setHandler(withGzip);
 	}
 
@@ -215,22 +232,22 @@ public class JettyServer implements Lifecycle, NetworkServer
 		return btPool;
 	}
 
-	private AbstractHandlerContainer configureHttpHeaders(Handler toWrap)
+	private AbstractContainer configureHttpHeaders(org.eclipse.jetty.server.Handler toWrap)
 	{
-		RewriteHandler rewriter = new RewriteHandler();
-		rewriter.setRewriteRequestURI(false);
-		rewriter.setRewritePathInfo(false);
-		rewriter.setHandler(toWrap);
+		RewriteHandler rewriter = new RewriteHandler(toWrap);
+//		rewriter.setRewriteRequestURI(false);
+//		rewriter.setRewritePathInfo(false);
+//		rewriter.setHandler(toWrap);
 
 		// workaround for Jetty bug: RewriteHandler without any rule
 		// won't work
-		rewriter.setRules(new Rule[0]);
+//		rewriter.setRules(new Rule[0]);
 
 		if (serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_HSTS))
 		{
 			HeaderPatternRule hstsRule = new HeaderPatternRule();
-			hstsRule.setName("Strict-Transport-Security");
-			hstsRule.setValue("max-age=31536000; includeSubDomains");
+			hstsRule.setHeaderName("Strict-Transport-Security");
+			hstsRule.setHeaderValue("max-age=31536000; includeSubDomains");
 			hstsRule.setPattern("*");
 			rewriter.addRule(hstsRule);
 		}
@@ -240,7 +257,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		if (frameOpts != XFrameOptions.allow)
 		{
 			HeaderPatternRule frameOriginRule = new HeaderPatternRule();
-			frameOriginRule.setName("X-Frame-Options");
+			frameOriginRule.setHeaderName("X-Frame-Options");
 
 			StringBuilder sb = new StringBuilder(frameOpts.toHttp());
 			if (frameOpts == XFrameOptions.allowFrom)
@@ -248,7 +265,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 				String allowedOrigin = serverSettings.getValue(UnityHttpServerConfiguration.ALLOWED_TO_EMBED);
 				sb.append(" ").append(allowedOrigin);
 			}
-			frameOriginRule.setValue(sb.toString());
+			frameOriginRule.setHeaderValue(sb.toString());
 			frameOriginRule.setPattern("*");
 			rewriter.addRule(frameOriginRule);
 		}
@@ -259,7 +276,8 @@ public class JettyServer implements Lifecycle, NetworkServer
 	{
 		log.info("Using fast (but less secure) session ID generator");
 		SessionIdManager sm = new DefaultSessionIdManager(theServer, new java.util.Random());
-		theServer.setSessionIdManager(sm);
+		//FIXME KB needs checking if effective. See AbstractSessionManager
+		theServer.addBean(sm);
 	}
 
 	private Connector[] createConnectors() throws ConfigurationException
@@ -385,7 +403,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 * handlers it might be better to override this method and enable
 	 * compression selectively.
 	 */
-	private AbstractHandlerContainer configureGzip(AbstractHandlerContainer handler) throws ConfigurationException
+	private AbstractContainer configureGzip(AbstractContainer handler) throws ConfigurationException
 	{
 		boolean enableGzip = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_GZIP);
 		if (enableGzip)
@@ -471,8 +489,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		
 		addDoSFilter(handler);
 		addCORSFilter(handler);
-
-		Handler wrappedHandler = applyClientIPDiscoveryHandler(handler, endpointId);
+		org.eclipse.jetty.server.Handler wrappedHandler = applyClientIPDiscoveryHandler(handler, endpointId);
 		mainContextHandler.addHandler(wrappedHandler);
 		if(theServer.isStarted())
 		{
@@ -491,7 +508,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	@Override
 	public synchronized void undeployAllHandlers() throws EngineException
 	{
-		for (Handler handler : usedContextPaths.values())
+		for (org.eclipse.jetty.server.Handler handler : usedContextPaths.values())
 		{
 			try
 			{
@@ -503,7 +520,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		}
 		usedContextPaths.clear();
 		
-		for (Handler handler : mainContextHandler.getHandlers().clone())
+		for (org.eclipse.jetty.server.Handler handler : List.copyOf(mainContextHandler.getHandlers()))
 		{
 			mainContextHandler.removeHandler(handler);
 		}	
@@ -512,7 +529,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	@Override
 	public synchronized void undeployHandler(String contextPath) throws EngineException
 	{
-		Handler handler = usedContextPaths.get(contextPath);
+		org.eclipse.jetty.server.Handler handler = usedContextPaths.get(contextPath);
 		try
 		{
 			handler.stop();
@@ -540,7 +557,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
 
 		String contextPath = endpoint.getEndpointDescription().getEndpoint().getContextAddress();
-		Handler handler = usedContextPaths.get(contextPath);
+		org.eclipse.jetty.server.Handler handler = usedContextPaths.get(contextPath);
 		try
 		{
 			handler.stop();
@@ -629,7 +646,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	}
 
 
-	private ClientIPSettingHandler applyClientIPDiscoveryHandler(AbstractHandlerContainer baseHandler, String endpointId)
+	private ClientIPSettingHandler applyClientIPDiscoveryHandler(ServletContextHandler baseHandler, String endpointId)
 	{
 		ClientIPDiscovery ipDiscovery = new ClientIPDiscovery(serverSettings.getIntValue(PROXY_COUNT),
 				serverSettings.getBooleanValue(ALLOW_NOT_PROXIED_TRAFFIC));

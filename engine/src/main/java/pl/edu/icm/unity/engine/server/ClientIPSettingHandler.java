@@ -6,14 +6,14 @@ package pl.edu.icm.unity.engine.server;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee8.nested.HandlerWrapper;
-import org.eclipse.jetty.ee8.nested.Request;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.utils.MDCKeys;
 /**
  * Sets client IP bound to the request into thread local variable.
  */
-class ClientIPSettingHandler extends HandlerWrapper
+class ClientIPSettingHandler extends Handler.Wrapper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, ClientIPSettingHandler.class);
 	private final ClientIPDiscovery ipDiscovery;
@@ -37,35 +37,35 @@ class ClientIPSettingHandler extends HandlerWrapper
 	}
 	
 	@Override
-	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException
+	public boolean handle(Request request, Response response, Callback callback) throws Exception
 	{
 		MDC.put(MDCKeys.ENDPOINT.key, endpointId);
 		try
 		{
+			//FIXME KB - risky
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			log.trace("Will establish client's address. Peer's address: {} forwarded-for: {}", 
-					request.getRemoteAddr(), httpRequest.getHeader("X-Forwarded-For"));
+					Request.getRemoteAddr(request), httpRequest.getHeader("X-Forwarded-For"));
 
 			String clientIP = getClientIP(httpRequest);
-			validateAddress(request);
+			validateAddress(httpRequest);
 
 			if (HTTPRequestContext.getCurrent() != null)
 				log.warn("Overriding old client's IP {} to {}, immediate client IP is {}",
-						HTTPRequestContext.getCurrent().getClientIP(), clientIP, request.getRemoteAddr());
+						HTTPRequestContext.getCurrent().getClientIP(), clientIP, Request.getRemoteAddr(request));
 			else
 				log.trace("Setting client's IP to {}, immediate client IP is {}", 
-						clientIP, request.getRemoteAddr());
+						clientIP, Request.getRemoteAddr(request));
 
 			log.debug("Handling client {} request to URL {}", clientIP, getFullRequestURL(httpRequest));
 			MDC.put(MDCKeys.CLIENT_IP.key, clientIP);
 			
 			HTTPRequestContext.setCurrent(new HTTPRequestContext(clientIP, 
-					request.getHeader("User-Agent")));
+					request.getHeaders().get("User-Agent")));
 
 			try
 			{
-				super.handle(target, baseRequest, httpRequest, response);
+				return getHandler().handle(request, response, callback);
 			} finally
 			{
 				HTTPRequestContext.setCurrent(null);
