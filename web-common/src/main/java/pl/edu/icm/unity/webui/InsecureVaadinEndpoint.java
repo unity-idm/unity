@@ -13,6 +13,7 @@ import javax.servlet.DispatcherType;
 import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -70,7 +71,7 @@ public class InsecureVaadinEndpoint extends VaadinEndpoint
 		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
 		theServlet.setSandboxRouter(sandboxRouter);		
 		if (webContentDir != null)
-			context.setResourceBase(webContentDir);
+			context.setBaseResource(new URLResourceFactory().newResource(webContentDir));
 		return context;
 	}
 	

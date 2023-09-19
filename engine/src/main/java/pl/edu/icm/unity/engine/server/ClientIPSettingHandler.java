@@ -6,10 +6,10 @@ package pl.edu.icm.unity.engine.server;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
@@ -42,22 +42,21 @@ class ClientIPSettingHandler extends Handler.Wrapper
 		MDC.put(MDCKeys.ENDPOINT.key, endpointId);
 		try
 		{
-			//FIXME KB - risky
-			HttpServletRequest httpRequest = (HttpServletRequest) request;
+			String remoteAddr = Request.getRemoteAddr(request);
 			log.trace("Will establish client's address. Peer's address: {} forwarded-for: {}", 
-					Request.getRemoteAddr(request), httpRequest.getHeader("X-Forwarded-For"));
+					remoteAddr, request.getHeaders().get(HttpHeader.X_FORWARDED_FOR));
 
-			String clientIP = getClientIP(httpRequest);
-			validateAddress(httpRequest);
+			String clientIP = getClientIP(request);
+			validateAddress(request);
 
 			if (HTTPRequestContext.getCurrent() != null)
 				log.warn("Overriding old client's IP {} to {}, immediate client IP is {}",
-						HTTPRequestContext.getCurrent().getClientIP(), clientIP, Request.getRemoteAddr(request));
+						HTTPRequestContext.getCurrent().getClientIP(), clientIP, remoteAddr);
 			else
 				log.trace("Setting client's IP to {}, immediate client IP is {}", 
-						clientIP, Request.getRemoteAddr(request));
+						clientIP, remoteAddr);
 
-			log.debug("Handling client {} request to URL {}", clientIP, getFullRequestURL(httpRequest));
+			log.debug("Handling client {} request to URL {}", clientIP, getFullRequestURL(request));
 			MDC.put(MDCKeys.CLIENT_IP.key, clientIP);
 			
 			HTTPRequestContext.setCurrent(new HTTPRequestContext(clientIP, 
@@ -77,14 +76,13 @@ class ClientIPSettingHandler extends Handler.Wrapper
 		}
 	}
 
-	private String getFullRequestURL(HttpServletRequest httpRequest)
+	private String getFullRequestURL(Request httpRequest)
 	{
-		String queryString = httpRequest.getQueryString();
-		String requestURI = httpRequest.getRequestURI();
-		return queryString == null ? requestURI : requestURI + "?" + queryString;
+		HttpURI httpURI = httpRequest.getHttpURI();
+		return httpURI.asString();
 	}
 	
-	private String getClientIP(HttpServletRequest httpRequest) throws IOException
+	private String getClientIP(Request httpRequest) throws IOException
 	{
 		try
 		{
@@ -96,7 +94,7 @@ class ClientIPSettingHandler extends Handler.Wrapper
 		}
 	}
 	
-	private void validateAddress(HttpServletRequest request) throws IOException
+	private void validateAddress(Request request) throws IOException
 	{
 		try
 		{

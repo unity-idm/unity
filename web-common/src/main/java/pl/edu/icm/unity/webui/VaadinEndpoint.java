@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.vaadin.server.Constants;
@@ -210,7 +211,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		
 		String webContentDir = getWebContentsDir();
 		if (webContentDir != null)
-			context.setResourceBase(webContentDir);
+			context.setBaseResource(new URLResourceFactory().newResource(webContentDir));
 		
 		SandboxAuthnRouter sandboxRouter = new SandboxAuthnRouterImpl();
 

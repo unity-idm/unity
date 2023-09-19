@@ -30,6 +30,8 @@ import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlets.CrossOriginFilter;
 import org.eclipse.jetty.ee8.servlets.DoSFilter;
+import org.eclipse.jetty.http.UriCompliance;
+import org.eclipse.jetty.http.UriCompliance.Violation;
 import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.Connector;
@@ -371,6 +373,8 @@ public class JettyServer implements Lifecycle, NetworkServer
 		HttpConfiguration httpConfig = new HttpConfiguration();
 		httpConfig.setSendServerVersion(false);
 		httpConfig.setSendXPoweredBy(false);
+		httpConfig.setUriCompliance(new UriCompliance("allowForEncodedPathSeparators",
+			        Set.of(Violation.AMBIGUOUS_PATH_SEPARATOR)));
 		SecureRequestCustomizer src = new SecureRequestCustomizer();
 		src.setSniHostCheck(serverSettings.getBooleanValue(SNI_HOSTNAME_CHECK));
 		httpConfig.addCustomizer(src);

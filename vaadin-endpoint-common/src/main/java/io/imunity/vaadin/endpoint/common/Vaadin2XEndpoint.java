@@ -9,7 +9,9 @@ import com.vaadin.flow.server.VaadinServlet;
 import eu.unicore.util.configuration.ConfigurationException;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.ee8.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -112,9 +114,9 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 
 	protected WebAppContext getWebAppContext(WebAppContext context, String contextPath, Set<String> classPathElements, String webResourceRootUri,
 	                               EventListener eventListener) {
-		context.setResourceBase(webResourceRootUri);
+		context.setBaseResource(new URLResourceFactory().newResource(webResourceRootUri));
 		context.setContextPath(contextPath);
-		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(classPathElements));
+		context.setAttribute(MetaInfConfiguration.CONTAINER_JAR_PATTERN, JarGetter.getJarsRegex(classPathElements));
 		context.setConfigurationDiscovered(true);
 		context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 		context.getServerClassMatcher().exclude("org.eclipse.jetty.");

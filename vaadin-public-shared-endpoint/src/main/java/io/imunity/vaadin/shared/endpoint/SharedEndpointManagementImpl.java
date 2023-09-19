@@ -14,6 +14,7 @@ import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.eclipse.jetty.ee8.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -64,7 +65,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		Properties properties = config.getProperties();
 		Vaadin82XEndpointProperties vaadinEndpointProperties = new Vaadin82XEndpointProperties(properties, config.getValue(DEFAULT_WEB_CONTENT_PATH));
 		WebAppContext context = new Vaadin2XWebAppContext(properties, vaadinEndpointProperties, msg, null);
-		context.setResourceBase(getWebContentsDir(config));
+		context.setBaseResource(new URLResourceFactory().newResource(getWebContentsDir(config)));
 		context.setContextPath(CONTEXT_PATH);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(sharedResourceProvider.getChosenClassPathElement()));
 		context.setConfigurationDiscovered(true);
