@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.eclipse.jetty.ee8.nested.Request;
 import org.eclipse.jetty.http.HttpURI;
+import org.eclipse.jetty.http.HttpURI.Mutable;
 import org.junit.jupiter.api.Test;
 
 public class VaadinRequestTypeMatcherTest
@@ -17,8 +18,7 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldNotDetectVaadin8HeartbeatRequest()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "GET", HttpURI.build("/console"));
+		Request request = setupRequest("GET", "/console");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
@@ -27,8 +27,7 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldDetectVaadin8HeartbeatRequest()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "GET", HttpURI.build("/HEARTBEAT/"));
+		Request request = setupRequest("GET", "/HEARTBEAT/");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isTrue();
@@ -37,8 +36,7 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldDetectVaadin23HeartbeatRequest()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "POST", HttpURI.build("/?v-r=heartbeat"));
+		Request request = setupRequest("POST", "/?v-r=heartbeat");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isTrue();
@@ -47,8 +45,7 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldNotDetectVaadin23HeartbeatRequestWhenHttpMethodIsGet()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "GET", HttpURI.build("/?v-r=heartbeat"));
+		Request request = setupRequest("GET", "/?v-r=heartbeat");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
@@ -57,8 +54,7 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldNotDetectVaadin23HeartbeatRequestWhenQueryParameterIsNotHeartbeat()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "POST", HttpURI.build("/?v-r=uidl"));
+		Request request = setupRequest("POST", "/?v-r=uidl");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
@@ -67,8 +63,7 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldNotDetectVaadin23HeartbeatRequestWhenURLIsNotSlash()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "POST", HttpURI.build("/ala/?v-r=heartbeat"));
+		Request request = setupRequest("POST", "/ala/?v-r=heartbeat");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
@@ -77,8 +72,7 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldDetectVaadin23PushRequest()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "GET", HttpURI.build("/?v-r=push"));
+		Request request = setupRequest("GET", "/?v-r=push");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isTrue();
@@ -87,8 +81,7 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldNotDetectVaadin23PushRequestWhenHttpMethodIsPost()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "POST", HttpURI.build("/?v-r=push"));
+		Request request = setupRequest("POST", "/?v-r=push");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
@@ -97,8 +90,7 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldNotDetectVaadin23PushRequestWhenQueryParameterIsNotHeartbeat()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "GET", HttpURI.build("/?v-r=uidl"));
+		Request request = setupRequest("GET", "/?v-r=uidl");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
@@ -107,16 +99,19 @@ public class VaadinRequestTypeMatcherTest
 	@Test
 	public void shouldNotDetectVaadin23PushRequestWhenURLIsNotSlash()
 	{
-		Request request = new Request(null, null);
-		setRequest(request, "GET", HttpURI.build("/ala/?v-r=push"));
+		Request request = setupRequest("GET", "/ala/?v-r=push");
 
 		boolean result = VaadinRequestTypeMatcher.isVaadinBackgroundRequest(request);
 		assertThat(result).isFalse();
 	}
 	
-	private void setRequest(Request request, String method, HttpURI uri)
+	private Request setupRequest(String method, String uri)
 	{
+		Request request = new Request(null, null);
 		request.setMethod(method);
-		request.setHttpURI(uri);
+		Mutable httpURI = HttpURI.build(uri);
+		request.setContext(null, httpURI.getPath());
+		request.setHttpURI(httpURI);
+		return request;
 	}
 }
