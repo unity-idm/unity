@@ -140,7 +140,7 @@ public class ExposedAttributesComponent extends CustomComponent
 		Attribute at = dat.getAttribute();
 		AttributeType attributeType = dat.getAttributeType();
 		AttributeViewer attrViewer = new AttributeViewer(msg, handlersRegistry, 
-				attributeType, at, false, AttributeViewerContext.EMPTY); 
+				attributeType, at, false, AttributeViewerContext.builder().withShowConfirmation(false).build()); 
 		return attrViewer.getAsComponents(dat.getDisplayedName(), dat.getDescription());
 	}
 }

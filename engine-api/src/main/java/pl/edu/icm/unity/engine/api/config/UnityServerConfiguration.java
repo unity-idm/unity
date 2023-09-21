@@ -173,7 +173,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	
 	public static final String RESTRICT_FILE_SYSTEM_ACCESS = "restrictFileSystemAccess";
 	public static final String FILE_SIZE_LIMIT = "fileSizeLimit";
-
+	
+	public static final String DB_BACKUP_FILE_SIZE_LIMIT = "dbBackupfileSizeLimit";
+	
 	public static final String MAX_CONCURRENT_PASSWORD_CHECKS = "maxConcurrentPasswordChecks";
 
 	public static final String EXTENSION_PFX = "ext.";
@@ -199,6 +201,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("If true then files from disk can be served only if are physically located in webContents"));	
 		defaults.put(FILE_SIZE_LIMIT, new PropertyMD("2000000").setPositive().setCategory(mainCat).
 				setDescription("Max file size in bytes which can be saved by file storage service in the database"));		
+		defaults.put(DB_BACKUP_FILE_SIZE_LIMIT, new PropertyMD().setCategory(mainCat).
+				setDescription("If set then provides a maximum database backup file size (in bytes) which can be uploaded. "
+						+ "If unset then the limit is determined at runtime, depending on the amount of free memory."
+						+ "Changing this limit must be revised carefully as big parts the uploaded dump are loaded into memory,"
+						+ " and JVM may hit out of memory error."));
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
 				setDescription("List of enabled locales. " +
 				"Each entry must have a language code as 'en' or 'pl' first, " +
@@ -681,6 +688,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public int getFileSizeLimit()
 	{
 		return getIntValue(UnityServerConfiguration.FILE_SIZE_LIMIT);
+	}
+	
+	public Optional<Integer> getDBBackupFileSizeLimit()
+	{
+		return Optional.ofNullable(getIntValue(UnityServerConfiguration.DB_BACKUP_FILE_SIZE_LIMIT));
 	}
 	
 	public List<String> getEndpointAuth(String endpointKey)

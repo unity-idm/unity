@@ -602,7 +602,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	protected boolean createLabelControl(AbstractOrderedLayout layout, FormElement previousInserted, 
 			FormElement next, FormCaptionElement element)
 	{
-		if (previousInserted == null || next == null)
+		if (next == null)
 			return false;
 		if (previousInserted instanceof FormCaptionElement)
 			return false;
@@ -768,6 +768,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withCustomWidth(formWidth())
 					.withCustomWidthUnit(formWidthUnit())
 					.withShowCaption(!(form.getLayoutSettings().isCompactInputs()))
+					.withShowConfirmation(false)
 					.build();
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, 
 					aType, readOnlyAttribute, false, context);
