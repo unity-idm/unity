@@ -30,12 +30,13 @@ import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlets.CrossOriginFilter;
 import org.eclipse.jetty.ee8.servlets.DoSFilter;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.UriCompliance.Violation;
 import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Handler.AbstractContainer;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.NetworkConnector;
@@ -191,8 +192,11 @@ public class JettyServer implements Lifecycle, NetworkServer
 
 		initRootHandler();
 		
-		AbstractContainer headersRewriteHandler = configureHttpHeaders(mainContextHandler);
-		configureGzipHandler(headersRewriteHandler);
+		Handler withHsts = configureHsts(mainContextHandler);
+		Handler withFrameOptions = configureFrameOptions(withHsts);
+		Handler withGzip = configureGzip(withFrameOptions);
+		
+		theServer.setHandler(withGzip);
 		configureErrorHandler();
 	}
 
@@ -217,12 +221,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 		return server;
 	}
 
-	private void configureGzipHandler(AbstractContainer headersRewriteHandler)
-	{
-		org.eclipse.jetty.server.Handler withGzip = configureGzip(headersRewriteHandler);
-		theServer.setHandler(withGzip);
-	}
-
 	private QueuedThreadPool getThreadPool()
 	{
 		QueuedThreadPool btPool = new QueuedThreadPool();
@@ -232,30 +230,13 @@ public class JettyServer implements Lifecycle, NetworkServer
 		return btPool;
 	}
 
-	private AbstractContainer configureHttpHeaders(org.eclipse.jetty.server.Handler toWrap)
+	private Handler configureFrameOptions(Handler toWrap)
 	{
-		RewriteHandler rewriter = new RewriteHandler(toWrap);
-//		rewriter.setRewriteRequestURI(false);
-//		rewriter.setRewritePathInfo(false);
-//		rewriter.setHandler(toWrap);
-
-		// workaround for Jetty bug: RewriteHandler without any rule
-		// won't work
-//		rewriter.setRules(new Rule[0]);
-
-		if (serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_HSTS))
-		{
-			HeaderPatternRule hstsRule = new HeaderPatternRule();
-			hstsRule.setHeaderName("Strict-Transport-Security");
-			hstsRule.setHeaderValue("max-age=31536000; includeSubDomains");
-			hstsRule.setPattern("*");
-			rewriter.addRule(hstsRule);
-		}
-
 		XFrameOptions frameOpts = serverSettings.getEnumValue(UnityHttpServerConfiguration.FRAME_OPTIONS,
 				XFrameOptions.class);
 		if (frameOpts != XFrameOptions.allow)
 		{
+			RewriteHandler rewriter = new RewriteHandler(toWrap);
 			HeaderPatternRule frameOriginRule = new HeaderPatternRule();
 			frameOriginRule.setHeaderName("X-Frame-Options");
 
@@ -268,10 +249,27 @@ public class JettyServer implements Lifecycle, NetworkServer
 			frameOriginRule.setHeaderValue(sb.toString());
 			frameOriginRule.setPattern("*");
 			rewriter.addRule(frameOriginRule);
+			return rewriter;
 		}
-		return rewriter;
+		return toWrap;
 	}
 
+	private Handler configureHsts(Handler toWrap)
+	{
+		if (serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_HSTS))
+		{
+			RewriteHandler rewriter = new RewriteHandler(toWrap);
+			HeaderPatternRule hstsRule = new HeaderPatternRule();
+			hstsRule.setHeaderName(HttpHeader.STRICT_TRANSPORT_SECURITY.asString());
+			hstsRule.setHeaderValue("max-age=31536000; includeSubDomains");
+			hstsRule.setPattern("*");
+			rewriter.addRule(hstsRule);
+			return rewriter;
+		}
+		return toWrap;
+	}
+
+	
 	private void configureFastAndInsecureSessionIdGenerator()
 	{
 		log.info("Using fast (but less secure) session ID generator");
@@ -404,7 +402,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 * handlers it might be better to override this method and enable
 	 * compression selectively.
 	 */
-	private AbstractContainer configureGzip(AbstractContainer handler) throws ConfigurationException
+	private Handler configureGzip(Handler handler) throws ConfigurationException
 	{
 		boolean enableGzip = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_GZIP);
 		if (enableGzip)

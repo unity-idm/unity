@@ -41,7 +41,7 @@ import pl.edu.icm.unity.engine.api.ServerManagement;
 @ExtendWith(SpringExtension.class)
 @UnityIntegrationTest
 @TestPropertySource(properties = { "unityConfig: src/test/resources/dosTest.conf" })
-public class TestJettyServer 
+public class JettyServerDoSTest 
 {
 	@Autowired
 	protected JettyServer httpServer;
