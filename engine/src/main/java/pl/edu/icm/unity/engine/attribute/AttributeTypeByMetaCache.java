@@ -8,6 +8,7 @@ package pl.edu.icm.unity.engine.attribute;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,8 @@ import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 @Component
 class AttributeTypeByMetaCache
 {
+	public final int ATRIBUTE_TYPE_CACHE_TTL_IN_MINUTES = 15; 
+	
 	private final AttributeTypeDAO attributeTypeDAO;
 	private final AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
 	private final Cache<String, CachedAttributeType> attributeTypeByMetaCache;
@@ -36,6 +39,7 @@ class AttributeTypeByMetaCache
 		this.attributeTypeDAO = attributeTypeDAO;
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		attributeTypeByMetaCache = CacheBuilder.newBuilder()
+				.expireAfterWrite(ATRIBUTE_TYPE_CACHE_TTL_IN_MINUTES, TimeUnit.MINUTES)
 				.build();
 	}
 

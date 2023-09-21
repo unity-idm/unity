@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +45,15 @@ public class GroupIE extends AbstractIEBase<Group>
 	@Override
 	protected List<Group> getAllToExport()
 	{
-		return dao.getAll();
+		 return dao.getAll();
 	}
-
+	
+	@Override
+	protected List<Group> sortBeforeImport(List<Group> toSort)
+	{
+		return toSort.stream().sorted().collect(Collectors.toList());
+	}
+	
 	@Override
 	protected ObjectNode toJsonSingle(Group exportedObj)
 	{

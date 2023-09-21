@@ -314,7 +314,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return AttributeHandlerHelper.getRepresentation(getValueAsString(value), context);
+		return AttributeHandlerHelper.getRepresentation(context.isShowConfirmation() ? getValueAsString(value)
+				: syntax.convertFromString(value)
+						.getValue(),
+				context);
 	}
 	
 	

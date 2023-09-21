@@ -16,18 +16,18 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>10.0.15</jetty.version>
+		<jetty.version>10.0.16</jetty.version>
 		<slf4j.version>1.7.32</slf4j.version>
 		<log4j.version>2.20.0</log4j.version>
 		<spring.version>5.3.25</spring.version>
 		<vaadin.version>8.14.3</vaadin.version>
 		<vaadin.version.new>23.3.19</vaadin.version.new>
-		<cxf.version>3.5.3</cxf.version>
+		<cxf.version>3.5.7</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
-		<bc.version>1.71.1</bc.version>
+		<bc.version>1.76</bc.version>
 		<selenium.version>4.8.3</selenium.version>
-		<jackson.version>2.15.1</jackson.version>
 		<junit5.version>5.9.3</junit5.version>
+		<jackson.version>2.15.2</jackson.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -512,7 +512,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>6.0.8</version>
+				<version>6.0.9</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
@@ -561,7 +561,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
-				<version>3.4.2</version>
+				<version>3.4.3</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.apache.geronimo.javamail</groupId>
