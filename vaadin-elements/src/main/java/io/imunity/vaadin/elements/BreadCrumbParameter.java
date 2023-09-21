@@ -9,6 +9,8 @@ import java.util.Objects;
 
 public class BreadCrumbParameter
 {
+	public static final String BREAD_CRUMB_SEPARATOR = " > ";
+
 	public final String id;
 	public final String name;
 	public final String parameter;

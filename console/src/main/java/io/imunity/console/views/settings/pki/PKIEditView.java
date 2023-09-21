@@ -36,13 +36,14 @@ import java.text.SimpleDateFormat;
 import java.util.Optional;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
+import static io.imunity.vaadin.elements.BreadCrumbParameter.BREAD_CRUMB_SEPARATOR;
 
 @PermitAll
 @Route(value = "/pki/edit", layout = ConsoleMenu.class)
 public class PKIEditView extends ConsoleViewComponent
 {
+	public static final String MONOSPACE_FONT = "Monospace";
 	public static final int MAX_FILE_SIZE = 50000000;
-	public static final String MONOSPACE_FONT = "\"Open Sans\", sans-serif";
 	private final CertificatesController controller;
 	private final NotificationPresenter notificationPresenter;
 	private final MessageSource msg;
@@ -71,7 +72,7 @@ public class PKIEditView extends ConsoleViewComponent
 		{
 			certificateEntry = new CertificateEntry();
 			breadCrumbParameter = new BreadCrumbParameter(
-					null, msg.getMessage("TrustedCertificates.navCaption") + " > " + msg.getMessage("new")
+					null, msg.getMessage("TrustedCertificates.navCaption") + BREAD_CRUMB_SEPARATOR + msg.getMessage("new")
 			);
 			edit = false;
 		}
@@ -79,7 +80,7 @@ public class PKIEditView extends ConsoleViewComponent
 		{
 			certificateEntry = controller.getCertificate(certName);
 			breadCrumbParameter = new BreadCrumbParameter(
-					certName, msg.getMessage("TrustedCertificates.navCaption") + " > " + certName
+					certName, msg.getMessage("TrustedCertificates.navCaption") + BREAD_CRUMB_SEPARATOR + certName
 			);
 			edit = true;
 		}
