@@ -328,11 +328,6 @@
 				<version>1.0.0</version>
 			</dependency>
 			<dependency>
-				<groupId>org.vaadin.tatu</groupId>
-				<artifactId>twincolselect</artifactId>
-				<version>2.5.2</version>
-			</dependency>
-			<dependency>
 				<groupId>in.virit</groupId>
 				<artifactId>viritin</artifactId>
 				<version>2.0.0</version>

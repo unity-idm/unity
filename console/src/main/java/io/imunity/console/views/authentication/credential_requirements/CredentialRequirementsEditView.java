@@ -6,6 +6,7 @@
 package io.imunity.console.views.authentication.credential_requirements;
 
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -18,7 +19,6 @@ import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
-import org.vaadin.tatu.TwinColSelect;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -27,6 +27,7 @@ import javax.annotation.security.PermitAll;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 
@@ -86,11 +87,10 @@ public class CredentialRequirementsEditView extends ConsoleViewComponent
 		TextField description = new TextField();
 		description.setWidth("var(--vaadin-text-field-big)");
 
-		TwinColSelect<String> requiredCredentials = new TwinColSelect<>();
-		requiredCredentials.setLabel(msg.getMessage("CredentialRequirements.available") + " -> " + msg.getMessage("CredentialRequirements.chosen"));
-		requiredCredentials.setItems(allCredentials.stream().map(CredentialDefinition::getName));
-		requiredCredentials.setWidth("30em");
-		requiredCredentials.setHeight("15em");
+		MultiSelectComboBox<String> requiredCredentials = new MultiSelectComboBox<>();
+		requiredCredentials.setItems(allCredentials.stream().map(CredentialDefinition::getName).collect(Collectors.toList()));
+		requiredCredentials.setWidth("var(--vaadin-text-field-big)");
+		requiredCredentials.setAllowCustomValue(false);
 
 		FormLayout formLayout = new FormLayout();
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));

@@ -73,15 +73,18 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 				})
 				.setHeader(msg.getMessage("CredentialReqView.nameCaption"))
 				.setAutoWidth(true)
+				.setResizable(true)
 				.setSortable(true)
 				.setComparator(Comparator.comparing(DescribedObjectROImpl::getName));
 		credList.addColumn(c -> String.join(", ", c.getRequiredCredentials()))
 				.setHeader(msg.getMessage("CredentialReqView.credentialsCaption"))
 				.setAutoWidth(true)
+				.setResizable(true)
 				.setSortable(true);
 		credList.addColumn(DescribedObjectROImpl::getDescription)
 				.setHeader(msg.getMessage("CredentialReqView.descriptionCaption"))
 				.setAutoWidth(true)
+				.setResizable(true)
 				.setSortable(true);
 		credList.addComponentColumn(this::createRowActionMenu)
 				.setHeader(msg.getMessage("actions"))
@@ -137,17 +140,15 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, removedCr);
 		ComboBox<String> replacementCR = new ComboBox<>(msg.getMessage("CredentialRequirements.replacement"), crs);
 		replacementCR.setValue(crs.get(0));
-		FormLayout vl = new FormLayout();
-		vl.addFormItem(replacementCR, new Label(msg.getMessage("CredentialRequirements.removalConfirm", confirmText)));
+		FormLayout layout = new FormLayout();
+		layout.addFormItem(replacementCR, new Label(msg.getMessage("CredentialRequirements.removalConfirm", confirmText)));
 
-		new ConfirmDialog(
-				msg.getMessage("ConfirmDialog.confirm"),
-				msg.getMessage("CertificatesComponent.confirmDeleteCertificate", confirmText),
-				msg.getMessage("ok"),
-				e -> remove(item, replacementCR.getValue()),
-				msg.getMessage("cancel"),
-				e -> {}
-		).open();
+		ConfirmDialog confirmDialog = new ConfirmDialog();
+		confirmDialog.setHeader(msg.getMessage("ConfirmDialog.confirm"));
+		confirmDialog.setConfirmButton(msg.getMessage("ok"), e -> remove(item, replacementCR.getValue()));
+		confirmDialog.setCancelButton(msg.getMessage("cancel"), e -> {});
+		confirmDialog.add(layout);
+		confirmDialog.open();
 	}
 
 	private void remove(CredentialRequirements toRemove, String replacementCR)
