@@ -10,6 +10,7 @@ import java.net.URL;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpTrace;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponse;
@@ -37,7 +38,7 @@ import pl.edu.icm.unity.engine.api.ServerManagement;
 @ExtendWith(SpringExtension.class)
 @UnityIntegrationTest
 @TestPropertySource(properties = { "unityConfig: src/test/resources/jettyHeadersTest.conf" })
-public class JettyServerHeadersTest 
+public class JettyServerFeaturesTest 
 {
 	@Autowired
 	protected JettyServer httpServer;
@@ -69,13 +70,30 @@ public class JettyServerHeadersTest
 		String baseURL = "https://127.0.0.1:" + url.getPort();
 
 		HttpClient client = createClient(baseURL + "/test/1");
-		HttpResponse response = makeRequest(client, baseURL + "/test/1");
+		HttpResponse response = makeGetRequest(client, baseURL + "/test/1");
 
 		assertThat(response.getCode()).isEqualTo(200);
 		assertThat(response.getHeader("Strict-Transport-Security").getValue()).isEqualTo("max-age=31536000; includeSubDomains");
 		assertThat(response.getHeader("X-Frame-Options").getValue()).isEqualTo("ALLOW-FROM example.com");
 	}
 
+	@Test
+	void shouldBlockTraceMethod() throws Exception
+	{
+		ServletContextHandler handler = new ServletContextHandler();
+		handler.setContextPath("/test-trace");
+		handler.addServlet(new ServletHolder(new SimpleServlet()), "/*");
+		httpServer.start();
+		httpServer.deployHandler(handler, "sys:test");
+		URL url = httpServer.getUrls()[0];
+		String baseURL = "https://127.0.0.1:" + url.getPort();
+
+		HttpClient client = createClient(baseURL + "/test-trace/1");
+		HttpResponse response = makeTraceRequest(client, baseURL + "/test-trace/1");
+
+		assertThat(response.getCode()).isEqualTo(405);
+	}
+	
 	private HttpClient createClient(String url) throws Exception
 	{
 		X509Credential cred = DBIntegrationTestBase.getDemoCredential();
@@ -87,7 +105,7 @@ public class JettyServerHeadersTest
 		return HttpUtils.createClient(url, secCfg);
 	}
 	
-	private HttpResponse makeRequest(HttpClient client, String url) throws Exception
+	private HttpResponse makeGetRequest(HttpClient client, String url) throws Exception
 	{
 		HttpGet get = new HttpGet(url);
 		try (ClassicHttpResponse response = client.executeOpen(null, get, HttpClientContext.create()))
@@ -95,4 +113,14 @@ public class JettyServerHeadersTest
 			return response;
 		}
 	}
+
+	private HttpResponse makeTraceRequest(HttpClient client, String url) throws Exception
+	{
+		HttpTrace trace = new HttpTrace(url);
+		try (ClassicHttpResponse response = client.executeOpen(null, trace, HttpClientContext.create()))
+		{
+			return response;
+		}
+	}
+
 }

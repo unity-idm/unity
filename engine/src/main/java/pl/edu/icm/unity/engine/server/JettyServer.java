@@ -23,7 +23,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee8.servlet.FilterHolder;
@@ -40,8 +39,6 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.NetworkConnector;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -49,7 +46,6 @@ import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
 import org.eclipse.jetty.session.SessionIdManager;
-import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,39 +182,22 @@ public class JettyServer implements Lifecycle, NetworkServer
 
 		Connector[] connectors = createConnectors();
 		for (Connector connector : connectors)
-		{
 			theServer.addConnector(connector);
-		}
 
 		initRootHandler();
 		
-		Handler withHsts = configureHsts(mainContextHandler);
-		Handler withFrameOptions = configureFrameOptions(withHsts);
-		Handler withGzip = configureGzip(withFrameOptions);
+		Handler handler = configureHsts(mainContextHandler);
+		handler = configureFrameOptions(handler);
+		handler = configureGzip(handler);
+		handler = new TraceBlockingHandler(handler);
 		
-		theServer.setHandler(withGzip);
+		theServer.setHandler(handler);
 		configureErrorHandler();
 	}
 
 	private Server createServer()
 	{
-		Server server = new Server(getThreadPool())
-		{
-			//FIXME KB rewrite to use a wrapping handler
-			@Override
-			public boolean handle(Request request, Response response, Callback callback) throws Exception
-			{
-				if ("TRACE".equals(request.getMethod()))
-				{
-					response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-					return true;
-				} else
-				{
-					return super.handle(request, response, callback);
-				}
-			}
-		};
-		return server;
+		return new Server(getThreadPool());
 	}
 
 	private QueuedThreadPool getThreadPool()
