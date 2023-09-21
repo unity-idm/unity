@@ -22,7 +22,7 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 public class GenericRDBMSStore extends GenericRDBMSCRUD<GenericObjectBean, GenericObjectBean> 
 					implements ObjectStoreDAO
 {
-	public static final String BEAN = DAO_ID + "rdbms";
+	public static final String BEAN = ObjectStoreDAO.DAO_ID + "rdbms";
 
 	@Autowired
 	public GenericRDBMSStore(GenericObjectRDBMSSerializer serializer)
