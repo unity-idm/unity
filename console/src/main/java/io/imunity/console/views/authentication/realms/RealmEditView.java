@@ -78,6 +78,7 @@ public class RealmEditView extends ConsoleViewComponent
 	{
 		TextField name = new TextField();
 		name.setWidth("var(--vaadin-text-field-big)");
+		name.setPlaceholder(msg.getMessage("AuthenticationRealm.defaultName"));
 		TextField description = new TextField();
 		description.setWidth("var(--vaadin-text-field-big)");
 
@@ -94,7 +95,7 @@ public class RealmEditView extends ConsoleViewComponent
 
 		configBinder(toEdit, name, description, blockAfterUnsuccessfulLogins, blockFor, rememberMePolicy, allowForRememberMeDays, maxInactivity);
 		FormLayout mainLayout = createMainLayout(toEdit, name, description, blockAfterUnsuccessfulLogins, blockFor, rememberMePolicy, allowForRememberMeDays, maxInactivity);
-		getContent().add(new VerticalLayout(mainLayout, createActionLayout(msg, edit, RealmEditView.class, this::onConfirm)));
+		getContent().add(new VerticalLayout(mainLayout, createActionLayout(msg, edit, RealmsView.class, this::onConfirm)));
 	}
 
 	private IntegerField getIntegerField()
@@ -102,7 +103,7 @@ public class RealmEditView extends ConsoleViewComponent
 		IntegerField integerField = new IntegerField();
 		integerField.setMin(1);
 		integerField.setMax(999);
-		integerField.setHasControls(true);
+		integerField.setStepButtonsVisible(true);
 		return integerField;
 	}
 

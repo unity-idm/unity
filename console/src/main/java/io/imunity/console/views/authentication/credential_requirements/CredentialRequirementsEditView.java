@@ -15,7 +15,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
@@ -82,6 +81,7 @@ public class CredentialRequirementsEditView extends ConsoleViewComponent
 		TextField name = new TextField();
 		name.setReadOnly(edit);
 		name.setWidth("var(--vaadin-text-field-medium)");
+		name.setPlaceholder(msg.getMessage("CredentialRequirements.defaultName"));
 
 		TextField description = new TextField();
 		description.setWidth("var(--vaadin-text-field-big)");

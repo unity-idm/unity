@@ -8,8 +8,6 @@ package io.imunity.console.views.authentication.realms;
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -28,7 +26,6 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
-import io.imunity.vaadin.elements.FormLayoutLabel;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 
@@ -37,6 +34,7 @@ import java.util.Comparator;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.authentication.realms")
@@ -71,7 +69,7 @@ public class RealmsView extends ConsoleViewComponent
 		realmsGrid.sort(GridSortOrder.asc(nameColumn).build());
 		realmsGrid.setItems(realmsController.getRealms());
 
-		VerticalLayout layout = new VerticalLayout(createHeaderLayout(), realmsGrid);
+		VerticalLayout layout = new VerticalLayout(createHeaderActionLayout(msg, RealmEditView.class), realmsGrid);
 		layout.setSpacing(false);
 		getContent().add(layout);
 	}
@@ -82,11 +80,13 @@ public class RealmsView extends ConsoleViewComponent
 		generalSettings.setTooltipText(msg.getMessage("edit"));
 		generalSettings.getStyle().set("cursor", "pointer");
 		generalSettings.addClickListener(e -> UI.getCurrent().navigate(RealmEditView.class, String.valueOf(entry.realm.getName())));
+		generalSettings.getElement().setAttribute("onclick", "event.stopPropagation();");
 
 		Icon remove = TRASH.create();
 		remove.setTooltipText(msg.getMessage("remove"));
 		remove.getStyle().set("cursor", "pointer");
 		remove.addClickListener(e -> tryRemove(entry));
+		remove.getElement().setAttribute("onclick", "event.stopPropagation();");
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, remove);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -98,7 +98,7 @@ public class RealmsView extends ConsoleViewComponent
 		FormLayout wrapper = new FormLayout();
 		wrapper.addFormItem(
 				new Label(String.join(", ", realm.endpoints)),
-				new FormLayoutLabel(msg.getMessage("AuthenticationRealmsView.endpointsCaption"))
+				msg.getMessage("AuthenticationRealmsView.endpointsCaption")
 		);
 		wrapper.getStyle().set("margin-bottom", "0.75em");
 		return wrapper;
@@ -133,16 +133,5 @@ public class RealmsView extends ConsoleViewComponent
 		openIcon.addClickListener(e -> realmsGrid.setDetailsVisible(entry, true));
 		closeIcon.addClickListener(e -> realmsGrid.setDetailsVisible(entry, false));
 		return new HorizontalLayout(openIcon, closeIcon, label);
-	}
-
-	private VerticalLayout createHeaderLayout()
-	{
-		VerticalLayout headerLayout = new com.vaadin.flow.component.orderedlayout.VerticalLayout();
-		headerLayout.setPadding(false);
-		Button addButton = new Button(msg.getMessage("addNew"), e -> UI.getCurrent().navigate(RealmEditView.class));
-		addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		headerLayout.setAlignItems(FlexComponent.Alignment.END);
-		headerLayout.add(addButton);
-		return headerLayout;
 	}
 }

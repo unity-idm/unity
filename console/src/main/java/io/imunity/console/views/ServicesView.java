@@ -7,14 +7,12 @@ package io.imunity.console.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
@@ -33,6 +31,7 @@ import javax.annotation.security.PermitAll;
 import java.util.Collections;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.services")
@@ -47,12 +46,7 @@ public class ServicesView extends ConsoleViewComponent
 		this.msg = msg;
 		this.servicesController = servicesController;
 		VerticalLayout layout = new VerticalLayout();
-		VerticalLayout buttonLayout = new VerticalLayout();
-		buttonLayout.setAlignItems(FlexComponent.Alignment.END);
-		buttonLayout.setPadding(false);
-		Button addButton = new Button(msg.getMessage("addNew"), e -> UI.getCurrent().navigate(ServicesEditView.class));
-		buttonLayout.add(addButton);
-		buttonLayout.setWidthFull();
+		VerticalLayout buttonLayout = createHeaderActionLayout(msg, ServicesEditView.class);
 
 		servicesGrid = new Grid<>();
 		servicesGrid.addComponentColumn(e -> new RouterLink(e.getName(), ServicesEditView.class))

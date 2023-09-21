@@ -76,6 +76,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 	private void initUI(AuthenticationFlowEntry toEdit, List<String> authenticators)
 	{
 		TextField name = new TextField();
+		name.setPlaceholder(msg.getMessage("AuthenticationFlow.defaultName"));
 		name.setWidth("var(--vaadin-text-field-big)");
 		name.setReadOnly(edit);
 

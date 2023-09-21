@@ -7,8 +7,6 @@ package io.imunity.console.views.settings.message_templates;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -46,6 +44,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.settings.messageTemplates")
@@ -135,20 +134,14 @@ public class MessageTemplatesView extends ConsoleViewComponent
 
 	private VerticalLayout createHeaderLayout(Component globalHamburgerHandlers)
 	{
-		VerticalLayout headerLayout = new VerticalLayout();
-		headerLayout.setPadding(false);
-		Button addButton = new Button(msg.getMessage("addNew"), e -> UI.getCurrent().navigate(MessageTemplateEditView.class));
-		addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		addButton.setIcon(PLUS_CIRCLE_O.create());
+		VerticalLayout headerLayout = createHeaderActionLayout(msg, MessageTemplateEditView.class);
 		search.setValueChangeMode(ValueChangeMode.EAGER);
 		search.setPlaceholder(msg.getMessage("search"));
-		headerLayout.setAlignItems(FlexComponent.Alignment.END);
 		HorizontalLayout lowerHeaderLayout = new HorizontalLayout(globalHamburgerHandlers, search);
 		lowerHeaderLayout.setWidthFull();
 		lowerHeaderLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 		lowerHeaderLayout.setAlignItems(FlexComponent.Alignment.END);
-		headerLayout.add(addButton, lowerHeaderLayout);
-		headerLayout.setSpacing(false);
+		headerLayout.add(lowerHeaderLayout);
 		return headerLayout;
 	}
 

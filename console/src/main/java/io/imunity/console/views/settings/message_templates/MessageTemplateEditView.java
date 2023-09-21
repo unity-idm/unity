@@ -24,7 +24,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.vaadin.elements.*;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -122,6 +121,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 		TextField name = new TextField();
 		name.setWidth("var(--vaadin-text-field-medium)");
+		name.setPlaceholder(msg.getMessage("MessageTemplatesEditor.defaultName"));
 
 		TextField description = new TextField();
 		description.setWidth("var(--vaadin-text-field-big)");
@@ -233,7 +233,6 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		} else
 		{
 			MessageTemplate msgTemplate = new MessageTemplate();
-			msgTemplate.setName(msg.getMessage("MessageTemplatesEditor.defaultName"));
 			if (!consumers.isEmpty())
 			{
 				msgTemplate.setConsumer(consumers.iterator().next());

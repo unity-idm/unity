@@ -8,8 +8,6 @@ package io.imunity.console.views.authentication.facilities;
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -37,6 +35,7 @@ import java.util.Comparator;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.authentication.facilities")
@@ -71,20 +70,9 @@ public class FacilitiesView extends ConsoleViewComponent
 				.setTextAlign(ColumnTextAlign.END);
 
 		H3 certCaption = new H3(msg.getMessage("AuthenticationFlowsComponent.caption"));
-		VerticalLayout main = new VerticalLayout(certCaption, createHeaderLayout(), flowsGrid);
+		VerticalLayout main = new VerticalLayout(certCaption, createHeaderActionLayout(msg, AuthenticationFlowEditView.class), flowsGrid);
 		main.setSpacing(false);
 		getContent().add(main);
-	}
-
-	private VerticalLayout createHeaderLayout()
-	{
-		VerticalLayout headerLayout = new VerticalLayout();
-		headerLayout.setPadding(false);
-		Button addButton = new Button(msg.getMessage("addNew"), e -> UI.getCurrent().navigate(AuthenticationFlowEditView.class));
-		addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		headerLayout.setAlignItems(FlexComponent.Alignment.END);
-		headerLayout.add(addButton);
-		return headerLayout;
 	}
 
 	private FormLayout getDetailsComponent(AuthenticationFlowEntry flow)
@@ -100,11 +88,13 @@ public class FacilitiesView extends ConsoleViewComponent
 		generalSettings.setTooltipText(msg.getMessage("edit"));
 		generalSettings.getStyle().set("cursor", "pointer");
 		generalSettings.addClickListener(e -> UI.getCurrent().navigate(AuthenticationFlowEditView.class, String.valueOf(entry.flow.getName())));
+		generalSettings.getElement().setAttribute("onclick", "event.stopPropagation();");
 
 		Icon remove = TRASH.create();
 		remove.setTooltipText(msg.getMessage("remove"));
 		remove.getStyle().set("cursor", "pointer");
 		remove.addClickListener(e -> tryRemove(entry));
+		remove.getElement().setAttribute("onclick", "event.stopPropagation();");
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, remove);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);

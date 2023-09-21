@@ -8,8 +8,6 @@ package io.imunity.console.views.settings.policy_documents;
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -35,6 +33,7 @@ import java.util.Comparator;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.settings.policyDocuments")
@@ -86,15 +85,10 @@ public class PolicyDocumentsView extends ConsoleViewComponent
 
 	private VerticalLayout createHeaderLayout()
 	{
-		VerticalLayout headerLayout = new VerticalLayout();
-		headerLayout.setPadding(false);
-		headerLayout.setSpacing(false);
-		Button addButton = new Button(msg.getMessage("addNew"), e -> UI.getCurrent().navigate(PolicyDocumentEditView.class));
-		addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		VerticalLayout headerLayout = createHeaderActionLayout(msg, PolicyDocumentEditView.class);
 		search.setValueChangeMode(ValueChangeMode.EAGER);
 		search.setPlaceholder(msg.getMessage("search"));
-		headerLayout.setAlignItems(FlexComponent.Alignment.END);
-		headerLayout.add(addButton, search);
+		headerLayout.add(search);
 		return headerLayout;
 	}
 

@@ -8,8 +8,6 @@ package io.imunity.console.views.settings.pki;
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -17,7 +15,6 @@ import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -34,6 +31,7 @@ import java.util.Comparator;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.settings.publicKeyInfrastructure")
@@ -70,21 +68,9 @@ public class PKIView extends ConsoleViewComponent
 		certGrid.sort(GridSortOrder.desc(nameColumn).build());
 
 		H3 certCaption = new H3(msg.getMessage("CertificatesComponent.caption"));
-		VerticalLayout main = new VerticalLayout(certCaption, createHeaderLayout(), certGrid);
+		VerticalLayout main = new VerticalLayout(certCaption, createHeaderActionLayout(msg, PKIEditView.class), certGrid);
 		main.setSpacing(false);
 		getContent().add(main);
-	}
-
-	private VerticalLayout createHeaderLayout()
-	{
-		VerticalLayout headerLayout = new VerticalLayout();
-		headerLayout.setPadding(false);
-		Button addButton = new Button(msg.getMessage("addNew"), e -> UI.getCurrent().navigate(PKIEditView.class));
-		addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		addButton.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
-		headerLayout.setAlignItems(FlexComponent.Alignment.END);
-		headerLayout.add(addButton);
-		return headerLayout;
 	}
 
 	private Component createRowActionMenu(CertificateEntry entry)

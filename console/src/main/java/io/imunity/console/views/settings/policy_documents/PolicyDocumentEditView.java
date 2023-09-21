@@ -21,7 +21,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.LocaleReachEditorDetails;
 import io.imunity.vaadin.elements.LocaleTextFieldDetails;
@@ -90,6 +89,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 	private void initUI(PolicyDocumentEntry toEdit, Set<String> allNames)
 	{
 		TextField name = new TextField();
+		name.setPlaceholder(msg.getMessage("PolicyDocumentEditor.defaultName"));
 
 		LocaleTextFieldDetails displayedName = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> toEdit.getDisplayedName().getOrDefault(locale, ""));
 		displayedName.setWidth("var(--vaadin-text-field-big)");

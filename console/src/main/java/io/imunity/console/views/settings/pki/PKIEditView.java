@@ -99,6 +99,7 @@ public class PKIEditView extends ConsoleViewComponent
 		name.setWidthFull();
 		name.setReadOnly(edit);
 		name.setWidth("var(--vaadin-text-field-big)");
+		name.setPlaceholder(msg.getMessage("Certificate.defaultName"));
 
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
 		Upload upload = new Upload(memoryBuffer);
