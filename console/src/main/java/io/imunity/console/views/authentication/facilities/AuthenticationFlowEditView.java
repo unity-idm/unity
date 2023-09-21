@@ -117,6 +117,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 		if (!toEdit.endpoints.isEmpty())
 		{
 			VerticalLayout field = new VerticalLayout(toEdit.endpoints.stream().map(Label::new).toArray(Component[]::new));
+			field.setPadding(false);
 			mainLayout.addFormItem(field, msg.getMessage("AuthenticationFlow.endpoints"));
 		}
 
