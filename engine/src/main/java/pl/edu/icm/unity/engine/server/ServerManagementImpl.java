@@ -47,7 +47,7 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 @Component
 @Primary
 @InvocationEventProducer
-public class ServerManagementImpl implements ServerManagement
+class ServerManagementImpl implements ServerManagement
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_CORE, ServerManagementImpl.class);
 	private ImportExport dbDump;
@@ -61,7 +61,7 @@ public class ServerManagementImpl implements ServerManagement
 	
 	
 	@Autowired
-	public ServerManagementImpl(TransactionalRunner tx, ImportExport dbDump, StorageCleaner initDb,
+	ServerManagementImpl(TransactionalRunner tx, ImportExport dbDump, StorageCleaner initDb,
 			EngineInitialization engineInit, InternalEndpointManagement endpointMan,
 			InternalAuthorizationManager authz, ExecutorsService executorsService, 
 			UnityServerConfiguration config,
@@ -226,5 +226,4 @@ public class ServerManagementImpl implements ServerManagement
 					"Subsequent dumps can be created in few minutes.");
 		return File.createTempFile(getExportFilePrefix(), getExportFileSuffix(), exportDir);
 	}
-
 }
