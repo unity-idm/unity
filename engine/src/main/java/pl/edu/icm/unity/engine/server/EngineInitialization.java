@@ -210,6 +210,7 @@ public class EngineInitialization extends LifecycleBase
 	private TranslationProfileManagement profilesManagement;
 	@Autowired
 	private SharedEndpointManagement sharedEndpointManagement;
+	@SuppressWarnings("unused")
 	@Autowired(required = false)
 	private EmailConfirmationServletProvider confirmationServletFactory;
 	@Autowired
@@ -218,6 +219,7 @@ public class EngineInitialization extends LifecycleBase
 	private ScriptTriggeringEventListener scriptEventsConsumer;
 	@Autowired
 	private AuditEventListener auditEventListener;
+	@SuppressWarnings("unused")
 	@Autowired(required = false)
 	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;
 	@Autowired

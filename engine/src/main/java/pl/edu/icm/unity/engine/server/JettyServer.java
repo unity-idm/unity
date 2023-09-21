@@ -57,8 +57,6 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.PlainServerConnector;
-import eu.unicore.util.jetty.SecuredServerConnector;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.utils.Log;
@@ -362,7 +360,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private ServerConnector getPlainConnectorInstance()
 	{
 		HttpConnectionFactory httpConnFactory = getHttpConnectionFactory();
-		return new PlainServerConnector(theServer, httpConnFactory);
+		return new ServerConnector(theServer, httpConnFactory);
 	}
 
 	/**
