@@ -276,7 +276,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 	{
 		log.info("Using fast (but less secure) session ID generator");
 		SessionIdManager sm = new DefaultSessionIdManager(theServer, new java.util.Random());
-		//FIXME KB needs checking if effective. See AbstractSessionManager
 		theServer.addBean(sm);
 	}
 
