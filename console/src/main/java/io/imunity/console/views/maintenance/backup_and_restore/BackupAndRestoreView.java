@@ -5,6 +5,22 @@
 
 package io.imunity.console.views.maintenance.backup_and_restore;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.security.PermitAll;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -18,24 +34,17 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
+
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-
-import javax.annotation.security.PermitAll;
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.maintenance.backupAndRestore")
@@ -43,7 +52,8 @@ import java.util.Map;
 public class BackupAndRestoreView extends ConsoleViewComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BackupAndRestoreView.class);
-	private static final int MAX_SIZE = 50000000;
+	private final int MAX_OF_FREE_MEMORY_USAGE_IN_PERCENT = 70;
+
 
 	private final MessageSource msg;
 	private final ServerManagement serverManagement;
@@ -189,12 +199,16 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 		Label info = new Label(msg.getMessage("ImportExport.uploadInfo"));
 		Label fileUploaded = new Label(msg.getMessage("ImportExport.noFileUploaded"));
 		fileUploaded.getStyle().set("margin", "var(--small-margin) 0");
+		
 		memoryBuffer = new MemoryBuffer();
 		upload = new Upload(memoryBuffer);
-		upload.setMaxFileSize(MAX_SIZE);
+		upload.setMaxFileSize(getDBDumbFileSizeLimit());
 		upload.setAcceptedFileTypes("application/json");
 		upload.addFinishedListener(e -> fileUploaded.setText(msg.getMessage("ImportExport.dumpUploaded", new Date())));
 		upload.getElement().addEventListener("file-remove", e -> fileUploaded.setText(msg.getMessage("ImportExport.noFileUploaded")));
+		upload.addFileRejectedListener(e -> notificationPresenter.showError(msg.getMessage("error"),
+				e.getErrorMessage()));
+		
 		upload.setDropAllowed(false);
 		upload.setWidth("21em");
 		InputLabel inputLabel = new InputLabel(msg.getMessage("ImportExport.uploadCaption"));
@@ -204,6 +218,27 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 
 		layout.add(info, inputLabel, upload, fileUploaded, importDump);
 		return importPanel;
+	}
+	
+	private int getDBDumbFileSizeLimit()
+	{
+		Optional<Integer> dbBackupFileSizeLimit = serverConfig.getDBBackupFileSizeLimit();
+		if (dbBackupFileSizeLimit.isPresent())
+		{
+			log.trace("Set static db dump file size limit to " + dbBackupFileSizeLimit.get());
+			return dbBackupFileSizeLimit.get();
+		}
+		
+		return calculateFileSizeLimitBasedOnFreeMemory();	
+	}
+	
+	private int calculateFileSizeLimitBasedOnFreeMemory()
+	{
+		System.gc();
+		long initialMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		long filesizeLimit = ((Runtime.getRuntime().maxMemory() - initialMemory) * MAX_OF_FREE_MEMORY_USAGE_IN_PERCENT)/100;
+		log.trace("Calculated dynamic db dumb file size limit: " + filesizeLimit);
+		return (int)filesizeLimit;
 	}
 
 	private void importDumpInit()
