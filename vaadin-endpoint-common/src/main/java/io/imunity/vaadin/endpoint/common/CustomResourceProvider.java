@@ -9,6 +9,7 @@ import com.vaadin.flow.di.ResourceProvider;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -23,6 +24,7 @@ public abstract class CustomResourceProvider implements ResourceProvider
 	private final Map<String, CachedStreamData> cache = new ConcurrentHashMap<>();
 	private final String currentClassPathElement;
 	private final Set<String> chosenClassPathElement;
+	private final Set<String> chosenClassPathElementForJetty;
 
 	public CustomResourceProvider(String... chosenModules)
 	{
@@ -35,6 +37,26 @@ public abstract class CustomResourceProvider implements ResourceProvider
 
 		classPathElements.add(currentClassPathElement);
 		this.chosenClassPathElement = classPathElements;
+		this.chosenClassPathElementForJetty = classPathElements.stream()
+				.map(CustomResourceProvider::getUrlCompatibleWithJetty)
+				.collect(Collectors.toSet());
+	}
+
+	public static String getUrlCompatibleWithJetty(String vale) {
+		URL url;
+		try
+		{
+			url = new URL(vale);
+		} catch (MalformedURLException e)
+		{
+			throw new RuntimeException(e);
+		}
+		StringBuilder strForm = new StringBuilder();
+		String protocol = url.getProtocol();
+		strForm.append(protocol);
+		strForm.append("://");
+		strForm.append(url.getFile());
+		return strForm.toString();
 	}
 
 	private String getCurrentClassPathElement()
@@ -55,7 +77,7 @@ public abstract class CustomResourceProvider implements ResourceProvider
 
 	public Set<String> getChosenClassPathElement()
 	{
-		return chosenClassPathElement;
+		return chosenClassPathElementForJetty;
 	}
 
 	@Override

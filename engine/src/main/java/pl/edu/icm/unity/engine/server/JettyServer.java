@@ -4,27 +4,10 @@
  */
 package pl.edu.icm.unity.engine.server;
 
-import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOWED_IMMEDIATE_CLIENTS;
-import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOW_NOT_PROXIED_TRAFFIC;
-import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.PROXY_COUNT;
-import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.SNI_HOSTNAME_CHECK;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-
+import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.jetty.PlainServerConnector;
+import eu.unicore.util.jetty.SecuredServerConnector;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
@@ -34,40 +17,40 @@ import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.UriCompliance.Violation;
 import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
-import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.Handler.AbstractContainer;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.NetworkConnector;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
 import org.eclipse.jetty.session.SessionIdManager;
 import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.URIUtil;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.Lifecycle;
 import org.springframework.stereotype.Component;
-
-import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.PlainServerConnector;
-import eu.unicore.util.jetty.SecuredServerConnector;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
-import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.XFrameOptions;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.*;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
@@ -214,6 +197,11 @@ public class JettyServer implements Lifecycle, NetworkServer
 				{
 					return super.handle(request, response, callback);
 				}
+			}
+			@Override
+			public Resource getDefaultStyleSheet()
+			{
+				return new URLResourceFactory().newResource(URIUtil.toURI(cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH) + "jetty-dir.css"));
 			}
 		};
 		return server;
