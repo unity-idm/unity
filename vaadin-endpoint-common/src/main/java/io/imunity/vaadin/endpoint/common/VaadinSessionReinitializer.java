@@ -9,9 +9,9 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedHttpSession;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.SessionReinitializer;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.SessionReinitializer;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 public class VaadinSessionReinitializer implements SessionReinitializer
 {

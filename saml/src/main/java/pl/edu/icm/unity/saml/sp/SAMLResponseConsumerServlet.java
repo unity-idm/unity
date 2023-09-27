@@ -4,27 +4,25 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.hc.core5.net.URIBuilder;
-import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
-
 import eu.unicore.samly2.messages.RedirectedMessage;
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 import pl.edu.icm.unity.saml.SamlHttpResponseServlet;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Custom servlet which awaits SAML authn response from IdP, which should be 
@@ -83,7 +81,7 @@ public class SAMLResponseConsumerServlet extends SamlHttpResponseServlet
 		try
 		{
 			URIBuilder uriBuilder = URIBuilderFixer.newInstance(returnURL);
-			uriBuilder.addParameter(RemoteRedirectedAuthnResponseProcessingFilter.CONTEXT_ID_HTTP_PARAMETER, relayState);
+			uriBuilder.addParameter(RemoteRedirectedAuthnResponseProcessingFilterV8.CONTEXT_ID_HTTP_PARAMETER, relayState);
 			return uriBuilder.build().toString();
 		} catch (URISyntaxException e)
 		{

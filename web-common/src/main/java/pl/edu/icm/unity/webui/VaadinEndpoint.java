@@ -4,34 +4,15 @@
  */
 package pl.edu.icm.unity.webui;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Properties;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.vaadin.server.Constants;
+import com.vaadin.server.VaadinServlet;
+import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.context.ApplicationContext;
-
-import com.vaadin.server.Constants;
-import com.vaadin.server.VaadinServlet;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -40,7 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
@@ -49,10 +30,21 @@ import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8;
 import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
 import pl.edu.icm.unity.webui.sandbox.TranslationProfileSandboxUI;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
 
 /**
  * Vaadin endpoint is used by all Vaadin based web endpoints. It is not a component:
@@ -60,7 +52,7 @@ import pl.edu.icm.unity.webui.sandbox.TranslationProfileSandboxUI;
  * object initialized with the actual Vaadin application which should be exposed. 
  * @author K. Benedyczak
  */
-public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
+public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE8Instance
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaadinEndpoint.class);
 	public static final String DEFAULT_THEME = "unityThemeValo";
@@ -86,7 +78,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected InvocationContextSetupFilter contextSetupFilter;
 	protected UnityServerConfiguration serverConfig;
 	protected MessageSource msg;
-	protected final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
+	protected final RemoteRedirectedAuthnResponseProcessingFilterV8 remoteAuthnResponseProcessingFilter;
 	
 	public VaadinEndpoint(NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider, 
@@ -94,7 +86,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 			ApplicationContext applicationContext,
 			String uiBeanName,
 			String servletPath,
-			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilterV8 remoteAuthnResponseProcessingFilter)
 	{
 		super(server, advertisedAddrProvider);
 		this.msg = msg;

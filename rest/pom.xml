@@ -101,6 +101,10 @@
 			<groupId>org.eclipse.jetty.ee8</groupId>
 			<artifactId>jetty-ee8-servlets</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>

@@ -7,9 +7,11 @@ package io.imunity.vaadin.auth;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
@@ -20,7 +22,9 @@ import com.vaadin.flow.server.WrappedSession;
 import io.imunity.vaadin.auth.outdated.CredentialChangeConfiguration;
 import io.imunity.vaadin.auth.outdated.OutdatedCredentialController;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.*;
+import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
+import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
+import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormsService;
@@ -29,7 +33,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -38,13 +41,12 @@ import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +58,7 @@ import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.Unkno
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
 
+@Uses(PasswordField.class)
 @Route("/authentication")
 public class AuthenticationView extends Composite<Div> implements BeforeEnterObserver
 {
@@ -75,20 +78,20 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
-	
+
 	private ColumnInstantAuthenticationScreen authenticationUI;
-	private final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
-	
+	private final InteractiveAuthenticationProcessorEE10 interactiveAuthnProcessor;
+
 	@Autowired
 	public AuthenticationView(MessageSource msg, VaadinLogoImageLoader imageAccessService, UnityServerConfiguration cfg,
-	                          VaddinWebLogoutHandler authnProcessor,
-	                          InteractiveAuthenticationProcessor interactiveProcessor,
-	                          ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
-	                          ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
-	                          RegistrationFormsService registrationFormsService,
-	                          RegistrationFormDialogProvider formLauncher,
-	                          NotificationPresenter notificationPresenter,
-	                          AssociationAccountWizardProvider associationAccountWizardProvider)
+			VaddinWebLogoutHandler authnProcessor,
+			InteractiveAuthenticationProcessorEE10 interactiveProcessor,
+			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
+			ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
+			RegistrationFormsService registrationFormsService,
+			RegistrationFormDialogProvider formLauncher,
+			NotificationPresenter notificationPresenter,
+			AssociationAccountWizardProvider associationAccountWizardProvider)
 	{
 		this.msg = msg;
 		this.localeChoice = new LocaleChoiceComponent(cfg);
@@ -107,25 +110,26 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		this.authnFlows = List.copyOf(getCurrentWebAppAuthenticationFlows());
 		this.registrationFormsService.configure(config.getRegistrationConfiguration());
 	}
-	
+
 	protected void init()
 	{
 		Function<UnknownRemotePrincipalResult, Dialog> unknownUserDialogProvider = result -> new UnknownUserDialog(
 				msg, result, formLauncher, notificationPresenter, associationAccountWizardProvider
 		);
-		authenticationUI = ColumnInstantAuthenticationScreen.getInstance(msg, imageAccessService, config, endpointDescription,
+		authenticationUI = ColumnInstantAuthenticationScreen.getInstance(msg, imageAccessService, config,
+				endpointDescription,
 				new CredentialResetLauncherImpl(),
 				this::showRegistration,
 				getCurrentWebAppCancelHandler(), idsMan, execService,
-				isRegistrationEnabled(), 
+				isRegistrationEnabled(),
 				unknownUserDialogProvider,
 				Optional.of(localeChoice), authnFlows,
 				interactiveAuthnProcessor, notificationPresenter);
 		loadInitialState();
 		getContent().setSizeFull();
 	}
-	
-	private void loadInitialState() 
+
+	private void loadInitialState()
 	{
 		LOG.debug("Loading initial state of authentication UI");
 		WrappedSession session = VaadinSession.getCurrent().getSession();
@@ -156,7 +160,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 			}
 		}
 	}
-	
+
 	/**
 	 * We may end up in authentication UI also after being properly logged in,
 	 * when the credential is outdated. The credential change dialog must be displayed then.
@@ -167,12 +171,12 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		return ls != null && ls.isUsedOutdatedCredential();
 	}
-	
+
 	private void showOutdatedCredentialDialog()
 	{
 		CredentialChangeConfiguration uiConfig = new CredentialChangeConfiguration(
 				config.getAuthnLogo(),
-				getFirstColumnWidth(), 
+				getFirstColumnWidth(),
 				config.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT));
 
 		OutdatedCredentialController outdatedCredentialController = outdatedCredentialDialogFactory.getObject();
@@ -180,23 +184,23 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		getContent().removeAll();
 		getContent().add(outdatedCredentialController.getComponent());
 	}
-	
-	
+
+
 	private float getFirstColumnWidth()
 	{
 		Iterator<String> columnKeys = config.getStructuredListKeys(AUTHN_COLUMNS_PFX).iterator();
-		return columnKeys.hasNext() ? 
-				(float)(double)config.getDoubleValue(columnKeys.next()+AUTHN_COLUMN_WIDTH) 
+		return columnKeys.hasNext() ?
+				(float) (double) config.getDoubleValue(columnKeys.next() + AUTHN_COLUMN_WIDTH)
 				: VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH;
 	}
-	
+
 	private void resetToFreshAuthenticationScreen()
 	{
 		getContent().removeAll();
 		getContent().add(authenticationUI);
 		authenticationUI.reset();
 	}
-	
+
 	private boolean isRegistrationEnabled()
 	{
 		try
@@ -207,8 +211,9 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 			LOG.error("Failed to determine whether registration is enabled or not on "
 					+ "authentication screen.", e);
 			return false;
-		}	}
-	
+		}
+	}
+
 	private void showRegistration()
 	{
 		if (config.getRegistrationConfiguration().getExternalRegistrationURL().isPresent())
@@ -261,7 +266,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 	@Override
 	public void beforeEnter(BeforeEnterEvent event)
 	{
-		if(VaadinService.getCurrentRequest().isUserInRole("USER"))
+		if (VaadinService.getCurrentRequest().isUserInRole("USER"))
 			UI.getCurrent().getPage().setLocation(VaadinServlet.getCurrent().getServletContext().getContextPath());
 		else
 			init();
@@ -281,7 +286,7 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 		{
 			return new CredentialResetUIConfig(getLogo(),
 					AuthenticationView.this::resetToFreshAuthenticationScreen,
-					getFirstColumnWidth() * 2, 
+					getFirstColumnWidth() * 2,
 					getFirstColumnWidth(),
 					config.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT));
 		}

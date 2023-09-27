@@ -4,27 +4,19 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import com.google.common.base.CharMatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.io.IOUtils;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.engine.api.attributes.*;
+import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec.PublicAttributeContentProvider;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-
-import com.google.common.base.CharMatcher;
-
-import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
-import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.attributes.PublicAttributeContent;
-import pl.edu.icm.unity.engine.api.attributes.PublicAttributeInfo;
-import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec;
-import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec.PublicAttributeContentProvider;
 
 /**
  * Exposes attribute's value associated with extenral id.

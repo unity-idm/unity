@@ -10,7 +10,7 @@ import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.directorySetup.attributeClasses")

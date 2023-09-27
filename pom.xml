@@ -21,7 +21,7 @@
 		<log4j.version>2.20.0</log4j.version>
 		<spring.version>5.3.25</spring.version>
 		<vaadin.version>8.14.3</vaadin.version>
-		<vaadin.version.new>23.3.19</vaadin.version.new>
+		<vaadin.version.new>24.1.10</vaadin.version.new>
 		<cxf.version>3.5.3</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
 		<bc.version>1.71.1</bc.version>
@@ -323,11 +323,6 @@
 				<version>3.2.1</version>
 			</dependency>
 			<dependency>
-				<groupId>org.vaadin.barcodes</groupId>
-				<artifactId>barcode-bwipjs</artifactId>
-				<version>1.0.0</version>
-			</dependency>
-			<dependency>
 				<groupId>org.vaadin.tatu</groupId>
 				<artifactId>twincolselect</artifactId>
 				<version>2.5.2</version>
@@ -435,9 +430,39 @@
 				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.eclipse.jetty.ee10</groupId>
+				<artifactId>jetty-ee10-servlets</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.eclipse.jetty.ee8.websocket</groupId>
 				<artifactId>jetty-ee8-websocket-javax-server</artifactId>
 				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.ee10</groupId>
+				<artifactId>jetty-ee10-webapp</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.ee10</groupId>
+				<artifactId>jetty-ee10-servlet</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.ee10.websocket</groupId>
+				<artifactId>jetty-ee10-websocket-jakarta-server</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>2.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.annotation</groupId>
+				<artifactId>javax.annotation-api</artifactId>
+				<version>1.3.2</version>
 			</dependency>
 			
 			

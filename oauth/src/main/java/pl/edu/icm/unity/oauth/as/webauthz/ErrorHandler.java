@@ -4,16 +4,14 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * Allows to show a plain error page, if error can not be returned to the requester. 

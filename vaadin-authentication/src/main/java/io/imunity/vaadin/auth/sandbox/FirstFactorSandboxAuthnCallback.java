@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
@@ -28,8 +28,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Collects authN result from the first authenticator of the selected flow
- * and process it in sandbox way in case of not redirected logins. 
- * Proper setup of contexts, remember me unsupported, 
+ * and process it in sandbox way in case of not redirected logins.
+ * Proper setup of contexts, remember me unsupported,
  * unknown remote user in the sandbox case equivalent to successful result.
  */
 class FirstFactorSandboxAuthnCallback implements VaadinAuthentication.AuthenticationCallback
@@ -37,18 +37,18 @@ class FirstFactorSandboxAuthnCallback implements VaadinAuthentication.Authentica
 	private static final Duration DELAY_WINDOW_CLOSING_AFTER_ERROR_FOR = Duration.ofSeconds(5);
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, FirstFactorSandboxAuthnCallback.class);
 	private final MessageSource msg;
-	private final InteractiveAuthenticationProcessor authnProcessor;
+	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
 	private final ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener authNListener;
 	private final AuthenticationStepContext stepContext;
 	private final SandboxAuthnRouter sandboxRouter;
 	private final NotificationPresenter notificationPresenter;
 
 	FirstFactorSandboxAuthnCallback(MessageSource msg,
-	                                InteractiveAuthenticationProcessor authnProcessor,
-	                                AuthenticationStepContext stepContext,
-	                                SandboxAuthnRouter sandboxRouter,
-	                                ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener authNListener,
-	                                NotificationPresenter notificationPresenter)
+			InteractiveAuthenticationProcessorEE10 authnProcessor,
+			AuthenticationStepContext stepContext,
+			SandboxAuthnRouter sandboxRouter,
+			ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener authNListener,
+			NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -115,7 +115,7 @@ class FirstFactorSandboxAuthnCallback implements VaadinAuthentication.Authentica
 	{
 		return AuthenticationTriggeringContext.sandboxTriggeredFirstFactor(sandboxRouter);
 	}
-	
+
 	/**
 	 * Clears the UI so a new authentication can be started.
 	 */
@@ -129,37 +129,38 @@ class FirstFactorSandboxAuthnCallback implements VaadinAuthentication.Authentica
 	{
 		UI.getCurrent().getPage().executeJs("window.close();");
 	}
-	
+
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
 	{
 		if (authNListener != null)
 			authNListener.switchTo2ndFactor(partialState);
 	}
-	
-	
+
+
 	private void handleError(String errorToShow)
 	{
 		setAuthenticationAborted();
 		notificationPresenter.showError(errorToShow, "");
 		scheduleWindowClose();
 	}
-	
+
 	private void handleUnknownUser(UnknownRemotePrincipalResult result)
 	{
 		closeWindow();
 	}
-	
+
 	private void scheduleWindowClose()
 	{
 		UI ui = UI.getCurrent();
-		new Thread(() -> {
+		new Thread(() ->
+		{
 			try
 			{
 				Thread.sleep(DELAY_WINDOW_CLOSING_AFTER_ERROR_FOR.toMillis());
 			} catch (InterruptedException e)
 			{
 			}
-			
+
 			ui.access(this::closeWindow);
 		}).start();
 	}

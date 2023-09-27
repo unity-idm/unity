@@ -65,4 +65,10 @@ public class DefaultActionParameterComponent extends TextField implements Action
 	{
 		super.setReadOnly(readOnly);
 	}
+
+	@Override
+	public String getLabel()
+	{
+		return super.getLabel();
+	}
 }
