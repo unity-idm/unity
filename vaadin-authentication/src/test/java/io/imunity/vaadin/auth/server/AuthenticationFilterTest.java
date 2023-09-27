@@ -6,7 +6,12 @@
 package io.imunity.vaadin.auth.server;
 
 import io.imunity.vaadin.endpoint.common.EopException;
-import org.eclipse.jetty.ee8.nested.Request;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
@@ -16,11 +21,6 @@ import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 import static org.mockito.Mockito.*;
@@ -57,7 +57,7 @@ class AuthenticationFilterTest
 	@Test
 	public void shouldGoToProtectedResourceWhenRealmsAreEqual() throws IOException, ServletException, EopException
 	{
-		Request request = Mockito.mock(Request.class);
+		ServletApiRequest request = Mockito.mock(ServletApiRequest.class);
 		HttpSession session = Mockito.mock(HttpSession.class);
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		LoginSession loginSession = Mockito.mock(LoginSession.class);

@@ -8,16 +8,15 @@
 
 package pl.edu.icm.unity.saml.slo;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletResponse;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.session.SessionParticipants;
 import pl.edu.icm.unity.saml.SAMLSessionParticipant;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * SAML Context for single logout protocol. Quite complicated as the process may happen asynchronously.

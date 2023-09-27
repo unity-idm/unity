@@ -26,7 +26,7 @@ import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;

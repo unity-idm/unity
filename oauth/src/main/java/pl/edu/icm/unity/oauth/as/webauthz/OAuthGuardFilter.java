@@ -4,24 +4,17 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import java.io.IOException;
-import java.util.Optional;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import io.imunity.vaadin.endpoint.common.VaadinRequestMatcher;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
+
+import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Filter which is invoked prior to authentication. 

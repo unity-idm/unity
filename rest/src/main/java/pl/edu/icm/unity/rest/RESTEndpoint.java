@@ -4,17 +4,7 @@
  */
 package pl.edu.icm.unity.rest;
 
-import java.io.StringReader;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringJoiner;
-
-import javax.servlet.DispatcherType;
-import javax.ws.rs.core.Application;
-
+import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
@@ -26,8 +16,6 @@ import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.eclipse.jetty.ee8.servlets.CrossOriginFilter;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -37,13 +25,18 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.rest.authn.LogContextCleaningInterceptor;
+
+import javax.servlet.DispatcherType;
+import javax.ws.rs.core.Application;
+import java.io.StringReader;
+import java.util.*;
 
 /**
  * JAX-RS (REST) endpoint based on CXF.
@@ -55,7 +48,7 @@ import pl.edu.icm.unity.rest.authn.LogContextCleaningInterceptor;
  *  
  * @author K. Benedyczak
  */
-public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
+public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE8Instance
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTEndpoint.class);
 	private AuthenticationProcessor authenticationProcessor;

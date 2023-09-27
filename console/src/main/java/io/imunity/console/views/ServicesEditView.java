@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.vaadin.elements.Breadcrumb;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 
 @PermitAll
 @Breadcrumb(key = "AuthenticatorsComponent.test")

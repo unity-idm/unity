@@ -18,9 +18,9 @@ import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.vaadin.elements.*;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import javax.annotation.security.PermitAll;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;

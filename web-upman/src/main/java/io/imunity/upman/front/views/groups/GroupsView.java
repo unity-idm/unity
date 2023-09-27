@@ -22,10 +22,10 @@ import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.MenuButton;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
-import javax.annotation.security.PermitAll;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
