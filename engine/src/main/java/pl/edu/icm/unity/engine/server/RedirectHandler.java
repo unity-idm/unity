@@ -21,12 +21,12 @@ import pl.edu.icm.unity.base.utils.Log;
  * 
  * @author P.Piernik
  */
-public class RedirectHandler extends ServletContextHandler
+class RedirectHandler extends ServletContextHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, RedirectHandler.class);
 	private String redirectPath;
 
-	public RedirectHandler(String toPath)
+	RedirectHandler(String toPath)
 	{
 		setContextPath("/*");
 		redirectPath = toPath;

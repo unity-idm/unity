@@ -24,9 +24,6 @@ import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
 import org.eclipse.jetty.session.SessionIdManager;
 import org.eclipse.jetty.util.Callback;
-import org.eclipse.jetty.util.URIUtil;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +48,38 @@ import java.net.URL;
 import java.util.*;
 
 import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.*;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOWED_IMMEDIATE_CLIENTS;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOW_NOT_PROXIED_TRAFFIC;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.PROXY_COUNT;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.SNI_HOSTNAME_CHECK;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.NetworkConnector;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+
+import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
@@ -170,47 +199,22 @@ public class JettyServer implements Lifecycle, NetworkServer
 
 		Connector[] connectors = createConnectors();
 		for (Connector connector : connectors)
-		{
 			theServer.addConnector(connector);
-		}
 
 		initRootHandler();
 		
-		AbstractContainer headersRewriteHandler = configureHttpHeaders(mainContextHandler);
-		configureGzipHandler(headersRewriteHandler);
+		Handler handler = configureHsts(mainContextHandler);
+		handler = configureFrameOptions(handler);
+		handler = configureGzip(handler);
+		handler = new TraceBlockingHandler(handler);
+		
+		theServer.setHandler(handler);
 		configureErrorHandler();
 	}
 
 	private Server createServer()
 	{
-		Server server = new Server(getThreadPool())
-		{
-			//FIXME KB rewrite to use a wrapping handler
-			@Override
-			public boolean handle(Request request, Response response, Callback callback) throws Exception
-			{
-				if ("TRACE".equals(request.getMethod()))
-				{
-					response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-					return true;
-				} else
-				{
-					return super.handle(request, response, callback);
-				}
-			}
-			@Override
-			public Resource getDefaultStyleSheet()
-			{
-				return new URLResourceFactory().newResource(URIUtil.toURI(cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH) + "jetty-dir.css"));
-			}
-		};
-		return server;
-	}
-
-	private void configureGzipHandler(AbstractContainer headersRewriteHandler)
-	{
-		org.eclipse.jetty.server.Handler withGzip = configureGzip(headersRewriteHandler);
-		theServer.setHandler(withGzip);
+		return new Server(getThreadPool());
 	}
 
 	private QueuedThreadPool getThreadPool()
@@ -222,30 +226,13 @@ public class JettyServer implements Lifecycle, NetworkServer
 		return btPool;
 	}
 
-	private AbstractContainer configureHttpHeaders(org.eclipse.jetty.server.Handler toWrap)
+	private Handler configureFrameOptions(Handler toWrap)
 	{
-		RewriteHandler rewriter = new RewriteHandler(toWrap);
-//		rewriter.setRewriteRequestURI(false);
-//		rewriter.setRewritePathInfo(false);
-//		rewriter.setHandler(toWrap);
-
-		// workaround for Jetty bug: RewriteHandler without any rule
-		// won't work
-//		rewriter.setRules(new Rule[0]);
-
-		if (serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_HSTS))
-		{
-			HeaderPatternRule hstsRule = new HeaderPatternRule();
-			hstsRule.setHeaderName("Strict-Transport-Security");
-			hstsRule.setHeaderValue("max-age=31536000; includeSubDomains");
-			hstsRule.setPattern("*");
-			rewriter.addRule(hstsRule);
-		}
-
 		XFrameOptions frameOpts = serverSettings.getEnumValue(UnityHttpServerConfiguration.FRAME_OPTIONS,
 				XFrameOptions.class);
 		if (frameOpts != XFrameOptions.allow)
 		{
+			RewriteHandler rewriter = new RewriteHandler(toWrap);
 			HeaderPatternRule frameOriginRule = new HeaderPatternRule();
 			frameOriginRule.setHeaderName("X-Frame-Options");
 
@@ -258,15 +245,31 @@ public class JettyServer implements Lifecycle, NetworkServer
 			frameOriginRule.setHeaderValue(sb.toString());
 			frameOriginRule.setPattern("*");
 			rewriter.addRule(frameOriginRule);
+			return rewriter;
 		}
-		return rewriter;
+		return toWrap;
 	}
+
+	private Handler configureHsts(Handler toWrap)
+	{
+		if (serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_HSTS))
+		{
+			RewriteHandler rewriter = new RewriteHandler(toWrap);
+			HeaderPatternRule hstsRule = new HeaderPatternRule();
+			hstsRule.setHeaderName(HttpHeader.STRICT_TRANSPORT_SECURITY.asString());
+			hstsRule.setHeaderValue("max-age=31536000; includeSubDomains");
+			hstsRule.setPattern("*");
+			rewriter.addRule(hstsRule);
+			return rewriter;
+		}
+		return toWrap;
+	}
+
 
 	private void configureFastAndInsecureSessionIdGenerator()
 	{
 		log.info("Using fast (but less secure) session ID generator");
 		SessionIdManager sm = new DefaultSessionIdManager(theServer, new java.util.Random());
-		//FIXME KB needs checking if effective. See AbstractSessionManager
 		theServer.addBean(sm);
 	}
 
@@ -350,7 +353,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private ServerConnector getPlainConnectorInstance()
 	{
 		HttpConnectionFactory httpConnFactory = getHttpConnectionFactory();
-		return new PlainServerConnector(theServer, httpConnFactory);
+		return new ServerConnector(theServer, httpConnFactory);
 	}
 
 	/**
@@ -395,7 +398,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 * handlers it might be better to override this method and enable
 	 * compression selectively.
 	 */
-	private AbstractContainer configureGzip(AbstractContainer handler) throws ConfigurationException
+	private Handler configureGzip(Handler handler) throws ConfigurationException
 	{
 		boolean enableGzip = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_GZIP);
 		if (enableGzip)
