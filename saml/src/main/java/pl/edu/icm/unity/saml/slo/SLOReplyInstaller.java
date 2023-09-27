@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.saml.slo;
 
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

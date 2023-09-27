@@ -45,7 +45,7 @@ import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.UnknownIdentityException;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;

@@ -6,30 +6,29 @@ package io.imunity.vaadin.auth.server;
 
 import com.vaadin.flow.server.startup.ServletContextListeners;
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
+import io.imunity.vaadin.endpoint.common.InvocationContextSetupFilter;
+import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Servlet;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee8.servlet.FilterHolder;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee8.servlet.ServletHolder;
-import org.eclipse.jetty.ee8.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessorEE10;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilterEE10;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Servlet;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -79,12 +78,12 @@ public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
-		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
-		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
+		LoginToHttpSessionEE10Binder sessionBinder = applicationContext.getBean(LoginToHttpSessionEE10Binder.class);
+		RememberMeProcessorEE10 remeberMeProcessor = applicationContext.getBean(RememberMeProcessorEE10.class);
 
 		servletContextHandler.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
 			EnumSet.of(DispatcherType.REQUEST));
-		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(
+		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilterEE10(
 				List.of(AUTHENTICATION_PATH))),
 			"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(

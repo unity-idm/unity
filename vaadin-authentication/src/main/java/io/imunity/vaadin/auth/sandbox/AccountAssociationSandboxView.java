@@ -19,23 +19,22 @@ import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8;
 
 import java.util.List;
 import java.util.Optional;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
-import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
+import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8.DECISION_SESSION_ATTRIBUTE;
 
 @Route("/sandbox-association")
 @AnonymousAllowed
@@ -46,7 +45,7 @@ class AccountAssociationSandboxView extends Composite<Div> implements BeforeEnte
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final LocaleChoiceComponent localeChoice;
-	private final InteractiveAuthenticationProcessor authnProcessor;
+	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
 	private final ExecutorsService execService;
 	private final EntityManagement idsMan;
 	private final List<AuthenticationFlow> authnFlows;
@@ -55,11 +54,11 @@ class AccountAssociationSandboxView extends Composite<Div> implements BeforeEnte
 
 	@Autowired
 	public AccountAssociationSandboxView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
-	                                     InteractiveAuthenticationProcessor authnProcessor,
-	                                     UnityServerConfiguration cfg,
-	                                     ExecutorsService execService,
-	                                     @Qualifier("insecure") EntityManagement idsMan,
-	                                     NotificationPresenter notificationPresenter)
+			InteractiveAuthenticationProcessorEE10 authnProcessor,
+			UnityServerConfiguration cfg,
+			ExecutorsService execService,
+			@Qualifier("insecure") EntityManagement idsMan,
+			NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.localeChoice = new LocaleChoiceComponent(cfg);
@@ -73,13 +72,13 @@ class AccountAssociationSandboxView extends Composite<Div> implements BeforeEnte
 		this.authnFlows = List.copyOf(getCurrentWebAppAuthenticationFlows());
 	}
 
-	
-	private void loadInitialState() 
+
+	private void loadInitialState()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext postAuthnStepDecision =
-				(RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext) session
-				.getAttribute(DECISION_SESSION_ATTRIBUTE);
+		RemoteRedirectedAuthnResponseProcessingFilterV8.PostAuthenticationDecissionWithContext postAuthnStepDecision =
+				(RemoteRedirectedAuthnResponseProcessingFilterV8.PostAuthenticationDecissionWithContext) session
+						.getAttribute(DECISION_SESSION_ATTRIBUTE);
 		if (postAuthnStepDecision != null)
 		{
 			log.debug("Remote authentication result found in session, closing");
@@ -90,7 +89,7 @@ class AccountAssociationSandboxView extends Composite<Div> implements BeforeEnte
 			createAuthnUI();
 		}
 	}
-	
+
 	private void createAuthnUI()
 	{
 		String title = msg.getMessage("SandboxUI.authenticateToAssociateAccounts");

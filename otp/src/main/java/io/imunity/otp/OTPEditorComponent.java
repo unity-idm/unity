@@ -17,7 +17,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.elements.QRBarcode;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
-import org.vaadin.barcodes.Barcode;
 
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -147,7 +146,7 @@ class OTPEditorComponent extends VerticalLayout
 			customizeUser.addClickListener(e -> {customizeUser.setVisible(false); user.setVisible(true);});
 			
 			int size = (QR_BASE_SIZES.get(config.otpParams.hashFunction) + 8) * BASE_SIZE_ZOOM;
-			qr = new QRBarcode("", Barcode.Type.qrcode, size+"px", size+"px");
+			qr = new QRBarcode("", "qrcode", size+"px", size+"px");
 			qr.getStyle().set("align-self", "center");
 			updateQR();
 			user.addValueChangeListener(v ->
@@ -165,7 +164,7 @@ class OTPEditorComponent extends VerticalLayout
 			int size = (QR_BASE_SIZES.get(config.otpParams.hashFunction) + 8) * BASE_SIZE_ZOOM;
 			String uri = TOTPKeyGenerator.generateTOTPURI(secret, user.getValue(),
 					config.issuerName, config.otpParams, config.logoURI);
-			qr = new QRBarcode(uri, Barcode.Type.qrcode, size+"px", size+"px");
+			qr = new QRBarcode(uri, "qrcode", size+"px", size+"px");
 			qr.getStyle().set("align-self", "center");
 		}
 		

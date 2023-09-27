@@ -15,12 +15,11 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletResponse;
 import io.imunity.vaadin.elements.FlagIcon;
+import jakarta.servlet.http.Cookie;
 import org.vaadin.firitin.util.WebStorage;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.webui.authn.LanguageCookie;
 
-import javax.servlet.http.Cookie;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;

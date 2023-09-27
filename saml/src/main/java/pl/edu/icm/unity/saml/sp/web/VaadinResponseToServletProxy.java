@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.sp.web;
 
 import com.vaadin.flow.server.VaadinServletResponse;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;

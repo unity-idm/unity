@@ -6,10 +6,14 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import com.nimbusds.oauth2.sdk.*;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequestWrapper;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee8.nested.Authentication;
-import org.eclipse.jetty.ee8.nested.Request;
-
+import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
+import org.eclipse.jetty.security.AuthenticationState;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityParam;
@@ -29,10 +33,6 @@ import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
@@ -76,7 +76,9 @@ public class ASConsentDeciderServlet extends HttpServlet
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		if (((Request) req).getAuthentication().equals(Authentication.UNAUTHENTICATED))
+		ServletRequestWrapper requestWrapper = (ServletRequestWrapper) req;
+		ServletApiRequest apiRequest = (ServletApiRequest)requestWrapper.getRequest();
+		if (AuthenticationState.getAuthenticationState(apiRequest.getRequest()) == null)
 		{
 			resp.sendRedirect(oauthUiServletPath);
 			return;

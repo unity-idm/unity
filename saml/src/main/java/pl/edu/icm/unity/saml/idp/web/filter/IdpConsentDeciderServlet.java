@@ -9,15 +9,19 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.security.dsig.DSigException;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequestWrapper;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee8.nested.Authentication;
-import org.eclipse.jetty.ee8.nested.Request;
+import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
+import org.eclipse.jetty.security.AuthenticationState;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -55,10 +59,6 @@ import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
@@ -121,7 +121,9 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException
 	{
-		if (((Request) req).getAuthentication().equals(Authentication.UNAUTHENTICATED))
+		ServletRequestWrapper requestWrapper = (ServletRequestWrapper) req;
+		ServletApiRequest apiRequest = (ServletApiRequest)requestWrapper.getRequest();
+		if (AuthenticationState.getAuthenticationState(apiRequest.getRequest()) == null)
 		{
 			resp.sendRedirect(samlUiServletPath);
 			return;

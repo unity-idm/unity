@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -40,9 +39,9 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfigurationParser;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
-import pl.edu.icm.unity.saml.metadata.MetadataServlet;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
+import pl.edu.icm.unity.saml.metadata.MetadataServletEE8;
 import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
@@ -149,7 +148,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	public ServletContextHandler getServletContextHandler()
 	{
 		ServletContextHandler context = super.getServletContextHandler();
-		
+
 		String endpointURL = getServletUrl(servletPath);
 		Servlet metadataServlet = getMetadataServlet(endpointURL);
 
@@ -210,7 +209,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(myMetadataManager.getSAMLIdPConfiguration(), uriAccessService,
 				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints,
 				description.getEndpoint().getConfiguration().getDisplayedName(), msg);
-		return new MetadataServlet(provider);
+		return new MetadataServletEE8(provider);
 	}
 	
 	

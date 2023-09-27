@@ -35,8 +35,8 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
 import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialControllerV8;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8.PostAuthenticationDecissionWithContext;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncherV8;
@@ -133,7 +133,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		LOG.debug("Loading initial state of authentication UI");
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		PostAuthenticationDecissionWithContext postAuthnStepDecision = (PostAuthenticationDecissionWithContext) session
-				.getAttribute(RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+				.getAttribute(RemoteRedirectedAuthnResponseProcessingFilterV8.DECISION_SESSION_ATTRIBUTE);
 		if (postAuthnStepDecision != null)
 		{
 			LOG.debug("Remote authentication result found in session, triggering its processing");
@@ -143,7 +143,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				formSelected(postAuthnStepDecision.triggeringContext.form);
 			} else
 			{
-				session.removeAttribute(RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE);
+				session.removeAttribute(RemoteRedirectedAuthnResponseProcessingFilterV8.DECISION_SESSION_ATTRIBUTE);
 				authenticationUI.initializeAfterReturnFromExternalAuthn(postAuthnStepDecision.decision);
 				setContent(authenticationUI);
 			}
