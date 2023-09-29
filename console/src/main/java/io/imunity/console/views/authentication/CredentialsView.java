@@ -9,8 +9,8 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
-import jakarta.annotation.security.PermitAll;
 
+import javax.annotation.security.PermitAll;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.authentication.localCredentials")

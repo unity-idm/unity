@@ -17,19 +17,15 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
-import io.imunity.vaadin.endpoint.common.LanguageCookie;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyEE10;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -37,8 +33,13 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.webui.authn.LanguageCookie;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -192,7 +193,7 @@ public class OAuthParseServlet extends HttpServlet
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
 
-		AuthenticationPolicyEE10.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
+		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
 		setLanguageCookie(response, parsedRequestParametersWithUILocales.uiLocales);
 
 		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
@@ -246,14 +247,14 @@ public class OAuthParseServlet extends HttpServlet
 		return Optional.empty();
 	}
 
-	private AuthenticationPolicyEE10 mapPromptToAuthenticationPolicy(Set<Prompt> prompts)
+	private AuthenticationPolicy mapPromptToAuthenticationPolicy(Set<Prompt> prompts)
 	{
 		if (prompts.contains(Prompt.NONE))
-			return AuthenticationPolicyEE10.REQUIRE_EXISTING_SESSION;
+			return AuthenticationPolicy.REQUIRE_EXISTING_SESSION;
 		else if (prompts.contains(Prompt.LOGIN))
-			return AuthenticationPolicyEE10.FORCE_LOGIN;
+			return AuthenticationPolicy.FORCE_LOGIN;
 
-		return AuthenticationPolicyEE10.DEFAULT;
+		return AuthenticationPolicy.DEFAULT;
 	}
 
 	/**

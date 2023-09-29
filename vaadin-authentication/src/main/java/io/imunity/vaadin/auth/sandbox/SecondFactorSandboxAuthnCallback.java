@@ -16,14 +16,14 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 
 /**
- * Collects authN results from the 2nd authenticator. Afterwards, the final authentication result
+ * Collects authN results from the 2nd authenticator. Afterwards, the final authentication result 
  * processing is launched.
  */
 class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.AuthenticationCallback
@@ -31,7 +31,7 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			SecondFactorSandboxAuthnCallback.class);
 	private final MessageSource msg;
-	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener authNListener;
 	private final PartialAuthnState partialState;
 	private final SandboxAuthnRouter sandboxRouter;
@@ -39,12 +39,11 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 	private final NotificationPresenter notificationPresenter;
 
 	SecondFactorSandboxAuthnCallback(MessageSource msg,
-			InteractiveAuthenticationProcessorEE10 authnProcessor,
-			AuthenticationStepContext stepContext,
-			ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener authNListener,
-			SandboxAuthnRouter sandboxRouter,
-			PartialAuthnState partialState,
-			NotificationPresenter notificationPresenter)
+	                                 InteractiveAuthenticationProcessor authnProcessor,
+	                                 AuthenticationStepContext stepContext,
+	                                 ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener authNListener, SandboxAuthnRouter sandboxRouter,
+	                                 PartialAuthnState partialState,
+	                                 NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -60,7 +59,7 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 	{
 		processAuthn(result, retrievalContext);
 	}
-
+	
 	private void processAuthn(AuthenticationResult result, AuthenticationRetrievalContext retrievalContext)
 	{
 		log.trace("Received sandbox authentication result of the 2nd authenticator" + result);
@@ -69,7 +68,7 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 				.getLoginMachineDetailsFromCurrentRequest();
 		SandboxAuthenticationResult sandboxAuthnResult = SandboxAuthenticationResult.getInstanceFromResult(result);
 		PostAuthenticationStepDecision postSecondFactorDecision = authnProcessor.processSecondFactorSandboxAuthnResult(
-				partialState, sandboxAuthnResult, stepContext,
+				partialState, sandboxAuthnResult, stepContext, 
 				loginMachineDetails, servletRequest, sandboxRouter);
 		switch (postSecondFactorDecision.getDecision())
 		{
@@ -96,11 +95,11 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 				log.error("unknown remote user after 2nd factor? {}", result);
 				throw new IllegalStateException("authentication error");
 			}
-			default -> throw new IllegalStateException(
-					"Unknown authn decision: " + postSecondFactorDecision.getDecision());
+			default ->
+					throw new IllegalStateException("Unknown authn decision: " + postSecondFactorDecision.getDecision());
 		}
 	}
-
+	
 	@Override
 	public void onStartedAuthentication()
 	{
@@ -119,14 +118,14 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 	{
 		return AuthenticationTriggeringContext.sandboxTriggeredSecondFactor(partialState, sandboxRouter);
 	}
-
+	
 	private void handleError(String errorToShow)
 	{
 		log.info("Authentication failed {}", errorToShow);
 		setAuthenticationAborted();
 		notificationPresenter.showError(errorToShow, "");
 	}
-
+	
 	/**
 	 * Resets the authentication UI to the initial state
 	 */
@@ -135,20 +134,20 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 		if (authNListener != null)
 			authNListener.switchBackToFirstFactor();
 	}
-
+	
 	private void setAuthenticationAborted()
 	{
 		if (authNListener != null)
 			authNListener.authenticationAborted();
 	}
-
+	
 	private void setAuthenticationCompleted()
 	{
 		if (authNListener != null)
 			authNListener.authenticationCompleted();
 		closeWindow();
 	}
-
+	
 	private void closeWindow()
 	{
 		UI.getCurrent().getPage().executeJs("window.close();");

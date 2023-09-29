@@ -10,8 +10,8 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.noSignInContextException;

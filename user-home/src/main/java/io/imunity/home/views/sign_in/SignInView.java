@@ -22,7 +22,6 @@ import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
-import jakarta.annotation.security.PermitAll;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.*;
 import pl.edu.icm.unity.base.entity.Entity;
@@ -38,6 +37,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
+import javax.annotation.security.PermitAll;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

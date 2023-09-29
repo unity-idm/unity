@@ -10,11 +10,12 @@ import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.ParentLayout;
 import io.imunity.upman.front.views.UpManMenu;
-import jakarta.annotation.security.PermitAll;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.invoke.MethodHandles;
 

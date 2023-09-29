@@ -2,19 +2,29 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.endpoint.common;
+package pl.edu.icm.unity.webui.authn.remote;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
-import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
-import pl.edu.icm.unity.engine.api.authn.remote.*;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
-import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
  * Common filter to be installed on endpoints which can receive response of remote authentication.
@@ -28,10 +38,10 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 	public static final String CONTEXT_ID_HTTP_PARAMETER = "__remote_authn_context_id";
 	public static final String DECISION_SESSION_ATTRIBUTE = "__ff_post_authn_decision";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
-	private final RemoteAuthnResponseProcessorEE10 remoteAuthnResponseProcessor;
+	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
 	
 	public RemoteRedirectedAuthnResponseProcessingFilter(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
-			RemoteAuthnResponseProcessorEE10 remoteAuthnResponseProcessor)
+			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor)
 	{
 		this.remoteAuthnContextStore = remoteAuthnContextStore;
 		this.remoteAuthnResponseProcessor = remoteAuthnResponseProcessor;

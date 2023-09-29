@@ -14,8 +14,8 @@ import com.vaadin.flow.router.Route;
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.endpoint.common.api.StickyEnquiryService;
-import jakarta.annotation.security.PermitAll;
 
+import javax.annotation.security.PermitAll;
 import java.util.List;
 
 @PermitAll

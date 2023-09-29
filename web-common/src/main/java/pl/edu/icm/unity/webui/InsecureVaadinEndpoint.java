@@ -5,29 +5,31 @@
 
 package pl.edu.icm.unity.webui;
 
+import java.util.EnumSet;
+import java.util.List;
+
+import javax.servlet.DispatcherType;
+
 import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.context.ApplicationContext;
+
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
-
-import javax.servlet.DispatcherType;
-import java.util.EnumSet;
-import java.util.List;
 
 public class InsecureVaadinEndpoint extends VaadinEndpoint
 {
 	public InsecureVaadinEndpoint(NetworkServer server, AdvertisedAddressProvider advertisedAddrProvider,
 			MessageSource msg, ApplicationContext applicationContext, String uiBeanName, String servletPath,
-			RemoteRedirectedAuthnResponseProcessingFilterV8 remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, uiBeanName, servletPath,
 				remoteAuthnResponseProcessingFilter);

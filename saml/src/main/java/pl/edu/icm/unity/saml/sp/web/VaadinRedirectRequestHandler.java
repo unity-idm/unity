@@ -11,7 +11,7 @@ import com.vaadin.flow.server.VaadinSession;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import io.imunity.vaadin.auth.idp.AbstractRedirectRequestHandler;
 
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**

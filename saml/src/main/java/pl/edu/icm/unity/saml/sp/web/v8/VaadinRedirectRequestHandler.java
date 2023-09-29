@@ -9,6 +9,7 @@ import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
+import pl.edu.icm.unity.saml.sp.web.RedirectRequestHandler;
 import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;
 
 import javax.servlet.http.HttpServletResponse;

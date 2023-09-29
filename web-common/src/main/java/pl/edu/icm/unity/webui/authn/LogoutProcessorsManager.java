@@ -4,23 +4,25 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.LogoutProcessor;
-import pl.edu.icm.unity.engine.api.authn.LogoutProcessorFactory;
-
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LogoutProcessor;
+import pl.edu.icm.unity.engine.api.authn.LogoutProcessorFactory;
 
 /**
  * Uses available {@link LogoutProcessorFactory}ies to produce logout processors and forwards requests to them
  * 
  * @author K. Benedyczak
  */
-@Component("LogoutProcessorsManagerV8")
+@Component
 public class LogoutProcessorsManager
 {
 	private List<LogoutProcessor> processors;
@@ -40,8 +42,8 @@ public class LogoutProcessorsManager
 	public void handleAsyncLogout(LoginSession session, String requestersRelayState, String returnUrl, 
 			HttpServletResponse response) throws IOException
 	{
-//		for (LogoutProcessor logoutProcessor: processors)
-//			logoutProcessor.handleAsyncLogout(session, requestersRelayState, returnUrl, response);
+		for (LogoutProcessor logoutProcessor: processors)
+			logoutProcessor.handleAsyncLogout(session, requestersRelayState, returnUrl, response);
 	}
 	
 	public boolean handleSynchronousLogout(LoginSession session)

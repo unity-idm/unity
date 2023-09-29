@@ -30,7 +30,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 
-import jakarta.annotation.security.PermitAll;
+import javax.annotation.security.PermitAll;
 import java.util.*;
 import java.util.stream.Collectors;
 

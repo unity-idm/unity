@@ -4,16 +4,18 @@
  */
 package pl.edu.icm.unity.saml.slo;
 
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LogoutProcessor;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.saml.slo.SAMLInternalLogoutContext.AsyncLogoutFinishCallback;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
-
-import java.io.IOException;
 
 /**
  * Performs a logout of additional session participants, in case of logout initiated directly in Unity.

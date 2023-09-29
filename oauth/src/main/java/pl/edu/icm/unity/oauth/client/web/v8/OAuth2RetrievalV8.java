@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.client.web.v8;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -15,6 +16,7 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.web.OAuthProxyAuthnHandler;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
@@ -41,7 +43,7 @@ public class OAuth2RetrievalV8 extends AbstractCredentialRetrieval<OAuthExchange
 	private MessageSource msg;
 	private ImageAccessService imageService;
 	private ExecutorsService executorsService;
-	private OAuthProxyAuthnHandlerEE8 oAuthProxyAuthnHandler;
+	private OAuthProxyAuthnHandler oAuthProxyAuthnHandler;
 	
 	@Autowired
 	public OAuth2RetrievalV8(MessageSource msg, ImageAccessService imageService,
@@ -68,7 +70,7 @@ public class OAuth2RetrievalV8 extends AbstractCredentialRetrieval<OAuthExchange
 	public void setCredentialExchange(CredentialExchange e, String id)
 	{
 		super.setCredentialExchange(e, id);
-		oAuthProxyAuthnHandler = new OAuthProxyAuthnHandlerEE8((OAuthExchange) e, id);
+		oAuthProxyAuthnHandler = new OAuthProxyAuthnHandler((OAuthExchange) e, id);
 	}
 	
 	@Override

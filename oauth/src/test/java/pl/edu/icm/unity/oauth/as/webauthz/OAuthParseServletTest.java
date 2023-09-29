@@ -5,26 +5,11 @@
 
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import com.nimbusds.langtag.LangTag;
-import com.nimbusds.langtag.LangTagException;
-import com.nimbusds.oauth2.sdk.ResponseType;
-import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.id.Identifier;
-import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.internal.verification.Times;
-import org.mockito.junit.jupiter.MockitoExtension;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,9 +17,29 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Locale;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.internal.verification.Times;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.nimbusds.langtag.LangTag;
+import com.nimbusds.langtag.LangTagException;
+import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.Identifier;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 @ExtendWith(MockitoExtension.class)
 public class OAuthParseServletTest

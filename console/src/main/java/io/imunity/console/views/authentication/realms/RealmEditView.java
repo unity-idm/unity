@@ -29,7 +29,7 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import jakarta.annotation.security.PermitAll;
+import javax.annotation.security.PermitAll;
 import java.util.Optional;
 
 @PermitAll
@@ -103,7 +103,7 @@ public class RealmEditView extends ConsoleViewComponent
 		IntegerField integerField = new IntegerField();
 		integerField.setMin(1);
 		integerField.setMax(999);
-		integerField.setStepButtonsVisible(true);
+		integerField.setHasControls(true);
 		return integerField;
 	}
 

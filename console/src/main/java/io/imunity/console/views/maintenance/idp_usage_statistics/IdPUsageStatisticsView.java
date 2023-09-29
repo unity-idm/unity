@@ -27,7 +27,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.idp.statistic.GroupedIdpStatistic;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 
-import jakarta.annotation.security.PermitAll;
+import javax.annotation.security.PermitAll;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 

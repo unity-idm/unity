@@ -11,7 +11,7 @@ import com.vaadin.flow.router.RouteAlias;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.vaadin.elements.Breadcrumb;
 
-import jakarta.annotation.security.PermitAll;
+import javax.annotation.security.PermitAll;
 
 @PermitAll
 @RouteAlias(value = "/", layout = ConsoleMenu.class)

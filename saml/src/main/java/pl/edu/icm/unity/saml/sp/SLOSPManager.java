@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -72,10 +73,10 @@ public class SLOSPManager
 				localSamlCredential, samlTrustProvider, realm);
 		
 		SLOSAMLServlet servlet = new SLOSAMLServlet(logoutProcessor);
-//FIXME CXF
-//		ServletHolder servletHolder = new ServletHolder(servlet);
-//		sharedEndpointManagement.deployInternalEndpointServlet(prefixed, servletHolder, false);
-//		deployedAsyncServlets.put(pathSuffix, servlet);
+		ServletHolder servletHolder = new ServletHolder(servlet);
+
+		sharedEndpointManagement.deployInternalEndpointServlet(prefixed, servletHolder, false);
+		deployedAsyncServlets.put(pathSuffix, servlet);
 	}
 	
 	public String getAsyncServletURL(String suffix)
@@ -98,14 +99,15 @@ public class SLOSPManager
 				localSamlCredential, samlTrustProvider, realm);
 		
 		SAMLSingleLogoutImpl webService = new SAMLSingleLogoutImpl(logoutProcessor);
+
 		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet();
 		Bus bus = BusFactory.newInstance().createBus();
 		cxfServlet.setBus(bus);
 		ServletHolder holder = new ServletHolder(cxfServlet);
 		Endpoint cxfEndpoint = CXFUtils.deployWebservice(bus, SAMLLogoutInterface.class, webService);
 		cxfEndpoint.getOutInterceptors().add(new XmlBeansNsHackOutHandler());
-//FIXME CXF
-//		sharedEndpointManagement.deployInternalEndpointServlet(prefixed, holder, false);
+
+		sharedEndpointManagement.deployInternalEndpointServlet(prefixed, holder, false);
 		deployedSyncServlets.put(pathSuffix, cxfServlet);
 	}
 

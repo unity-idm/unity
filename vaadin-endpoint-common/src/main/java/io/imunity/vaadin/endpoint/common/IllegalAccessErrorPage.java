@@ -12,9 +12,9 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletResponse;
 
 @PermitAll
