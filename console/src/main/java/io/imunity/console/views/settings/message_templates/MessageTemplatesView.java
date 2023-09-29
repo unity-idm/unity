@@ -38,7 +38,7 @@ import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 import pl.edu.icm.unity.base.msg_template.MessageType;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;

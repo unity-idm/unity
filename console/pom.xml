@@ -51,6 +51,10 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.imunity</groupId>
             <artifactId>unity-server-engine-api</artifactId>
             <version>${project.version}</version>

@@ -4,23 +4,21 @@
  */
 package pl.edu.icm.unity.saml.slo;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
-
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.messages.RedirectedMessage;
 import eu.unicore.samly2.messages.SAMLMessage;
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
+
+import java.io.IOException;
 
 /**
  * Implements HTTP POST and HTTP Redirect bindings entry point to the SLO functionality.

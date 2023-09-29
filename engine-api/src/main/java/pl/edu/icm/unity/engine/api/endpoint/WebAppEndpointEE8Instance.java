@@ -4,16 +4,12 @@
  */
 package pl.edu.icm.unity.engine.api.endpoint;
 
-import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 
 /**
  * Servlet endpoint instance
- * @author K. Benedyczak
  */
-public interface WebAppEndpointInstance extends EndpointInstance
+public interface WebAppEndpointEE8Instance extends EndpointInstance
 {
-	/**
-	 * @return web application context
-	 */
 	ServletContextHandler getServletContextHandler();
 }

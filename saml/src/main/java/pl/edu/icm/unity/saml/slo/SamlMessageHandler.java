@@ -4,19 +4,17 @@
  */
 package pl.edu.icm.unity.saml.slo;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.security.dsig.DSigException;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * Base code for producing responses which are returned (some with the help of Freemarker) to the user's browser.

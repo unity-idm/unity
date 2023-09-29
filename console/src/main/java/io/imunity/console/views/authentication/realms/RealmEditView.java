@@ -26,7 +26,7 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import java.util.Optional;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;

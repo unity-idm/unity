@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.engine.api.server;
 
-import java.util.Set;
-
-import org.eclipse.jetty.servlet.ServletContextHandler;
-
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
+
+import java.util.Set;
 
 /**
  * Provides access to the information of the network server.
@@ -17,12 +17,17 @@ import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
  */
 public interface NetworkServer
 {
-	void deployEndpoint(WebAppEndpointInstance endpoint) 
+	void deployEndpoint(WebAppEndpointEE10Instance endpoint)
+			throws EngineException;
+
+	void deployEndpoint(WebAppEndpointEE8Instance endpoint)
 			throws EngineException;
 	
 	void undeployEndpoint(String id) throws EngineException;
 
 	void deployHandler(ServletContextHandler sharedHandler, String endpointId) throws EngineException;
+
+	void deployHandler(org.eclipse.jetty.ee10.servlet.ServletContextHandler sharedHandler, String endpointId) throws EngineException;
 
 	void undeployHandler(String contextPath) throws EngineException;
 	

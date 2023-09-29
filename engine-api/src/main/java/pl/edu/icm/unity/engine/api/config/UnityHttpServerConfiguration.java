@@ -240,6 +240,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 				setDescription("Allows for turning off the SNI hostname checking"));
 	}
 
+	@SuppressWarnings("unused")
 	public UnityHttpServerConfiguration(Properties source) throws ConfigurationException
 	{
 		super(PREFIX, source, defaults, log);

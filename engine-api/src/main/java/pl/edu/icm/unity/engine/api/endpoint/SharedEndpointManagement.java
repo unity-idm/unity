@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.endpoint;
 
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 
@@ -14,8 +14,6 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
  * It is intended for a cross-cutting functionality, where Unity has to listen for some requests but 
  * on an path which is not endpoint specific (e.g. for SAML responses, where return address must be the same 
  * for all authenticators).
- * 
- * @author K. Benedyczak
  */
 public interface SharedEndpointManagement
 {

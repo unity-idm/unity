@@ -28,11 +28,11 @@ import io.imunity.idp.IdPClientData;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
-import javax.annotation.security.PermitAll;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 

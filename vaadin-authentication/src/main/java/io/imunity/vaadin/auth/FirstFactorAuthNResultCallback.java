@@ -15,7 +15,7 @@ import org.vaadin.firitin.util.WebStorage;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
@@ -24,16 +24,16 @@ import java.util.function.Supplier;
 
 /**
  * Collects authN result from the first authenticator of the selected flow
- * and process it: manages state of the rest of the UI (cancel button, notifications, registration) 
+ * and process it: manages state of the rest of the UI (cancel button, notifications, registration)
  * and if needed proceeds to 2nd authenticator.
- * 
+ * <p>
  * Responsible only for processing results in cases when authentication was not using redirect.
  */
 class FirstFactorAuthNResultCallback implements VaadinAuthentication.AuthenticationCallback
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, FirstFactorAuthNResultCallback.class);
 	private final MessageSource msg;
-	private final InteractiveAuthenticationProcessor authnProcessor;
+	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
 	private final Supplier<Boolean> rememberMeProvider;
 	private final ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener authNListener;
 	private final NotificationPresenter notificationPresenter;
@@ -41,12 +41,12 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 	private final AuthenticationStepContext stepContext;
 
 	public FirstFactorAuthNResultCallback(MessageSource msg,
-	                                      InteractiveAuthenticationProcessor authnProcessor,
-	                                      AuthenticationStepContext stepContext,
-	                                      Supplier<Boolean> rememberMeProvider,
-	                                      ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener authNListener,
-	                                      FirstFactorAuthNPanel authNPanel,
-	                                      NotificationPresenter notificationPresenter)
+			InteractiveAuthenticationProcessorEE10 authnProcessor,
+			AuthenticationStepContext stepContext,
+			Supplier<Boolean> rememberMeProvider,
+			ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener authNListener,
+			FirstFactorAuthNPanel authNPanel,
+			NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -59,7 +59,8 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 
 
 	@Override
-	public void onCompletedAuthentication(AuthenticationResult result, AuthenticationRetrievalContext authenticationRetrievalContext)
+	public void onCompletedAuthentication(AuthenticationResult result,
+			AuthenticationRetrievalContext authenticationRetrievalContext)
 	{
 		log.trace("Received authentication result of the primary authenticator " + result);
 		VaadinServletRequest servletRequest = VaadinServletRequest.getCurrent();
@@ -71,24 +72,24 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 				new VaadinSessionReinitializer());
 		switch (postFirstFactorDecision.getDecision())
 		{
-		case COMPLETED:
-			log.trace("Authentication completed");
-			setAuthenticationCompleted();
-			return;
-		case ERROR:
-			log.trace("Authentication failed ");
-			handleError(postFirstFactorDecision.getErrorDetail().error.resovle(msg));
-			return;
-		case GO_TO_2ND_FACTOR:
-			log.trace("Authentication requires 2nd factor");
-			switchToSecondaryAuthentication(postFirstFactorDecision.getSecondFactorDetail().postFirstFactorResult);
-			return;
-		case UNKNOWN_REMOTE_USER:
-			log.trace("Authentication resulted in unknown remote user");
-			handleUnknownUser(postFirstFactorDecision.getUnknownRemoteUserDetail().unknownRemotePrincipal);
-			return;
-		default:
-			throw new IllegalStateException("Unknown authn decision: " + postFirstFactorDecision.getDecision());
+			case COMPLETED:
+				log.trace("Authentication completed");
+				setAuthenticationCompleted();
+				return;
+			case ERROR:
+				log.trace("Authentication failed ");
+				handleError(postFirstFactorDecision.getErrorDetail().error.resovle(msg));
+				return;
+			case GO_TO_2ND_FACTOR:
+				log.trace("Authentication requires 2nd factor");
+				switchToSecondaryAuthentication(postFirstFactorDecision.getSecondFactorDetail().postFirstFactorResult);
+				return;
+			case UNKNOWN_REMOTE_USER:
+				log.trace("Authentication resulted in unknown remote user");
+				handleUnknownUser(postFirstFactorDecision.getUnknownRemoteUserDetail().unknownRemotePrincipal);
+				return;
+			default:
+				throw new IllegalStateException("Unknown authn decision: " + postFirstFactorDecision.getDecision());
 		}
 	}
 
@@ -110,7 +111,7 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 	{
 		return AuthenticationTriggeringContext.authenticationTriggeredFirstFactor(rememberMeProvider.get());
 	}
-	
+
 	/**
 	 * Clears the UI so a new authentication can be started.
 	 */
@@ -136,21 +137,21 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 				value -> UI.getCurrent().getPage().setLocation(value)
 		);
 	}
-	
+
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
 	{
 		if (authNListener != null)
 			authNListener.switchTo2ndFactor(partialState);
 	}
-	
-	
+
+
 	private void handleError(String errorToShow)
 	{
 		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
 		notificationPresenter.showError(errorToShow, "");
 	}
-	
+
 	private void handleUnknownUser(UnknownRemotePrincipalResult result)
 	{
 		if (result.formForUnknownPrincipal != null || result.enableAssociation)

@@ -4,39 +4,34 @@
  */
 package pl.edu.icm.unity.ws;
 
-import java.io.StringReader;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
+import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-
-import eu.unicore.util.configuration.ConfigurationException;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 
+import java.io.StringReader;
+import java.util.*;
+
 /**
  * Web service endpoint based on CXF
  * @author K. Benedyczak
  */
-public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
+public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE8Instance
 {
 	protected MessageSource msg;
 	protected String servletPath;

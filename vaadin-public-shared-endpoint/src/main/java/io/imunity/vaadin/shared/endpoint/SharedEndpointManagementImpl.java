@@ -6,18 +6,16 @@ package io.imunity.vaadin.shared.endpoint;
 
 import com.vaadin.flow.server.InitParameters;
 import com.vaadin.flow.server.startup.ServletContextListeners;
-import io.imunity.vaadin.endpoint.common.JarGetter;
-import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
-import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
+import io.imunity.vaadin.endpoint.common.*;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -26,10 +24,8 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
-import javax.servlet.DispatcherType;
+import jakarta.servlet.DispatcherType;
 import java.net.URL;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -64,11 +60,10 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		Properties properties = config.getProperties();
 		Vaadin82XEndpointProperties vaadinEndpointProperties = new Vaadin82XEndpointProperties(properties, config.getValue(DEFAULT_WEB_CONTENT_PATH));
 		WebAppContext context = new Vaadin2XWebAppContext(properties, vaadinEndpointProperties, msg, null);
-		context.setResourceBase(getWebContentsDir(config));
+		context.setBaseResource(new URLResourceFactory().newResource(getWebContentsDir(config)));
 		context.setContextPath(CONTEXT_PATH);
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(sharedResourceProvider.getChosenClassPathElement()));
 		context.setConfigurationDiscovered(true);
-		context.getServletContext().setExtendedListenerTypes(true);
 		context.addEventListener(new ServletContextListeners());
 
 		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",

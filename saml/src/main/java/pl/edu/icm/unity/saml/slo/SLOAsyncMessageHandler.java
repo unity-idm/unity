@@ -4,17 +4,13 @@
  */
 package pl.edu.icm.unity.saml.slo;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.proto.LogoutResponse;
 import eu.unicore.security.dsig.DSigException;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
@@ -22,6 +18,8 @@ import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
+
+import java.io.IOException;
 
 /**
  * Prepares and return LogoutResponses for the asynchronous bindings. 

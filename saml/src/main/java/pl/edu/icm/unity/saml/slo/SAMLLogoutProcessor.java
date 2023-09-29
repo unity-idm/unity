@@ -42,7 +42,7 @@ import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.PublicKey;
 import java.time.Duration;

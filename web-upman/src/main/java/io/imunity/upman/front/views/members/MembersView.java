@@ -23,10 +23,10 @@ import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.SearchField;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
-import javax.annotation.security.PermitAll;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

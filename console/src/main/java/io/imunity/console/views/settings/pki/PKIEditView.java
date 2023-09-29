@@ -28,7 +28,7 @@ import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;

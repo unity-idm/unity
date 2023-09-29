@@ -46,6 +46,13 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
+import jakarta.annotation.security.PermitAll;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.maintenance.backupAndRestore")
 @Route(value = "/backup-and-restore", layout = ConsoleMenu.class)
@@ -199,7 +206,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 		Label info = new Label(msg.getMessage("ImportExport.uploadInfo"));
 		Label fileUploaded = new Label(msg.getMessage("ImportExport.noFileUploaded"));
 		fileUploaded.getStyle().set("margin", "var(--small-margin) 0");
-		
+
 		memoryBuffer = new MemoryBuffer();
 		upload = new Upload(memoryBuffer);
 		upload.setMaxFileSize(getDBDumbFileSizeLimit());
@@ -208,7 +215,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 		upload.getElement().addEventListener("file-remove", e -> fileUploaded.setText(msg.getMessage("ImportExport.noFileUploaded")));
 		upload.addFileRejectedListener(e -> notificationPresenter.showError(msg.getMessage("error"),
 				e.getErrorMessage()));
-		
+
 		upload.setDropAllowed(false);
 		upload.setWidth("21em");
 		InputLabel inputLabel = new InputLabel(msg.getMessage("ImportExport.uploadCaption"));
@@ -219,7 +226,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 		layout.add(info, inputLabel, upload, fileUploaded, importDump);
 		return importPanel;
 	}
-	
+
 	private int getDBDumbFileSizeLimit()
 	{
 		Optional<Integer> dbBackupFileSizeLimit = serverConfig.getDBBackupFileSizeLimit();
@@ -228,10 +235,10 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 			log.trace("Set static db dump file size limit to " + dbBackupFileSizeLimit.get());
 			return dbBackupFileSizeLimit.get();
 		}
-		
-		return calculateFileSizeLimitBasedOnFreeMemory();	
+
+		return calculateFileSizeLimitBasedOnFreeMemory();
 	}
-	
+
 	private int calculateFileSizeLimitBasedOnFreeMemory()
 	{
 		System.gc();

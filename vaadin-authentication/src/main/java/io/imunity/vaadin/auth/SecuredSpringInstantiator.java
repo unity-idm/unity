@@ -7,12 +7,12 @@ package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
-import com.vaadin.flow.spring.SpringInstantiator;
+import io.imunity.vaadin.endpoint.common.BaseSpringInstantiator;
 import org.springframework.context.ApplicationContext;
 
 import java.util.stream.Stream;
 
-class SecuredSpringInstantiator extends SpringInstantiator
+class SecuredSpringInstantiator extends BaseSpringInstantiator
 {
 	private final String afterSuccessLoginRedirect;
 
@@ -20,7 +20,6 @@ class SecuredSpringInstantiator extends SpringInstantiator
 	{
 		super(service, context);
 		this.afterSuccessLoginRedirect = null;
-
 	}
 
 	public SecuredSpringInstantiator(VaadinService service, ApplicationContext context, String afterSuccessLoginRedirect)

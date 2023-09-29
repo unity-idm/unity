@@ -4,31 +4,11 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppEndpoint;
-import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH;
-import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_UI_SERVLET_PATH;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import javax.annotation.security.PermitAll;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.server.Page;
-
 import eu.unicore.samly2.SAMLConstants;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -41,6 +21,9 @@ import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import jakarta.annotation.security.PermitAll;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
@@ -78,6 +61,14 @@ import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppEndpoint;
+import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH;
+import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_UI_SERVLET_PATH;
 
 @PermitAll
 @Route(value = SAML_UI_SERVLET_PATH)

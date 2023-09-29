@@ -28,7 +28,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import java.util.*;
 import java.util.stream.Collectors;
 

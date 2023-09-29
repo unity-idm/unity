@@ -22,8 +22,8 @@ import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import io.imunity.vaadin.auth.ProxyAuthenticationCapable;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;

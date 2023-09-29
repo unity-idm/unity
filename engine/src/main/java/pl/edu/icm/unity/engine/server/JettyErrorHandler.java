@@ -5,16 +5,23 @@
 package pl.edu.icm.unity.engine.server;
 
 import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.io.ByteBufferOutputStream;
+import org.eclipse.jetty.io.Retainable;
+import org.eclipse.jetty.io.RetainableByteBuffer;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ErrorHandler;
+import org.eclipse.jetty.util.Callback;
 
 import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
@@ -45,9 +52,10 @@ class JettyErrorHandler extends ErrorHandler
 	
 	
 	@Override
-	protected void writeErrorPage(HttpServletRequest request, Writer writer, int code, 
-			String message, boolean showStacks) throws IOException
+	public boolean handle(Request request, Response response, Callback callback)
 	{
+		int code = response.getStatus();
+		String message = (String)request.getAttribute(ERROR_MESSAGE);
 		if (message == null)
 			message=HttpStatus.getMessage(code);
 		
@@ -63,8 +71,22 @@ class JettyErrorHandler extends ErrorHandler
 			else
 				log.warn("Got HTTP error {}: {}", code, message);
 		}
-		
-		FreemarkerUtils.processTemplate(cfg, ERROR_TPL, createContext(code, message), writer);
+		RetainableByteBuffer buffer = request.getComponents().getByteBufferPool().acquire(10240, false);
+		try
+		{
+			buffer.clear();
+			ByteBufferOutputStream out = new ByteBufferOutputStream(buffer.getByteBuffer());
+			PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+			FreemarkerUtils.processTemplate(cfg, ERROR_TPL, createContext(code, message), writer);
+			response.write(true, buffer.getByteBuffer(), new WriteErrorCallback(callback, buffer));
+		} catch (IOException e)
+		{
+			log.error("Can not write HTTP error page to the client", e);
+		} finally
+		{
+			buffer.release();
+		}
+		return true;
 	}
 
 
@@ -74,5 +96,22 @@ class JettyErrorHandler extends ErrorHandler
 		context.put("error", message);
 		context.put("errorCode", String.valueOf(code));
 		return context;
+	}
+	
+	private static class WriteErrorCallback extends Callback.Nested
+	{
+		private final Retainable _retainable;
+
+		public WriteErrorCallback(Callback callback, Retainable retainable)
+		{
+			super(callback);
+			_retainable = retainable;
+		}
+
+		@Override
+		public void completed()
+		{
+			_retainable.release();
+		}
 	}
 }

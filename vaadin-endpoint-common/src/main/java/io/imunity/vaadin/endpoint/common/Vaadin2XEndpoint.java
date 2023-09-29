@@ -7,21 +7,21 @@ package io.imunity.vaadin.endpoint.common;
 import com.vaadin.flow.server.InitParameters;
 import com.vaadin.flow.server.VaadinServlet;
 import eu.unicore.util.configuration.ConfigurationException;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import java.io.StringReader;
 import java.time.Duration;
@@ -33,7 +33,7 @@ import java.util.Set;
 
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
-public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
+public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
 {
 	protected static final Duration UNRESTRICTED_SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
 
@@ -112,9 +112,9 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 
 	protected WebAppContext getWebAppContext(WebAppContext context, String contextPath, Set<String> classPathElements, String webResourceRootUri,
 	                               EventListener eventListener) {
-		context.setResourceBase(webResourceRootUri);
+		context.setBaseResource(new URLResourceFactory().newResource(webResourceRootUri));
 		context.setContextPath(contextPath);
-		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", JarGetter.getJarsRegex(classPathElements));
+		context.setAttribute(MetaInfConfiguration.CONTAINER_JAR_PATTERN, JarGetter.getJarsRegex(classPathElements));
 		context.setConfigurationDiscovered(true);
 		context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 		context.getServerClassMatcher().exclude("org.eclipse.jetty.");
@@ -122,7 +122,6 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 		ServletHolder servletHolder = context.addServlet(servletClass, "/*");
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
-		context.getServletContext().setExtendedListenerTypes(true);
 		if(eventListener != null)
 			context.addEventListener(eventListener);
 

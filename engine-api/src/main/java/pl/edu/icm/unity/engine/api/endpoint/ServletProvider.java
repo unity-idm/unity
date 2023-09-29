@@ -4,10 +4,11 @@
  */
 package pl.edu.icm.unity.engine.api.endpoint;
 
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+
 import java.util.List;
 
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
 
 public interface ServletProvider
 {

@@ -4,15 +4,11 @@
  */
 package pl.edu.icm.unity.engine.mock;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.DefaultServlet;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -20,13 +16,16 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
+import java.util.Collections;
+import java.util.List;
+
 @PrototypeComponent
-public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
+public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
 {
 	public static final String NAME = "Mock Endpoint";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(

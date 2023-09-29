@@ -21,7 +21,7 @@ import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
@@ -36,7 +36,7 @@ class AutoLoginAfterSignUpProcessor
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AutoLoginAfterSignUpProcessor.class);
 	
 	@Autowired
-	private InteractiveAuthenticationProcessor authnProcessor;
+	private InteractiveAuthenticationProcessorEE10 authnProcessor;
 	
 	@Autowired
 	@Qualifier("insecure")  

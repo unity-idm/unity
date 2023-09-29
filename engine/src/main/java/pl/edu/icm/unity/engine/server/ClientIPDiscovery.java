@@ -7,7 +7,8 @@ package pl.edu.icm.unity.engine.server;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.server.Request;
 
 import com.google.common.net.InetAddresses;
 
@@ -17,7 +18,6 @@ import com.google.common.net.InetAddresses;
  */
 class ClientIPDiscovery
 {
-	private static final String XFF_HEADER = "X-Forwarded-For";
 	private int proxyCount;
 	private boolean allowNotProxiedTraffic;
 	private Pattern PORT_PATTERN = Pattern.compile("^([^:]+):[0-9]{1,5}$");
@@ -28,7 +28,7 @@ class ClientIPDiscovery
 		this.allowNotProxiedTraffic = allowNotProxiedTraffic;
 	}
 	
-	String getClientIP(HttpServletRequest request)
+	String getClientIP(Request request)
 	{
 		String clientIP = proxyCount > 0 ? getProxiedClientIP(request) : getDirectClientIP(request);
 		String bracketsStripped = stripBracketsIfPresent(clientIP);
@@ -38,7 +38,7 @@ class ClientIPDiscovery
 		return strippedIP;
 	}
 
-	String getImmediateClientIPNoCheck(HttpServletRequest request)
+	String getImmediateClientIPNoCheck(Request request)
 	{
 		return stripBracketsIfPresent(getDirectClientIP(request));
 	}
@@ -49,9 +49,9 @@ class ClientIPDiscovery
 				clientIP.substring(1, clientIP.length()-1) : clientIP;
 	}
 
-	private String getDirectClientIP(HttpServletRequest request)
+	private String getDirectClientIP(Request request)
 	{
-		return request.getRemoteAddr();
+		return Request.getRemoteAddr(request);
 	}
 
 	private String stripPortIfPresent(String obtainedAddress)
@@ -62,19 +62,19 @@ class ClientIPDiscovery
 		return obtainedAddress;
 	}
 	
-	private String getProxiedClientIP(HttpServletRequest request)
+	private String getProxiedClientIP(Request request)
 	{
-		String xff = request.getHeader(XFF_HEADER);
+		String xff = request.getHeaders().get(HttpHeader.X_FORWARDED_FOR);
 		if (xff == null)
 		{
 			if (allowNotProxiedTraffic)
 				return getDirectClientIP(request);
-			throw new IllegalArgumentException(XFF_HEADER + " not found while configuration requires "
+			throw new IllegalArgumentException(HttpHeader.X_FORWARDED_FOR + " not found while configuration requires "
 					+ "a proxy.");
 		}
 		String[] xffArray = xff.split(",");
 		if (xffArray.length < proxyCount)
-			throw new IllegalArgumentException(XFF_HEADER + " has only " + xffArray.length + 
+			throw new IllegalArgumentException(HttpHeader.X_FORWARDED_FOR + " has only " + xffArray.length + 
 					" elements while we are configured to be behind " + proxyCount + " proxy(ies). "
 							+ "Check proxy configuration. Header: " + xff);
 		return xffArray[xffArray.length-proxyCount].trim();

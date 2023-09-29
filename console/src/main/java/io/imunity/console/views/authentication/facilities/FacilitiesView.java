@@ -30,7 +30,7 @@ import io.imunity.vaadin.elements.Breadcrumb;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import java.util.Comparator;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;

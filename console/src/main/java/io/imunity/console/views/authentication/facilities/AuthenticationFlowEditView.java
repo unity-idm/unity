@@ -24,7 +24,7 @@ import io.imunity.vaadin.elements.BreadCrumbParameter;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import java.util.*;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;

@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.engine;
 
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;

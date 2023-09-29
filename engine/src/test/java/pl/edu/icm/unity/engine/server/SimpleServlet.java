@@ -26,6 +26,13 @@ public class SimpleServlet extends HttpServlet
 		write(OK_GET, resp);
 	}
 	
+	@Override
+	protected void doTrace(HttpServletRequest req, HttpServletResponse resp) 
+		throws ServletException, IOException
+	{
+		write(OK_GET, resp);
+	}
+	
 	private void write(String what, HttpServletResponse resp) throws IOException
 	{
 		resp.setContentType("text/plain");

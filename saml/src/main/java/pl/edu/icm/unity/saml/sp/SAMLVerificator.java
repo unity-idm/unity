@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.sp;
 
 import eu.emi.security.authn.x509.X509Credential;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

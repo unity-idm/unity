@@ -22,9 +22,9 @@ import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import jakarta.annotation.security.PermitAll;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -55,7 +55,6 @@ import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticRepo
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
-import javax.annotation.security.PermitAll;
 import java.util.*;
 
 import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROUTING_SERVLET_PATH;
