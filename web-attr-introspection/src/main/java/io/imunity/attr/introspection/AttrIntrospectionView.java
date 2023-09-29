@@ -24,20 +24,21 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8.PostAuthenticationDecissionWithContext;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,7 @@ import java.util.Properties;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
-import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8.DECISION_SESSION_ATTRIBUTE;
+import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
 
 @Route("/")
 @AnonymousAllowed
@@ -55,7 +56,7 @@ class AttrIntrospectionView extends Composite<Div> implements HasDynamicTitle
 
 	private final MessageSource msg;
 	private final AuthenticatorSupportService authenticatorSupport;
-	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final ExecutorsService execService;
 	private final EntityManagement idsMan;
 	private final VaadinLogoImageLoader imageAccessService;
@@ -68,10 +69,10 @@ class AttrIntrospectionView extends Composite<Div> implements HasDynamicTitle
 	private final AttrIntrospectionAttributePoliciesConfiguration config;
 
 	AttrIntrospectionView(MessageSource msg,
-			InteractiveAuthenticationProcessorEE10 authnProcessor, ExecutorsService execService,
-			@Qualifier("insecure") EntityManagement idsMan, AuthenticatorSupportService authenticatorSupport,
-			VaadinLogoImageLoader imageAccessService, PolicyProcessingSummaryComponentFactory summaryViewFactory,
-			NotificationPresenter notificationPresenter)
+	                      InteractiveAuthenticationProcessor authnProcessor, ExecutorsService execService,
+	                      @Qualifier("insecure") EntityManagement idsMan, AuthenticatorSupportService authenticatorSupport,
+	                      VaadinLogoImageLoader imageAccessService, PolicyProcessingSummaryComponentFactory summaryViewFactory,
+	                      NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;

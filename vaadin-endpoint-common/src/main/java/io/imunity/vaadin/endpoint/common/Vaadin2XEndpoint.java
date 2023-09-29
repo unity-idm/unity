@@ -7,10 +7,10 @@ package io.imunity.vaadin.endpoint.common;
 import com.vaadin.flow.server.InitParameters;
 import com.vaadin.flow.server.VaadinServlet;
 import eu.unicore.util.configuration.ConfigurationException;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -18,10 +18,12 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 import java.io.StringReader;
 import java.time.Duration;
@@ -33,7 +35,7 @@ import java.util.Set;
 
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
-public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
+public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	protected static final Duration UNRESTRICTED_SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
 
@@ -122,6 +124,7 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 		ServletHolder servletHolder = context.addServlet(servletClass, "/*");
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
+		context.getServletContext().setExtendedListenerTypes(true);
 		if(eventListener != null)
 			context.addEventListener(eventListener);
 

@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.engine.api.endpoint;
 
+import java.net.URL;
+
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 
-import java.net.URL;
-
 /**
- * Typical boilerplate for all {@link WebAppEndpointEE10Instance}s.
+ * Typical boilerplate for all {@link WebAppEndpointInstance}s.
  * @author K. Benedyczak
  */
-public abstract class AbstractWebEndpoint extends AbstractEndpoint
+public abstract class AbstractWebEndpoint extends AbstractEndpoint implements WebAppEndpointInstance
 {
 	protected final NetworkServer httpServer;
 	protected final AdvertisedAddressProvider advertisedAddrProvider;
@@ -49,12 +49,7 @@ public abstract class AbstractWebEndpoint extends AbstractEndpoint
 	public final void start() throws EngineException
 	{
 		startOverridable();
-		if(this instanceof WebAppEndpointEE8Instance ee8)
-			httpServer.deployEndpoint(ee8);
-		else if(this instanceof WebAppEndpointEE10Instance ee10)
-			httpServer.deployEndpoint(ee10);
-		else
-			throw new IllegalStateException("Endpoint have to implement one of WebAppEndpointEEInstance");
+		httpServer.deployEndpoint(this);
 	}
 	
 	protected void startOverridable()

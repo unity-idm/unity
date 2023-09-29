@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.io.StringReader;
 import java.security.cert.X509Certificate;
 import java.util.Collection;

@@ -14,8 +14,8 @@ import pl.edu.icm.unity.base.utils.Log;
 
 import org.apache.logging.log4j.Logger;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.function.Supplier;
 

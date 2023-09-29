@@ -25,7 +25,6 @@ import io.imunity.vaadin.endpoint.common.forms.URLQueryPrefillCreator;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
-import jakarta.annotation.security.PermitAll;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -57,6 +56,7 @@ import pl.edu.icm.unity.webui.forms.RegCodeException;
 import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
+import javax.annotation.security.PermitAll;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;

@@ -6,23 +6,24 @@ package pl.edu.icm.unity.engine.server;
 
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.jetty.PlainServerConnector;
 import eu.unicore.util.jetty.SecuredServerConnector;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee8.servlet.FilterHolder;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlets.CrossOriginFilter;
 import org.eclipse.jetty.ee8.servlets.DoSFilter;
-import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.UriCompliance.Violation;
 import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.Handler.AbstractContainer;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
 import org.eclipse.jetty.session.SessionIdManager;
+import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,23 +35,55 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
 import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.*;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOWED_IMMEDIATE_CLIENTS;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOW_NOT_PROXIED_TRAFFIC;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.PROXY_COUNT;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.SNI_HOSTNAME_CHECK;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.NetworkConnector;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+
+import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
- * {@link WebAppEndpointEE10Instance} instances.
+ * {@link WebAppEndpointInstance} instances.
  * <p>
  * Jetty structure which is used:
  *  {@link ContextHandlerCollection} is used to manage all deployed contexts (fixed, one instance)
@@ -63,20 +96,18 @@ import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.*;
 public class JettyServer implements Lifecycle, NetworkServer
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
-	private List<WebAppEndpointEE10Instance> deployedEndpoints;
-	private List<WebAppEndpointEE8Instance> deployedEE8Endpoints;
+	private List<WebAppEndpointInstance> deployedEndpoints;
 	private Map<String, org.eclipse.jetty.server.Handler> usedContextPaths;
 	private ContextHandlerCollection mainContextHandler;
 	private FilterHolder dosFilter = null;
-	private org.eclipse.jetty.ee10.servlet.FilterHolder dosFilter10 = null;
 	private UnityServerConfiguration cfg;
-
+	
 	private final URL[] listenUrls;
 	private final IAuthnAndTrustConfiguration securityConfiguration;
 	private final UnityHttpServerConfiguration serverSettings;
 
 	private Server theServer;
-
+	
 	@Autowired
 	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement,
 			ListeningUrlsProvider listenUrlsProvider)
@@ -87,7 +118,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 		this.cfg = cfg;
 		initServer();
 		dosFilter = createDoSFilterInstance();
-		dosFilter10 = createDoSFilterInstance10();
 		addRedirectHandler(cfg);
 	}
 
@@ -119,27 +149,27 @@ public class JettyServer implements Lifecycle, NetworkServer
 			log.error("Problem stopping HTTP Jetty server: " + e.getMessage(), e);
 		}
 	}
-
-
+	
+	
 	/**
 	 * Invoked after server is started: updates the listen URLs with the actual port,
 	 * if originally it was set to 0, what means that server should choose a random one
 	 */
-	private void updatePortsIfNeeded()
+	private void updatePortsIfNeeded() 
 	{
 		Connector[] conns = theServer.getConnectors();
 
-		for (int i=0; i<listenUrls.length; i++)
+		for (int i=0; i<listenUrls.length; i++) 
 		{
 			URL url = listenUrls[i];
-			if (url.getPort() == 0)
+			if (url.getPort() == 0) 
 			{
 				int port = ((NetworkConnector)conns[i]).getLocalPort();
-				try
+				try 
 				{
-					listenUrls[i] = new URL(url.getProtocol(),
+					listenUrls[i] = new URL(url.getProtocol(), 
 							url.getHost(), port, url.getFile());
-				} catch (MalformedURLException e)
+				} catch (MalformedURLException e) 
 				{
 					throw new RuntimeException("Ups, URL can not " +
 							"be reconstructed, while it should", e);
@@ -147,8 +177,8 @@ public class JettyServer implements Lifecycle, NetworkServer
 			}
 		}
 	}
-
-
+	
+	
 	private void initServer() throws ConfigurationException
 	{
 		if (listenUrls.length == 1 && "0.0.0.0".equals(listenUrls[0].getHost()))
@@ -172,12 +202,12 @@ public class JettyServer implements Lifecycle, NetworkServer
 			theServer.addConnector(connector);
 
 		initRootHandler();
-
+		
 		Handler handler = configureHsts(mainContextHandler);
 		handler = configureFrameOptions(handler);
 		handler = configureGzip(handler);
 		handler = new TraceBlockingHandler(handler);
-
+		
 		theServer.setHandler(handler);
 		configureErrorHandler();
 	}
@@ -261,7 +291,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 */
 	private ServerConnector createConnector(URL url) throws ConfigurationException
 	{
-		return url.getProtocol().startsWith("https") ?
+		return url.getProtocol().startsWith("https") ? 
 			createSecureConnector(url) : createPlainConnector(url);
 	}
 
@@ -298,7 +328,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		SslContextFactory.Server factory = ssl.getSslContextFactory();
 		factory.setNeedClientAuth(serverSettings.getBooleanValue(UnityHttpServerConfiguration.REQUIRE_CLIENT_AUTHN));
 		factory.setWantClientAuth(serverSettings.getBooleanValue(UnityHttpServerConfiguration.WANT_CLIENT_AUTHN));
-
+		
 		String disabledProtocols = serverSettings.getValue(UnityHttpServerConfiguration.DISABLED_PROTOCOLS);
 		if (disabledProtocols != null)
 		{
@@ -352,7 +382,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	}
 
 	/**
-	 * Sets parameters on the Connector, which are shared by all of them regardless of their type.
+	 * Sets parameters on the Connector, which are shared by all of them regardless of their type. 
 	 * The default implementation sets port and hostname.
 	 */
 	private void configureConnector(ServerConnector connector, URL url) throws ConfigurationException
@@ -382,21 +412,21 @@ public class JettyServer implements Lifecycle, NetworkServer
 		} else
 			return handler;
 	}
-
+	
 	/**
 	 * @return array of URLs where the server is listening
 	 */
-	public URL[] getUrls()
+	public URL[] getUrls() 
 	{
 		return listenUrls;
 	}
-
+	
 	private void configureErrorHandler()
 	{
 		String webContentsDir = cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
 		theServer.setErrorHandler(new JettyErrorHandler(webContentsDir));
 	}
-
+	
 	@Override
 	public boolean isRunning()
 	{
@@ -408,7 +438,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 		usedContextPaths = new HashMap<>();
 		mainContextHandler = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<>(16);
-		deployedEE8Endpoints = new ArrayList<>(16);
 	}
 
 	private void addRedirectHandler(UnityServerConfiguration cfg) throws ConfigurationException
@@ -431,28 +460,19 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 * Deploys a classic Unity endpoint.
 	 */
 	@Override
-	public synchronized void deployEndpoint(WebAppEndpointEE10Instance endpoint)
-			throws EngineException
-	{
-		org.eclipse.jetty.ee10.servlet.ServletContextHandler handler = endpoint.getServletContextHandler();
-		deployHandler(handler, endpoint.getEndpointDescription().getName());
-		deployedEndpoints.add(endpoint);
-	}
-
-	@Override
-	public synchronized void deployEndpoint(WebAppEndpointEE8Instance endpoint)
+	public synchronized void deployEndpoint(WebAppEndpointInstance endpoint) 
 			throws EngineException
 	{
 		ServletContextHandler handler = endpoint.getServletContextHandler();
 		deployHandler(handler, endpoint.getEndpointDescription().getName());
-		deployedEE8Endpoints.add(endpoint);
+		deployedEndpoints.add(endpoint);
 	}
-
+	
 	/**
 	 * Deploys a simple handler. It is only checked if the context path is free.
 	 */
 	@Override
-	public synchronized void deployHandler(ServletContextHandler handler, String endpointId)
+	public synchronized void deployHandler(ServletContextHandler handler, String endpointId) 
 			throws EngineException
 	{
 		String contextPath = handler.getContextPath();
@@ -461,56 +481,25 @@ public class JettyServer implements Lifecycle, NetworkServer
 			throw new WrongArgumentException("There are (at least) two web " +
 					"applications configured at the same context path: " + contextPath);
 		}
-
+		
 		addDoSFilter(handler);
 		addCORSFilter(handler);
-
-		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(handler.get(), endpointId);
-		mainContextHandler.addHandler(clientIPSettingHandler);
+		org.eclipse.jetty.server.Handler wrappedHandler = applyClientIPDiscoveryHandler(handler, endpointId);
+		mainContextHandler.addHandler(wrappedHandler);
 		if(theServer.isStarted())
 		{
 			try
 			{
-				clientIPSettingHandler.start();
+				wrappedHandler.start();
 			} catch (Exception e)
 			{
-				mainContextHandler.removeHandler(clientIPSettingHandler);
+				mainContextHandler.removeHandler(wrappedHandler);
 				throw new EngineException("Can not start handler", e);
 			}
 		}
-		usedContextPaths.put(contextPath, clientIPSettingHandler);
+		usedContextPaths.put(contextPath, wrappedHandler);
 	}
-
-	@Override
-	public synchronized void deployHandler(org.eclipse.jetty.ee10.servlet.ServletContextHandler handler, String endpointId)
-			throws EngineException
-	{
-		String contextPath = handler.getContextPath();
-		if (usedContextPaths.containsKey(contextPath))
-		{
-			throw new WrongArgumentException("There are (at least) two web " +
-					"applications configured at the same context path: " + contextPath);
-		}
-
-		addDoSFilter(handler);
-		addCORSFilter(handler);
-
-		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(handler, endpointId);
-		mainContextHandler.addHandler(clientIPSettingHandler);
-		if(theServer.isStarted())
-		{
-			try
-			{
-				clientIPSettingHandler.start();
-			} catch (Exception e)
-			{
-				mainContextHandler.removeHandler(clientIPSettingHandler);
-				throw new EngineException("Can not start handler", e);
-			}
-		}
-		usedContextPaths.put(contextPath, clientIPSettingHandler);
-	}
-
+	
 	@Override
 	public synchronized void undeployAllHandlers() throws EngineException
 	{
@@ -525,13 +514,13 @@ public class JettyServer implements Lifecycle, NetworkServer
 			}
 		}
 		usedContextPaths.clear();
-
+		
 		for (org.eclipse.jetty.server.Handler handler : List.copyOf(mainContextHandler.getHandlers()))
 		{
 			mainContextHandler.removeHandler(handler);
-		}
+		}	
 	}
-
+	
 	@Override
 	public synchronized void undeployHandler(String contextPath) throws EngineException
 	{
@@ -546,12 +535,12 @@ public class JettyServer implements Lifecycle, NetworkServer
 		mainContextHandler.removeHandler(handler);
 		usedContextPaths.remove(contextPath);
 	}
-
+	
 	@Override
 	public synchronized void undeployEndpoint(String id) throws EngineException
 	{
-		WebAppEndpointEE10Instance endpoint = null;
-		for (WebAppEndpointEE10Instance endp: deployedEndpoints)
+		WebAppEndpointInstance endpoint = null;
+		for (WebAppEndpointInstance endp: deployedEndpoints)
 		{
 			if (endp.getEndpointDescription().getName().equals(id))
 			{
@@ -575,13 +564,13 @@ public class JettyServer implements Lifecycle, NetworkServer
 		usedContextPaths.remove(contextPath);
 		deployedEndpoints.remove(endpoint);
 	}
-
+	
 	@Override
 	public Set<String> getUsedContextPaths()
 	{
 		return usedContextPaths.keySet();
 	}
-
+	
 	private FilterHolder createDoSFilterInstance()
 	{
 		if (!serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_DOS_FILTER))
@@ -590,26 +579,12 @@ public class JettyServer implements Lifecycle, NetworkServer
 		Set<String> keys = serverSettings.getSortedStringKeys(UnityHttpServerConfiguration.DOS_FILTER_PFX);
 		for (String key: keys)
 			holder.setInitParameter(key.substring(
-						UnityHttpServerConfiguration.PREFIX.length() +
-						UnityHttpServerConfiguration.DOS_FILTER_PFX.length()),
+						UnityHttpServerConfiguration.PREFIX.length() + 
+						UnityHttpServerConfiguration.DOS_FILTER_PFX.length()), 
 					serverSettings.getProperty(key));
 		return holder;
 	}
-
-	private org.eclipse.jetty.ee10.servlet.FilterHolder createDoSFilterInstance10()
-	{
-		if (!serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_DOS_FILTER))
-			return null;
-		org.eclipse.jetty.ee10.servlet.FilterHolder holder = new org.eclipse.jetty.ee10.servlet.FilterHolder(new org.eclipse.jetty.ee10.servlets.DoSFilter());
-		Set<String> keys = serverSettings.getSortedStringKeys(UnityHttpServerConfiguration.DOS_FILTER_PFX);
-		for (String key: keys)
-			holder.setInitParameter(key.substring(
-							UnityHttpServerConfiguration.PREFIX.length() +
-									UnityHttpServerConfiguration.DOS_FILTER_PFX.length()),
-					serverSettings.getProperty(key));
-		return holder;
-	}
-
+	
 	private void addDoSFilter(ServletContextHandler handler)
 	{
 		if (dosFilter != null)
@@ -618,22 +593,13 @@ public class JettyServer implements Lifecycle, NetworkServer
 			handler.addFilter(dosFilter, "/*", EnumSet.of(DispatcherType.REQUEST));
 		}
 	}
-
-	private void addDoSFilter(org.eclipse.jetty.ee10.servlet.ServletContextHandler handler)
-	{
-		if (dosFilter != null)
-		{
-			log.info("Enabling DoS filter on context " + handler.getContextPath());
-			handler.addFilter(dosFilter10, "/*", EnumSet.of(jakarta.servlet.DispatcherType.REQUEST));
-		}
-	}
-
+	
 	private void addCORSFilter(ServletContextHandler handler)
 	{
 		boolean enable = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_CORS);
 		if (!enable)
 			return;
-
+		
 		log.info("Enabling CORS");
 		CrossOriginFilter cors = new CrossOriginFilter();
 		FilterConfig config = new FilterConfig()
@@ -674,60 +640,14 @@ public class JettyServer implements Lifecycle, NetworkServer
 		handler.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 	}
 
-	private void addCORSFilter(org.eclipse.jetty.ee10.servlet.ServletContextHandler handler)
-	{
-		boolean enable = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_CORS);
-		if (!enable)
-			return;
 
-		log.info("Enabling CORS");
-		org.eclipse.jetty.ee10.servlets.CrossOriginFilter cors = new org.eclipse.jetty.ee10.servlets.CrossOriginFilter();
-		jakarta.servlet.FilterConfig config = new jakarta.servlet.FilterConfig()
-		{
-
-			@Override
-			public jakarta.servlet.ServletContext getServletContext()
-			{
-				throw new UnsupportedOperationException("Not implemented");
-			}
-
-			@Override
-			public Enumeration<String> getInitParameterNames()
-			{
-				throw new UnsupportedOperationException("Not implemented");
-			}
-
-			@Override
-			public String getInitParameter(String name)
-			{
-				return serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + name);
-			}
-
-			@Override
-			public String getFilterName()
-			{
-				return "CORS";
-			}
-		};
-		try
-		{
-			cors.init(config);
-		} catch (jakarta.servlet.ServletException e)
-		{
-			throw new ConfigurationException("Error setting up CORS", e);
-		}
-		org.eclipse.jetty.ee10.servlet.FilterHolder filterHolder = new org.eclipse.jetty.ee10.servlet.FilterHolder(cors);
-		handler.addFilter(filterHolder, "/*", EnumSet.of(jakarta.servlet.DispatcherType.REQUEST, jakarta.servlet.DispatcherType.FORWARD));
-	}
-
-
-	private ClientIPSettingHandler applyClientIPDiscoveryHandler(Handler baseHandler, String endpointId)
+	private ClientIPSettingHandler applyClientIPDiscoveryHandler(ServletContextHandler baseHandler, String endpointId)
 	{
 		ClientIPDiscovery ipDiscovery = new ClientIPDiscovery(serverSettings.getIntValue(PROXY_COUNT),
 				serverSettings.getBooleanValue(ALLOW_NOT_PROXIED_TRAFFIC));
 		IPValidator ipValidator = new IPValidator(
 				serverSettings.getListOfValues(ALLOWED_IMMEDIATE_CLIENTS));
-
+		
 		log.info("Enabling client IP discovery filter");
 		ClientIPSettingHandler handler = new ClientIPSettingHandler(ipDiscovery, ipValidator, endpointId);
 		handler.setServer(theServer);

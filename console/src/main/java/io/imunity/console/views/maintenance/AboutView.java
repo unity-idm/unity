@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.engine.api.version.VersionInformation;
 import pl.edu.icm.unity.engine.api.version.VersionInformationProvider;
 
-import jakarta.annotation.security.PermitAll;
+import javax.annotation.security.PermitAll;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.maintenance.about")

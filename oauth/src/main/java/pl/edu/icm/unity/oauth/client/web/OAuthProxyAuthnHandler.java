@@ -4,13 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import io.imunity.vaadin.auth.PreferredAuthenticationHelper;
-import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
-import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.base.utils.Log;
@@ -21,7 +16,13 @@ import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
+import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;

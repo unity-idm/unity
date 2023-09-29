@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8;
+import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilter;
 
 /**
  * Factory creating endpoints exposing {@link WebConsoleUI}.
@@ -40,14 +40,14 @@ public class WebConsoleEndpointFactory implements EndpointFactory
 	private NetworkServer server;
 	private MessageSource msg;
 	private AdvertisedAddressProvider advertisedAddrProvider;
-	private RemoteRedirectedAuthnResponseProcessingFilterV8 remoteAuthnResponseProcessingFilter;
+	private RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 	
 	@Autowired
 	public WebConsoleEndpointFactory(ApplicationContext applicationContext,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
 			MessageSource msg,
-			RemoteRedirectedAuthnResponseProcessingFilterV8 remoteAuthnResponseProcessingFilter)
+			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter)
 	{
 		this.applicationContext = applicationContext;
 		this.server = server;

@@ -26,7 +26,7 @@ import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 
-import jakarta.annotation.security.PermitAll;
+import javax.annotation.security.PermitAll;
 
 @PermitAll
 @Breadcrumb(key = "RunImmediateView.caption")

@@ -4,15 +4,17 @@
  */
 package pl.edu.icm.unity.engine.api.utils;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.base.utils.Log;
-
 import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Simple routing (dispatching) servlet. Requires a default target servlet path and can have additional 

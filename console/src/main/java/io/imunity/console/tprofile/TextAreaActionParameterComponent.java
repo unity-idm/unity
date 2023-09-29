@@ -62,10 +62,4 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 	{
 		super.setReadOnly(readOnly);
 	}
-
-	@Override
-	public String getLabel()
-	{
-		return super.getLabel();
-	}
 }

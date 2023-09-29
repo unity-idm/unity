@@ -41,7 +41,7 @@ import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
 
-import jakarta.annotation.security.PermitAll;
+import javax.annotation.security.PermitAll;
 import java.util.*;
 import java.util.stream.Collectors;
 

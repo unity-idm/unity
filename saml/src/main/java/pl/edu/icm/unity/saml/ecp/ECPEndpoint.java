@@ -4,20 +4,29 @@
  */
 package pl.edu.icm.unity.saml.ecp;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.validators.ReplayAttackChecker;
-import eu.unicore.util.configuration.ConfigurationException;
+import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -35,20 +44,12 @@ import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfigurationParser;
 import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 
-import java.io.CharArrayWriter;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 /**
  * ECP endpoint used to enable ECP support in Unity. The endpoint doesn't use any authenticator by itself.
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE8Instance
+public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private final PKIManagement pkiManagement;
 	private final ECPContextManagement samlContextManagement;

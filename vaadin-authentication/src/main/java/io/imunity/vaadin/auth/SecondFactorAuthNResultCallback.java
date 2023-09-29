@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
 import java.util.function.Supplier;
 
 /**
- * Collects authN results from the 2nd authenticator. Afterwards, the final authentication result
+ * Collects authN results from the 2nd authenticator. Afterwards, the final authentication result 
  * processing is launched.
  */
 class SecondFactorAuthNResultCallback implements VaadinAuthentication.AuthenticationCallback
@@ -29,7 +29,7 @@ class SecondFactorAuthNResultCallback implements VaadinAuthentication.Authentica
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			SecondFactorAuthNResultCallback.class);
 	private final MessageSource msg;
-	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener authNListener;
 	private final Supplier<Boolean> rememberMeProvider;
 	private final PartialAuthnState partialState;
@@ -38,13 +38,13 @@ class SecondFactorAuthNResultCallback implements VaadinAuthentication.Authentica
 	private final NotificationPresenter notificationPresenter;
 
 	SecondFactorAuthNResultCallback(MessageSource msg,
-			InteractiveAuthenticationProcessorEE10 authnProcessor,
-			AuthenticationStepContext stepContext,
-			ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener authNListener,
-			Supplier<Boolean> rememberMeProvider,
-			PartialAuthnState partialState,
-			SecondFactorAuthNPanel authNPanel,
-			NotificationPresenter notificationPresenter)
+	                                InteractiveAuthenticationProcessor authnProcessor,
+	                                AuthenticationStepContext stepContext,
+	                                ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener authNListener,
+	                                Supplier<Boolean> rememberMeProvider,
+	                                PartialAuthnState partialState,
+	                                SecondFactorAuthNPanel authNPanel,
+	                                NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -61,7 +61,7 @@ class SecondFactorAuthNResultCallback implements VaadinAuthentication.Authentica
 	{
 		processAuthn(result, retrievalContext);
 	}
-
+	
 	private void processAuthn(AuthenticationResult result, AuthenticationRetrievalContext retrievalContext)
 	{
 		log.trace("Received authentication result of the 2nd authenticator" + result);
@@ -97,11 +97,11 @@ class SecondFactorAuthNResultCallback implements VaadinAuthentication.Authentica
 				log.error("unknown remote user after 2nd factor? {}", result);
 				throw new IllegalStateException("authentication error");
 			}
-			default -> throw new IllegalStateException(
-					"Unknown authn decision: " + postSecondFactorDecision.getDecision());
+			default ->
+					throw new IllegalStateException("Unknown authn decision: " + postSecondFactorDecision.getDecision());
 		}
 	}
-
+	
 	@Override
 	public void onStartedAuthentication()
 	{
@@ -118,10 +118,10 @@ class SecondFactorAuthNResultCallback implements VaadinAuthentication.Authentica
 	@Override
 	public AuthenticationTriggeringContext getTriggeringContext()
 	{
-		return AuthenticationTriggeringContext.authenticationTriggeredSecondFactor(rememberMeProvider.get(),
+		return AuthenticationTriggeringContext.authenticationTriggeredSecondFactor(rememberMeProvider.get(), 
 				partialState);
 	}
-
+	
 	private void handleError(String errorToShow)
 	{
 		log.info("Authentication failed {}", errorToShow);
@@ -129,7 +129,7 @@ class SecondFactorAuthNResultCallback implements VaadinAuthentication.Authentica
 		authNPanel.focusIfPossible();
 		notificationPresenter.showError(errorToShow, "");
 	}
-
+	
 	/**
 	 * Resets the authentication UI to the initial state
 	 */
@@ -138,13 +138,13 @@ class SecondFactorAuthNResultCallback implements VaadinAuthentication.Authentica
 		if (authNListener != null)
 			authNListener.switchBackToFirstFactor();
 	}
-
+	
 	private void setAuthenticationAborted()
 	{
 		if (authNListener != null)
 			authNListener.authenticationAborted();
 	}
-
+	
 	private void setAuthenticationCompleted()
 	{
 		if (authNListener != null)

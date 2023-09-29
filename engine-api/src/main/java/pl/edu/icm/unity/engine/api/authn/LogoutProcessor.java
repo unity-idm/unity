@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Performs a logout, including logout of additional session participants, in case of logout initiated directly

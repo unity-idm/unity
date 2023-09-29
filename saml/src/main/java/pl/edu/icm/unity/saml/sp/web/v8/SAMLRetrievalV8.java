@@ -42,7 +42,7 @@ public class SAMLRetrievalV8 extends AbstractCredentialRetrieval<SAMLExchange>
 	
 	private MessageSource msg;
 	private SamlContextManagement samlContextManagement;
-	private SAMLProxyAuthnHandlerEE8 proxyAuthnHandler;
+	private SAMLProxyAuthnHandler proxyAuthnHandler;
 	private LogoExposingServiceV8 logoExposingService;
 
 	@Autowired
@@ -107,7 +107,7 @@ public class SAMLRetrievalV8 extends AbstractCredentialRetrieval<SAMLExchange>
 	public void setCredentialExchange(CredentialExchange e, String id)
 	{
 		super.setCredentialExchange(e, id);
-		proxyAuthnHandler = new SAMLProxyAuthnHandlerEE8((SAMLExchange) e,
+		proxyAuthnHandler = new SAMLProxyAuthnHandler((SAMLExchange) e, 
 				samlContextManagement, id);
 	}
 	

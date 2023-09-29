@@ -29,7 +29,6 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
-import jakarta.annotation.security.PermitAll;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -50,6 +49,7 @@ import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredExcep
 import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
+import javax.annotation.security.PermitAll;
 import java.util.*;
 
 import static io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext.EMPTY;

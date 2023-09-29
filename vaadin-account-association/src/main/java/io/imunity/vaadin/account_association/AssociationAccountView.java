@@ -19,11 +19,11 @@ import io.imunity.vaadin.account_association.wizard.Wizard;
 import io.imunity.vaadin.account_association.wizard.WizardStepPreparer;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
-import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 
+import javax.annotation.security.PermitAll;
 import java.util.Map;
 
 import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;

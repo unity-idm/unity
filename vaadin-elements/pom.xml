@@ -32,6 +32,10 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.vaadin.barcodes</groupId>
+            <artifactId>barcode-bwipjs</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.wontlost</groupId>
             <artifactId>ckeditor-vaadin</artifactId>
         </dependency>

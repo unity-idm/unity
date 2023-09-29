@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceTypeInfoHelper;
 
-import jakarta.annotation.security.PermitAll;
+import javax.annotation.security.PermitAll;
 import java.util.Collections;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
