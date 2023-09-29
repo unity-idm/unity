@@ -5,22 +5,6 @@
 
 package io.imunity.console.views.maintenance.backup_and_restore;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.annotation.security.PermitAll;
-
-import org.apache.logging.log4j.Logger;
-
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -34,24 +18,25 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import jakarta.annotation.security.PermitAll;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
-import jakarta.annotation.security.PermitAll;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.maintenance.backupAndRestore")
