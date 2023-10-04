@@ -18,7 +18,6 @@ import org.eclipse.jetty.http.UriCompliance.Violation;
 import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
@@ -69,7 +68,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private ContextHandlerCollection mainContextHandler;
 	private FilterHolder dosFilter = null;
 	private org.eclipse.jetty.ee10.servlet.FilterHolder dosFilter10 = null;
-	private UnityServerConfiguration cfg;
+	private String defaultWebContentsPath;
 
 	private final URL[] listenUrls;
 	private final IAuthnAndTrustConfiguration securityConfiguration;
@@ -81,16 +80,27 @@ public class JettyServer implements Lifecycle, NetworkServer
 	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement,
 			ListeningUrlsProvider listenUrlsProvider)
 	{
-		this.securityConfiguration = pkiManagement.getMainAuthnAndTrust();
-		this.listenUrls = listenUrlsProvider.getListenUrls();
-		this.serverSettings = cfg.getJettyProperties();
-		this.cfg = cfg;
+		this(cfg.getJettyProperties(), 
+				cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH), 
+				pkiManagement.getMainAuthnAndTrust(), 
+				listenUrlsProvider.getListenUrls());
+	}
+
+	JettyServer(UnityHttpServerConfiguration serverSettings,
+			String defaultWebContentsPath, 
+			IAuthnAndTrustConfiguration securityConfiguration,
+			URL[] listenUrls)
+	{
+		this.securityConfiguration = securityConfiguration;
+		this.listenUrls = listenUrls;
+		this.serverSettings = serverSettings;
+		this.defaultWebContentsPath = defaultWebContentsPath;
 		initServer();
 		dosFilter = createDoSFilterInstance();
 		dosFilter10 = createDoSFilterInstance10();
-		addRedirectHandler(cfg);
+		addRedirectHandler();
 	}
-
+	
 	@Override
 	public void start()
 	{
@@ -393,8 +403,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 
 	private void configureErrorHandler()
 	{
-		String webContentsDir = cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
-		theServer.setErrorHandler(new JettyErrorHandler(webContentsDir));
+		theServer.setErrorHandler(new JettyErrorHandler(defaultWebContentsPath));
 	}
 
 	@Override
@@ -411,20 +420,15 @@ public class JettyServer implements Lifecycle, NetworkServer
 		deployedEE8Endpoints = new ArrayList<>(16);
 	}
 
-	private void addRedirectHandler(UnityServerConfiguration cfg) throws ConfigurationException
+	private void addRedirectHandler() throws ConfigurationException
 	{
-		if (cfg.isSet(UnityServerConfiguration.DEFAULT_WEB_PATH))
+		try
 		{
-			try
-			{
-				deployHandler(new RedirectHandler(cfg.getValue(
-						UnityServerConfiguration.DEFAULT_WEB_PATH)), "sys:redirect");
-			} catch (EngineException e)
-			{
-				log.error("Cannot deploy redirect handler " + e.getMessage(), e);
-			}
+			deployHandler(new RedirectHandler(defaultWebContentsPath), "sys:redirect");
+		} catch (EngineException e)
+		{
+			log.error("Cannot deploy redirect handler " + e.getMessage(), e);
 		}
-
 	}
 
 	/**
