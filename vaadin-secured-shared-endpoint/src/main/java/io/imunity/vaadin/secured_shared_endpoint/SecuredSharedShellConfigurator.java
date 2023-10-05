@@ -8,12 +8,13 @@ package io.imunity.vaadin.secured_shared_endpoint;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
-import com.vaadin.flow.shared.ui.Transport;
+import com.vaadin.flow.theme.Theme;
 import io.imunity.vaadin.endpoint.common.FaviconSetuper;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
-@Push(transport = Transport.LONG_POLLING)
+@Push
+@Theme("unity-theme")
 class SecuredSharedShellConfigurator implements AppShellConfigurator
 {
 	private final UnityServerConfiguration config;

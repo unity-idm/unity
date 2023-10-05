@@ -36,6 +36,7 @@ import java.util.Set;
 
 import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
 import static java.util.Collections.emptyList;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_CSS_FILE_NAME;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
 @Primary
@@ -58,7 +59,11 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	                                    RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter) throws EngineException
 	{
 		Properties properties = config.getProperties();
-		Vaadin82XEndpointProperties vaadinEndpointProperties = new Vaadin82XEndpointProperties(properties, config.getValue(DEFAULT_WEB_CONTENT_PATH));
+		Vaadin82XEndpointProperties vaadinEndpointProperties = new Vaadin82XEndpointProperties(
+				properties,
+				config.getValue(DEFAULT_WEB_CONTENT_PATH),
+				config.getValue(DEFAULT_CSS_FILE_NAME)
+		);
 		WebAppContext context = new Vaadin2XWebAppContext(properties, vaadinEndpointProperties, msg, null);
 		context.setBaseResource(new URLResourceFactory().newResource(getWebContentsDir(config)));
 		context.setContextPath(CONTEXT_PATH);

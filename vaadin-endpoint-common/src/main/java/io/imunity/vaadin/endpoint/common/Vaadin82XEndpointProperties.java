@@ -24,11 +24,12 @@ public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 
 	public static final String EXTRA_BOTTOM_PANEL = "extraBottomPanel";
 
-	public static final String CUSTOM_CSS = "customCss";
+	public static final String CUSTOM_CSS_FILE_NAME = "customCssFileName";
 
 	public static final String SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING = "secondsBeforeShowingSessionExpirationWarning";
 
 	public final String defaultWebContentPath;
+	public final String defaultCssFileName;
 
 	static
 	{
@@ -40,16 +41,17 @@ public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html top panel"));
 		VaadinEndpointProperties.META.put(EXTRA_BOTTOM_PANEL, new PropertyMD("").
 				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html bottom panel"));
-		VaadinEndpointProperties.META.put(CUSTOM_CSS, new PropertyMD("").
+		VaadinEndpointProperties.META.put(CUSTOM_CSS_FILE_NAME, new PropertyMD("").
 				setDescription("Relative path(starts from web contents path) to an optional CSS file containing custom css file"));
 		VaadinEndpointProperties.META.put(SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING, new PropertyMD("30").
 				setDescription("Seconds before showing session expiration warning notification"));
 	}
 
-	public Vaadin82XEndpointProperties(Properties properties, String defaultWebContentPath)
+	public Vaadin82XEndpointProperties(Properties properties, String defaultWebContentPath, String defaultCssFileName)
 	{
 		super(properties);
 		this.defaultWebContentPath = defaultWebContentPath;
+		this.defaultCssFileName = defaultCssFileName;
 	}
 
 	public Optional<File> getExtraLeftPanel()
@@ -72,9 +74,9 @@ public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 		return getFile(EXTRA_BOTTOM_PANEL);
 	}
 
-	public Optional<File> getCustomCssFile()
+	public Optional<String> getCustomCssFilePath()
 	{
-		return getFile(CUSTOM_CSS);
+		return getPath(CUSTOM_CSS_FILE_NAME);
 	}
 
 	private Optional<File> getFile(String key)
@@ -83,6 +85,14 @@ public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 			return Optional.empty();
 		String value = getWebContentPath() + "/" + getValue(key);
 		return Optional.of(new File(value));
+	}
+
+	private Optional<String> getPath(String key)
+	{
+		if(getValue(key).isBlank())
+			return Optional.empty();
+		String value = getWebContentPath() + "/" + getValue(key);
+		return Optional.of(value);
 	}
 
 	private String getWebContentPath()

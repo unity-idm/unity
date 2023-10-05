@@ -5,11 +5,8 @@
 
 package io.imunity.attr.introspection;
 
-import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
@@ -21,6 +18,7 @@ import io.imunity.attr.introspection.summary.PolicyProcessingSummaryComponent.Po
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.sandbox.SandboxAuthenticationScreen;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,7 +47,7 @@ import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseP
 
 @Route("/")
 @AnonymousAllowed
-class AttrIntrospectionView extends Composite<Div> implements HasDynamicTitle
+class AttrIntrospectionView extends UnityViewComponent
 {
 	public static final String SANDBOX_CONTEXT_SESSION_ATTRIBUTE = "__sandbox_context";
 

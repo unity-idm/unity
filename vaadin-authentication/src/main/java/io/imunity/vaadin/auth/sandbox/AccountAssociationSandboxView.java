@@ -4,9 +4,7 @@
  */
 package io.imunity.vaadin.auth.sandbox;
 
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
@@ -14,6 +12,7 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
@@ -38,7 +37,7 @@ import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseP
 
 @Route("/sandbox-association")
 @AnonymousAllowed
-class AccountAssociationSandboxView extends Composite<Div> implements BeforeEnterObserver
+class AccountAssociationSandboxView extends UnityViewComponent implements BeforeEnterObserver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AccountAssociationSandboxView.class);
 	private final MessageSource msg;
@@ -115,5 +114,11 @@ class AccountAssociationSandboxView extends Composite<Div> implements BeforeEnte
 	public void beforeEnter(BeforeEnterEvent event)
 	{
 		loadInitialState();
+	}
+
+	@Override
+	public String getPageTitle()
+	{
+		return getCurrentWebAppDisplayedName();
 	}
 }

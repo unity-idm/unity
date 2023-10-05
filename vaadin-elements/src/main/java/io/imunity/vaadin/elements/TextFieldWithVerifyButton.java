@@ -10,7 +10,6 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
@@ -23,7 +22,6 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import static java.util.Optional.ofNullable;
 
-@CssImport("./styles/components/required-label.css")
 public class TextFieldWithVerifyButton extends CustomField<String>
 {
 	private final Checkbox adminConfirmCheckBox;

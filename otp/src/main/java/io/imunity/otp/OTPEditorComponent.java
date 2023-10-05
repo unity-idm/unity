@@ -10,14 +10,14 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import io.imunity.vaadin.elements.QRBarcode;
+import io.imunity.vaadin.endpoint.common.forms.components.QRCodeFactory;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
-
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
@@ -125,7 +125,7 @@ class OTPEditorComponent extends VerticalLayout
 	private class QRCodeComponent extends VerticalLayout
 	{
 		private static final int BASE_SIZE_ZOOM = 3;
-		private QRBarcode qr;
+		private Image qr;
 		private TextField user;
 		
 		QRCodeComponent()
@@ -145,8 +145,7 @@ class OTPEditorComponent extends VerticalLayout
 			customizeUser.getStyle().set("text-decoration", "underline");
 			customizeUser.addClickListener(e -> {customizeUser.setVisible(false); user.setVisible(true);});
 			
-			int size = (QR_BASE_SIZES.get(config.otpParams.hashFunction) + 8) * BASE_SIZE_ZOOM;
-			qr = new QRBarcode("", "qrcode", size+"px", size+"px");
+			qr = new Image();
 			qr.getStyle().set("align-self", "center");
 			updateQR();
 			user.addValueChangeListener(v ->
@@ -164,7 +163,7 @@ class OTPEditorComponent extends VerticalLayout
 			int size = (QR_BASE_SIZES.get(config.otpParams.hashFunction) + 8) * BASE_SIZE_ZOOM;
 			String uri = TOTPKeyGenerator.generateTOTPURI(secret, user.getValue(),
 					config.issuerName, config.otpParams, config.logoURI);
-			qr = new QRBarcode(uri, "qrcode", size+"px", size+"px");
+			qr = QRCodeFactory.createQRCode(uri, size);
 			qr.getStyle().set("align-self", "center");
 		}
 		

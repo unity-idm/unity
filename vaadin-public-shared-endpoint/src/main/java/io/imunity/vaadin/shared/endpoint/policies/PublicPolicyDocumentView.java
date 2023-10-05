@@ -5,10 +5,8 @@
 
 package io.imunity.vaadin.shared.endpoint.policies;
 
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -19,10 +17,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
+import io.imunity.vaadin.elements.UnityViewComponent;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
@@ -30,10 +28,11 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 
 import java.util.Optional;
 
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppDisplayedName;
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.POLICY_DOCUMENTS_PATH;
 
 @Route(value = POLICY_DOCUMENTS_PATH + ":" + PublicPolicyDocumentView.POLICY_DOC_PARAM)
-public class PublicPolicyDocumentView extends Composite<Div> implements BeforeEnterObserver
+class PublicPolicyDocumentView extends UnityViewComponent implements BeforeEnterObserver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PublicPolicyDocumentView.class);
 
@@ -42,7 +41,7 @@ public class PublicPolicyDocumentView extends Composite<Div> implements BeforeEn
 	private final PolicyDocumentManagement policyDocMan;
 
 	@Autowired
-	public PublicPolicyDocumentView(MessageSource msg, @Qualifier("insecure") PolicyDocumentManagement policyDocMan)
+	PublicPolicyDocumentView(MessageSource msg, @Qualifier("insecure") PolicyDocumentManagement policyDocMan)
 	{
 		this.msg = msg;
 		this.policyDocMan = policyDocMan;
@@ -101,5 +100,11 @@ public class PublicPolicyDocumentView extends Composite<Div> implements BeforeEn
 			log.error("Unknown policy document id", e);
 			return Optional.empty();
 		}
+	}
+
+	@Override
+	public String getPageTitle()
+	{
+		return getCurrentWebAppDisplayedName();
 	}
 }

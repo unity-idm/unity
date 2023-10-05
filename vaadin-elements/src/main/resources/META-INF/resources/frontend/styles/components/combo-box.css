@@ -1,3 +1,0 @@
-:host(.disable-required-indicator) [part='required-indicator']::after {
-    display: none !important;
-}

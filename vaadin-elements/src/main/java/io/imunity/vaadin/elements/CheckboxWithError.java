@@ -7,11 +7,9 @@ package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
-import com.vaadin.flow.component.dependency.CssImport;
 
 import java.util.Set;
 
-@CssImport(value = "./styles/components/check-box-with-error.css", themeFor = "vaadin-checkbox-group")
 public class CheckboxWithError extends CheckboxGroup<String>
 {
 	private final String label;

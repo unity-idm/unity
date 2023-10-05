@@ -11,7 +11,6 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
@@ -24,7 +23,6 @@ import io.imunity.vaadin.endpoint.common.consent_utils.IdentitySelectorComponent
 import io.imunity.vaadin.endpoint.common.consent_utils.SPInfoComponent;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
@@ -55,7 +53,6 @@ import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROU
 /**
  * Consent screen after resource owner login and obtaining set of effective attributes.
  */
-@CssImport("./styles/consent-screen.css")
 class OAuthConsentScreen extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthConsentScreen.class);

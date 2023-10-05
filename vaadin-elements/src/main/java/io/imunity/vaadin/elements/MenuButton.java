@@ -4,13 +4,11 @@
  */
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
-@CssImport("./styles/components/menu-button.css")
 public class MenuButton extends Div
 {
 	private final Icon createdIcon;

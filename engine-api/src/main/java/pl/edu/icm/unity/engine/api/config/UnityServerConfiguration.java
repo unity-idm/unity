@@ -73,6 +73,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String DEFAULT_WEB_CONTENT_PATH = "defaultWebContentDirectory";
 	public static final String MESSAGES_DIRECTORY = "i18nMessagesDirectory";
 	public static final String THEME = "defaultTheme";
+	public static final String DEFAULT_CSS_FILE_NAME = "defaultCssFileName";
 	public static final String CONFIRMATION_THEME = "confirmationUITheme";
 	public static final String CONFIRMATION_TEMPLATE = "confirmationUITemplate";
 	public static final String WELL_KNOWN_URL_THEME = "wellKnownUrlUITheme";
@@ -281,6 +282,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(THEME, new PropertyMD().setCategory(mainCat).setDescription(
 				"Overrides the default theme name as used for rendering the web endpoints. "
 				+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
+		defaults.put(DEFAULT_CSS_FILE_NAME, new PropertyMD("styles.css").setCategory(mainCat).setDescription(
+				"Set the default css file name as used for rendering the web endpoints. "
+						+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
 		defaults.put(ALLOW_FULL_HTML, new PropertyMD("false").setCategory(mainCat).setDescription(
 				"If set to true then Unity will render full HTML in admin-configured descriptions"
 				+ " of elements intended for end-user presentation "

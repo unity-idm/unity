@@ -10,7 +10,6 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -19,7 +18,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NavigationTrigger;
-import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
 import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.groups.GroupsView;
@@ -30,8 +28,8 @@ import io.imunity.upman.utils.HomeServiceLinkService;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 
@@ -42,9 +40,6 @@ import java.util.stream.Stream;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static java.util.stream.Collectors.toList;
 
-@CssImport("./styles/views/main-layout.css")
-@CssImport("./styles/custom-lumo-theme.css")
-@CssImport(value = "./styles/vaadin-combo-box.css", themeFor = "vaadin-combo-box")
 public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 {
 	private final ProjectService projectService;

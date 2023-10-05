@@ -4,7 +4,6 @@
  */
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.html.Label;
@@ -15,9 +14,6 @@ import com.vaadin.flow.component.tabs.TabsVariant;
 
 import java.util.List;
 
-@CssImport(value = "./styles/components/multi-tab.css")
-@CssImport(value = "./styles/components/multi-tab-details.css", themeFor = "vaadin-details")
-@CssImport(value = "./styles/components/vaadin-tooltip-overlay.css", themeFor = "vaadin-tooltip-overlay")
 public class MultiTabComponent extends Tab implements TabTextHider
 {
 	public final MenuComponent menuComponent;

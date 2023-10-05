@@ -5,11 +5,18 @@
 package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.*;
 
 import java.util.Optional;
 
+@Uses.Container({
+		@Uses(MultiSelectComboBox.class),
+		@Uses(PasswordField.class)
+})
 public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>, HasDynamicTitle
 {
 	@Override

@@ -8,7 +8,6 @@ package io.imunity.vaadin.account_association;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -29,7 +28,6 @@ import java.util.Map;
 import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
 @PermitAll
-@CssImport("./styles/custom-lumo-theme.css")
 @Route("/sec/account-association")
 class AssociationAccountView extends Composite<VerticalLayout> implements HasDynamicTitle
 {

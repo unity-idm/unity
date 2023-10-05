@@ -5,13 +5,9 @@
 package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
@@ -22,6 +18,7 @@ import com.vaadin.flow.server.WrappedSession;
 import io.imunity.vaadin.auth.outdated.CredentialChangeConfiguration;
 import io.imunity.vaadin.auth.outdated.OutdatedCredentialController;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
@@ -58,9 +55,8 @@ import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.Unkno
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
 
-@Uses(PasswordField.class)
 @Route("/authentication")
-public class AuthenticationView extends Composite<Div> implements BeforeEnterObserver
+public class AuthenticationView extends UnityViewComponent implements BeforeEnterObserver
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AuthenticationView.class);
 	private final MessageSource msg;
@@ -270,6 +266,12 @@ public class AuthenticationView extends Composite<Div> implements BeforeEnterObs
 			UI.getCurrent().getPage().setLocation(VaadinServlet.getCurrent().getServletContext().getContextPath());
 		else
 			init();
+	}
+
+	@Override
+	public String getPageTitle()
+	{
+		return getCurrentWebAppDisplayedName();
 	}
 
 	private class CredentialResetLauncherImpl implements CredentialResetLauncher

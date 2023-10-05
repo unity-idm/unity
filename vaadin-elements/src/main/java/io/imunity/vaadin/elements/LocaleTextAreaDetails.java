@@ -8,7 +8,6 @@ package io.imunity.vaadin.elements;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -23,8 +22,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@CssImport(value = "./styles/components/form-item.css", themeFor = "vaadin-form-item")
-@CssImport(value = "./styles/components/combo-box.css", themeFor = "vaadin-combo-box")
 public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 {
 	public Map<Locale, LocaleTextArea> fields = new LinkedHashMap<>();

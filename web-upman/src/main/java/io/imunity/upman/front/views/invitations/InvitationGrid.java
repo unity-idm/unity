@@ -7,7 +7,6 @@ package io.imunity.upman.front.views.invitations;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlContainer;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,7 +21,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.function.Function;
 
-@CssImport(value = "./styles/components/invitations-grid.css", themeFor = "vaadin-grid")
 class InvitationGrid extends MultiSelectGrid<InvitationModel>
 {
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")

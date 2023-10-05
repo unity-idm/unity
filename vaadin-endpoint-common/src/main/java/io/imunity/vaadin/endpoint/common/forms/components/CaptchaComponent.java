@@ -13,22 +13,14 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.server.StreamResource;
 import nl.captcha.Captcha;
 import nl.captcha.backgrounds.GradiatedBackgroundProducer;
 import nl.captcha.gimpy.FishEyeGimpyRenderer;
 import nl.captcha.text.producer.DefaultTextProducer;
-import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Random;
 
 /**
  * Vaadin captcha component. Allows for changing the captcha. Can be added as a standalone component,
@@ -42,7 +34,6 @@ public class CaptchaComponent
 		't', 'y', 'u', 'i', 'p', 'a', 's', 'd', 'f', 'g', 'h',
 		'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
 		'1', '2', '3', '4', '5', '6', '7', '8', '9'};
-	private static final Random random = new Random();
 	private final MessageSource msg;
 	private final boolean showLabelInline;
 	private Captcha engine;
@@ -159,29 +150,5 @@ public class CaptchaComponent
 			throw new WrongArgumentException("");
 		}
 		answer.setInvalid(false);
-	}
-	
-	
-	public static class SimpleImageSource
-	{
-		private final byte[] data;
-		
-		public SimpleImageSource(BufferedImage value)
-		{
-			ByteArrayOutputStream bos = new ByteArrayOutputStream(100000);
-			try
-			{
-				ImageIO.write(value, "png", bos);
-			} catch (IOException e)
-			{
-				throw new InternalException("Image can not be encoded as PNG", e);
-			}
-		        data = bos.toByteArray();
-		}
-		
-		public StreamResource getResource()
-		{
-			return new StreamResource("imgattribute-"+random.nextLong()+".png", () -> new ByteArrayInputStream(data));
-		}
 	}
 }

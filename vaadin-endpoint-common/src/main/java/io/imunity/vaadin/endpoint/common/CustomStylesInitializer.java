@@ -13,7 +13,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
 import java.io.File;
@@ -26,18 +25,26 @@ import java.util.Optional;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppVaadinProperties;
 import static java.lang.String.format;
 
-@Component
 class CustomStylesInitializer implements VaadinServiceInitListener
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+	private final DefaultCssFileLoader defaultCssFileLoader;
+
+	CustomStylesInitializer(DefaultCssFileLoader defaultCssFileLoader)
+	{
+		this.defaultCssFileLoader = defaultCssFileLoader;
+	}
 
 	@Override
 	public void serviceInit(ServiceInitEvent serviceInitEvent)
 	{
 		Vaadin82XEndpointProperties currentWebAppVaadinProperties = getCurrentWebAppVaadinProperties();
-		File externalCSSResource = currentWebAppVaadinProperties.getCustomCssFile().orElse(null);
 
-		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(externalCSSResource));
+		String customCssFilePath = currentWebAppVaadinProperties.getCustomCssFilePath().orElse(null);
+		CssFileLoader customCssFileLoader = new CssFileLoader(customCssFilePath);
+
+		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(defaultCssFileLoader.get(), customCssFileLoader));
 	}
 
 	private static class CustomStylesInjector implements IndexHtmlRequestListener
@@ -45,28 +52,34 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 
 		private final CustomStylesContentProvider contentProvider;
 
-		CustomStylesInjector(File externalCSSFile)
+		CustomStylesInjector(CssFileLoader defaultCssFileLoader, CssFileLoader externalCssFileLoader)
 		{
-			this.contentProvider = new CustomStylesContentProvider(externalCSSFile);
+			this.contentProvider = new CustomStylesContentProvider(defaultCssFileLoader, externalCssFileLoader);
 		}
 
 		@Override
 		public void modifyIndexHtmlResponse(IndexHtmlResponse indexHtmlResponse)
 		{
+			contentProvider.getDefaultStyles().ifPresent(customStyles ->
+			{
+				Document document = indexHtmlResponse.getDocument();
+				org.jsoup.nodes.Element head = document.head();
+				head.appendChild(createStyle(document, customStyles));
+			});
 			contentProvider.getCustomStyles().ifPresent(customStyles ->
 			{
 				Document document = indexHtmlResponse.getDocument();
 				org.jsoup.nodes.Element head = document.head();
-				head.appendChild(createCustomStyle(document, customStyles));
+				head.appendChild(createStyle(document, customStyles));
 			});
 		}
 
-		private Element createCustomStyle(Document document, String customStyles)
+		private Element createStyle(Document document, String customStyles)
 		{
 			Element customStyle = document.createElement("custom-style");
 			Element style = document.createElement("style");
 			customStyle.appendChild(style);
-			style.appendText(customStyles);
+			style.append(customStyles);
 			return customStyle;
 		}
 	}
@@ -74,48 +87,65 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 	private static class CustomStylesContentProvider
 	{
 
-		private final File externalCSSFile;
+		private final CssFileLoader defaultCssFileLoader;
+		private final CssFileLoader customCssFileLoader;
 
-		CustomStylesContentProvider(File externalCSSFile)
+		CustomStylesContentProvider(CssFileLoader defaultCssFileLoader, CssFileLoader customCssFileLoader)
 		{
-			this.externalCSSFile = externalCSSFile;
+			this.defaultCssFileLoader = defaultCssFileLoader;
+			this.customCssFileLoader = customCssFileLoader;
 		}
 
 		private Optional<String> getCustomStyles()
 		{
-
-			if (isCustomCssFileAvailable())
+			File cssFile = customCssFileLoader.getCssFile();
+			if (isCssFileAvailable(cssFile, "custom"))
 			{
-				String msg = null;
-				try
-				{
-					msg = StreamUtils.copyToString(new FileInputStream(externalCSSFile), Charset.defaultCharset());
-				} catch (IOException exception) {
-					LOG.error(format("Could not read custom CSS file: %s", externalCSSFile.getName()),
-							exception);
-				}
-				return Optional.ofNullable(msg);
+				return getContentAsString(cssFile);
 			}
 			return Optional.empty();
 		}
 
-		private boolean isCustomCssFileAvailable()
+		private Optional<String> getDefaultStyles()
 		{
-			if (externalCSSFile == null)
+			File cssFile = defaultCssFileLoader.getCssFile();
+			if (isCssFileAvailable(cssFile, "default"))
 			{
-				LOG.debug("Custom style is not configured.");
+				return getContentAsString(cssFile);
+			}
+			return Optional.empty();
+		}
+
+		private Optional<String> getContentAsString(File cssFile)
+		{
+			String msg = null;
+			try
+			{
+				msg = StreamUtils.copyToString(new FileInputStream(cssFile), Charset.defaultCharset());
+			} catch (IOException exception) {
+				LOG.error(format("Could not read custom CSS file: %s", cssFile.getName()),
+						exception);
+			}
+			return Optional.ofNullable(msg);
+		}
+
+		private boolean isCssFileAvailable(File cssFile, String styleType)
+		{
+			if (cssFile == null)
+			{
+				LOG.debug("{} style is not configured.", styleType);
 				return false;
 			}
 
-			if (!externalCSSFile.exists())
+			if (!cssFile.exists())
 			{
-				LOG.error("Could not load custom styles: file does not exists, {}.", externalCSSFile);
+				LOG.error("Could not load {} styles: file does not exists, {}.", cssFile, styleType);
 				return false;
 			}
 
-			if (!externalCSSFile.isFile())
+			if (!cssFile.isFile())
 			{
-				LOG.error("Could not load custom styles: unable to read file content, {}.", externalCSSFile);
+				LOG.error("Could not load {} styles: unable to read file content, {}.", cssFile, styleType);
 				return false;
 			}
 

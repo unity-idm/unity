@@ -95,21 +95,6 @@ vaadin-tab {
     color: white;
 }
 
-.multi-tab-details > label {
-    font-size: var(--lumo-font-size-l);
-    font-weight: var(--unity-font-weight);
-    color: white;
-}
-
-.multi-tab-details > label > vaadin-icon {
-    color: white;
-    min-width: var(--icon-size);
-    width: var(--icon-size);
-    height: var(--icon-size);
-    margin-left: var(--base-margin);
-    margin-right: var(--small-margin);
-}
-
 #breadcrumb {
     display: flex;
     align-items: center;
@@ -285,4 +270,225 @@ label[disabled] {
 .details-icon {
     color: unset;
     cursor: pointer;
+}
+
+.usual-row {
+    background-color: inherit;
+}
+
+.light-red-row {
+    background-color: #ffe5e5;
+}
+
+label {
+    white-space: break-spaces;
+}
+
+#badge-warning {
+    color: #e67e00;
+    background-color: #fff4e0;
+}
+
+.u-consent-screen {
+    background-color: #F5F5F5;
+    border-radius: var(--border-radius);
+    width: 30em;
+}
+
+.u-consent-screen-checkbox {
+    align-self: center;
+    margin-right: 8.25em;
+}
+
+.u-consent-screen-buttons {
+    align-self: center;
+    margin-left: 18.9em;
+}
+
+.u-authnGrid > vaadin-grid-cell-content {
+    padding: 0;
+}
+
+vaadin-combo-box.project-combo-box::part(input-field) {
+    background-color: white;
+}
+
+vaadin-combo-box.project-combo-box::part(label) {
+    align-self: center;
+    color: white;
+}
+
+vaadin-checkbox-group.check-box-with-error::part(group-field) {
+	display: inline-flex;
+}
+
+vaadin-tooltip-overlay[position=end-top]::part(overlay) {
+    margin-top: var(--base-margin);
+}
+
+vaadin-tooltip-overlay::part(overlay) {
+    font-size: var(--lumo-font-size-s);
+}
+
+vaadin-combo-box.disable-required-indicator::part(required-indicator)::after {
+    display: none !important;
+}
+
+vaadin-accordion-heading::part(content) {
+    width: 100%;
+}
+
+vaadin-form-item.valid::part(required-indicator)::after {
+    color: var(--lumo-required-field-indicator-color, var(--lumo-primary-text-color)) !important;
+}
+
+vaadin-form-item.invalid::part(required-indicator)::after {
+    color: var(--lumo-required-field-indicator-color, var(--lumo-error-text-color)) !important;
+}
+
+vaadin-form-item::part(content) {
+    display: flex;
+}
+
+.multi-tab-details > vaadin-details-summary::part(toggle) {
+    transform: rotate(90deg);
+    margin-right: 0.8em;
+    color: white !important;
+}
+
+.multi-tab-details-mini > vaadin-details-summary::part(toggle) {
+    display: none !important;
+}
+
+.multi-tab-details > vaadin-details-summary[opened]::part(toggle) {
+    transform: rotate(270deg);
+    color: white !important;
+}
+
+vaadin-details.multi-tab-details::part(content) {
+    margin-left: var(--base-margin);
+    margin-top: -1em;
+    margin-bottom: -1em;
+}
+
+.multi-tab-details > vaadin-details-summary:hover {
+    background-color: var(--vaadin-tab-hover-color);
+}
+
+.multi-tab-details > vaadin-details-summary {
+    padding: 0.6em 0;
+    color: white;
+    font-size: var(--lumo-font-size-l);
+    font-weight: var(--unity-font-weight);
+    border-radius: unset;
+}
+
+vaadin-details.multi-tab-details {
+    margin: 0;
+}
+
+.multi-tab-details > vaadin-details-summary > label > vaadin-icon {
+    color: white;
+    min-width: var(--icon-size);
+    width: var(--icon-size);
+    height: var(--icon-size);
+    margin-left: var(--base-margin);
+    margin-right: var(--small-margin);
+}
+
+.action-menu {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.no-padding-top {
+	padding-top: 0;
+}
+
+.small-icon {
+	width: 1.25em;
+	height: 1.25em;
+}
+
+.error-label {
+    margin-left: calc(var(--lumo-border-radius-m) / 4);
+    font-size: var(--lumo-font-size-xs);
+    line-height: var(--lumo-line-height-xs);
+    color: var(--lumo-error-text-color);
+    will-change: max-height;
+    transition: 0.4s max-height;
+    max-height: 5em;
+}
+
+.input-label {
+    align-self: flex-start;
+    color: var(--lumo-secondary-text-color);
+    font-weight: 500;
+    font-size: var(--lumo-font-size-s);
+    margin-left: calc(var(--lumo-border-radius-m) / 4);
+    transition: color 0.2s;
+    line-height: 1;
+    padding-right: 1em;
+    padding-bottom: 0.5em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: relative;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.indicator::after {
+    content: var(--lumo-required-field-indicator, '•');
+    transition: opacity 0.2s;
+    color: var(--lumo-required-field-indicator-color, var(--lumo-primary-text-color));
+    position: absolute;
+    right: 0;
+    width: 1em;
+    text-align: center;
+}
+
+.error-indicator::after {
+    content: var(--lumo-required-field-indicator, '•');
+    transition: opacity 0.2s;
+    color: var(--lumo-required-field-indicator-color, var(--lumo-error-text-color));;
+    position: absolute;
+    right: 0;
+    width: 1em;
+    text-align: center;
+}
+
+.menu-button {
+	color: var(--lumo-primary-text-color);
+	cursor: pointer;
+}
+
+.menu-button vaadin-icon {
+	margin-right: 1em;
+}
+
+.menu-button[disabled] {
+	color: var(--lumo-disabled-text-color);
+}
+
+.multi-tab {
+    background-color: unset !important;
+    height: unset !important;
+    padding: 0;
+}
+
+.required-label::after {
+    content: '•';
+    color: var(--lumo-required-field-indicator-color, var(--lumo-primary-text-color));
+    text-align: center;
+    width: 1em;
+    position: absolute;
+}
+
+.invalid::after {
+    color: var(--lumo-required-field-indicator-color, var(--lumo-error-text-color));
+}
+
+vaadin-button[theme="primary"] {
+    background-color: purple;
 }

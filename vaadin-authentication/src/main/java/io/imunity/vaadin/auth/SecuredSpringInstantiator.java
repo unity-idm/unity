@@ -16,12 +16,6 @@ class SecuredSpringInstantiator extends BaseSpringInstantiator
 {
 	private final String afterSuccessLoginRedirect;
 
-	public SecuredSpringInstantiator(VaadinService service, ApplicationContext context)
-	{
-		super(service, context);
-		this.afterSuccessLoginRedirect = null;
-	}
-
 	public SecuredSpringInstantiator(VaadinService service, ApplicationContext context, String afterSuccessLoginRedirect)
 	{
 		super(service, context);

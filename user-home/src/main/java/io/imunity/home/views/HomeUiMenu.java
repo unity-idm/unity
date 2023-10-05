@@ -6,7 +6,6 @@
 package io.imunity.home.views;
 
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
@@ -42,7 +41,6 @@ import java.util.Set;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
 
-@CssImport(value = "./styles/components/vaadin-accordion-panel.css", themeFor = "vaadin-accordion-panel")
 public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 {
 	private final static int imageSize = 7;

@@ -4,14 +4,12 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.server.Page;
 import eu.unicore.samly2.SAMLConstants;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
@@ -72,7 +70,7 @@ import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_UI_SERVL
 
 @PermitAll
 @Route(value = SAML_UI_SERVLET_PATH)
-class SamlIdPWebView extends Composite<Div> implements HasDynamicTitle
+class SamlIdPWebView extends UnityViewComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebView.class);
 	private final MessageSource msg;

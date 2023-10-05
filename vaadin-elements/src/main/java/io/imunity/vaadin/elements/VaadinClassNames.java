@@ -5,9 +5,6 @@
 
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.dependency.CssImport;
-
-@CssImport("./styles/components/common.css")
 public enum VaadinClassNames
 {
 	DIALOG_CONFIRM("u-dialog-confirm"),

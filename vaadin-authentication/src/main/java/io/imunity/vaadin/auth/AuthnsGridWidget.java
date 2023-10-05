@@ -5,7 +5,6 @@
 package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -26,7 +25,6 @@ import static io.imunity.vaadin.auth.VaadinAuthentication.VaadinAuthenticationUI
 /**
  * Component showing a group of {@link VaadinAuthenticationUI}s. All of them are presented in Vaadin {@link Grid}.
  */
-@CssImport(value = "./styles/components/authns-grid.css", themeFor = "vaadin-grid")
 public class AuthnsGridWidget extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthnsGridWidget.class);

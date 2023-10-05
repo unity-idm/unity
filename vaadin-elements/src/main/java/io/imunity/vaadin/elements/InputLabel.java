@@ -4,10 +4,8 @@
  */
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Label;
 
-@CssImport("./styles/components/input-label.css")
 public class InputLabel extends Label
 {
 	private boolean required;

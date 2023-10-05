@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_CSS_FILE_NAME;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
 public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
@@ -82,7 +83,11 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 		try
 		{
 			properties.load(new StringReader(cfg));
-			genericEndpointProperties = new Vaadin82XEndpointProperties(properties, serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH));
+			genericEndpointProperties = new Vaadin82XEndpointProperties(
+					properties,
+					serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH),
+					serverConfig.getValue(DEFAULT_CSS_FILE_NAME)
+			);
 
 		} catch (Exception e)
 		{

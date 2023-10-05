@@ -6,11 +6,9 @@
 package io.imunity.vaadin.enquiry;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -20,6 +18,7 @@ import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.router.*;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.forms.URLQueryPrefillCreator;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -69,7 +68,7 @@ import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQU
 @PermitAll
 @RouteAlias(SEC_ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
 @Route(value = ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
-class StandaloneEnquiryView extends Composite<Div> implements HasDynamicTitle, BeforeEnterObserver
+class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObserver
 {
 	public static final String FORM_PARAM = "form";
 	public static final String REG_CODE_PARAM = "regcode";

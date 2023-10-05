@@ -8,7 +8,6 @@ import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
@@ -20,7 +19,6 @@ import io.imunity.vaadin.endpoint.common.consent_utils.SPInfoComponent;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -51,7 +49,6 @@ import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SE
  * Consent screen of the SAML web IdP. Fairly simple: shows who asks, what is going to be sent,
  * and optionally allows for some customization.
  */
-@CssImport("./styles/consent-screen.css")
 class SamlConsentScreen extends VerticalLayout
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlConsentScreen.class);

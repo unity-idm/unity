@@ -5,20 +5,20 @@
 package io.imunity.vaadin.shared.endpoint.confirmations;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.Route;
+import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -31,7 +31,7 @@ import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguratio
 import java.util.List;
 
 @Route(value = "/confirmation")
-public class EmailConfirmationView extends Composite<Div> implements HasUrlParameter<String>, HasDynamicTitle
+class EmailConfirmationView extends UnityViewComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailConfirmationView.class);
 
@@ -42,7 +42,7 @@ public class EmailConfirmationView extends Composite<Div> implements HasUrlParam
 	private WorkflowFinalizationConfiguration status;
 
 	@Autowired
-	public EmailConfirmationView(MessageSource msg, EmailConfirmationManager confirmationMan,
+	EmailConfirmationView(MessageSource msg, EmailConfirmationManager confirmationMan,
 	                             UnityServerConfiguration serverConfig)
 	{
 		this.msg = msg;

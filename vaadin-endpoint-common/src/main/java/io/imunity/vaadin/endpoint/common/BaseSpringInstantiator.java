@@ -11,6 +11,7 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.context.ApplicationContext;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.stream.Stream;
 
@@ -27,8 +28,11 @@ public class BaseSpringInstantiator extends DefaultInstantiator
 	@Override
 	public Stream<VaadinServiceInitListener> getServiceInitListeners()
 	{
-		BaseVaadinServiceInitListener initializer = new BaseVaadinServiceInitListener();
-		return Stream.concat(super.getServiceInitListeners(), Stream.of(initializer));
+		return Stream.concat(super.getServiceInitListeners(), Stream.of(
+				new RedirectUrlSessionStorageServiceInitListener(),
+				new CustomErrorPageInitializer(context.getBean(MessageSource.class)),
+				new CustomStylesInitializer(context.getBean(DefaultCssFileLoader.class)))
+		);
 	}
 
 	@Override
