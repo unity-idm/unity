@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
+import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
@@ -57,7 +58,8 @@ class AuthenticationFilterTest
 	@Test
 	public void shouldGoToProtectedResourceWhenRealmsAreEqual() throws IOException, ServletException, EopException
 	{
-		ServletApiRequest request = Mockito.mock(ServletApiRequest.class);
+		ServletApiRequest servletRequest = Mockito.mock(ServletApiRequest.class);
+		Request request = Mockito.mock(Request.class);
 		HttpSession session = Mockito.mock(HttpSession.class);
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		LoginSession loginSession = Mockito.mock(LoginSession.class);
@@ -69,16 +71,17 @@ class AuthenticationFilterTest
 		AuthenticationFilter filter = new AuthenticationFilter(adminRealm, sessionManagement, null, null);
 
 		HTTPRequestContext.setCurrent(new HTTPRequestContext("client", "agent"));
-		when(request.getServletPath()).thenReturn("/secured");
-		when(request.getSession()).thenReturn(session);
-		when(request.getSession(false)).thenReturn(session);
+		when(servletRequest.getServletPath()).thenReturn("/secured");
+		when(servletRequest.getSession()).thenReturn(session);
+		when(servletRequest.getSession(false)).thenReturn(session);
+		when(servletRequest.getRequest()).thenReturn(request);
 		when(session.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY)).thenReturn(loginSession);
 		when(loginSession.getRealm()).thenReturn("admin");
 
-		filter.doFilter(request, response, chain);
+		filter.doFilter(servletRequest, response, chain);
 
-		verify(chain).doFilter(request, response);
-		verify(noSessionFilter, times(0)).doFilter(request, response);
+		verify(chain).doFilter(servletRequest, response);
+		verify(noSessionFilter, times(0)).doFilter(servletRequest, response);
 	}
 
 }

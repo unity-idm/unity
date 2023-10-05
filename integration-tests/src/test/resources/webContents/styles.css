@@ -488,7 +488,3 @@ vaadin-details.multi-tab-details {
 .invalid::after {
     color: var(--lumo-required-field-indicator-color, var(--lumo-error-text-color));
 }
-
-vaadin-button[theme="primary"] {
-    background-color: purple;
-}
