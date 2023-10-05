@@ -5,9 +5,9 @@
 
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 
-public class FormLayoutLabel extends Label
+public class FormLayoutLabel extends Span
 {
 	public FormLayoutLabel(String text)
 	{

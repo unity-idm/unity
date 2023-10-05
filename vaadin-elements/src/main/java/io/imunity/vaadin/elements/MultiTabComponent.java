@@ -6,7 +6,7 @@ package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.details.DetailsVariant;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -17,7 +17,7 @@ import java.util.List;
 public class MultiTabComponent extends Tab implements TabTextHider
 {
 	public final MenuComponent menuComponent;
-	public final Label label;
+	public final Span label;
 	public final Tabs content;
 	public final List<TabComponent> components;
 	public final Details details;
@@ -26,7 +26,7 @@ public class MultiTabComponent extends Tab implements TabTextHider
 	{
 		details = new Details();
 		this.menuComponent = menuComponent;
-		label = new Label(menuComponent.tabName);
+		label = new Span(menuComponent.tabName);
 		label.addComponentAsFirst(menuComponent.icon.create());
 		details.setSummary(label);
 		components = menuComponent.subTabs.stream()

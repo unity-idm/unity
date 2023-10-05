@@ -110,7 +110,7 @@ public class InvitationsView extends UpmanViewComponent
 
 	private Grid<InvitationModel> createGrid()
 	{
-		return new InvitationGrid(msg, this::createGridContextMenu, getContent());
+		return new InvitationGrid(msg, this::createGridContextMenu);
 	}
 
 	private TextField createSearchField()

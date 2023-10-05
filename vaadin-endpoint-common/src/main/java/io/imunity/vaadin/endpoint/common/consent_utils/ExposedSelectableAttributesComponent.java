@@ -7,7 +7,7 @@ package io.imunity.vaadin.endpoint.common.consent_utils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
@@ -37,7 +37,6 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 	
 	private final Map<String, DynamicAttribute> attributes;
 	private Map<String, SelectableAttributeWithValues> attributesHiding;
-	private final Map<String, AttributeType> attributeTypes;
 	private final AttributeTypeSupport aTypeSupport;
 	private final Optional<IdentityParam> selectedIdentity;
 	private final IdentityPresentationUtil identityPresenter;
@@ -45,14 +44,13 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 
 	public ExposedSelectableAttributesComponent(MessageSource msg,
 	                                            IdentityTypeSupport idTypeSupport, AttributeHandlerRegistry handlersRegistry,
-	                                            Map<String, AttributeType> attributeTypes, AttributeTypeSupport aTypeSupport,
+	                                            AttributeTypeSupport aTypeSupport,
 	                                            Collection<DynamicAttribute> attributesCol,
 	                                            Optional<IdentityParam> selectedIdentity)
 	{
 		this.identityPresenter = new IdentityPresentationUtil(msg, idTypeSupport);
 		this.handlersRegistry = handlersRegistry;
 		this.msg = msg;
-		this.attributeTypes = attributeTypes;
 		this.aTypeSupport = aTypeSupport;
 		this.selectedIdentity = selectedIdentity;
 
@@ -110,10 +108,10 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 		contents.setPadding(false);
 		setSummaryText(msg.getMessage("ExposedAttributesComponent.attributes"));
 
-		Label attributesInfo = new Label(msg.getMessage("ExposedAttributesComponent.attributesInfo"));
+		Span attributesInfo = new Span(msg.getMessage("ExposedAttributesComponent.attributesInfo"));
 		attributesInfo.setWidthFull();
 
-		Label credInfo = new Label(msg.getMessage("ExposedAttributesComponent.credInfo"));
+		Span credInfo = new Span(msg.getMessage("ExposedAttributesComponent.credInfo"));
 		setContent(new VerticalLayout(getIdentity(), attributesInfo, getAttributesListComponent(), credInfo));
 	}
 	
@@ -127,9 +125,9 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 	
 	private Component getIdentityTF(IdentityParam identity)
 	{
-		Label title = new Label(msg.getMessage("IdentitySelectorComponent.identity"));
+		Span title = new Span(msg.getMessage("IdentitySelectorComponent.identity"));
 		title.getStyle().set("font-weight", "bold");
-		Label content = new Label(identityPresenter.getIdentityVisualValue(identity));
+		Span content = new Span(identityPresenter.getIdentityVisualValue(identity));
 		if (!content.getText().equals(identity.getValue()))
 		{
 			Tooltip.forComponent(content).setText(msg.getMessage(
@@ -151,7 +149,7 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 		attributesHiding = new HashMap<>();
 		for (DynamicAttribute dat: attributes.values())
 		{
-			SelectableAttributeWithValues attributeComponent = getAttributeComponent(dat, attributeTypes);
+			SelectableAttributeWithValues attributeComponent = getAttributeComponent(dat);
 			attributesHiding.put(dat.getAttribute().getName(), attributeComponent);
 			attributesList.add(attributeComponent);
 		}
@@ -160,8 +158,7 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 		
 	}
 	
-	private SelectableAttributeWithValues getAttributeComponent(DynamicAttribute dat, 
-			Map<String, AttributeType> attributeTypes)
+	private SelectableAttributeWithValues getAttributeComponent(DynamicAttribute dat)
 	{
 		Attribute at = dat.getAttribute();
 		AttributeType attributeType = dat.getAttributeType();
@@ -172,7 +169,7 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 		SelectableAttributeWithValues attributeComponent = new SelectableAttributeWithValues(
 				at, dat.getDisplayedName(),
 				dat.getDescription(), !dat.isMandatory(),
-				attributeType, handler, msg, aTypeSupport);
+				handler, aTypeSupport);
 		attributeComponent.setWidthFull();
 		
 		return attributeComponent;

@@ -5,6 +5,7 @@
 
 package io.imunity.vaadin.endpoint.common.plugins.credentials.sms;
 
+import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,19 +25,20 @@ import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 @Component
 public class SMSCredentialEditorFactory implements CredentialEditorFactory
 {
-	private MessageSource msg;
-	private MessageTemplateManagement msgTplMan;
-	private AttributeTypeSupport attrTypeSupport;
-	private AttributeSupport attrMan;
-	private ConfirmationInfoFormatter formatter;
-	private MobileNumberConfirmationManager  mobileConfirmationMan;
+	private final MessageSource msg;
+	private final MessageTemplateManagement msgTplMan;
+	private final AttributeTypeSupport attrTypeSupport;
+	private final AttributeSupport attrMan;
+	private final ConfirmationInfoFormatter formatter;
+	private final MobileNumberConfirmationManager  mobileConfirmationMan;
+	private final NotificationPresenter  notificationPresenter;
 
 	@Autowired
 	public SMSCredentialEditorFactory(MessageSource msg,
 	                                  AttributeTypeSupport attrTypeSupport, AttributeSupport attrMan,
 	                                  MessageTemplateManagement msgTplMan,
 	                                  MobileNumberConfirmationManager mobileConfirmationMan,
-	                                  ConfirmationInfoFormatter formatter)
+	                                  ConfirmationInfoFormatter formatter, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.msgTplMan = msgTplMan;
@@ -44,6 +46,7 @@ public class SMSCredentialEditorFactory implements CredentialEditorFactory
 		this.attrMan = attrMan;
 		this.mobileConfirmationMan = mobileConfirmationMan;
 		this.formatter = formatter;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
@@ -56,7 +59,7 @@ public class SMSCredentialEditorFactory implements CredentialEditorFactory
 	public CredentialEditor createCredentialEditor()
 	{
 		return new SMSCredentialEditor(msg, attrTypeSupport, attrMan, mobileConfirmationMan,
-				formatter);
+				formatter, notificationPresenter);
 	}
 
 	@Override

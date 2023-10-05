@@ -9,7 +9,7 @@ import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -24,7 +24,6 @@ import com.vaadin.flow.server.StreamResource;
 import io.imunity.vaadin.elements.ErrorLabel;
 import io.imunity.vaadin.elements.InputLabel;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.attribute.image.ImageType;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
@@ -66,7 +65,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 			showValue();
 
 		Checkbox scale = new Checkbox();
-		HorizontalLayout scaleLayout = new HorizontalLayout(scale, new Label(msg.getMessage("ImageAttributeHandler.scaleIfNeeded")));
+		HorizontalLayout scaleLayout = new HorizontalLayout(scale, new Span(msg.getMessage("ImageAttributeHandler.scaleIfNeeded")));
 		scaleLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 		scaleLayout.getStyle().set("gap", "0.5em");
 		scaleLayout.getStyle().set("margin-top", "0.5em");
@@ -213,8 +212,8 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 	static Component getHints(ImageConfiguration imgConfig, MessageSource msg)
 	{
 		VerticalLayout verticalLayout = new VerticalLayout(
-				new Label(msg.getMessage("ImageAttributeHandler.maxSize", imgConfig.getMaxSize() / 1024)),
-				new Label(msg.getMessage("ImageAttributeHandler.maxDim", imgConfig.getMaxWidth(), imgConfig.getMaxHeight()))
+				new Span(msg.getMessage("ImageAttributeHandler.maxSize", imgConfig.getMaxSize() / 1024)),
+				new Span(msg.getMessage("ImageAttributeHandler.maxDim", imgConfig.getMaxWidth(), imgConfig.getMaxHeight()))
 		);
 		verticalLayout.setMargin(false);
 		verticalLayout.setPadding(false);

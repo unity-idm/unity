@@ -7,9 +7,8 @@ package io.imunity.vaadin.endpoint.common.consent_utils;
 import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-
 import com.vaadin.flow.component.shared.Tooltip;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
@@ -65,12 +64,12 @@ public class SPInfoComponent extends VerticalLayout
 			{
 				String presentationAddr = msg.getMessage("SPInfoComponent.requesterAddress", 
 						URIPresentationHelper.getHumanReadableDomain(url));
-				add(new Label(presentationAddr));
+				add(new Span(presentationAddr));
 			}
 		}
 
 		add(new HtmlComponent("br"));
-		Label requestedAccessInfo = new Label(msg.getMessage("SPInfoComponent.requestedAccess"));
+		Span requestedAccessInfo = new Span(msg.getMessage("SPInfoComponent.requestedAccess"));
 		add(requestedAccessInfo);
 	}
 	

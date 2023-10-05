@@ -6,9 +6,8 @@
 package io.imunity.vaadin.registration;
 
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
@@ -37,7 +36,7 @@ class SwitchToEnquiryComponentProvider
 		this.publicRegistrationURLSupport = publicRegistrationURLSupport;
 	}
 
-	Optional<Label> getSwitchToEnquiryLabel(I18nString switchText, ResolvedInvitationParam invitation,
+	Optional<Span> getSwitchToEnquiryLabel(I18nString switchText, ResolvedInvitationParam invitation,
 	                                        Map<String, Object> params)
 	{
 		if (invitation == null || !invitation.getType().equals(InvitationType.COMBO) || switchText == null)
@@ -60,7 +59,7 @@ class SwitchToEnquiryComponentProvider
 		String endText = switchInfo.substring(
 				!switchInfo.contains(SWITCH_END) ? switchInfo.length() : switchInfo.indexOf(SWITCH_END) + SWITCH_END.length()
 		);
-		Label label = new Label(startText);
+		Span label = new Span(startText);
 		label.add(new Anchor(getLink(invitation), linkText));
 		label.add(endText);
 

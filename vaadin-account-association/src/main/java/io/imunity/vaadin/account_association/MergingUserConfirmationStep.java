@@ -4,15 +4,15 @@
  */
 package io.imunity.vaadin.account_association;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.vaadin.account_association.wizard.WizardStep;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
@@ -73,7 +73,7 @@ class MergingUserConfirmationStep extends WizardStep
 			{
 				RemotelyAuthenticatedPrincipal authnContext = ctx.getRemotePrincipal().get();
 				String message = msg.getMessage("ConnectId.ConfirmStep.info", authnContext.getRemoteIdPName());
-				((HorizontalLayout)component).add(new Label(message));
+				((HorizontalLayout)component).add(new Span(message));
 				stepComplited();
 				refreshWizard();
 			}
@@ -85,7 +85,7 @@ class MergingUserConfirmationStep extends WizardStep
 		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
 		icon.setClassName("warning-icon");
 		((HorizontalLayout)component).add(icon);
-		((HorizontalLayout)component).add(new Label(message));
+		((HorizontalLayout)component).add(new Span(message));
 		((HorizontalLayout)component).setAlignItems(FlexComponent.Alignment.CENTER);
 		interrupt();
 	}

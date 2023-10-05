@@ -14,6 +14,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
+import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8;
 
 import java.util.List;
 import java.util.Optional;
@@ -75,8 +75,8 @@ class AccountAssociationSandboxView extends UnityViewComponent implements Before
 	private void loadInitialState()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		RemoteRedirectedAuthnResponseProcessingFilterV8.PostAuthenticationDecissionWithContext postAuthnStepDecision =
-				(RemoteRedirectedAuthnResponseProcessingFilterV8.PostAuthenticationDecissionWithContext) session
+		RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext postAuthnStepDecision =
+				(RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext) session
 						.getAttribute(DECISION_SESSION_ATTRIBUTE);
 		if (postAuthnStepDecision != null)
 		{

@@ -5,17 +5,16 @@
 
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 class EmailConfirmationConfigurationViewer extends VerticalLayout
 {
 	private final MessageSource msg;
-	private final Label msgTemplate;
-	private final Label validityTime;
+	private final Span msgTemplate;
+	private final Span validityTime;
 
 	EmailConfirmationConfigurationViewer(MessageSource msg)
 	{
@@ -23,9 +22,9 @@ class EmailConfirmationConfigurationViewer extends VerticalLayout
 		setSpacing(false);
 		setMargin(false);
 		this.msg = msg;
-		msgTemplate = new Label();
+		msgTemplate = new Span();
 		add(msgTemplate);
-		validityTime = new Label();
+		validityTime = new Span();
 		add(validityTime);
 	}
 

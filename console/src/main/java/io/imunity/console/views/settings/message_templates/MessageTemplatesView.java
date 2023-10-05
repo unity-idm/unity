@@ -14,7 +14,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -32,13 +31,13 @@ import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.FlagIcon;
 import io.imunity.vaadin.elements.MenuButton;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 import pl.edu.icm.unity.base.msg_template.MessageType;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -150,19 +149,19 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		selectedMessageTemplateDetails.removeAll();
 		if(messageTemplate == null)
 			return;
-		selectedMessageTemplateDetails.addFormItem(new Label(messageTemplate.getDescription()), msg.getMessage("MessageTemplateViewer.description"));
-		selectedMessageTemplateDetails.addFormItem(new Label(controller.getCompatibilityInformation(messageTemplate)), msg.getMessage("MessageTemplateViewer.consumer"));
+		selectedMessageTemplateDetails.addFormItem(new Span(messageTemplate.getDescription()), msg.getMessage("MessageTemplateViewer.description"));
+		selectedMessageTemplateDetails.addFormItem(new Span(controller.getCompatibilityInformation(messageTemplate)), msg.getMessage("MessageTemplateViewer.consumer"));
 
 		I18nString subjectContent = messageTemplate.getMessage().getSubject();
 		I18nString bodyContent = messageTemplate.getMessage().getBody();
 
 		if (!subjectContent.isEmpty())
 			selectedMessageTemplateDetails.addFormItem(new Span(new FlagIcon(msg.getLocale().getLanguage()), new Span(" "),
-					new Label(subjectContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.subject"));
+					new Span(subjectContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.subject"));
 
 		if (!bodyContent.isEmpty())
 			selectedMessageTemplateDetails.addFormItem(new Span(new FlagIcon(msg.getLocale().getLanguage()), new Span(" "),
-					new Label(bodyContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.body"));
+					new Span(bodyContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.body"));
 	}
 
 	private void refresh()

@@ -257,7 +257,7 @@ img {
     margin-right: auto;
 }
 
-label[disabled] {
+span[disabled] {
     color: var(--lumo-disabled-text-color);
 }
 
@@ -280,7 +280,7 @@ label[disabled] {
     background-color: #ffe5e5;
 }
 
-label {
+span {
     white-space: break-spaces;
 }
 
@@ -387,7 +387,7 @@ vaadin-details.multi-tab-details {
     margin: 0;
 }
 
-.multi-tab-details > vaadin-details-summary > label > vaadin-icon {
+.multi-tab-details > vaadin-details-summary > span > vaadin-icon {
     color: white;
     min-width: var(--icon-size);
     width: var(--icon-size);

@@ -14,7 +14,7 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -26,10 +26,10 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.Comparator;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
@@ -97,7 +97,7 @@ public class RealmsView extends ConsoleViewComponent
 	{
 		FormLayout wrapper = new FormLayout();
 		wrapper.addFormItem(
-				new Label(String.join(", ", realm.endpoints)),
+				new Span(String.join(", ", realm.endpoints)),
 				msg.getMessage("AuthenticationRealmsView.endpointsCaption")
 		);
 		wrapper.getStyle().set("margin-bottom", "0.75em");

@@ -11,7 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -66,10 +66,10 @@ public class TrustedDeviceView extends HomeViewComponent
 		accordionPanel.setSummary(summary);
 
 		FormLayout content = new FormLayout();
-		content.addFormItem(new Label(model.getIp()), msg.getMessage("RememberMeToken.ip"));
-		content.addFormItem(new Label(model.getPolicy()), msg.getMessage("RememberMeToken.policy"));
-		content.addFormItem(new Label(model.getCreateTime()), msg.getMessage("RememberMeToken.createTime"));
-		content.addFormItem(new Label(model.getExpires()), msg.getMessage("RememberMeToken.expires"));
+		content.addFormItem(new Span(model.getIp()), msg.getMessage("RememberMeToken.ip"));
+		content.addFormItem(new Span(model.getPolicy()), msg.getMessage("RememberMeToken.policy"));
+		content.addFormItem(new Span(model.getCreateTime()), msg.getMessage("RememberMeToken.createTime"));
+		content.addFormItem(new Span(model.getExpires()), msg.getMessage("RememberMeToken.expires"));
 		content.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		content.getStyle().set("margin-left", "var(--big-margin)");
 		accordionPanel.setContent(content);

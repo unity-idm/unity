@@ -9,7 +9,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -93,7 +93,7 @@ public class MembersView extends UpmanViewComponent
 
 	private HorizontalLayout createGroupComboBoxLayout(MessageSource msg)
 	{
-		HorizontalLayout layout = new HorizontalLayout(new Label(msg.getMessage("GroupMemberView.subGroupComboCaption")), groupsComboBox);
+		HorizontalLayout layout = new HorizontalLayout(new Span(msg.getMessage("GroupMemberView.subGroupComboCaption")), groupsComboBox);
 		layout.setAlignItems(FlexComponent.Alignment.CENTER);
 		layout.getStyle().set("margin-top", "var(--big-margin)");
 		return layout;

@@ -11,7 +11,7 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -184,11 +184,11 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 			imageLayout.add(image);
 		}
 
-		private Label createLabel(List<ProjectGroup> projectGroups)
+		private Span createLabel(List<ProjectGroup> projectGroups)
 		{
 			ProjectGroup projectGroup = projectGroups.iterator().next();
 			selectedProject = projectGroup;
-			Label label = new Label(msg.getMessage("UpManMenu.projectNameCaption") + " " + projectGroup.displayedName);
+			Span label = new Span(msg.getMessage("UpManMenu.projectNameCaption") + " " + projectGroup.displayedName);
 			label.getStyle().set("color", "white");
 			setImage(selectedProject);
 			return label;

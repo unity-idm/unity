@@ -8,7 +8,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -17,7 +17,6 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.utils.Log;
@@ -62,8 +61,8 @@ class UnknownUserDialog extends Dialog
 
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
-		
-		Label mainInfo = new Label(msg.getMessage("UnknownUserDialog.generalInfo"));
+
+		Span mainInfo = new Span(msg.getMessage("UnknownUserDialog.generalInfo"));
 		
 		HorizontalLayout options = new HorizontalLayout();
 		options.setSizeFull();
@@ -90,7 +89,7 @@ class UnknownUserDialog extends Dialog
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
 		ret.setPadding(false);
-		Label label = new Label(msg.getMessage("UnknownUserDialog.registerInfo"));
+		Span label = new Span(msg.getMessage("UnknownUserDialog.registerInfo"));
 		Button register = new Button(msg.getMessage("UnknownUserDialog.register"));
 		register.setId("UnknownUserDialog.register");
 		register.addThemeVariants(ButtonVariant.LUMO_LARGE);
@@ -109,7 +108,7 @@ class UnknownUserDialog extends Dialog
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
 		ret.setPadding(false);
-		Label label = new Label(msg.getMessage("UnknownUserDialog.associationInfo"));
+		Span label = new Span(msg.getMessage("UnknownUserDialog.associationInfo"));
 		Button associate = new Button(msg.getMessage("UnknownUserDialog.associate"));
 		associate.setId("UnknownUserDialog.associate");
 		associate.addThemeVariants(ButtonVariant.LUMO_LARGE);

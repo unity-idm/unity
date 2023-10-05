@@ -8,7 +8,7 @@ package io.imunity.vaadin.shared.endpoint.policies;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -75,7 +75,7 @@ class PublicPolicyDocumentView extends UnityViewComponent implements BeforeEnter
 	{
 		getContent().removeAll();
 		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
-		Label label = new Label(msg.getMessage("Empty"));
+		Span label = new Span(msg.getMessage("Empty"));
 		label.getStyle().set("color", "red");
 		HorizontalLayout horizontalLayout = new HorizontalLayout(icon, label);
 		horizontalLayout.setMargin(true);

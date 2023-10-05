@@ -11,7 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
@@ -44,7 +44,7 @@ import java.util.Optional;
 public class BackupAndRestoreView extends ConsoleViewComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BackupAndRestoreView.class);
-	private final int MAX_OF_FREE_MEMORY_USAGE_IN_PERCENT = 70;
+	private static final int MAX_OF_FREE_MEMORY_USAGE_IN_PERCENT = 70;
 
 
 	private final MessageSource msg;
@@ -188,8 +188,8 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 		layout.setSpacing(false);
 		importPanel.add(layout);
 
-		Label info = new Label(msg.getMessage("ImportExport.uploadInfo"));
-		Label fileUploaded = new Label(msg.getMessage("ImportExport.noFileUploaded"));
+		Span info = new Span(msg.getMessage("ImportExport.uploadInfo"));
+		Span fileUploaded = new Span(msg.getMessage("ImportExport.noFileUploaded"));
 		fileUploaded.getStyle().set("margin", "var(--small-margin) 0");
 
 		memoryBuffer = new MemoryBuffer();

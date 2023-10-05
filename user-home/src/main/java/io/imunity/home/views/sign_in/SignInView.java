@@ -11,7 +11,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
@@ -84,7 +84,7 @@ public class SignInView extends HomeViewComponent
 		Map<String, CredentialDefinition> credentials = loadCredentials(entity);
 		if (credentials.size() == 0)
 		{
-			getContent().add(new Label(msg.getMessage("CredentialChangeDialog.noCredentials")));
+			getContent().add(new Span(msg.getMessage("CredentialChangeDialog.noCredentials")));
 			return;
 		}
 
@@ -108,12 +108,11 @@ public class SignInView extends HomeViewComponent
 		layout.add(new H2(msg.getMessage("UserHomeUI.signInCredentials")), createPanelLayout(correctCredentialDefinition));
 
 		Details details = new Details(getH2(msg.getMessage("UserHomeUI.addAnotherSignInCredentials")), createPanelLayout(notSetCredentialDefinition));
-		details.getStyle().set("margin-top", "var(--big-margin)");
+		details.getStyle().set("margin-top", "var(--small-margin)");
 		details.setWidthFull();
 		layout.add(details);
 		layout.setSizeUndefined();
 		layout.setId("credential-layout");
-		layout.setSpacing(false);
 		getContent().add(layout);
 	}
 

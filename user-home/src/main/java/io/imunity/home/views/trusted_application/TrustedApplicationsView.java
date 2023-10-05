@@ -12,10 +12,7 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -128,21 +125,21 @@ public class TrustedApplicationsView extends HomeViewComponent
 		content.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		content.getStyle().set("margin-left", "var(--big-margin)");
 
-		application.applicationDomain.ifPresent(s -> content.addFormItem(new Label(s), msg.getMessage("TrustedApplications.applicationDomain")));
+		application.applicationDomain.ifPresent(s -> content.addFormItem(new Span(s), msg.getMessage("TrustedApplications.applicationDomain")));
 
 		if (application.accessScopes.isPresent() && !application.accessScopes.get().isEmpty())
 		{
-			Label label = new Label(String.join(", ", application.accessScopes.get()));
+			Span label = new Span(String.join(", ", application.accessScopes.get()));
 			content.addFormItem(label, msg.getMessage("TrustedApplications.accessGrantedTo"));
 		}
 
-		application.accessGrantTime.ifPresent(instant -> content.addFormItem(new Label(TimeUtil.formatStandardInstant(instant)), msg.getMessage("TrustedApplications.accessGrantedOn")));
+		application.accessGrantTime.ifPresent(instant -> content.addFormItem(new Span(TimeUtil.formatStandardInstant(instant)), msg.getMessage("TrustedApplications.accessGrantedOn")));
 
-		application.lastAccessTime.ifPresent(instant -> content.addFormItem(new Label(TimeUtil.formatStandardInstant(instant)), msg.getMessage("TrustedApplications.lastAccessTime")));
+		application.lastAccessTime.ifPresent(instant -> content.addFormItem(new Span(TimeUtil.formatStandardInstant(instant)), msg.getMessage("TrustedApplications.lastAccessTime")));
 
 		if (!application.accessStatus.equals(IdPClientData.AccessStatus.allow))
 		{
-			Label label = new Label(application.accessStatus.equals(IdPClientData.AccessStatus.allowWithoutAsking)
+			Span label = new Span(application.accessStatus.equals(IdPClientData.AccessStatus.allowWithoutAsking)
 					? msg.getMessage("TrustedApplications.consentSettingAllow")
 					: msg.getMessage("TrustedApplications.consentSettingDisallow"));
 			content.addFormItem(label, msg.getMessage("TrustedApplications.consentSettings"));
@@ -168,7 +165,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 		technicalInfoWrapper.add(showTechnicalInfoButton);
 		technicalInfoWrapper.add(technicalInfoContent);
 
-		technicalInfoContent.addFormItem(new Label(application.accessProtocol.toString()), msg.getMessage("TrustedApplications.accessProtocol"));
+		technicalInfoContent.addFormItem(new Span(application.accessProtocol.toString()), msg.getMessage("TrustedApplications.accessProtocol"));
 		technicalInfoContent.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		technicalInfoContent.setSizeUndefined();
 		technicalInfoContent.setId("technical-info-content");

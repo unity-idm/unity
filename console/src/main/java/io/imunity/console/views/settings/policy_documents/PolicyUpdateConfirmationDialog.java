@@ -8,15 +8,15 @@ package io.imunity.console.views.settings.policy_documents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 
 class PolicyUpdateConfirmationDialog extends Dialog
 {
 	PolicyUpdateConfirmationDialog(String header, String txt, String saveTxt, Runnable saveRunnable, String saveSilently,
 								   Runnable saveSilentlyRunnable, String cancelTxt)
 	{
-		getHeader().add(new Label(header));
-		add(new Label(txt));
+		getHeader().add(new Span(header));
+		add(new Span(txt));
 		Button saveButton = new Button(saveTxt);
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.addClickListener(e ->

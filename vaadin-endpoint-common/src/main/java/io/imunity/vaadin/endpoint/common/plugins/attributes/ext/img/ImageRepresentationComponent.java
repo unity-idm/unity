@@ -8,7 +8,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.vaadin.elements.InputLabel;
@@ -20,7 +20,7 @@ import java.util.UUID;
 
 class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 {
-	private final Label label;
+	private final Span label;
 	ImageRepresentationComponent(UnityImage value, AttributeViewerContext context)
 	{
 		this(value, context, null);

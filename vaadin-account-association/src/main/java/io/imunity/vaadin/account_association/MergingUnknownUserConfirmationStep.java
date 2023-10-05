@@ -4,7 +4,7 @@
  */
 package io.imunity.vaadin.account_association;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -35,13 +35,13 @@ class MergingUnknownUserConfirmationStep extends WizardStep
 		{
 			String message = msg.getMessage("MergeUnknownWithExistingConfirmationStep.info", unknownUser.getRemoteIdPName(),
 					locallyAuthenticatedEntity.getAuthenticatedWith().get(0));
-			((HorizontalLayout)component).add(new Label(message));
+			((HorizontalLayout)component).add(new Span(message));
 			stepComplited();
 			refreshWizard();
 		} else
 		{
 			String message = msg.getMessage("MergeUnknownWithExistingConfirmationStep.errorNotExistingIdentity");
-			((HorizontalLayout)component).add(new Label(message));
+			((HorizontalLayout)component).add(new Span(message));
 			setError("");
 		}
 	}
@@ -51,7 +51,7 @@ class MergingUnknownUserConfirmationStep extends WizardStep
 		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
 		icon.setClassName("warning-icon");
 		((HorizontalLayout)component).add(icon);
-		((HorizontalLayout)component).add(new Label(message));
+		((HorizontalLayout)component).add(new Span(message));
 		((HorizontalLayout)component).setAlignItems(FlexComponent.Alignment.CENTER);
 		interrupt();
 	}

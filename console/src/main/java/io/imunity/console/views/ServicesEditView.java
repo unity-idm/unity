@@ -5,11 +5,10 @@
 
 package io.imunity.console.views;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.vaadin.elements.Breadcrumb;
-
 import jakarta.annotation.security.PermitAll;
 
 @PermitAll
@@ -19,6 +18,6 @@ public class ServicesEditView extends ConsoleViewComponent
 {
 	ServicesEditView()
 	{
-		getContent().add(new Label("ServicesEditView"));
+		getContent().add(new Span("ServicesEditView"));
 	}
 }

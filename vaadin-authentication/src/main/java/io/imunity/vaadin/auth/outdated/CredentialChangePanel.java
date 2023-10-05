@@ -10,8 +10,9 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -29,7 +30,6 @@ import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
-import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 
 import java.util.Optional;
 
@@ -90,7 +90,7 @@ class CredentialChangePanel extends VerticalLayout
 		logo.ifPresent(logoImg -> logoImg.setId("unity-logo-image"));
 		logo.ifPresent(this::add);
 
-		Label info = new Label(msg.getMessage("OutdatedCredentialDialog.info"));
+		Span info = new Span(msg.getMessage("OutdatedCredentialDialog.info"));
 		info.addClassName("u-outdatedcred-info");
 		info.setWidth(uiConfig.width * 2, Unit.EM);
 		info.getStyle().set("color", "red");

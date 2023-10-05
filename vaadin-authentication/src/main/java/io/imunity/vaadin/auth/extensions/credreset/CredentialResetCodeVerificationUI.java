@@ -7,13 +7,12 @@ package io.imunity.vaadin.auth.extensions.credreset;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.TooManyAttempts;
@@ -93,8 +92,8 @@ public class CredentialResetCodeVerificationUI extends CredentialResetLayout
 		resend.addClassName("u-credreset-resend-button");
 		Tooltip.forComponent(resend).setText(resendDesc);
 
-		Label resendPfx = new Label(msg.getMessage("CredentialReset.resendPrefix"));
-		Label resendSuffix = new Label(msg.getMessage("CredentialReset.resendSuffix"));
+		Span resendPfx = new Span(msg.getMessage("CredentialReset.resendPrefix"));
+		Span resendSuffix = new Span(msg.getMessage("CredentialReset.resendSuffix"));
 		wrapper.add(resendPfx, resend, resendSuffix);
 		return wrapper;
 	}

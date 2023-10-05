@@ -8,15 +8,15 @@ package io.imunity.vaadin.elements;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 
 public class LinkButton extends Div
 {
-	private Label label;
+	private final Span label;
 
 	public LinkButton(String txt, ComponentEventListener<ClickEvent<Div>> listener)
 	{
-		label = new Label(txt);
+		label = new Span(txt);
 		label.getStyle().set("cursor", "pointer");
 		add(label);
 		getStyle().set("text-decoration", "underline");

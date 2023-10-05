@@ -8,7 +8,7 @@ package io.imunity.home.views;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -140,7 +140,7 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 	{
 		LoginSession entity = InvocationContext.getCurrent().getLoginSession();
 		String label = entity.getEntityLabel() == null ? "" : entity.getEntityLabel();
-		Label loggedEntity = new Label(entity.getEntityLabel() != null ?
+		Span loggedEntity = new Span(entity.getEntityLabel() != null ?
 				msg.getMessage("MainHeader.loggedAs", label) :
 				msg.getMessage("MainHeader.loggedAsWithId", entity.getEntityId()));
 		loggedEntity.setId("MainHeader.loggedAs");

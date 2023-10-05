@@ -8,7 +8,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.shared.SlotUtils;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -63,9 +62,9 @@ public class LocaleChoiceComponent extends Div
 		}
 	}
 
-	private static Label getLabel(Map<Locale, String> collect, Locale locale)
+	private static Span getLabel(Map<Locale, String> collect, Locale locale)
 	{
-		Label label = new Label(collect.get(locale));
+		Span label = new Span(collect.get(locale));
 		label.getStyle().set("margin-left", "0.3em");
 		return label;
 	}

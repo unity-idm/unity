@@ -13,7 +13,7 @@ import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
@@ -46,7 +46,6 @@ import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROUTING_SERVLET_PATH;
 
@@ -156,7 +155,7 @@ class OAuthConsentScreen extends VerticalLayout
 		for (OAuthScope si : ctx.getEffectiveRequestedScopes())
 		{
 			String label = Strings.isNullOrEmpty(si.description) ? si.name : si.description;
-			Label scope = new Label("\u25CF " + label);
+			Span scope = new Span("● " + label);
 			eiLayout.add(scope);
 		}
 		eiLayout.add(new HtmlComponent("br"));
@@ -167,7 +166,7 @@ class OAuthConsentScreen extends VerticalLayout
 			eiLayout.add(new HtmlComponent("br"));
 		}
 		
-		createIdentityPart(identity, eiLayout);
+		createIdentityPart(identity);
 		attrsPresenter = new ExposedAttributesComponent(msg, idTypeSupport, handlersRegistry, attributes,
 				Optional.of(identity));
 		eiLayout.add(attrsPresenter);
@@ -178,7 +177,7 @@ class OAuthConsentScreen extends VerticalLayout
 		rememberCB.setVisible(!(ctx.getClientType() == ClientType.PUBLIC) && !ctx.getPrompts().contains(Prompt.CONSENT));
 	}
 	
-	private void createIdentityPart(IdentityParam validIdentity, VerticalLayout contents)
+	private void createIdentityPart(IdentityParam validIdentity)
 	{
 		idSelector = new IdentitySelectorComponent(msg, idTypeSupport, Lists.newArrayList(validIdentity));
 	}
@@ -215,7 +214,7 @@ class OAuthConsentScreen extends VerticalLayout
 		}
 	}
 	
-	private void updateUIFromPreferences(OAuthClientSettings settings, OAuthAuthzContext ctx) throws EngineException
+	private void updateUIFromPreferences(OAuthClientSettings settings, OAuthAuthzContext ctx)
 	{
 		if (settings == null)
 			return;
@@ -251,7 +250,7 @@ class OAuthConsentScreen extends VerticalLayout
 		String identityValue = idSelector.getSelectedIdentityForPreferences();
 		if (identityValue != null)
 			settings.setSelectedIdentity(identityValue);
-		settings.setAudience(ctx.getAdditionalAudience().stream().collect(Collectors.toSet()));
+		settings.setAudience(new HashSet<>(ctx.getAdditionalAudience()));
 		settings.setTimestamp(Instant.now());
 		preferences.setSPSettings(reqIssuer, settings);
 		
@@ -300,12 +299,12 @@ class OAuthConsentScreen extends VerticalLayout
 		{
 			setMargin(false);
 			setPadding(false);
-			add(new Label(msg.getMessage("AudienceInfoComponent.infoHeader", clientName)));
+			add(new Span(msg.getMessage("AudienceInfoComponent.infoHeader", clientName)));
 
 			for (String si : audience)
 			{
 				String label = URIPresentationHelper.getHumanReadableDomain(si);
-				Label aud = new Label("\u25CF " + label);
+				Span aud = new Span("● " + label);
 				add(aud);
 			}
 		}

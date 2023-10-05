@@ -8,14 +8,13 @@ package io.imunity.vaadin.endpoint.common.plugins.credentials.sms;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -75,7 +74,7 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 	
 	private Component getCapchaComponent()
 	{
-		Label infoLabel = new Label(msg.getMessage("MobileNumberConfirmationDialog.capchaInfo"));
+		Span infoLabel = new Span(msg.getMessage("MobileNumberConfirmationDialog.capchaInfo"));
 		infoLabel.setSizeFull();	
 		captcha = new CaptchaComponent(msg, 4, false);		
 		VerticalLayout wrapper = new VerticalLayout();
@@ -89,8 +88,8 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 	{
 		field = new TextField();
 		field.setLabel(msg.getMessage("MobileNumberConfirmationDialog.code"));
-		field.setRequiredIndicatorVisible(true);		
-		Label infoLabel = new Label(msg.getMessage("MobileNumberConfirmationDialog.confirmInfo",
+		field.setRequiredIndicatorVisible(true);
+		Span infoLabel = new Span(msg.getMessage("MobileNumberConfirmationDialog.confirmInfo",
 				mobileToConfirm));
 		infoLabel.setSizeFull();
 

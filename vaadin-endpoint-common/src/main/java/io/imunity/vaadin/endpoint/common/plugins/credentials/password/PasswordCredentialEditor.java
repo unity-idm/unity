@@ -5,7 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.credentials.password;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
@@ -60,7 +60,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 		if (pei.getLastChange() == null)
 			return Optional.empty();
 		
-		ret.add(new Label(msg.getMessage("PasswordCredentialEditor.lastModification",
+		ret.add(new Span(msg.getMessage("PasswordCredentialEditor.lastModification",
 				pei.getLastChange())));
 		
 		PasswordCredentialResetSettings resetS = config.getPasswordResetSettings();
@@ -69,7 +69,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 			String secQ = pei.getSecurityQuestion() == null ? 
 					msg.getMessage("PasswordCredentialEditor.notDefined")
 					: pei.getSecurityQuestion();
-			ret.add(new Label(msg.getMessage("PasswordCredentialEditor.securityQuestion", secQ)));
+			ret.add(new Span(msg.getMessage("PasswordCredentialEditor.securityQuestion", secQ)));
 		}
 		return Optional.of(ret);
 	}

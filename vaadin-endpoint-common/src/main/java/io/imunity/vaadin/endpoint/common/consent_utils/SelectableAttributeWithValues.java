@@ -5,16 +5,13 @@
 package io.imunity.vaadin.endpoint.common.consent_utils;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 
@@ -32,8 +29,8 @@ class SelectableAttributeWithValues extends VerticalLayout
 	private final boolean enableSelect;
 	
 	SelectableAttributeWithValues(Attribute attribute, String customAttrName, String customAttrDesc,
-	                              boolean enableSelect, AttributeType at,
-	                              WebAttributeHandler webHandler, MessageSource msg,
+	                              boolean enableSelect,
+	                              WebAttributeHandler webHandler,
 	                              AttributeTypeSupport aTypeSupport)
 	{
 		this.attribute = attribute;
@@ -50,7 +47,7 @@ class SelectableAttributeWithValues extends VerticalLayout
 		setPadding(false);
 		setSpacing(false);
 
-		Label attrNameLabel = new Label(customAttrName);
+		Span attrNameLabel = new Span(customAttrName);
 		Tooltip.forComponent(attrNameLabel).setText(customAttrDesc);
 		add(attrNameLabel);
 		
@@ -60,7 +57,7 @@ class SelectableAttributeWithValues extends VerticalLayout
 		for (String value: attribute.getValues())
 		{
 			Component representation = webHandler.getRepresentation(value, AttributeViewerContext.EMPTY);
-			((HasStyle)representation).getStyle().set("width", "100%");
+			representation.getStyle().set("width", "100%");
 			listOfValues.addEntry(representation, true);
 		}
 		listOfValues.setCheckBoxesVisible(enableSelect);

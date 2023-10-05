@@ -11,7 +11,6 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -26,7 +25,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 {
 	private final Checkbox adminConfirmCheckBox;
 	private final TextField editor;
-	private final Label label;
+	private final Span label;
 	private final HorizontalLayout fieldLayout;
 	private final Div verifyButtonIcon;
 	private final Div confirmationStatusIcon;

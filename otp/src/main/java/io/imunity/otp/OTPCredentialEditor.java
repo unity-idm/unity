@@ -7,13 +7,12 @@ package io.imunity.otp;
 
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -25,10 +24,9 @@ import java.util.Optional;
 @PrototypeComponent
 class OTPCredentialEditor implements CredentialEditor
 {
-	private MessageSource msg;
+	private final MessageSource msg;
+	private final NotificationPresenter notificationPresenter;
 	private OTPEditorComponent editor;
-	private OTPCredentialDefinition config;
-	private NotificationPresenter notificationPresenter;
 
 	@Autowired
 	OTPCredentialEditor(MessageSource msg, NotificationPresenter notificationPresenter)
@@ -40,7 +38,7 @@ class OTPCredentialEditor implements CredentialEditor
 	@Override
 	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
-		config = JsonUtil.parse(context.getCredentialConfiguration(), 
+		OTPCredentialDefinition config = JsonUtil.parse(context.getCredentialConfiguration(),
 				OTPCredentialDefinition.class); 
 		editor = new OTPEditorComponent(msg, context, config);
 		return new ComponentsContainer(editor);
@@ -52,7 +50,7 @@ class OTPCredentialEditor implements CredentialEditor
 		if (Strings.isNullOrEmpty(credentialInfo))
 			return Optional.empty();
 		OTPExtraInfo extraInfo = JsonUtil.parse(credentialInfo, OTPExtraInfo.class);
-		Label lastChange = new Label(msg.getMessage("OTPCredentialEditor.lastModification",
+		Span lastChange = new Span(msg.getMessage("OTPCredentialEditor.lastModification",
 				extraInfo.lastModification));
 		return Optional.of(lastChange);
 	}

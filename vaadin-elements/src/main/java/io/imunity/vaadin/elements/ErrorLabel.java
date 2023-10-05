@@ -4,9 +4,9 @@
  */
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 
-public class ErrorLabel extends Label
+public class ErrorLabel extends Span
 {
 	public ErrorLabel(String label)
 	{

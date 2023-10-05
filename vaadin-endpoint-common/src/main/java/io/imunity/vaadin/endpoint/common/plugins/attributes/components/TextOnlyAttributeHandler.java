@@ -6,7 +6,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 
 import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -156,7 +156,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		ret.setMargin(false);
 		for (String hint: getHints())
 		{
-			Label info = new Label(hint);
+			Span info = new Span(hint);
 			ret.add(info);
 		}
 		return ret;

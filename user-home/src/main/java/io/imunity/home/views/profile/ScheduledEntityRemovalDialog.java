@@ -9,7 +9,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,7 +22,6 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -32,7 +31,6 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import java.util.Date;
 import java.util.Map;
 
-;
 
 /**
  * Dialog allowing to either immediately or with grace period schedule the entity removal.
@@ -86,13 +84,13 @@ class ScheduledEntityRemovalDialog extends Dialog
 				365), 1, 365)).bind(s -> this.days, (s, v) -> this.days = v);
 		daysBinder.setBean(days);
 		daysField.setValue("30");
-		
-		Label daysL = new Label(msg.getMessage("RemoveEntityDialog.days"));
+
+		Span daysL = new Span(msg.getMessage("RemoveEntityDialog.days"));
 		HorizontalLayout daysHL = new HorizontalLayout(daysField, daysL);
 		daysHL.setAlignItems(FlexComponent.Alignment.CENTER);
 		daysHL.setMargin(false);
 
-		Label schedInfo = new Label(msg.getMessage("RemoveEntityDialog.scheduleInfo"));
+		Span schedInfo = new Span(msg.getMessage("RemoveEntityDialog.scheduleInfo"));
 		nowOrLater.addValueChangeListener(e -> {
 			boolean enableSched = SCHEDULE.equals(nowOrLater.getValue());
 			daysHL.setEnabled(enableSched);

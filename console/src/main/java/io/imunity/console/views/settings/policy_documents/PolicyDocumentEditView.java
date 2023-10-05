@@ -10,7 +10,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -24,11 +24,11 @@ import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.LocaleReachEditorDetails;
 import io.imunity.vaadin.elements.LocaleTextFieldDetails;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,7 +95,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		displayedName.setWidth("var(--vaadin-text-field-big)");
 
 		Checkbox optional = new Checkbox();
-		Label revision = new Label(String.valueOf(toEdit.revision));
+		Span revision = new Span(String.valueOf(toEdit.revision));
 
 		ComboBox<PolicyDocumentContentType> type = new ComboBox<>();
 		type.setItems(PolicyDocumentContentType.values());
@@ -110,14 +110,14 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		content.setValue(toEdit.content);
 	}
 
-	private void initFormLayout(TextField name, LocaleTextFieldDetails displayedName, Checkbox optional, Label revision,
+	private void initFormLayout(TextField name, LocaleTextFieldDetails displayedName, Checkbox optional, Span revision,
 								ComboBox<PolicyDocumentContentType> type)
 	{
 		mainLayout = new FormLayout();
 		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		mainLayout.addFormItem(name, msg.getMessage("PolicyDocumentEditor.name"));
 		mainLayout.addFormItem(displayedName, msg.getMessage("PolicyDocumentEditor.displayedName"));
-		HorizontalLayout optionalField = new HorizontalLayout(optional, new Label(msg.getMessage("PolicyDocumentEditor.optionalAcceptance")));
+		HorizontalLayout optionalField = new HorizontalLayout(optional, new Span(msg.getMessage("PolicyDocumentEditor.optionalAcceptance")));
 		optionalField.setSpacing(false);
 		mainLayout.addFormItem(optionalField, "");
 		mainLayout.addFormItem(revision, msg.getMessage("PolicyDocumentEditor.revision"));

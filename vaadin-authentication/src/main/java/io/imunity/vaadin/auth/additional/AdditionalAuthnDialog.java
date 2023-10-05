@@ -7,7 +7,7 @@ package io.imunity.vaadin.auth.additional;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
@@ -34,16 +34,16 @@ class AdditionalAuthnDialog extends Dialog
 		Div contentsPanel = new Div();
 		contentsPanel.setSizeFull();
 		VerticalLayout internal = new VerticalLayout();
-		
-		Label header = new Label(caption);
+
+		Span header = new Span(caption);
 		internal.add(header);
 		internal.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		Label infoL = new Label(info);
+		Span infoL = new Span(info);
 		infoL.setWidthFull();
 		internal.add(infoL);
 
-		internal.add(new Label(""));
+		internal.add(new Span(""));
 		
 		internal.add(authnPanel);
 		authnPanel.setWidth(VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH, Unit.EM);

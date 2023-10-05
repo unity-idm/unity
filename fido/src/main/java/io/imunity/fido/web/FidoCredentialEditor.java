@@ -5,7 +5,7 @@
 package io.imunity.fido.web;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredentialInfo;
@@ -25,11 +25,10 @@ import static java.util.Objects.nonNull;
 
 class FidoCredentialEditor implements CredentialEditor
 {
-	private FidoRegistration fidoRegistration;
+	private final FidoRegistration fidoRegistration;
+	private final MessageSource msg;
+	private final NotificationPresenter notificationPresenter;
 	private FidoEditorComponent editorComponent;
-	private MessageSource msg;
-
-	private NotificationPresenter notificationPresenter;
 
 
 	public FidoCredentialEditor(final MessageSource msg, final FidoRegistration fidoRegistration, NotificationPresenter notificationPresenter)
@@ -79,7 +78,7 @@ class FidoCredentialEditor implements CredentialEditor
 		VerticalLayout ret = new VerticalLayout();
 		ret.setPadding(false);
 
-		ret.add(new Label(msg.getMessage("Fido.viewerInfo",
+		ret.add(new Span(msg.getMessage("Fido.viewerInfo",
 				keys.size())));
 		return Optional.of(ret);
 	}

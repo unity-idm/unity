@@ -6,7 +6,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -75,7 +75,7 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		VerticalLayout ret = new VerticalLayout();
 		ret.setSpacing(false);
 		ret.setMargin(false);
-		Label info = new Label(msg.getMessage("VerifiableEmailAttributeHandler.info"));
+		Span info = new Span(msg.getMessage("VerifiableEmailAttributeHandler.info"));
 		ret.add(info);
 		if (syntax.getEmailConfirmationConfiguration().isPresent())
 			ret.add(new EmailConfirmationConfigurationViewer(msg,

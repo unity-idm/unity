@@ -9,7 +9,7 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 
 class PreviewDialog extends Dialog
@@ -23,7 +23,7 @@ class PreviewDialog extends Dialog
 		if(displayAsHTML)
 			add(new Html("<div>" + html + "</div>"));
 		else
-			add(new Label(html));
+			add(new Span(html));
 		setResizable(true);
 	}
 }

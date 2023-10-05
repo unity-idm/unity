@@ -14,7 +14,7 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
@@ -107,7 +107,7 @@ class MVELExpressionEditorDialog extends Dialog
 		FormLayout varsL = new FormLayout();
 		varsL.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		context.vars.entrySet().stream().sorted(java.util.Map.Entry.comparingByKey()).forEach( e ->
-			varsL.addFormItem(new Label(msg.getMessage(e.getValue())), new Label(e.getKey()))
+			varsL.addFormItem(new Span(msg.getMessage(e.getValue())), new Span(e.getKey()))
 		);
 
 		Details variables = new Details(msg.getMessage("MVELExpressionField.availableVariables"), varsL);
@@ -119,8 +119,8 @@ class MVELExpressionEditorDialog extends Dialog
 		for (int i = 1; i <= CHEET_SHEET_LINES_COUNT; i++)
 		{
 			cheatSheetL.addFormItem(
-					new Label(msg.getMessage("MVELExpressionField.cheetSheet." + i + ".value")),
-					new Label(msg.getMessage("MVELExpressionField.cheetSheet." + i + ".key"))
+					new Span(msg.getMessage("MVELExpressionField.cheetSheet." + i + ".value")),
+					new Span(msg.getMessage("MVELExpressionField.cheetSheet." + i + ".key"))
 			);
 		}
 		Details cheatSheet = new Details(msg.getMessage("MVELExpressionField.cheetSheet"), cheatSheetL);

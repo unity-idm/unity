@@ -6,12 +6,11 @@ package io.imunity.fido.web;
 
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.Optional;
@@ -66,13 +65,13 @@ class FidoPreviewComponent extends VerticalLayout
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setMargin(false);
 
-		Label caption = new Label();
+		Span caption = new Span();
 		caption.setText(name);
 		caption.getStyle().set("font-weight", "bold");
 		caption.setWidth(FidoPreviewComponent.CAPTION_WIDTH, Unit.PIXELS);
 
 		layout.add(caption);
-		Label label = new Label();
+		Span label = new Span();
 		label.setText(value);
 		layout.add(label);
 		layout.setAlignItems(Alignment.CENTER);

@@ -7,11 +7,10 @@ package io.imunity.vaadin.endpoint.common.forms.components;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 
 
@@ -41,7 +40,7 @@ public class GetRegistrationCodeDialog extends ConfirmDialog
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
-		main.add(new Label(information));
+		main.add(new Span(information));
 		FormLayout sub = new FormLayout();
 
 		TextField codeTextField = new TextField(codeCaption);

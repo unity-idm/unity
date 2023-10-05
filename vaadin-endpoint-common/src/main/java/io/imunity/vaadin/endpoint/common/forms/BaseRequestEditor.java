@@ -11,7 +11,7 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import io.imunity.vaadin.elements.CheckboxWithError;
@@ -183,10 +183,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		if (withCredentials)
 			setRequestCredentials(ret, status);
 		setRequestAttributes(ret, status);
-		setRequestGroups(ret, status);
-		setRequestAgreements(ret, status);
-		setRequestPolicyAgreements(ret, status);
-		
+		setRequestGroups(ret);
+		setRequestAgreements(ret);
+		setRequestPolicyAgreements(ret);
+
 		if (form.isCollectComments())
 			ret.setComments(comment.getValue());
 		
@@ -315,7 +315,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 	
-	private void setRequestGroups(BaseRegistrationInput ret, FormErrorStatus status)
+	private void setRequestGroups(BaseRegistrationInput ret)
 	{
 		if (form.getGroupParams() != null)
 		{
@@ -347,7 +347,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 	
-	private void setRequestAgreements(BaseRegistrationInput ret, FormErrorStatus status)
+	private void setRequestAgreements(BaseRegistrationInput ret)
 	{
 		if (form.getAgreements() != null)
 		{
@@ -365,7 +365,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 
-	private void setRequestPolicyAgreements(BaseRegistrationInput ret, FormErrorStatus status)
+	private void setRequestPolicyAgreements(BaseRegistrationInput ret)
 	{
 		if (policyAgreementSelectors != null)
 		{
@@ -505,38 +505,50 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		switch (element.getType())
 		{
-		case IDENTITY:
-			return createIdentityControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
-					prefilled.identities);
-			
-		case ATTRIBUTE:
-			return createAttributeControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
-					prefilled.attributes);
-			
-		case GROUP:
-			return createGroupControl(layoutContainer.registrationFormLayout,
-					(FormParameterElement) element,
-					prefilled.groupSelections,
-					prefilled.allowedGroups);
-			
-		case CAPTION:
-			return createLabelControl(layoutContainer.registrationFormLayout, previousInserted, 
-					next, (FormCaptionElement) element);
-			
-		case SEPARATOR:
-			return createSeparatorControl(layoutContainer.registrationFormLayout, (FormSeparatorElement) element);
-			
-		case AGREEMENT:
-			return createAgreementControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);
-		case POLICY_AGREEMENT:
-			return createPolicyAgreementControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);	
-		case COMMENTS:
-			return createCommentsControl(layoutContainer.registrationFormLayout, (BasicFormElement) element);
-			
-		case CREDENTIAL:
-			return createCredentialControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);
-		default:
-			log.error("Unsupported form element, skipping: " + element);
+			case IDENTITY ->
+			{
+				return createIdentityControl(layoutContainer.registrationFormLayout, (FormParameterElement) element,
+						prefilled.identities);
+			}
+			case ATTRIBUTE ->
+			{
+				return createAttributeControl(layoutContainer.registrationFormLayout, (FormParameterElement) element,
+						prefilled.attributes);
+			}
+			case GROUP ->
+			{
+				return createGroupControl(layoutContainer.registrationFormLayout,
+						(FormParameterElement) element,
+						prefilled.groupSelections,
+						prefilled.allowedGroups);
+			}
+			case CAPTION ->
+			{
+				return createLabelControl(layoutContainer.registrationFormLayout, previousInserted,
+						next, (FormCaptionElement) element);
+			}
+			case SEPARATOR ->
+			{
+				return createSeparatorControl(layoutContainer.registrationFormLayout, (FormSeparatorElement) element);
+			}
+			case AGREEMENT ->
+			{
+				return createAgreementControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);
+			}
+			case POLICY_AGREEMENT ->
+			{
+				return createPolicyAgreementControl(layoutContainer.registrationFormLayout,
+						(FormParameterElement) element);
+			}
+			case COMMENTS ->
+			{
+				return createCommentsControl(layoutContainer.registrationFormLayout);
+			}
+			case CREDENTIAL ->
+			{
+				return createCredentialControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);
+			}
+			default -> log.error("Unsupported form element, skipping: " + element);
 		}
 		return false;
 	}
@@ -548,7 +560,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			return false;
 		if (previousInserted instanceof FormCaptionElement)
 			return false;
-		Label label = new Label(element.getValue().getValue(msg));
+		Span label = new Span(element.getValue().getValue(msg));
 		label.addClassName("u-reg-sectionHeader");
 		layout.add(label);
 		layout.setAlignItems(Alignment.CENTER);
@@ -588,7 +600,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		container.add(cb);
 		if (aParam.isManatory())
 		{
-			Label mandatory = new Label(msg.getMessage("RegistrationRequest.mandatoryAgreement"));
+			Span mandatory = new Span(msg.getMessage("RegistrationRequest.mandatoryAgreement"));
 			container.add(mandatory);
 		}
 		layout.add(container);
@@ -613,7 +625,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	protected abstract boolean isPolicyAgreementsIsFiltered(PolicyAgreementConfiguration toCheck);
 	
 	
-	protected boolean createCommentsControl(VerticalLayout layout, BasicFormElement element)
+	protected boolean createCommentsControl(VerticalLayout layout)
 	{
 		comment = new TextArea();
 		comment.setWidth(formWidth(), formWidthUnit());

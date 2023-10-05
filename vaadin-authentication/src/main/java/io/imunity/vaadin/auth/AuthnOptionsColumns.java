@@ -6,12 +6,11 @@ package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -19,10 +18,10 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 import java.util.*;
 
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.*;
 import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId;
 import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createNonLoginComponent;
 import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createSimpleLoginComponent;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.*;
 
 /**
  * Core component maintaining set of columns with authentication options.
@@ -45,7 +44,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 	private final AuthNPanelFactory authNPanelFactory;
 	private final Runnable registrationLayoutLauncher;
 	
-	private List<AuthnOptionsColumn> columns;
+	private final List<AuthnOptionsColumn> columns;
 	
 	AuthnOptionsColumns(VaadinEndpointProperties config, MessageSource msg,
 	                    AuthenticationOptionsHandler authnOptionsHandler, boolean enableRegistration,
@@ -368,7 +367,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 		String key = specEntry.substring(SPECIAL_ENTRY_SEPARATOR.length());
 		
 		String message = key.isEmpty() ? "" : resolveSeparatorMessage(key.substring(1));
-		AuthNGridTextWrapper ret = new AuthNGridTextWrapper(new Label(message), Alignment.CENTER);
+		AuthNGridTextWrapper ret = new AuthNGridTextWrapper(new Span(message), Alignment.CENTER);
 		ret.setClassName("u-authn-entriesSeparator");
 		ret.setJustifyContentMode(JustifyContentMode.CENTER);
 		return createNonLoginComponent(specEntry, ret);
@@ -379,7 +378,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 		String key = specEntry.substring(SPECIAL_ENTRY_HEADER.length());
 		
 		String message = key.isEmpty() ? "" : resolveSeparatorMessage(key.substring(1));
-		AuthNGridTextWrapper ret = new AuthNGridTextWrapper(new Label(message), Alignment.CENTER);
+		AuthNGridTextWrapper ret = new AuthNGridTextWrapper(new Span(message), Alignment.CENTER);
 		ret.setClassName("u-authn-entryHeader");
 		return createNonLoginComponent(specEntry, ret);
 	}
@@ -420,7 +419,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 		String separator = config.getLocalizedValue(columnKey+AUTHN_COLUMN_SEPARATOR, msg.getLocale());
 		if (separator == null || separator.isEmpty())
 			separator = "";
-		Label separatorLabel = new Label(separator);
+		Span separatorLabel = new Span(separator);
 		separatorLabel.addClassName("u-authn-columnsSeparator");
 		separatorLabel.getStyle().set("margin-top", "4.5em");
 		return separatorLabel;

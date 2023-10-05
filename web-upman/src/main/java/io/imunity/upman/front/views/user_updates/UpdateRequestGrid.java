@@ -8,7 +8,7 @@ package io.imunity.upman.front.views.user_updates;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.elements.MultiSelectGrid;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -33,7 +33,7 @@ class UpdateRequestGrid extends MultiSelectGrid<UpdateRequestModel>
 				.setAutoWidth(true)
 				.setSortable(true)
 				.setResizable(true);
-		addComponentColumn(model -> model.email.generateAsComponent(msg, container))
+		addComponentColumn(model -> model.email.generateAsComponent(msg))
 				.setHeader(msg.getMessage("UpdateRequest.email"))
 				.setAutoWidth(true)
 				.setSortable(true)
@@ -54,10 +54,10 @@ class UpdateRequestGrid extends MultiSelectGrid<UpdateRequestModel>
 				.setResizable(true);
 	}
 
-	private Label createGroupsLabel(UpdateRequestModel model)
+	private Span createGroupsLabel(UpdateRequestModel model)
 	{
 		String groups = String.join(", ", model.groupsDisplayedNames);
-		Label label = new Label();
+		Span label = new Span();
 		Tooltip.forComponent(label).withText(groups);
 		if(groups.length() > 30)
 			groups = groups.substring(0, 30) + "...";

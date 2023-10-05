@@ -4,9 +4,9 @@
  */
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 
-public class InputLabel extends Label
+public class InputLabel extends Span
 {
 	private boolean required;
 

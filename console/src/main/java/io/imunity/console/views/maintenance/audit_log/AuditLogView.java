@@ -18,7 +18,7 @@ import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -32,6 +32,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.*;
+import jakarta.annotation.security.PermitAll;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.audit.AuditEventAction;
 import pl.edu.icm.unity.base.audit.AuditEventType;
@@ -45,7 +46,6 @@ import pl.edu.icm.unity.engine.api.AuditEventManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.identity.UnknownIdentityException;
 
-import jakarta.annotation.security.PermitAll;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -223,16 +223,16 @@ public class AuditLogView extends ConsoleViewComponent
 		auditEventsGrid.setAllRowsVisible(true);
 	}
 
-	private Label getTimestampHeaderLabel()
+	private Span getTimestampHeaderLabel()
 	{
-		Label label = new Label(msg.getMessage("AuditEventsView.timestamp"));
+		Span label = new Span(msg.getMessage("AuditEventsView.timestamp"));
 		label.getStyle().set("margin-left", "var(--big-margin)");
 		return label;
 	}
 
 	private HorizontalLayout createTimestampWithDetailsArrow(AuditEventEntry eventEntry)
 	{
-		Label label = new Label(eventEntry.formatTimestamp());
+		Span label = new Span(eventEntry.formatTimestamp());
 		Icon openIcon = VaadinIcon.ANGLE_RIGHT.create();
 		Icon closeIcon = VaadinIcon.ANGLE_DOWN.create();
 		openIcon.setVisible(!auditEventsGrid.isDetailsVisible(eventEntry));
@@ -244,7 +244,7 @@ public class AuditLogView extends ConsoleViewComponent
 
 	private HorizontalLayout getActions(ColumnToggleMenu columnToggleMenu)
 	{
-		HorizontalLayout horizontalLayout = new HorizontalLayout(new Label(msg.getMessage("actions")), columnToggleMenu.getTarget());
+		HorizontalLayout horizontalLayout = new HorizontalLayout(new Span(msg.getMessage("actions")), columnToggleMenu.getTarget());
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		return horizontalLayout;
 	}
@@ -334,11 +334,11 @@ public class AuditLogView extends ConsoleViewComponent
 	{
 		FormLayout wrapper = new FormLayout();
 		wrapper.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		wrapper.addFormItem(new Label(ae.getFormattedSubject()), new FormLayoutLabel(msg.getMessage("AuditEventsView.subject") + ":"));
-		wrapper.addFormItem(new Label(ae.getFormattedInitiator()), new FormLayoutLabel(msg.getMessage("AuditEventsView.initiator") + ":"));
+		wrapper.addFormItem(new Span(ae.getFormattedSubject()), new FormLayoutLabel(msg.getMessage("AuditEventsView.subject") + ":"));
+		wrapper.addFormItem(new Span(ae.getFormattedInitiator()), new FormLayoutLabel(msg.getMessage("AuditEventsView.initiator") + ":"));
 
 		if (!"".equals(ae.formatDetails()))
-			wrapper.addFormItem(new Label(ae.formatDetails()), new FormLayoutLabel(msg.getMessage("AuditEventsView.details") + ":"));
+			wrapper.addFormItem(new Span(ae.formatDetails()), new FormLayoutLabel(msg.getMessage("AuditEventsView.details") + ":"));
 
 		return wrapper;
 	}

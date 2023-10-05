@@ -9,11 +9,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
@@ -64,7 +63,7 @@ class StickyEnquiryUpdatableComponent extends VerticalLayout
 		formName.addClassName("u-reg-title");
 		wrapper.add(formName);
 
-		Label info = new Label(
+		Span info = new Span(
 				msg.getMessage("SingleStickyEnquiryUpdater.overwriteRequestInfo"));
 
 		Button removeLast = new Button(msg.getMessage("SingleStickyEnquiryUpdater.removeLastRequest"));
@@ -157,7 +156,7 @@ class StickyEnquiryUpdatableComponent extends VerticalLayout
 		}
 		if (form == null)
 		{
-			add(new Label(msg.getMessage("SingleStickyEnquiryUpdater.notApplicableForms")));
+			add(new Span(msg.getMessage("SingleStickyEnquiryUpdater.notApplicableForms")));
 			return;
 		}
 			

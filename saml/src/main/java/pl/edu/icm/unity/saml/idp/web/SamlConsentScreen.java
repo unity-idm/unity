@@ -10,7 +10,7 @@ import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.endpoint.common.consent_utils.ExposedSelectableAttributesComponent;
 import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
@@ -147,8 +147,8 @@ class SamlConsentScreen extends VerticalLayout
 		exposedInfoPanel.add(eiLayout);
 		idSelector = new IdentitySelectorComponent(msg, identityTypeSupport, validIdentities);
 
-		Label info1 = new Label(msg.getMessage("SamlIdPWebUI.allowForSignInInfo"));
-		Label info2 = new Label(msg.getMessage("SamlIdPWebUI.allowForReadingUserProfile"));
+		Span info1 = new Span(msg.getMessage("SamlIdPWebUI.allowForSignInInfo"));
+		Span info2 = new Span(msg.getMessage("SamlIdPWebUI.allowForReadingUserProfile"));
 		eiLayout.add(info1, info2);
 		
 		if (validIdentities.size() > 1)
@@ -160,7 +160,7 @@ class SamlConsentScreen extends VerticalLayout
 		Optional<IdentityParam> selectedIdentity = Optional.ofNullable(validIdentities.size() == 1 ? validIdentities.get(0) : null); 
 		attrsPresenter = userCanEditConsent ? 
 				new ExposedSelectableAttributesComponent(msg, identityTypeSupport, handlersRegistry,
-						attributeTypes, aTypeSupport, attributes, selectedIdentity) :
+						aTypeSupport, attributes, selectedIdentity) :
 				new ROExposedAttributesComponent(msg, identityTypeSupport, attributes, handlersRegistry, 
 						selectedIdentity);
 		eiLayout.add((Component)attrsPresenter);
@@ -179,7 +179,7 @@ class SamlConsentScreen extends VerticalLayout
 		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, SAML_ENTRY_SERVLET_PATH, action ->
 		{
 			if (IdPButtonsBar.Action.ACCEPT == action)
-				confirm(samlCtx);
+				confirm();
 			else if (IdPButtonsBar.Action.DENY == action)
 				decline();
 		});
@@ -202,11 +202,10 @@ class SamlConsentScreen extends VerticalLayout
 			log.error("Engine problem when processing stored preferences", e);
 			//we kill the session as the user may want to log as different user if has access to several entities.
 			samlResponseHandler.handleExceptionNotThrowing(e, true);
-			return;
 		}
 	}
 	
-	protected void updateUIFromPreferences(SPSettings settings, SAMLAuthnContext samlCtx) throws EngineException
+	protected void updateUIFromPreferences(SPSettings settings, SAMLAuthnContext samlCtx)
 	{
 		if (settings == null)
 			return;
@@ -218,7 +217,7 @@ class SamlConsentScreen extends VerticalLayout
 		if (settings.isDoNotAsk())
 		{
 			if (settings.isDefaultAccept())
-				confirm(samlCtx);
+				confirm();
 			else
 				decline();
 		}
@@ -265,7 +264,7 @@ class SamlConsentScreen extends VerticalLayout
 		declineHandler.run();
 	}
 	
-	protected void confirm(SAMLAuthnContext samlCtx)
+	protected void confirm()
 	{
 		storePreferences(true);
 		acceptHandler.onAccepted(idSelector.getSelectedIdentity(), 

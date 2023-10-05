@@ -11,7 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -33,13 +33,13 @@ class OTPEditorComponent extends VerticalLayout
 	private final OTPCredentialDefinition config;
 	private final CredentialEditorContext context;
 	
-	private String secret;
+	private final String secret;
 
-	private Label credentialName;
-	private QRCodeComponent qrCodeComponent;
-	private TextCodeComponent textCodeComponent;
-	private VerificationComponent verificationComponent;
-	private Div switchCodeComponent;
+	private final Span credentialName;
+	private final QRCodeComponent qrCodeComponent;
+	private final TextCodeComponent textCodeComponent;
+	private final VerificationComponent verificationComponent;
+	private final Div switchCodeComponent;
 	
 	
 	OTPEditorComponent(MessageSource msg, CredentialEditorContext context, OTPCredentialDefinition config)
@@ -49,7 +49,7 @@ class OTPEditorComponent extends VerticalLayout
 		this.config = config;
 		secret = TOTPKeyGenerator.generateRandomBase32EncodedKey(config.otpParams.hashFunction);
 
-		credentialName = new Label();
+		credentialName = new Span();
 		credentialName.setVisible(false);
 		
 		qrCodeComponent = new QRCodeComponent();
@@ -57,7 +57,7 @@ class OTPEditorComponent extends VerticalLayout
 		textCodeComponent = new TextCodeComponent();
 		textCodeComponent.setVisible(false);
 
-		Label switchCodeLabel = new Label(msg.getMessage("OTPEditorComponent.switchModeToText"));
+		Span switchCodeLabel = new Span(msg.getMessage("OTPEditorComponent.switchModeToText"));
 		switchCodeLabel.getStyle().set("cursor", "pointer");
 		switchCodeComponent = new Div(switchCodeLabel);
 		switchCodeComponent.getStyle().set("text-decoration", "underline");
@@ -92,7 +92,7 @@ class OTPEditorComponent extends VerticalLayout
 		qrCodeComponent.setVisible(state);
 		String messageKey = state ? "OTPEditorComponent.switchModeToText" : "OTPEditorComponent.switchModeToQR";
 		switchCodeComponent.removeAll();
-		Label label = new Label(msg.getMessage(messageKey));
+		Span label = new Span(msg.getMessage(messageKey));
 		label.getStyle().set("cursor", "pointer");
 		switchCodeComponent.add(label);
 	}
@@ -125,21 +125,21 @@ class OTPEditorComponent extends VerticalLayout
 	private class QRCodeComponent extends VerticalLayout
 	{
 		private static final int BASE_SIZE_ZOOM = 3;
+		private final TextField user;
 		private Image qr;
-		private TextField user;
-		
+
 		QRCodeComponent()
 		{
 			setMargin(false);
 			setPadding(false);
 
-			Label info = new Label(msg.getMessage("OTPEditorComponent.qrCodeInfo"));
+			Span info = new Span(msg.getMessage("OTPEditorComponent.qrCodeInfo"));
 			user = new TextField(msg.getMessage("OTPEditorComponent.user"));
 			user.setValue(config.issuerName + " user");
 			user.setVisible(false);
 			user.getStyle().set("padding", "0");
 
-			Label customUserLabel = new Label(msg.getMessage("OTPEditorComponent.customizeUser"));
+			Span customUserLabel = new Span(msg.getMessage("OTPEditorComponent.customizeUser"));
 			customUserLabel.getStyle().set("cursor", "pointer");
 			Div customizeUser = new Div(customUserLabel);
 			customizeUser.getStyle().set("text-decoration", "underline");
@@ -185,14 +185,14 @@ class OTPEditorComponent extends VerticalLayout
 	{
 		TextCodeComponent()
 		{
-			Label info = new Label(msg.getMessage("OTPEditorComponent.textCodeInfo"));
-			Label code = new Label(formatSecret(secret));
+			Span info = new Span(msg.getMessage("OTPEditorComponent.textCodeInfo"));
+			Span code = new Span(formatSecret(secret));
 			code.addClassName("u-textMonospace");
 			code.setWidthFull();
 
-			Label type = new Label(msg.getMessage("OTPEditorComponent.textCodeType"));
-			Label length = new Label(String.valueOf(config.otpParams.codeLength));
-			Label algorithm = new Label(config.otpParams.hashFunction.toString());
+			Span type = new Span(msg.getMessage("OTPEditorComponent.textCodeType"));
+			Span length = new Span(String.valueOf(config.otpParams.codeLength));
+			Span algorithm = new Span(config.otpParams.hashFunction.toString());
 
 			FormLayout codeInfoLayout  = new FormLayout();
 			codeInfoLayout.addFormItem(code, msg.getMessage("OTPEditorComponent.textCode"));
@@ -224,7 +224,7 @@ class OTPEditorComponent extends VerticalLayout
 		private final TextField code;
 		private boolean validated;
 		private final HorizontalLayout validationLayout;
-		private final Label confirmed;
+		private final Span confirmed;
 		public VerificationComponent()
 		{
 			code = new TextField(); 
@@ -245,7 +245,7 @@ class OTPEditorComponent extends VerticalLayout
 			validationLayout.add(code, verify);
 			validationLayout.setSpacing(true);
 
-			confirmed = new Label(msg.getMessage("OTPEditorComponent.codeVerified"));
+			confirmed = new Span(msg.getMessage("OTPEditorComponent.codeVerified"));
 			confirmed.setVisible(false);
 
 			setMargin(false);

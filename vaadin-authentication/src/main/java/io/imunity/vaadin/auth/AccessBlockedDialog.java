@@ -7,7 +7,7 @@ package io.imunity.vaadin.auth;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -49,14 +49,14 @@ public class AccessBlockedDialog extends Dialog
 		main.setAlignItems(FlexComponent.Alignment.CENTER);
 
 		VerticalLayout vl = new VerticalLayout();
-		
-		Label info = new Label(msg.getMessage("AccessBlockedDialog.info"));
+
+		Span info = new Span(msg.getMessage("AccessBlockedDialog.info"));
 		ProgressBar progress = new ProgressBar();
 		String ip = HTTPRequestContext.getCurrent().getClientIP();		
 		UnsuccessfulAuthenticationCounter counter = VaddinWebLogoutHandler.getLoginCounter();
 		int initial = getRemainingBlockedTime(counter, ip);
 
-		Label label = new Label(msg.getMessage("AccessBlockedDialog.remaining", initial));
+		Span label = new Span(msg.getMessage("AccessBlockedDialog.remaining", initial));
 		progress.setWidth(300, Unit.PIXELS);
 		vl.add(label, info, progress);
 
@@ -75,14 +75,14 @@ public class AccessBlockedDialog extends Dialog
 	
 	private class WaiterThread implements Runnable
 	{
-		private int initial;
-		private Label label;
-		private ProgressBar progress;
-		private String ip;
-		private UnsuccessfulAuthenticationCounter counter;
-		private UI ui;
+		private final int initial;
+		private final Span label;
+		private final ProgressBar progress;
+		private final String ip;
+		private final UnsuccessfulAuthenticationCounter counter;
+		private final UI ui;
 		
-		public WaiterThread(int initial, Label label, ProgressBar progress, String ip,
+		public WaiterThread(int initial, Span label, ProgressBar progress, String ip,
 				UnsuccessfulAuthenticationCounter counter, UI ui)
 		{
 			this.initial = initial;

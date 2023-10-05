@@ -5,12 +5,11 @@
 
 package io.imunity.console.views;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.vaadin.elements.Breadcrumb;
-
 import jakarta.annotation.security.PermitAll;
 
 @PermitAll
@@ -21,6 +20,6 @@ public class DirectoryBrowserView extends ConsoleViewComponent
 {
 	DirectoryBrowserView()
 	{
-		getContent().add(new Label("DirectoryBrowserView"));
+		getContent().add(new Span("DirectoryBrowserView"));
 	}
 }

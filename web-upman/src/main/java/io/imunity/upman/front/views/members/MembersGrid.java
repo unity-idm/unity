@@ -9,7 +9,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import io.imunity.vaadin.elements.MultiSelectGrid;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -30,7 +30,7 @@ class MembersGrid extends MultiSelectGrid<MemberModel>
 		{
 			Div div = new Div();
 			Optional.ofNullable(model.role.getValue()).map(VaadinIcon::create).ifPresent(div::add);
-			div.add(new Label(" " + model.role.getKey()));
+			div.add(new Span(" " + model.role.getKey()));
 			return div;
 		})
 				.setHeader(msg.getMessage("GroupMember.projectrole"))
@@ -41,7 +41,7 @@ class MembersGrid extends MultiSelectGrid<MemberModel>
 				.setHeader(msg.getMessage("GroupMember.name"))
 				.setSortable(true)
 				.setResizable(true);
-		addComponentColumn(model -> model.email.generateAsComponent(msg, container))
+		addComponentColumn(model -> model.email.generateAsComponent(msg))
 				.setHeader(msg.getMessage("GroupMember.email"))
 				.setAutoWidth(true)
 				.setSortable(true)

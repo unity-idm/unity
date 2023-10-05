@@ -5,9 +5,8 @@
 
 package io.imunity.upman.front.model;
 
-import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -43,7 +42,7 @@ public class EmailModel
 		}
 	}
 
-	public Div generateAsComponent(MessageSource msg, HtmlContainer container)
+	public Div generateAsComponent(MessageSource msg)
 	{
 		if(value == null)
 			return new Div();
@@ -52,7 +51,7 @@ public class EmailModel
 				time -> iconInstance.setTooltipText(msg.getMessage("SimpleConfirmationInfo.confirmed", formatter.format(time))),
 				() -> iconInstance.setTooltipText(msg.getMessage("SimpleConfirmationInfo.unconfirmed"))
 		);
-		return new Div(iconInstance, new Label(" " + value));
+		return new Div(iconInstance, new Span(" " + value));
 	}
 
 	public static EmailModel of(VerifiableElementBase email)

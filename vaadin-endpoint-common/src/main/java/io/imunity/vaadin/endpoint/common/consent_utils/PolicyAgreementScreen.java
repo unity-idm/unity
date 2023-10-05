@@ -10,7 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.H5;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentation;
@@ -66,7 +66,7 @@ public class PolicyAgreementScreen extends VerticalLayout
 		titleLabel.setVisible(false);
 		infoLabel = new H5();
 		infoLabel.setVisible(false);
-		Label space = new Label();
+		Span space = new Span();
 		contents.add(titleLabel);
 		contents.add(infoLabel);
 		contents.add(space);

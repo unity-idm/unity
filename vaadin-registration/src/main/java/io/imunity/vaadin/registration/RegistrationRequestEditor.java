@@ -11,7 +11,7 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -79,13 +79,12 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 	private final AuthenticationOptionKey authnOptionKey;
 	private final RemoteRegistrationSignupResolverFactory remoteRegistrationSignupResolverFactory;
 	private final AuthenticatorSupportService authnSupport;
+	private final Map<String, List<String>> parameters;
 	private RemoteRegistrationSignupHandler remoteRegistrationSignupHandler;
-	private Map<String, List<String>> parameters;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
 	 * what is possible for registration form.
-	 * @param toEnquirySwitchLabelProvider 
 	 */
 	public RegistrationRequestEditor(MessageSource msg, RegistrationForm form,
 	                                 RemotelyAuthenticatedPrincipal remotelyAuthenticated,
@@ -251,7 +250,7 @@ class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 		if (stage == Stage.FIRST)
 		{
 			getFormInformationComponent(form.getFormInformation(), params).ifPresent(main::add);
-			Optional<Label> switchToEnquiryLabel = toEnquirySwitchLabelProvider
+			Optional<Span> switchToEnquiryLabel = toEnquirySwitchLabelProvider
 					.getSwitchToEnquiryLabel(form.getSwitchToEnquiryInfoFallbackToDefault(msg), invitation, params);
 			switchToEnquiryLabel.ifPresent(main::add);
 		}

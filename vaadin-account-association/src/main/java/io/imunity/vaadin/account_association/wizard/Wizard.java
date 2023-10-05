@@ -9,7 +9,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -89,7 +89,7 @@ public class Wizard extends VerticalLayout
 		{
 			if(label == null)
 				return;
-			HorizontalLayout labelComponent = new HorizontalLayout(new Label(label));
+			HorizontalLayout labelComponent = new HorizontalLayout(new Span(label));
 			labelComponent.setWidthFull();
 			labelComponent.setJustifyContentMode(JustifyContentMode.CENTER);
 			labelsLayout.add(labelComponent);

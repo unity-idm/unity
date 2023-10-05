@@ -6,7 +6,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.ReadOnlyField;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
@@ -16,8 +16,6 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerF
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.TextOnlyAttributeHandler;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -101,7 +99,7 @@ class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 		}
 		else
 		{
-			return new Label(nvalue);
+			return new Span(nvalue);
 		}
 	}
 
@@ -114,7 +112,7 @@ class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 		}
 
 		@Override
-		public AttributeValueSyntax<String> getCurrentValue() throws IllegalAttributeTypeException
+		public AttributeValueSyntax<String> getCurrentValue()
 		{
 			return new PolicyAgreementAttributeSyntax();
 		}

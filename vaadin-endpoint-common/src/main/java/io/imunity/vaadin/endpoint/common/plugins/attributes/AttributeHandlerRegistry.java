@@ -4,14 +4,11 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -25,13 +22,10 @@ import java.util.*;
 @Component
 public class AttributeHandlerRegistry
 {
-	private static final int SHORT_TEXT_VALUE_LENGHT = 100;
-	private static final int PREVIEW_IMAGE_SIZE = 29;
-		
-	private MessageSource msg;
-	private AttributeTypeSupport aTypeSupport;
+	private final MessageSource msg;
+	private final AttributeTypeSupport aTypeSupport;
 
-	private Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<>();
+	private final Map<String, WebAttributeHandlerFactory> factoriesByType = new HashMap<>();
 
 	@Autowired
 	public AttributeHandlerRegistry(List<WebAttributeHandlerFactory> factories, MessageSource msg,
@@ -49,7 +43,6 @@ public class AttributeHandlerRegistry
 	 * for the argument attribute name (can happen for dynamic attributes
 	 * created by output profiles).
 	 * 
-	 * @param attribute
 	 * @return attribute handler
 	 */
 	public WebAttributeHandler getHandlerWithStringFallback(Attribute attribute)
@@ -64,7 +57,6 @@ public class AttributeHandlerRegistry
 	 * attribute type for the argument attribute type (can happen for
 	 * dynamic attributes created by output profiles).
 	 * 
-	 * @param attributeType
 	 * @return attribute handler
 	 */
 	public WebAttributeHandler getHandlerWithStringFallback(AttributeType attributeType)
@@ -74,7 +66,6 @@ public class AttributeHandlerRegistry
 	}
 
 	/**
-	 * @param attribute
 	 * @return syntax for the given attribute, or String attribute syntax,
 	 *         if the attribute type is not defined.
 	 */
@@ -90,7 +81,6 @@ public class AttributeHandlerRegistry
 	}
 
 	/**
-	 * @param attributeType
 	 * @return syntax for the given attribute type, or String attribute
 	 *         syntax, if the attribute type is not defined.
 	 */
@@ -114,22 +104,6 @@ public class AttributeHandlerRegistry
 		return factory.createInstance(syntax);
 	}
 
-	/**
-	 * 
-	 * @param syntaxId
-	 * @param syntax
-	 *                syntax to be edited or null if an empty editor should
-	 *                be returned.
-	 * @return
-	 */
-	public AttributeSyntaxEditor<?> getSyntaxEditor(String syntaxId, AttributeValueSyntax<?> syntax)
-	{
-		WebAttributeHandlerFactory factory = factoriesByType.get(syntaxId);
-		if (factory == null)
-			throw new IllegalArgumentException("Syntax " + syntaxId + " has no handler factory registered");
-		return factory.getSyntaxEditorComponent(syntax);
-	}
-
 	public VerticalLayout getRepresentation(Attribute attribute, AttributeViewerContext context)
 	{
 		VerticalLayout vl = new VerticalLayout();
@@ -142,7 +116,7 @@ public class AttributeHandlerRegistry
 			String idpInfo = msg.getMessage("IdentityFormatter.remoteInfo", attribute.getRemoteIdp());
 			main.append(" [").append(idpInfo).append("]");
 		}
-		vl.add(new Label(main.toString()));
+		vl.add(new Span(main.toString()));
 		VerticalLayout indentedValues = new VerticalLayout();
 		indentedValues.setSpacing(true);
 		WebAttributeHandler handler = getHandler(syntax);
@@ -169,101 +143,8 @@ public class AttributeHandlerRegistry
 		return vl;
 	}
 
-	public Set<String> getSupportedSyntaxes()
-	{
-		return new HashSet<>(factoriesByType.keySet());
-	}
-
 	public AttributeTypeSupport getaTypeSupport()
 	{
 		return aTypeSupport;
-	}
-
-	public String getSimplifiedAttributeRepresentation(Attribute attribute)
-	{
-		return getSimplifiedAttributeRepresentation(attribute, attribute.getName());
-	}
-
-	/**
-	 * Returns a string representing the attribute. The returned format
-	 * contains the attribute name and the values.
-	 * 
-	 * @param attribute
-	 * @return
-	 */
-	private String getSimplifiedAttributeRepresentation(Attribute attribute, String displayedName)
-	{
-		StringBuilder sb = new StringBuilder();
-		sb.append(displayedName);
-		List<?> values = attribute.getValues();
-		if (!values.isEmpty())
-		{
-			sb.append(": ");
-			sb.append(getSimplifiedAttributeValuesRepresentation(attribute));
-		}
-		return sb.toString();
-	}
-
-	/**
-	 * Returns a string representing the attributes values.
-	 * 
-	 * @param attribute
-	 * @return
-	 */
-	private String getSimplifiedAttributeValuesRepresentation(Attribute attribute)
-	{
-		WebAttributeHandler handler = getHandlerWithStringFallback(attribute);
-		return getSimplifiedAttributeValuesRepresentation(attribute, handler);
-	}
-
-	public String getSimplifiedAttributeValuesRepresentation(Attribute attribute, WebAttributeHandler handler)
-	{
-		StringBuilder sb = new StringBuilder();
-		List<String> values = attribute.getValues();
-		for (int i = 0; i < values.size(); i++)
-		{
-			String val = handler.getValueAsString(values.get(i));
-			if (i > 0)
-				sb.append(", ");
-			sb.append(val);
-		}
-		return sb.toString();
-	}
-
-	/**
-	 * Returns a string representing the attributes values.
-	 * 
-	 * @param attribute
-	 * @return
-	 */
-	public com.vaadin.flow.component.Component getSimplifiedShortValuesRepresentation(Attribute attribute)
-	{
-		WebAttributeHandler handler = getHandlerWithStringFallback(attribute);
-
-		if (attribute.getValues() != null && !attribute.getValues().isEmpty())
-		{
-			com.vaadin.flow.component.Component rep = handler.getRepresentation(attribute.getValues().get(0),
-					AttributeViewerContext.builder().withCustomWidth(PREVIEW_IMAGE_SIZE)
-							.withCustomWidthUnit(Unit.PIXELS).withCustomHeight(PREVIEW_IMAGE_SIZE)
-							.withCustomHeightUnit(Unit.PIXELS).withMaxTextSize(SHORT_TEXT_VALUE_LENGHT)
-							.withShowAsLabel(true).build());
-			if (attribute.getValues().size() > 1)
-			{
-				HorizontalLayout wrapper = new HorizontalLayout();
-				wrapper.setMargin(false);
-				wrapper.setSpacing(false);
-				wrapper.add(rep);
-				wrapper.add(new Label(msg.getMessage("MessageUtils.andMore",
-						String.valueOf(attribute.getValues().size() - 1))));
-				return wrapper;
-
-			} else
-			{
-				return rep;
-			}
-		} else
-		{
-			return new Label();
-		}
 	}
 }

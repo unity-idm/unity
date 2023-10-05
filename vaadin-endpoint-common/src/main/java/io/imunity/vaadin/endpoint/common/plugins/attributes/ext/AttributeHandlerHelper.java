@@ -5,7 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -72,7 +72,7 @@ public class AttributeHandlerHelper
 
 		} else
 		{
-			component = new Label(nvalue);
+			component = new Span(nvalue);
 		}
 		return component;
 	}
@@ -103,7 +103,7 @@ public class AttributeHandlerHelper
 		VerticalLayout ret = new VerticalLayout();
 		ret.setSpacing(false);
 		ret.setMargin(false);
-		Label info = new Label(msg);
+		Span info = new Span(msg);
 		ret.add(info);
 		return ret;
 	}

@@ -6,7 +6,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.credentials.password;
 
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,7 +22,7 @@ class PasswordProgressBar extends VerticalLayout
 	private final LabelWithIcon minLengthStatus = new LabelWithIcon();
 	private final LabelWithIcon minClassesStatus = new LabelWithIcon();
 	private final LabelWithIcon sequencesStatus = new LabelWithIcon();
-	private final Label hint = new Label();
+	private final Span hint = new Span();
 
 	public PasswordProgressBar(boolean minLengthStatus, boolean minClassesStatus, boolean sequencesStatus)
 	{
@@ -104,7 +104,7 @@ class PasswordProgressBar extends VerticalLayout
 	static class LabelWithIcon extends HorizontalLayout
 	{
 		private final Div iconDiv = new Div();
-		private final Label label = new Label();
+		private final Span label = new Span();
 
 		public LabelWithIcon()
 		{

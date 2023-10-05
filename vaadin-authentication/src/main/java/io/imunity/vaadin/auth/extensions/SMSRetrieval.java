@@ -13,7 +13,7 @@ import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -31,7 +31,6 @@ import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorReg
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
@@ -101,7 +100,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	@Override
 	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
 	{
-		return Collections.<VaadinAuthenticationUI>singleton(
+		return Collections.singleton(
 				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME), notificationPresenter));
 	}
 
@@ -124,10 +123,10 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 
 	private class SMSRetrievalComponent extends VerticalLayout implements Focusable
 	{
-		private CredentialEditor credEditor;
+		private final CredentialEditor credEditor;
 		private AuthenticationCallback callback;
 		private TextField usernameField;
-		private Label usernameLabel;
+		private Span usernameLabel;
 		private TextField answerField;
 		private int tabIndex;
 		private SMSCode sentCode = null;
@@ -136,11 +135,11 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		private Entity presetEntity;
 		private CaptchaComponent capcha;
 		private VerticalLayout capchaComponent;
-		private Label capchaInfoLabel;
+		private Span capchaInfoLabel;
 		private Button authenticateButton;
 		private LinkButton lostPhone;
 		private CredentialResetLauncher credResetLauncher;
-		private NotificationPresenter notificationPresenter;
+		private final NotificationPresenter notificationPresenter;
 
 		public SMSRetrievalComponent(CredentialEditor credEditor, NotificationPresenter notificationPresenter)
 		{
@@ -162,12 +161,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			usernameField.addClassName("u-smsUsernameField");
 			add(usernameField);
 
-			usernameLabel = new Label();
+			usernameLabel = new Span();
 			add(usernameLabel);
 			usernameLabel.setVisible(false);
 
 			capcha = new CaptchaComponent(msg, 6, false);
-			capchaInfoLabel = new Label();
+			capchaInfoLabel = new Span();
 			capchaComponent = new VerticalLayout();
 			capchaComponent.setMargin(false);
 			capchaComponent.setPadding(false);
@@ -184,10 +183,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			sendCodeButton.setIcon(icon);
 			sendCodeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			sendCodeButton.setWidthFull();
-			sendCodeButton.addClickListener(e ->
-			{
-				sendCode();
-			});
+			sendCodeButton.addClickListener(e -> sendCode());
 			usernameField.addFocusListener(event ->
 			{
 				ShortcutRegistration shortcutRegistration = sendCodeButton.addClickShortcut(Key.ENTER);
@@ -220,9 +216,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 
 			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			add(authenticateButton);
-			authenticateButton.addClickListener(event -> {
-				triggerAuthentication();
-			});
+			authenticateButton.addClickListener(event -> triggerAuthentication());
 			authenticateButton.addClassName("u-smsSignInButton");
 			authenticateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			authenticateButton.setWidthFull();

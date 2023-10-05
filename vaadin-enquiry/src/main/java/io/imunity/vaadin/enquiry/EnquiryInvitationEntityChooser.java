@@ -7,7 +7,7 @@ package io.imunity.vaadin.enquiry;
 
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -67,9 +66,9 @@ class EnquiryInvitationEntityChooser extends VerticalLayout
 		buttons.add(cancelB);
 		buttons.add(confirm);
 
-		Label infoTitle = new Label(msg.getMessage("EnquiryInvitationEntityChooser.chooseEntityTitle", invitation.contactAddress));
-		
-		Label infoDesc = new Label(msg.getMessage("EnquiryInvitationEntityChooser.chooseEntityDescription"));;
+		Span infoTitle = new Span(msg.getMessage("EnquiryInvitationEntityChooser.chooseEntityTitle", invitation.contactAddress));
+
+		Span infoDesc = new Span(msg.getMessage("EnquiryInvitationEntityChooser.chooseEntityDescription"));
 
 		main.add(infoTitle);
 		main.add(infoDesc);

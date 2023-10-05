@@ -86,7 +86,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		setAlignItems(Alignment.CENTER);
 
 		H2 title = new H2();
-		title.setText(msg.getMessage("PolicyProcessingSummaryComponent.title"));;
+		title.setText(msg.getMessage("PolicyProcessingSummaryComponent.title"));
 		add(title);
 
 		HorizontalLayout summaryTitle = getSummaryLabel(result);
@@ -97,14 +97,14 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		
 		if (mandatoryAttributeSize > 0)
 		{
-			Label mandatorySummary = getSummaryLine(mandatoryAttributeSize, result.missingMandatory.size(),
+			Span mandatorySummary = getSummaryLine(mandatoryAttributeSize, result.missingMandatory.size(),
 					msg.getMessage("PolicyProcessingSummaryComponent.MandatoryAttributeProvided"));
 			add(mandatorySummary);
 		}
 	
 		if (optionalAttributeSize > 0)
 		{
-			Label optionalSummary = getSummaryLine(optionalAttributeSize, result.missingOptional.size(),
+			Span optionalSummary = getSummaryLine(optionalAttributeSize, result.missingOptional.size(),
 					msg.getMessage("PolicyProcessingSummaryComponent.OptionalAttributeProvided"));
 			add(optionalSummary);
 		}
@@ -158,7 +158,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 
 		for (Attribute attr : attributes)
 		{
-			Label attributeLabel = new Label();
+			Span attributeLabel = new Span();
 			attributeLabel.setText(attr.name);
 			Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
 			icon.getElement().getThemeList().add(theme);
@@ -166,15 +166,15 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 			icon.getStyle().set("margin", "0.5em");
 			icon.getElement().getThemeList().add(theme);
 			attributeLabel.addComponentAsFirst(icon);
-			main.addFormItem(new Label(attr.description), attributeLabel)
+			main.addFormItem(new Span(attr.description), attributeLabel)
 					.getStyle().set("gap", "2em");
 		}
 		return main;
 	}
 
-	private Label getSummaryLine(long allAttributeSize, long missingAttributeSize, String summaryText)
+	private Span getSummaryLine(long allAttributeSize, long missingAttributeSize, String summaryText)
 	{
-		Label summaryLine = new Label();
+		Span summaryLine = new Span();
 		if (missingAttributeSize == 0)
 		{
 			summaryLine.setText(msg.getMessage("PolicyProcessingSummaryComponent.all") + " " + summaryText);
@@ -271,7 +271,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		public LabelWithTooltip(String value, Optional<String> description, HtmlContainer container)
 		{
 			setWidthFull();
-			Label valueLabel = new Label();
+			Span valueLabel = new Span();
 			valueLabel.setText(value);
 			valueLabel.setWidthFull();
 			valueLabel.getStyle().set("overflow-wrap", "anywhere");

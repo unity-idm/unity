@@ -8,7 +8,7 @@ package io.imunity.vaadin.account_association;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.account_association.wizard.Wizard;
@@ -51,7 +51,7 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 				.addStep(new SandboxAuthnLaunchStep(
 						msg.getMessage("Wizard.SandboxStep.caption"),
 						new VerticalLayout(
-								new Label(msg.getMessage("ConnectId.introLabel")),
+								new Span(msg.getMessage("ConnectId.introLabel")),
 								new Button(msg.getMessage("Wizard.SandboxStepComponent.sboxButton"),
 										e -> sandBoxNewPageOpener.run())
 						),
@@ -88,7 +88,7 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 				.addStep(new SandboxAuthnLaunchStep(
 						msg.getMessage("Wizard.SandboxStep.caption"),
 						new VerticalLayout(
-								new Label(msg.getMessage("ConnectId.introLabel")),
+								new Span(msg.getMessage("ConnectId.introLabel")),
 								new Button(msg.getMessage("Wizard.SandboxStepComponent.sboxButton"),
 										e -> sandBoxNewPageOpener.run())
 						),

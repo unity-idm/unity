@@ -10,6 +10,7 @@ import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.ParentLayout;
 import io.imunity.upman.front.views.UpManMenu;
+import io.imunity.vaadin.elements.Breadcrumb;
 import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.invoke.MethodHandles;
 
 @PermitAll
+@Breadcrumb(key = "error")
 @ParentLayout(UpManMenu.class)
 public class UpmanErrorPage extends UpmanViewComponent implements HasErrorParameter<Exception>
 {

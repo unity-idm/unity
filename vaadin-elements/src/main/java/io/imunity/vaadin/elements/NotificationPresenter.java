@@ -8,7 +8,7 @@ package io.imunity.vaadin.elements;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -83,7 +83,7 @@ public class NotificationPresenter
 			closeButton.getElement().setAttribute("aria-label", "Close");
 			closeButton.addClickListener(event -> close());
 
-			Label label = new Label(header);
+			Span label = new Span(header);
 			label.getStyle().set("font-weight", "bold");
 			HorizontalLayout layout = new HorizontalLayout(
 					new VerticalLayout(label, new Text(description)),
@@ -107,7 +107,7 @@ public class NotificationPresenter
 			closeButton.getElement().setAttribute("aria-label", "Close");
 			closeButton.addClickListener(event -> close());
 
-			Label label = new Label(header);
+			Span label = new Span(header);
 			label.getStyle().set("font-weight", "bold");
 			HorizontalLayout layout = new HorizontalLayout(
 					new VerticalLayout(label, new Text(description)),

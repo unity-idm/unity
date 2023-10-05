@@ -12,7 +12,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -49,7 +49,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	
 	private RemotelyAuthenticatedInput remoteAuthnInput;
 	private StartStopButton testProfileButton;
-	private ActionParameterComponentProvider actionComponentProvider;
+	private final ActionParameterComponentProvider actionComponentProvider;
 	private Binder<TranslationProfile> binder;
 	private boolean readOnlyMode;
 	
@@ -126,7 +126,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		testProfileButton.setTooltipText(msg.getMessage("TranslationProfileEditor.testProfile"));
 		testProfileButton.addClickListener(e -> clearTestResults(), e -> testRules());
 
-		Label t = new Label(msg.getMessage("TranslationProfileEditor.rules"));
+		Span t = new Span(msg.getMessage("TranslationProfileEditor.rules"));
 		rulesHeader.add(t, addRule, testProfileButton);
 
 		FormLayout main = new FormLayout();
@@ -207,7 +207,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	
 	public void refresh()
 	{
-		rules.forEach(r -> r.refresh());
+		rules.forEach(RuleComponent::refresh);
 	}
 
 	private HorizontalLayout getDropElement(int pos)

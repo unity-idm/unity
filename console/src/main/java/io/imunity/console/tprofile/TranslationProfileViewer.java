@@ -5,7 +5,7 @@
 package io.imunity.console.tprofile;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileMode;
@@ -20,9 +20,9 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 public class TranslationProfileViewer extends VerticalLayout
 {	
 	private final MessageSource msg;
-	protected Label name;
-	protected Label description;
-	protected Label mode;
+	protected Span name;
+	protected Span description;
+	protected Span mode;
 	private FormLayout rules;
 	private FormLayout main;
 	
@@ -37,9 +37,9 @@ public class TranslationProfileViewer extends VerticalLayout
 	protected void initUI()
 	{	
 		main = new FormLayout();
-		name = new Label();
-		description = new Label();
-		mode = new Label();
+		name = new Span();
+		description = new Span();
+		mode = new Span();
 		mode.setVisible(false);
 		rules = new FormLayout();
 		main.addFormItem(name, msg.getMessage("TranslationProfileViewer.name"));

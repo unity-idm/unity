@@ -5,9 +5,9 @@
 
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 
-public class BoldLabel extends Label
+public class BoldLabel extends Span
 {
 	public BoldLabel(String text)
 	{

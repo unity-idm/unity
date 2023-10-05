@@ -6,7 +6,7 @@ package io.imunity.console.views.maintenance.audit_log;
 
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.FormLayoutLabel;
 import pl.edu.icm.unity.base.authn.CredentialInfo;
@@ -28,16 +28,16 @@ public class EntityDetailsPanelFactory
 		FormLayout formLayout = new FormLayout();
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		formLayout.addFormItem(new Label(label == null ? "[" + entity.getId() + "]" : label + " [" + entity.getId() + "]"),
+		formLayout.addFormItem(new Span(label == null ? "[" + entity.getId() + "]" : label + " [" + entity.getId() + "]"),
 				new FormLayoutLabel(msg.getMessage("IdentityDetails.id")));
-		formLayout.addFormItem(new Label(msg.getMessage("EntityState." + entity.getState().toString())),
+		formLayout.addFormItem(new Span(msg.getMessage("EntityState." + entity.getState().toString())),
 				new FormLayoutLabel(msg.getMessage("IdentityDetails.status")));
 
 		EntityScheduledOperation operation = entity.getEntityInformation().getScheduledOperation();
 		if (operation != null)
 		{
 			formLayout.addFormItem(
-					new Label(msg.getMessage(
+					new Span(msg.getMessage(
 							"EntityScheduledOperationWithDate." + operation,
 							entity.getEntityInformation().getScheduledOperationTime())
 					),
@@ -53,7 +53,7 @@ public class EntityDetailsPanelFactory
 			identitiesLayout.add(new Html("<div>" + idFormatter.toString(id) + "</div>"));
 
 		CredentialInfo credInf = entity.getCredentialInfo();
-		formLayout.addFormItem(new Label(credInf.getCredentialRequirementId()),
+		formLayout.addFormItem(new Span(credInf.getCredentialRequirementId()),
 				new FormLayoutLabel(msg.getMessage("IdentityDetails.credReq")));
 
 		VerticalLayout credentialResetLayout = new VerticalLayout();
@@ -64,7 +64,7 @@ public class EntityDetailsPanelFactory
 		{
 			String status = msg.getMessage("CredentialStatus." +
 					cred.getValue().getState().toString());
-			credentialResetLayout.add(new Label(msg.getMessage("IdentityDetails.credStatusValue", cred.getKey(), status)));
+			credentialResetLayout.add(new Span(msg.getMessage("IdentityDetails.credStatusValue", cred.getKey(), status)));
 		}
 		credentialStatusItem.setVisible(!credInf.getCredentialsState().entrySet().isEmpty());
 

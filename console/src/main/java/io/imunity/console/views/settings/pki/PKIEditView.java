@@ -9,7 +9,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -24,11 +24,11 @@ import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import jakarta.annotation.security.PermitAll;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
@@ -141,7 +141,7 @@ public class PKIEditView extends ConsoleViewComponent
 
 		certDetails = new FormLayout();
 		certDetails.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		Details details = new Details(new Label(msg.getMessage("CertificateEditor.certficateDetails")), certDetails);
+		Details details = new Details(new Span(msg.getMessage("CertificateEditor.certficateDetails")), certDetails);
 		details.setOpened(true);
 		editorLayout.add(details);
 		binder.setBean(certificateEntry);
@@ -172,21 +172,21 @@ public class PKIEditView extends ConsoleViewComponent
 			cert = getCertFromString(value.getValue());
 		} catch (Exception e)
 		{
-			certDetails.add(new Label(msg.getMessage("CertificateEditor.invalidCertFormat")));
+			certDetails.add(new Span(msg.getMessage("CertificateEditor.invalidCertFormat")));
 			return;
 		}
 
-		certDetails.addFormItem(getMonospaceLabel(cert.getSubjectDN().toString()), msg.getMessage("Certificate.subject"));
-		certDetails.addFormItem(getMonospaceLabel(cert.getIssuerDN().toString()), msg.getMessage("Certificate.issuer"));
+		certDetails.addFormItem(getMonospaceLabel(cert.getSubjectX500Principal().toString()), msg.getMessage("Certificate.subject"));
+		certDetails.addFormItem(getMonospaceLabel(cert.getIssuerX500Principal().toString()), msg.getMessage("Certificate.issuer"));
 		certDetails.addFormItem(getMonospaceLabel(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(cert.getNotBefore())), msg.getMessage("Certificate.validFrom"));
 		certDetails.addFormItem(getMonospaceLabel(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(cert.getNotAfter())), msg.getMessage("Certificate.validTo"));
 		certDetails.addFormItem(getMonospaceLabel(cert.getSigAlgName()), msg.getMessage("Certificate.signatureAlgorithm"));
 		certDetails.addFormItem(getMonospaceLabel(cert.getPublicKey().getAlgorithm()), msg.getMessage("Certificate.publicKey"));
 	}
 
-	private static Label getMonospaceLabel(String value)
+	private static Span getMonospaceLabel(String value)
 	{
-		Label label = new Label(value);
+		Span label = new Span(value);
 		label.getStyle().set("font-family", MONOSPACE_FONT);
 		return label;
 	}

@@ -12,6 +12,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.dom.Element;
@@ -177,7 +178,7 @@ class UnityAppLayoutComponentsHolder
 		Tabs tabs = new Tabs();
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
 		tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
-		Component[] items = menuContent.stream()
+		Tab[] items = menuContent.stream()
 				.map(menu ->
 				{
 					if(menu.subTabs.isEmpty())
@@ -185,7 +186,7 @@ class UnityAppLayoutComponentsHolder
 					else
 						return new MultiTabComponent(menu);
 				})
-				.toArray(Component[]::new);
+				.toArray(Tab[]::new);
 		tabs.add(items);
 		return tabs;
 	}

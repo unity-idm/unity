@@ -6,9 +6,8 @@
 package io.imunity.upman.front.views.invitations;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.elements.BlankPageAnchor;
@@ -26,7 +25,7 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 			.withZone(ZoneId.systemDefault());
 
-	public InvitationGrid(MessageSource msg, Function<InvitationModel, Component> actionMenuGetter, HtmlContainer container)
+	public InvitationGrid(MessageSource msg, Function<InvitationModel, Component> actionMenuGetter)
 	{
 		addColumn(model -> model.email)
 				.setHeader(msg.getMessage("Invitation.email"))
@@ -71,10 +70,10 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 		return formatter.format(instant);
 	}
 
-	private Label createGroupsLabel(InvitationModel model)
+	private Span createGroupsLabel(InvitationModel model)
 	{
 		String groups = String.join(", ", model.groupsDisplayedNames);
-		Label label = new Label(groups);
+		Span label = new Span(groups);
 		Tooltip.forComponent(label)
 				.withText(groups);
 		return label;

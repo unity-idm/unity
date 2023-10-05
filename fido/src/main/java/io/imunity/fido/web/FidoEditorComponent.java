@@ -10,7 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.server.VaadinService;
@@ -82,7 +82,7 @@ class FidoEditorComponent extends VerticalLayout
 		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue(), loginLessAllowed.getValue()));
 		addButton.getStyle().set("margin-top", "var(--fido-top-margin)");
 
-		Label advancedOptionsLabel = new Label(msg.getMessage("Fido.advancedOptions"));
+		Span advancedOptionsLabel = new Span(msg.getMessage("Fido.advancedOptions"));
 		advancedOptionsButton = new Div(advancedOptionsLabel);
 		advancedOptionsButton.getStyle().set("text-decoration", "underline");
 		advancedOptionsButton.getStyle().set("cursor", "pointer");

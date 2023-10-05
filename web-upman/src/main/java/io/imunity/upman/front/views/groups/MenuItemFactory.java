@@ -13,7 +13,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -181,7 +181,7 @@ class MenuItemFactory
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
 		dialog.addClassName(VaadinClassNames.DIALOG_CONFIRM.getName());
 
-		Label label = new Label(txt);
+		Span label = new Span(txt);
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
 		dialogLayout.add(label);

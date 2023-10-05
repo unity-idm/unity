@@ -6,7 +6,7 @@ package io.imunity.vaadin.auth.extensions.credreset.password;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.auth.extensions.credreset.CredentialResetFlowConfig;
 import io.imunity.vaadin.auth.extensions.credreset.CredentialResetLayout;
@@ -62,8 +62,8 @@ class PasswordResetStep1Captcha extends CredentialResetLayout
 		
 		narrowCol.add(buttons);
 		narrowCol.setAlignItems(Alignment.CENTER);
-		
-		Label extraInfo = new Label(msg.getMessage("CredentialReset.captchaExtraInfoHTML"));
+
+		Span extraInfo = new Span(msg.getMessage("CredentialReset.captchaExtraInfoHTML"));
 		extraInfo.setWidth(100, Unit.PERCENTAGE);
 		extraInfo.addClassName("u-credreset-resetExtraInfo");
 		narrowCol.add(extraInfo);

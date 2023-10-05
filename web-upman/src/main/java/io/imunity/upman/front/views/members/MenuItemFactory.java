@@ -12,7 +12,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -154,7 +154,7 @@ class MenuItemFactory
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
 		dialog.addClassName(VaadinClassNames.DIALOG_CONFIRM.getName());
-		dialog.add(new VerticalLayout(new Label(txt)));
+		dialog.add(new VerticalLayout(new Span(txt)));
 
 		Button saveButton = new SubmitButton(msg::getMessage);
 		saveButton.addClickListener(e ->
@@ -181,7 +181,7 @@ class MenuItemFactory
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
 		dialogLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
-		dialogLayout.add(new Label(msg.getMessage("AddToGroupDialog.selectGroup")), groupComboBox);
+		dialogLayout.add(new Span(msg.getMessage("AddToGroupDialog.selectGroup")), groupComboBox);
 		dialog.add(dialogLayout);
 
 		Button saveButton = createAddToGroupButton(projectGroup, dialog, groupComboBox, members);
@@ -195,7 +195,7 @@ class MenuItemFactory
 		Dialog dialog = createBaseDialog(msg.getMessage("RoleSelectionDialog.projectCaption"));
 
 		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role, items);
-		Label label = new Label(msg.getMessage("RoleSelectionDialog.projectRole"));
+		Span label = new Span(msg.getMessage("RoleSelectionDialog.projectRole"));
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
 		dialogLayout.add(label, radioGroup);
@@ -231,7 +231,7 @@ class MenuItemFactory
 		Dialog dialog = createBaseDialog(msg.getMessage("RoleSelectionDialog.subprojectCaption"));
 
 		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role, items);
-		Label label = new Label(msg.getMessage("RoleSelectionDialog.subprojectRole"));
+		Span label = new Span(msg.getMessage("RoleSelectionDialog.subprojectRole"));
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
 		dialogLayout.add(label, radioGroup);

@@ -10,7 +10,7 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.router.Route;
@@ -73,7 +73,7 @@ public class GroupsView extends UpmanViewComponent
 				div.add(WORKPLACE.create());
 			if(groupTreeNode.isPublic())
 				div.add(UNLOCK.create());
-			div.add(new Label(groupTreeNode.getDisplayedName()));
+			div.add(new Span(groupTreeNode.getDisplayedName()));
 			div.addClickListener(event ->
 			{
 				if(gridExpandedElements.contains(groupTreeNode))

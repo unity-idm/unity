@@ -7,7 +7,7 @@ package io.imunity.vaadin.endpoint.common.plugins.credentials.sms;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -19,7 +19,6 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleStr
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
@@ -52,11 +51,11 @@ public class SMSCredentialEditor implements CredentialEditor
 		New, Existing
 	}
 	
-	private MessageSource msg;
-	private AttributeTypeSupport attrTypeSupport;
-	private AttributeSupport attrSup;
-	private ConfirmationInfoFormatter formatter;
-	private MobileNumberConfirmationManager  mobileConfirmationMan;
+	private final MessageSource msg;
+	private final AttributeTypeSupport attrTypeSupport;
+	private final AttributeSupport attrSup;
+	private final ConfirmationInfoFormatter formatter;
+	private final MobileNumberConfirmationManager  mobileConfirmationMan;
 	
 	private ComboBox<String> currentMobileAttr;
 	private SMSCredential helper;
@@ -65,25 +64,25 @@ public class SMSCredentialEditor implements CredentialEditor
 	private ConfirmationInfo confirmationInfo;
 	private boolean skipUpdate = false;
 	private CredentialEditorContext context;
-	private SingleStringFieldBinder binder;
 	private NotificationPresenter notificationPresenter;
 
 	public SMSCredentialEditor(MessageSource msg, AttributeTypeSupport attrTypeSupport,
 	                           AttributeSupport attrSup,
 	                           MobileNumberConfirmationManager mobileConfirmationMan,
-	                           ConfirmationInfoFormatter formatter)
+	                           ConfirmationInfoFormatter formatter, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.attrTypeSupport = attrTypeSupport;
 		this.attrSup = attrSup;
 		this.mobileConfirmationMan = mobileConfirmationMan;
 		this.formatter = formatter;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
 	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
-		binder =  new SingleStringFieldBinder(msg);
+		SingleStringFieldBinder binder = new SingleStringFieldBinder(msg);
 		this.context = context;
 		helper = new SMSCredential();
 		helper.setSerializedConfiguration(JsonUtil.parse(context.getCredentialConfiguration()));
@@ -150,7 +149,7 @@ public class SMSCredentialEditor implements CredentialEditor
 			MobileNumberConfirmationDialog confirmationDialog = new MobileNumberConfirmationDialog(
 					value, confirmationInfo, msg, mobileConfirmationMan,
 					helper.getMobileNumberConfirmationConfiguration().get(),
-					() -> updateConfirmationStatusIconAndButtons(), notificationPresenter);
+					this::updateConfirmationStatusIconAndButtons, notificationPresenter);
 			confirmationDialog.open();
 		});
 
@@ -259,9 +258,9 @@ public class SMSCredentialEditor implements CredentialEditor
 		if (pei.getLastChange() == null)
 			return Optional.empty();
 
-		ret.add(new Label(msg.getMessage("SMSCredentialEditor.lastModification",
+		ret.add(new Span(msg.getMessage("SMSCredentialEditor.lastModification",
 				pei.getLastChange())));
-		ret.add(new Label(msg.getMessage("SMSCredentialEditor.selectedMobileNumber",
+		ret.add(new Span(msg.getMessage("SMSCredentialEditor.selectedMobileNumber",
 				hideMobile(pei.getMobile()))));
 		return Optional.of(ret);
 	}

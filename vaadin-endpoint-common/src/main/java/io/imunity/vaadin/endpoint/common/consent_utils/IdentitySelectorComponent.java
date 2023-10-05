@@ -6,9 +6,8 @@ package io.imunity.vaadin.endpoint.common.consent_utils;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
@@ -87,9 +86,8 @@ public class IdentitySelectorComponent extends VerticalLayout
 	public String getSelectedIdentityForPreferences()
 	{
 		String identityValue = selectedIdentity.getValue();
-		if (selectedIdentity instanceof Identity)
+		if (selectedIdentity instanceof Identity casted)
 		{
-			Identity casted = (Identity) selectedIdentity;
 			identityValue = casted.getComparableValue();
 			IdentityTypeDefinition idType = idTypeSupport.getTypeDefinition(casted.getTypeId());
 			if (idType.isDynamic() || idType.isTargeted())
@@ -110,7 +108,7 @@ public class IdentitySelectorComponent extends VerticalLayout
 			contents.add(help);
 		} else
 		{
-			Label identitiesL = new Label(msg.getMessage("IdentitySelectorComponent.identities"));
+			Span identitiesL = new Span(msg.getMessage("IdentitySelectorComponent.identities"));
 			identitiesCB = new ComboBox<>();
 			identitiesCB.setItems(validIdentities);
 			identitiesCB.setItemLabelGenerator(IdentityTaV::getValue);
@@ -130,23 +128,23 @@ public class IdentitySelectorComponent extends VerticalLayout
 		{
 			VerticalLayout ret = new VerticalLayout();
 			ret.setMargin(false);
-			Label identityL = new Label(msg.getMessage("IdentitySelectorComponent.identity"));
+			Span identityL = new Span(msg.getMessage("IdentitySelectorComponent.identity"));
 			ret.add(identityL);
-			
-			Label identityValue = new Label(getIdentityVisualValue(selectedIdentity));
+
+			Span identityValue = new Span(getIdentityVisualValue(selectedIdentity));
 			ret.add(identityValue);
 
 			IdentityTypeDefinition idTypeDef = idTypeSupport.getTypeDefinition(identity.getTypeId());
 			String displayedValue = idTypeDef.toHumanFriendlyString(msg, identity);
 			if (!displayedValue.equals(identity.getValue()))
 			{
-				ret.add(new Label(msg.getMessage(
+				ret.add(new Span(msg.getMessage(
 						"IdentitySelectorComponent.fullValue", identity.getValue())));
 			}
 			return ret;
 		} catch (IllegalArgumentException e)
 		{
-			return new Label(msg.getMessage(
+			return new Span(msg.getMessage(
 					"IdentitySelectorComponent.identityType", identity.getTypeId()));
 		}
 	}

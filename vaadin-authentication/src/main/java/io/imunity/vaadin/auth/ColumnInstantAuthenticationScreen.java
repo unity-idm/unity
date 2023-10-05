@@ -10,7 +10,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
@@ -390,7 +390,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 		wrapping2ndFColumn.addOptions(Lists.newArrayList(
 				new AuthnOptionsColumn.ComponentWithId("", authNPanel, 1, i -> Optional.empty())));
 		secondFactorHolder.removeAll();
-		Label mfaInfo = new Label(msg.getMessage("AuthenticationUI.mfaRequired"));
+		Span mfaInfo = new Span(msg.getMessage("AuthenticationUI.mfaRequired"));
 		wrapping2ndFColumn.focusFirst();
 		secondFactorHolder.add(mfaInfo);
 		secondFactorHolder.add(wrapping2ndFColumn);

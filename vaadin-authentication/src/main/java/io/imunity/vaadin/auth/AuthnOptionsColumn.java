@@ -5,7 +5,7 @@
 package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -23,10 +23,10 @@ class AuthnOptionsColumn extends Component implements HasComponents, HasStyle
 {
 	private final String title;
 	private final float width;
-	
+	private final List<ComponentWithId> components = new ArrayList<>();
+
 	private VerticalLayout authNOptions;
-	private List<ComponentWithId> components = new ArrayList<>();
-	
+
 	public AuthnOptionsColumn(String title, float width)
 	{
 		this.title = title;
@@ -65,9 +65,8 @@ class AuthnOptionsColumn extends Component implements HasComponents, HasStyle
 	{
 		for (ComponentWithId componentWithId: components)
 		{
-			if (componentWithId.component instanceof AuthnsGridWidget)
+			if (componentWithId.component instanceof AuthnsGridWidget grid)
 			{
-				AuthnsGridWidget grid = (AuthnsGridWidget) componentWithId.component;
 				grid.filter(filter);
 			}
 		}
@@ -99,27 +98,14 @@ class AuthnOptionsColumn extends Component implements HasComponents, HasStyle
 	{
 		for (ComponentWithId componentWithId: components)
 		{
-			if (componentWithId.component instanceof AuthenticationUIController)
+			if (componentWithId.component instanceof AuthenticationUIController authNPanel)
 			{
-				AuthenticationUIController authNPanel = (AuthenticationUIController) componentWithId.component;
 				if (authNPanel.focusIfPossible())
 					return true;
 			}
 		}
 		return false;
 	}
-
-	FirstFactorAuthNPanel getAuthnOptionById(String id)
-	{
-		for (ComponentWithId componentWithId: components)
-		{
-			Optional<FirstFactorAuthNPanel> authnOption = componentWithId.getAuthnOptionById(id);
-			if (authnOption.isPresent())
-				return authnOption.get();
-		}
-		return null;
-	}
-
 	
 	private void init()
 	{
@@ -130,7 +116,7 @@ class AuthnOptionsColumn extends Component implements HasComponents, HasStyle
 		column.setWidth(width, Unit.EM);
 		if (title != null)
 		{
-			Label title = new Label(this.title);
+			Span title = new Span(this.title);
 			title.addClassName("u-authn-columnTitle");
 			column.add(title);
 			column.setAlignItems(FlexComponent.Alignment.CENTER);

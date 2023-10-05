@@ -13,7 +13,7 @@ import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -27,7 +27,6 @@ import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -112,7 +111,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 	{
 		private AuthenticationCallback callback;
 		private TextField usernameField;
-		private Label usernameLabel;
+		private Span usernameLabel;
 		private TextField codeField;
 		private int tabIndex;
 		private Entity presetEntity;
@@ -142,7 +141,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			usernameField.addClassName("u-otpUsernameField");
 			add(usernameField);
 
-			usernameLabel = new Label("");
+			usernameLabel = new Span("");
 			add(usernameLabel);
 			usernameLabel.setVisible(false);
 
@@ -159,9 +158,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 
 			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			add(authenticateButton);
-			authenticateButton.addClickListener(event -> {
-				triggerAuthentication();
-			});
+			authenticateButton.addClickListener(event -> triggerAuthentication());
 			authenticateButton.setWidthFull();
 			authenticateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			authenticateButton.addClassName("u-otpSignInButton");

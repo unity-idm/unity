@@ -8,7 +8,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,11 +35,6 @@ public class GridContextMenuSupport<T>
 	{
 		actionHandlers.add(actionHandler);
 	}
-
-	public List<SingleActionHandler<T>> getActionHandlers()
-	{
-		return actionHandlers;
-	}
 	
 	private void fillContextMenu(GridContextMenu<T> contextMenu, Set<T> selection)
 	{
@@ -48,7 +43,7 @@ public class GridContextMenuSupport<T>
 		{
 			if (handler.isVisible(selection))
 			{
-				contextMenu.addItem(new Div(new Label(handler.getCaption()), handler.getIcon()),
+				contextMenu.addItem(new Div(new Span(handler.getCaption()), handler.getIcon()),
 						(mi) -> handler.handle(selection))
 					.setEnabled(handler.isEnabled(selection));
 			}

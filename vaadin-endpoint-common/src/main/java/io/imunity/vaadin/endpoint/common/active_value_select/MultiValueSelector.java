@@ -7,7 +7,7 @@ package io.imunity.vaadin.endpoint.common.active_value_select;
 
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +22,7 @@ class MultiValueSelector extends CheckboxGroup<ValueItem> implements ValueSelect
 			.collect(Collectors.toList());
 		setItems(items);
 		setItemLabelGenerator(i -> i.value);
-		addComponentAsFirst(new Label(name));
+		addComponentAsFirst(new Span(name));
 		addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 		addClassName("u-activeValueMultiSelect");
 	}

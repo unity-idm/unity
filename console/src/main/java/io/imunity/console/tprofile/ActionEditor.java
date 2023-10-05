@@ -8,7 +8,7 @@ package io.imunity.console.tprofile;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
 import org.apache.logging.log4j.Logger;
@@ -36,13 +36,13 @@ public class ActionEditor extends FormLayoutEmbeddable
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ActionEditor.class);
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
-	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
+	private final TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 
 	private ComboBox<String> actions;
-	private Label actionParams;
-	private ActionParameterComponentProvider actionComponentProvider;
-	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
-	private BiConsumer<String, Optional<TranslationAction>> callback;
+	private Span actionParams;
+	private final ActionParameterComponentProvider actionComponentProvider;
+	private final List<ActionParameterComponent> paramComponents = new ArrayList<>();
+	private final BiConsumer<String, Optional<TranslationAction>> callback;
 	
 	public ActionEditor(MessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider,
@@ -82,7 +82,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 				callback.accept(getStringRepresentation(), getActionIfValid());
 		});
 		
-		actionParams = new Label();
+		actionParams = new Span();
 		actionParams.setText(msg.getMessage("ActionEditor.actionParameters"));
 
 		addComponents(actions, actionParams);
@@ -103,7 +103,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 	public void setInput(TranslationAction toEdit)
 	{
 		actions.setValue(toEdit.getName());
-		setParams(actions.getValue().toString(), toEdit.getParameters());
+		setParams(actions.getValue(), toEdit.getParameters());
 	}
 	
 	private Optional<TranslationAction> getActionIfValid()
@@ -215,9 +215,8 @@ public class ActionEditor extends FormLayoutEmbeddable
 	{
 		for (ActionParameterComponent c: paramComponents)
 		{
-			if (c instanceof ExpressionActionParameterComponent)
+			if (c instanceof ExpressionActionParameterComponent extension)
 			{
-				ExpressionActionParameterComponent extension = (ExpressionActionParameterComponent) c;
 				extension.setErrorMessage(ExceptionMessageHumanizer.getHumanReadableMessage(e));
 				break;
 			}
@@ -242,9 +241,8 @@ public class ActionEditor extends FormLayoutEmbeddable
 			((HasStyle)c).removeClassName(Styles.falseConditionBackground.toString());
 			((HasStyle)c).removeClassName(Styles.trueConditionBackground.toString());
 			((HasStyle)c).removeClassName(Styles.errorBackground.toString());
-			if (c instanceof ExpressionActionParameterComponent)
+			if (c instanceof ExpressionActionParameterComponent extension)
 			{
-				ExpressionActionParameterComponent extension = (ExpressionActionParameterComponent) c;
 				extension.setErrorMessage(null);
 			}			
 		}	
@@ -260,11 +258,10 @@ public class ActionEditor extends FormLayoutEmbeddable
 			String caption = tc.getLabel();
 			if (caption != null && !caption.endsWith(":"))
 				caption = caption + ":";
-			rep.append(caption + " "
-					+ (tc.getActionValueRepresentation(msg) != null
-							&& !tc.getActionValue().equals("null")
-									? tc.getActionValueRepresentation(msg)
-									: " "));
+			rep.append(caption).append(" ").append(tc.getActionValueRepresentation(msg) != null
+					&& !tc.getActionValue().equals("null")
+					? tc.getActionValueRepresentation(msg)
+					: " ");
 			rep.append("|");
 		}
 		

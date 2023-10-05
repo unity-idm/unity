@@ -5,7 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -74,14 +74,14 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 		VerticalLayout ret = new VerticalLayout();
 		ret.setSpacing(false);
 		ret.setMargin(false);
-		Label info = new Label(
+		Span info = new Span(
 				msg.getMessage("VerifiableMobileNumberAttributeHandler.info"));
 		ret.add(info);
-		Label msgTemplate = new Label();
+		Span msgTemplate = new Span();
 		ret.add(msgTemplate);
-		Label validityTime = new Label();
+		Span validityTime = new Span();
 		ret.add(validityTime);
-		Label codeLength = new Label();
+		Span codeLength = new Span();
 		ret.add(codeLength);
 		Optional<MobileNumberConfirmationConfiguration> config = syntax
 				.getMobileNumberConfirmationConfiguration();

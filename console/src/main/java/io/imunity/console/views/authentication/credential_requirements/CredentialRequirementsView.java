@@ -15,7 +15,7 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -28,12 +28,12 @@ import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.*;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
@@ -69,7 +69,7 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 					if(!c.isReadOnly())
 						return new RouterLink(c.getName(), CredentialRequirementsEditView.class, c.getName());
 					else
-						return new Label(c.getName());
+						return new Span(c.getName());
 				})
 				.setHeader(msg.getMessage("CredentialReqView.nameCaption"))
 				.setAutoWidth(true)
@@ -141,7 +141,7 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 		ComboBox<String> replacementCR = new ComboBox<>(msg.getMessage("CredentialRequirements.replacement"), crs);
 		replacementCR.setValue(crs.get(0));
 		FormLayout layout = new FormLayout();
-		layout.addFormItem(replacementCR, new Label(msg.getMessage("CredentialRequirements.removalConfirm", confirmText)));
+		layout.addFormItem(replacementCR, new Span(msg.getMessage("CredentialRequirements.removalConfirm", confirmText)));
 
 		ConfirmDialog confirmDialog = new ConfirmDialog();
 		confirmDialog.setHeader(msg.getMessage("ConfirmDialog.confirm"));

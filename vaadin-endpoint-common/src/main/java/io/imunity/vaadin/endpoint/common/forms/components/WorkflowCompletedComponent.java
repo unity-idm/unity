@@ -9,7 +9,7 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.AutoClickButton;
 import org.apache.logging.log4j.util.Strings;
@@ -34,7 +34,7 @@ public class WorkflowCompletedComponent extends VerticalLayout
 
 		if (!Strings.isEmpty(config.extraInformation))
 		{
-			Label extraInfoL = new Label(config.extraInformation);
+			Span extraInfoL = new Span(config.extraInformation);
 			extraInfoL.addClassName(config.success ? "u-final-ext-info" : "u-final-ext-error");
 			extraInfoL.getStyle().set("word-break", "word-break");
 			extraInfoL.getStyle().set("font-size", "initial");

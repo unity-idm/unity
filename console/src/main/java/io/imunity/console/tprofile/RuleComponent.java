@@ -12,7 +12,7 @@ import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.dnd.EffectAllowed;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -46,29 +46,23 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Responsible for editing of a single TranslationRule
- * 
- * @author P. Piernik
- * @contributor Roman Krysinski
- * 
- */
 public class RuleComponent extends VerticalLayout
 {
-	private MessageSource msg;
-	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
+	private final MessageSource msg;
+	private final TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 	private ActionEditor actionEditor;
 	private MVELExpressionField condition;
 	private MappingResultComponent mappingResultComponent;
-	private Callback callback;
+	private final Callback callback;
 	private MenuItem top;
 	private MenuItem bottom;
-	private boolean editMode;
-	private ActionParameterComponentProvider actionComponentProvider;
+	private final boolean editMode;
+	private final ActionParameterComponentProvider actionComponentProvider;
 	private FormLayout content;
-	private Label info;
+	private Span info;
 	private LinkButton showHide;
 	private Binder<TranslationRule> binder;
 	private LinkButton dragImg;
@@ -106,7 +100,7 @@ public class RuleComponent extends VerticalLayout
 		header.add(showHide);
 		header.setAlignItems(Alignment.CENTER);
 		
-		info = new Label("");
+		info = new Span("");
 		info.setSizeFull();
 		header.add(info);
 
@@ -173,7 +167,7 @@ public class RuleComponent extends VerticalLayout
 		
 		binder = new Binder<>(TranslationRule.class);
 		condition.configureBinding(binder, "condition", true);		
-		binder.setBean(new TranslationRule(editMode? toEdit.getCondition() : "true", null));
+		binder.setBean(new TranslationRule(editMode? Objects.requireNonNull(toEdit).getCondition() : "true", null));
 	}
 	
 	private Map<String, String> getConditionContextVars()

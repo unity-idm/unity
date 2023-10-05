@@ -7,7 +7,7 @@ package io.imunity.vaadin.endpoint.common.consent_utils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.details.Details;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
@@ -74,8 +74,8 @@ public class ExposedAttributesComponent extends VerticalLayout
 				msg.getMessage("ExposedAttributesComponent.attributes"),
 				content);
 		details.setId("ExposedAttributes.showDetails");
-		
-		Label credInfo = new Label(msg.getMessage("ExposedAttributesComponent.credInfo"));
+
+		Span credInfo = new Span(msg.getMessage("ExposedAttributesComponent.credInfo"));
 		credInfo.setWidthFull();
 
 		addIdentity(content);
