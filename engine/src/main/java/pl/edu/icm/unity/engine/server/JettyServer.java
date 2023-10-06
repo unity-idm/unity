@@ -564,7 +564,10 @@ public class JettyServer implements Lifecycle, NetworkServer
 			}
 		}
 		if (endpoint == null)
-			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
+		{
+			undeployEE8Endpoint(id);
+			return;
+		}
 
 		String contextPath = endpoint.getEndpointDescription().getEndpoint().getContextAddress();
 		org.eclipse.jetty.server.Handler handler = usedContextPaths.get(contextPath);
@@ -578,6 +581,34 @@ public class JettyServer implements Lifecycle, NetworkServer
 		mainContextHandler.removeHandler(handler);
 		usedContextPaths.remove(contextPath);
 		deployedEndpoints.remove(endpoint);
+	}
+
+	private void undeployEE8Endpoint(String id) throws EngineException
+	{
+		WebAppEndpointEE8Instance endpoint = null;
+		for (WebAppEndpointEE8Instance endp: deployedEE8Endpoints)
+		{
+			if (endp.getEndpointDescription().getName().equals(id))
+			{
+				endpoint = endp;
+				break;
+			}
+		}
+		if (endpoint == null)
+			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
+
+		String contextPath = endpoint.getEndpointDescription().getEndpoint().getContextAddress();
+		org.eclipse.jetty.server.Handler handler = usedContextPaths.get(contextPath);
+		try
+		{
+			handler.stop();
+		} catch (Exception e)
+		{
+			throw new EngineException("Can not stop handler", e);
+		}
+		mainContextHandler.removeHandler(handler);
+		usedContextPaths.remove(contextPath);
+		deployedEE8Endpoints.remove(endpoint);
 	}
 
 	@Override
