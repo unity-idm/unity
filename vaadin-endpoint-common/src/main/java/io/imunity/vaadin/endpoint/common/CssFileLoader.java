@@ -5,6 +5,9 @@
 
 package io.imunity.vaadin.endpoint.common;
 
+import org.apache.logging.log4j.Logger;
+import pl.edu.icm.unity.base.utils.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -14,7 +17,8 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 class CssFileLoader
 {
-	private final WatchService watchService;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CssFileLoader.class);
+	private WatchService watchService;
 	private File cssFile;
 
 	CssFileLoader(String path)
@@ -30,7 +34,7 @@ class CssFileLoader
 			Executors.newSingleThreadExecutor().execute(() -> reloadFile(defaultCssFilePath, defaultCssWatchKey));
 		} catch (IOException e)
 		{
-			throw new RuntimeException(e);
+			log.error("CSS File has not been loaded, styles will be not working correctly", e);
 		}
 	}
 
