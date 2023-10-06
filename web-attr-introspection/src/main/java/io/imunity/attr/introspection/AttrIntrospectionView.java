@@ -19,6 +19,7 @@ import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.sandbox.SandboxAuthenticationScreen;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
+import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,7 +36,6 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8.PostAuthenticationDecissionWithContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -93,8 +93,9 @@ class AttrIntrospectionView extends UnityViewComponent
 	private void loadInitialState()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		PostAuthenticationDecissionWithContext postAuthnStepDecision = (PostAuthenticationDecissionWithContext) session
-				.getAttribute(DECISION_SESSION_ATTRIBUTE);
+		RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext postAuthnStepDecision =
+				(RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext) session
+					.getAttribute(DECISION_SESSION_ATTRIBUTE);
 		if (postAuthnStepDecision != null)
 		{
 			showResult((SandboxAuthnContext) session.getAttribute(SANDBOX_CONTEXT_SESSION_ATTRIBUTE));
