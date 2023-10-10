@@ -11,7 +11,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -162,6 +161,7 @@ public class StandardWebLogoutHandler implements WebLogoutHandler
 					log.warn("Logout of session peers failed", e);
 				}
 				destroySession(softLogout);
+				response.sendRedirect(returnUri);
 				return true;
 			}
 			return false;

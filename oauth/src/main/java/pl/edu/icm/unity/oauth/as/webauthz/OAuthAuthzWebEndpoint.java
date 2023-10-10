@@ -48,7 +48,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE10;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilterEE10;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -174,7 +174,7 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
 		servletContextHandler.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 
-		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
+		SessionManagementEE10 sessionMan = applicationContext.getBean(SessionManagementEE10.class);
 		LoginToHttpSessionEE10Binder sessionBinder = applicationContext.getBean(LoginToHttpSessionEE10Binder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);
 		RememberMeProcessorEE10 remeberMeProcessor = applicationContext.getBean(RememberMeProcessorEE10.class);

@@ -10,7 +10,6 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
@@ -43,7 +42,7 @@ class InvitationForm extends FormLayout
 	{
 		this.msg = msg;
 
-		binder = new BeanValidationBinder<>(InvitationRequest.class);
+		binder = new Binder<>(InvitationRequest.class);
 		binder.setBean(new InvitationRequest(projectGroup));
 
 		emailsTextArea = new TextArea();

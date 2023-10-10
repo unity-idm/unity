@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE10;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilterEE10;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
@@ -77,7 +77,7 @@ public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 
 		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
-		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
+		SessionManagementEE10 sessionMan = applicationContext.getBean(SessionManagementEE10.class);
 		LoginToHttpSessionEE10Binder sessionBinder = applicationContext.getBean(LoginToHttpSessionEE10Binder.class);
 		RememberMeProcessorEE10 remeberMeProcessor = applicationContext.getBean(RememberMeProcessorEE10.class);
 

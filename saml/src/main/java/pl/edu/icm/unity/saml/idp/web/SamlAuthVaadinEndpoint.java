@@ -44,7 +44,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE10;
 import pl.edu.icm.unity.engine.api.utils.*;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
@@ -279,8 +279,8 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 //		Servlet samlSLOSyncServlet = getSLOSyncServlet(sloSyncURL);
 //		ServletHolder samlSLOSyncHolder = createServletHolder(samlSLOSyncServlet);
 //		servletContextHandler.addServlet(samlSLOSyncHolder, SAML_SLO_SOAP_SERVLET_PATH + "/*");
-		
-		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
+
+		SessionManagementEE10 sessionMan = applicationContext.getBean(SessionManagementEE10.class);
 		LoginToHttpSessionEE10Binder sessionBinder = applicationContext.getBean(LoginToHttpSessionEE10Binder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		RememberMeProcessorEE10 remeberMeProcessor = applicationContext.getBean(RememberMeProcessorEE10.class);

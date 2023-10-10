@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE10;
 import pl.edu.icm.unity.engine.api.utils.CookieEE10Helper;
 import pl.edu.icm.unity.engine.api.utils.MDCKeys;
 
@@ -43,22 +43,22 @@ public class AuthenticationFilter implements Filter
 
 	private final String sessionCookieName;
 	private final UnsuccessfulAuthenticationCounter dosGauard;
-	private final SessionManagement sessionMan;
+	private final SessionManagementEE10 sessionMan;
 	private final LoginToHttpSessionEE10Binder sessionBinder;
 	private final RememberMeProcessorEE10 rememberMeHelper;
 	private final AuthenticationRealm realm;
 	private final NoSessionFilter noSessionFilter;
 	
 	public AuthenticationFilter(AuthenticationRealm realm,
-	                            SessionManagement sessionMan, LoginToHttpSessionEE10Binder sessionBinder, RememberMeProcessorEE10 rememberMeHelper)
+			SessionManagementEE10 sessionMan, LoginToHttpSessionEE10Binder sessionBinder, RememberMeProcessorEE10 rememberMeHelper)
 	{
 		this(realm, sessionMan, sessionBinder, rememberMeHelper, (req,resp) -> {});
 	}
 	
 	
 	public AuthenticationFilter(AuthenticationRealm realm,
-	                            SessionManagement sessionMan, LoginToHttpSessionEE10Binder sessionBinder, RememberMeProcessorEE10 rememberMeHelper,
-	                            NoSessionFilter noSessionFilter)
+			SessionManagementEE10 sessionMan, LoginToHttpSessionEE10Binder sessionBinder, RememberMeProcessorEE10 rememberMeHelper,
+			NoSessionFilter noSessionFilter)
 	{
 		//note: this is a separate counter to the main one which is stored as a servlet's attribute.
 		// this is 'cos we need to separate regular net traffic (and not to block it - otherwise even 

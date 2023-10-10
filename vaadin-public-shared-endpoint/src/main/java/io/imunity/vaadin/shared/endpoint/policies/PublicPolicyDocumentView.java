@@ -28,7 +28,6 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 
 import java.util.Optional;
 
-import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppDisplayedName;
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.POLICY_DOCUMENTS_PATH;
 
 @Route(value = POLICY_DOCUMENTS_PATH + ":" + PublicPolicyDocumentView.POLICY_DOC_PARAM)
@@ -105,6 +104,6 @@ class PublicPolicyDocumentView extends UnityViewComponent implements BeforeEnter
 	@Override
 	public String getPageTitle()
 	{
-		return getCurrentWebAppDisplayedName();
+		return msg.getMessage("Policies");
 	}
 }
