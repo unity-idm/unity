@@ -159,7 +159,7 @@ vaadin-form-item {
 }
 
 .big-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 20em;
+    --vaadin-form-item-label-width: 21em;
 }
 
 vaadin-text-field > label {

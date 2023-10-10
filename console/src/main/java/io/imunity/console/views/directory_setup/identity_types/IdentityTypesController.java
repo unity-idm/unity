@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.directorySetup.identityTypes;
+package io.imunity.console.views.directory_setup.identity_types;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -27,13 +27,14 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-@Component("IdentityTypesControllerV8")
+@Component
 class IdentityTypesController
 {
-	private MessageSource msg;
-	private IdentityTypesManagement idMan;
-	private IdentityTypeSupport idTypeSupport;
-	private MessageTemplateManagement msgTemplateMan;
+	private final MessageSource msg;
+	private final IdentityTypesManagement idMan;
+	private final IdentityTypeSupport idTypeSupport;
+	private final MessageTemplateManagement msgTemplateMan;
+
 
 	@Autowired
 	IdentityTypesController(MessageSource msg, IdentityTypesManagement idMan,
@@ -45,7 +46,7 @@ class IdentityTypesController
 		this.msgTemplateMan = msgTemplateMan;
 	}
 
-	Collection<IdentityTypeEntry> getIdentityTypes() throws ControllerException
+	Collection<IdentityTypeEntry> getIdentityTypes() throws ControllerException 
 	{
 		try
 		{
@@ -55,6 +56,7 @@ class IdentityTypesController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("IdentityTypesController.getAllError"), e);
+
 		}
 	}
 
@@ -69,12 +71,12 @@ class IdentityTypesController
 		}
 	}
 
-	void updateIdentityType(IdentityType idType, EventsBus bus) throws ControllerException
+	void updateIdentityType(IdentityType idType, EventsBus eventsBus) throws ControllerException
 	{
 		try
 		{
 			idMan.updateIdentityType(idType);
-			bus.fireEvent(new IdentityTypesUpdatedEvent(Sets.newHashSet(idType)));
+			eventsBus.fireEvent(new IdentityTypesUpdatedEvent(Sets.newHashSet(idType)));
 		} catch (Exception e)
 		{
 			throw new ControllerException(
