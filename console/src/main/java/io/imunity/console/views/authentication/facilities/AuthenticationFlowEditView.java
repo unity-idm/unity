@@ -10,7 +10,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -21,13 +21,14 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.*;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 
 @PermitAll
 @Route(value = "/facilities/authentication-flow", layout = ConsoleMenu.class)
@@ -77,16 +78,16 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 	{
 		TextField name = new TextField();
 		name.setPlaceholder(msg.getMessage("AuthenticationFlow.defaultName"));
-		name.setWidth("var(--vaadin-text-field-big)");
+		name.setWidth(TEXT_FIELD_BIG.value());
 		name.setReadOnly(edit);
 
 		MultiSelectComboBox<String> firstFactorAuthenticators = new MultiSelectComboBox<>();
 		firstFactorAuthenticators.setItems(authenticators);
-		firstFactorAuthenticators.setWidth("var(--vaadin-text-field-big)");
+		firstFactorAuthenticators.setWidth(TEXT_FIELD_BIG.value());
 
 		MultiSelectComboBox<String> secondFactorAuthenticators = new MultiSelectComboBox<>();
 		secondFactorAuthenticators.setItems(authenticators);
-		secondFactorAuthenticators.setWidth("var(--vaadin-text-field-big)");
+		secondFactorAuthenticators.setWidth(TEXT_FIELD_BIG.value());
 
 		ComboBox<AuthenticationFlowDefinition.Policy> policy = new ComboBox<>();
 		policy.setItems(AuthenticationFlowDefinition.Policy.values());
@@ -116,7 +117,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 		mainLayout.addFormItem(secondFactorAuthenticators, msg.getMessage("AuthenticationFlow.secondFactorAuthenticators"));
 		if (!toEdit.endpoints.isEmpty())
 		{
-			VerticalLayout field = new VerticalLayout(toEdit.endpoints.stream().map(Label::new).toArray(Component[]::new));
+			VerticalLayout field = new VerticalLayout(toEdit.endpoints.stream().map(Span::new).toArray(Component[]::new));
 			field.setPadding(false);
 			mainLayout.addFormItem(field, msg.getMessage("AuthenticationFlow.endpoints"));
 		}

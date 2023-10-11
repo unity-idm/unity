@@ -492,3 +492,7 @@ vaadin-details.multi-tab-details {
 .monospace {
     font-family: Monospace;
 }
+
+.edit-view-action-buttons-layout {
+    width: 13em;
+}

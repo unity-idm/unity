@@ -52,6 +52,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
 import static java.lang.String.join;
 import static java.util.Objects.nonNull;
 
@@ -226,7 +227,7 @@ public class AuditLogView extends ConsoleViewComponent
 	private Span getTimestampHeaderLabel()
 	{
 		Span label = new Span(msg.getMessage("AuditEventsView.timestamp"));
-		label.getStyle().set("margin-left", "var(--big-margin)");
+		label.getStyle().set("margin-left", BIG_MARGIN.value());
 		return label;
 	}
 
@@ -392,7 +393,7 @@ public class AuditLogView extends ConsoleViewComponent
 			showInitiatorDetailsMenuItem.setEnabled(false);
 
 		Component target = actionMenu.getTarget();
-		target.getElement().getStyle().set("margin-right", "var(--big-margin)");
+		target.getElement().getStyle().set("margin-right", BIG_MARGIN.value());
 		return target;
 	}
 

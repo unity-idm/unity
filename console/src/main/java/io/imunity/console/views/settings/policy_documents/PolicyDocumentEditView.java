@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 
 @PermitAll
 @Route(value = "/policy-documents/edit", layout = ConsoleMenu.class)
@@ -92,7 +93,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		name.setPlaceholder(msg.getMessage("PolicyDocumentEditor.defaultName"));
 
 		LocaleTextFieldDetails displayedName = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> toEdit.getDisplayedName().getOrDefault(locale, ""));
-		displayedName.setWidth("var(--vaadin-text-field-big)");
+		displayedName.setWidth(TEXT_FIELD_BIG.value());
 
 		Checkbox optional = new Checkbox();
 		Span revision = new Span(String.valueOf(toEdit.revision));
@@ -192,7 +193,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		{
 			content = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.url"));
-			content.setWidth("var(--vaadin-text-field-big)");
+			content.setWidth(TEXT_FIELD_BIG.value());
 			contentBind = binder.forField(content).withValidator((val, context) ->
 			{
 				if (val != null)

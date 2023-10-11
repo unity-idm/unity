@@ -9,6 +9,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
+
 class Panel extends VerticalLayout
 {
 	Panel(String header)
@@ -20,7 +22,7 @@ class Panel extends VerticalLayout
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setWidthFull();
 		Span label = new Span(header);
-		label.getStyle().set("margin", "var(--small-margin)");
+		label.getStyle().set("margin", SMALL_MARGIN.value());
 		horizontalLayout.add(label);
 		horizontalLayout.getStyle().set("background-color", "var(--contrast)");
 		add(horizontalLayout);

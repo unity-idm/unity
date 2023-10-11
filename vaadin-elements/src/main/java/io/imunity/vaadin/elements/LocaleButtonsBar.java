@@ -13,11 +13,13 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Function;
 
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
+
 public class LocaleButtonsBar extends HorizontalLayout
 {
 	public LocaleButtonsBar(Collection<Locale> enabledLocales, String label, Function<Locale, Runnable> valueGenerator)
 	{
-		getStyle().set("margin-left", "var(--base-margin)");
+		getStyle().set("margin-left", BASE_MARGIN.value());
 		enabledLocales.stream().map(locale ->
 		{
 			Button button = new Button(label, e -> valueGenerator.apply(locale).run());

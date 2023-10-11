@@ -32,6 +32,8 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
+
 @PermitAll
 @Breadcrumb(key = "UserHomeUI.trustedDevices")
 @Route(value = "/trusted-device", layout = HomeUiMenu.class)
@@ -71,7 +73,7 @@ public class TrustedDeviceView extends HomeViewComponent
 		content.addFormItem(new Span(model.getCreateTime()), msg.getMessage("RememberMeToken.createTime"));
 		content.addFormItem(new Span(model.getExpires()), msg.getMessage("RememberMeToken.expires"));
 		content.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		content.getStyle().set("margin-left", "var(--big-margin)");
+		content.getStyle().set("margin-left", BIG_MARGIN.value());
 		accordionPanel.setContent(content);
 
 		return accordionPanel;

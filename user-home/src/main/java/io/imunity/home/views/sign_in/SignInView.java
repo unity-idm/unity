@@ -46,6 +46,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
+import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
+
 @PermitAll
 @Breadcrumb(key = "UserHomeUI.signIn")
 @Route(value = "/sign-in", layout = HomeUiMenu.class)
@@ -108,7 +111,7 @@ public class SignInView extends HomeViewComponent
 		layout.add(new H2(msg.getMessage("UserHomeUI.signInCredentials")), createPanelLayout(correctCredentialDefinition));
 
 		Details details = new Details(getH2(msg.getMessage("UserHomeUI.addAnotherSignInCredentials")), createPanelLayout(notSetCredentialDefinition));
-		details.getStyle().set("margin-top", "var(--small-margin)");
+		details.getStyle().set("margin-top", SMALL_MARGIN.value());
 		details.setWidthFull();
 		layout.add(details);
 		layout.setSizeUndefined();
@@ -128,7 +131,7 @@ public class SignInView extends HomeViewComponent
 		VerticalLayout layout = new VerticalLayout();
 		layout.setPadding(false);
 		layout.setSpacing(false);
-		layout.getStyle().set("margin-left", "var(--big-margin)");
+		layout.getStyle().set("margin-left", BIG_MARGIN.value());
 
 		int last = panels.size();
 		int credSize = panels.size();

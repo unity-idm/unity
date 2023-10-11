@@ -21,6 +21,7 @@ import java.util.*;
 import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId;
 import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createNonLoginComponent;
 import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createSimpleLoginComponent;
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.*;
 
 /**
@@ -352,7 +353,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 	private ComponentWithId getExpandAllOptionsButton()
 	{
 		LinkButton expand = new LinkButton(msg.getMessage("AuthenticationUI.showAllOptions"), event -> showAllOptions());
-		expand.getStyle().set("margin-top", "var(--big-margin)");
+		expand.getStyle().set("margin-top", BIG_MARGIN.value());
 		return createNonLoginComponent(SPECIAL_ENTRY_EXPAND, expand);
 	}
 

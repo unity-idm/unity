@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.SMALL_GAP;
+
 public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 {
 	public Map<Locale, LocaleReachEditor> fields = new LinkedHashMap<>();
@@ -58,7 +60,7 @@ public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
 		summary.setAlignItems(FlexComponent.Alignment.BASELINE);
 		summary.setWidthFull();
-		summary.getStyle().set("gap", "var(--small-gap)");
+		summary.getStyle().set("gap", SMALL_GAP.value());
 
 		enabledLocales.stream()
 				.filter(locale -> !currentLocale.equals(locale))

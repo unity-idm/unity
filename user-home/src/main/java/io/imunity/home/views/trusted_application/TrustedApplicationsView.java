@@ -33,6 +33,8 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
+
 @PermitAll
 @Breadcrumb(key = "UserHomeUI.trustedApplications")
 @Route(value = "/trusted-applications", layout = HomeUiMenu.class)
@@ -123,7 +125,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 	{
 		FormLayout content = new FormLayout();
 		content.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		content.getStyle().set("margin-left", "var(--big-margin)");
+		content.getStyle().set("margin-left", BIG_MARGIN.value());
 
 		application.applicationDomain.ifPresent(s -> content.addFormItem(new Span(s), msg.getMessage("TrustedApplications.applicationDomain")));
 

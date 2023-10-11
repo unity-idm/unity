@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
+
 @PermitAll
 @Breadcrumb(key = "UpManMenu.members")
 @Route(value = "/members", layout = UpManMenu.class)
@@ -95,7 +97,7 @@ public class MembersView extends UpmanViewComponent
 	{
 		HorizontalLayout layout = new HorizontalLayout(new Span(msg.getMessage("GroupMemberView.subGroupComboCaption")), groupsComboBox);
 		layout.setAlignItems(FlexComponent.Alignment.CENTER);
-		layout.getStyle().set("margin-top", "var(--big-margin)");
+		layout.getStyle().set("margin-top", BIG_MARGIN.value());
 		return layout;
 	}
 

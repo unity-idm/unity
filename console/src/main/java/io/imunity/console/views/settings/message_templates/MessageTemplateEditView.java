@@ -46,6 +46,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition.CUSTOM_VAR_PREFIX;
 
 @PermitAll
@@ -120,20 +122,20 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		bodyValidator = new MessageValidator(null, true);
 
 		TextField name = new TextField();
-		name.setWidth("var(--vaadin-text-field-medium)");
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		name.setPlaceholder(msg.getMessage("MessageTemplatesEditor.defaultName"));
 
 		TextField description = new TextField();
-		description.setWidth("var(--vaadin-text-field-big)");
+		description.setWidth(TEXT_FIELD_BIG.value());
 
 		notificationChannels = new ComboBox<>();
 		reloadNotificationChannels(EnumSet.noneOf(CommunicationTechnology.class));
 		notificationChannels.setRequiredIndicatorVisible(true);
-		notificationChannels.setWidth("var(--vaadin-text-field-medium)");
+		notificationChannels.setWidth(TEXT_FIELD_MEDIUM.value());
 		notificationChannels.setClassName("disable-required-indicator");
 
 		consumer = new ComboBox<>();
-		consumer.setWidth("var(--vaadin-text-field-medium)");
+		consumer.setWidth(TEXT_FIELD_MEDIUM.value());
 		consumer.getStyle().set("text-wrap", "nowrap");
 		Collection<String> consumers = registry.getAll().stream()
 				.map(MessageTemplateDefinition::getName)
@@ -181,7 +183,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 			customVariablesPicker.setItems(values);
 			customVariablesPicker.setValue(values);
 		});
-		customVariablesPicker.setWidth("var(--vaadin-text-field-big)");
+		customVariablesPicker.setWidth(TEXT_FIELD_BIG.value());
 
 		FormLayout formLayout = createFormLayout(name, description, subject, messageType, body);
 		getContent().add(new VerticalLayout(formLayout, createActionLayout(msg, editMode, MessageTemplatesView.class, this::onConfirm)));

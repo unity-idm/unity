@@ -37,6 +37,8 @@ import java.util.Optional;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 import static io.imunity.vaadin.elements.BreadCrumbParameter.BREAD_CRUMB_SEPARATOR;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 @PermitAll
 @Route(value = "/pki/edit", layout = ConsoleMenu.class)
@@ -97,7 +99,7 @@ public class PKIEditView extends ConsoleViewComponent
 		TextField name = new TextField();
 		name.setWidthFull();
 		name.setReadOnly(edit);
-		name.setWidth("var(--vaadin-text-field-big)");
+		name.setWidth(TEXT_FIELD_BIG.value());
 		name.setPlaceholder(msg.getMessage("Certificate.defaultName"));
 
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
@@ -119,7 +121,7 @@ public class PKIEditView extends ConsoleViewComponent
 		value = new TextArea();
 		value.setWidthFull();
 		value.setClassName("monospace");
-		value.setHeight("var(--vaadin-text-field-medium)");
+		value.setHeight(TEXT_FIELD_MEDIUM.value());
 		value.addValueChangeListener(e -> refreshDetails());
 
 		binder = new Binder<>(CertificateEntry.class);

@@ -9,7 +9,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,14 +22,16 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.Optional;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
+import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 
 @PermitAll
 @Route(value = "/realms/edit", layout = ConsoleMenu.class)
@@ -77,17 +79,17 @@ public class RealmEditView extends ConsoleViewComponent
 	void initUI(AuthenticationRealmEntry toEdit)
 	{
 		TextField name = new TextField();
-		name.setWidth("var(--vaadin-text-field-big)");
+		name.setWidth(TEXT_FIELD_BIG.value());
 		name.setPlaceholder(msg.getMessage("AuthenticationRealm.defaultName"));
 		TextField description = new TextField();
-		description.setWidth("var(--vaadin-text-field-big)");
+		description.setWidth(TEXT_FIELD_BIG.value());
 
 		IntegerField blockAfterUnsuccessfulLogins = getIntegerField();
 		IntegerField blockFor = getIntegerField();
 
 		ComboBox<RememberMePolicy> rememberMePolicy = new ComboBox<>();
 		rememberMePolicy.setItems(RememberMePolicy.values());
-		rememberMePolicy.setWidth("var(--vaadin-text-field-big)");
+		rememberMePolicy.setWidth(TEXT_FIELD_BIG.value());
 
 		IntegerField allowForRememberMeDays = getIntegerField();
 		IntegerField maxInactivity = getIntegerField();
@@ -128,7 +130,7 @@ public class RealmEditView extends ConsoleViewComponent
 				.add(getTooltipIcon("AuthenticationRealm.maxInactivity.tooltip"));
 		if (!toEdit.endpoints.isEmpty())
 		{
-			VerticalLayout field = new VerticalLayout(toEdit.endpoints.stream().map(Label::new).toArray(Component[]::new));
+			VerticalLayout field = new VerticalLayout(toEdit.endpoints.stream().map(Span::new).toArray(Component[]::new));
 			field.setPadding(false);
 			mainLayout.addFormItem(field, msg.getMessage("AuthenticationRealm.endpoints"));
 		}
@@ -178,7 +180,7 @@ public class RealmEditView extends ConsoleViewComponent
 		Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
 		icon.setTooltipText(msg.getMessage(code));
 		icon.getStyle().set("align-self", "center");
-		icon.getStyle().set("margin-left", "var(--small-margin)");
+		icon.getStyle().set("margin-left", SMALL_MARGIN.value());
 		return icon;
 	}
 

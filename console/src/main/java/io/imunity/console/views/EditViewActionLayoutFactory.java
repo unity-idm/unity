@@ -24,7 +24,7 @@ public class EditViewActionLayoutFactory
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setWidth("20em");
+		buttonsLayout.setClassName("edit-view-action-buttons-layout");
 		return buttonsLayout;
 	}
 }

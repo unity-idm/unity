@@ -7,7 +7,6 @@ package io.imunity.home.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
-import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
@@ -38,7 +37,7 @@ public class AccountUpdateView extends HomeViewComponent
 		if (stickyEnquiryService.anyFormApplicableToCurrentUser(enabledEnquiries))
 		{
 			Component stickyEnquiry = stickyEnquiryService.createApplicableToCurrentUserStickyEnquiryComponent(enabledEnquiries);
-			((HasStyle)stickyEnquiry).getStyle().set("height", "20em");
+			stickyEnquiry.getStyle().set("height", "20em");
 			getContent().removeAll();
 			getContent().add(stickyEnquiry);
 		}

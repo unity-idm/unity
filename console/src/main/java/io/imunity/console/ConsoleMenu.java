@@ -45,6 +45,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
 import static java.util.stream.Collectors.toList;
 
 public class ConsoleMenu extends UnityAppLayout
@@ -166,8 +167,8 @@ public class ConsoleMenu extends UnityAppLayout
 	private HorizontalLayout createImageLayout(Component image)
 	{
 		HorizontalLayout imageLayout = new HorizontalLayout();
-		imageLayout.getStyle().set("margin-top", "var(--medium-margin)");
-		imageLayout.getStyle().set("margin-bottom", "var(--medium-margin)");
+		imageLayout.getStyle().set("margin-top", MEDIUM_MARGIN.value());
+		imageLayout.getStyle().set("margin-bottom", MEDIUM_MARGIN.value());
 		imageLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 		imageLayout.add(image);
 		return imageLayout;

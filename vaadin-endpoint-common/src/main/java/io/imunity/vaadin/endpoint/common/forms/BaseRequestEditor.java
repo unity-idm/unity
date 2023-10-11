@@ -69,6 +69,7 @@ import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 import static io.imunity.vaadin.endpoint.common.forms.FormParser.isGroupParamUsedAsMandatoryAttributeGroup;
 
 
@@ -617,7 +618,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 		PolicyAgreementRepresentation ar = policyAgreementsRepresentationBuilder.getAgreementRepresentation(aParam);
 		policyAgreementSelectors.add(ar);
-		ar.getStyle().set("margin-top", "var(--small-margin)");
+		ar.getStyle().set("margin-top", SMALL_MARGIN.value());
 		layout.add(ar);
 		return true;	
 	}

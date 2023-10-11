@@ -30,6 +30,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 @PermitAll
 @Route(value = "/credential-requirements/edit", layout = ConsoleMenu.class)
@@ -81,15 +83,15 @@ public class CredentialRequirementsEditView extends ConsoleViewComponent
 		Collection<CredentialDefinition> allCredentials = controller.getCredentialRequirementDefinitions();
 		TextField name = new TextField();
 		name.setReadOnly(edit);
-		name.setWidth("var(--vaadin-text-field-medium)");
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		name.setPlaceholder(msg.getMessage("CredentialRequirements.defaultName"));
 
 		TextField description = new TextField();
-		description.setWidth("var(--vaadin-text-field-big)");
+		description.setWidth(TEXT_FIELD_BIG.value());
 
 		MultiSelectComboBox<String> requiredCredentials = new MultiSelectComboBox<>();
 		requiredCredentials.setItems(allCredentials.stream().map(CredentialDefinition::getName).collect(Collectors.toList()));
-		requiredCredentials.setWidth("var(--vaadin-text-field-big)");
+		requiredCredentials.setWidth(TEXT_FIELD_BIG.value());
 		requiredCredentials.setAllowCustomValue(false);
 
 		FormLayout formLayout = new FormLayout();

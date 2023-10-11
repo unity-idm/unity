@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
 
 public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
@@ -91,8 +92,8 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 		String imageAttribute = homeEndpointProperties.getImageAttribute();
 		Component image = createImage(theUser, imageAttribute);
 		HorizontalLayout imageLayout = new HorizontalLayout();
-		imageLayout.getStyle().set("margin-top", "var(--medium-margin)");
-		imageLayout.getStyle().set("margin-bottom", "var(--medium-margin)");
+		imageLayout.getStyle().set("margin-top", MEDIUM_MARGIN.value());
+		imageLayout.getStyle().set("margin-bottom", MEDIUM_MARGIN.value());
 		imageLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 		imageLayout.add(image);
 		return imageLayout;
