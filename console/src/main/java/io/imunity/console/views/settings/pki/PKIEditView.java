@@ -42,7 +42,6 @@ import static io.imunity.vaadin.elements.BreadCrumbParameter.BREAD_CRUMB_SEPARAT
 @Route(value = "/pki/edit", layout = ConsoleMenu.class)
 public class PKIEditView extends ConsoleViewComponent
 {
-	public static final String MONOSPACE_FONT = "Monospace";
 	public static final int MAX_FILE_SIZE = 50000000;
 	private final CertificatesController controller;
 	private final NotificationPresenter notificationPresenter;
@@ -119,7 +118,7 @@ public class PKIEditView extends ConsoleViewComponent
 
 		value = new TextArea();
 		value.setWidthFull();
-		value.getStyle().set("font-family", MONOSPACE_FONT);
+		value.setClassName("monospace");
 		value.setHeight("var(--vaadin-text-field-medium)");
 		value.addValueChangeListener(e -> refreshDetails());
 
@@ -187,7 +186,7 @@ public class PKIEditView extends ConsoleViewComponent
 	private static Span getMonospaceLabel(String value)
 	{
 		Span label = new Span(value);
-		label.getStyle().set("font-family", MONOSPACE_FONT);
+		label.setClassName("monospace");
 		return label;
 	}
 

@@ -7,7 +7,6 @@ package io.imunity.console.views.authentication.credential_requirements;
 
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -16,7 +15,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -24,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.WebSession;
@@ -98,25 +97,28 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 
 	private Component createRowActionMenu(CredentialRequirements entry)
 	{
-		Icon generalSettings = EDIT.create();
-		Icon remove = TRASH.create();
+		ActionIconBuilder generalSettings = new ActionIconBuilder().setIcon(EDIT);
+		ActionIconBuilder remove = new ActionIconBuilder().setIcon(TRASH);
 
 		if(entry.isReadOnly())
 		{
-			generalSettings.getStyle().set("opacity", "0.5");
-			remove.getStyle().set("opacity", "0.5");
+			generalSettings.grayIcon(true);
+			remove.grayIcon(true);
 		}
 		else
 		{
-			generalSettings.getStyle().set("cursor", "pointer");
-			generalSettings.setTooltipText(msg.getMessage("edit"));
-			generalSettings.addClickListener(e -> UI.getCurrent().navigate(CredentialRequirementsEditView.class, entry.getName()));
-			remove.getStyle().set("cursor", "pointer");
-			remove.addClickListener(e -> tryRemove(entry));
-			remove.setTooltipText(msg.getMessage("remove"));
+			generalSettings
+					.setTooltipText(msg.getMessage("edit"))
+					.setNavigation(CredentialRequirementsEditView.class, entry.getName())
+					.build();
+
+			remove
+					.setTooltipText(msg.getMessage("remove"))
+					.setClickListener(() -> tryRemove(entry))
+					.build();
 		}
 
-		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, remove);
+		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings.build(), remove.build());
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		return horizontalLayout;
 	}

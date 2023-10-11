@@ -6,7 +6,6 @@
 package io.imunity.console.views.settings.message_templates;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -27,10 +26,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.ActionMenu;
-import io.imunity.vaadin.elements.Breadcrumb;
-import io.imunity.vaadin.elements.FlagIcon;
-import io.imunity.vaadin.elements.MenuButton;
+import io.imunity.vaadin.elements.*;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -193,10 +189,11 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		MenuButton resetButton = new MenuButton(msg.getMessage("MessageTemplatesView.resetToDefault"), RETWEET);
 		actionMenu.addItem(resetButton, e -> resetFromConfig(Set.of(entry)));
 
-		Icon generalSettings = EDIT.create();
-		generalSettings.setTooltipText(msg.getMessage("edit"));
-		generalSettings.getStyle().set("cursor", "pointer");
-		generalSettings.addClickListener(e -> UI.getCurrent().navigate(MessageTemplateEditView.class, entry.messageTemplate.getName()));
+		Icon generalSettings = new ActionIconBuilder()
+				.setIcon(EDIT)
+				.setTooltipText(msg.getMessage("edit"))
+				.setNavigation(MessageTemplateEditView.class, entry.messageTemplate.getName())
+				.build();
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, actionMenu.getTarget());
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);

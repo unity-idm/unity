@@ -7,7 +7,6 @@ package io.imunity.console.views.authentication.facilities;
 
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -26,6 +25,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.elements.Breadcrumb;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -84,17 +84,17 @@ public class FacilitiesView extends ConsoleViewComponent
 
 	private Component createRowActionMenu(AuthenticationFlowEntry entry)
 	{
-		Icon generalSettings = EDIT.create();
-		generalSettings.setTooltipText(msg.getMessage("edit"));
-		generalSettings.getStyle().set("cursor", "pointer");
-		generalSettings.addClickListener(e -> UI.getCurrent().navigate(AuthenticationFlowEditView.class, String.valueOf(entry.flow.getName())));
-		generalSettings.getElement().setAttribute("onclick", "event.stopPropagation();");
+		Icon generalSettings = new ActionIconBuilder()
+				.setIcon(EDIT)
+				.setTooltipText(msg.getMessage("edit"))
+				.setNavigation(AuthenticationFlowEditView.class, entry.flow.getName())
+				.build();
 
-		Icon remove = TRASH.create();
-		remove.setTooltipText(msg.getMessage("remove"));
-		remove.getStyle().set("cursor", "pointer");
-		remove.addClickListener(e -> tryRemove(entry));
-		remove.getElement().setAttribute("onclick", "event.stopPropagation();");
+		Icon remove = new ActionIconBuilder()
+				.setIcon(TRASH)
+				.setTooltipText(msg.getMessage("remove"))
+				.setClickListener(() -> tryRemove(entry))
+				.build();
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, remove);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);

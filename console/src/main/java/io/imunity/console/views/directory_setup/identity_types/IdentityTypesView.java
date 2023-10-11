@@ -5,12 +5,7 @@
 
 package io.imunity.console.views.directory_setup.identity_types;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-
-import java.util.Comparator;
-
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -25,14 +20,18 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.Comparator;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.directorySetup.identityTypes")
@@ -99,14 +98,11 @@ public class IdentityTypesView extends ConsoleViewComponent
 
 	private Component createRowActionMenu(IdentityTypeEntry entry)
 	{
-		Icon generalSettings = EDIT.create();
-		generalSettings.setTooltipText(msg.getMessage("edit"));
-		generalSettings.getStyle()
-				.set("cursor", "pointer");
-		generalSettings.addClickListener(e -> UI.getCurrent()
-				.navigate(EditIdentityTypeView.class, String.valueOf(entry.type.getName())));
-		generalSettings.getElement()
-				.setAttribute("onclick", "event.stopPropagation();");
+		Icon generalSettings = new ActionIconBuilder()
+				.setIcon(EDIT)
+				.setTooltipText(msg.getMessage("edit"))
+				.setNavigation(EditIdentityTypeView.class, entry.type.getName())
+				.build();
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);

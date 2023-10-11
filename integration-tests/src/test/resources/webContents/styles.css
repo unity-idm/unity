@@ -488,3 +488,7 @@ vaadin-details.multi-tab-details {
 .invalid::after {
     color: var(--lumo-required-field-indicator-color, var(--lumo-error-text-color));
 }
+
+.monospace {
+    font-family: Monospace;
+}

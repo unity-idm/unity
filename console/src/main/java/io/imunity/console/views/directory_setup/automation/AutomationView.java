@@ -20,14 +20,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.MenuButton;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.Collection;
 import java.util.Set;
 
@@ -107,10 +108,11 @@ public class AutomationView extends ConsoleViewComponent
 
 	private Component createRowActionMenu(ScheduledProcessingRule entry)
 	{
-		Icon generalSettings = EDIT.create();
-		generalSettings.setTooltipText(msg.getMessage("edit"));
-		generalSettings.getStyle().set("cursor", "pointer");
-		generalSettings.addClickListener(e -> UI.getCurrent().navigate(AutomationEditView.class, entry.getName()));
+		Icon generalSettings = new ActionIconBuilder()
+				.setIcon(EDIT)
+				.setTooltipText(msg.getMessage("edit"))
+				.setNavigation(AutomationEditView.class, entry.getName())
+				.build();
 
 		ActionMenu actionMenu = new ActionMenu();
 
