@@ -40,7 +40,7 @@ public class LogoutProcessorsManager
 	public void handleAsyncLogout(LoginSession session, String requestersRelayState, String returnUrl, 
 			HttpServletResponse response) throws IOException
 	{
-// FIXME
+// FUNCTIONALITY DISABLED FOR VAADIN 8
 //		for (LogoutProcessor logoutProcessor: processors)
 //			logoutProcessor.handleAsyncLogout(session, requestersRelayState, returnUrl, response);
 	}

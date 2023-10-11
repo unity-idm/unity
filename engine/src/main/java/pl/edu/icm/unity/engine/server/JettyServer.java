@@ -554,6 +554,16 @@ public class JettyServer implements Lifecycle, NetworkServer
 	@Override
 	public synchronized void undeployEndpoint(String id) throws EngineException
 	{
+		if(deployedEndpoints.stream().anyMatch(endp -> endp.getEndpointDescription().getName().equals(id)))
+			undeployEE10Endpoint(id);
+		else if(deployedEE8Endpoints.stream().anyMatch(endp -> endp.getEndpointDescription().getName().equals(id)))
+			undeployEE8Endpoint(id);
+		else
+			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
+	}
+
+	public void undeployEE10Endpoint(String id) throws EngineException
+	{
 		WebAppEndpointEE10Instance endpoint = null;
 		for (WebAppEndpointEE10Instance endp: deployedEndpoints)
 		{
@@ -564,10 +574,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			}
 		}
 		if (endpoint == null)
-		{
-			undeployEE8Endpoint(id);
-			return;
-		}
+			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
 
 		String contextPath = endpoint.getEndpointDescription().getEndpoint().getContextAddress();
 		org.eclipse.jetty.server.Handler handler = usedContextPaths.get(contextPath);

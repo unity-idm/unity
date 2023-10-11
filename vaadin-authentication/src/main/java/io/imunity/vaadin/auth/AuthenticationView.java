@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static io.imunity.vaadin.auth.server.AuthenticationFilter.VAADIN_ROLE;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
 import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
@@ -262,7 +263,7 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 	@Override
 	public void beforeEnter(BeforeEnterEvent event)
 	{
-		if (VaadinService.getCurrentRequest().isUserInRole("USER"))
+		if (VaadinService.getCurrentRequest().isUserInRole(VAADIN_ROLE))
 			UI.getCurrent().getPage().setLocation(VaadinServlet.getCurrent().getServletContext().getContextPath());
 		else
 			init();

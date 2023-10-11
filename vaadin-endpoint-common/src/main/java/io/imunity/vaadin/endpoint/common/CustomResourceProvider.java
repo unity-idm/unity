@@ -42,14 +42,15 @@ public abstract class CustomResourceProvider implements ResourceProvider
 				.collect(Collectors.toSet());
 	}
 
-	public static String getUrlCompatibleWithJetty(String vale) {
+	public static String getUrlCompatibleWithJetty(String vale)
+	{
 		URL url;
 		try
 		{
 			url = new URL(vale);
 		} catch (MalformedURLException e)
 		{
-			throw new RuntimeException(e);
+			throw new RuntimeException("Occurred during preparation jar's paths for jetty", e);
 		}
 		StringBuilder strForm = new StringBuilder();
 		String protocol = url.getProtocol();

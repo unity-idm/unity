@@ -284,7 +284,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
 		defaults.put(DEFAULT_CSS_FILE_NAME, new PropertyMD("styles.css").setCategory(mainCat).setDescription(
 				"Set the default css file name as used for rendering the web endpoints. "
-						+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
+				+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
 		defaults.put(ALLOW_FULL_HTML, new PropertyMD("false").setCategory(mainCat).setDescription(
 				"If set to true then Unity will render full HTML in admin-configured descriptions"
 				+ " of elements intended for end-user presentation "

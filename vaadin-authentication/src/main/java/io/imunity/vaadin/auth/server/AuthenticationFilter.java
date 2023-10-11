@@ -40,6 +40,7 @@ import static java.util.Optional.ofNullable;
 public class AuthenticationFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationFilter.class);
+	public static final String VAADIN_ROLE = "USER";
 
 	private final String sessionCookieName;
 	private final UnsuccessfulAuthenticationCounter dosGauard;
@@ -260,7 +261,7 @@ public class AuthenticationFilter implements Filter
 				throw new IllegalStateException("Implement behaviour of request class " + httpRequest.getClass());
 			AuthenticationState.setAuthenticationState(rq.getRequest(), new LoginAuthenticator.UserAuthenticationSucceeded(
 					"basic", new DefaultUserIdentity(
-					new Subject(), new BasicUserPrincipal(String.valueOf(session.getEntityId())), new String[]{"USER"}
+					new Subject(), new BasicUserPrincipal(String.valueOf(session.getEntityId())), new String[]{VAADIN_ROLE}
 			)
 			));
 			chain.doFilter(httpRequest, response);
@@ -274,11 +275,6 @@ public class AuthenticationFilter implements Filter
 	private void clearSessionCookie(HttpServletResponse response)
 	{
 		response.addCookie(CookieEE10Helper.setupHttpCookie(sessionCookieName, "", 0));
-	}
-
-	@Override
-	public void destroy()
-	{
 	}
 
 	@Override

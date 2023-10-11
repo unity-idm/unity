@@ -36,12 +36,14 @@ public class BaseSpringInstantiator extends DefaultInstantiator
 	}
 
 	@Override
-	public <T extends Component> T createComponent(Class<T> componentClass) {
+	public <T extends Component> T createComponent(Class<T> componentClass)
+	{
 		return context.getAutowireCapableBeanFactory().createBean(componentClass);
 	}
 
 	@Override
-	public <T> T getOrCreate(Class<T> type) {
+	public <T> T getOrCreate(Class<T> type)
+	{
 		if (context.getBeanNamesForType(type).length == 1)
 			return context.getBean(type);
 		else if (context.getBeanNamesForType(type).length > 1)
