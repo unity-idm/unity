@@ -5,25 +5,22 @@
 package io.imunity.console.views.directory_setup.identity_types;
 
 import java.util.Collection;
+import java.util.List;
 
 import io.imunity.vaadin.endpoint.common.bus.Event;
 import pl.edu.icm.unity.base.identity.IdentityType;
 
 /**
  * Notifies that the identity types where updated
+ * 
  * @author K. Benedyczak
  */
-class IdentityTypesUpdatedEvent implements Event
+record IdentityTypesUpdatedEvent(Collection<IdentityType> identityTypes) implements Event
 {
-	private Collection<IdentityType> identityTypes;
 
-	IdentityTypesUpdatedEvent(Collection<IdentityType> identityTypes)
+	IdentityTypesUpdatedEvent
 	{
-		this.identityTypes = identityTypes;
+		identityTypes = List.copyOf(identityTypes);
 	}
 
-	Collection<IdentityType> getIdentityTypes()
-	{
-		return identityTypes;
-	}
 }

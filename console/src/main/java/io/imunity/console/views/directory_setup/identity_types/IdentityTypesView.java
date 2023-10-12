@@ -64,10 +64,10 @@ public class IdentityTypesView extends ConsoleViewComponent
 				.setHeader(msg.getMessage("AuthenticationFlowsComponent.nameCaption"))
 				.setAutoWidth(true)
 				.setSortable(true)
-				.setComparator(Comparator.comparing(r -> r.type.getName()));
-		identityTypesGrid.addComponentColumn(v -> generateCheckBox(v.typeDefinition.isDynamic()))
+				.setComparator(Comparator.comparing(r -> r.type().getName()));
+		identityTypesGrid.addComponentColumn(v -> generateCheckBox(v.typeDefinition().isDynamic()))
 				.setHeader(msg.getMessage("IdentityTypesView.automaticCaption"));
-		identityTypesGrid.addComponentColumn(v -> generateCheckBox(v.type.isSelfModificable()))
+		identityTypesGrid.addComponentColumn(v -> generateCheckBox(v.type().isSelfModificable()))
 				.setHeader(msg.getMessage("IdentityTypesView.modifiableByUserCaption"));
 
 		try
@@ -101,7 +101,7 @@ public class IdentityTypesView extends ConsoleViewComponent
 		Icon generalSettings = new ActionIconBuilder()
 				.setIcon(EDIT)
 				.setTooltipText(msg.getMessage("edit"))
-				.setNavigation(EditIdentityTypeView.class, entry.type.getName())
+				.setNavigation(EditIdentityTypeView.class, entry.type().getName())
 				.build();
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings);
@@ -111,7 +111,7 @@ public class IdentityTypesView extends ConsoleViewComponent
 
 	private HorizontalLayout createNameWithDetailsArrow(IdentityTypeEntry entry)
 	{
-		RouterLink label = new RouterLink(entry.type.getName(), EditIdentityTypeView.class, entry.type.getName());
+		RouterLink label = new RouterLink(entry.type().getName(), EditIdentityTypeView.class, entry.type().getName());
 		Icon openIcon = VaadinIcon.ANGLE_RIGHT.create();
 		Icon closeIcon = VaadinIcon.ANGLE_DOWN.create();
 		openIcon.setVisible(!identityTypesGrid.isDetailsVisible(entry));
@@ -124,7 +124,7 @@ public class IdentityTypesView extends ConsoleViewComponent
 	private FormLayout getDetailsComponent(IdentityTypeEntry i)
 	{
 		FormLayout wrapper = new FormLayout();
-		NativeLabel label = new NativeLabel(i.type.getDescription());
+		NativeLabel label = new NativeLabel(i.type().getDescription());
 		label.setWidthFull();
 		wrapper.addFormItem(label,
 				msg.getMessage("IdentityTypesView.descriptionLabelCaption"));
