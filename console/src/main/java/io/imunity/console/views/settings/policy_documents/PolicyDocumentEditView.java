@@ -22,7 +22,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
-import io.imunity.vaadin.elements.LocaleReachEditorDetails;
+import io.imunity.console.components.LocaleReachEditorDetails;
 import io.imunity.vaadin.elements.LocaleTextFieldDetails;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;

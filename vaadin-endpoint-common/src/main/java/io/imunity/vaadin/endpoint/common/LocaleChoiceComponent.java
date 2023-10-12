@@ -15,7 +15,6 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletResponse;
 import io.imunity.vaadin.elements.FlagIcon;
 import jakarta.servlet.http.Cookie;
-import org.vaadin.firitin.util.WebStorage;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
@@ -44,8 +43,7 @@ public class LocaleChoiceComponent extends Div
 				Locale l = event.getValue();
 				Cookie languageCookie = new LanguageCookie(l.toString());
 				((VaadinServletResponse)VaadinService.getCurrentResponse()).addCookie(languageCookie);
-				WebStorage.getItem(
-						WebStorage.Storage.sessionStorage,
+				SessionStorage.getItem(
 						"redirect-url",
 						value -> UI.getCurrent().getPage().setLocation(value)
 				);

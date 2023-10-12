@@ -10,10 +10,13 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.server.RequestHandler;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
+import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.SessionStorage;
 import org.apache.logging.log4j.Logger;
-
-import org.vaadin.firitin.util.WebStorage;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -23,10 +26,6 @@ import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
-import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
-import io.imunity.vaadin.auth.VaadinAuthentication;
-import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
-import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -151,7 +150,7 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 
 	private void startFreshLogin(WrappedSession session)
 	{
-		WebStorage.getItem(WebStorage.Storage.sessionStorage, "redirect-url", ultimateReturnURL ->
+		SessionStorage.getItem("redirect-url", ultimateReturnURL ->
 			UI.getCurrent().getPage().fetchCurrentURL(currentRelativeURI ->
 				{
 					RemoteAuthnContext context;

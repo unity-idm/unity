@@ -21,13 +21,13 @@ import io.imunity.console.ConsoleMenu;
 import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.MenuButton;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceTypeInfoHelper;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.Collections;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;

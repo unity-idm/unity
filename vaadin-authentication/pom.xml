@@ -51,10 +51,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>in.virit</groupId>
-            <artifactId>viritin</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.imunity</groupId>
             <artifactId>unity-server-vaadin-endpoint-common</artifactId>
             <version>${project.version}</version>
@@ -110,7 +106,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>prepare-frontend</goal>
+                            <goal>clean-frontend</goal>
                             <goal>build-frontend</goal>
                         </goals>
                     </execution>

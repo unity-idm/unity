@@ -63,6 +63,10 @@
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.wontlost</groupId>
+            <artifactId>ckeditor-vaadin</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -91,11 +95,15 @@
                 <executions>
                     <execution>
                         <goals>
+                            <goal>clean-frontend</goal>
                             <goal>prepare-frontend</goal>
                             <goal>build-frontend</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <optimizeBundle>false</optimizeBundle>
+                </configuration>
             </plugin>
         </plugins>
     </build>

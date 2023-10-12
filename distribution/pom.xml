@@ -133,6 +133,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-vaadin-styles</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>flow-server-production-mode</artifactId>
 		</dependency>
@@ -142,6 +147,14 @@
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-common</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+			<classifier>webResources</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-vaadin-styles</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
 			<classifier>webResources</classifier>

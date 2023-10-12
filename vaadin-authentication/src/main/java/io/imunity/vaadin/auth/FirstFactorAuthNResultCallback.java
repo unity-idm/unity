@@ -9,9 +9,8 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.SessionStorage;
 import org.apache.logging.log4j.Logger;
-import org.vaadin.firitin.util.WebStorage;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
@@ -131,8 +130,7 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 			log.error("BUG Can't get UI to redirect the authenticated user.");
 			throw new IllegalStateException("AuthenticationProcessor.authnInternalError");
 		}
-		WebStorage.getItem(
-				WebStorage.Storage.sessionStorage,
+		SessionStorage.getItem(
 				"redirect-url",
 				value -> UI.getCurrent().getPage().setLocation(value)
 		);

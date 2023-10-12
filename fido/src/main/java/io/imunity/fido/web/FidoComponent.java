@@ -10,7 +10,6 @@ import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredentialInfo;
 import io.imunity.fido.service.FidoException;
 import io.imunity.fido.service.NoEntityException;
-import io.imunity.vaadin.elements.FidoBrowserCallableComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.apache.logging.log4j.Logger;
 

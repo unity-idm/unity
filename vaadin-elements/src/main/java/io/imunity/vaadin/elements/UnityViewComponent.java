@@ -19,7 +19,6 @@ import java.util.Optional;
 		@Uses(MultiSelectComboBox.class),
 		@Uses(PasswordField.class),
 		@Uses(Upload.class),
-		@Uses(FidoBrowserCallableComponent.class),
 		@Uses(ConfirmDialog.class)
 })
 public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>, HasDynamicTitle

@@ -11,11 +11,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.RequestHandler;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
+import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
+import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.SessionStorage;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
-
-import org.vaadin.firitin.util.WebStorage;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -26,10 +29,6 @@ import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
-import io.imunity.vaadin.auth.VaadinAuthentication;
-import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
-import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -182,7 +181,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 
 	private void startFreshLogin(WrappedSession session)
 	{
-		WebStorage.getItem(WebStorage.Storage.sessionStorage, "redirect-url", ultimateReturnURL ->
+		SessionStorage.getItem("redirect-url", ultimateReturnURL ->
 			UI.getCurrent().getPage().fetchCurrentURL(currentRelativeURI ->
 				{
 					try
