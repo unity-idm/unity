@@ -14,15 +14,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
  * @author P.Piernik
  *
  */
-class IdentityTypeEntry
+record IdentityTypeEntry (IdentityType type, IdentityTypeDefinition typeDefinition)
 {
-	public final IdentityType type;
-	public final IdentityTypeDefinition typeDefinition;
-
-	IdentityTypeEntry(IdentityType type, IdentityTypeDefinition typeDefinition)
-	{
-		this.type = type;
-		this.typeDefinition = typeDefinition;
-	}
-
 }
