@@ -496,3 +496,21 @@ vaadin-details.multi-tab-details {
 .edit-view-action-buttons-layout {
     width: 13em;
 }
+
+.pointer {
+    cursor: pointer;
+}
+
+.disabled-icon {
+    opacity: 0.5;
+}
+
+.confirmation-status-icon {
+    position: absolute;
+    left: 102%;
+}
+
+.verify-button-icon {
+    position: absolute;
+    left: 110%;
+}

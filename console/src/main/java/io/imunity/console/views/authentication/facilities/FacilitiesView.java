@@ -85,15 +85,15 @@ public class FacilitiesView extends ConsoleViewComponent
 	private Component createRowActionMenu(AuthenticationFlowEntry entry)
 	{
 		Icon generalSettings = new ActionIconBuilder()
-				.setIcon(EDIT)
-				.setTooltipText(msg.getMessage("edit"))
-				.setNavigation(AuthenticationFlowEditView.class, entry.flow.getName())
+				.icon(EDIT)
+				.tooltipText(msg.getMessage("edit"))
+				.navigation(AuthenticationFlowEditView.class, entry.flow.getName())
 				.build();
 
 		Icon remove = new ActionIconBuilder()
-				.setIcon(TRASH)
-				.setTooltipText(msg.getMessage("remove"))
-				.setClickListener(() -> tryRemove(entry))
+				.icon(TRASH)
+				.tooltipText(msg.getMessage("remove"))
+				.clickListener(() -> tryRemove(entry))
 				.build();
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, remove);

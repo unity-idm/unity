@@ -51,14 +51,9 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		fieldLayout.getStyle().set("position", "relative");
 
 		confirmationStatusIcon = new Div();
-		confirmationStatusIcon.getStyle().set("position", "absolute");
-		confirmationStatusIcon.getStyle().set("left", "102%");
-		confirmationStatusIcon.getStyle().set("top", "25%");
+		confirmationStatusIcon.setClassName("confirmation-status-icon");
 
-		this.verifyButtonIcon.getStyle().set("position", "absolute");
-		this.verifyButtonIcon.getStyle().set("left", "110%");
-		this.verifyButtonIcon.getStyle().set("top", "25%");
-
+		this.verifyButtonIcon.setClassName("verify-button-icon");
 
 		fieldLayout.add(editor, confirmationStatusIcon, this.verifyButtonIcon);
 		fieldLayout.setAlignItems(FlexComponent.Alignment.BASELINE);

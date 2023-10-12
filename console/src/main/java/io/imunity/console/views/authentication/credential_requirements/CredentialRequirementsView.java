@@ -97,28 +97,28 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 
 	private Component createRowActionMenu(CredentialRequirements entry)
 	{
-		ActionIconBuilder generalSettings = new ActionIconBuilder().setIcon(EDIT);
-		ActionIconBuilder remove = new ActionIconBuilder().setIcon(TRASH);
+		ActionIconBuilder generalSettingsBuilder = new ActionIconBuilder().icon(EDIT);
+		ActionIconBuilder removeBuilder = new ActionIconBuilder().icon(TRASH);
 
 		if(entry.isReadOnly())
 		{
-			generalSettings.grayIcon(true);
-			remove.grayIcon(true);
+			generalSettingsBuilder.enabled(false);
+			removeBuilder.enabled(false);
 		}
 		else
 		{
-			generalSettings
-					.setTooltipText(msg.getMessage("edit"))
-					.setNavigation(CredentialRequirementsEditView.class, entry.getName())
+			generalSettingsBuilder
+					.tooltipText(msg.getMessage("edit"))
+					.navigation(CredentialRequirementsEditView.class, entry.getName())
 					.build();
 
-			remove
-					.setTooltipText(msg.getMessage("remove"))
-					.setClickListener(() -> tryRemove(entry))
+			removeBuilder
+					.tooltipText(msg.getMessage("remove"))
+					.clickListener(() -> tryRemove(entry))
 					.build();
 		}
 
-		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings.build(), remove.build());
+		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettingsBuilder.build(), removeBuilder.build());
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		return horizontalLayout;
 	}

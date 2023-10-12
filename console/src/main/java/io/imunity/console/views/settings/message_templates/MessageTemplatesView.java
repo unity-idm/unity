@@ -190,9 +190,9 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		actionMenu.addItem(resetButton, e -> resetFromConfig(Set.of(entry)));
 
 		Icon generalSettings = new ActionIconBuilder()
-				.setIcon(EDIT)
-				.setTooltipText(msg.getMessage("edit"))
-				.setNavigation(MessageTemplateEditView.class, entry.messageTemplate.getName())
+				.icon(EDIT)
+				.tooltipText(msg.getMessage("edit"))
+				.navigation(MessageTemplateEditView.class, entry.messageTemplate.getName())
 				.build();
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, actionMenu.getTarget());

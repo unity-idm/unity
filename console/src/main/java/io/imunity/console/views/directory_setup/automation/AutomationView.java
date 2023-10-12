@@ -109,9 +109,9 @@ public class AutomationView extends ConsoleViewComponent
 	private Component createRowActionMenu(ScheduledProcessingRule entry)
 	{
 		Icon generalSettings = new ActionIconBuilder()
-				.setIcon(EDIT)
-				.setTooltipText(msg.getMessage("edit"))
-				.setNavigation(AutomationEditView.class, entry.getName())
+				.icon(EDIT)
+				.tooltipText(msg.getMessage("edit"))
+				.navigation(AutomationEditView.class, entry.getName())
 				.build();
 
 		ActionMenu actionMenu = new ActionMenu();

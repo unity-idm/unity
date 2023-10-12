@@ -99,9 +99,9 @@ public class IdentityTypesView extends ConsoleViewComponent
 	private Component createRowActionMenu(IdentityTypeEntry entry)
 	{
 		Icon generalSettings = new ActionIconBuilder()
-				.setIcon(EDIT)
-				.setTooltipText(msg.getMessage("edit"))
-				.setNavigation(EditIdentityTypeView.class, entry.type().getName())
+				.icon(EDIT)
+				.tooltipText(msg.getMessage("edit"))
+				.navigation(EditIdentityTypeView.class, entry.type().getName())
 				.build();
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings);

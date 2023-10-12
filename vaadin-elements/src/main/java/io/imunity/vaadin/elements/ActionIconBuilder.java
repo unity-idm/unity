@@ -13,7 +13,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 public class ActionIconBuilder
 {
 	private VaadinIcon icon;
-	private boolean garyIcon;
+	private boolean enabled = true;
 	private String tooltipText;
 	private Class<? extends UnityViewComponent> navigationTarget;
 	private String navigationParameter;
@@ -23,45 +23,46 @@ public class ActionIconBuilder
 	{
 		Icon targetIcon = icon.create();
 		targetIcon.setTooltipText(tooltipText);
-		if(navigationTarget != null || navigationParameter != null)
+		if(navigationTarget != null && navigationParameter != null)
 			targetIcon.addClickListener(e -> UI.getCurrent().navigate(navigationTarget, navigationParameter));
 		if(listener != null)
 			targetIcon.addClickListener(e -> listener.run());
-		if(garyIcon)
-			targetIcon.getStyle().set("opacity", "0.5");
-		targetIcon.getStyle().set("cursor", "pointer");
+		if(enabled)
+			targetIcon.setClassName("pointer");
+		else
+			targetIcon.setClassName("disabled-icon");
 		targetIcon.getElement().setAttribute("onclick", "event.stopPropagation();");
 		return targetIcon;
 	}
 
-	public ActionIconBuilder setIcon(VaadinIcon icon)
+	public ActionIconBuilder icon(VaadinIcon icon)
 	{
 		this.icon = icon;
 		return this;
 	}
 
-	public ActionIconBuilder setTooltipText(String tooltipText)
+	public ActionIconBuilder tooltipText(String tooltipText)
 	{
 		this.tooltipText = tooltipText;
 		return this;
 	}
 
-	public ActionIconBuilder setNavigation(Class<? extends UnityViewComponent> navigationTarget, String navigationParameter)
+	public ActionIconBuilder navigation(Class<? extends UnityViewComponent> navigationTarget, String navigationParameter)
 	{
 		this.navigationTarget = navigationTarget;
 		this.navigationParameter = navigationParameter;
 		return this;
 	}
 
-	public ActionIconBuilder setClickListener(Runnable task)
+	public ActionIconBuilder clickListener(Runnable task)
 	{
 		this.listener = task;
 		return this;
 	}
 
-	public ActionIconBuilder grayIcon(boolean garyIcon)
+	public ActionIconBuilder enabled(boolean enabled)
 	{
-		this.garyIcon = garyIcon;
+		this.enabled = enabled;
 		return this;
 	}
 }
