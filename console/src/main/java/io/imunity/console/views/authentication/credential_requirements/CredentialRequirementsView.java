@@ -9,7 +9,6 @@ import com.google.common.collect.Sets;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
@@ -142,8 +141,9 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, removedCr);
 		ComboBox<String> replacementCR = new ComboBox<>(msg.getMessage("CredentialRequirements.replacement"), crs);
 		replacementCR.setValue(crs.get(0));
-		FormLayout layout = new FormLayout();
-		layout.addFormItem(replacementCR, new Span(msg.getMessage("CredentialRequirements.removalConfirm", confirmText)));
+		replacementCR.setWidthFull();
+		VerticalLayout layout = new VerticalLayout();
+		layout.add(new Span(msg.getMessage("CredentialRequirements.removalConfirm", confirmText)), replacementCR);
 
 		ConfirmDialog confirmDialog = new ConfirmDialog();
 		confirmDialog.setHeader(msg.getMessage("ConfirmDialog.confirm"));
