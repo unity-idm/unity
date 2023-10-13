@@ -132,7 +132,7 @@ class MenuItemFactory
 		FormLayout dialogLayout = new FormLayout();
 		dialogLayout.setWidth("30em");
 		LocaleTextFieldDetails localeTextFieldDetails = new LocaleTextFieldDetails(
-				new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(),
+				msg.getEnabledLocales().values(), msg.getLocale(),
 				msg.getMessage("AddGroupDialog.info", group.currentDisplayedName),
 				locale -> ""
 		);
@@ -204,7 +204,12 @@ class MenuItemFactory
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("GroupsComponent.renameGroupAction"));
 
-		LocaleTextFieldDetails details = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> Optional.ofNullable(group.displayedName.getValueRaw(locale.getLanguage())).orElse(""));
+		LocaleTextFieldDetails details = new LocaleTextFieldDetails(
+				msg.getEnabledLocales().values(),
+				msg.getLocale(),
+				"",
+				locale -> Optional.ofNullable(group.displayedName.getValueRaw(locale.getLanguage())).orElse("")
+		);
 		details.focus();
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();

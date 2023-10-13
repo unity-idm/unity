@@ -14,10 +14,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -29,7 +26,7 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 {
 	public Map<Locale, LocaleTextArea> fields = new LinkedHashMap<>();
 
-	public LocaleTextAreaDetails(Set<Locale> enabledLocales, Locale currentLocale, String label, Function<Locale, String> valueGenerator)
+	public LocaleTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale, String label, Function<Locale, String> valueGenerator)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);

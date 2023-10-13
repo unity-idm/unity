@@ -13,10 +13,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -26,7 +23,7 @@ public class LocaleRichEditorDetails extends CustomField<Map<Locale, String>>
 {
 	public Map<Locale, LocaleRichEditor> fields = new LinkedHashMap<>();
 
-	public LocaleRichEditorDetails(Set<Locale> enabledLocales, Locale currentLocale, Function<Locale, String> valueGenerator)
+	public LocaleRichEditorDetails(Collection<Locale> enabledLocales, Locale currentLocale, Function<Locale, String> valueGenerator)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);

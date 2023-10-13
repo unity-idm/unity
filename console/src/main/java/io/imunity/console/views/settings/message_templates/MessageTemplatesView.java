@@ -145,19 +145,34 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		selectedMessageTemplateDetails.removeAll();
 		if(messageTemplate == null)
 			return;
-		selectedMessageTemplateDetails.addFormItem(new Span(messageTemplate.getDescription()), msg.getMessage("MessageTemplateViewer.description"));
-		selectedMessageTemplateDetails.addFormItem(new Span(controller.getCompatibilityInformation(messageTemplate)), msg.getMessage("MessageTemplateViewer.consumer"));
+		selectedMessageTemplateDetails.addFormItem(
+				new Span(messageTemplate.getDescription()),
+				msg.getMessage("MessageTemplateViewer.description")
+		);
+		selectedMessageTemplateDetails.addFormItem(
+				new Span(controller.getCompatibilityInformation(messageTemplate)),
+				msg.getMessage("MessageTemplateViewer.consumer")
+		);
 
 		I18nString subjectContent = messageTemplate.getMessage().getSubject();
 		I18nString bodyContent = messageTemplate.getMessage().getBody();
 
-		if (!subjectContent.isEmpty())
-			selectedMessageTemplateDetails.addFormItem(new Span(new FlagIcon(msg.getLocale().getLanguage()), new Span(" "),
-					new Span(subjectContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.subject"));
+		addLocalizedContent(subjectContent, msg.getMessage("MessageTemplateViewer.subject"));
+		addLocalizedContent(bodyContent, msg.getMessage("MessageTemplateViewer.body"));
+	}
 
-		if (!bodyContent.isEmpty())
-			selectedMessageTemplateDetails.addFormItem(new Span(new FlagIcon(msg.getLocale().getLanguage()), new Span(" "),
-					new Span(bodyContent.getDefaultLocaleValue(msg))), msg.getMessage("MessageTemplateViewer.body"));
+	private void addLocalizedContent(I18nString subjectContent, String label)
+	{
+		msg.getEnabledLocales().values().stream()
+				.filter(locale -> subjectContent.getValue(locale.getLanguage()) != null)
+				.filter(locale -> !subjectContent.getValue(locale.getLanguage()).isBlank())
+				.forEach(locale -> selectedMessageTemplateDetails.addFormItem(
+						new Span(
+								new FlagIcon(locale.getLanguage()),
+								new Span(" "), new Span(subjectContent.getValue(locale.getLanguage()))
+						),
+						label)
+				);
 	}
 
 	private void refresh()

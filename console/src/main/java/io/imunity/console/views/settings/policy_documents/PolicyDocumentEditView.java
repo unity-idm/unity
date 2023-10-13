@@ -92,7 +92,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		name.setPlaceholder(msg.getMessage("PolicyDocumentEditor.defaultName"));
 
 		LocaleTextFieldDetails displayedName = new LocaleTextFieldDetails(
-				new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "",
+				msg.getEnabledLocales().values(), msg.getLocale(), "",
 				locale -> toEdit.getDisplayedName().getOrDefault(locale, ""));
 		displayedName.setWidth(TEXT_FIELD_BIG.value());
 
@@ -190,15 +190,14 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 
 		if (value.equals(PolicyDocumentContentType.EMBEDDED))
 		{
-			content = new LocaleRichEditorDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(),
+			content = new LocaleRichEditorDetails(msg.getEnabledLocales().values(), msg.getLocale(),
 					locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.text"));
 			contentBind = binder.forField(content)
 					.bind(PolicyDocumentEntry::getContent, PolicyDocumentEntry::setContent);
 		} else
 		{
-			content = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "",
-					locale -> "");
+			content = new LocaleTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale(), "", locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.url"));
 			content.setWidth(TEXT_FIELD_BIG.value());
 			contentBind = binder.forField(content).withValidator((val, context) ->

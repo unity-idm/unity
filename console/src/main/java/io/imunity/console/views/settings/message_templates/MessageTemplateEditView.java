@@ -153,7 +153,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		});
 
 		LocaleTextFieldDetails subject = new LocaleTextFieldDetails(
-				new HashSet<>(msg.getEnabledLocales().values()),
+				msg.getEnabledLocales().values(),
 				msg.getLocale(),
 				"",
 				locale -> Optional.ofNullable(toEdit.getMessage().getSubject().getValueRaw(locale.getLanguage())).orElse("")
@@ -166,7 +166,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		messageType.setItemLabelGenerator(Enum::name);
 
 		LocaleTextAreaDetails body = new LocaleTextAreaDetails(
-				new HashSet<>(msg.getEnabledLocales().values()),
+				msg.getEnabledLocales().values(),
 				msg.getLocale(),
 				"",
 				locale -> Optional.ofNullable(toEdit.getMessage().getBody().getValueRaw(locale.getLanguage())).orElse("")
