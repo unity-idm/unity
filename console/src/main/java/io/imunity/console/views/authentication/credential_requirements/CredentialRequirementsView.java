@@ -39,7 +39,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.authentication.credentialRequirements")
+@Breadcrumb(key = "WebConsoleMenu.authentication.credentialRequirements.breadcrumb")
 @Route(value = "/credential-requirements", layout = ConsoleMenu.class)
 public class CredentialRequirementsView extends ConsoleViewComponent
 {

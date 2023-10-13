@@ -531,3 +531,7 @@ vaadin-details.multi-tab-details {
 .empty-details-icon {
     margin-top: var(--big-margin);
 }
+
+.grid-details-width {
+    width: 60em;
+}

@@ -37,7 +37,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.authentication.realms")
+@Breadcrumb(key = "WebConsoleMenu.authentication.realms.breadcrumb")
 @Route(value = "/realms", layout = ConsoleMenu.class)
 public class RealmsView extends ConsoleViewComponent
 {
