@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.imunity.vaadin.elements.CSSVars.SMALL_GAP;
 import static java.util.Optional.ofNullable;
 
 public class TabComponent extends Tab implements TabTextHider
@@ -27,8 +26,7 @@ public class TabComponent extends Tab implements TabTextHider
 	public TabComponent(MenuComponent menu)
 	{
 		this.routerLink = new RouterLink(menu.tabName, menu.component);
-		routerLink.getStyle().set("gap", SMALL_GAP.value());
-		routerLink.getStyle().set("justify-content", "unset");
+		routerLink.setClassName("tab-component-link");
 		this.icon = ofNullable(menu.icon).map(vaadinIcon -> (Component)vaadinIcon.create()).orElseGet(Div::new);
 		add(routerLink);
 		routerLink.addComponentAsFirst(icon);

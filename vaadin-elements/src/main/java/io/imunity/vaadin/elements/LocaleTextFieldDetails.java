@@ -22,8 +22,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
-import static io.imunity.vaadin.elements.CSSVars.SMALL_GAP;
+import static io.imunity.vaadin.elements.VaadinClassNames.EMPTY_DETAILS_ICON;
+import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
 public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 {
@@ -62,7 +62,7 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 		summary = new HorizontalLayout(defaultField, angleDown, angleUp);
 		summary.setAlignItems(FlexComponent.Alignment.CENTER);
 		summary.setWidthFull();
-		summary.getStyle().set("gap", SMALL_GAP.value());
+		summary.setClassName(SMALL_GAP.getName());
 
 		enabledLocales.stream()
 				.filter(locale -> !currentLocale.equals(locale))
@@ -105,7 +105,7 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 		Icon icon = angleDown.create();
 		icon.addClassName("details-icon");
 		if(!label.isBlank())
-			icon.getStyle().set("margin-top", BIG_MARGIN.value());
+			icon.setClassName(EMPTY_DETAILS_ICON.getName());
 		return icon;
 	}
 

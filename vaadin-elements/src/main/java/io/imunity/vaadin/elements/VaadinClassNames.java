@@ -8,7 +8,9 @@ package io.imunity.vaadin.elements;
 public enum VaadinClassNames
 {
 	DIALOG_CONFIRM("u-dialog-confirm"),
-	SUBMIT_BUTTON("submit-button");
+	SUBMIT_BUTTON("submit-button"),
+	SMALL_GAP("small-gap"),
+	EMPTY_DETAILS_ICON("empty-details-icon");
 
 	private final String name;
 

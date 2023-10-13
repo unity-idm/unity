@@ -37,7 +37,7 @@ public class AccountUpdateView extends HomeViewComponent
 		if (stickyEnquiryService.anyFormApplicableToCurrentUser(enabledEnquiries))
 		{
 			Component stickyEnquiry = stickyEnquiryService.createApplicableToCurrentUserStickyEnquiryComponent(enabledEnquiries);
-			stickyEnquiry.getStyle().set("height", "20em");
+			stickyEnquiry.setClassName("sticky-enquiry");
 			getContent().removeAll();
 			getContent().add(stickyEnquiry);
 		}

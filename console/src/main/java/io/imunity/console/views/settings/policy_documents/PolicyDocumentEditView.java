@@ -22,7 +22,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
-import io.imunity.console.components.LocaleReachEditorDetails;
+import io.imunity.console.components.LocaleRichEditorDetails;
 import io.imunity.vaadin.elements.LocaleTextFieldDetails;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -64,13 +64,12 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		getContent().removeAll();
 		contentItem = null;
 		PolicyDocumentEntry policyDocumentEntry;
-		if(policyDocumentId == null)
+		if (policyDocumentId == null)
 		{
 			policyDocumentEntry = new PolicyDocumentEntry();
 			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
-		}
-		else
+		} else
 		{
 			policyDocumentEntry = controller.getPolicyDocument(Long.parseLong(policyDocumentId));
 			breadCrumbParameter = new BreadCrumbParameter(policyDocumentId, policyDocumentEntry.name);
@@ -92,7 +91,9 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		TextField name = new TextField();
 		name.setPlaceholder(msg.getMessage("PolicyDocumentEditor.defaultName"));
 
-		LocaleTextFieldDetails displayedName = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> toEdit.getDisplayedName().getOrDefault(locale, ""));
+		LocaleTextFieldDetails displayedName = new LocaleTextFieldDetails(
+				new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "",
+				locale -> toEdit.getDisplayedName().getOrDefault(locale, ""));
 		displayedName.setWidth(TEXT_FIELD_BIG.value());
 
 		Checkbox optional = new Checkbox();
@@ -106,26 +107,29 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		initFormLayout(name, displayedName, optional, revision, type);
 		initBinder(allNames, name, displayedName, optional, type);
 
-		getContent().add(new VerticalLayout(mainLayout, createActionLayout(msg, edit, PolicyDocumentsView.class, this::onConfirm)));
+		getContent().add(new VerticalLayout(mainLayout,
+				createActionLayout(msg, edit, PolicyDocumentsView.class, this::onConfirm)));
 		binder.setBean(toEdit);
 		content.setValue(toEdit.content);
 	}
 
 	private void initFormLayout(TextField name, LocaleTextFieldDetails displayedName, Checkbox optional, Span revision,
-								ComboBox<PolicyDocumentContentType> type)
+			ComboBox<PolicyDocumentContentType> type)
 	{
 		mainLayout = new FormLayout();
 		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		mainLayout.addFormItem(name, msg.getMessage("PolicyDocumentEditor.name"));
 		mainLayout.addFormItem(displayedName, msg.getMessage("PolicyDocumentEditor.displayedName"));
-		HorizontalLayout optionalField = new HorizontalLayout(optional, new Span(msg.getMessage("PolicyDocumentEditor.optionalAcceptance")));
+		HorizontalLayout optionalField = new HorizontalLayout(optional,
+				new Span(msg.getMessage("PolicyDocumentEditor.optionalAcceptance")));
 		optionalField.setSpacing(false);
 		mainLayout.addFormItem(optionalField, "");
 		mainLayout.addFormItem(revision, msg.getMessage("PolicyDocumentEditor.revision"));
 		mainLayout.addFormItem(type, msg.getMessage("PolicyDocumentEditor.contentType"));
 	}
 
-	private void initBinder(Set<String> allNames, TextField name, LocaleTextFieldDetails displayedName, Checkbox optional, ComboBox<PolicyDocumentContentType> type)
+	private void initBinder(Set<String> allNames, TextField name, LocaleTextFieldDetails displayedName,
+			Checkbox optional, ComboBox<PolicyDocumentContentType> type)
 	{
 		binder = new Binder<>(PolicyDocumentEntry.class);
 		binder.forField(name)
@@ -146,29 +150,30 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 	private void onConfirm()
 	{
 		binder.validate();
-		if(binder.isValid())
+		if (binder.isValid())
 		{
 			PolicyDocumentEntry bean = binder.getBean();
 			bean.setContent(content.getValue());
-			if(edit)
+			if (edit)
 			{
 				new PolicyUpdateConfirmationDialog(
 						msg.getMessage("EditPolicyDocumentView.confirm"),
 						msg.getMessage("EditPolicyDocumentView.updateInfo"),
 						msg.getMessage("EditPolicyDocumentView.saveOfficialUpdate"),
-						() -> {
-							controller.updatePolicyDocument(bean,true);
+						() ->
+						{
+							controller.updatePolicyDocument(bean, true);
 							UI.getCurrent().navigate(PolicyDocumentsView.class);
 						},
 						msg.getMessage("EditPolicyDocumentView.saveSilently"),
-						() -> {
-							controller.updatePolicyDocument(bean,false);
+						() ->
+						{
+							controller.updatePolicyDocument(bean, false);
 							UI.getCurrent().navigate(PolicyDocumentsView.class);
 						},
 						msg.getMessage("cancel")
 				).open();
-			}
-			else
+			} else
 			{
 				controller.addPolicyDocument(bean);
 				UI.getCurrent().navigate(PolicyDocumentsView.class);
@@ -178,20 +183,22 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 
 	private void setContentType(PolicyDocumentContentType value)
 	{
-		if(contentItem != null)
+		if (contentItem != null)
 			mainLayout.remove(contentItem);
 		if (contentBind != null)
 			binder.removeBinding(contentBind);
 
 		if (value.equals(PolicyDocumentContentType.EMBEDDED))
 		{
-			content = new LocaleReachEditorDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), locale -> "");
+			content = new LocaleRichEditorDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(),
+					locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.text"));
 			contentBind = binder.forField(content)
 					.bind(PolicyDocumentEntry::getContent, PolicyDocumentEntry::setContent);
 		} else
 		{
-			content = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "", locale -> "");
+			content = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale(), "",
+					locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.url"));
 			content.setWidth(TEXT_FIELD_BIG.value());
 			contentBind = binder.forField(content).withValidator((val, context) ->

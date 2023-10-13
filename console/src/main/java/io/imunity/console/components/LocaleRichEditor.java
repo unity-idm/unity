@@ -21,12 +21,12 @@ import java.util.Locale;
 import static com.wontlost.ckeditor.Constants.*;
 import static com.wontlost.ckeditor.Constants.Toolbar.*;
 
-public class LocaleReachEditor extends VerticalLayout implements HasValidation
+public class LocaleRichEditor extends VerticalLayout implements HasValidation
 {
 	public final Locale locale;
 	public final VaadinCKEditor classicEditor;
 
-	public LocaleReachEditor(Locale locale)
+	public LocaleRichEditor(Locale locale)
 	{
 		setSpacing(false);
 		setPadding(false);

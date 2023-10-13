@@ -514,3 +514,20 @@ vaadin-details.multi-tab-details {
     position: absolute;
     left: 110%;
 }
+
+.sticky-enquiry {
+    height: 20em;
+}
+
+.tab-component-link {
+    gap: var(--small-gap);
+    justify-content: unset;
+}
+
+.small-gap {
+    gap: var(--small-gap);
+}
+
+.empty-details-icon {
+    margin-top: var(--big-margin);
+}

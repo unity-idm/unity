@@ -12,8 +12,7 @@ public enum CSSVars
 	BIG_MARGIN("var(--big-margin)"),
 	MEDIUM_MARGIN("var(--medium-margin)"),
 	SMALL_MARGIN("var(--small-margin)"),
-	BASE_MARGIN("var(--base-margin)"),
-	SMALL_GAP("var(--small-gap)");
+	BASE_MARGIN("var(--base-margin)");
 	
 	final String var;
 	

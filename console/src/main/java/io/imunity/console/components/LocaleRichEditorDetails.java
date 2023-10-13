@@ -20,13 +20,13 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.imunity.vaadin.elements.CSSVars.SMALL_GAP;
+import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
-public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
+public class LocaleRichEditorDetails extends CustomField<Map<Locale, String>>
 {
-	public Map<Locale, LocaleReachEditor> fields = new LinkedHashMap<>();
+	public Map<Locale, LocaleRichEditor> fields = new LinkedHashMap<>();
 
-	public LocaleReachEditorDetails(Set<Locale> enabledLocales, Locale currentLocale, Function<Locale, String> valueGenerator)
+	public LocaleRichEditorDetails(Set<Locale> enabledLocales, Locale currentLocale, Function<Locale, String> valueGenerator)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
@@ -52,7 +52,7 @@ public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 			content.setVisible(false);
 		});
 
-		LocaleReachEditor defaultField = new LocaleReachEditor(currentLocale);
+		LocaleRichEditor defaultField = new LocaleRichEditor(currentLocale);
 		defaultField.setValue(valueGenerator.apply(currentLocale));
 		defaultField.addValueChangeListener(e -> setInvalid(false));
 		fields.put(currentLocale, defaultField);
@@ -60,13 +60,13 @@ public class LocaleReachEditorDetails extends CustomField<Map<Locale, String>>
 		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
 		summary.setAlignItems(FlexComponent.Alignment.BASELINE);
 		summary.setWidthFull();
-		summary.getStyle().set("gap", SMALL_GAP.value());
+		summary.setClassName(SMALL_GAP.getName());
 
 		enabledLocales.stream()
 				.filter(locale -> !currentLocale.equals(locale))
 				.forEach(locale ->
 				{
-					LocaleReachEditor editor = new LocaleReachEditor(locale);
+					LocaleRichEditor editor = new LocaleRichEditor(locale);
 					editor.setValue(valueGenerator.apply(locale));
 					content.add(editor);
 					fields.put(locale, editor);

@@ -55,13 +55,12 @@ public class RealmEditView extends ConsoleViewComponent
 		getContent().removeAll();
 
 		AuthenticationRealmEntry certificateEntry;
-		if(realmName == null)
+		if (realmName == null)
 		{
 			certificateEntry = new AuthenticationRealmEntry();
 			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
-		}
-		else
+		} else
 		{
 			certificateEntry = realmsController.getRealm(realmName);
 			breadCrumbParameter = new BreadCrumbParameter(realmName, realmName);
@@ -95,9 +94,12 @@ public class RealmEditView extends ConsoleViewComponent
 		IntegerField maxInactivity = getIntegerField();
 		maxInactivity.setMax(99999);
 
-		configBinder(toEdit, name, description, blockAfterUnsuccessfulLogins, blockFor, rememberMePolicy, allowForRememberMeDays, maxInactivity);
-		FormLayout mainLayout = createMainLayout(toEdit, name, description, blockAfterUnsuccessfulLogins, blockFor, rememberMePolicy, allowForRememberMeDays, maxInactivity);
-		getContent().add(new VerticalLayout(mainLayout, createActionLayout(msg, edit, RealmsView.class, this::onConfirm)));
+		configBinder(toEdit, name, description, blockAfterUnsuccessfulLogins, blockFor, rememberMePolicy,
+				allowForRememberMeDays, maxInactivity);
+		FormLayout mainLayout = createMainLayout(toEdit, name, description, blockAfterUnsuccessfulLogins, blockFor,
+				rememberMePolicy, allowForRememberMeDays, maxInactivity);
+		getContent().add(
+				new VerticalLayout(mainLayout, createActionLayout(msg, edit, RealmsView.class, this::onConfirm)));
 	}
 
 	private IntegerField getIntegerField()
@@ -109,7 +111,10 @@ public class RealmEditView extends ConsoleViewComponent
 		return integerField;
 	}
 
-	private FormLayout createMainLayout(AuthenticationRealmEntry toEdit, TextField name, TextField description, IntegerField blockAfterUnsuccessfulLogins, IntegerField blockFor, ComboBox<RememberMePolicy> rememberMePolicy, IntegerField allowForRememberMeDays, IntegerField maxInactivity)
+	private FormLayout createMainLayout(AuthenticationRealmEntry toEdit, TextField name, TextField description,
+			IntegerField blockAfterUnsuccessfulLogins, IntegerField blockFor,
+			ComboBox<RememberMePolicy> rememberMePolicy, IntegerField allowForRememberMeDays,
+			IntegerField maxInactivity)
 	{
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
@@ -118,7 +123,8 @@ public class RealmEditView extends ConsoleViewComponent
 				.add(getTooltipIcon("AuthenticationRealm.name.tooltip"));
 		mainLayout.addFormItem(description, msg.getMessage("AuthenticationRealm.description"))
 				.add(getTooltipIcon("AuthenticationRealm.description.tooltip"));
-		mainLayout.addFormItem(blockAfterUnsuccessfulLogins, msg.getMessage("AuthenticationRealm.blockAfterUnsuccessfulLogins"))
+		mainLayout.addFormItem(blockAfterUnsuccessfulLogins,
+						msg.getMessage("AuthenticationRealm.blockAfterUnsuccessfulLogins"))
 				.add(getTooltipIcon("AuthenticationRealm.blockAfterUnsuccessfulLogins.tooltip"));
 		mainLayout.addFormItem(blockFor, msg.getMessage("AuthenticationRealm.blockFor"))
 				.add(getTooltipIcon("AuthenticationRealm.blockFor.tooltip"));
@@ -130,7 +136,8 @@ public class RealmEditView extends ConsoleViewComponent
 				.add(getTooltipIcon("AuthenticationRealm.maxInactivity.tooltip"));
 		if (!toEdit.endpoints.isEmpty())
 		{
-			VerticalLayout field = new VerticalLayout(toEdit.endpoints.stream().map(Span::new).toArray(Component[]::new));
+			VerticalLayout field = new VerticalLayout(
+					toEdit.endpoints.stream().map(Span::new).toArray(Component[]::new));
 			field.setPadding(false);
 			mainLayout.addFormItem(field, msg.getMessage("AuthenticationRealm.endpoints"));
 		}
@@ -138,7 +145,10 @@ public class RealmEditView extends ConsoleViewComponent
 		return mainLayout;
 	}
 
-	private void configBinder(AuthenticationRealmEntry toEdit, TextField name, TextField description, IntegerField blockAfterUnsuccessfulLogins, IntegerField blockFor, ComboBox<RememberMePolicy> rememberMePolicy, IntegerField allowForRememberMeDays, IntegerField maxInactivity)
+	private void configBinder(AuthenticationRealmEntry toEdit, TextField name, TextField description,
+			IntegerField blockAfterUnsuccessfulLogins, IntegerField blockFor,
+			ComboBox<RememberMePolicy> rememberMePolicy, IntegerField allowForRememberMeDays,
+			IntegerField maxInactivity)
 	{
 		binder = new Binder<>(AuthenticationRealm.class);
 
@@ -164,10 +174,10 @@ public class RealmEditView extends ConsoleViewComponent
 	private void onConfirm()
 	{
 		binder.validate();
-		if(binder.isValid())
+		if (binder.isValid())
 		{
 			AuthenticationRealm bean = binder.getBean();
-			if(edit)
+			if (edit)
 				realmsController.updateRealm(bean);
 			else
 				realmsController.addRealm(bean);

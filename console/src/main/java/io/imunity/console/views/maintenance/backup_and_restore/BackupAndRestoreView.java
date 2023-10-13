@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
-import static io.imunity.vaadin.elements.CSSVars.SMALL_GAP;
+import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.maintenance.backupAndRestore")
@@ -80,7 +80,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 	{
 		Panel exportPanel = new Panel(msg.getMessage("ImportExport.exportCaption"));
 		VerticalLayout layout = new VerticalLayout();
-		layout.getStyle().set("gap", SMALL_GAP.value());
+		layout.setClassName(SMALL_GAP.getName());
 		exportPanel.add(layout);
 
 		Binder<BinderDBDumpContentElements> configBinder = new Binder<>(BinderDBDumpContentElements.class);
