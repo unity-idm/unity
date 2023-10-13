@@ -80,6 +80,7 @@ public class RealmEditView extends ConsoleViewComponent
 		TextField name = new TextField();
 		name.setWidth(TEXT_FIELD_BIG.value());
 		name.setPlaceholder(msg.getMessage("AuthenticationRealm.defaultName"));
+		name.setReadOnly(edit);
 		TextField description = new TextField();
 		description.setWidth(TEXT_FIELD_BIG.value());
 

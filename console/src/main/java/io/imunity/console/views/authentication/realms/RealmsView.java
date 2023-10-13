@@ -13,6 +13,7 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -96,10 +97,9 @@ public class RealmsView extends ConsoleViewComponent
 	private FormLayout getDetailsComponent(AuthenticationRealmEntry realm)
 	{
 		FormLayout wrapper = new FormLayout();
-		wrapper.addFormItem(
-				new Span(String.join(", ", realm.endpoints)),
-				msg.getMessage("AuthenticationRealmsView.endpointsCaption")
-		);
+		Div field = new Div(new Span(String.join(", ", realm.endpoints)));
+		field.setClassName("grid-details-width");
+		wrapper.addFormItem(field, msg.getMessage("AuthenticationRealmsView.endpointsCaption"));
 		wrapper.getStyle().set("margin-bottom", "0.75em");
 		return wrapper;
 	}
