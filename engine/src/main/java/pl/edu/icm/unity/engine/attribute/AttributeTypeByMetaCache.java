@@ -23,7 +23,7 @@ import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.types.basic.AttributeType;
 
 @Component
-class AttributeTypeByMetaCache
+public class AttributeTypeByMetaCache
 {
 	public final int ATRIBUTE_TYPE_CACHE_TTL_IN_MINUTES = 15; 
 	
@@ -71,7 +71,8 @@ class AttributeTypeByMetaCache
 		attributeTypeByMetaCache.put(metadataId, new CachedAttributeType(ret));
 		return ret;
 	}
-	void clear()
+	
+	public void clear()
 	{
 		attributeTypeByMetaCache.invalidateAll();
 	}
