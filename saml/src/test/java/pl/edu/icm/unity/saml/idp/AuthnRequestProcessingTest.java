@@ -4,26 +4,26 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.elements.NameID;
-import eu.unicore.samly2.exceptions.SAMLServerException;
-import eu.unicore.samly2.messages.XMLExpandedMessage;
-import eu.unicore.samly2.proto.AuthnRequest;
-import eu.unicore.samly2.trust.EnumeratedTrustChecker;
-import eu.unicore.samly2.validators.ReplayAttackChecker;
-import org.junit.jupiter.api.Test;
-import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import org.junit.jupiter.api.Test;
+
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.elements.NameID;
+import eu.unicore.samly2.messages.XMLExpandedMessage;
+import eu.unicore.samly2.proto.AuthnRequest;
+import eu.unicore.samly2.trust.EnumeratedTrustChecker;
+import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
 
 public class AuthnRequestProcessingTest
 {
 	@Test
-	public void shouldAcceptAuthnRequestWithoutConsumerURL() throws SAMLServerException
+	public void shouldAcceptAuthnRequestWithoutConsumerURL()
 	{
 		AuthnRequest request = new AuthnRequest(
 				new NameID("https://unity-sp.example", SAMLConstants.NFORMAT_ENTITY).getXBean());

@@ -38,7 +38,7 @@ import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 
-import javax.ws.rs.NotFoundException;
+import jakarta.ws.rs.NotFoundException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

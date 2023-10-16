@@ -16,7 +16,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Date;
 import java.util.List;
 
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status;
 
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;

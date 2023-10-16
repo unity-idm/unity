@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.lang.invoke.MethodHandles;
 
 @PermitAll

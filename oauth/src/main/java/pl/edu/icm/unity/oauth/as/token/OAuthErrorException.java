@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 

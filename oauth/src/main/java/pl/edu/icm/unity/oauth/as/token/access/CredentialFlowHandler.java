@@ -7,7 +7,7 @@ package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.util.Date;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
 

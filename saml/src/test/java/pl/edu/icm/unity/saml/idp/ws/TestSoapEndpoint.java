@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.idp.ws;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -13,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.cxf.binding.soap.SoapFault;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.samly2.SAMLConstants;
@@ -26,6 +28,7 @@ import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAttributeQueryClient;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import jakarta.xml.ws.WebServiceException;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
@@ -100,13 +103,11 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
 		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
 
-		try
-		{
-			client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer");
-			fail("authenticated without credential");
-		} catch (SAMLServerException e) {
-			//expected
-		}
+		Throwable error = catchThrowable(() -> client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer"));
+		
+		assertThat(error).isInstanceOf(WebServiceException.class)
+			.hasCauseInstanceOf(SoapFault.class)
+			.hasRootCauseMessage("Authentication failed");
 	}
 	
 	@Test
@@ -123,13 +124,12 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		
 		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
 		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
-		try
-		{
-			client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer");
-			fail("authenticated with wrong password");
-		} catch (SAMLServerException e) {
-			//expected
-		}
+		
+		Throwable error = catchThrowable(() -> client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer"));
+		
+		assertThat(error).isInstanceOf(WebServiceException.class)
+			.hasCauseInstanceOf(SoapFault.class)
+			.hasRootCauseMessage("Invalid user name, credential or external authentication failed. ");
 	}
 	
 	@Test

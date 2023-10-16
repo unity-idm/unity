@@ -8,7 +8,7 @@ package io.imunity.upman.rest;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.ws.rs.BadRequestException;
+import jakarta.ws.rs.BadRequestException;
 import java.util.Objects;
 
 class RestSignUpEnquiry

@@ -275,12 +275,12 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 		servletContextHandler.addServlet(samlSLOAsyncHolder, SAML_SLO_ASYNC_SERVLET_PATH + "/*");
 
 		String sloSyncURL = getServletUrl(SAML_SLO_SOAP_SERVLET_PATH);
-//FIXME cxf
-//		Servlet samlSLOSyncServlet = getSLOSyncServlet(sloSyncURL);
-//		ServletHolder samlSLOSyncHolder = createServletHolder(samlSLOSyncServlet);
-//		servletContextHandler.addServlet(samlSLOSyncHolder, SAML_SLO_SOAP_SERVLET_PATH + "/*");
 
 		SessionManagementEE10 sessionMan = applicationContext.getBean(SessionManagementEE10.class);
+		Servlet samlSLOSyncServlet = getSLOSyncServlet(sloSyncURL);
+		ServletHolder samlSLOSyncHolder = createServletHolder(samlSLOSyncServlet);
+		servletContextHandler.addServlet(samlSLOSyncHolder, SAML_SLO_SOAP_SERVLET_PATH + "/*");
+		
 		LoginToHttpSessionEE10Binder sessionBinder = applicationContext.getBean(LoginToHttpSessionEE10Binder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		RememberMeProcessorEE10 remeberMeProcessor = applicationContext.getBean(RememberMeProcessorEE10.class);
@@ -363,7 +363,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 		Endpoint cxfEndpoint = CXFUtils.deployWebservice(bus, SAMLLogoutInterface.class, webService);
 		cxfEndpoint.getOutInterceptors().add(new XmlBeansNsHackOutHandler());
 		
-		return null;
+		return cxfServlet;
 	}
 	
 	public TrustedServiceProviders getSpsConfiguration()

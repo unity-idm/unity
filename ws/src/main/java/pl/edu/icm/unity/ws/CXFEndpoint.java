@@ -10,14 +10,15 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -31,7 +32,7 @@ import java.util.*;
  * Web service endpoint based on CXF
  * @author K. Benedyczak
  */
-public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE8Instance
+public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
 {
 	protected MessageSource msg;
 	protected String servletPath;

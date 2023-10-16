@@ -84,7 +84,7 @@ public class InvocationContextSetupFilter implements Filter
 	private InvocationContext createInvocationContext(HttpServletRequest request)
 	{
 		X509Certificate[] clientCert = (X509Certificate[]) request.getAttribute(
-				"javax.servlet.request.X509Certificate");
+				"jakarta.servlet.request.X509Certificate");
 		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
 				clientCert[0].getSubjectX500Principal().getName());
 		InvocationContext context = new InvocationContext(tlsId, realm, authenticationFlows);

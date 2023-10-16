@@ -7,7 +7,7 @@ package pl.edu.icm.unity.oauth.as.token.introspection;
 
 import java.util.Optional;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

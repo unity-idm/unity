@@ -15,7 +15,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 @PermitAll
 @Tag(Tag.DIV)

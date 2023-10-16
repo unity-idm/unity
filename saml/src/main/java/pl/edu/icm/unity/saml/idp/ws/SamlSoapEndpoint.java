@@ -10,8 +10,10 @@ import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import eu.unicore.samly2.webservice.SAMLQueryInterface;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import jakarta.servlet.Servlet;
+
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,7 +41,7 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfigurationParser;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.metadata.MetadataProvider;
 import pl.edu.icm.unity.saml.metadata.MetadataProviderFactory;
-import pl.edu.icm.unity.saml.metadata.MetadataServletEE8;
+import pl.edu.icm.unity.saml.metadata.MetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
 import pl.edu.icm.unity.saml.metadata.cfg.MetaToIDPConfigConverter;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
@@ -50,7 +52,6 @@ import pl.edu.icm.unity.ws.CXFEndpoint;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 
-import javax.servlet.Servlet;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -209,7 +210,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(myMetadataManager.getSAMLIdPConfiguration(), uriAccessService,
 				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints,
 				description.getEndpoint().getConfiguration().getDisplayedName(), msg);
-		return new MetadataServletEE8(provider);
+		return new MetadataServlet(provider);
 	}
 	
 	

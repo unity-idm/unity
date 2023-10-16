@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;

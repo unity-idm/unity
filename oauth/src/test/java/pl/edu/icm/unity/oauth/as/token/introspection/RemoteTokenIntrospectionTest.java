@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 

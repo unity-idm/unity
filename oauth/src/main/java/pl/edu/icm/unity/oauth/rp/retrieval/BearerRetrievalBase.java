@@ -6,7 +6,7 @@ package pl.edu.icm.unity.oauth.rp.retrieval;
 
 import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;

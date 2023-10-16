@@ -11,7 +11,7 @@ import static pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository.
 
 import java.util.Date;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 

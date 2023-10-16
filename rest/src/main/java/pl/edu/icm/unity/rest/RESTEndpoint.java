@@ -12,10 +12,11 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee8.servlet.FilterHolder;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee8.servlet.ServletHolder;
-import org.eclipse.jetty.ee8.servlets.CrossOriginFilter;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
+
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -25,16 +26,15 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.rest.authn.LogContextCleaningInterceptor;
-
-import javax.servlet.DispatcherType;
-import javax.ws.rs.core.Application;
+import jakarta.servlet.DispatcherType;
+import jakarta.ws.rs.core.Application;
 import java.io.StringReader;
 import java.util.*;
 
@@ -48,7 +48,7 @@ import java.util.*;
  *  
  * @author K. Benedyczak
  */
-public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE8Instance
+public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTEndpoint.class);
 	private AuthenticationProcessor authenticationProcessor;

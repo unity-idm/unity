@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
