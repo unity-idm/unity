@@ -44,6 +44,7 @@ import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeByMetaCache;
 import pl.edu.icm.unity.engine.capacityLimits.InternalCapacityLimitVerificator;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
@@ -110,14 +111,22 @@ public abstract class SecuredDBIntegrationTestBase
 	protected MessageTemplateManagement messageTemplateMan;
 	@Autowired
 	protected InternalCapacityLimitVerificator capacityLimit;
+	@Autowired
+	protected AttributeTypeByMetaCache attributeTypeByMetaCache;
 	
 	@BeforeEach
 	public void clear() throws Exception
 	{
 		insecureServerMan.resetDatabase();
 		clearCapacityCache();
+		clearAttributeTypeCache();
 	}
 	
+	private void clearAttributeTypeCache()
+	{
+		attributeTypeByMetaCache.clear();
+	}
+
 	protected void clearCapacityCache()
 	{
 		capacityLimit.clearCache();
