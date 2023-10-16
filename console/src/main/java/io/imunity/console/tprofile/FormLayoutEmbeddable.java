@@ -8,6 +8,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.shared.HasTooltip;
+import io.imunity.console.components.QuestionIconTooltip;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,13 +36,21 @@ public class FormLayoutEmbeddable
 		List<Component> components = new ArrayList<>();
 		for (Component component: this.components)
 		{
-			if(component instanceof Label label)
+			if(component instanceof Span label)
 			{
 				components.add(layout.addFormItem(new Div(), label));
 				continue;
 			}
-			components.add(layout.addFormItem(component, component.getElement().getProperty("label")));
+			FormLayout.FormItem item = layout.addFormItem(component, component.getElement().getProperty("label"));
+			components.add(item);
 			component.getElement().setProperty("label", "");
+			if(component instanceof HasTooltip hasTooltip)
+			{
+				String text = hasTooltip.getTooltip().getText();
+				hasTooltip.setTooltipText("");
+				Icon icon = QuestionIconTooltip.get(text);
+				item.add(icon);
+			}
 		}
 		this.components = components;
 	}

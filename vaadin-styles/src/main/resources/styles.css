@@ -535,3 +535,15 @@ vaadin-details.multi-tab-details {
 .grid-details-width {
     width: 60em;
 }
+
+vcf-tooltip[theme="light"]::part(container) {
+    font-size: var(--lumo-font-size-s);
+    background: var(--lumo-base-color) linear-gradient(var(--lumo-contrast-5pct), var(--lumo-contrast-5pct));
+    color: var(--lumo-body-text-color);
+    border-radius: var(--lumo-border-radius-m);
+    box-shadow: 0 0 0 1px var(--lumo-shade-5pct), var(--lumo-box-shadow-m);
+}
+
+.field-icon-gap {
+    margin-left: var(--small-margin);
+}

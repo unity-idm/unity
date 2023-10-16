@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
 /**
  * {@link ComboBox} based editor of all enumerated parameters.
  */
@@ -64,6 +66,7 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 		binder.setBean(new StringValueBean(def));
 		setTooltipText(msg.getMessage(desc.getDescriptionKey()));
 		setLabel(desc.getName() + ":");
+		setWidth(TEXT_FIELD_MEDIUM.value());
 	}
 	
 	@Override

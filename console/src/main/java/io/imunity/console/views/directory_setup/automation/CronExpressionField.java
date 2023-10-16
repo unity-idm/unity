@@ -23,7 +23,6 @@ class CronExpressionField extends TextField
 	{
 		this.msg = msg;
 		setLabel(caption);
-		setTooltipText(msg.getMessage("CronExpressionField.cronExpressionDescription"));
 	}
 
 	void configureBinding(Binder<?> binder, String fieldName)

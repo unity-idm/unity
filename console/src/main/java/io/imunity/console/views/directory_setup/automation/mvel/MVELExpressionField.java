@@ -8,14 +8,17 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
+import io.imunity.console.components.QuestionIconTooltip;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 
 /**
  * Plain text field allowing for editing an MVEL expression
@@ -32,22 +35,25 @@ public class MVELExpressionField extends CustomField<String>
 	public MVELExpressionField(MessageSource msg, String caption, String description, MVELExpressionContext context)
 	{
 		this.field = new TextField();
+		field.setWidth(TEXT_FIELD_BIG.value());
 		this.editorButton = VaadinIcon.COGS.create();
 		this.context = context;
 
 		editorButton.addClickListener(e -> new MVELExpressionEditorDialog(msg, this.context, mandatory,
 				field.getValue(), field::setValue).open());
-		editorButton.getStyle().set("cursor", "pointer");
+		editorButton.setClassName("pointer");
 		this.editor = new MVELExpressionEditor(this, msg);
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setSpacing(false);
-		VerticalLayout iconLayout = new VerticalLayout(editorButton);
-		iconLayout.getStyle().set("padding-left", "0.2em");
-		layout.add(field, iconLayout);
+		Icon icon = QuestionIconTooltip.getWithHtmlTooltip(description);
+		HorizontalLayout iconsLayout = new HorizontalLayout(editorButton, icon);
+		iconsLayout.setSpacing(false);
+		iconsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+		iconsLayout.setClassName("field-icon-gap");
+		layout.add(field, iconsLayout);
 		field.setLabel(caption);
-		field.setTooltipText(description);
-		editorButton.setTooltipText(description);
+
 		field.addValueChangeListener(e ->
 		{
 			value = e.getValue();

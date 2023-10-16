@@ -7,23 +7,24 @@ package io.imunity.console.views.directory_setup.automation;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
+import io.imunity.console.components.QuestionIconTooltip;
 import io.imunity.console.tprofile.ActionEditor;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.Optional;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
@@ -80,6 +81,8 @@ public class AutomationEditView extends ConsoleViewComponent
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		CronExpressionField cronExpression = new CronExpressionField(msg, "");
+		Icon icon = QuestionIconTooltip.getWithHtmlTooltip(msg.getMessage("CronExpressionField.cronExpressionDescription"));
+
 		MVELExpressionField condition = new MVELExpressionField(msg, "",
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder().withTitleKey("RuleEditor.conditionTitle")
@@ -91,7 +94,7 @@ public class AutomationEditView extends ConsoleViewComponent
 		cronExpression.configureBinding(binder, "cronExpression");
 		binder.setBean(translationRule);
 
-		main.addFormItem(cronExpression, msg.getMessage("RuleEditor.cronExpression"));
+		main.addFormItem(cronExpression, msg.getMessage("RuleEditor.cronExpression")).add(icon);
 		main.addFormItem(condition, msg.getMessage("RuleEditor.condition"));
 		actionEditor.addToLayout(main);
 

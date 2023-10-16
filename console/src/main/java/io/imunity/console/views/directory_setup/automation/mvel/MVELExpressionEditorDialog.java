@@ -18,6 +18,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.elements.StringBindingValue;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -28,7 +29,6 @@ import java.util.function.Consumer;
 class MVELExpressionEditorDialog extends Dialog
 {
 	private static final int CHEET_SHEET_LINES_COUNT = 4;
-	private static final String MONOSPACE_FONT = "Consolas";
 	private final MessageSource msg;
 	private final Consumer<String> valueConsumer;
 	private final TextArea value;
@@ -50,7 +50,8 @@ class MVELExpressionEditorDialog extends Dialog
 		getFooter().add(closeButton, okButton);
 		add(getContents());
 		setWidth("50em");
-		setHeight("30em");
+		setHeight("60em");
+		setResizable(true);
 	}
 	private void init(String initValue, boolean mandatory)
 	{
@@ -58,11 +59,12 @@ class MVELExpressionEditorDialog extends Dialog
 		inputLabel = new InputLabel("");
 		inputLabel.getElement().setProperty("innerHTML", msg.getMessage("MVELExpressionField.evalTo", msg.getMessage(context.evalToKey)));
 		value.setValue(initValue);
-		value.getStyle().set("font-family", MONOSPACE_FONT);
+		value.getStyle().set("font-family", "monospace");
 		value.getStyle().set("resize", "vertical");
 		value.getStyle().set("overflow", "auto");
-		value.setWidth("30em");
+		value.setWidthFull();
 		value.setMinHeight("5em");
+		value.setValueChangeMode(ValueChangeMode.EAGER);
 		value.getElement().executeJs(
 			"""
 				document.querySelector("textarea").addEventListener('keydown', function(e) {
@@ -124,7 +126,7 @@ class MVELExpressionEditorDialog extends Dialog
 			);
 		}
 		Details cheatSheet = new Details(msg.getMessage("MVELExpressionField.cheetSheet"), cheatSheetL);
-		cheatSheet.setOpened(true);
+		cheatSheet.setOpened(false);
 
 		main.add(inputLabel, value, link, variables, cheatSheet);
 

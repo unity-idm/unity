@@ -11,6 +11,8 @@ import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 import java.util.Collection;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
 /**
  * {@link AttributeSelectionComboBox} based editor of attribute  parameter.
  * @author K. Benedyczak
@@ -23,6 +25,7 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 			MessageSource msg, Collection<AttributeType> attributeTypes)
 	{
 		super(desc.getName() + ":", attributeTypes);
+		setWidth(TEXT_FIELD_MEDIUM.value());
 		setTooltipText(msg.getMessage(desc.getDescriptionKey()));
 		binder = new Binder<>(StringValueBean.class);
 		
@@ -81,10 +84,7 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		binder.addValueChangeListener((e) -> {
-			callback.run();
-		});
-
+		binder.addValueChangeListener((e) -> callback.run());
 	}
 
 	@Override
