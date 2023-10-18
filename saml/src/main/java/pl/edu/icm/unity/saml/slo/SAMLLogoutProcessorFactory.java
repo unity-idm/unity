@@ -13,7 +13,7 @@ import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
@@ -29,7 +29,7 @@ import java.time.Duration;
 @Component
 public class SAMLLogoutProcessorFactory
 {
-	private SessionManagementEE8 sessionManagement;
+	private SessionManagement sessionManagement;
 	private IdentityResolver idResolver;
 	private LogoutContextsStore contextsStore;
 	private ReplayAttackChecker replayChecker;
@@ -39,7 +39,7 @@ public class SAMLLogoutProcessorFactory
 	private UnityServerConfiguration serverConfig;
 	
 	@Autowired
-	public SAMLLogoutProcessorFactory(SessionManagementEE8 sessionManagement, 
+	public SAMLLogoutProcessorFactory(SessionManagement sessionManagement, 
 			@Qualifier("insecure") PKIManagement pkiManagement,
 			IdentityResolver idResolver, LogoutContextsStore contextsStore,
 			ReplayAttackChecker replayChecker, FreemarkerAppHandler freemarker, 

@@ -19,7 +19,7 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ class AuthenticationFilterTest
 		when(request.getServletPath()).thenReturn("/secured");
 		when(request.getSession()).thenReturn(session);
 		when(request.getSession(false)).thenReturn(session);
-		when(session.getAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY)).thenReturn(loginSession);
+		when(session.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY)).thenReturn(loginSession);
 		when(loginSession.getRealm()).thenReturn("home");
 
 		filter.doFilter(request, response, chain);
@@ -75,7 +75,7 @@ class AuthenticationFilterTest
 		when(servletRequest.getSession()).thenReturn(session);
 		when(servletRequest.getSession(false)).thenReturn(session);
 		when(servletRequest.getRequest()).thenReturn(request);
-		when(session.getAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY)).thenReturn(loginSession);
+		when(session.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY)).thenReturn(loginSession);
 		when(loginSession.getRealm()).thenReturn("admin");
 
 		filter.doFilter(servletRequest, response, chain);

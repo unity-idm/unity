@@ -47,7 +47,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.MDCKeys;
 import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -64,7 +64,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	private AuthenticationProcessor authenticationProcessor;
 	protected List<AuthenticationFlow> authenticators;
 	protected UnsuccessfulAuthenticationCounter UnsuccessfulAuthenticationCounterImpl;
-	protected SessionManagementEE8 sessionMan;
+	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
 	protected final Set<String> notProtectedPaths;
 	protected final Set<String> optionalAuthnPaths;
@@ -73,7 +73,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	
 	public AuthenticationInterceptor(MessageSource msg, AuthenticationProcessor authenticationProcessor, 
 			List<AuthenticationFlow> authenticators,
-			AuthenticationRealm realm, SessionManagementEE8 sessionManagement, 
+			AuthenticationRealm realm, SessionManagement sessionManagement, 
 			Set<String> notProtectedPaths,
 			Set<String> optionalAuthnPaths,
 			Properties endpointProperties, EntityManagement entityMan)

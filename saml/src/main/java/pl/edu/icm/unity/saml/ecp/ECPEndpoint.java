@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -56,7 +56,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private final ReplayAttackChecker replayAttackChecker;
 	private final TokensManagement tokensMan;
 	private final EntityManagement identitiesMan;
-	private final SessionManagementEE8 sessionMan;
+	private final SessionManagement sessionMan;
 	private final ExecutorsService executorsService;
 	private final SAMLSPConfigurationParser configurationParser;
 	private final RemoteAuthnResultTranslator remoteAuthnProcessor;
@@ -80,7 +80,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 			RemoteAuthnResultTranslator remoteAuthnProcessor,
 			TokensManagement tokensMan,
 			EntityManagement identitiesMan,
-			SessionManagementEE8 sessionMan,
+			SessionManagement sessionMan,
 			ExecutorsService executorsService,
 			SharedEndpointManagement sharedEndpointManagement,
 			URIAccessService uriAccessService,

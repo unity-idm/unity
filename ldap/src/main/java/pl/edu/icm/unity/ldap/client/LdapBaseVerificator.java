@@ -17,7 +17,7 @@ import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessorEE8;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties;
@@ -30,7 +30,7 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator
 {
 	protected final LdapClient client;
 	private final PKIManagement pkiManagement;
-	protected final RemoteAuthnResponseProcessorEE8 remoteAuthnProcessor;
+	protected final RemoteAuthnResponseProcessor remoteAuthnProcessor;
 
 	private LdapProperties ldapProperties;
 	protected LdapClientConfiguration clientConfiguration;
@@ -39,7 +39,7 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator
 	protected LdapBaseVerificator(String name, String description, 
 			RemoteAuthnResultTranslator processor,
 			PKIManagement pkiManagement, String exchangeId,
-			RemoteAuthnResponseProcessorEE8 remoteAuthnProcessor)
+			RemoteAuthnResponseProcessor remoteAuthnProcessor)
 	{
 		super(name, description, exchangeId, processor);
 		this.remoteAuthnProcessor = remoteAuthnProcessor;

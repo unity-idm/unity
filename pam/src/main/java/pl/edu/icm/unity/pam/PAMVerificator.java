@@ -30,7 +30,7 @@ import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessorEE8;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -49,13 +49,13 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 	public static final String IDP = "PAM";
 	public static final String DESCRIPTION = "Verifies passwords using local OS PAM facility";
 	
-	private final RemoteAuthnResponseProcessorEE8 remoteAuthnProcessor;
+	private final RemoteAuthnResponseProcessor remoteAuthnProcessor;
 	private PAMProperties pamProperties;
 	private TranslationProfile translationProfile;
 
 	
 	@Autowired
-	public PAMVerificator(RemoteAuthnResultTranslator translator, RemoteAuthnResponseProcessorEE8 remoteAuthnProcessor)
+	public PAMVerificator(RemoteAuthnResultTranslator translator, RemoteAuthnResponseProcessor remoteAuthnProcessor)
 	{
 		super(NAME, DESCRIPTION, PasswordExchange.ID, translator);
 		this.remoteAuthnProcessor = remoteAuthnProcessor;

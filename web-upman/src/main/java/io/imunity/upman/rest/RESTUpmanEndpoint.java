@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.RestEndpointHelper;
@@ -44,7 +44,7 @@ public class RESTUpmanEndpoint extends RESTEndpoint
 
 	@Autowired
 	public RESTUpmanEndpoint(MessageSource msg,
-	                         SessionManagementEE8 sessionMan,
+	                         SessionManagement sessionMan,
 	                         NetworkServer server,
 	                         AuthenticationProcessor authnProcessor,
 	                         RESTUpmanController.RESTUpmanControllerFactory factory,

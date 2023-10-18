@@ -30,7 +30,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.saml.SAMLEndpointDefinition;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
@@ -59,7 +59,7 @@ public class SAMLLogoutProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLLogoutProcessor.class);
 	
-	private SessionManagementEE8 sessionManagement;
+	private SessionManagement sessionManagement;
 	private LogoutMode logoutMode;
 	private SessionParticipantTypesRegistry registry;
 	private IdentityResolver idResolver;
@@ -78,7 +78,7 @@ public class SAMLLogoutProcessor
 	/**
 	 * Ouch ;-) Probably we should encapsulate non bean params into a config class. But we have a factory to help.
 	 */
-	public SAMLLogoutProcessor(SessionManagementEE8 sessionManagement, SessionParticipantTypesRegistry registry,
+	public SAMLLogoutProcessor(SessionManagement sessionManagement, SessionParticipantTypesRegistry registry,
 	                           IdentityResolver idResolver, LogoutContextsStore contextsStore,
 	                           ReplayAttackChecker replayChecker, SLOAsyncMessageHandler responseHandler,
 	                           InternalLogoutProcessor internalProcessor,

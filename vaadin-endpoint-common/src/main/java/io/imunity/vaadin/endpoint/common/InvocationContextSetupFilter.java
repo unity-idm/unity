@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
@@ -101,7 +101,7 @@ public class InvocationContextSetupFilter implements Filter
 		if (session != null)
 		{
 			LoginSession ls = (LoginSession) session.getAttribute(
-					LoginToHttpSessionBinderEE8.USER_SESSION_KEY);
+					LoginToHttpSessionBinder.USER_SESSION_KEY);
 			if (ls != null)
 			{
 				ctx.setLoginSession(ls);

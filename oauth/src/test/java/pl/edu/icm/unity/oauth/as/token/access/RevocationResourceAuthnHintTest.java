@@ -32,7 +32,7 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
@@ -181,7 +181,7 @@ public class RevocationResourceAuthnHintTest
 				mock(SecuredTokensManagement.class));
 		
 		RevocationResource tested = new RevocationResource(accessTokenRepository, refreshTokenRepository, 
-				mock(SessionManagementEE8.class),
+				mock(SessionManagement.class),
 				new AuthenticationRealm(),
 				true);
 		setupNoAuthnInvocationContext();
@@ -236,7 +236,7 @@ public class RevocationResourceAuthnHintTest
 				mock(SecuredTokensManagement.class));
 		
 		return new RevocationResource(accessTokenRepository, refreshTokenRepository, 
-				mock(SessionManagementEE8.class),
+				mock(SessionManagement.class),
 				new AuthenticationRealm(),
 				false);
 	}

@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
@@ -47,7 +47,7 @@ public class SCIMEndpoint extends RESTEndpoint
 	protected SCIMEndpointConfiguration scimEndpointConfiguration;
 
 	@Autowired
-	public SCIMEndpoint(MessageSource msg, SessionManagementEE8 sessionMan, NetworkServer server,
+	public SCIMEndpoint(MessageSource msg, SessionManagement sessionMan, NetworkServer server,
 			AuthenticationProcessor authnProcessor, List<SCIMRestControllerFactory> factories,
 			AdvertisedAddressProvider advertisedAddrProvider, EntityManagement entityMan)
 	{

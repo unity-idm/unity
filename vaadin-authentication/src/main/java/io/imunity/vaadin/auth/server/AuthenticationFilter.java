@@ -20,7 +20,6 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.CookieHelper;
@@ -66,7 +65,7 @@ public class AuthenticationFilter implements Filter
 		// notification about blocking woudn't show up). Still we need to prevent brute force attacks using 
 		// fake session cookies - this object is responsible only for that.
 		dosGauard = new DefaultUnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()* 1000L);
-		sessionCookieName = SessionCookieEE8.getSessionCookieName(realm.getName());
+		sessionCookieName = SessionCookie.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
 		this.rememberMeHelper = rememberMeHelper;
@@ -122,7 +121,7 @@ public class AuthenticationFilter implements Filter
 			return;
 
 		LoginSession loginSession = (LoginSession) httpSession
-				.getAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY);
+				.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		if (loginSession == null)
 			return;
 		if(!loginSession.getRealm().equals(realm.getName()))

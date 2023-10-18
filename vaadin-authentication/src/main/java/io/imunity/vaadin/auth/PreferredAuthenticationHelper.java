@@ -6,7 +6,7 @@ package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
-import pl.edu.icm.unity.engine.api.authn.LastAuthenticationCookieEE8;
+import pl.edu.icm.unity.engine.api.authn.LastAuthenticationCookie;
 import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 
 /**
@@ -38,6 +38,6 @@ public class PreferredAuthenticationHelper
 		VaadinRequest req = VaadinService.getCurrentRequest();
 		if (req == null)
 			return null;
-		return CookieHelper.getCookie(req.getCookies(), LastAuthenticationCookieEE8.LAST_AUTHN_COOKIE);
+		return CookieHelper.getCookie(req.getCookies(), LastAuthenticationCookie.LAST_AUTHN_COOKIE);
 	}
 }

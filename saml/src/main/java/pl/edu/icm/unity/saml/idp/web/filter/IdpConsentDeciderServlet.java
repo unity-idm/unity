@@ -40,7 +40,7 @@ import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.Type;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -80,7 +80,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
 	protected SSOResponseHandler ssoResponseHandler;
-	protected SessionManagementEE8 sessionMan;
+	protected SessionManagement sessionMan;
 	protected String samlUiServletPath;
 	protected AttributeTypeSupport aTypeSupport;
 	private final EnquiryManagement enquiryManagement;
@@ -94,7 +94,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			PreferencesManagement preferencesMan, 
 			IdPEngine idpEngine,
 			FreemarkerAppHandler freemarker,
-			SessionManagementEE8 sessionMan,
+			SessionManagement sessionMan,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
 			SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
@@ -340,7 +340,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	}
 	
 	public static void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,
-			String sessionId, SessionManagementEE8 sessionMan)
+			String sessionId, SessionManagement sessionMan)
 	{
 		String participantId = samlCtx.getRequest().getIssuer().getStringValue();
 		SAMLIdPConfiguration samlConfiguration = samlCtx.getSamlConfiguration();

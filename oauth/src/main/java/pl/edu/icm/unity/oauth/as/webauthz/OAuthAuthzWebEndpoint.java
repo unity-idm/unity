@@ -38,7 +38,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyEE8;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
@@ -224,7 +223,7 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		public void doFilter(HttpServletRequest request, HttpServletResponse response) throws EopException, IOException
 		{
 			AuthenticationPolicy policy = AuthenticationPolicy.getPolicy(request.getSession());
-			if (policy.equals(AuthenticationPolicyEE8.REQUIRE_EXISTING_SESSION))
+			if (policy.equals(AuthenticationPolicy.REQUIRE_EXISTING_SESSION))
 			{
 				returnOAuthError(request, response);
 				throw new EopException();

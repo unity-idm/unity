@@ -41,7 +41,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
@@ -165,7 +165,7 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 	private boolean isUserAuthenticatedWithOutdatedCredential()
 	{
 		WrappedSession vss = VaadinSession.getCurrent().getSession();
-		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY);
+		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		return ls != null && ls.isUsedOutdatedCredential();
 	}
 

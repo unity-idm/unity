@@ -44,7 +44,7 @@ import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
 import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
 import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -80,7 +80,7 @@ class SamlIdPWebView extends UnityViewComponent
 	private final IdentityTypeSupport identityTypeSupport;
 	private final PreferencesManagement preferencesMan;
 	private final WebLogoutHandler authnProcessor;
-	private final SessionManagementEE8 sessionMan;
+	private final SessionManagement sessionMan;
 	private final VaadinLogoImageLoader imageAccessService;
 	private final PolicyAgreementManagement policyAgreementsMan;
 	private AuthnResponseProcessor samlProcessor;
@@ -100,7 +100,7 @@ class SamlIdPWebView extends UnityViewComponent
 	                      FreemarkerAppHandler freemarkerHandler,
 	                      AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
 	                      VaddinWebLogoutHandler authnProcessor, IdPEngine idpEngine,
-	                      IdentityTypeSupport identityTypeSupport, SessionManagementEE8 sessionMan,
+	                      IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
 	                      AttributeTypeManagement attrsMan,
 	                      AttributeTypeSupport aTypeSupport,
 	                      PolicyAgreementManagement policyAgreementsMan,

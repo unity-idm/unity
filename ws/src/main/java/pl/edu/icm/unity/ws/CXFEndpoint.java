@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 
@@ -38,12 +38,12 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 	protected String servletPath;
 	private Map<Class<?>, Object> services; 
 	protected CXFEndpointProperties genericEndpointProperties;
-	protected SessionManagementEE8 sessionMan;
+	protected SessionManagement sessionMan;
 	private AuthenticationProcessor authnProcessor;
 	private final EntityManagement entityMan;
 	
 	public CXFEndpoint(MessageSource msg,
-			SessionManagementEE8 sessionMan,
+			SessionManagement sessionMan,
 			AuthenticationProcessor authnProcessor,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,

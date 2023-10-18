@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 
@@ -78,7 +78,7 @@ public class OutdatedCredentialController
 		this.authnProcessor = authnProcessor;
 		this.finishHandler = finishHandler;
 		WrappedSession vss = VaadinSession.getCurrent().getSession();
-		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY);
+		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		this.entityId = ls.getEntityId();
 		this.credentialId = ls.getOutdatedCredentialId();
 		this.uiConfig = uiConfig;

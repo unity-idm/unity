@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.rest.authn.LogContextCleaningInterceptor;
@@ -54,7 +54,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	private AuthenticationProcessor authenticationProcessor;
 	protected RESTEndpointProperties genericEndpointProperties;
 	protected String servletPath;
-	protected SessionManagementEE8 sessionMan;
+	protected SessionManagement sessionMan;
 	protected MessageSource msg;
 	protected final EntityManagement entityMan;
 
@@ -62,7 +62,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	protected Set<String> optionallyAuthenticatedPaths = new HashSet<>();
 	
 	public RESTEndpoint(MessageSource msg,
-			SessionManagementEE8 sessionMan,
+			SessionManagement sessionMan,
 			AuthenticationProcessor authenticationProcessor,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,
