@@ -51,7 +51,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.ImageAttribute;
@@ -101,7 +101,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 	@Autowired
 	protected AttributeTypeManagement attrTypesMan;
 	@Autowired
-	protected SessionManagementEE8 sessionMan;
+	protected SessionManagement sessionMan;
 	
 	@BeforeEach
 	public void setup() throws Exception

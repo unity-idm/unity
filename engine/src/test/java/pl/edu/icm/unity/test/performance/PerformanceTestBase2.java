@@ -47,7 +47,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -86,7 +86,7 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	@Autowired
 	protected AttributeTypeManagement attrTypesMan;
 	@Autowired
-	protected SessionManagementEE8 sessionMan;
+	protected SessionManagement sessionMan;
 	
 	@BeforeEach
 	@Override

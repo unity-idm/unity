@@ -44,7 +44,7 @@ import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
 import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
-import pl.edu.icm.unity.engine.api.session.SessionParticipants;
+import pl.edu.icm.unity.engine.api.session.SessionParticipantsEE8;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -314,8 +314,8 @@ public class SessionManagementImplEE8 implements SessionManagementEE8
 		LoginSession ls = invocationContext.getLoginSession();
 		try
 		{
-			SessionParticipants.AddParticipantToSessionTask addTask = 
-					new SessionParticipants.AddParticipantToSessionTask(participantTypesRegistry,
+			SessionParticipantsEE8.AddParticipantToSessionTask addTask = 
+					new SessionParticipantsEE8.AddParticipantToSessionTask(participantTypesRegistry,
 					participant); 
 			updateSessionAttributes(ls.getId(), addTask);
 		} catch (IllegalArgumentException e)

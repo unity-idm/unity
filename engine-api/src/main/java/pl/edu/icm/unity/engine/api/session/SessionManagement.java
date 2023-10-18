@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.session;
 
+import java.util.Map;
+
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -49,7 +51,7 @@ public interface SessionManagement
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.
 	 */
-	void updateSessionAttributes(String id, SessionManagementEE8.AttributeUpdater updater);
+	void updateSessionAttributes(String id, SessionManagement.AttributeUpdater updater);
 
 	/**
 	 * Updates the lastUsed timestamp of a session. The implementation may delay this action if the 
@@ -86,4 +88,8 @@ public interface SessionManagement
 	 * Callback interface. Implementation can update the attributes. It should return quickly as 
 	 * it is invoked inside of a DB transaction.
 	 */
+	interface AttributeUpdater
+	{
+		public void updateAttributes(Map<String, String> sessionAttributes);
+	}
 }

@@ -38,7 +38,7 @@ import pl.edu.icm.unity.engine.api.UserImportManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationFormTranslationActionGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
@@ -109,7 +109,7 @@ public class MockGroovyBindingProvider
 				withSettings().verboseLogging());
 		GroupDelegationConfigGenerator groupDelegationConfigGenerator = mock(GroupDelegationConfigGenerator.class, 
 				withSettings().verboseLogging());
-		SessionManagementEE8 sessionManagement = mock(SessionManagementEE8.class, 
+		SessionManagement sessionManagement = mock(SessionManagement.class, 
 				withSettings().verboseLogging());
 		RegistrationFormTranslationActionGenerator regTranslationActionGenerator = mock(
 				RegistrationFormTranslationActionGenerator.class, withSettings().verboseLogging());

@@ -18,13 +18,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.SessionManagement.AttributeUpdater;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8.AttributeUpdater;
 
 /**
  * Holds multiple {@link SessionParticipant}s. Is stored as a {@link LoginSession} attribute. 
  * @author K. Benedyczak
  */
-public class SessionParticipants
+public class SessionParticipantsEE8
 {
 	public static final String KEY = "sessionParticipants";
 	
@@ -32,7 +32,7 @@ public class SessionParticipants
 	private ObjectMapper jsonMapper = new ObjectMapper();
 	private SessionParticipantTypesRegistry registry;
 	
-	public SessionParticipants(String serializedState, SessionParticipantTypesRegistry registry)
+	public SessionParticipantsEE8(String serializedState, SessionParticipantTypesRegistry registry)
 	{
 		this.registry = registry;
 		try
@@ -52,17 +52,17 @@ public class SessionParticipants
 		}
 	}
 	
-	public SessionParticipants(SessionParticipantTypesRegistry registry)
+	public SessionParticipantsEE8(SessionParticipantTypesRegistry registry)
 	{
 		this.registry = registry;
 	}
 	
-	public static SessionParticipants getFromSession(Map<String, String> sessionAttributes, 
+	public static SessionParticipantsEE8 getFromSession(Map<String, String> sessionAttributes, 
 			SessionParticipantTypesRegistry registry)
 	{
 		String participantsSerialized = sessionAttributes.get(KEY);
-		return participantsSerialized == null ? new SessionParticipants(registry) 
-				: new SessionParticipants(participantsSerialized, registry);
+		return participantsSerialized == null ? new SessionParticipantsEE8(registry) 
+				: new SessionParticipantsEE8(participantsSerialized, registry);
 	}
 	
 	public String serialize()
@@ -113,7 +113,7 @@ public class SessionParticipants
 	public static class AddParticipantToSessionTask implements AttributeUpdater
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN,
-				SessionParticipants.AddParticipantToSessionTask.class);
+				SessionParticipantsEE8.AddParticipantToSessionTask.class);
 		
 		private SessionParticipant[] toBeAdded;
 		private SessionParticipantTypesRegistry registry;
@@ -128,7 +128,7 @@ public class SessionParticipants
 		@Override
 		public void updateAttributes(Map<String, String> sessionAttributes)
 		{
-			SessionParticipants participants = getFromSession(sessionAttributes, registry);
+			SessionParticipantsEE8 participants = getFromSession(sessionAttributes, registry);
 			for (SessionParticipant p: toBeAdded)
 				participants.addParticipant(p);
 			if (log.isDebugEnabled())

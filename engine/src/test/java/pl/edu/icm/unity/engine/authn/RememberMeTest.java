@@ -81,7 +81,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		assertThat(cookieSplit.length).isEqualTo(2);
 		String rememberMeSeriesToken = cookieSplit[0];
 		
-		Token tokenById = tokenMan.getTokenById(RememberMeProcessorImplEE8.REMEMBER_ME_TOKEN_TYPE,
+		Token tokenById = tokenMan.getTokenById(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE,
 				rememberMeSeriesToken);
 		assertThat(tokenById).isNotNull();
 		RememberMeToken rememberMeUnityToken = RememberMeToken
@@ -105,14 +105,14 @@ public class RememberMeTest extends DBIntegrationTestBase
 
 		verify(response).addCookie(cookieArgument.capture());
 		assertThat(cookieArgument.getValue().getValue()).isNotNull();
-		assertThat(tokenMan.getAllTokens(RememberMeProcessorImplEE8.REMEMBER_ME_TOKEN_TYPE)).hasSize(1);
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE)).hasSize(1);
 		Cookie added = cookieArgument.getValue();
 		when(request.getCookies()).thenReturn(new Cookie[] { added });
 
 		rememberMeProcessor.removeRememberMeWithWholeAuthn(realm.getName(), request,
 				response);
 
-		assertThat(tokenMan.getAllTokens(RememberMeProcessorImplEE8.REMEMBER_ME_TOKEN_TYPE)).hasSize(0);
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE)).hasSize(0);
 	}
 	
 	@Test
@@ -189,7 +189,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		Cookie removedCookie = removedCookieArgument.getValue();
 		assertThat(removedCookie.getMaxAge()).isEqualTo(0);
 
-		assertThat(tokenMan.getAllTokens(RememberMeProcessorImplEE8.REMEMBER_ME_TOKEN_TYPE)).isEmpty();
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE)).isEmpty();
 	}
 
 	@Test
@@ -217,7 +217,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		
 		assertThat(counterArgument.getValue()).isEqualTo("0.0.0.0");
 
-		assertThat(tokenMan.getAllTokens(RememberMeProcessorImplEE8.REMEMBER_ME_TOKEN_TYPE)).isEmpty();
+		assertThat(tokenMan.getAllTokens(RememberMeProcessorImpl.REMEMBER_ME_TOKEN_TYPE)).isEmpty();
 	}
 	
 }

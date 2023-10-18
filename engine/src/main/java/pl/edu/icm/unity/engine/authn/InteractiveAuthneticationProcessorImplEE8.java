@@ -308,7 +308,7 @@ class InteractiveAuthneticationProcessorImplEE8 implements InteractiveAuthentica
 			HttpServletResponse httpResponse)
 	{
 		sessionMan.updateSessionAttributes(ls.getId(), 
-				new SessionParticipants.AddParticipantToSessionTask(
+				new SessionParticipantsEE8.AddParticipantToSessionTask(
 						participantTypesRegistry,
 						participants.toArray(new SessionParticipant[participants.size()])));
 

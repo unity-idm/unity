@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.store.api.TokenDAO.TokenNotFoundException;
@@ -51,11 +51,11 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 	public static final String REMEMBER_ME_COOKIE_PFX = "REMEMBERME_";
 
 	private final TokensManagement tokenMan;
-	private final SessionManagementEE8 sessionMan;
+	private final SessionManagement sessionMan;
 	private final EntityManagement entityMan;
 
 	@Autowired
-	RememberMeProcessorImpl(TokensManagement tokenMan, SessionManagementEE8 sessionMan, EntityManagement entityMan)
+	RememberMeProcessorImpl(TokensManagement tokenMan, SessionManagement sessionMan, EntityManagement entityMan)
 	{
 		this.tokenMan = tokenMan;
 		this.sessionMan = sessionMan;

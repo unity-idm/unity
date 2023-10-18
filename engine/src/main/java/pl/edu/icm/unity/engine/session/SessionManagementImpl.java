@@ -46,7 +46,7 @@ import java.util.function.Consumer;
 import static pl.edu.icm.unity.base.audit.AuditEventTag.AUTHN;
 
 /**
- * Implementation of {@link SessionManagementEE8}
+ * Implementation of {@link SessionManagement}
  * @author K. Benedyczak
  */
 @Component
@@ -201,7 +201,7 @@ public class SessionManagementImpl implements SessionManagement
 	
 	@Transactional
 	@Override
-	public void updateSessionAttributes(String id, SessionManagementEE8.AttributeUpdater updater)
+	public void updateSessionAttributes(String id, SessionManagement.AttributeUpdater updater)
 	{
 		updateSession(id, session -> updater.updateAttributes(session.getSessionData()));
 	}

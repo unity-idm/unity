@@ -20,6 +20,6 @@ public class SessionTokenJsonSerializer extends TokenWithJsonContentsSerializer
 {
 	public SessionTokenJsonSerializer()
 	{
-		super(SessionManagementImplEE8.SESSION_TOKEN_TYPE, "Session token JSON formatter");
+		super(SessionManagementImpl.SESSION_TOKEN_TYPE, "Session token JSON formatter");
 	}
 }
