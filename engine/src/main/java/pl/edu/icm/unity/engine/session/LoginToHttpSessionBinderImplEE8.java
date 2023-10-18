@@ -4,19 +4,21 @@
  */
 package pl.edu.icm.unity.engine.session;
 
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
-
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpSessionBindingEvent;
-import jakarta.servlet.http.HttpSessionBindingListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
 
 /**
  * Helper class, works as application singleton. Maintains an association of Unity's {@link LoginSession}s
@@ -28,9 +30,9 @@ import java.util.Map;
  * @author K. Benedyczak
  */
 @Component
-public class LoginToHttpSessionEE10BinderImpl implements LoginToHttpSessionEE10Binder
+public class LoginToHttpSessionBinderImplEE8 implements LoginToHttpSessionBinderEE8
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, LoginToHttpSessionEE10BinderImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, LoginToHttpSessionBinderImplEE8.class);
 
 	private Map<String, Collection<HttpSessionWrapper>> bindings = 
 			new HashMap<String, Collection<HttpSessionWrapper>>(1000);

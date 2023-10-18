@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.ws.CXFEndpoint;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
@@ -36,7 +36,7 @@ public class MockWSEndpointFactory implements EndpointFactory
 	private MessageSource msg;
 	
 	@Autowired
-	private SessionManagement sessionMan;
+	private SessionManagementEE8 sessionMan;
 	
 	@Autowired
 	private AuthenticationProcessor authnProcessor;

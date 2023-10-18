@@ -48,7 +48,7 @@ import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationFormTranslationActionGenerator;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
@@ -140,7 +140,7 @@ public class MainGroovyExecutor
 	@Qualifier("insecure")
 	private GroupDelegationConfigGenerator groupDelegationConfigGenerator;
 	@Autowired
-	private SessionManagement sessionManagement;
+	private SessionManagementEE8 sessionManagement;
 	@Autowired
 	private RegistrationFormTranslationActionGenerator regTranslationActionGenerator;
 	@Autowired

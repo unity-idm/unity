@@ -29,7 +29,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
@@ -52,7 +52,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AccountAssociationSandboxUI.class);
 	private LocaleChoiceComponent localeChoice;
-	private InteractiveAuthenticationProcessor authnProcessor;
+	private InteractiveAuthenticationProcessorEE8 authnProcessor;
 	private ExecutorsService execService;
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
@@ -62,7 +62,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 	@Autowired
 	public AccountAssociationSandboxUI(MessageSource msg, ImageAccessService imageAccessService,
 			LocaleChoiceComponent localeChoice,
-			InteractiveAuthenticationProcessor authnProcessor,
+			InteractiveAuthenticationProcessorEE8 authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
 			AuthenticatorSupportService authenticatorSupport)

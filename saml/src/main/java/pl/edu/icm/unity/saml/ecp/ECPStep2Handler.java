@@ -40,7 +40,7 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationConfig;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagement;
@@ -69,7 +69,7 @@ public class ECPStep2Handler
 	private RemoteAuthnResultTranslator remoteAuthnProcessor;
 	private JWTManagement jwtGenerator;
 	private AuthenticationRealm realm;
-	private SessionManagement sessionMan;
+	private SessionManagementEE8 sessionMan;
 	private ReplayAttackChecker replayAttackChecker;
 	private String myAddress;
 	private final Supplier<SAMLSPConfiguration> samlConfigurationSupplier;
@@ -82,7 +82,7 @@ public class ECPStep2Handler
 			TokensManagement tokensMan, PKIManagement pkiManagement, 
 			RemoteAuthnResultTranslator remoteAuthnProcessor,
 			EntityManagement entityMan,
-			SessionManagement sessionMan, AuthenticationRealm realm, String address)
+			SessionManagementEE8 sessionMan, AuthenticationRealm realm, String address)
 	{
 		this.samlConfigurationSupplier = samlConfiguration;
 		this.metadataManager = metadataManager;

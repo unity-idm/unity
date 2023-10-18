@@ -20,13 +20,13 @@ import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessorEE10;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE10;
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilterEE10;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 import java.util.EnumSet;
@@ -77,13 +77,13 @@ public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 
 		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
-		SessionManagementEE10 sessionMan = applicationContext.getBean(SessionManagementEE10.class);
-		LoginToHttpSessionEE10Binder sessionBinder = applicationContext.getBean(LoginToHttpSessionEE10Binder.class);
-		RememberMeProcessorEE10 remeberMeProcessor = applicationContext.getBean(RememberMeProcessorEE10.class);
+		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
+		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
+		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 
 		servletContextHandler.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
 			EnumSet.of(DispatcherType.REQUEST));
-		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilterEE10(
+		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(
 				List.of(AUTHENTICATION_PATH))),
 			"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(

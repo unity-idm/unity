@@ -37,14 +37,14 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessorEE10;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE10;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.*;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
@@ -276,16 +276,16 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 
 		String sloSyncURL = getServletUrl(SAML_SLO_SOAP_SERVLET_PATH);
 
-		SessionManagementEE10 sessionMan = applicationContext.getBean(SessionManagementEE10.class);
+		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		Servlet samlSLOSyncServlet = getSLOSyncServlet(sloSyncURL);
 		ServletHolder samlSLOSyncHolder = createServletHolder(samlSLOSyncServlet);
 		servletContextHandler.addServlet(samlSLOSyncHolder, SAML_SLO_SOAP_SERVLET_PATH + "/*");
 		
-		LoginToHttpSessionEE10Binder sessionBinder = applicationContext.getBean(LoginToHttpSessionEE10Binder.class);
+		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
-		RememberMeProcessorEE10 remeberMeProcessor = applicationContext.getBean(RememberMeProcessorEE10.class);
+		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		
-		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilterEE10(
+		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(
 						List.of(AUTHENTICATION_PATH, SAML_CONSENT_DECIDER_SERVLET_PATH))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);

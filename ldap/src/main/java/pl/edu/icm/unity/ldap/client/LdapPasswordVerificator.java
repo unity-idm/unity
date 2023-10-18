@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessorEE8;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -43,7 +43,7 @@ public class LdapPasswordVerificator extends LdapBaseVerificator implements Pass
 	
 	@Autowired
 	public LdapPasswordVerificator(RemoteAuthnResultTranslator processor,
-			PKIManagement pkiManagement, RemoteAuthnResponseProcessor remoteAuthnProcessor)
+			PKIManagement pkiManagement, RemoteAuthnResponseProcessorEE8 remoteAuthnProcessor)
 	{
 		super(NAME, DESCRIPTION, processor, pkiManagement, PasswordExchange.ID, remoteAuthnProcessor);
 	}

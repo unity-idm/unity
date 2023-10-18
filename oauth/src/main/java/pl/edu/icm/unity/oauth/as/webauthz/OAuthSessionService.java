@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
@@ -35,9 +35,9 @@ class OAuthSessionService
 			SESSION_OAUTH_CONTEXT);
 	static final String URL_PARAM_CONTEXT_KEY = LoginInProgressService.URL_PARAM_CONTEXT_KEY;
 
-	private final SessionManagement sessionMan;
+	private final SessionManagementEE8 sessionMan;
 	
-	OAuthSessionService(SessionManagement sessionMan)
+	OAuthSessionService(SessionManagementEE8 sessionMan)
 	{
 		this.sessionMan = sessionMan;
 	}

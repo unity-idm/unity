@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.SessionManagement.AttributeUpdater;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8.AttributeUpdater;
 
 /**
  * Holds multiple {@link SessionParticipant}s. Is stored as a {@link LoginSession} attribute. 

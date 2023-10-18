@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.session;
 
-import javax.servlet.http.HttpSession;
-
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Maintains an association of Unity's {@link LoginSession}s with {@link HttpSession}s. 

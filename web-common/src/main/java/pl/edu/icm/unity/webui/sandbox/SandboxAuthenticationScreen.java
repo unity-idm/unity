@@ -36,7 +36,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
@@ -70,7 +70,7 @@ public class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScre
 			CancelHandler cancelHandler,
 			EntityManagement idsMan,
 			ExecutorsService execService, 
-			InteractiveAuthenticationProcessor authnProcessor,
+			InteractiveAuthenticationProcessorEE8 authnProcessor,
 			Optional<LocaleChoiceComponent> localeChoice,
 			List<AuthenticationFlow> authenticators,
 			String title,

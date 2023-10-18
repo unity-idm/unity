@@ -18,8 +18,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandlerV8.AuthnResult;
 
@@ -33,10 +33,10 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdditionalAuthNResultCallback.class);
 	private final Consumer<AuthnResult> resultConsumer;
-	private final SessionManagement sessionMan;
+	private final SessionManagementEE8 sessionMan;
 	private final AuthenticationOptionKey authenticatorId;
 
-	public AdditionalAuthNResultCallback(SessionManagement sessionMan, AuthenticationOptionKey authenticatorId, 
+	public AdditionalAuthNResultCallback(SessionManagementEE8 sessionMan, AuthenticationOptionKey authenticatorId, 
 			Consumer<AuthnResult> resultConsumer)
 	{
 		this.sessionMan = sessionMan;
@@ -63,7 +63,7 @@ class AdditionalAuthNResultCallback implements AuthenticationCallback
 		LoginSession updatedSession = InvocationContext.getCurrent().getLoginSession();
 		VaadinSession vSession = VaadinSession.getCurrent();
 		if (vSession != null)
-			vSession.getSession().setAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY, updatedSession);
+			vSession.getSession().setAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY, updatedSession);
 	}
 	
 	@Override

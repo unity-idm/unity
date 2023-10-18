@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessorEE8;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -40,7 +40,7 @@ public class LdapCertVerificator extends LdapBaseVerificator implements Certific
 	
 	@Autowired
 	public LdapCertVerificator(RemoteAuthnResultTranslator processor,
-			PKIManagement pkiManagement, RemoteAuthnResponseProcessor remoteAuthnProcessor)
+			PKIManagement pkiManagement, RemoteAuthnResponseProcessorEE8 remoteAuthnProcessor)
 	{
 		super(NAME, DESCRIPTION, processor, pkiManagement, CertificateExchange.ID, remoteAuthnProcessor);
 	}

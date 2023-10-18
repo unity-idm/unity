@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -77,7 +77,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	
 	
 	@Autowired
-	public OAuthTokenEndpoint(MessageSource msg, SessionManagement sessionMan, NetworkServer server,
+	public OAuthTokenEndpoint(MessageSource msg, SessionManagementEE8 sessionMan, NetworkServer server,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, AuthenticationProcessor authnProcessor,
 			EntityManagement identitiesMan, @Qualifier("insecure") AttributesManagement attributesMan,
 			@Qualifier("insecure") IdPEngine idPEngine, TokensManagement tokensManagement,

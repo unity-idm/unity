@@ -38,7 +38,7 @@ import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringSta
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;

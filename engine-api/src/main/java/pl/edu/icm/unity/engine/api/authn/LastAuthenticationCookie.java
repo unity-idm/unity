@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+
+import jakarta.servlet.http.Cookie;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-
-import javax.servlet.http.Cookie;
-
-import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 
 public class LastAuthenticationCookie
 {

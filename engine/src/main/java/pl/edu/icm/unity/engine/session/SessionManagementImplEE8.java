@@ -4,9 +4,25 @@
  */
 package pl.edu.icm.unity.engine.session;
 
+import static pl.edu.icm.unity.base.audit.AuditEventTag.AUTHN;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.audit.AuditEventAction;
 import pl.edu.icm.unity.base.audit.AuditEventType;
@@ -24,7 +40,11 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
-import pl.edu.icm.unity.engine.api.session.*;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.session.SessionParticipant;
+import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
+import pl.edu.icm.unity.engine.api.session.SessionParticipants;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -35,42 +55,32 @@ import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-
-import static pl.edu.icm.unity.base.audit.AuditEventTag.AUTHN;
-
 /**
- * Implementation of {@link SessionManagement}
+ * Implementation of {@link SessionManagementEE8}
  * @author K. Benedyczak
  */
 @Component
-public class SessionManagementEE10Impl implements SessionManagementEE10
+public class SessionManagementImplEE8 implements SessionManagementEE8
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, SessionManagementEE10Impl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, SessionManagementImplEE8.class);
 	public static final long DB_ACTIVITY_WRITE_DELAY = 3000;
 	public static final String SESSION_TOKEN_TYPE = "session";
-	private final TokensManagement tokensManagement;
-	private final LoginToHttpSessionEE10Binder sessionBinder;
-	private final SessionParticipantTypesRegistry participantTypesRegistry;
-	private final EntityDAO entityDAO;
-	private final AttributesHelper attributeHelper;
+	private TokensManagement tokensManagement;
+	private LoginToHttpSessionBinderEE8 sessionBinder;
+	private SessionParticipantTypesRegistry participantTypesRegistry;
+	private EntityDAO entityDAO;
+	private AttributesHelper attributeHelper;
 	private final AuditPublisher auditPublisher;
 	private final TransactionalRunner tx;
-
+	
 	/**
 	 * map of timestamps indexed by session ids, when the last activity update was written to DB.
 	 */
 	private Map<String, Long> recentUsageUpdates = new WeakHashMap<>();
-
+	
 	@Autowired
-	public SessionManagementEE10Impl(TokensManagement tokensManagement, ExecutorsService execService,
-			LoginToHttpSessionEE10Binder sessionBinder,
+	public SessionManagementImplEE8(TokensManagement tokensManagement, ExecutorsService execService,
+			LoginToHttpSessionBinderEE8 sessionBinder, 
 			SessionParticipantTypesRegistry participantTypesRegistry,
 			EntityDAO entityDAO, AttributesHelper attributeHelper, AuditPublisher auditPublisher,
 			TransactionalRunner tx)
@@ -201,7 +211,7 @@ public class SessionManagementEE10Impl implements SessionManagementEE10
 	
 	@Transactional
 	@Override
-	public void updateSessionAttributes(String id, SessionManagement.AttributeUpdater updater)
+	public void updateSessionAttributes(String id, AttributeUpdater updater) 
 	{
 		updateSession(id, session -> updater.updateAttributes(session.getSessionData()));
 	}

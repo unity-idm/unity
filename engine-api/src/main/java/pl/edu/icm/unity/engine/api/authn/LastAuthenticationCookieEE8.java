@@ -4,14 +4,15 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
-
-import jakarta.servlet.http.Cookie;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
-public class LastAuthenticationCookieEE10
+import javax.servlet.http.Cookie;
+
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+
+public class LastAuthenticationCookieEE8
 {
 	public static final String LAST_AUTHN_COOKIE = "lastAuthnUsed";
 	private static final Duration MAX_AGE = Duration.ofDays(30);

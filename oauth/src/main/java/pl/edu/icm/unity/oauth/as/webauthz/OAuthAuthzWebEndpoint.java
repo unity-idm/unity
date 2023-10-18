@@ -38,19 +38,19 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyEE8;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyEE10;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessorEE10;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE10;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilterEE10;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -174,10 +174,10 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
 		servletContextHandler.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 
-		SessionManagementEE10 sessionMan = applicationContext.getBean(SessionManagementEE10.class);
-		LoginToHttpSessionEE10Binder sessionBinder = applicationContext.getBean(LoginToHttpSessionEE10Binder.class);
+		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
+		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);
-		RememberMeProcessorEE10 remeberMeProcessor = applicationContext.getBean(RememberMeProcessorEE10.class);
+		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 
 		ServletHolder routingServletHolder = createServletHolder(new RoutingServlet(OAUTH_CONSENT_DECIDER_SERVLET_PATH));
 		servletContextHandler.addServlet(routingServletHolder, OAUTH_ROUTING_SERVLET_PATH + "/*");
@@ -194,7 +194,7 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		servletContextHandler.addFilter(
-				new FilterHolder(new HiddenResourcesFilterEE10(Collections.unmodifiableList(Arrays
+				new FilterHolder(new HiddenResourcesFilter(Collections.unmodifiableList(Arrays
 						.asList(AUTHENTICATION_PATH, OAUTH_CONSENT_DECIDER_SERVLET_PATH)))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 
@@ -223,8 +223,8 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		@Override
 		public void doFilter(HttpServletRequest request, HttpServletResponse response) throws EopException, IOException
 		{
-			AuthenticationPolicyEE10 policy = AuthenticationPolicyEE10.getPolicy(request.getSession());
-			if (policy.equals(AuthenticationPolicy.REQUIRE_EXISTING_SESSION))
+			AuthenticationPolicy policy = AuthenticationPolicy.getPolicy(request.getSession());
+			if (policy.equals(AuthenticationPolicyEE8.REQUIRE_EXISTING_SESSION))
 			{
 				returnOAuthError(request, response);
 				throw new EopException();

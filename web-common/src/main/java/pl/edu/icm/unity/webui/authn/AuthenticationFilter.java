@@ -11,10 +11,10 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.utils.CookieHelper;
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.utils.CookieHelperEE8;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilterEE8;
 import pl.edu.icm.unity.engine.api.utils.MDCKeys;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
@@ -45,15 +45,15 @@ public class AuthenticationFilter implements Filter
 	private String authnServletPath;
 	private final String sessionCookieName;
 	private UnsuccessfulAuthenticationCounter dosGauard;
-	private SessionManagement sessionMan;
-	private LoginToHttpSessionBinder sessionBinder;
-	private RememberMeProcessor rememberMeHelper;
+	private SessionManagementEE8 sessionMan;
+	private LoginToHttpSessionBinderEE8 sessionBinder;
+	private RememberMeProcessorEE8 rememberMeHelper;
 	private AuthenticationRealm realm;
 	private NoSessionFilter noSessionFilter;
 	
 	public AuthenticationFilter(List<String> protectedServletPaths, String authnServletPath, 
 			AuthenticationRealm realm,
-			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeProcessor rememberMeHelper)
+			SessionManagementEE8 sessionMan, LoginToHttpSessionBinderEE8 sessionBinder, RememberMeProcessorEE8 rememberMeHelper)
 	{
 		this(protectedServletPaths, authnServletPath, realm, sessionMan, sessionBinder, rememberMeHelper, (req,resp) -> {});
 	}
@@ -61,7 +61,7 @@ public class AuthenticationFilter implements Filter
 	
 	public AuthenticationFilter(List<String> protectedServletPaths, String authnServletPath, 
 			AuthenticationRealm realm,
-			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeProcessor rememberMeHelper, 
+			SessionManagementEE8 sessionMan, LoginToHttpSessionBinderEE8 sessionBinder, RememberMeProcessorEE8 rememberMeHelper, 
 			NoSessionFilter noSessionFilter)
 	{
 		this.protectedServletPaths = new ArrayList<>(protectedServletPaths);
@@ -72,7 +72,7 @@ public class AuthenticationFilter implements Filter
 		// fake session cookies - this object is responsible only for that.
 		dosGauard = new DefaultUnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
-		sessionCookieName = SessionCookie.getSessionCookieName(realm.getName());
+		sessionCookieName = SessionCookieEE8.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
 		this.rememberMeHelper = rememberMeHelper;
@@ -110,8 +110,8 @@ public class AuthenticationFilter implements Filter
 	private void handleForceLogin(HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) throws EopException, IOException, ServletException
 	{
-		AuthenticationPolicy policy = AuthenticationPolicy.getPolicy(httpRequest.getSession());
-		if (policy.equals(AuthenticationPolicy.FORCE_LOGIN))
+		AuthenticationPolicyEE8 policy = AuthenticationPolicyEE8.getPolicy(httpRequest.getSession());
+		if (policy.equals(AuthenticationPolicyEE8.FORCE_LOGIN))
 		{
 			log.trace("Force reauthentication");
 			forwardtoAuthn(httpRequest, httpResponse);
@@ -124,7 +124,7 @@ public class AuthenticationFilter implements Filter
 			throws IOException, ServletException, EopException
 	{
 		String servletPath = httpRequest.getServletPath();
-		if (!HiddenResourcesFilter.hasPathPrefix(servletPath, protectedServletPaths))
+		if (!HiddenResourcesFilterEE8.hasPathPrefix(servletPath, protectedServletPaths))
 		{
 			gotoNotProtectedResource(httpRequest, response, chain);
 			throw new EopException();
@@ -142,7 +142,7 @@ public class AuthenticationFilter implements Filter
 			return;
 
 		LoginSession loginSession = (LoginSession) httpSession
-				.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
+				.getAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY);
 		if (loginSession == null)
 			return;
 		if(!loginSession.getRealm().equals(realm.getName()))
@@ -202,7 +202,7 @@ public class AuthenticationFilter implements Filter
 			HttpServletResponse httpResponse, FilterChain chain, String clientIp)
 			throws IOException, ServletException, EopException
 	{
-		String loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookieName);
+		String loginSessionId = CookieHelperEE8.getCookie(httpRequest, sessionCookieName);
 		if (loginSessionId == null)
 		{
 			return;
@@ -305,7 +305,7 @@ public class AuthenticationFilter implements Filter
 
 	private void clearSessionCookie(HttpServletResponse response)
 	{
-		response.addCookie(CookieHelper.setupHttpCookie(sessionCookieName, "", 0));
+		response.addCookie(CookieHelperEE8.setupHttpCookie(sessionCookieName, "", 0));
 	}
 
 	@Override

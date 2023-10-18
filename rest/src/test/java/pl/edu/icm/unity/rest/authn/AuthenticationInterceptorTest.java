@@ -40,7 +40,7 @@ import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.rest.authn.ext.HttpBasicRetrievalBase;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,7 +58,7 @@ public class AuthenticationInterceptorTest
 		AuthenticationFlow flow1 = new AuthenticationFlow("flow1", Policy.REQUIRE, Set.of(mockAuthenticator1),
 				Collections.emptyList(), 0);
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(null, mockProcessor, List.of(flow1),
-				new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0), mock(SessionManagement.class), Set.of("/p1"),
+				new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0), mock(SessionManagementEE8.class), Set.of("/p1"),
 				Set.of("/optional"), null, mock(EntityManagement.class));
 		HTTPRequestContext.setCurrent(new HTTPRequestContext("192.168.0.1", "agent"));
 		Message message = new MessageImpl();
@@ -77,7 +77,7 @@ public class AuthenticationInterceptorTest
 		when(mockAuthenticator1.getMetadata()).thenReturn(new AuthenticatorInstanceMetadata());
 		when(mockAuthenticator1.getRetrieval()).thenReturn(new DenyRetrieval());
 		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any())).thenThrow(new AuthenticationException(""));
-		SessionManagement sessionMan = mock(SessionManagement.class);
+		SessionManagementEE8 sessionMan = mock(SessionManagementEE8.class);
 
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,
 				List.of(flow1), new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0), sessionMan, Set.of("/p1"),
@@ -99,7 +99,7 @@ public class AuthenticationInterceptorTest
 				Collections.emptyList(), 0);
 		AuthenticationFlow flow2 = new AuthenticationFlow("flow2", Policy.REQUIRE, Set.of(mockAuthenticator2),
 				Collections.emptyList(), 0);
-		SessionManagement sessionMan = mock(SessionManagement.class);
+		SessionManagementEE8 sessionMan = mock(SessionManagementEE8.class);
 
 		when(mockAuthenticator1.getMetadata()).thenReturn(new AuthenticatorInstanceMetadata());
 		when(mockAuthenticator2.getMetadata()).thenReturn(new AuthenticatorInstanceMetadata());
@@ -140,7 +140,7 @@ public class AuthenticationInterceptorTest
 		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any())).thenThrow(new AuthenticationException(""));
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,
 				List.of(flow1, flow2), new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0),
-				mock(SessionManagement.class), Set.of("/p1"), Set.of("/optional"), null, mock(EntityManagement.class));
+				mock(SessionManagementEE8.class), Set.of("/p1"), Set.of("/optional"), null, mock(EntityManagement.class));
 		HTTPRequestContext.setCurrent(new HTTPRequestContext("192.168.0.1", "agent"));
 		Assertions.assertThrows(Fault.class, () -> interceptor.handleMessage(new MessageImpl()));
 	}

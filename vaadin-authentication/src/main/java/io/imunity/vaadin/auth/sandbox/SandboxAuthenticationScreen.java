@@ -51,7 +51,7 @@ public class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScre
 			CancelHandler cancelHandler,
 			EntityManagement idsMan,
 			ExecutorsService execService,
-			InteractiveAuthenticationProcessorEE10 authnProcessor,
+			InteractiveAuthenticationProcessor authnProcessor,
 			Optional<LocaleChoiceComponent> localeChoice,
 			List<AuthenticationFlow> authenticators,
 			String title,

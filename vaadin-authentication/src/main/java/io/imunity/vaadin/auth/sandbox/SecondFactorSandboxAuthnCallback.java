@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
@@ -31,7 +31,7 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			SecondFactorSandboxAuthnCallback.class);
 	private final MessageSource msg;
-	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener authNListener;
 	private final PartialAuthnState partialState;
 	private final SandboxAuthnRouter sandboxRouter;
@@ -39,7 +39,7 @@ class SecondFactorSandboxAuthnCallback implements VaadinAuthentication.Authentic
 	private final NotificationPresenter notificationPresenter;
 
 	SecondFactorSandboxAuthnCallback(MessageSource msg,
-			InteractiveAuthenticationProcessorEE10 authnProcessor,
+			InteractiveAuthenticationProcessor authnProcessor,
 			AuthenticationStepContext stepContext,
 			ColumnInstantAuthenticationScreen.SecondFactorAuthenticationListener authNListener,
 			SandboxAuthnRouter sandboxRouter,

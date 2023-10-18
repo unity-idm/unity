@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.SessionReinitializer;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.SessionReinitializer;
 
 class BareSessionReinitializer implements SessionReinitializer
 {

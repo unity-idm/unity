@@ -30,7 +30,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 
@@ -46,7 +46,7 @@ public class MockRESTEndpoint extends RESTEndpoint
 
 	@Autowired
 	public MockRESTEndpoint(MessageSource msg,
-			SessionManagement sessionMan,
+			SessionManagementEE8 sessionMan,
 			AuthenticationProcessor authnProcessor,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider)

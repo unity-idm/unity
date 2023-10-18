@@ -26,7 +26,7 @@ import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessorEE8;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 
 import java.util.List;
@@ -84,7 +84,7 @@ public class TrustedDeviceView extends HomeViewComponent
 		LoginSession theUser = InvocationContext.getCurrent().getLoginSession();
 		try
 		{
-			return tokenMan.getOwnedTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE, new EntityParam(theUser.getEntityId()))
+			return tokenMan.getOwnedTokens(RememberMeProcessorEE8.REMEMBER_ME_TOKEN_TYPE, new EntityParam(theUser.getEntityId()))
 				.stream().map(t -> new TrustedDeviceModel(t, msg))
 					.collect(Collectors.toList());
 		} catch (Exception e)

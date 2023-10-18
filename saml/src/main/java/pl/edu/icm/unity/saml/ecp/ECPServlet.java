@@ -17,7 +17,7 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationConfig;
 import pl.edu.icm.unity.saml.metadata.cfg.SPRemoteMetaManager;
@@ -43,7 +43,7 @@ public class ECPServlet extends HttpServlet
 			String myAddress, ReplayAttackChecker replayAttackChecker, 
 			RemoteAuthnResultTranslator remoteAuthnProcessor,
 			TokensManagement tokensMan, PKIManagement pkiManagement, EntityManagement identitiesMan,
-			SessionManagement sessionMan, AuthenticationRealm realm, String address)
+			SessionManagementEE8 sessionMan, AuthenticationRealm realm, String address)
 	{
 		step1Handler = new ECPStep1Handler(configProvider, metadataManager, samlContextManagement, myAddress);
 		step2Handler = new ECPStep2Handler(jwtConfig, configProvider,

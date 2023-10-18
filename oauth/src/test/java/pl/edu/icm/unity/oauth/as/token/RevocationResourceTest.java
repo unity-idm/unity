@@ -29,7 +29,7 @@ import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
@@ -52,7 +52,7 @@ public class RevocationResourceTest
 	public void userIdMustMatchTokenOwner() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
+		SessionManagementEE8 sessionManagement = Mockito.mock(SessionManagementEE8.class);
 		createAccessToken(tokensManagement);
 		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
@@ -67,7 +67,7 @@ public class RevocationResourceTest
 	public void nonExistingTokenIsAccepted() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
+		SessionManagementEE8 sessionManagement = Mockito.mock(SessionManagementEE8.class);
 		createAccessToken(tokensManagement);
 		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
@@ -82,7 +82,7 @@ public class RevocationResourceTest
 	public void operationFailsOnMissingTokenParam() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
+		SessionManagementEE8 sessionManagement = Mockito.mock(SessionManagementEE8.class);
 		createAccessToken(tokensManagement);
 		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
@@ -97,7 +97,7 @@ public class RevocationResourceTest
 	public void revokedAccessTokenIsNotListed() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
+		SessionManagementEE8 sessionManagement = Mockito.mock(SessionManagementEE8.class);
 		createAccessToken(tokensManagement);
 		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
@@ -114,7 +114,7 @@ public class RevocationResourceTest
 	public void revokedRefreshTokenIsNotListed() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
+		SessionManagementEE8 sessionManagement = Mockito.mock(SessionManagementEE8.class);
 		createToken(tokensManagement, OAuthRefreshTokenRepository.INTERNAL_REFRESH_TOKEN, "x");
 		RevocationResource tested = createRevocationResource(tokensManagement, sessionManagement, 
 				new AuthenticationRealm());
@@ -134,7 +134,7 @@ public class RevocationResourceTest
 	public void logoutIsNotWorkingWithoutScope() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		SessionManagement sessionManagement = mock(SessionManagement.class);
+		SessionManagementEE8 sessionManagement = mock(SessionManagementEE8.class);
 		LoginSession session = mock(LoginSession.class);
 		when(session.getId()).thenReturn("111");
 		when(sessionManagement.getOwnedSession(new EntityParam(123l), "realm")).thenReturn(session);
@@ -156,7 +156,7 @@ public class RevocationResourceTest
 	public void logoutIsWorkingWithScope() throws Exception
 	{
 		TokensManagement tokensManagement = new MockTokensMan();
-		SessionManagement sessionManagement = mock(SessionManagement.class);
+		SessionManagementEE8 sessionManagement = mock(SessionManagementEE8.class);
 		LoginSession session = mock(LoginSession.class);
 		when(session.getId()).thenReturn("111");
 		when(sessionManagement.getOwnedSession(new EntityParam(123l), "realm")).thenReturn(session);
@@ -194,7 +194,7 @@ public class RevocationResourceTest
 	}
 	
 	private RevocationResource createRevocationResource(TokensManagement tokensManagement, 
-			SessionManagement sessionManagement, 
+			SessionManagementEE8 sessionManagement, 
 			AuthenticationRealm realm)
 	{
 		OAuthRefreshTokenRepository refreshTokenRepository = new OAuthRefreshTokenRepository(tokensManagement, 

@@ -28,7 +28,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -62,7 +62,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 	private final Optional<LocaleChoiceComponent> localeChoice;
 	private final List<AuthenticationFlow> flows;
 
-	protected final InteractiveAuthenticationProcessorEE10 interactiveAuthnProcessor;
+	protected final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
 
 	private AuthenticationOptionsHandler authnOptionsHandler;
 	private FirstFactorAuthNPanel authNPanelInProgress;
@@ -85,7 +85,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 			Function<UnknownRemotePrincipalResult, Dialog> unknownUserDialogProvider,
 			Optional<LocaleChoiceComponent> localeChoice,
 			List<AuthenticationFlow> flows,
-			InteractiveAuthenticationProcessorEE10 interactiveAuthnProcessor,
+			InteractiveAuthenticationProcessor interactiveAuthnProcessor,
 			NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
@@ -116,7 +116,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 			Function<UnknownRemotePrincipalResult, Dialog> unknownUserDialogProvider,
 			Optional<LocaleChoiceComponent> localeChoice,
 			List<AuthenticationFlow> flows,
-			InteractiveAuthenticationProcessorEE10 interactiveAuthnProcessor,
+			InteractiveAuthenticationProcessor interactiveAuthnProcessor,
 			NotificationPresenter notificationPresenter)
 	{
 		ColumnInstantAuthenticationScreen instance = new ColumnInstantAuthenticationScreen(msg,

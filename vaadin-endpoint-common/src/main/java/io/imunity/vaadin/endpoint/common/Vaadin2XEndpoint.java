@@ -18,7 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -34,7 +34,7 @@ import java.util.Set;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_CSS_FILE_NAME;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
-public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
+public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	protected static final Duration UNRESTRICTED_SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
 

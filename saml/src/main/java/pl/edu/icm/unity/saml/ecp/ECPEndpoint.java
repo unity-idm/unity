@@ -18,11 +18,11 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -49,14 +49,14 @@ import java.util.Properties;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
+public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private final PKIManagement pkiManagement;
 	private final ECPContextManagement samlContextManagement;
 	private final ReplayAttackChecker replayAttackChecker;
 	private final TokensManagement tokensMan;
 	private final EntityManagement identitiesMan;
-	private final SessionManagement sessionMan;
+	private final SessionManagementEE8 sessionMan;
 	private final ExecutorsService executorsService;
 	private final SAMLSPConfigurationParser configurationParser;
 	private final RemoteAuthnResultTranslator remoteAuthnProcessor;
@@ -80,7 +80,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE
 			RemoteAuthnResultTranslator remoteAuthnProcessor,
 			TokensManagement tokensMan,
 			EntityManagement identitiesMan,
-			SessionManagement sessionMan,
+			SessionManagementEE8 sessionMan,
 			ExecutorsService executorsService,
 			SharedEndpointManagement sharedEndpointManagement,
 			URIAccessService uriAccessService,

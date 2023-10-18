@@ -37,8 +37,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
@@ -82,7 +82,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final Optional<LocaleChoiceComponent> localeChoice;
 	private final List<AuthenticationFlow> flows;
 
-	protected final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
+	protected final InteractiveAuthenticationProcessorEE8 interactiveAuthnProcessor;
 	
 	private AuthenticationOptionsHandler authnOptionsHandler;
 	private FirstFactorAuthNPanel authNPanelInProgress;
@@ -104,7 +104,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
 			Optional<LocaleChoiceComponent> localeChoice,
 			List<AuthenticationFlow> flows,
-			InteractiveAuthenticationProcessor interactiveAuthnProcessor)
+			InteractiveAuthenticationProcessorEE8 interactiveAuthnProcessor)
 	{
 		this.msg = msg;
 		this.config = config;
@@ -132,7 +132,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			Function<UnknownRemotePrincipalResult, UnknownUserDialog> unknownUserDialogProvider,
 			Optional<LocaleChoiceComponent> localeChoice,
 			List<AuthenticationFlow> flows,
-			InteractiveAuthenticationProcessor interactiveAuthnProcessor)
+			InteractiveAuthenticationProcessorEE8 interactiveAuthnProcessor)
 	{
 		ColumnInstantAuthenticationScreen instance = new ColumnInstantAuthenticationScreen(msg,
 				imageAccessService, config, endpointDescription, 

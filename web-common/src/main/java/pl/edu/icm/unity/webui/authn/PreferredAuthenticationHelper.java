@@ -7,8 +7,8 @@ package pl.edu.icm.unity.webui.authn;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 
-import pl.edu.icm.unity.engine.api.authn.LastAuthenticationCookie;
-import pl.edu.icm.unity.engine.api.utils.CookieHelper;
+import pl.edu.icm.unity.engine.api.authn.LastAuthenticationCookieEE8;
+import pl.edu.icm.unity.engine.api.utils.CookieHelperEE8;
 
 /**
  * Provides access to the last used IDP or the one requested with request parameter
@@ -40,6 +40,6 @@ public class PreferredAuthenticationHelper
 		VaadinRequest req = VaadinService.getCurrentRequest();
 		if (req == null)
 			return null;
-		return CookieHelper.getCookie(req.getCookies(), LastAuthenticationCookie.LAST_AUTHN_COOKIE);
+		return CookieHelperEE8.getCookie(req.getCookies(), LastAuthenticationCookieEE8.LAST_AUTHN_COOKIE);
 	}
 }

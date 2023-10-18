@@ -4,14 +4,10 @@
  */
 package pl.edu.icm.unity.engine.authn.remote;
 
-import java.util.function.Supplier;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
@@ -20,21 +16,19 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.SessionReinitializer;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
-import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
+import pl.edu.icm.unity.engine.api.authn.remote.*;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.utils.LogRecorder;
+
+import java.util.function.Supplier;
 
 @Component
 class RemoteAuthnResponseProcessorImpl implements RemoteAuthnResponseProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResponseProcessorImpl.class);
 	private final InteractiveAuthenticationProcessor authnProcessor;
-	
+
 	RemoteAuthnResponseProcessorImpl(InteractiveAuthenticationProcessor authnProcessor)
 	{
 		this.authnProcessor = authnProcessor;

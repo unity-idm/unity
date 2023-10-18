@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.authn;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision;
 
 /**
  * Component providing a complete authentication screen. This component will be used to 

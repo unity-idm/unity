@@ -4,21 +4,19 @@
  */
 package pl.edu.icm.unity.engine.session;
 
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionBindingListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 
 /**
  * Helper class, works as application singleton. Maintains an association of Unity's {@link LoginSession}s

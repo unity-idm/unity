@@ -16,7 +16,7 @@ import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessorEE8;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
@@ -24,9 +24,9 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilterEE8;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
@@ -127,13 +127,13 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath(description.getEndpoint().getContextAddress());
 		
-		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
-		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
-		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
+		SessionManagementEE8 sessionMan = applicationContext.getBean(SessionManagementEE8.class);
+		LoginToHttpSessionBinderEE8 sessionBinder = applicationContext.getBean(LoginToHttpSessionBinderEE8.class);
+		RememberMeProcessorEE8 remeberMeProcessor = applicationContext.getBean(RememberMeProcessorEE8.class);
 		
 		context.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST));
-		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
+		context.addFilter(new FilterHolder(new HiddenResourcesFilterEE8(
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(

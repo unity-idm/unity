@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class AdditionalAuthnHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdditionalAuthnHandler.class);
 	private final MessageSource msg;
-	private final SessionManagement sessionMan;
+	private final SessionManagementEE8 sessionMan;
 	private final EntityManagement entityMan;
 
 	public enum AuthnResult 
@@ -44,7 +44,7 @@ public class AdditionalAuthnHandler
 	}
 	
 	@Autowired
-	public AdditionalAuthnHandler(SessionManagement sessionMan, EntityManagement entityMan, MessageSource msg)
+	public AdditionalAuthnHandler(SessionManagementEE8 sessionMan, EntityManagement entityMan, MessageSource msg)
 	{
 		this.sessionMan = sessionMan;
 		this.entityMan = entityMan;

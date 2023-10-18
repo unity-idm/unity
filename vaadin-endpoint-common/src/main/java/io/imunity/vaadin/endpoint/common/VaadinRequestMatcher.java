@@ -6,7 +6,7 @@ package io.imunity.vaadin.endpoint.common;
 
 import com.google.common.collect.Lists;
 import com.vaadin.shared.ApplicationConstants;
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilterEE8;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -25,6 +25,6 @@ public class VaadinRequestMatcher
 	
 	public static boolean isVaadinRequest(HttpServletRequest request)
 	{
-		return HiddenResourcesFilter.hasPathPrefix(request.getPathInfo(), VAADIN_PATHS);
+		return HiddenResourcesFilterEE8.hasPathPrefix(request.getPathInfo(), VAADIN_PATHS);
 	}
 }

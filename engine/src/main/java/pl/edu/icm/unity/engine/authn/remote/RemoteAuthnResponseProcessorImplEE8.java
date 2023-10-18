@@ -4,32 +4,38 @@
  */
 package pl.edu.icm.unity.engine.authn.remote;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.function.Supplier;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.SessionReinitializer;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.SessionReinitializer;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.*;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessorEE8;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.utils.LogRecorder;
 
-import java.util.function.Supplier;
-
 @Component
-class RemoteAuthnResponseProcessorEE10Impl implements RemoteAuthnResponseProcessorEE10
+class RemoteAuthnResponseProcessorImplEE8 implements RemoteAuthnResponseProcessorEE8
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResponseProcessorEE10Impl.class);
-	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
-
-	RemoteAuthnResponseProcessorEE10Impl(InteractiveAuthenticationProcessorEE10 authnProcessor)
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, RemoteAuthnResponseProcessorImplEE8.class);
+	private final InteractiveAuthenticationProcessorEE8 authnProcessor;
+	
+	RemoteAuthnResponseProcessorImplEE8(InteractiveAuthenticationProcessorEE8 authnProcessor)
 	{
 		this.authnProcessor = authnProcessor;
 	}

@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
@@ -32,7 +32,7 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, FirstFactorAuthNResultCallback.class);
 	private final MessageSource msg;
-	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final Supplier<Boolean> rememberMeProvider;
 	private final ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener authNListener;
 	private final NotificationPresenter notificationPresenter;
@@ -40,7 +40,7 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 	private final AuthenticationStepContext stepContext;
 
 	public FirstFactorAuthNResultCallback(MessageSource msg,
-			InteractiveAuthenticationProcessorEE10 authnProcessor,
+			InteractiveAuthenticationProcessor authnProcessor,
 			AuthenticationStepContext stepContext,
 			Supplier<Boolean> rememberMeProvider,
 			ColumnInstantAuthenticationScreen.FirstFactorAuthenticationListener authNListener,

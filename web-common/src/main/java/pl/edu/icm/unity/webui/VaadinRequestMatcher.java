@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.common.collect.Lists;
 import com.vaadin.shared.ApplicationConstants;
 
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilterEE8;
 
 /**
  * Allows to match internal Vaadin requests, which quite often needs to be handled in a special way.
@@ -27,6 +27,6 @@ public class VaadinRequestMatcher
 	
 	public static boolean isVaadinRequest(HttpServletRequest request)
 	{
-		return HiddenResourcesFilter.hasPathPrefix(request.getPathInfo(), VAADIN_PATHS);
+		return HiddenResourcesFilterEE8.hasPathPrefix(request.getPathInfo(), VAADIN_PATHS);
 	}
 }

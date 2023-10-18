@@ -26,10 +26,10 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
 import pl.edu.icm.unity.rest.authn.LogContextCleaningInterceptor;
@@ -48,13 +48,13 @@ import java.util.*;
  *  
  * @author K. Benedyczak
  */
-public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
+public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTEndpoint.class);
 	private AuthenticationProcessor authenticationProcessor;
 	protected RESTEndpointProperties genericEndpointProperties;
 	protected String servletPath;
-	protected SessionManagement sessionMan;
+	protected SessionManagementEE8 sessionMan;
 	protected MessageSource msg;
 	protected final EntityManagement entityMan;
 
@@ -62,7 +62,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	protected Set<String> optionallyAuthenticatedPaths = new HashSet<>();
 	
 	public RESTEndpoint(MessageSource msg,
-			SessionManagement sessionMan,
+			SessionManagementEE8 sessionMan,
 			AuthenticationProcessor authenticationProcessor,
 			NetworkServer server,
 			AdvertisedAddressProvider advertisedAddrProvider,

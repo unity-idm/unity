@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessorEE8;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
@@ -39,12 +39,12 @@ public class StandardWebLogoutHandler implements WebLogoutHandler
 			".returnUri";
 	
 	private final UnityServerConfiguration config;
-	private final SessionManagement sessionMan;
+	private final SessionManagementEE8 sessionMan;
 	private final LogoutProcessorsManager logoutProcessorsManager;
-	private final RememberMeProcessor rememberMeProcessor;
+	private final RememberMeProcessorEE8 rememberMeProcessor;
 	
-	public StandardWebLogoutHandler(UnityServerConfiguration config, SessionManagement sessionMan,
-			LogoutProcessorsManager logoutProcessorsManager, RememberMeProcessor rememberMeProcessor)
+	public StandardWebLogoutHandler(UnityServerConfiguration config, SessionManagementEE8 sessionMan,
+			LogoutProcessorsManager logoutProcessorsManager, RememberMeProcessorEE8 rememberMeProcessor)
 	{
 		this.config = config;
 		this.sessionMan = sessionMan;

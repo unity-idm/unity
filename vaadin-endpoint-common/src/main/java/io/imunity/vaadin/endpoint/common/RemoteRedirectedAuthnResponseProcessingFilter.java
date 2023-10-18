@@ -8,7 +8,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.remote.*;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -28,10 +28,10 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 	public static final String CONTEXT_ID_HTTP_PARAMETER = "__remote_authn_context_id";
 	public static final String DECISION_SESSION_ATTRIBUTE = "__ff_post_authn_decision";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
-	private final RemoteAuthnResponseProcessorEE10 remoteAuthnResponseProcessor;
+	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
 	
 	public RemoteRedirectedAuthnResponseProcessingFilter(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
-			RemoteAuthnResponseProcessorEE10 remoteAuthnResponseProcessor)
+			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor)
 	{
 		this.remoteAuthnContextStore = remoteAuthnContextStore;
 		this.remoteAuthnResponseProcessor = remoteAuthnResponseProcessor;

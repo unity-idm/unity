@@ -11,7 +11,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import java.net.URL;
 
 /**
- * Typical boilerplate for all {@link WebAppEndpointEE10Instance}s.
+ * Typical boilerplate for all {@link WebAppEndpointInstance}s.
  * @author K. Benedyczak
  */
 public abstract class AbstractWebEndpoint extends AbstractEndpoint
@@ -51,7 +51,7 @@ public abstract class AbstractWebEndpoint extends AbstractEndpoint
 		startOverridable();
 		if(this instanceof WebAppEndpointEE8Instance ee8)
 			httpServer.deployEndpoint(ee8);
-		else if(this instanceof WebAppEndpointEE10Instance ee10)
+		else if(this instanceof WebAppEndpointInstance ee10)
 			httpServer.deployEndpoint(ee10);
 		else
 			throw new IllegalStateException("Endpoint have to implement one of WebAppEndpointEEInstance");

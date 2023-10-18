@@ -37,7 +37,7 @@ import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
@@ -65,7 +65,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	@Autowired
 	protected InternalAuthorizationManager authzMan;
 	@Autowired
-	protected SessionManagement sessionMan;
+	protected SessionManagementEE8 sessionMan;
 	
 	@BeforeEach
 	public void setupAdmin() throws Exception
@@ -100,7 +100,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		return ret;
 	}
 
-	public static long setupUserContext(SessionManagement sessionMan, IdentityResolver identityResolver,
+	public static long setupUserContext(SessionManagementEE8 sessionMan, IdentityResolver identityResolver,
 			String user, String credentialId, List<AuthenticationFlow> endpointFlows) throws Exception
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 

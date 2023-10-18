@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.session;
 
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import javax.servlet.http.HttpSession;
 
-import jakarta.servlet.http.HttpSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
 /**
  * Maintains an association of Unity's {@link LoginSession}s with {@link HttpSession}s. 
@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpSession;
  * Thread safe.
  * @author K. Benedyczak
  */
-public interface LoginToHttpSessionEE10Binder
+public interface LoginToHttpSessionBinderEE8
 {
 	/**
 	 * Under this key the {@link LoginSession} id is stored in the HTTP session.

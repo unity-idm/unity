@@ -32,7 +32,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
@@ -90,7 +90,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			PreferencesManagement preferencesMan,
 			@Qualifier("insecure") PKIManagement pkiManagement,
 			ExecutorsService executorsService,
-			SessionManagement sessionMan,
+			SessionManagementEE8 sessionMan,
 			SAMLLogoutProcessorFactory logoutProcessorFactory,
 			AuthenticationProcessor authnProcessor,
 			AttributeTypeSupport aTypeSupport,

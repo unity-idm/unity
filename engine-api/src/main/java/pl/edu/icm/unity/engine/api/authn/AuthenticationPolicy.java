@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.engine.api.authn;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 public enum AuthenticationPolicy
 {

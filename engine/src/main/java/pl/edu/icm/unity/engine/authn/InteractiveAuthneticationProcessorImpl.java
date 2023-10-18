@@ -29,10 +29,10 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.session.*;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,14 +43,14 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, InteractiveAuthneticationProcessorImpl.class);
 	private final AuthenticationProcessor basicAuthnProcessor;
 	private final EntityManagement entityMan;
-	private final SessionManagement sessionMan;
+	private final SessionManagementEE8 sessionMan;
 	private final SessionParticipantTypesRegistry participantTypesRegistry;
 	private final LoginToHttpSessionBinder sessionBinder;
 	private final RememberMeProcessorImpl rememberMeProcessor;
-	
-	InteractiveAuthneticationProcessorImpl(AuthenticationProcessor basicAuthnProcessor, 
+
+	InteractiveAuthneticationProcessorImpl(AuthenticationProcessor basicAuthnProcessor,
 			EntityManagement entityMan,
-			SessionManagement sessionMan,
+			SessionManagementEE8 sessionMan,
 			SessionParticipantTypesRegistry participantTypesRegistry,
 			LoginToHttpSessionBinder sessionBinder,
 			RememberMeProcessorImpl rememberMeProcessor)
