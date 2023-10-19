@@ -292,9 +292,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		{
 			throw new ConfigurationException("Can't create secure context factory", e);
 		}
-		SecuredServerConnector connector = new SecuredServerConnector(theServer, secureContextFactory,
-				httpConnFactory);
-		return connector;
+		return new SecuredServerConnector(theServer, secureContextFactory, httpConnFactory);
 	}
 
 	/**
@@ -439,6 +437,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			throws EngineException
 	{
 		org.eclipse.jetty.ee10.servlet.ServletContextHandler handler = endpoint.getServletContextHandler();
+		handler.getServletHandler().setDecodeAmbiguousURIs(true);
 		deployHandler(handler, endpoint.getEndpointDescription().getName());
 		deployedEndpoints.add(endpoint);
 	}

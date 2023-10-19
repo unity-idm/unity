@@ -14,8 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
 
 import io.imunity.upman.rest.DelegationComputer.RollbackState;
 import pl.edu.icm.unity.base.entity.EntityParam;

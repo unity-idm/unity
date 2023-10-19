@@ -11,8 +11,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 
-import javax.xml.ws.soap.SOAPFaultException;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,10 +20,11 @@ import com.google.common.collect.Sets;
 
 import eu.unicore.security.wsutil.client.WSClientFactory;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import jakarta.xml.ws.WebServiceException;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
-import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -89,7 +88,7 @@ public class TestWSCore extends DBIntegrationTestBase
 			{
 				NameIDDocument retDoc = wsProxyBad.getAuthenticatedUser();
 				fail("Managed to authenticate with wrong password: " + retDoc.xmlText());
-			} catch (SOAPFaultException e)
+			} catch (WebServiceException e)
 			{
 				//ok
 			}
@@ -105,7 +104,7 @@ public class TestWSCore extends DBIntegrationTestBase
 			{
 				NameIDDocument retDoc = wsProxyBad.getAuthenticatedUser();
 				fail("Managed to authenticate with wrong password: " + retDoc.xmlText());
-			} catch (SOAPFaultException e)
+			} catch (WebServiceException e)
 			{
 				//ok
 			}
@@ -116,7 +115,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		{
 			wsProxyOK.getAuthenticatedUser();
 			fail("Managed to authenticate with correct password when access should be blocked");
-		} catch (SOAPFaultException e)
+		} catch (WebServiceException e)
 		{
 			//ok
 		}
@@ -149,7 +148,7 @@ public class TestWSCore extends DBIntegrationTestBase
 					MockWSEndpointFactory.SERVLET_PATH);
 			wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with sigle cred when USER_OPTIN flow policy is used, userOptin attr is set and second credential is not given");
-		} catch (SOAPFaultException e)
+		} catch (WebServiceException e)
 		{
 			//ok
 		}
@@ -183,7 +182,7 @@ public class TestWSCore extends DBIntegrationTestBase
 					MockWSEndpointFactory.SERVLET_PATH);
 			NameIDDocument retDoc = wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with wrong password: " + retDoc.xmlText());
-		} catch (SOAPFaultException e)
+		} catch (WebServiceException e)
 		{
 			//ok
 		}
@@ -293,7 +292,7 @@ public class TestWSCore extends DBIntegrationTestBase
 					MockWSEndpointFactory.SERVLET_PATH);
 			wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with single cred when 2 req");
-		} catch (SOAPFaultException e)
+		} catch (WebServiceException e)
 		{
 			//ok
 		}
@@ -318,7 +317,7 @@ public class TestWSCore extends DBIntegrationTestBase
 					MockWSEndpointFactory.SERVLET_PATH);
 			wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with single cred when 2 req");
-		} catch (SOAPFaultException e)
+		} catch (WebServiceException e)
 		{
 			//ok
 		}

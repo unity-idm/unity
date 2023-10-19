@@ -12,7 +12,7 @@ import com.vaadin.flow.router.RouteNotFoundError;
 
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class CustomNotFoundTarget extends RouteNotFoundError
 {

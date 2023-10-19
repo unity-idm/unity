@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status;
 
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;

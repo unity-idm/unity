@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.ws.mock;
 
-import javax.jws.WebService;
-
+import jakarta.jws.WebService;
 import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
 
 @WebService

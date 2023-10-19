@@ -6,8 +6,6 @@ package pl.edu.icm.unity.rest.authn.ext;
 
 import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -15,6 +13,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.HTTPAuthNTokens;
+import jakarta.servlet.http.HttpServletRequest;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;

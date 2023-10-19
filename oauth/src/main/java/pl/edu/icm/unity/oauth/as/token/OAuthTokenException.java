@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Thrown when an error is found and error response should be returned by the root 

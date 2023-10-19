@@ -116,7 +116,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		if (request == null)
 			return null;
 		return (X509Certificate[]) request.getAttribute(
-				"javax.servlet.request.X509Certificate");
+				"jakarta.servlet.request.X509Certificate");
 	} 
 	
 	private class TLSRetrievalUI implements VaadinAuthenticationUI

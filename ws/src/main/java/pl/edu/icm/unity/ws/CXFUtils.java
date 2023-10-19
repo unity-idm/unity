@@ -4,17 +4,16 @@
  */
 package pl.edu.icm.unity.ws;
 
-import javax.jws.WebService;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 
 import eu.unicore.security.wsutil.cxf.XmlBeansDataBinding;
+import jakarta.jws.WebService;
 
 /**
  * Simplifies Web service creation in programmatic way.

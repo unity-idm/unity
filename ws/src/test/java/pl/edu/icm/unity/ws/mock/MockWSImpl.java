@@ -4,10 +4,9 @@
  */
 package pl.edu.icm.unity.ws.mock;
 
-import javax.jws.WebService;
-
 import org.apache.logging.log4j.Logger;
 
+import jakarta.jws.WebService;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
