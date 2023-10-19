@@ -8,6 +8,7 @@ package io.imunity.vaadin.elements;
 public enum CSSVars
 {
 	TEXT_FIELD_BIG("var(--vaadin-text-field-big)"),
+	RICH_FIELD_BIG("var(--vaadin-rich-field-big)"),
 	TEXT_FIELD_MEDIUM("var(--vaadin-text-field-medium)"),
 	BIG_MARGIN("var(--big-margin)"),
 	MEDIUM_MARGIN("var(--medium-margin)"),

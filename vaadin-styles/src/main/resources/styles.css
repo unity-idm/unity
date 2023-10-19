@@ -54,27 +54,13 @@ html {
 
   --vaadin-text-field-medium: 20em;
   --vaadin-text-field-big: 40em;
+  --vaadin-rich-field-big: 55em;
   --icon-size: 1.2em;
   --vaadin-tab-hover-color: #025D6E;
 
   --medium-dialog-width: 45em;
   --big-dialog-width: 65em;
 }
-
-.ck.ck-editor__main>.ck-editor__editable {
-    --ck-color-base-border: transparent;
-    --ck-color-base-background: #E7EBEF;
-    --ck-border-radius 0.4em;
-}
-
-.invalid>.ck-editor>.ck-editor__main>.ck-editor__editable {
-    background-color: #FDE8E7 !important;
-}
-
-vaadin-ckeditor > div > .ck.ck-editor__top.ck-reset_all {
-    position: unset !important;
-}
-
 
 h1, h2, h3, h4, h5, h6, b, strong {
     font-weight: var(--unity-font-weight);
@@ -546,4 +532,20 @@ vcf-tooltip[theme="light"]::part(container) {
 
 .field-icon-gap {
     margin-left: var(--small-margin);
+}
+
+.rich-editor-flag-icon {
+    position: absolute;
+    top: 1.2em;
+    right: -1.5em;
+    z-index: 10;
+}
+
+.rich-editor-tinymc {
+    padding-top: var(--small-margin);
+    width: 103.5%;
+}
+
+.rich-editor {
+    position: relative;
 }

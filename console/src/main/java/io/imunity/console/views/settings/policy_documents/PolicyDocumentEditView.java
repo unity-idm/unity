@@ -22,7 +22,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
-import io.imunity.console.components.LocaleRichEditorDetails;
+import io.imunity.console.components.LocalizedRichTextEditorDetails;
 import io.imunity.vaadin.elements.LocaleTextFieldDetails;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -190,7 +190,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 
 		if (value.equals(PolicyDocumentContentType.EMBEDDED))
 		{
-			content = new LocaleRichEditorDetails(msg.getEnabledLocales().values(), msg.getLocale(),
+			content = new LocalizedRichTextEditorDetails(msg.getEnabledLocales().values(), msg.getLocale(),
 					locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.text"));
 			contentBind = binder.forField(content)

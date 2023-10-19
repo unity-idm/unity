@@ -64,8 +64,8 @@
             <artifactId>quartz</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.wontlost</groupId>
-            <artifactId>ckeditor-vaadin</artifactId>
+            <groupId>org.parttio</groupId>
+            <artifactId>tinymce-for-flow</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vaadin.componentfactory</groupId>

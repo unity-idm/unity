@@ -319,9 +319,9 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.wontlost</groupId>
-				<artifactId>ckeditor-vaadin</artifactId>
-				<version>3.2.1</version>
+				<groupId>org.parttio</groupId>
+				<artifactId>tinymce-for-flow</artifactId>
+				<version>4.0.4</version>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin.componentfactory</groupId>

@@ -17,14 +17,16 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.RICH_FIELD_BIG;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
-public class LocaleRichEditorDetails extends CustomField<Map<Locale, String>>
+public class LocalizedRichTextEditorDetails extends CustomField<Map<Locale, String>>
 {
-	public Map<Locale, LocaleRichEditor> fields = new LinkedHashMap<>();
+	public Map<Locale, LocalizedRichTextEditor> fields = new LinkedHashMap<>();
 
-	public LocaleRichEditorDetails(Collection<Locale> enabledLocales, Locale currentLocale, Function<Locale, String> valueGenerator)
+	public LocalizedRichTextEditorDetails(Collection<Locale> enabledLocales, Locale currentLocale, Function<Locale, String> valueGenerator)
 	{
+		setWidth(RICH_FIELD_BIG.value());
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
 		content.setPadding(false);
@@ -49,7 +51,7 @@ public class LocaleRichEditorDetails extends CustomField<Map<Locale, String>>
 			content.setVisible(false);
 		});
 
-		LocaleRichEditor defaultField = new LocaleRichEditor(currentLocale);
+		LocalizedRichTextEditor defaultField = new LocalizedRichTextEditor(currentLocale);
 		defaultField.setValue(valueGenerator.apply(currentLocale));
 		defaultField.addValueChangeListener(e -> setInvalid(false));
 		fields.put(currentLocale, defaultField);
@@ -63,7 +65,7 @@ public class LocaleRichEditorDetails extends CustomField<Map<Locale, String>>
 				.filter(locale -> !currentLocale.equals(locale))
 				.forEach(locale ->
 				{
-					LocaleRichEditor editor = new LocaleRichEditor(locale);
+					LocalizedRichTextEditor editor = new LocalizedRichTextEditor(locale);
 					editor.setValue(valueGenerator.apply(locale));
 					content.add(editor);
 					fields.put(locale, editor);
@@ -116,26 +118,5 @@ public class LocaleRichEditorDetails extends CustomField<Map<Locale, String>>
 	protected void setPresentationValue(Map<Locale, String> newPresentationValue)
 	{
 		setValue(newPresentationValue);
-	}
-
-	@Override
-	public void setErrorMessage(String errorMessage)
-	{
-		fields.values().iterator().next().setErrorMessage(errorMessage);
-	}
-
-	@Override
-	public String getErrorMessage()
-	{
-		return fields.values().iterator().next().getErrorMessage();
-	}
-
-	@Override
-	public void setInvalid(boolean invalid)
-	{
-		super.setInvalid(invalid);
-		fields.values().forEach(field -> field.setInvalid(invalid));
-		getElement().getParent().getClassList().set("invalid", invalid);
-		getElement().getParent().getClassList().set("valid", !invalid);
 	}
 }
