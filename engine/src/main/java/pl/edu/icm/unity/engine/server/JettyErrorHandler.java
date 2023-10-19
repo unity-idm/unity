@@ -82,9 +82,6 @@ class JettyErrorHandler extends ErrorHandler
 		} catch (IOException e)
 		{
 			log.error("Can not write HTTP error page to the client", e);
-		} finally
-		{
-			buffer.release();
 		}
 		return true;
 	}
