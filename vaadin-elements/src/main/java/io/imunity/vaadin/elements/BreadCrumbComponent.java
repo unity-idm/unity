@@ -15,6 +15,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static io.imunity.vaadin.elements.BreadCrumbParameter.BREAD_CRUMB_SEPARATOR;
+
 public class BreadCrumbComponent extends Composite<Div>
 {
 	private final Stack<BreadCrumb> bredCrumbs = new Stack<>();
@@ -119,8 +121,10 @@ public class BreadCrumbComponent extends Composite<Div>
 
 	public String getBreadcrumb(Class<? extends Component> componentClass)
 	{
-		String key = componentClass.getAnnotation(io.imunity.vaadin.elements.Breadcrumb.class).key();
-		return msg.apply(key);
+		Breadcrumb annotation = componentClass.getAnnotation(Breadcrumb.class);
+		if(!annotation.parent().isEmpty())
+			return msg.apply(annotation.parent()) + BREAD_CRUMB_SEPARATOR + msg.apply(annotation.key());
+		return msg.apply(annotation.key());
 	}
 
 	private Stream<RouterLink> getRouterLink(Class<? extends UnityViewComponent> routeClass, BreadCrumbParameter p)

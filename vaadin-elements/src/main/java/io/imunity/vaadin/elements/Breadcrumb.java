@@ -12,4 +12,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Breadcrumb
 {
 	String key();
+	String parent() default "";
 }

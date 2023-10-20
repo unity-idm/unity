@@ -13,7 +13,7 @@ import jakarta.annotation.security.PermitAll;
 
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.authentication.localCredentials.breadcrumb")
+@Breadcrumb(key = "WebConsoleMenu.authentication.localCredentials", parent = "WebConsoleMenu.authentication")
 @Route(value = "/credentials", layout = ConsoleMenu.class)
 public class CredentialsView extends ConsoleViewComponent
 {

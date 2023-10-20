@@ -39,7 +39,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.authentication.facilities.breadcrumb")
+@Breadcrumb(key = "WebConsoleMenu.authentication.facilities", parent = "WebConsoleMenu.authentication")
 @Route(value = "/facilities", layout = ConsoleMenu.class)
 public class FacilitiesView extends ConsoleViewComponent
 {
@@ -80,7 +80,7 @@ public class FacilitiesView extends ConsoleViewComponent
 	{
 		FormLayout wrapper = new FormLayout();
 		Div field = new Div(new Span(String.join(", ", flow.endpoints)));
-		field.setClassName("grid-details-width");
+		field.addClassName("grid-details-width");
 		wrapper.addFormItem(field, msg.getMessage("AuthenticationFlowsComponent.endpointsCaption"));
 		return wrapper;
 	}

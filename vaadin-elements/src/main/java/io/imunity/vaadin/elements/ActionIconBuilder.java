@@ -60,9 +60,9 @@ public class ActionIconBuilder
 		return this;
 	}
 
-	public ActionIconBuilder enabled(boolean enabled)
+	public ActionIconBuilder disabled()
 	{
-		this.enabled = enabled;
+		this.enabled = false;
 		return this;
 	}
 }

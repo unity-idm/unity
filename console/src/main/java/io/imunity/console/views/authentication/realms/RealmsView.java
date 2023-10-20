@@ -38,7 +38,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.authentication.realms.breadcrumb")
+@Breadcrumb(key = "WebConsoleMenu.authentication.realms", parent = "WebConsoleMenu.authentication")
 @Route(value = "/realms", layout = ConsoleMenu.class)
 public class RealmsView extends ConsoleViewComponent
 {
@@ -98,7 +98,7 @@ public class RealmsView extends ConsoleViewComponent
 	{
 		FormLayout wrapper = new FormLayout();
 		Div field = new Div(new Span(String.join(", ", realm.endpoints)));
-		field.setClassName("grid-details-width");
+		field.addClassName("grid-details-width");
 		wrapper.addFormItem(field, msg.getMessage("AuthenticationRealmsView.endpointsCaption"));
 		wrapper.getStyle().set("margin-bottom", "0.75em");
 		return wrapper;
