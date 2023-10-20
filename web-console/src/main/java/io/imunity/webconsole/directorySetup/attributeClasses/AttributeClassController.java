@@ -5,16 +5,15 @@
 
 package io.imunity.webconsole.directorySetup.attributeClasses;
 
-import java.util.Collection;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.attribute.AttributesClass;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.Collection;
 
 /**
  * Controller for all attribute class views
@@ -22,7 +21,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-@Component
+@Component("AttributeClassControllerV8")
 class AttributeClassController
 {
 	private MessageSource msg;

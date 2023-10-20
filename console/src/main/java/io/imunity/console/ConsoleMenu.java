@@ -20,7 +20,8 @@ import io.imunity.console.views.authentication.credential_requirements.Credentia
 import io.imunity.console.views.authentication.facilities.FacilitiesView;
 import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.console.views.authentication.realms.RealmsView;
-import io.imunity.console.views.directory_setup.AttributeClassesView;
+import io.imunity.console.views.directory_setup.attribute_classes.AttributeClassesEditView;
+import io.imunity.console.views.directory_setup.attribute_classes.AttributeClassesView;
 import io.imunity.console.views.directory_setup.AttributeTypesView;
 import io.imunity.console.views.directory_setup.automation.AutomationEditView;
 import io.imunity.console.views.directory_setup.automation.AutomationRunView;
@@ -103,6 +104,7 @@ public class ConsoleMenu extends UnityAppLayout
 								MenuComponent.builder(AttributeClassesView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.directorySetup.attributeClasses"))
 										.icon(VaadinIcon.ARCHIVES)
+										.subViews(AttributeClassesEditView.class)
 										.build(),
 								MenuComponent.builder(AutomationView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.directorySetup.automation"))
