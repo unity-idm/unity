@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.engine.api.utils;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Cookie finder
  * @author K. Benedyczak
  */
-public class CookieEE10Helper
+public class CookieHelperEE8
 {
 	/**
 	 * @param request

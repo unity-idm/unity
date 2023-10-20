@@ -11,8 +11,8 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
+import pl.edu.icm.unity.engine.api.session.SessionManagementEE8;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -47,7 +47,7 @@ public class AuthenticationFilterTest
 		when(request.getSession()).thenReturn(session);
 		when(request.getSession(false)).thenReturn(session);
 		when(request.getRequestDispatcher("auth")).thenReturn(requestDispatcher);
-		when(session.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY)).thenReturn(loginSession);
+		when(session.getAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY)).thenReturn(loginSession);
 		when(loginSession.getRealm()).thenReturn("home");
 
 		filter.doFilter(request, response, chain);
@@ -64,7 +64,7 @@ public class AuthenticationFilterTest
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		LoginSession loginSession = Mockito.mock(LoginSession.class);
 		FilterChain chain = Mockito.mock(FilterChain.class);
-		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
+		SessionManagementEE8 sessionManagement = Mockito.mock(SessionManagementEE8.class);
 
 		AuthenticationRealm adminRealm = new AuthenticationRealm("admin", "description", 1000, 1000, RememberMePolicy.allowForWholeAuthn, 1000, 1000);
 		AuthenticationFilter filter = new AuthenticationFilter(List.of("secured"), "auth", adminRealm, sessionManagement, null, null);
@@ -73,7 +73,7 @@ public class AuthenticationFilterTest
 		when(request.getServletPath()).thenReturn("/secured");
 		when(request.getSession()).thenReturn(session);
 		when(request.getSession(false)).thenReturn(session);
-		when(session.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY)).thenReturn(loginSession);
+		when(session.getAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY)).thenReturn(loginSession);
 		when(loginSession.getRealm()).thenReturn("admin");
 
 		filter.doFilter(request, response, chain);

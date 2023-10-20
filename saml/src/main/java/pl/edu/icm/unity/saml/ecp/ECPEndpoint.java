@@ -18,7 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -49,7 +49,7 @@ import java.util.Properties;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
+public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	private final PKIManagement pkiManagement;
 	private final ECPContextManagement samlContextManagement;

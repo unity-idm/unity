@@ -33,7 +33,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 
@@ -49,7 +49,7 @@ import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.*;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
- * {@link WebAppEndpointEE10Instance} instances.
+ * {@link WebAppEndpointInstance} instances.
  * <p>
  * Jetty structure which is used:
  *  {@link ContextHandlerCollection} is used to manage all deployed contexts (fixed, one instance)
@@ -62,7 +62,7 @@ import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.*;
 public class JettyServer implements Lifecycle, NetworkServer
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
-	private List<WebAppEndpointEE10Instance> deployedEndpoints;
+	private List<WebAppEndpointInstance> deployedEndpoints;
 	private List<WebAppEndpointEE8Instance> deployedEE8Endpoints;
 	private Map<String, org.eclipse.jetty.server.Handler> usedContextPaths;
 	private ContextHandlerCollection mainContextHandler;
@@ -433,7 +433,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 * Deploys a classic Unity endpoint.
 	 */
 	@Override
-	public synchronized void deployEndpoint(WebAppEndpointEE10Instance endpoint)
+	public synchronized void deployEndpoint(WebAppEndpointInstance endpoint)
 			throws EngineException
 	{
 		org.eclipse.jetty.ee10.servlet.ServletContextHandler handler = endpoint.getServletContextHandler();
@@ -563,8 +563,8 @@ public class JettyServer implements Lifecycle, NetworkServer
 
 	public void undeployEE10Endpoint(String id) throws EngineException
 	{
-		WebAppEndpointEE10Instance endpoint = null;
-		for (WebAppEndpointEE10Instance endp: deployedEndpoints)
+		WebAppEndpointInstance endpoint = null;
+		for (WebAppEndpointInstance endp: deployedEndpoints)
 		{
 			if (endp.getEndpointDescription().getName().equals(id))
 			{

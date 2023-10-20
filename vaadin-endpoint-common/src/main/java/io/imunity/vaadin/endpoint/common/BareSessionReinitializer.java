@@ -6,7 +6,7 @@ package io.imunity.vaadin.endpoint.common;
 
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.SessionReinitializer;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.SessionReinitializer;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;

@@ -13,7 +13,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedHttpSession;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.SessionReinitializer;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.SessionReinitializer;
 
 public class VaadinSessionReinitializer implements SessionReinitializer
 {

@@ -4,9 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.utils;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -17,11 +17,11 @@ import java.util.List;
  * 
  * @author K. Benedyczak
  */
-public class HiddenResourcesFilterEE10 implements Filter
+public class HiddenResourcesFilterEE8 implements Filter
 {
 	private List<String> protectedServletPaths;
-
-	public HiddenResourcesFilterEE10(List<String> protectedServletPaths)
+	
+	public HiddenResourcesFilterEE8(List<String> protectedServletPaths)
 	{
 		this.protectedServletPaths = protectedServletPaths;
 	}

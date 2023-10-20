@@ -6,11 +6,11 @@ package pl.edu.icm.unity.webui.authn.remote;
 
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessorEE8;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
@@ -31,10 +31,10 @@ public class RemoteRedirectedAuthnResponseProcessingFilterV8 implements Filter
 	public static final String CONTEXT_ID_HTTP_PARAMETER = "__remote_authn_context_id";
 	public static final String DECISION_SESSION_ATTRIBUTE = "__ff_post_authn_decision";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
-	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
+	private final RemoteAuthnResponseProcessorEE8 remoteAuthnResponseProcessor;
 	
 	public RemoteRedirectedAuthnResponseProcessingFilterV8(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
-			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor)
+			RemoteAuthnResponseProcessorEE8 remoteAuthnResponseProcessor)
 	{
 		this.remoteAuthnContextStore = remoteAuthnContextStore;
 		this.remoteAuthnResponseProcessor = remoteAuthnResponseProcessor;

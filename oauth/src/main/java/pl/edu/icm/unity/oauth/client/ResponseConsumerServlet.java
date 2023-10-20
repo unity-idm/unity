@@ -10,11 +10,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
+
+import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
-import pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -88,7 +89,7 @@ public class ResponseConsumerServlet extends HttpServlet
 		try
 		{
 			URIBuilder uriBuilder = URIBuilderFixer.newInstance(returnURL);
-			uriBuilder.addParameter(RemoteRedirectedAuthnResponseProcessingFilterV8.CONTEXT_ID_HTTP_PARAMETER, relayState);
+			uriBuilder.addParameter(RemoteRedirectedAuthnResponseProcessingFilter.CONTEXT_ID_HTTP_PARAMETER, relayState);
 			return uriBuilder.build().toString();
 		} catch (URISyntaxException e)
 		{

@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.server;
 
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
 
 import java.util.Set;
@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public interface NetworkServer
 {
-	void deployEndpoint(WebAppEndpointEE10Instance endpoint)
+	void deployEndpoint(WebAppEndpointInstance endpoint)
 			throws EngineException;
 
 	void deployEndpoint(WebAppEndpointEE8Instance endpoint)

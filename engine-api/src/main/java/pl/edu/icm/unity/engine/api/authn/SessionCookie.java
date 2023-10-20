@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import javax.servlet.http.Cookie;
-
+import jakarta.servlet.http.Cookie;
 import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 
 public class SessionCookie
@@ -14,7 +13,7 @@ public class SessionCookie
 
 	private final String name;
 	private final String sessionId;
-	
+
 	public SessionCookie(String realmName, String sessionId)
 	{
 		this.sessionId = sessionId;

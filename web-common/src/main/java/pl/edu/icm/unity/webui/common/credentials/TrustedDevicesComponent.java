@@ -20,7 +20,7 @@ import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessorEE8;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -126,7 +126,7 @@ public class TrustedDevicesComponent extends CustomComponent
 		List<Token> tokens = null;
 		try
 		{
-			tokens = tokenMan.getOwnedTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE,
+			tokens = tokenMan.getOwnedTokens(RememberMeProcessorEE8.REMEMBER_ME_TOKEN_TYPE,
 					new EntityParam(entityId));
 		}
 
@@ -159,7 +159,7 @@ public class TrustedDevicesComponent extends CustomComponent
 		try
 		{
 			List<Token> tokens = tokenMan
-					.getOwnedTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE, new EntityParam(entityId));
+					.getOwnedTokens(RememberMeProcessorEE8.REMEMBER_ME_TOKEN_TYPE, new EntityParam(entityId));
 			tokensTable.setItems(tokens.stream().map(t -> new TableTokensBean(t, msg)));
 			tokensTable.deselectAll();
 		} catch (Exception e)
@@ -174,7 +174,7 @@ public class TrustedDevicesComponent extends CustomComponent
 	{
 		try
 		{
-			tokenMan.removeToken(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE, value);
+			tokenMan.removeToken(RememberMeProcessorEE8.REMEMBER_ME_TOKEN_TYPE, value);
 			refresh();
 			return true;
 		} catch (Exception e)

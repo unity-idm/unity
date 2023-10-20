@@ -4,13 +4,14 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.SessionReinitializer;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.function.Supplier;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.SessionReinitializer;
 
 /**
  * Process remotely obtained authentication data
@@ -18,7 +19,7 @@ import java.util.function.Supplier;
  * authentications should be finished using this processor: both redirected and
  * local.
  */
-public interface RemoteAuthnResponseProcessorEE10
+public interface RemoteAuthnResponseProcessorEE8
 {
 	PostAuthenticationStepDecision processResponse(RedirectedAuthnState authnContext,
 			HttpServletRequest httpRequest,

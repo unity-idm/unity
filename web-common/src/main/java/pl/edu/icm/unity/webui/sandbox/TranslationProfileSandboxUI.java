@@ -31,7 +31,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
@@ -58,7 +58,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	
 	private final AuthenticatorSupportService authenticatorSupport;
 	private final LocaleChoiceComponent localeChoice;
-	private final InteractiveAuthenticationProcessor authnProcessor;
+	private final InteractiveAuthenticationProcessorEE8 authnProcessor;
 	private final ExecutorsService execService;
 	private final EntityManagement idsMan;
 	private final ImageAccessService imageAccessService;
@@ -68,7 +68,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	@Autowired
 	public TranslationProfileSandboxUI(MessageSource msg, 
 			LocaleChoiceComponent localeChoice,
-			InteractiveAuthenticationProcessor authnProcessor,
+			InteractiveAuthenticationProcessorEE8 authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
 			AuthenticatorSupportService authenticatorSupport, ImageAccessService imageAccessService)

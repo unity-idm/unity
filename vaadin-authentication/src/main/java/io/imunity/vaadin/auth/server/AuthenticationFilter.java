@@ -21,9 +21,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionEE10Binder;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE10;
-import pl.edu.icm.unity.engine.api.utils.CookieEE10Helper;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.engine.api.utils.MDCKeys;
 
 import javax.security.auth.Subject;
@@ -44,21 +43,21 @@ public class AuthenticationFilter implements Filter
 
 	private final String sessionCookieName;
 	private final UnsuccessfulAuthenticationCounter dosGauard;
-	private final SessionManagementEE10 sessionMan;
-	private final LoginToHttpSessionEE10Binder sessionBinder;
-	private final RememberMeProcessorEE10 rememberMeHelper;
+	private final SessionManagement sessionMan;
+	private final LoginToHttpSessionBinder sessionBinder;
+	private final RememberMeProcessor rememberMeHelper;
 	private final AuthenticationRealm realm;
 	private final NoSessionFilter noSessionFilter;
 	
 	public AuthenticationFilter(AuthenticationRealm realm,
-			SessionManagementEE10 sessionMan, LoginToHttpSessionEE10Binder sessionBinder, RememberMeProcessorEE10 rememberMeHelper)
+			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeProcessor rememberMeHelper)
 	{
 		this(realm, sessionMan, sessionBinder, rememberMeHelper, (req,resp) -> {});
 	}
 	
 	
 	public AuthenticationFilter(AuthenticationRealm realm,
-			SessionManagementEE10 sessionMan, LoginToHttpSessionEE10Binder sessionBinder, RememberMeProcessorEE10 rememberMeHelper,
+			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeProcessor rememberMeHelper,
 			NoSessionFilter noSessionFilter)
 	{
 		//note: this is a separate counter to the main one which is stored as a servlet's attribute.
@@ -102,8 +101,8 @@ public class AuthenticationFilter implements Filter
 	private void handleForceLogin(HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse, FilterChain chain) throws EopException, IOException, ServletException
 	{
-		AuthenticationPolicyEE10 policy = AuthenticationPolicyEE10.getPolicy(httpRequest.getSession());
-		if (policy.equals(AuthenticationPolicyEE10.FORCE_LOGIN))
+		AuthenticationPolicy policy = AuthenticationPolicy.getPolicy(httpRequest.getSession());
+		if (policy.equals(AuthenticationPolicy.FORCE_LOGIN))
 		{
 			log.trace("Force reauthentication");
 			forwardtoAuthn(httpRequest, httpResponse, chain);
@@ -183,7 +182,7 @@ public class AuthenticationFilter implements Filter
 			HttpServletResponse httpResponse, FilterChain chain, String clientIp)
 			throws IOException, ServletException, EopException
 	{
-		String loginSessionId = CookieEE10Helper.getCookie(httpRequest, sessionCookieName);
+		String loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookieName);
 		if (loginSessionId == null)
 		{
 			return;
@@ -274,7 +273,7 @@ public class AuthenticationFilter implements Filter
 
 	private void clearSessionCookie(HttpServletResponse response)
 	{
-		response.addCookie(CookieEE10Helper.setupHttpCookie(sessionCookieName, "", 0));
+		response.addCookie(CookieHelper.setupHttpCookie(sessionCookieName, "", 0));
 	}
 
 	@Override

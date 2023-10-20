@@ -29,7 +29,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
@@ -53,7 +53,7 @@ class AttrIntrospectionView extends UnityViewComponent
 
 	private final MessageSource msg;
 	private final AuthenticatorSupportService authenticatorSupport;
-	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final ExecutorsService execService;
 	private final EntityManagement idsMan;
 	private final VaadinLogoImageLoader imageAccessService;
@@ -66,7 +66,7 @@ class AttrIntrospectionView extends UnityViewComponent
 	private final AttrIntrospectionAttributePoliciesConfiguration config;
 
 	AttrIntrospectionView(MessageSource msg,
-			InteractiveAuthenticationProcessorEE10 authnProcessor, ExecutorsService execService,
+			InteractiveAuthenticationProcessor authnProcessor, ExecutorsService execService,
 			@Qualifier("insecure") EntityManagement idsMan, AuthenticatorSupportService authenticatorSupport,
 			VaadinLogoImageLoader imageAccessService, PolicyProcessingSummaryComponentFactory summaryViewFactory,
 			NotificationPresenter notificationPresenter)

@@ -20,7 +20,7 @@ import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.engine.api.session.SessionManagementEE10;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 
 import java.io.IOException;
 
@@ -64,7 +64,7 @@ class AuthenticationFilterTest
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		LoginSession loginSession = Mockito.mock(LoginSession.class);
 		FilterChain chain = Mockito.mock(FilterChain.class);
-		SessionManagementEE10 sessionManagement = Mockito.mock(SessionManagementEE10.class);
+		SessionManagement sessionManagement = Mockito.mock(SessionManagement.class);
 		AuthenticationFilter.NoSessionFilter noSessionFilter = Mockito.mock(AuthenticationFilter.NoSessionFilter.class);
 
 		AuthenticationRealm adminRealm = new AuthenticationRealm("admin", "description", 1000, 1000, RememberMePolicy.allowForWholeAuthn, 1000, 1000);

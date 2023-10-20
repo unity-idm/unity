@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
-import pl.edu.icm.unity.engine.api.utils.CookieEE10Helper;
+import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 import java.io.IOException;
@@ -117,7 +117,7 @@ public class InvocationContextSetupFilter implements Filter
 	 */
 	private void setLocale(HttpServletRequest request, InvocationContext context)
 	{
-		String value = CookieEE10Helper.getCookie(request, LANGUAGE_COOKIE);
+		String value = CookieHelper.getCookie(request, LANGUAGE_COOKIE);
 		if (value != null)
 		{
 			Locale locale = UnityServerConfiguration.safeLocaleDecode(value);

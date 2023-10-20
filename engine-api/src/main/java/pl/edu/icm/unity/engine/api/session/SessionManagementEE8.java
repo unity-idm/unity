@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.engine.api.session;
+
+import java.util.Map;
 
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
@@ -15,7 +17,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
  * Internal login sessions management
  * @author K. Benedyczak
  */
-public interface SessionManagementEE10
+public interface SessionManagementEE8
 {
 	/**
 	 * Tries to find a session for the entity in the given realm. If the session is not found then a new session
@@ -28,7 +30,7 @@ public interface SessionManagementEE10
 	 * inactive timeout).
 	 * @return
 	 */
-	LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm,
+	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
 			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId);
 	
@@ -42,14 +44,14 @@ public interface SessionManagementEE10
 	 * @param rememberMeInfo information about remember me steps
 	 * @return
 	 */
-	LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
+	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm, 
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
 			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.
 	 */
-	void updateSessionAttributes(String id, SessionManagement.AttributeUpdater updater);
+	void updateSessionAttributes(String id, AttributeUpdater updater); 
 
 	/**
 	 * Updates the lastUsed timestamp of a session. The implementation may delay this action if the 
@@ -86,4 +88,8 @@ public interface SessionManagementEE10
 	 * Callback interface. Implementation can update the attributes. It should return quickly as 
 	 * it is invoked inside of a DB transaction.
 	 */
+	interface AttributeUpdater
+	{
+		public void updateAttributes(Map<String, String> sessionAttributes);
+	}
 }

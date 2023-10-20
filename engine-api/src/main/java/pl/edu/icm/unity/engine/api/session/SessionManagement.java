@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.engine.api.session;
@@ -30,7 +30,7 @@ public interface SessionManagement
 	 * inactive timeout).
 	 * @return
 	 */
-	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
+	LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm,
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
 			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId);
 	
@@ -44,14 +44,14 @@ public interface SessionManagement
 	 * @param rememberMeInfo information about remember me steps
 	 * @return
 	 */
-	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm, 
+	LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
 			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.
 	 */
-	void updateSessionAttributes(String id, AttributeUpdater updater); 
+	void updateSessionAttributes(String id, SessionManagement.AttributeUpdater updater);
 
 	/**
 	 * Updates the lastUsed timestamp of a session. The implementation may delay this action if the 

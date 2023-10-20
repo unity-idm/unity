@@ -4,12 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
@@ -18,6 +12,11 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemot
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * Handles authentication results for interactive authentications (typically over some web binding).

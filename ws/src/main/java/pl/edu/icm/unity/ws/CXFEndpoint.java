@@ -18,7 +18,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -32,7 +32,7 @@ import java.util.*;
  * Web service endpoint based on CXF
  * @author K. Benedyczak
  */
-public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
+public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	protected MessageSource msg;
 	protected String servletPath;

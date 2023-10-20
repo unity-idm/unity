@@ -12,7 +12,6 @@ import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -34,7 +33,6 @@ import java.util.function.Consumer;
 public class AdditionalAuthnHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdditionalAuthnHandler.class);
-	private final MessageSource msg;
 	private final SessionManagement sessionMan;
 	private final EntityManagement entityMan;
 
@@ -44,11 +42,10 @@ public class AdditionalAuthnHandler
 	}
 	
 	@Autowired
-	public AdditionalAuthnHandler(SessionManagement sessionMan, EntityManagement entityMan, MessageSource msg)
+	public AdditionalAuthnHandler(SessionManagement sessionMan, EntityManagement entityMan)
 	{
 		this.sessionMan = sessionMan;
 		this.entityMan = entityMan;
-		this.msg = msg;
 	}
 	
 	public void handleAdditionalAuthenticationException(AdditionalAuthenticationRequiredException exception,

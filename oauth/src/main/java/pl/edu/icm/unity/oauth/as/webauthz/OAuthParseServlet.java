@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyEE10;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -192,7 +192,7 @@ public class OAuthParseServlet extends HttpServlet
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
 
-		AuthenticationPolicyEE10.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
+		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
 		setLanguageCookie(response, parsedRequestParametersWithUILocales.uiLocales);
 
 		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
@@ -246,14 +246,14 @@ public class OAuthParseServlet extends HttpServlet
 		return Optional.empty();
 	}
 
-	private AuthenticationPolicyEE10 mapPromptToAuthenticationPolicy(Set<Prompt> prompts)
+	private AuthenticationPolicy mapPromptToAuthenticationPolicy(Set<Prompt> prompts)
 	{
 		if (prompts.contains(Prompt.NONE))
-			return AuthenticationPolicyEE10.REQUIRE_EXISTING_SESSION;
+			return AuthenticationPolicy.REQUIRE_EXISTING_SESSION;
 		else if (prompts.contains(Prompt.LOGIN))
-			return AuthenticationPolicyEE10.FORCE_LOGIN;
+			return AuthenticationPolicy.FORCE_LOGIN;
 
-		return AuthenticationPolicyEE10.DEFAULT;
+		return AuthenticationPolicy.DEFAULT;
 	}
 
 	/**

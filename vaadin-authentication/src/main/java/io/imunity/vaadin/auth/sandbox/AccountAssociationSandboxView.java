@@ -24,7 +24,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -44,7 +44,7 @@ class AccountAssociationSandboxView extends UnityViewComponent implements Before
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final LocaleChoiceComponent localeChoice;
-	private final InteractiveAuthenticationProcessorEE10 authnProcessor;
+	private final InteractiveAuthenticationProcessor authnProcessor;
 	private final ExecutorsService execService;
 	private final EntityManagement idsMan;
 	private final List<AuthenticationFlow> authnFlows;
@@ -53,7 +53,7 @@ class AccountAssociationSandboxView extends UnityViewComponent implements Before
 
 	@Autowired
 	public AccountAssociationSandboxView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
-			InteractiveAuthenticationProcessorEE10 authnProcessor,
+			InteractiveAuthenticationProcessor authnProcessor,
 			UnityServerConfiguration cfg,
 			ExecutorsService execService,
 			@Qualifier("insecure") EntityManagement idsMan,

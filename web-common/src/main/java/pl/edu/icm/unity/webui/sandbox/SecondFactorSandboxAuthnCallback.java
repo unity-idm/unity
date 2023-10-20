@@ -14,8 +14,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
@@ -36,14 +36,14 @@ class SecondFactorSandboxAuthnCallback implements AuthenticationCallback
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			SecondFactorSandboxAuthnCallback.class);
 	private final MessageSource msg;
-	private final InteractiveAuthenticationProcessor authnProcessor;
+	private final InteractiveAuthenticationProcessorEE8 authnProcessor;
 	private final SecondFactorAuthenticationListener authNListener;
 	private final PartialAuthnState partialState;
 	private final SandboxAuthnRouter sandboxRouter;
 	private final AuthenticationStepContext stepContext;
 
 	SecondFactorSandboxAuthnCallback(MessageSource msg,
-			InteractiveAuthenticationProcessor authnProcessor, 
+			InteractiveAuthenticationProcessorEE8 authnProcessor, 
 			AuthenticationStepContext stepContext,
 			SecondFactorAuthenticationListener authNListener, SandboxAuthnRouter sandboxRouter,
 			PartialAuthnState partialState)

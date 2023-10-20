@@ -9,7 +9,7 @@ import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 /**
  * Servlet endpoint instance
  */
-public interface WebAppEndpointEE10Instance extends EndpointInstance
+public interface WebAppEndpointInstance extends EndpointInstance
 {
 	ServletContextHandler getServletContextHandler();
 }

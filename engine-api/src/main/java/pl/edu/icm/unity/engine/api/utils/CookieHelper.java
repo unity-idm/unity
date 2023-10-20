@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.utils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Cookie finder

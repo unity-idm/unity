@@ -4,19 +4,20 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.Date;
+import java.util.Optional;
+
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 
-import java.util.Date;
-import java.util.Optional;
-
-public interface RememberMeProcessorEE10
+public interface RememberMeProcessorEE8
 {
-	String REMEMBER_ME_TOKEN_TYPE = "rememberMe";
+	public static final String REMEMBER_ME_TOKEN_TYPE = "rememberMe";
 	
 	Optional<LoginSession> processRememberedWholeAuthn(HttpServletRequest httpRequest, ServletResponse response,
 			String clientIp, AuthenticationRealm realm, UnsuccessfulAuthenticationCounter dosGauard);

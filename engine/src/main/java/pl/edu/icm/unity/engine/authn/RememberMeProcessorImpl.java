@@ -5,26 +5,15 @@
 
 package pl.edu.icm.unity.engine.authn;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
@@ -33,18 +22,21 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
-import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 import pl.edu.icm.unity.store.api.TokenDAO.TokenNotFoundException;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Internal management of remember me cookies and tokens.  
@@ -55,13 +47,13 @@ import pl.edu.icm.unity.store.api.TokenDAO.TokenNotFoundException;
 class RememberMeProcessorImpl implements RememberMeProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RememberMeProcessorImpl.class);
-	
+
 	public static final String REMEMBER_ME_COOKIE_PFX = "REMEMBERME_";
 
 	private final TokensManagement tokenMan;
 	private final SessionManagement sessionMan;
 	private final EntityManagement entityMan;
-	
+
 	@Autowired
 	RememberMeProcessorImpl(TokensManagement tokenMan, SessionManagement sessionMan, EntityManagement entityMan)
 	{
@@ -371,7 +363,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 
 	private Cookie buildRememberMeHttpCookie(String realmName, String value, Duration maxAge)
 	{
-		return CookieHelper.setupHttpCookie(getRememberMeCookieName(realmName), value, 
+		return CookieHelper.setupHttpCookie(getRememberMeCookieName(realmName), value,
 				(int)maxAge.get(ChronoUnit.SECONDS));
 	}
 

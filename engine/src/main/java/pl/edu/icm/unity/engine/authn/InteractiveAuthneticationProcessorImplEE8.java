@@ -16,9 +16,9 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision.ErrorDetail;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision.SecondFactorDetail;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10.PostAuthenticationStepDecision.UnknownRemoteUserDetail;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision.ErrorDetail;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision.SecondFactorDetail;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8.PostAuthenticationStepDecision.UnknownRemoteUserDetail;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
@@ -29,31 +29,31 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.session.*;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
 @Primary
 @Component
-class InteractiveAuthneticationProcessorEE10Impl implements InteractiveAuthenticationProcessorEE10
+class InteractiveAuthneticationProcessorImplEE8 implements InteractiveAuthenticationProcessorEE8
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, InteractiveAuthneticationProcessorEE10Impl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, InteractiveAuthneticationProcessorImplEE8.class);
 	private final AuthenticationProcessor basicAuthnProcessor;
 	private final EntityManagement entityMan;
-	private final SessionManagement sessionMan;
+	private final SessionManagementEE8 sessionMan;
 	private final SessionParticipantTypesRegistry participantTypesRegistry;
-	private final LoginToHttpSessionEE10Binder sessionBinder;
-	private final RememberMeProcessorImplEE10 rememberMeProcessor;
-
-	InteractiveAuthneticationProcessorEE10Impl(AuthenticationProcessor basicAuthnProcessor,
+	private final LoginToHttpSessionBinderEE8 sessionBinder;
+	private final RememberMeProcessorImplEE8 rememberMeProcessor;
+	
+	InteractiveAuthneticationProcessorImplEE8(AuthenticationProcessor basicAuthnProcessor, 
 			EntityManagement entityMan,
-			SessionManagement sessionMan,
+			SessionManagementEE8 sessionMan,
 			SessionParticipantTypesRegistry participantTypesRegistry,
-			LoginToHttpSessionEE10Binder sessionBinder,
-			RememberMeProcessorImplEE10 rememberMeProcessor)
+			LoginToHttpSessionBinderEE8 sessionBinder,
+			RememberMeProcessorImplEE8 rememberMeProcessor)
 	{
 		this.basicAuthnProcessor = basicAuthnProcessor;
 		this.entityMan = entityMan;
@@ -308,7 +308,7 @@ class InteractiveAuthneticationProcessorEE10Impl implements InteractiveAuthentic
 			HttpServletResponse httpResponse)
 	{
 		sessionMan.updateSessionAttributes(ls.getId(), 
-				new SessionParticipants.AddParticipantToSessionTask(
+				new SessionParticipantsEE8.AddParticipantToSessionTask(
 						participantTypesRegistry,
 						participants.toArray(new SessionParticipant[participants.size()])));
 
@@ -329,7 +329,7 @@ class InteractiveAuthneticationProcessorEE10Impl implements InteractiveAuthentic
 		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
 		if (ls.isUsedOutdatedCredential())
 			log.info("User {} logged with outdated credential", ls.getEntityId());
-		AuthenticationPolicyEE10.setPolicy(httpSession, AuthenticationPolicyEE10.DEFAULT);
+		AuthenticationPolicyEE8.setPolicy(httpSession, AuthenticationPolicyEE8.DEFAULT);
 
 		log.info("Logged with session: {}, first factor authn option: {}, second factor authn option: {}"
 				+ ", first factor skipped: {}, second factor skipped: {}",
@@ -365,14 +365,14 @@ class InteractiveAuthneticationProcessorEE10Impl implements InteractiveAuthentic
 	
 	private void addSessionCookie(String realmName, String sessionId, HttpServletResponse servletResponse)
 	{
-		servletResponse.addCookie(new SessionCookieEE10(realmName, sessionId).toHttpCookie());
+		servletResponse.addCookie(new SessionCookieEE8(realmName, sessionId).toHttpCookie());
 	}
 	
 	private void setLastIdpCookie(HttpServletResponse response, AuthenticationOptionKey idpKey, String endpointPath)
 	{
 		if (endpointPath == null)
 			return;
-		Optional<Cookie> lastIdpCookie = LastAuthenticationCookieEE10.createLastIdpCookie(endpointPath, idpKey);
+		Optional<Cookie> lastIdpCookie = LastAuthenticationCookieEE8.createLastIdpCookie(endpointPath, idpKey);
 		lastIdpCookie.ifPresent(response::addCookie);
 	}
 }

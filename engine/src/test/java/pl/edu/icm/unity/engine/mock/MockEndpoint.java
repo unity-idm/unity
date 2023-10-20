@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE10Instance;
+import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 @PrototypeComponent
-public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointEE10Instance
+public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
 	public static final String NAME = "Mock Endpoint";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(

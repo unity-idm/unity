@@ -22,10 +22,10 @@ import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE8;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinderEE8;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
@@ -72,12 +72,12 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private List<AuthenticationFlow> authnFlows;
 	
 	private AuthenticationScreen authenticationUI;
-	private final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
+	private final InteractiveAuthenticationProcessorEE8 interactiveAuthnProcessor;
 	
 	@Autowired
 	public AuthenticationUI(MessageSource msg, ImageAccessService imageAccessService, LocaleChoiceComponent localeChoice,
 			StandardWebLogoutHandler authnProcessor,
-			InteractiveAuthenticationProcessor interactiveProcessor,
+			InteractiveAuthenticationProcessorEE8 interactiveProcessor,
 			RegistrationFormsLayoutController registrationFormController,
 			InsecureRegistrationFormLauncherV8 formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
@@ -163,7 +163,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private boolean isUserAuthenticatedWithOutdatedCredential()
 	{
 		WrappedSession vss = VaadinSession.getCurrent().getSession();
-		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
+		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinderEE8.USER_SESSION_KEY);
 		return ls != null && ls.isUsedOutdatedCredential();
 	}
 	

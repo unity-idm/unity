@@ -38,7 +38,7 @@ import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessorEE10;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
@@ -77,12 +77,12 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 	private final ResolvedEndpoint endpointDescription;
 
 	private ColumnInstantAuthenticationScreen authenticationUI;
-	private final InteractiveAuthenticationProcessorEE10 interactiveAuthnProcessor;
+	private final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
 
 	@Autowired
 	public AuthenticationView(MessageSource msg, VaadinLogoImageLoader imageAccessService, UnityServerConfiguration cfg,
 			VaddinWebLogoutHandler authnProcessor,
-			InteractiveAuthenticationProcessorEE10 interactiveProcessor,
+			InteractiveAuthenticationProcessor interactiveProcessor,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 			ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
 			RegistrationFormsService registrationFormsService,

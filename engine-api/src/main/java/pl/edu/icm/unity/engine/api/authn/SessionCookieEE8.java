@@ -4,17 +4,18 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import jakarta.servlet.http.Cookie;
-import pl.edu.icm.unity.engine.api.utils.CookieEE10Helper;
+import javax.servlet.http.Cookie;
 
-public class SessionCookieEE10
+import pl.edu.icm.unity.engine.api.utils.CookieHelperEE8;
+
+public class SessionCookieEE8
 {
 	private static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_";
 
 	private final String name;
 	private final String sessionId;
-
-	public SessionCookieEE10(String realmName, String sessionId)
+	
+	public SessionCookieEE8(String realmName, String sessionId)
 	{
 		this.sessionId = sessionId;
 		name = getSessionCookieName(realmName);
@@ -23,7 +24,7 @@ public class SessionCookieEE10
 	
 	public Cookie toHttpCookie()
 	{
-		return CookieEE10Helper.setupHttpCookie(name, sessionId, -1);
+		return CookieHelperEE8.setupHttpCookie(name, sessionId, -1);
 	}
 	
 	public String getName()
