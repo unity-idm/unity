@@ -7,8 +7,8 @@ package io.imunity.console.tprofile;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.select.Select;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
 import org.apache.logging.log4j.Logger;
@@ -38,7 +38,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 	private final NotificationPresenter notificationPresenter;
 	private final TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 
-	private ComboBox<String> actions;
+	private Select<String> actions;
 	private Span actionParams;
 	private final ActionParameterComponentProvider actionComponentProvider;
 	private final List<ActionParameterComponent> paramComponents = new ArrayList<>();
@@ -66,7 +66,8 @@ public class ActionEditor extends FormLayoutEmbeddable
 
 	private void initUI(TranslationAction toEdit)
 	{
-		actions = new ComboBox<>(msg.getMessage("ActionEditor.ruleAction"));
+		actions = new Select<>();
+		actions.setLabel(msg.getMessage("ActionEditor.ruleAction"));
 		ArrayList<String> items = new ArrayList<>();
 		tc.getAll().stream()
 				.map(af -> af.getActionType().getName())
@@ -106,7 +107,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 		setParams(actions.getValue(), toEdit.getParameters());
 	}
 	
-	private Optional<TranslationAction> getActionIfValid()
+	public Optional<TranslationAction> getActionIfValid()
 	{
 		try
 		{

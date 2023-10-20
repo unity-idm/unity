@@ -122,6 +122,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 	@Override
 	public void afterNavigation(AfterNavigationEvent event)
 	{
-		appLayoutComponents.reloadBreadCrumb((UnityViewComponent)event.getActiveChain().iterator().next());
+		if(event.getActiveChain().iterator().next() instanceof UnityViewComponent viewComponent)
+			appLayoutComponents.reloadBreadCrumb(viewComponent);
 	}
 }

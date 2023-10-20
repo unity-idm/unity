@@ -21,6 +21,7 @@ import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
@@ -37,6 +38,7 @@ public class AutomationRunView extends ConsoleViewComponent
 	private final AutomationController controller;
 	private final NotificationPresenter notificationPresenter;
 	private Binder<TranslationRule> binder;
+	private ActionEditor actionEditor;
 
 	AutomationRunView(MessageSource msg, AutomationController controller, NotificationPresenter notificationPresenter)
 	{
@@ -72,7 +74,7 @@ public class AutomationRunView extends ConsoleViewComponent
 				MVELExpressionContext.builder().withTitleKey("RuleEditor.conditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(EntityMVELContextKey.toMap())
 						.build());
-		ActionEditor actionEditor = controller.getActionEditor(translationRule);
+		actionEditor = controller.getActionEditor(translationRule);
 		binder = new Binder<>(TranslationRule.class);
 		condition.configureBinding(binder, "condition", true);
 		binder.setBean(translationRule);
@@ -95,10 +97,14 @@ public class AutomationRunView extends ConsoleViewComponent
 
 	private void onConfirm()
 	{
-		TranslationRule rule = binder.getBean();
-		controller.applyRule(rule);
-		notificationPresenter.showSuccess(msg.getMessage("RunImmediateView.actionInvoked"), "");
-		UI.getCurrent().navigate(AutomationView.class);
+		binder.validate();
+		if(binder.isValid() && actionEditor.getActionIfValid().isPresent())
+		{
+			TranslationRule rule = binder.getBean();
+			controller.applyRule(rule);
+			notificationPresenter.showSuccess(msg.getMessage("RunImmediateView.actionInvoked"), "");
+			UI.getCurrent().navigate(AutomationView.class);
+		}
 	}
 
 }

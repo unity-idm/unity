@@ -5,21 +5,24 @@
 
 package io.imunity.console.views;
 
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.ErrorParameter;
+import com.vaadin.flow.router.HasErrorParameter;
+import com.vaadin.flow.router.ParentLayout;
 import io.imunity.console.ConsoleMenu;
-import io.imunity.vaadin.elements.Breadcrumb;
 import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.lang.invoke.MethodHandles;
 
 @PermitAll
-@Breadcrumb(key = "error")
 @ParentLayout(ConsoleMenu.class)
-public class ConsoleErrorPage extends ConsoleViewComponent implements HasErrorParameter<Exception>
+public class ConsoleErrorPage extends Composite<Div> implements HasErrorParameter<Exception>
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

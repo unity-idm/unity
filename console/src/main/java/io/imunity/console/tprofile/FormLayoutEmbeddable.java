@@ -7,11 +7,9 @@ package io.imunity.console.tprofile;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.shared.HasTooltip;
-import io.imunity.console.components.QuestionIconTooltip;
+import io.imunity.console.components.TooltipFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,38 +34,38 @@ public class FormLayoutEmbeddable
 		List<Component> components = new ArrayList<>();
 		for (Component component: this.components)
 		{
-			if(component instanceof Span label)
-			{
-				components.add(layout.addFormItem(new Div(), label));
-				continue;
-			}
-			FormLayout.FormItem item = layout.addFormItem(component, component.getElement().getProperty("label"));
-			components.add(item);
-			component.getElement().setProperty("label", "");
-			if(component instanceof HasTooltip hasTooltip)
-			{
-				String text = hasTooltip.getTooltip().getText();
-				hasTooltip.setTooltipText("");
-				Icon icon = QuestionIconTooltip.get(text);
-				item.add(icon);
-			}
+			addComponent(component, components);
 		}
 		this.components = components;
 	}
-	
+
 	public void addComponent(Component component)
 	{
 		if (layout != null)
 		{
-			if(component instanceof Label label)
-			{
-				components.add(layout.addFormItem(new Div(), label));
-			}
-			components.add(layout.addFormItem(component, component.getElement().getProperty("label")));
-			component.getElement().setProperty("label", "");
+			addComponent(component, components);
 			return;
 		}
 		components.add(component);
+	}
+
+	private void addComponent(Component component, List<Component> components)
+	{
+		if(component instanceof Span label)
+		{
+			components.add(layout.addFormItem(new Div(), label));
+			return;
+		}
+		FormLayout.FormItem item = layout.addFormItem(component, component.getElement().getProperty("label"));
+		components.add(item);
+		component.getElement().setProperty("label", "");
+		if(component instanceof HasTooltip hasTooltip)
+		{
+			String text = hasTooltip.getTooltip().getText();
+			hasTooltip.setTooltipText("");
+			Component tooltip = TooltipFactory.get(text);
+			item.add(tooltip);
+		}
 	}
 
 	public void addComponents(Component... components)

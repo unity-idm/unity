@@ -5,20 +5,20 @@
 
 package io.imunity.home.views;
 
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.*;
-import io.imunity.vaadin.elements.Breadcrumb;
 import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.lang.invoke.MethodHandles;
 
 @PermitAll
-@Breadcrumb(key = "error")
 @ParentLayout(HomeUiMenu.class)
-public class HomeErrorPage extends HomeViewComponent implements HasErrorParameter<Exception>
+public class HomeErrorPage extends Composite<Div> implements HasErrorParameter<Exception>
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -35,11 +35,5 @@ public class HomeErrorPage extends HomeViewComponent implements HasErrorParamete
 		LOG.error("Vaadin rendering error:", parameter.getCaughtException());
 		getElement().setText(messageSource.getMessage("Error"));
 		return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-	}
-
-	@Override
-	public void afterNavigation(AfterNavigationEvent event)
-	{
-
 	}
 }

@@ -5,16 +5,16 @@
 
 package io.imunity.console.views.directory_setup.automation;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
-import io.imunity.console.components.QuestionIconTooltip;
+import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.ActionEditor;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
@@ -39,6 +39,7 @@ public class AutomationEditView extends ConsoleViewComponent
 	private String id;
 	private Binder<ScheduledProcessingRuleParam> binder;
 	private BreadCrumbParameter breadCrumbParameter;
+	private ActionEditor actionEditor;
 
 
 	AutomationEditView(MessageSource msg, AutomationController controller)
@@ -81,20 +82,20 @@ public class AutomationEditView extends ConsoleViewComponent
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		CronExpressionField cronExpression = new CronExpressionField(msg, "");
-		Icon icon = QuestionIconTooltip.getWithHtmlTooltip(msg.getMessage("CronExpressionField.cronExpressionDescription"));
+		Component tooltip = TooltipFactory.getWithHtmlContent(msg.getMessage("CronExpressionField.cronExpressionDescription"));
 
 		MVELExpressionField condition = new MVELExpressionField(msg, "",
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder().withTitleKey("RuleEditor.conditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(EntityMVELContextKey.toMap())
 						.build());
-		ActionEditor actionEditor = controller.getActionEditor(translationRule);
+		actionEditor = controller.getActionEditor(translationRule);
 		binder = new Binder<>(ScheduledProcessingRuleParam.class);
 		condition.configureBinding(binder, "condition", true);
 		cronExpression.configureBinding(binder, "cronExpression");
 		binder.setBean(translationRule);
 
-		main.addFormItem(cronExpression, msg.getMessage("RuleEditor.cronExpression")).add(icon);
+		main.addFormItem(cronExpression, msg.getMessage("RuleEditor.cronExpression")).add(tooltip);
 		main.addFormItem(condition, msg.getMessage("RuleEditor.condition"));
 		actionEditor.addToLayout(main);
 
@@ -103,12 +104,16 @@ public class AutomationEditView extends ConsoleViewComponent
 
 	private void onConfirm()
 	{
-		ScheduledProcessingRuleParam rule = binder.getBean();
-		if(!edit)
-			controller.scheduleRule(rule);
-		else
-			controller.updateScheduledRule(id, rule);
-		UI.getCurrent().navigate(AutomationView.class);
+		binder.validate();
+		if(binder.isValid() && actionEditor.getActionIfValid().isPresent())
+		{
+			ScheduledProcessingRuleParam rule = binder.getBean();
+			if (!edit)
+				controller.scheduleRule(rule);
+			else
+				controller.updateScheduledRule(id, rule);
+			UI.getCurrent().navigate(AutomationView.class);
+		}
 	}
 
 }

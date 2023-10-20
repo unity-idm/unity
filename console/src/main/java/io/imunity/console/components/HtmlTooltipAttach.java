@@ -11,14 +11,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 
-public class HtmlTooltip
+class HtmlTooltipAttach
 {
-	public static void forComponent(Component attached, Html component)
+	static void to(Component component, Html tooltipContent)
 	{
 		Tooltip tooltip = new Tooltip();
-		tooltip.attachToComponent(attached);
+		tooltip.attachToComponent(component);
 		tooltip.setPosition(TooltipPosition.BOTTOM);
-		tooltip.add(component);
+		tooltip.add(tooltipContent);
 		tooltip.setThemeName("light");
 		UI.getCurrent().add(tooltip);
 	}

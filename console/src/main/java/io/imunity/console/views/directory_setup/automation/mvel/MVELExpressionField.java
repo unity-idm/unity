@@ -4,20 +4,21 @@
  */
 package io.imunity.console.views.directory_setup.automation.mvel;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
-import io.imunity.console.components.QuestionIconTooltip;
+import io.imunity.console.components.TooltipFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 
 /**
@@ -46,10 +47,10 @@ public class MVELExpressionField extends CustomField<String>
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setSpacing(false);
-		Icon icon = QuestionIconTooltip.getWithHtmlTooltip(description);
-		HorizontalLayout iconsLayout = new HorizontalLayout(editorButton, icon);
+		Component tooltip = TooltipFactory.getWithHtmlContent(description);
+		HorizontalLayout iconsLayout = new HorizontalLayout(editorButton, tooltip);
 		iconsLayout.setSpacing(false);
-		iconsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+		iconsLayout.getStyle().set("margin-top", BASE_MARGIN.value());
 		iconsLayout.setClassName("field-icon-gap");
 		layout.add(field, iconsLayout);
 		field.setLabel(caption);
@@ -86,7 +87,6 @@ public class MVELExpressionField extends CustomField<String>
 	{
 		return "";
 	}
-
 
 	@Override
 	public void focus()
@@ -129,5 +129,21 @@ public class MVELExpressionField extends CustomField<String>
 	protected void setPresentationValue(String s)
 	{
 		field.setValue(s);
+	}
+
+	@Override
+	public void setInvalid(boolean invalid)
+	{
+		super.setInvalid(invalid);
+		if(invalid)
+		{
+			field.getElement().setAttribute("invalid", true);
+			getParent().ifPresent(parent -> parent.getStyle().remove("--lumo-required-field-indicator-color"));
+		}
+		else
+		{
+			field.getElement().removeAttribute("invalid");
+			getParent().ifPresent(parent -> parent.getStyle().set("--lumo-required-field-indicator-color", "var(--lumo-primary-text-color)"));
+		}
 	}
 }

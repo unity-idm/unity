@@ -5,24 +5,24 @@
 
 package io.imunity.upman.front;
 
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.ParentLayout;
 import io.imunity.upman.front.views.UpManMenu;
-import io.imunity.vaadin.elements.Breadcrumb;
 import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.lang.invoke.MethodHandles;
 
 @PermitAll
-@Breadcrumb(key = "error")
 @ParentLayout(UpManMenu.class)
-public class UpmanErrorPage extends UpmanViewComponent implements HasErrorParameter<Exception>
+public class UpmanErrorPage extends Composite<Div> implements HasErrorParameter<Exception>
 {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -38,10 +38,5 @@ public class UpmanErrorPage extends UpmanViewComponent implements HasErrorParame
 		LOG.error("Vaadin rendering error:", parameter.getCaughtException());
 		getElement().setText(messageSource.getMessage("Error"));
 		return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-	}
-
-	@Override
-	public void loadData()
-	{
 	}
 }
