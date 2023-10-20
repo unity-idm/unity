@@ -36,6 +36,8 @@ import java.util.Comparator;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
+import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM;
+import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM_ITEM;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.authentication.realms", parent = "WebConsoleMenu.authentication")
@@ -97,10 +99,12 @@ public class RealmsView extends ConsoleViewComponent
 	private FormLayout getDetailsComponent(AuthenticationRealmEntry realm)
 	{
 		FormLayout wrapper = new FormLayout();
-		Div field = new Div(new Span(String.join(", ", realm.endpoints)));
-		field.addClassName("grid-details-width");
-		wrapper.addFormItem(field, msg.getMessage("AuthenticationRealmsView.endpointsCaption"));
-		wrapper.getStyle().set("margin-bottom", "0.75em");
+		FormLayout.FormItem formItem = wrapper.addFormItem(
+				new Span(String.join(", ", realm.endpoints)),
+				msg.getMessage("AuthenticationRealmsView.endpointsCaption")
+		);
+		formItem.addClassName(GRID_DETAILS_FORM_ITEM.getName());
+		wrapper.addClassName(GRID_DETAILS_FORM.getName());
 		return wrapper;
 	}
 

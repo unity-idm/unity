@@ -37,6 +37,8 @@ import java.util.Comparator;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
+import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM;
+import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM_ITEM;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.authentication.facilities", parent = "WebConsoleMenu.authentication")
@@ -79,9 +81,12 @@ public class FacilitiesView extends ConsoleViewComponent
 	private FormLayout getDetailsComponent(AuthenticationFlowEntry flow)
 	{
 		FormLayout wrapper = new FormLayout();
-		Div field = new Div(new Span(String.join(", ", flow.endpoints)));
-		field.addClassName("grid-details-width");
-		wrapper.addFormItem(field, msg.getMessage("AuthenticationFlowsComponent.endpointsCaption"));
+		FormLayout.FormItem formItem = wrapper.addFormItem(
+				new Span(String.join(", ", flow.endpoints)),
+				msg.getMessage("AuthenticationFlowsComponent.endpointsCaption")
+		);
+		formItem.addClassName(GRID_DETAILS_FORM_ITEM.getName());
+		wrapper.addClassName(GRID_DETAILS_FORM.getName());
 		return wrapper;
 	}
 

@@ -10,7 +10,9 @@ public enum VaadinClassNames
 	DIALOG_CONFIRM("u-dialog-confirm"),
 	SUBMIT_BUTTON("submit-button"),
 	SMALL_GAP("small-gap"),
-	EMPTY_DETAILS_ICON("empty-details-icon");
+	EMPTY_DETAILS_ICON("empty-details-icon"),
+	GRID_DETAILS_FORM_ITEM("grid-details-vaadin-form-item"),
+	GRID_DETAILS_FORM("grid-details-vaadin-form");
 
 	private final String name;
 

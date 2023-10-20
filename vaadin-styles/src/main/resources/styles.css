@@ -518,10 +518,6 @@ vaadin-details.multi-tab-details {
     margin-top: var(--big-margin);
 }
 
-.grid-details-width {
-    width: 60em;
-}
-
 vcf-tooltip[theme="light"]::part(container) {
     font-size: var(--lumo-font-size-s);
     background: var(--lumo-base-color) linear-gradient(var(--lumo-contrast-5pct), var(--lumo-contrast-5pct));
@@ -548,4 +544,12 @@ vcf-tooltip[theme="light"]::part(container) {
 
 .rich-editor {
     position: relative;
+}
+
+.grid-details-vaadin-form-item {
+    width: 100% !important;
+}
+
+.grid-details-vaadin-form {
+    margin-bottom: 0.75em;
 }
