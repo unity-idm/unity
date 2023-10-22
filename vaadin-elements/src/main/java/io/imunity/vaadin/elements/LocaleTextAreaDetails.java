@@ -26,7 +26,7 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 {
 	public Map<Locale, LocaleTextArea> fields = new LinkedHashMap<>();
 
-	public LocaleTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale, String label, Function<Locale, String> valueGenerator)
+	public LocaleTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale, Optional<String> label, Function<Locale, String> valueGenerator)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
@@ -52,7 +52,8 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 
 		LocaleTextArea defaultField = new LocaleTextArea(currentLocale);
 		defaultField.setValue(valueGenerator.apply(currentLocale));
-		defaultField.setLabel(label);
+		if (label.isPresent())
+			defaultField.setLabel(label.get());
 		fields.put(currentLocale, defaultField);
 
 		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
@@ -86,11 +87,11 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 		fields.values().iterator().next().focus();
 	}
 
-	private Icon crateIcon(VaadinIcon angleDown, String label)
+	private Icon crateIcon(VaadinIcon angleDown, Optional<String> label)
 	{
 		Icon icon = angleDown.create();
 		icon.addClassName("details-icon");
-		if(!label.isBlank())
+		if(label.isPresent())
 			icon.setClassName(EMPTY_DETAILS_ICON.getName());
 		return icon;
 	}

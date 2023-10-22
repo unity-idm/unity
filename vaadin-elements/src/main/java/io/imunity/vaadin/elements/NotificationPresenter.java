@@ -46,6 +46,13 @@ public class NotificationPresenter
 		successNotification.setDuration(DEFAULT_NOTIFICATION_DURATION);
 		successNotification.open();
 	}
+	
+	public void showNotice(String caption, String description)
+	{
+		NoticeNotification noticeNotification = new NoticeNotification(caption, description);
+		noticeNotification.setDuration(DEFAULT_NOTIFICATION_DURATION);
+		noticeNotification.open();
+	}
 
 	public void showSuccess(String caption, String description, Runnable runAfterClose)
 	{
@@ -101,6 +108,30 @@ public class NotificationPresenter
 		private SuccessNotification(String header, String description)
 		{
 			addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(event -> close());
+
+			Span label = new Span(header);
+			label.getStyle().set("font-weight", "bold");
+			HorizontalLayout layout = new HorizontalLayout(
+					new VerticalLayout(label, new Text(description)),
+					closeButton
+			);
+			layout.setAlignItems(FlexComponent.Alignment.CENTER);
+
+			add(layout);
+			setPosition(TOP_CENTER);
+		}
+	}
+	
+	private static class NoticeNotification extends Notification
+	{
+		private NoticeNotification(String header, String description)
+		{
+			addThemeVariants(NotificationVariant.LUMO_WARNING);
 
 			Button closeButton = new Button(new Icon("lumo", "cross"));
 			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);

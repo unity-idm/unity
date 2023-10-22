@@ -23,6 +23,7 @@ import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.Panel;
 import jakarta.annotation.security.PermitAll;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
@@ -78,7 +79,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 
 	private VerticalLayout createExportUI()
 	{
-		Panel exportPanel = new Panel(msg.getMessage("ImportExport.exportCaption"));
+		Panel exportPanel = new Panel(Optional.of(msg.getMessage("ImportExport.exportCaption")));
 		VerticalLayout layout = new VerticalLayout();
 		layout.setClassName(SMALL_GAP.getName());
 		exportPanel.add(layout);
@@ -186,7 +187,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 
 	private VerticalLayout createImportUI()
 	{
-		Panel importPanel = new Panel(msg.getMessage("ImportExport.importCaption"));
+		Panel importPanel = new Panel(Optional.of(msg.getMessage("ImportExport.importCaption")));
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSpacing(false);
 		importPanel.add(layout);

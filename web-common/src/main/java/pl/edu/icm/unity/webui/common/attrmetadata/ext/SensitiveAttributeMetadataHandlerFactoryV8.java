@@ -8,18 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.stdext.utils.ContactMobileMetadataProvider;
+import pl.edu.icm.unity.stdext.utils.SensitiveAttributeMetadataProvider;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandlerFactory;
 
 
 @Component
-public class ContactMobileMetadataHandlerFactory implements WebAttributeMetadataHandlerFactory
+public class SensitiveAttributeMetadataHandlerFactoryV8 implements WebAttributeMetadataHandlerFactory
 {
 	private MessageSource msg;
 	
 	@Autowired
-	public ContactMobileMetadataHandlerFactory(MessageSource msg)
+	public SensitiveAttributeMetadataHandlerFactoryV8(MessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -27,12 +27,12 @@ public class ContactMobileMetadataHandlerFactory implements WebAttributeMetadata
 	@Override
 	public String getSupportedMetadata()
 	{
-		return ContactMobileMetadataProvider.NAME;
+		return SensitiveAttributeMetadataProvider.NAME;
 	}
 
 	@Override
 	public WebAttributeMetadataHandler newInstance()
 	{
-		return new ContactMobileMetadataHandler(msg);
+		return new SensitiveAttributeMetadataHandler(msg);
 	}
 }

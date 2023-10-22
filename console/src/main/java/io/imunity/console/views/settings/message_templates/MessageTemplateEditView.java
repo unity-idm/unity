@@ -155,7 +155,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		LocaleTextFieldDetails subject = new LocaleTextFieldDetails(
 				msg.getEnabledLocales().values(),
 				msg.getLocale(),
-				"",
+				Optional.empty(),
 				locale -> Optional.ofNullable(toEdit.getMessage().getSubject().getValueRaw(locale.getLanguage())).orElse("")
 		);
 		subject.setWidthFull();
@@ -168,7 +168,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		LocaleTextAreaDetails body = new LocaleTextAreaDetails(
 				msg.getEnabledLocales().values(),
 				msg.getLocale(),
-				"",
+				Optional.empty(),
 				locale -> Optional.ofNullable(toEdit.getMessage().getBody().getValueRaw(locale.getLanguage())).orElse("")
 		);
 		body.setWidthFull();

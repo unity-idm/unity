@@ -133,7 +133,7 @@ class MenuItemFactory
 		dialogLayout.setWidth("30em");
 		LocaleTextFieldDetails localeTextFieldDetails = new LocaleTextFieldDetails(
 				msg.getEnabledLocales().values(), msg.getLocale(),
-				msg.getMessage("AddGroupDialog.info", group.currentDisplayedName),
+				Optional.of(msg.getMessage("AddGroupDialog.info", group.currentDisplayedName)),
 				locale -> ""
 		);
 		localeTextFieldDetails.focus();
@@ -207,7 +207,7 @@ class MenuItemFactory
 		LocaleTextFieldDetails details = new LocaleTextFieldDetails(
 				msg.getEnabledLocales().values(),
 				msg.getLocale(),
-				"",
+				Optional.empty(),
 				locale -> Optional.ofNullable(group.displayedName.getValueRaw(locale.getLanguage())).orElse("")
 		);
 		details.focus();

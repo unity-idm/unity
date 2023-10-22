@@ -5,6 +5,8 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors;
 
 
+import java.util.Optional;
+
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
@@ -15,7 +17,7 @@ import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 public class DoubleBoundEditor extends AbstractBoundEditor<Double>
 {
 
-	public DoubleBoundEditor(MessageSource msg, String labelUnlimited, String labelLimit,
+	public DoubleBoundEditor(MessageSource msg, String labelUnlimited, Optional<String> labelLimit,
 			Double bound, Double min, Double max)
 	{
 		super(msg, labelUnlimited, labelLimit, bound, min, max);

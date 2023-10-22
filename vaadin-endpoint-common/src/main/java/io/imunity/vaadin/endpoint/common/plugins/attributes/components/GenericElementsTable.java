@@ -4,26 +4,26 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridSortOrder;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.function.SerializablePredicate;
-import com.vaadin.flow.function.ValueProvider;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.flow.function.ValueProvider;
+
 public class GenericElementsTable<T> extends Grid<T>
 {
 	protected List<T> contents;
-	private final ListDataProvider<T> dataProvider = new  ListDataProvider<>(List.of());
 	private final Column<T> col1;
 	private final GridContextMenuSupport<T> contextMenuSupp;
 	private final boolean sortable;
 	private final Collection<SerializablePredicate<T>> filters;
-
+	private GridListDataView<T> dataView;
+	
 	public GenericElementsTable(String columnHeader)
 	{
 		this(columnHeader, new DefaultNameProvider<T>());
@@ -38,8 +38,9 @@ public class GenericElementsTable<T> extends Grid<T>
 	{
 		this.sortable = sortable;
 		contents = new ArrayList<>();
-		setItems(contents);
-		setSizeFull();
+		dataView = setItems(contents);
+		setAllRowsVisible(true);
+		
 		setSelectionMode(SelectionMode.SINGLE);
 		col1 = addColumn(nameProvider)
 				.setHeader(columnHeader);
@@ -66,7 +67,7 @@ public class GenericElementsTable<T> extends Grid<T>
 		contents.clear();
 		if (elements != null)
 			contents.addAll(elements);
-		dataProvider.refreshAll();
+		dataView.refreshAll();
 		sort();
 		deselectAll();
 		for (T toSelect : selectedItems)
@@ -76,19 +77,20 @@ public class GenericElementsTable<T> extends Grid<T>
 				select(toSelect);
 			}
 		}
+		
 	}
 	
 	public void addElement(T el)
 	{
 		contents.add(el);
-		dataProvider.refreshItem(el);
+		dataView.refreshAll();
 		sort();
 	}
 
 	public void removeElement(T el)
 	{
 		contents.remove(el);
-		dataProvider.refreshAll();
+		dataView.refreshAll();
 		sort();
 	}
 	
@@ -105,9 +107,11 @@ public class GenericElementsTable<T> extends Grid<T>
 	
 	private void updateFilters()
 	{
-		dataProvider.clearFilters();
+		dataView.removeFilters();
 		for (SerializablePredicate<T> p : filters)
-			dataProvider.addFilter(p);
+		{
+			dataView.addFilter(p);
+		}
 	}
 	
 	public void addFilter(SerializablePredicate<T> filter)
@@ -126,7 +130,7 @@ public class GenericElementsTable<T> extends Grid<T>
 	
 	public void clearFilters()
 	{
-		dataProvider.clearFilters();
+		dataView.removeFilters();
 	}
 	
 	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
@@ -136,5 +140,12 @@ public class GenericElementsTable<T> extends Grid<T>
 		{
 			return element.toString();
 		}
+	}
+
+	public void clear()
+	{
+		contents.clear();
+		dataView.refreshAll();
+		deselectAll();
 	}
 }

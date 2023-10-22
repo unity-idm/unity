@@ -4,6 +4,8 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors;
 
+import java.util.Optional;
+
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
@@ -15,7 +17,7 @@ import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 public class IntegerBoundEditor extends AbstractBoundEditor<Integer>
 {
 
-	public IntegerBoundEditor(MessageSource msg, String labelUnlimited, String labelLimit,
+	public IntegerBoundEditor(MessageSource msg, String labelUnlimited, Optional<String> labelLimit,
 			Integer bound, Integer min, Integer max)
 	{
 		super(msg, labelUnlimited, labelLimit, bound, min, max);

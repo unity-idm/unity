@@ -27,7 +27,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
-import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
@@ -43,7 +43,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 {
 	private MessageSource msg;
 	private AttributeHandlerRegistryV8 registry;
-	private AttributeMetadataHandlerRegistry attrMetaHandlerReg;
+	private AttributeMetadataHandlerRegistryV8 attrMetaHandlerReg;
 	
 	private Binder<AttributeType> binder;
 	
@@ -62,13 +62,13 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 	private AttributeTypeSupport atSupport;
 	
 	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistryV8 registry,
-			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
+			AttributeMetadataHandlerRegistryV8 attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
 		this(msg, registry, null, attrMetaHandlerReg, atSupport);
 	}
 
 	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistryV8 registry, AttributeType toEdit,
-	                           AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
+	                           AttributeMetadataHandlerRegistryV8 attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
 		super();
 		this.msg = msg;

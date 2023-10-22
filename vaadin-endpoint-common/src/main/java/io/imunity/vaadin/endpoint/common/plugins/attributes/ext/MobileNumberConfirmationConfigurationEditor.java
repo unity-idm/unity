@@ -11,6 +11,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
+import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -53,29 +54,30 @@ class MobileNumberConfirmationConfigurationEditor extends FormLayout
 
 	private void initUI()
 	{
+		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
+		
 		binder = new Binder<>(MobileNumberConfirmationConfiguration.class);
 
 		CompatibleTemplatesComboBox msgTemplate = new CompatibleTemplatesComboBox(MobileNumberConfirmationTemplateDef.NAME, msgTemplateMan);
-		msgTemplate.setLabel(msg.getMessage(
-				msgPrefix + "confirmationMsgTemplate"));
 		msgTemplate.setRequired(true);
 		msgTemplate.setDefaultValue();
 
-		IntegerField validityTime = new IntegerField(msg.getMessage(msgPrefix + "validityTime"));
+		IntegerField validityTime = new IntegerField();
 		validityTime.setMin(1);
 		validityTime.setMax(60 * 24 * 365);
 		validityTime.setStep(1);
 		validityTime.setWidth(4, Unit.EM);
 
-		IntegerField codeLength = new IntegerField(msg.getMessage(msgPrefix + "codeLength"));
+		IntegerField codeLength = new IntegerField();
 		codeLength.setMin(1);
 		codeLength.setMax(50);
 		codeLength.setStep(1);
 		codeLength.setWidth(3, Unit.EM);
 
-		add(msgTemplate);
-		add(validityTime);
-		add(codeLength);
+		addFormItem(msgTemplate, msg.getMessage(msgPrefix + "confirmationMsgTemplate"));
+		addFormItem(validityTime, msg.getMessage(msgPrefix + "validityTime"));
+		addFormItem(codeLength, msg.getMessage(msgPrefix + "codeLength"));
 
 		binder.forField(msgTemplate).asRequired(msg.getMessage("fieldRequired"))
 				.bind("messageTemplate");

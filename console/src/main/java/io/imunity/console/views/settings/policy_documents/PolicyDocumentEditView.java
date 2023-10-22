@@ -92,7 +92,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		name.setPlaceholder(msg.getMessage("PolicyDocumentEditor.defaultName"));
 
 		LocaleTextFieldDetails displayedName = new LocaleTextFieldDetails(
-				msg.getEnabledLocales().values(), msg.getLocale(), "",
+				msg.getEnabledLocales().values(), msg.getLocale(), Optional.empty(),
 				locale -> toEdit.getDisplayedName().getOrDefault(locale, ""));
 		displayedName.setWidth(TEXT_FIELD_BIG.value());
 
@@ -197,7 +197,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 					.bind(PolicyDocumentEntry::getContent, PolicyDocumentEntry::setContent);
 		} else
 		{
-			content = new LocaleTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale(), "", locale -> "");
+			content = new LocaleTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale(), Optional.empty(), locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.url"));
 			content.setWidth(TEXT_FIELD_BIG.value());
 			contentBind = binder.forField(content).withValidator((val, context) ->

@@ -81,7 +81,7 @@ public class MembersView extends UpmanViewComponent
 
 	private TextField createSearchField()
 	{
-		return new SearchField(msg.getMessage("GroupMembersComponent.search"), this::reload);
+		return new SearchField(msg.getMessage("GroupMembersComponent.search"), s -> reload());
 	}
 
 	private HorizontalLayout createMenuAndSearchLayout(Component memberActionMenu, TextField textField)

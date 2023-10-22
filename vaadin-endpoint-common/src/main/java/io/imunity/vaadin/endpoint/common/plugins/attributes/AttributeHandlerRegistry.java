@@ -147,4 +147,18 @@ public class AttributeHandlerRegistry
 	{
 		return aTypeSupport;
 	}
+	
+	public Set<String> getSupportedSyntaxes()
+	{
+		return new HashSet<>(factoriesByType.keySet());
+	}
+	
+	public AttributeSyntaxEditor<?> getSyntaxEditor(String syntaxId, AttributeValueSyntax<?> syntax)
+	{
+		WebAttributeHandlerFactory factory = factoriesByType.get(syntaxId);
+		if (factory == null)
+			throw new IllegalArgumentException("Syntax " + syntaxId + " has no handler factory registered");
+		return factory.getSyntaxEditorComponent(syntax);
+	}
+
 }

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
@@ -65,13 +66,15 @@ class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new FormLayout();
+			fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
 			DoubleBoundEditor min = new DoubleBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.minUndef"),
-					msg.getMessage("NumericAttributeHandler.minE"),
+					Optional.empty(),
 					Double.MIN_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
 			DoubleBoundEditor max = new DoubleBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.maxUndef"),
-					msg.getMessage("NumericAttributeHandler.maxE"),
+					Optional.empty(),
 					Double.MAX_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
 
 			binder = new Binder<>(DoubleSyntaxBindingValue.class);
@@ -91,7 +94,8 @@ class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 			}
 			binder.setBean(value);
 
-			fl.add(min, max);
+			fl.addFormItem(min, msg.getMessage("NumericAttributeHandler.minE"));
+			fl.addFormItem(max, msg.getMessage("NumericAttributeHandler.maxE"));
 			return fl;
 		}
 

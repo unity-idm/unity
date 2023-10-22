@@ -25,6 +25,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 public class StringAttributeHandler extends TextOnlyAttributeHandler
@@ -69,23 +70,25 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			binder = new Binder<>(StringSyntaxBindingValue.class);
 
 			FormLayout fl = new FormLayout();
-
-			TextField min = new TextField(msg.getMessage("StringAttributeHandler.minLenE"));
-			fl.add(min);
+			fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		
+			
+			
+			TextField min = new TextField();
+			fl.addFormItem(min, msg.getMessage("StringAttributeHandler.minLenE"));
 
 			IntegerBoundEditor max = new IntegerBoundEditor(msg,
-					msg.getMessage("StringAttributeHandler.maxLenUndef"),
-					msg.getMessage("NumericAttributeHandler.maxE"),
+					msg.getMessage("StringAttributeHandler.maxLenUndef"), Optional.empty(),
 					Integer.MAX_VALUE, 0, null);
 
 			max.setMax(Integer.MAX_VALUE).setMin(1);
-			fl.add(max);
+			fl.addFormItem(max, msg.getMessage("NumericAttributeHandler.maxE"));
 
-			TextField regexp = new TextField(msg.getMessage("StringAttributeHandler.regexpE"));
-			fl.add(regexp);
+			TextField regexp = new TextField();
+			fl.addFormItem(regexp, msg.getMessage("StringAttributeHandler.regexpE"));
 
 			Checkbox editWithTextArea = new Checkbox(msg.getMessage("StringAttributeHandler.editWithTextAreaE"));
-			fl.add(editWithTextArea);
+			fl.addFormItem(editWithTextArea, msg.getMessage("StringAttributeHandler.editWithTextAreaE"));
 			
 			binder.forField(min).asRequired(msg.getMessage("fieldRequired"))
 					.withConverter(new StringToIntegerConverter(msg.getMessage(
@@ -112,7 +115,10 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 				value.setMin(0);
 				
 			}
+			try {
 			binder.setBean(value);
+			}catch (Exception e) {
+				e.printStackTrace();			}
 			return fl;
 		}
 
@@ -141,7 +147,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			}
 		}
 		
-		private static class StringSyntaxBindingValue extends MinMaxBindingValue<Integer>
+		public class StringSyntaxBindingValue extends MinMaxBindingValue<Integer>
 		{
 			private String regexp;
 			private boolean editWithTextArea;

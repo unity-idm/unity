@@ -4,14 +4,13 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-
-import pl.edu.icm.unity.base.message.MessageSource;
-
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+
+import com.vaadin.flow.component.icon.VaadinIcon;
+
+import pl.edu.icm.unity.base.message.MessageSource;
 
 public class SingleActionHandler<T>
 {		
@@ -23,7 +22,7 @@ public class SingleActionHandler<T>
 	private Predicate<Set<T>> disabledCompositePredicate;
 	private Consumer<Set<T>> actionHandler;
 	private String caption;
-	private Icon icon;
+	private VaadinIcon icon;
 	private boolean forceDisabled = false;
 	
 	private SingleActionHandler()
@@ -52,7 +51,7 @@ public class SingleActionHandler<T>
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("add"))
-				.withIcon(VaadinIcon.PLUS_CIRCLE_O.create())
+				.withIcon(VaadinIcon.PLUS_CIRCLE_O)
 				.dontRequireTarget();
 	}
 	
@@ -66,7 +65,7 @@ public class SingleActionHandler<T>
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("refresh"))
-				.withIcon(VaadinIcon.REFRESH.create())
+				.withIcon(VaadinIcon.REFRESH)
 				.dontRequireTarget();
 	}
 
@@ -80,7 +79,7 @@ public class SingleActionHandler<T>
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("remove"))
-				.withIcon(VaadinIcon.TRASH.create())
+				.withIcon(VaadinIcon.TRASH)
 				.multiTarget();
 	}
 
@@ -94,7 +93,7 @@ public class SingleActionHandler<T>
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("edit"))
-				.withIcon(VaadinIcon.EDIT.create());
+				.withIcon(VaadinIcon.EDIT);
 	}
 	
 	/**
@@ -107,7 +106,7 @@ public class SingleActionHandler<T>
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("showDetails"))
-				.withIcon(VaadinIcon.INFO.create());
+				.withIcon(VaadinIcon.INFO);
 	}
 	
 	/**
@@ -120,7 +119,7 @@ public class SingleActionHandler<T>
 	{
 		return new Builder<T>()
 				.withCaption(msg.getMessage("copy"))
-				.withIcon(VaadinIcon.COPY_O.create());
+				.withIcon(VaadinIcon.COPY_O);
 	}
 	
 	public static class Builder<T>
@@ -138,7 +137,7 @@ public class SingleActionHandler<T>
 			return this;
 		}
 
-		public Builder<T> withIcon(Icon icon)
+		public Builder<T> withIcon(VaadinIcon icon)
 		{
 			this.obj.icon = icon;
 			return this;
@@ -206,7 +205,7 @@ public class SingleActionHandler<T>
 		return caption;
 	}
 
-	public Icon getIcon()
+	public VaadinIcon getIcon()
 	{
 		return icon;
 	}

@@ -4,17 +4,19 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
+import java.util.Optional;
+import java.util.function.Supplier;
+
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.data.binder.Binder;
+
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.stdext.attr.BaseImageAttributeSyntax;
-
-import java.util.function.Supplier;
 
 class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 {
@@ -36,18 +38,21 @@ class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 	@Override
 	public Component getEditor()
 	{
-		VerticalLayout fl = new VerticalLayout();
+		FormLayout fl = new FormLayout();
+		fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
+		
 		IntegerBoundEditor maxWidth = new IntegerBoundEditor(msg,
 				msg.getMessage("ImageAttributeHandler.maxWidthUnlimited"),
-				msg.getMessage("ImageAttributeHandler.maxWidthE"),
+				Optional.empty(),
 				Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
 		IntegerBoundEditor maxHeight = new IntegerBoundEditor(msg,
 				msg.getMessage("ImageAttributeHandler.maxHeightUnlimited"),
-				msg.getMessage("ImageAttributeHandler.maxHeightE"),
+				Optional.empty(),
 				Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
 		IntegerBoundEditor maxSize = new IntegerBoundEditor(msg,
 				msg.getMessage("ImageAttributeHandler.maxSizeUnlimited"),
-				msg.getMessage("ImageAttributeHandler.maxSizeE"),
+				Optional.empty(),
 				Integer.MAX_VALUE, 100, Integer.MAX_VALUE);
 
 		binder = new Binder<>(ImageSyntaxBindingValue.class);
@@ -55,8 +60,10 @@ class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 		maxHeight.configureBinding(binder, "maxHeight");
 		maxSize.configureBinding(binder, "maxSize");
 
-		fl.add(maxWidth, maxHeight, maxSize);
-
+		fl.addFormItem(maxWidth,msg.getMessage("ImageAttributeHandler.maxWidthE") );
+		fl.addFormItem(maxHeight,msg.getMessage("ImageAttributeHandler.maxHeightE"));
+		fl.addFormItem(maxSize,msg.getMessage("ImageAttributeHandler.maxSizeE"));
+		
 		ImageSyntaxBindingValue value = new ImageSyntaxBindingValue();
 		if (initial != null)
 		{

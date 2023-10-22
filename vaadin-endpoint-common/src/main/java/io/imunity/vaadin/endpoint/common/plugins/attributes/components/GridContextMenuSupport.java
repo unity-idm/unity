@@ -43,7 +43,7 @@ public class GridContextMenuSupport<T>
 		{
 			if (handler.isVisible(selection))
 			{
-				contextMenu.addItem(new Div(new Span(handler.getCaption()), handler.getIcon()),
+				contextMenu.addItem(new Div(new Span(handler.getCaption()), handler.getIcon().create()),
 						(mi) -> handler.handle(selection))
 					.setEnabled(handler.isEnabled(selection));
 			}

@@ -11,6 +11,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
+import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msg_template.confirm.EmailConfirmationTemplateDef;
@@ -36,20 +37,20 @@ class EmailConfirmationConfigurationEditor extends FormLayout
 
 	private void initUI()
 	{
+		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		
 		binder = new Binder<>(EmailConfirmationConfiguration.class);
 
 		CompatibleTemplatesComboBox msgTemplate = new CompatibleTemplatesComboBox(EmailConfirmationTemplateDef.NAME, msgTemplateMan);
-		msgTemplate.setLabel(msg.getMessage(
-				"EmailConfirmationConfiguration.confirmationMsgTemplate"));
 		msgTemplate.setTooltipText(msg.getMessage(
 				"EmailConfirmationConfiguration.confirmationMsgTemplateDesc"));
 		msgTemplate.setRequired(false);
 
-		TextField validityTime = new TextField(
-				msg.getMessage("EmailConfirmationConfiguration.validityTime"));
+		TextField validityTime = new TextField();
 
-		add(msgTemplate);
-		add(validityTime);
+		addFormItem(msgTemplate, msg.getMessage(
+				"EmailConfirmationConfiguration.confirmationMsgTemplate"));
+		addFormItem(validityTime, msg.getMessage("EmailConfirmationConfiguration.validityTime"));
 
 		binder.forField(msgTemplate).bind("messageTemplate");
 		binder.forField(validityTime).asRequired(msg.getMessage("fieldRequired"))

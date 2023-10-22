@@ -18,6 +18,7 @@ public class ActionIconBuilder
 	private Class<? extends UnityViewComponent> navigationTarget;
 	private String navigationParameter;
 	private Runnable listener;
+	private boolean visible = true;
 
 	public Icon build()
 	{
@@ -26,12 +27,13 @@ public class ActionIconBuilder
 		if(navigationTarget != null && navigationParameter != null)
 			targetIcon.addClickListener(e -> UI.getCurrent().navigate(navigationTarget, navigationParameter));
 		if(listener != null)
-			targetIcon.addClickListener(e -> listener.run());
+			targetIcon.addClickListener(e -> run(listener));
 		if(enabled)
 			targetIcon.setClassName("pointer");
 		else
 			targetIcon.setClassName("disabled-icon");
 		targetIcon.getElement().setAttribute("onclick", "event.stopPropagation();");
+		targetIcon.setVisible(visible);
 		return targetIcon;
 	}
 
@@ -39,6 +41,12 @@ public class ActionIconBuilder
 	{
 		this.icon = icon;
 		return this;
+	}
+	
+	private void run(Runnable action)
+	{
+		if (!enabled)
+			action.run();
 	}
 
 	public ActionIconBuilder tooltipText(String tooltipText)
@@ -63,6 +71,18 @@ public class ActionIconBuilder
 	public ActionIconBuilder disabled()
 	{
 		this.enabled = false;
+		return this;
+	}
+	
+	public ActionIconBuilder setEnable(boolean enable)
+	{
+		this.enabled = enable;
+		return this;
+	}
+
+	public ActionIconBuilder setVisible(boolean visible)
+	{
+		this.visible = visible;
 		return this;
 	}
 }

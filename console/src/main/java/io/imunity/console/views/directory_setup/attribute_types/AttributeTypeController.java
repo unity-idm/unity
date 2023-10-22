@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.directorySetup.attributeTypes;
+package io.imunity.console.views.directory_setup.attribute_types;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -18,14 +18,14 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.server.StreamResource;
 
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
-import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistryV8;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -34,35 +34,36 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-@Component("AttributeTypeControllerV8")
+@Component
 class AttributeTypeController
 {
-	private MessageSource msg;
-	private AttributeTypeManagement attrTypeMan;
-	private AttributeHandlerRegistryV8 attrHandlerRegistry;
-	private AttributeMetadataHandlerRegistryV8 attrMetaHandlerRegistry;
-	private AttributeTypeSupport atSupport;
-	private UnityServerConfiguration serverConfig;
+	private final MessageSource msg;
+	private final AttributeTypeManagement attrTypeMan;
+	private final AttributeHandlerRegistry attrHandlerRegistry;
+	private final AttributeMetadataHandlerRegistry attrMetaHandlerRegistry;
+	private final AttributeTypeSupport atSupport;
+	private final NotificationPresenter notificationPresenter;
 
 	@Autowired
 	AttributeTypeController(MessageSource msg, AttributeTypeManagement attrTypeMan,
-			AttributeHandlerRegistryV8 attrHandlerRegistry,
-			AttributeMetadataHandlerRegistryV8 attrMetaHandlerRegistry, AttributeTypeSupport atSupport,
-			UnityServerConfiguration serverConfig)
+			AttributeHandlerRegistry attrHandlerRegistry, AttributeMetadataHandlerRegistry attrMetaHandlerRegistry,
+			AttributeTypeSupport atSupport, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.attrTypeMan = attrTypeMan;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.attrMetaHandlerRegistry = attrMetaHandlerRegistry;
 		this.atSupport = atSupport;
-		this.serverConfig = serverConfig;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	Collection<AttributeTypeEntry> getAttributeTypes() throws ControllerException
 	{
 		try
 		{
-			return attrTypeMan.getAttributeTypes().stream().map(at -> new AttributeTypeEntry(msg, at))
+			return attrTypeMan.getAttributeTypes()
+					.stream()
+					.map(at -> new AttributeTypeEntry(msg, at))
 					.collect(Collectors.toList());
 		} catch (Exception e)
 		{
@@ -78,17 +79,17 @@ class AttributeTypeController
 		{
 			if (items.size() == 1)
 			{
-				AttributeType item = items.iterator().next().attributeType;
+				AttributeType item = items.iterator()
+						.next().attributeType;
 				byte[] content = Constants.MAPPER.writeValueAsBytes(item);
-				resource = new StreamResource(() -> new ByteArrayInputStream(content),
-						item.getName() + ".json");
+				resource = new StreamResource(() -> new ByteArrayInputStream(content), item.getName() + ".json");
 			} else
 			{
 
-				byte[] content = Constants.MAPPER.writeValueAsBytes(
-						items.stream().map(at -> at.attributeType).collect(Collectors.toSet()));
-				resource = new StreamResource(() -> new ByteArrayInputStream(content),
-						"attributeTypes.json");
+				byte[] content = Constants.MAPPER.writeValueAsBytes(items.stream()
+						.map(at -> at.attributeType)
+						.collect(Collectors.toSet()));
+				resource = new StreamResource(() -> new ByteArrayInputStream(content), "attributeTypes.json");
 			}
 		} catch (Exception e)
 		{
@@ -106,8 +107,7 @@ class AttributeTypeController
 			attrTypeMan.addAttributeType(at);
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("AttributeTypeController.addError", at.getName()),
-					e);
+			throw new ControllerException(msg.getMessage("AttributeTypeController.addError", at.getName()), e);
 		}
 
 	}
@@ -119,8 +119,7 @@ class AttributeTypeController
 			attrTypeMan.updateAttributeType(at);
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("AttributeTypeController.updateError", at.getName()), e);
+			throw new ControllerException(msg.getMessage("AttributeTypeController.updateError", at.getName()), e);
 		}
 
 	}
@@ -132,8 +131,7 @@ class AttributeTypeController
 			return attrTypeMan.getAttributeType(attributeTypeName);
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("AttributeTypeController.getError", attributeTypeName), e);
+			throw new ControllerException(msg.getMessage("AttributeTypeController.getError", attributeTypeName), e);
 		}
 	}
 
@@ -165,7 +163,8 @@ class AttributeTypeController
 	{
 		try
 		{
-			Set<String> existing = attrTypeMan.getAttributeTypesAsMap().keySet();
+			Set<String> existing = attrTypeMan.getAttributeTypesAsMap()
+					.keySet();
 			for (AttributeType at : toMerge)
 			{
 
@@ -179,8 +178,7 @@ class AttributeTypeController
 			}
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("AttributeTypeController.mergeAttributeTypesError"), e);
+			throw new ControllerException(msg.getMessage("AttributeTypeController.mergeAttributeTypesError"), e);
 		}
 	}
 
@@ -188,12 +186,12 @@ class AttributeTypeController
 	{
 		try
 		{
-			return new ImportAttributeTypeEditor(msg, getAttributeTypes().stream().map(a -> a.attributeType)
-					.collect(Collectors.toSet()), serverConfig, atSupport);
+			return new ImportAttributeTypeEditor(msg, getAttributeTypes().stream()
+					.map(a -> a.attributeType)
+					.collect(Collectors.toSet()), atSupport, notificationPresenter);
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("AttributeTypeController.getImportEditorError"),
-					e);
+			throw new ControllerException(msg.getMessage("AttributeTypeController.getImportEditorError"), e);
 		}
 	}
 
@@ -201,18 +199,18 @@ class AttributeTypeController
 	{
 
 		return attributeType == null
-				? new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType,
-						attrMetaHandlerRegistry, atSupport)
+				? new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType, attrMetaHandlerRegistry,
+						atSupport, notificationPresenter)
 				: attributeType.isTypeImmutable() ? new ImmutableAttributeTypeEditor(msg, attributeType)
-						: new RegularAttributeTypeEditor(msg, attrHandlerRegistry,
-								attributeType, attrMetaHandlerRegistry, atSupport);
+						: new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType,
+								attrMetaHandlerRegistry, atSupport, notificationPresenter);
 	}
 
 	RegularAttributeTypeEditor getRegularAttributeTypeEditor(AttributeType attributeType)
 	{
 
 		return new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType, attrMetaHandlerRegistry,
-				atSupport);
+				atSupport, notificationPresenter);
 
 	}
 }

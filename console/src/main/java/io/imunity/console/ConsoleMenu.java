@@ -22,7 +22,7 @@ import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.console.views.authentication.realms.RealmsView;
 import io.imunity.console.views.directory_setup.attribute_classes.AttributeClassesEditView;
 import io.imunity.console.views.directory_setup.attribute_classes.AttributeClassesView;
-import io.imunity.console.views.directory_setup.AttributeTypesView;
+import io.imunity.console.views.directory_setup.attribute_types.AttributeTypesView;
 import io.imunity.console.views.directory_setup.automation.AutomationEditView;
 import io.imunity.console.views.directory_setup.automation.AutomationRunView;
 import io.imunity.console.views.directory_setup.automation.AutomationView;

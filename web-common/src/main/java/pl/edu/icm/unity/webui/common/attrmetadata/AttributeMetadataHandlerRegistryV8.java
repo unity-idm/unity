@@ -19,13 +19,13 @@ import org.springframework.stereotype.Component;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeMetadataHandlerRegistry
+public class AttributeMetadataHandlerRegistryV8
 {
 	private Map<String, WebAttributeMetadataHandlerFactory> factoriesByType = 
 			new HashMap<String, WebAttributeMetadataHandlerFactory>();
 	
 	@Autowired
-	public AttributeMetadataHandlerRegistry(List<WebAttributeMetadataHandlerFactory> factories)
+	public AttributeMetadataHandlerRegistryV8(List<WebAttributeMetadataHandlerFactory> factories)
 	{
 		for (WebAttributeMetadataHandlerFactory factory: factories)
 			factoriesByType.put(factory.getSupportedMetadata(), factory);

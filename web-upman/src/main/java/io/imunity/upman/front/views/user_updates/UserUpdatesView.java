@@ -74,7 +74,7 @@ public class UserUpdatesView extends UpmanViewComponent
 
 	private TextField createSearchField()
 	{
-		return new SearchField(msg.getMessage("Search"), this::loadData);
+		return new SearchField(msg.getMessage("Search"),s -> loadData());
 	}
 
 	private HorizontalLayout createMenuAndSearchLayout(Component memberActionMenu, TextField textField)

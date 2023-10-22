@@ -3,11 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.directory_setup.identity_types;
+package io.imunity.console.views.directory_setup.attribute_types;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,95 +21,96 @@ import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.WebSession;
 import jakarta.annotation.security.PermitAll;
-import pl.edu.icm.unity.base.identity.IdentityType;
+import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Edit identityType view
+ * Edit attribute type view
  * 
  * @author P.Piernik
  *
  */
 @PermitAll
-@Route(value = "/identity-type/edit", layout = ConsoleMenu.class)
-class EditIdentityTypeView extends ConsoleViewComponent
+@Route(value = "/attribute-type/edit", layout = ConsoleMenu.class)
+class EditAttributeTypeView extends ConsoleViewComponent
 {
-	private final IdentityTypesController controller;
+	private final AttributeTypeController controller;
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
-
-	private IdentityTypeEditor editor;
+	
 	private BreadCrumbParameter breadCrumbParameter;
+	private AttributeTypeEditor editor;
 
-	EditIdentityTypeView(IdentityTypesController controller, MessageSource msg, NotificationPresenter notificationPresenter)
+
+	@Autowired
+	EditAttributeTypeView(AttributeTypeController controller, MessageSource msg,
+			NotificationPresenter notificationPresenter)
 	{
 		this.controller = controller;
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
-		
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String identityTypeId)
+	public void setParameter(BeforeEvent event, @OptionalParameter String attributeTypeName)
 	{
 		getContent().removeAll();
 
-		IdentityType idType;
+		AttributeType at;
 		try
 		{
-			idType = controller.getIdentityType(identityTypeId);
-			breadCrumbParameter = new BreadCrumbParameter(identityTypeId, identityTypeId);
+			at = controller.getAttributeType(attributeTypeName);
+			breadCrumbParameter = new BreadCrumbParameter(attributeTypeName, attributeTypeName);
+			
 		} catch (ControllerException e)
 		{
-			notificationPresenter.showError(e.getCaption(), e.getCause().getMessage());
+			notificationPresenter.showError(e.getCaption(), e.getCause()
+					.getMessage());
 			return;
 		}
 
-		initUI(idType);
+		initUI(at);
 	}
-
+	
 	@Override
 	public Optional<BreadCrumbParameter> getDynamicParameter()
 	{
 		return Optional.ofNullable(breadCrumbParameter);
 	}
-
-	public void initUI(IdentityType type)
+	
+	private void initUI(AttributeType at)
 	{
-		this.editor = controller.getEditor(type);
-		getContent().add(
-				new VerticalLayout(editor, createActionLayout(msg, true, IdentityTypesView.class, this::onConfirm)));
+
+		editor = controller.getEditor(at);
+
+		getContent().add(new VerticalLayout(editor.getComponent(),
+				createActionLayout(msg, true, AttributeTypesView.class, this::onConfirm)));
 	}
 
 	private void onConfirm()
 	{
-		IdentityType idType;
+		AttributeType at;
 		try
 		{
-			idType = editor.getIdentityType();
-		} catch (FormValidationException e)
+			at = editor.getAttributeType();
+		} catch (Exception e)
 		{
 			return;
 		}
 
-		if (idType == null)
-			return;
-
 		try
 		{
-			controller.updateIdentityType(idType, WebSession.getCurrent()
-					.getEventBus());
+			controller.updateAttributeType(at);
 		} catch (ControllerException e)
 		{
 			notificationPresenter.showError(e.getCaption(), e.getCause().getMessage());
 			return;
 		}
-		UI.getCurrent()
-				.navigate(IdentityTypesView.class);
-	}
 
+		UI.getCurrent()
+				.navigate(AttributeTypesView.class);
+
+	}
 }

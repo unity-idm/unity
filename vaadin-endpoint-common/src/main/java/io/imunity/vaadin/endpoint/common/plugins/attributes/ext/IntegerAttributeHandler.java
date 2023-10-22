@@ -21,6 +21,7 @@ import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 class IntegerAttributeHandler extends TextOnlyAttributeHandler
@@ -65,16 +66,14 @@ class IntegerAttributeHandler extends TextOnlyAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new FormLayout();
-			LongBoundEditor min = new LongBoundEditor(msg,
-					msg.getMessage("NumericAttributeHandler.minUndef"),
-					msg.getMessage("NumericAttributeHandler.minE"),
-					Long.MIN_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
-			LongBoundEditor max = new LongBoundEditor(msg,
-					msg.getMessage("NumericAttributeHandler.maxUndef"),
-					msg.getMessage("NumericAttributeHandler.maxE"),
-					Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
+			fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-			binder = new Binder<>(LongSyntaxBindingValue.class);		
+			LongBoundEditor min = new LongBoundEditor(msg, msg.getMessage("NumericAttributeHandler.minUndef"),
+					Optional.empty(), Long.MIN_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
+			LongBoundEditor max = new LongBoundEditor(msg, msg.getMessage("NumericAttributeHandler.maxUndef"),
+					Optional.empty(), Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
+
+			binder = new Binder<>(LongSyntaxBindingValue.class);
 			max.configureBinding(binder, "max");
 			min.configureBinding(binder, "min");
 
@@ -90,7 +89,9 @@ class IntegerAttributeHandler extends TextOnlyAttributeHandler
 				value.setMin(0L);
 			}
 			binder.setBean(value);
-			fl.add(min, max);
+			fl.addFormItem(min, msg.getMessage("NumericAttributeHandler.minE"));
+			fl.addFormItem(max, msg.getMessage("NumericAttributeHandler.maxE"));
+
 			return fl;
 		}
 	

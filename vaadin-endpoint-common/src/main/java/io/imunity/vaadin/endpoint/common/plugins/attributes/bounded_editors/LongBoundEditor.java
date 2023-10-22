@@ -4,6 +4,8 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors;
 
+import java.util.Optional;
+
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.LongRangeValidator;
@@ -14,7 +16,7 @@ import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 public class LongBoundEditor extends AbstractBoundEditor<Long>
 {
 
-	public LongBoundEditor(MessageSource msg, String labelUnlimited, String labelLimit,
+	public LongBoundEditor(MessageSource msg, String labelUnlimited, Optional<String> labelLimit,
 			Long bound, Long min, Long max)
 	{
 		super(msg, labelUnlimited, labelLimit, bound, min, max);

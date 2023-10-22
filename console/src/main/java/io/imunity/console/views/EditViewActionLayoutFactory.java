@@ -27,4 +27,19 @@ public class EditViewActionLayoutFactory
 		buttonsLayout.setClassName("edit-view-action-buttons-layout");
 		return buttonsLayout;
 	}
+	
+	public static HorizontalLayout createActionLayout(MessageSource msg, String actionButton,
+			Class<? extends ConsoleViewComponent> closeRedirectClass, Runnable onConfirm)
+	{
+		Button cancelButton = new Button(msg.getMessage("cancel"));
+		cancelButton.addClickListener(event -> UI.getCurrent().navigate(closeRedirectClass));
+		cancelButton.setWidthFull();
+		Button updateButton = new Button(actionButton);
+		updateButton.addClickListener(event -> onConfirm.run());
+		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		updateButton.setWidthFull();
+		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
+		buttonsLayout.setClassName("edit-view-action-buttons-layout");
+		return buttonsLayout;
+	}
 }

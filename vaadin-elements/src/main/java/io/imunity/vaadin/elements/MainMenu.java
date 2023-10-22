@@ -3,17 +3,16 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.settings.message_templates;
+package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.Component;
-import io.imunity.vaadin.elements.MenuButton;
 
 import java.util.Set;
 
-class MainMenu
+public class MainMenu
 {
-	final Component menu;
-	final Set<MenuButton> menuButtons;
+	public final Component menu;
+	public final Set<MenuButton> menuButtons;
 
 	public MainMenu(Component menu, Set<MenuButton> menuButtons)
 	{
@@ -21,7 +20,7 @@ class MainMenu
 		this.menuButtons = Set.copyOf(menuButtons);
 	}
 
-	void setEnabled(boolean value)
+	public void setEnabled(boolean value)
 	{
 		menuButtons.forEach(menuButton -> menuButton.setEnabled(value));
 	}
