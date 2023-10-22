@@ -148,6 +148,8 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		metaEditor.setMargin(true);
 		Panel metaPanel = new Panel(Optional.of(msg.getMessage("AttributeType.metadata")));
 		metaPanel.add(metaEditor);
+		metaPanel.setMargin(false);
+		
 		addFormItem(metaPanel, msg.getMessage("AttributeType.metadata"));
 
 		binder = new Binder<>(AttributeType.class);

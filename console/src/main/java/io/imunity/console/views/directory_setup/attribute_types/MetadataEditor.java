@@ -53,6 +53,7 @@ class MetadataEditor extends VerticalLayout
 	private void initUI()
 	{
 		setMargin(false);
+		setPadding(false);
 		Button addNew = new Button(msg.getMessage("MetadataEditor.addButton"));
 		addNew.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
 		
@@ -123,6 +124,7 @@ class MetadataEditor extends VerticalLayout
 			this.handler = handler;
 			this.value = value;
 			setMargin(false);
+			setPadding(false);
 			Button edit = new Button();
 			edit.setIcon(VaadinIcon.EDIT.create());
 			edit.setTooltipText(msg.getMessage("MetadataEditor.editButton"));
@@ -189,8 +191,10 @@ class MetadataEditor extends VerticalLayout
 		{
 			FormLayout main = new FormLayout();
 			main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-
+			main.addClassName("big-vaadin-form-item");
+			
 			editorPanel = new Panel(Optional.empty());
+			editorPanel.setMargin(false);
 			if (initialKey != null)
 			{
 				NativeLabel info = new NativeLabel(initialKey);

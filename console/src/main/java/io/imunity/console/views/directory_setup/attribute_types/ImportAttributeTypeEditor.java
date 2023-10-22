@@ -76,7 +76,15 @@ class ImportAttributeTypeEditor extends VerticalLayout
 		FormLayout mainSelection = new FormLayout();
 		mainSelection.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		mainSelection.setWidthFull();
-
+		
+		FormLayout predefinedSelection = new FormLayout();
+		predefinedSelection.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		predefinedSelection.setWidthFull();
+		
+		FormLayout uploadLayout = new FormLayout();
+		uploadLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		uploadLayout.setWidthFull();
+		
 		mode = new Checkbox();
 		source = new ComboBox<>();
 		List<SourceType> sources = new ArrayList<>();
@@ -135,14 +143,18 @@ class ImportAttributeTypeEditor extends VerticalLayout
 					.equals(SourceType.File))
 			{
 				upload.setVisible(true);
+				uploadLayout.setVisible(true);
 				fileUploaded.setVisible(true);
 				predefinedFiles.setVisible(false);
+				predefinedSelection.setVisible(false);
 				selectionTable.setInput(Collections.emptyList());
 			} else
 			{
 				upload.setVisible(false);
+				uploadLayout.setVisible(false);
 				fileUploaded.setVisible(false);
 				predefinedFiles.setVisible(true);
+				predefinedSelection.setVisible(true);
 				selectionTable.setInput(Collections.emptyList());
 				reloadTableFromPredefinedSet();
 			}
@@ -157,11 +169,10 @@ class ImportAttributeTypeEditor extends VerticalLayout
 
 		mainSelection.addFormItem(mode, msg.getMessage("ImportAttributeTypeEditor.overwrite"));
 		mainSelection.addFormItem(source, msg.getMessage("ImportAttributeTypeEditor.source"));
-		mainSelection.addFormItem(upload, "");
-		mainSelection.addFormItem(predefinedFiles, msg.getMessage("ImportAttributeTypeEditor.source.predefinedSet"));
-
+		uploadLayout.addFormItem(upload, "");
+		predefinedSelection.addFormItem(predefinedFiles, msg.getMessage("ImportAttributeTypeEditor.source.predefinedSet"));
 		removeAll();
-		add(mainSelection, filterExisting, selectionTable);
+		add(mainSelection, predefinedSelection, uploadLayout,  filterExisting, selectionTable);
 	}
 
 	private void updateFilter(boolean add)
