@@ -4,6 +4,7 @@
 		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -34,6 +35,7 @@
 		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -64,6 +66,7 @@
 		"maxElements": 1,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -94,6 +97,7 @@
 		"maxElements": 1,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -124,6 +128,7 @@
 		"maxElements": 1,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -154,6 +159,7 @@
 		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -184,6 +190,7 @@
 		"maxElements": 1,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -214,6 +221,7 @@
 		"maxElements": 1,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -244,6 +252,7 @@
 		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -274,6 +283,7 @@
 		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
@@ -304,6 +314,7 @@
 		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
+		"global": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
