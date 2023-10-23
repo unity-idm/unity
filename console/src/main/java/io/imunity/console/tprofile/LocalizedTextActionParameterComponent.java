@@ -6,7 +6,7 @@ package io.imunity.console.tprofile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.flow.data.binder.Binder;
-import io.imunity.vaadin.elements.LocaleTextFieldDetails;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -17,11 +17,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class LocaleTextActionParameterComponent extends LocaleTextFieldDetails implements ActionParameterComponent
+public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDetails implements ActionParameterComponent
 {
 	private final Binder<StringValueBean> binder;
 	
-	public LocaleTextActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
+	public LocalizedTextActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
 		super(msg.getEnabledLocales().values(), msg.getLocale(), Optional.empty(), locale -> "");
 		setLabel(desc.getName());

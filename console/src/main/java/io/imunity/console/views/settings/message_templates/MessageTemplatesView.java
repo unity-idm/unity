@@ -42,7 +42,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.settings.messageTemplates")
+@Breadcrumb(key = "WebConsoleMenu.settings.messageTemplates", parent = "WebConsoleMenu.settings")
 @Route(value = "/message-templates", layout = ConsoleMenu.class)
 public class MessageTemplatesView extends ConsoleViewComponent
 {

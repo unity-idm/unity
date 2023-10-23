@@ -36,7 +36,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.settings.policyDocuments")
+@Breadcrumb(key = "WebConsoleMenu.settings.policyDocuments", parent = "WebConsoleMenu.settings")
 @Route(value = "/policy-documents", layout = ConsoleMenu.class)
 public class PolicyDocumentsView extends ConsoleViewComponent
 {

@@ -22,8 +22,8 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
-import io.imunity.vaadin.elements.LocaleTextAreaDetails;
-import io.imunity.vaadin.elements.LocaleTextFieldDetails;
+import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.Panel;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
@@ -53,8 +53,8 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 	private Binder<AttributeType> binder;
 
 	private TextField name;
-	private LocaleTextFieldDetails displayedName;
-	private LocaleTextAreaDetails typeDescription;
+	private LocalizedTextFieldDetails displayedName;
+	private LocalizedTextAreaDetails typeDescription;
 	private TextField min;
 	private IntegerBoundEditor max;
 	private Checkbox uniqueVals;
@@ -97,11 +97,11 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 			name.setReadOnly(true);
 		addFormItem(name, msg.getMessage("AttributeType.name"));
 
-		displayedName = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
+		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
 		addFormItem(displayedName, msg.getMessage("AttributeType.displayedName"));
 
-		typeDescription = new LocaleTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
+		typeDescription = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
 
 		addFormItem(typeDescription, msg.getMessage("AttributeType.description"));

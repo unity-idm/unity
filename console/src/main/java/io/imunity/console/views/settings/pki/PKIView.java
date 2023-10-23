@@ -34,7 +34,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.settings.publicKeyInfrastructure")
+@Breadcrumb(key = "WebConsoleMenu.settings.publicKeyInfrastructure", parent = "WebConsoleMenu.settings")
 @Route(value = "/pki", layout = ConsoleMenu.class)
 public class PKIView extends ConsoleViewComponent
 {

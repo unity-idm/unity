@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 import static io.imunity.vaadin.elements.VaadinClassNames.EMPTY_DETAILS_ICON;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
-public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
+public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>>
 {
-	public Map<Locale, LocaleTextArea> fields = new LinkedHashMap<>();
+	public Map<Locale, LocalizedTextArea> fields = new LinkedHashMap<>();
 
-	public LocaleTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale, Optional<String> label, Function<Locale, String> valueGenerator)
+	public LocalizedTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale, Optional<String> label, Function<Locale, String> valueGenerator)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
@@ -50,10 +50,9 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 			content.setVisible(false);
 		});
 
-		LocaleTextArea defaultField = new LocaleTextArea(currentLocale);
+		LocalizedTextArea defaultField = new LocalizedTextArea(currentLocale);
 		defaultField.setValue(valueGenerator.apply(currentLocale));
-		if (label.isPresent())
-			defaultField.setLabel(label.get());
+		label.ifPresent(defaultField::setLabel);
 		fields.put(currentLocale, defaultField);
 
 		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
@@ -65,7 +64,7 @@ public class LocaleTextAreaDetails extends CustomField<Map<Locale, String>>
 				.filter(locale -> !currentLocale.equals(locale))
 				.forEach(locale ->
 				{
-					LocaleTextArea localeTextField = new LocaleTextArea(locale);
+					LocalizedTextArea localeTextField = new LocalizedTextArea(locale);
 					localeTextField.setValue(valueGenerator.apply(locale));
 					content.add(localeTextField);
 					fields.put(locale, localeTextField);

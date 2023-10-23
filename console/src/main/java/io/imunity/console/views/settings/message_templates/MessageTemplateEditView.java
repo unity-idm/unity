@@ -152,7 +152,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 			messageBinder.validate();
 		});
 
-		LocaleTextFieldDetails subject = new LocaleTextFieldDetails(
+		LocalizedTextFieldDetails subject = new LocalizedTextFieldDetails(
 				msg.getEnabledLocales().values(),
 				msg.getLocale(),
 				Optional.empty(),
@@ -165,7 +165,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		messageType.setItems(MessageType.values());
 		messageType.setItemLabelGenerator(Enum::name);
 
-		LocaleTextAreaDetails body = new LocaleTextAreaDetails(
+		LocalizedTextAreaDetails body = new LocalizedTextAreaDetails(
 				msg.getEnabledLocales().values(),
 				msg.getLocale(),
 				Optional.empty(),
@@ -192,8 +192,8 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		setBean(toEdit, name, consumers);
 	}
 
-	private FormLayout createFormLayout(TextField name, TextField description, LocaleTextFieldDetails subject,
-			ComboBox<MessageType> messageType, LocaleTextAreaDetails body)
+	private FormLayout createFormLayout(TextField name, TextField description, LocalizedTextFieldDetails subject,
+			ComboBox<MessageType> messageType, LocalizedTextAreaDetails body)
 	{
 		FormLayout formLayout = new FormLayout();
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
@@ -247,8 +247,8 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		}
 	}
 
-	private void configBinder(TextField name, TextField description, LocaleTextFieldDetails subject,
-			ComboBox<MessageType> messageType, LocaleTextAreaDetails body)
+	private void configBinder(TextField name, TextField description, LocalizedTextFieldDetails subject,
+			ComboBox<MessageType> messageType, LocalizedTextAreaDetails body)
 	{
 		binder = new Binder<>(MessageTemplate.class);
 		binder.forField(name)

@@ -5,19 +5,19 @@
 
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.util.Locale;
 
-public class LocaleTextArea extends TextArea
+public class LocalizedTextField extends TextField
 {
 	public final Locale locale;
 
-	public LocaleTextArea(Locale locale)
+	public LocalizedTextField(Locale locale)
 	{
 		this.locale = locale;
-		setMaxHeight("20em");
+		addToSuffix();
 		setValueChangeMode(ValueChangeMode.EAGER);
 		setSuffixComponent(new FlagIcon(locale.getLanguage()));
 	}

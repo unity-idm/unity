@@ -23,7 +23,7 @@ import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.console.components.LocalizedRichTextEditorDetails;
-import io.imunity.vaadin.elements.LocaleTextFieldDetails;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
@@ -91,7 +91,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		TextField name = new TextField();
 		name.setPlaceholder(msg.getMessage("PolicyDocumentEditor.defaultName"));
 
-		LocaleTextFieldDetails displayedName = new LocaleTextFieldDetails(
+		LocalizedTextFieldDetails displayedName = new LocalizedTextFieldDetails(
 				msg.getEnabledLocales().values(), msg.getLocale(), Optional.empty(),
 				locale -> toEdit.getDisplayedName().getOrDefault(locale, ""));
 		displayedName.setWidth(TEXT_FIELD_BIG.value());
@@ -113,7 +113,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		content.setValue(toEdit.content);
 	}
 
-	private void initFormLayout(TextField name, LocaleTextFieldDetails displayedName, Checkbox optional, Span revision,
+	private void initFormLayout(TextField name, LocalizedTextFieldDetails displayedName, Checkbox optional, Span revision,
 			ComboBox<PolicyDocumentContentType> type)
 	{
 		mainLayout = new FormLayout();
@@ -128,7 +128,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		mainLayout.addFormItem(type, msg.getMessage("PolicyDocumentEditor.contentType"));
 	}
 
-	private void initBinder(Set<String> allNames, TextField name, LocaleTextFieldDetails displayedName,
+	private void initBinder(Set<String> allNames, TextField name, LocalizedTextFieldDetails displayedName,
 			Checkbox optional, ComboBox<PolicyDocumentContentType> type)
 	{
 		binder = new Binder<>(PolicyDocumentEntry.class);
@@ -197,7 +197,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 					.bind(PolicyDocumentEntry::getContent, PolicyDocumentEntry::setContent);
 		} else
 		{
-			content = new LocaleTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale(), Optional.empty(), locale -> "");
+			content = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale(), Optional.empty(), locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.url"));
 			content.setWidth(TEXT_FIELD_BIG.value());
 			contentBind = binder.forField(content).withValidator((val, context) ->

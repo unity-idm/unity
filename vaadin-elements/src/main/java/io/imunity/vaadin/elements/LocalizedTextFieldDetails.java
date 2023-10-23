@@ -10,7 +10,6 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -19,15 +18,16 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.VaadinClassNames.EMPTY_DETAILS_ICON;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
-public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
+public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>>
 {
-	public Map<Locale, LocaleTextField> fields = new LinkedHashMap<>();
+	public Map<Locale, LocalizedTextField> fields = new LinkedHashMap<>();
 	private final HorizontalLayout summary;
 
-	public LocaleTextFieldDetails(Collection<Locale> enabledLocales, Locale currentLocale, Optional<String> label, Function<Locale, String> valueGenerator)
+	public LocalizedTextFieldDetails(Collection<Locale> enabledLocales, Locale currentLocale, Optional<String> label, Function<Locale, String> valueGenerator)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
@@ -35,7 +35,9 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 		content.setSpacing(false);
 
 		Icon angleDown = crateIcon(VaadinIcon.ANGLE_DOWN, label);
+		angleDown.getStyle().set("margin-top", BASE_MARGIN.value());
 		Icon angleUp = crateIcon(VaadinIcon.ANGLE_UP, label);
+		angleUp.getStyle().set("margin-top", BASE_MARGIN.value());
 
 		angleUp.setVisible(false);
 		angleDown.addClickListener(event ->
@@ -51,14 +53,12 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 			content.setVisible(false);
 		});
 
-		LocaleTextField defaultField = new LocaleTextField(currentLocale);
+		LocalizedTextField defaultField = new LocalizedTextField(currentLocale);
 		defaultField.setValue(valueGenerator.apply(currentLocale));
-		if (label.isPresent())
-			defaultField.setLabel(label.get());
+		label.ifPresent(defaultField::setLabel);
 		fields.put(currentLocale, defaultField);
 
 		summary = new HorizontalLayout(defaultField, angleDown, angleUp);
-		summary.setAlignItems(FlexComponent.Alignment.CENTER);
 		summary.setWidthFull();
 		summary.setClassName(SMALL_GAP.getName());
 
@@ -66,10 +66,10 @@ public class LocaleTextFieldDetails extends CustomField<Map<Locale, String>>
 				.filter(locale -> !currentLocale.equals(locale))
 				.forEach(locale ->
 				{
-					LocaleTextField localeTextField = new LocaleTextField(locale);
-					localeTextField.setValue(valueGenerator.apply(locale));
-					content.add(localeTextField);
-					fields.put(locale, localeTextField);
+					LocalizedTextField localizedTextField = new LocalizedTextField(locale);
+					localizedTextField.setValue(valueGenerator.apply(locale));
+					content.add(localizedTextField);
+					fields.put(locale, localizedTextField);
 				});
 
 		fields.values().forEach(field -> field.addValueChangeListener(event ->

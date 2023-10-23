@@ -135,7 +135,7 @@ public class ActionParameterComponentProvider
 		case LARGE_TEXT:
 			return new TextAreaActionParameterComponent(param, msg);
 		case I18N_TEXT:
-			return new LocaleTextActionParameterComponent(param, msg);
+			return new LocalizedTextActionParameterComponent(param, msg);
 		case BOOLEAN:
 			return new BooleanActionParameterComponent(param, msg);
 		case INTEGER:

@@ -15,8 +15,8 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.NativeLabel;
 
-import io.imunity.vaadin.elements.LocaleTextAreaDetails;
-import io.imunity.vaadin.elements.LocaleTextFieldDetails;
+import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -35,8 +35,8 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 
 	private AttributeType original;
 	private NativeLabel name;
-	private LocaleTextFieldDetails displayedName;
-	private LocaleTextAreaDetails typeDescription;
+	private LocalizedTextFieldDetails displayedName;
+	private LocalizedTextAreaDetails typeDescription;
 	private Checkbox selfModificable;
 
 	ImmutableAttributeTypeEditor(MessageSource msg, AttributeType toEdit)
@@ -55,11 +55,11 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 		name = new NativeLabel(toEdit.getName());
 		addFormItem(name, msg.getMessage("AttributeType.name"));
 
-		displayedName = new LocaleTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
+		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
 		addFormItem(displayedName, msg.getMessage("AttributeType.displayedName"));
 
-		typeDescription = new LocaleTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
+		typeDescription = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
 
 		addFormItem(typeDescription, msg.getMessage("AttributeType.description"));

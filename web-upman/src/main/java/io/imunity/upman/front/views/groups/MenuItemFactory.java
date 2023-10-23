@@ -131,18 +131,18 @@ class MenuItemFactory
 
 		FormLayout dialogLayout = new FormLayout();
 		dialogLayout.setWidth("30em");
-		LocaleTextFieldDetails localeTextFieldDetails = new LocaleTextFieldDetails(
+		LocalizedTextFieldDetails localizedTextFieldDetails = new LocalizedTextFieldDetails(
 				msg.getEnabledLocales().values(), msg.getLocale(),
 				Optional.of(msg.getMessage("AddGroupDialog.info", group.currentDisplayedName)),
 				locale -> ""
 		);
-		localeTextFieldDetails.focus();
+		localizedTextFieldDetails.focus();
 
 		Checkbox isPublic = new Checkbox(msg.getMessage("AddGroupDialog.public"));
 		isPublic.setValue(group.isPublic);
 		isPublic.setEnabled(group.isPublic);
 
-		dialogLayout.addFormItem(localeTextFieldDetails, new FormLayoutLabel(msg.getMessage("GroupsComponent.newGroupName")));
+		dialogLayout.addFormItem(localizedTextFieldDetails, new FormLayoutLabel(msg.getMessage("GroupsComponent.newGroupName")));
 		dialogLayout.addFormItem(isPublic, "");
 		dialogLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("1em", 1, ASIDE));
 
@@ -158,7 +158,7 @@ class MenuItemFactory
 		Button saveButton = new SubmitButton(msg::getMessage);
 		saveButton.addClickListener(event ->
 		{
-			Map<Locale, String> localeToTxt = localeTextFieldDetails.fields.values().stream()
+			Map<Locale, String> localeToTxt = localizedTextFieldDetails.fields.values().stream()
 					.collect(Collectors.toMap(field -> field.locale, TextField::getValue));
 			groupService.addGroup(projectGroup, group, localeToTxt, isPublic.getValue());
 			if(subProjectConfigurationLayout.enableDelegation.getValue())
@@ -204,7 +204,7 @@ class MenuItemFactory
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("GroupsComponent.renameGroupAction"));
 
-		LocaleTextFieldDetails details = new LocaleTextFieldDetails(
+		LocalizedTextFieldDetails details = new LocalizedTextFieldDetails(
 				msg.getEnabledLocales().values(),
 				msg.getLocale(),
 				Optional.empty(),
@@ -228,7 +228,7 @@ class MenuItemFactory
 		return new BaseDialog(header, msg.getMessage("Cancel"), content);
 	}
 
-	private Button createRenameButton(ProjectGroup projectGroup, Group group, Dialog dialog, Collection<LocaleTextField> fields)
+	private Button createRenameButton(ProjectGroup projectGroup, Group group, Dialog dialog, Collection<LocalizedTextField> fields)
 	{
 		Button button = new SubmitButton(msg::getMessage);
 		button.addClassName("submit-button");
