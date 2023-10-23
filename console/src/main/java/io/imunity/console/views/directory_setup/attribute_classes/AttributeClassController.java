@@ -8,6 +8,7 @@ package io.imunity.console.views.directory_setup.attribute_classes;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.AttributesClass;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
@@ -15,6 +16,7 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Component
 class AttributeClassController
@@ -91,6 +93,33 @@ class AttributeClassController
 			notificationPresenter.showError(msg.getMessage("AttributeClassController.getError", attributeClassName),
 					e.getMessage());
 		}
-		return null;
+		return new AttributesClass();
+	}
+
+	List<String> getAllAttributeTypes()
+	{
+		try
+		{
+			return attrTypeMan.getAttributeTypes().stream()
+					.map(AttributeType::getName)
+					.sorted()
+					.toList();
+		} catch (Exception e)
+		{
+			notificationPresenter.showError(msg.getMessage("AttributeClassController.createEditorError"), e.getMessage());
+		}
+		return List.of();
+	}
+
+	Map<String, AttributesClass> getAllAttributeClasses()
+	{
+		try
+		{
+			return attrClassMan.getAttributeClasses();
+		} catch (Exception e)
+		{
+			notificationPresenter.showError(msg.getMessage("AttributeClassController.createEditorError"), e.getMessage());
+		}
+		return Map.of();
 	}
 }

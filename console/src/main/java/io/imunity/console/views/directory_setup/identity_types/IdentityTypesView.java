@@ -34,7 +34,7 @@ import java.util.Comparator;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.directorySetup.identityTypes")
+@Breadcrumb(key = "WebConsoleMenu.directorySetup.identityTypes", parent = "WebConsoleMenu.directorySetup")
 @Route(value = "/identity-types", layout = ConsoleMenu.class)
 public class IdentityTypesView extends ConsoleViewComponent
 {

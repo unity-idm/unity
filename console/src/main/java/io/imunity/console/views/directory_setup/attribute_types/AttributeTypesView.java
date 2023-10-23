@@ -5,20 +5,6 @@
 
 package io.imunity.console.views.directory_setup.attribute_types;
 
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -39,7 +25,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
@@ -52,13 +37,18 @@ import io.imunity.vaadin.endpoint.common.grid.FilterableGridHelper;
 import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.io.ByteArrayInputStream;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.directorySetup.attributeTypes")
+@Breadcrumb(key = "WebConsoleMenu.directorySetup.attributeTypes", parent = "WebConsoleMenu.directorySetup")
 @Route(value = "/attribute-types", layout = ConsoleMenu.class)
 public class AttributeTypesView extends ConsoleViewComponent
 {

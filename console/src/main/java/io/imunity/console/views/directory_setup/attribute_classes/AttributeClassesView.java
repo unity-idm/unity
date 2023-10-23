@@ -42,7 +42,7 @@ import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM;
 import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM_ITEM;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.directorySetup.attributeClasses")
+@Breadcrumb(key = "WebConsoleMenu.directorySetup.attributeClasses", parent = "WebConsoleMenu.directorySetup")
 @Route(value = "/attribute-classes", layout = ConsoleMenu.class)
 public class AttributeClassesView extends ConsoleViewComponent
 {
@@ -109,7 +109,7 @@ public class AttributeClassesView extends ConsoleViewComponent
 
 	private void tryRemove(AttributesClass attributesClass)
 	{
-		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(attributesClass));
+		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(attributesClass.getName()));
 		new ConfirmDialog(
 				msg.getMessage("ConfirmDialog.confirm"),
 				msg.getMessage("AttributeClassesView.confirmDelete", confirmText),

@@ -35,7 +35,7 @@ import java.util.Set;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.directorySetup.automation")
+@Breadcrumb(key = "WebConsoleMenu.directorySetup.automation", parent = "WebConsoleMenu.directorySetup")
 @Route(value = "/automation", layout = ConsoleMenu.class)
 public class AutomationView extends ConsoleViewComponent
 {

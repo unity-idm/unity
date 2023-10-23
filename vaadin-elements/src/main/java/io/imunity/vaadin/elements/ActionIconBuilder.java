@@ -45,7 +45,7 @@ public class ActionIconBuilder
 	
 	private void run(Runnable action)
 	{
-		if (!enabled)
+		if (enabled)
 			action.run();
 	}
 
