@@ -63,7 +63,7 @@ public class TestInvitationService
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/", new I18nString("group"), "group", false, false, "", false, 0);
 		GroupTreeNode node = new GroupTreeNode(group, 0);
-		service.addInvitations(new InvitationRequest(project, Set.of("demo@demo.com", "demo2@demo.com"), Set.of(node),
+		service.addInvitations(new InvitationRequest(project, List.of("demo@demo.com", "demo2@demo.com"), Set.of(node),
 				false, expiration));
 
 		@SuppressWarnings("unchecked")
