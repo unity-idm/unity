@@ -49,13 +49,20 @@ class CronExpressionField extends TextField
 				{
 					info = "Other MVEL error";
 				}
-
-				return ValidationResult.error(msg.getMessage(
-						"MVELExpressionField.invalidValueWithReason",
-						info));
+				return ValidationResult.error(msg.getMessage("CronExpressionField.invalidValueWithReason", info));
 
 			}
 			return ValidationResult.ok();
 		};
-	}	
+	}
+
+	@Override
+	public void setInvalid(boolean invalid)
+	{
+		super.setInvalid(invalid);
+		if(invalid)
+			getParent().ifPresent(parent -> parent.getStyle().set("--lumo-required-field-indicator-color", "var(--lumo-error-text-color)"));
+		else
+			getParent().ifPresent(parent -> parent.getStyle().set("--lumo-required-field-indicator-color", "var(--lumo-primary-text-color)"));
+	}
 }
