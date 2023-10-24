@@ -16,7 +16,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
  */
 public interface ProjectInvitationsManagement
 {
-	void addInvitations(Set<ProjectInvitationParam> param) throws EngineException;
+	ProjectAddInvitationResult addInvitations(Set<ProjectInvitationParam> param) throws EngineException;
 
 	/**
 	 * Gets all project invitations

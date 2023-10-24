@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.project.ProjectAddInvitationResult;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
@@ -131,7 +132,14 @@ class InvitationsService
 
 		try
 		{
-			invitationMan.addInvitations(toAdd);
+			 ProjectAddInvitationResult addInvitations = invitationMan.addInvitations(toAdd);
+			 if (!addInvitations.projectAlreadyMemberEmails.isEmpty())
+			 {
+					notificationPresenter.showWarning("",
+							msg.getMessage("InvitationsController.alreadyAMember",
+									String.join(",", addInvitations.projectAlreadyMemberEmails)));
+				 }
+			 
 		} catch (EngineException | AlreadyMemberException e)
 		{
 			log.warn("Can not add invitations", e);
