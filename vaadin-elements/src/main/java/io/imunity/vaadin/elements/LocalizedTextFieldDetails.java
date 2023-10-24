@@ -22,7 +22,7 @@ import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.VaadinClassNames.EMPTY_DETAILS_ICON;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
-public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>>
+public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> implements LocalizedErrorMessageHandler
 {
 	public Map<Locale, LocalizedTextField> fields = new LinkedHashMap<>();
 	private final HorizontalLayout summary;
@@ -79,6 +79,14 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>>
 		}));
 
 		add(summary, content);
+		propagateValueChangeEventFromNestedTextFieldToThisComponent();
+	}
+
+	private void propagateValueChangeEventFromNestedTextFieldToThisComponent()
+	{
+		fields.values().forEach(localizedTextField -> localizedTextField.addValueChangeListener(event ->
+				fireEvent(new ComponentValueChangeEvent<>(this, event.getHasValue(), event.getOldValue(), event.isFromClient()))
+		));
 	}
 
 	public void setWidthFull()
@@ -143,7 +151,15 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>>
 	@Override
 	public void setErrorMessage(String errorMessage)
 	{
+		if(errorMessage.isBlank())
+			return;
 		fields.values().iterator().next().setErrorMessage(errorMessage);
+	}
+
+	@Override
+	public void setErrorMessage(Locale locale, String errorMessage)
+	{
+		fields.get(locale).setErrorMessage(errorMessage);
 	}
 
 	@Override

@@ -190,6 +190,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 		configBinder(name, description, subject, messageType, body);
 		setBean(toEdit, name, consumers);
+		body.fields.values().forEach(x -> x.setInvalid(false));
 	}
 
 	private FormLayout createFormLayout(TextField name, TextField description, LocalizedTextFieldDetails subject,
@@ -244,6 +245,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 			msgTemplate.setDescription("");
 			binder.setBean(msgTemplate);
 			messageBinder.setBean(new I18nMessage(new I18nString(), new I18nString()));
+
 		}
 	}
 
@@ -324,7 +326,10 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 	private I18nString convert(Map<Locale, String> localizedValues)
 	{
 		I18nString i18nString = new I18nString();
-		i18nString.addAllValues(localizedValues.entrySet().stream().collect(Collectors.toMap(x -> x.getKey().toString(), Map.Entry::getValue)));
+		Map<String, String> collect = localizedValues.entrySet().stream()
+				.filter(entry -> !entry.getValue().isEmpty())
+				.collect(Collectors.toMap(entry -> entry.getKey().toString(), Map.Entry::getValue));
+		i18nString.addAllValues(collect);
 		return i18nString;
 	}
 
@@ -395,13 +400,9 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 	MessageTemplate getTemplate()
 	{
-		if (!binder.isValid())
+		if (!binder.isValid() || !messageBinder.isValid())
 		{
 			binder.validate();
-			return null;
-		}
-		if (!messageBinder.isValid())
-		{
 			messageBinder.validate();
 			return null;
 		}
@@ -519,21 +520,39 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 			if (value == null)
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
-			if (value.values().stream().allMatch(String::isBlank))
-				return ValidationResult.error(msg.getMessage("fieldRequired"));
-			try
-			{
-				MessageTemplateValidator.validateText(c, value.toString(), checkMandatory);
-			} catch (MessageTemplateValidator.IllegalVariablesException e)
-			{
-				return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.errorUnknownVars",
-						e.getUnknown().toString()));
 
-			} catch (MessageTemplateValidator.MandatoryVariablesException e)
+			LocalizedErrorMessageHandler errorHandler = ((LocalizedErrorMessageHandler)context.getComponent().get());
+			if (value.values().stream().allMatch(String::isBlank))
 			{
-				return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.errorMandatoryVars",
-						e.getMandatory().toString()));
+				value.keySet().forEach(locale -> errorHandler.setErrorMessage(locale, msg.getMessage("fieldRequired")));
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			}
+
+			boolean invalid = false;
+			for (Map.Entry<Locale, String> message: value.entrySet())
+			{
+				if(message.getValue().isBlank())
+				{
+					errorHandler.setErrorMessage(message.getKey(), null);
+					continue;
+				}
+				try
+				{
+					MessageTemplateValidator.validateText(c, message.getValue(), checkMandatory);
+					errorHandler.setErrorMessage(message.getKey(), null);
+				} catch (MessageTemplateValidator.IllegalVariablesException e)
+				{
+					invalid = true;
+					errorHandler.setErrorMessage(message.getKey(), msg.getMessage("MessageTemplatesEditor.errorUnknownVars", e.getUnknown().toString()));
+
+				} catch (MessageTemplateValidator.MandatoryVariablesException e)
+				{
+					invalid = true;
+					errorHandler.setErrorMessage(message.getKey(), msg.getMessage("MessageTemplatesEditor.errorMandatoryVars", e.getMandatory().toString()));
+				}
+			}
+			if(invalid)
+				return ValidationResult.error("");
 
 			return ValidationResult.ok();
 		}

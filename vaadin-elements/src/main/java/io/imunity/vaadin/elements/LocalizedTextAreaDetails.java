@@ -10,7 +10,6 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -19,10 +18,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
 import static io.imunity.vaadin.elements.VaadinClassNames.EMPTY_DETAILS_ICON;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
-public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>>
+public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> implements LocalizedErrorMessageHandler
 {
 	public Map<Locale, LocalizedTextArea> fields = new LinkedHashMap<>();
 
@@ -34,7 +34,9 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>>
 		content.setSpacing(false);
 
 		Icon angleDown = crateIcon(VaadinIcon.ANGLE_DOWN, label);
+		angleDown.getStyle().set("margin-top", MEDIUM_MARGIN.value());
 		Icon angleUp = crateIcon(VaadinIcon.ANGLE_UP, label);
+		angleUp.getStyle().set("margin-top", MEDIUM_MARGIN.value());
 
 		angleUp.setVisible(false);
 		angleDown.addClickListener(event ->
@@ -56,7 +58,6 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>>
 		fields.put(currentLocale, defaultField);
 
 		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
-		summary.setAlignItems(FlexComponent.Alignment.CENTER);
 		summary.setWidthFull();
 		summary.setClassName(SMALL_GAP.getName());
 
@@ -71,6 +72,14 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>>
 				});
 
 		add(summary, content);
+		propagateValueChangeEventFromNestedTextAreaToThisComponent();
+	}
+
+	private void propagateValueChangeEventFromNestedTextAreaToThisComponent()
+	{
+		fields.values().forEach(localizedTextArea -> localizedTextArea.addValueChangeListener(event ->
+				fireEvent(new ComponentValueChangeEvent<>(this, event.getHasValue(), event.getOldValue(), event.isFromClient()))
+		));
 	}
 
 	@Override
@@ -130,7 +139,16 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>>
 	@Override
 	public void setErrorMessage(String errorMessage)
 	{
+		if(errorMessage.isBlank())
+			return;
 		fields.values().iterator().next().setErrorMessage(errorMessage);
+	}
+
+	@Override
+	public void setErrorMessage(Locale locale, String errorMessage)
+	{
+		fields.get(locale).setErrorMessage(errorMessage);
+		fields.get(locale).setInvalid(errorMessage != null);
 	}
 
 	@Override
@@ -155,7 +173,6 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>>
 	public void setInvalid(boolean invalid)
 	{
 		super.setInvalid(invalid);
-		fields.values().forEach(field -> field.setInvalid(invalid));
 		getElement().getParent().getClassList().set("invalid", invalid);
 		getElement().getParent().getClassList().set("valid", !invalid);
 	}

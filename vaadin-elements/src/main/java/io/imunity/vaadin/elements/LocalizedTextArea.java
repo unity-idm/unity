@@ -18,7 +18,7 @@ public class LocalizedTextArea extends TextArea
 	{
 		this.locale = locale;
 		setMaxHeight("20em");
-		setValueChangeMode(ValueChangeMode.EAGER);
+		setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		setSuffixComponent(new FlagIcon(locale.getLanguage()));
 	}
 }
