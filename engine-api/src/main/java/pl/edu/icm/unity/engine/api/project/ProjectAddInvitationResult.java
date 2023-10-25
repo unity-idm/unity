@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.api.project;
 
 import java.util.Set;
 import java.util.Collections;
+import java.util.Optional;
 
 public class ProjectAddInvitationResult
 {
@@ -14,7 +15,9 @@ public class ProjectAddInvitationResult
 
 	private ProjectAddInvitationResult(Builder builder)
 	{
-		this.projectAlreadyMemberEmails = builder.projectAlreadyMemberEmails;
+		this.projectAlreadyMemberEmails = Optional.ofNullable(builder.projectAlreadyMemberEmails)
+				.map(Set::copyOf)
+				.orElse(Set.of());
 	}
 
 	public static Builder builder()
