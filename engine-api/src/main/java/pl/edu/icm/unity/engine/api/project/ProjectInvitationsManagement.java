@@ -60,8 +60,4 @@ public interface ProjectInvitationsManagement
 			super("Misconfigured project group " + projectPath);
 		}
 	}
-	
-	public static class AlreadyMemberException extends RuntimeException
-	{
-	}
 }

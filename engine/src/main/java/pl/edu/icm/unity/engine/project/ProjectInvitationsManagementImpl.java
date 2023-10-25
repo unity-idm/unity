@@ -122,7 +122,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		{
 			for (ProjectInvitationParam invitation : invitationParams)
 			{
-				if (assertNotMemberAlready(entities.stream()
+				if (checkIsAlreadyMember(entities.stream()
 						.filter(e -> e.contactEmail.equals(invitation.contactAddress))
 						.collect(Collectors.toSet()), invitation.project))
 				{
@@ -144,7 +144,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		
 	}
 
-	private boolean assertNotMemberAlready(Set<EntityWithContactInfo> collect, String project)
+	private boolean checkIsAlreadyMember(Set<EntityWithContactInfo> collect, String project)
 	{
 		if (collect.stream().filter(e -> e.groups.contains(project)).findAny().isPresent())
 		{
