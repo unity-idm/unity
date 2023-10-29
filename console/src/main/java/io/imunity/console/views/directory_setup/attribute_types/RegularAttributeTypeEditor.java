@@ -156,7 +156,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		binder.forField(name)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind("name");
-		binder.bind(displayedName, "displayedName");
+	//	binder.bind(displayedName, "displayedName");
 		binder.forField(displayedName)
 				.bind(i18nMessage -> i18nMessage.getDisplayedName()
 						.getLocalizedMap(),
