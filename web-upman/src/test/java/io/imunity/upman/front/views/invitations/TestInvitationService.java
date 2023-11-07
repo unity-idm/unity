@@ -5,6 +5,8 @@
 
 package io.imunity.upman.front.views.invitations;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
@@ -20,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.project.ProjectAddInvitationResult;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 
@@ -32,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TestInvitationService
@@ -64,7 +67,9 @@ public class TestInvitationService
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/", new I18nString("group"), "group", false, false, "", false, 0);
 		GroupTreeNode node = new GroupTreeNode(group, 0);
-		service.addInvitations(new InvitationRequest(project, Set.of("demo@demo.com", "demo2@demo.com"), Set.of(node),
+		when(mockInvitationMan.addInvitations(any())).thenReturn(ProjectAddInvitationResult.builder()
+				.build());
+		service.addInvitations(new InvitationRequest(project, List.of("demo@demo.com", "demo2@demo.com"), Set.of(node),
 				false, expiration));
 
 		@SuppressWarnings("unchecked")
@@ -72,12 +77,23 @@ public class TestInvitationService
 		verify(mockInvitationMan, times(1)).addInvitations(argument.capture());
 
 		List<Set<ProjectInvitationParam>> arguments = argument.getAllValues();
-		assertThat(arguments.get(0).size()).isEqualTo(2);
+		assertThat(arguments.get(0)
+				.size()).isEqualTo(2);
 
-		assertThat(arguments.get(0).iterator().next().project).isEqualTo("/project");
-		assertThat(arguments.get(0).stream().map(p -> p.contactAddress).collect(Collectors.toSet())).isEqualTo(Set.of("demo@demo.com", "demo2@demo.com"));
-		assertThat(arguments.get(0).iterator().next().groups.iterator().next()).isEqualTo("/");
-		assertThat(arguments.get(0).iterator().next().expiration).isEqualTo(expiration);
+		assertThat(arguments.get(0)
+				.iterator()
+				.next().project).isEqualTo("/project");
+		assertThat(arguments.get(0)
+				.stream()
+				.map(p -> p.contactAddress)
+				.collect(Collectors.toSet())).isEqualTo(Set.of("demo@demo.com", "demo2@demo.com"));
+		assertThat(arguments.get(0)
+				.iterator()
+				.next().groups.iterator()
+						.next()).isEqualTo("/");
+		assertThat(arguments.get(0)
+				.iterator()
+				.next().expiration).isEqualTo(expiration);
 	}
 
 	@Test

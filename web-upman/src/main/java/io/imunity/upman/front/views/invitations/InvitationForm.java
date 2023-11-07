@@ -5,26 +5,28 @@
 
 package io.imunity.upman.front.views.invitations;
 
-import com.vaadin.flow.component.HtmlContainer;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.datetimepicker.DateTimePicker;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.data.binder.Binder;
-import io.imunity.upman.front.model.GroupTreeNode;
-import io.imunity.upman.front.model.ProjectGroup;
-import io.imunity.vaadin.elements.FormLayoutLabel;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.stdext.utils.EmailUtils;
+import static java.util.Optional.ofNullable;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
-import static java.util.Optional.ofNullable;
+import com.vaadin.flow.component.HtmlContainer;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.data.binder.Binder;
+
+import io.imunity.upman.front.model.GroupTreeNode;
+import io.imunity.upman.front.model.ProjectGroup;
+import io.imunity.vaadin.elements.FormLayoutLabel;
+import io.imunity.vaadin23.elements.TooltipAttacher;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 
 class InvitationForm extends FormLayout
 {
@@ -49,6 +51,7 @@ class InvitationForm extends FormLayout
 		emailsTextArea.setPlaceholder(msg.getMessage("NewInvitationDialog.emailsPrompt"));
 		emailsTextArea.setWidth("24em");
 		emailsTextArea.focus();
+		emailsTextArea.addKeyPressListener(Key.ENTER, e -> emailsTextArea.setValue(emailsTextArea.getValue() + "\n"));
 		emailsTextArea.setTooltipText(msg.getMessage("NewInvitationDialog.emailsDesc"));
 
 		allowModifyGroupsCheckbox = new Checkbox(msg.getMessage("NewInvitationDialog.allowModifyGroups"));
@@ -96,8 +99,8 @@ class InvitationForm extends FormLayout
 				.withConverter(
 						value -> ofNullable(value)
 								.map(val -> val.split("\n"))
-								.map(Set::of)
-								.orElseGet(Set::of),
+								.map(List::of)
+								.orElseGet(List::of),
 						value -> ofNullable(value)
 								.map(val -> String.join("\n", val))
 								.orElse("")

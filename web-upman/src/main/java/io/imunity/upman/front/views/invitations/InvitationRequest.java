@@ -9,13 +9,14 @@ import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 class InvitationRequest
 {
 	public final ProjectGroup projectGroup;
-	public Set<String> emails;
+	public List<String> emails;
 	public Set<GroupTreeNode> groups;
 	public boolean allowModifyGroups;
 	public Instant expiration;
@@ -25,7 +26,7 @@ class InvitationRequest
 		this.projectGroup = projectGroup;
 	}
 
-	public InvitationRequest(ProjectGroup projectGroup, Set<String> emails, Set<GroupTreeNode> groups, boolean allowModifyGroups, Instant expiration)
+	public InvitationRequest(ProjectGroup projectGroup, List<String> emails, Set<GroupTreeNode> groups, boolean allowModifyGroups, Instant expiration)
 	{
 		this.projectGroup = projectGroup;
 		this.emails = emails;

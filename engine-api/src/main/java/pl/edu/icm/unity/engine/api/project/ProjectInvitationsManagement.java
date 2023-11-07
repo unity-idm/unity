@@ -20,7 +20,6 @@ import pl.edu.icm.unity.base.exceptions.InternalException;
 
 public interface ProjectInvitationsManagement
 {
-
 	/**
 	 * Ads invitations
 	 * 
@@ -28,8 +27,7 @@ public interface ProjectInvitationsManagement
 	 * @return 
 	 * @throws EngineException
 	 */
-	void addInvitations(Set<ProjectInvitationParam> param) throws EngineException;
-
+	ProjectAddInvitationResult addInvitations(Set<ProjectInvitationParam> param) throws EngineException;
 
 	/**
 	 * Gets all project invitations
@@ -81,9 +79,5 @@ public interface ProjectInvitationsManagement
 		{
 			super("Misconfigured project group " + projectPath);
 		}
-	}
-	
-	public static class AlreadyMemberException extends RuntimeException
-	{
 	}
 }
