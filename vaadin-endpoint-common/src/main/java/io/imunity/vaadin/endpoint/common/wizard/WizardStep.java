@@ -59,9 +59,9 @@ public abstract class WizardStep extends Component implements HasComponents
 		status = WizardStepStatus.NEXT_STEP_REQUIRED;
 	}
 	
-	protected final void goToPrevStep()
+	protected final void stepRequiredPrevStep()
 	{
-		wizard.prevStep();
+		status = WizardStepStatus.PREV_STEP_REQUIRED;
 	}
 
 	protected abstract void initialize();

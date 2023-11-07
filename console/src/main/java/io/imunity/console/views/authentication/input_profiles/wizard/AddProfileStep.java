@@ -10,7 +10,9 @@ import java.util.function.Consumer;
 import com.vaadin.flow.component.Component;
 
 import io.imunity.console.tprofile.TranslationProfileEditor;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.wizard.WizardStep;
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
@@ -18,13 +20,17 @@ class AddProfileStep extends WizardStep
 {
 	private final TranslationProfileEditor editor;
 	private final Consumer<TranslationProfile> addProfile;
-
+	private final NotificationPresenter notificationPresenter;
+	private final MessageSource msg;
+	
 	public AddProfileStep(String label, Component component, TranslationProfileEditor editor,
-			Consumer<TranslationProfile> addProfile)
+			Consumer<TranslationProfile> addProfile, NotificationPresenter notificationPresenter, MessageSource msg)
 	{
 		super(label, component);
 		this.editor = editor;
 		this.addProfile = addProfile;
+		this.notificationPresenter = notificationPresenter;
+		this.msg = msg;
 	}
 
 	@Override
@@ -36,7 +42,9 @@ class AddProfileStep extends WizardStep
 			addProfile.accept(profile);
 		} catch (FormValidationException e)
 		{
-			goToPrevStep();
+			notificationPresenter.showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
+			stepRequiredPrevStep();
+			refreshWizard();
 			return;
 		}
 

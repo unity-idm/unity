@@ -84,6 +84,8 @@ public class NotificationPresenter
 		noticeNotification.open();
 	}
 
+	
+	
 	private static class ErrorNotification extends Notification
 	{
 		private final Button closeButton;

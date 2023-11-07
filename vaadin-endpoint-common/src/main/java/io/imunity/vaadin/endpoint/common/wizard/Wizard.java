@@ -162,6 +162,8 @@ public class Wizard extends VerticalLayout
 			stepComplited();
 		else if (current.getStatus() == WizardStepStatus.NEXT_STEP_REQUIRED)
 			ui.access(this::nextStep);
+		else if (current.getStatus() == WizardStepStatus.PREV_STEP_REQUIRED)
+			ui.access(this::prevStep);
 	}
 
 	void interrupt()

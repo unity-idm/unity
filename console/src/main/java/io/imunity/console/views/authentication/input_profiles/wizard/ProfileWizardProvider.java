@@ -17,6 +17,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinServlet;
 
 import io.imunity.console.tprofile.TranslationProfileEditor;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
 import io.imunity.vaadin.endpoint.common.wizard.Wizard;
@@ -30,10 +31,12 @@ public class ProfileWizardProvider
 {
 
 	private final MessageSource msg;
-
-	ProfileWizardProvider(MessageSource msg)
+	private final NotificationPresenter notificationPresenter;
+	
+	ProfileWizardProvider(MessageSource msg, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	public Component getWizard(TranslationProfileEditor editor, Runnable closeWizard,
@@ -52,15 +55,15 @@ public class ProfileWizardProvider
 		return Wizard.builder()
 				.addStep(new IntroStep(msg))
 				.addStep(new SandboxAuthnLaunchStep(msg.getMessage("Wizard.SandboxStep.caption"),
-						new VerticalLayout(new Span(msg.getMessage("ConnectId.introLabel")),
+						new VerticalLayout(new Span(msg.getMessage("Wizard.SandboxStepComponent.infoLabel")),
 								new Button(msg.getMessage("Wizard.SandboxStepComponent.sboxButton"),
 										e -> sandBoxNewPageOpener.run())),
 						router, sandBoxNewPageOpener))
 				.addNextStepPreparer(new WizardStepPreparer<>(SandboxAuthnLaunchStep.class, ProfileStep.class,
 						(step1, step2) -> step2.prepareStep(step1.event)))
 				.addStep(new ProfileStep(msg.getMessage("Wizard.ProfileStep.caption"),
-						new ProfileStepComponent(msg, editor)))
-				.addStep(new AddProfileStep(null, new VerticalLayout(), editor, finish))
+						new ProfileStepComponent(msg, editor), notificationPresenter, msg))
+				.addStep(new AddProfileStep(null, new VerticalLayout(), editor, finish, notificationPresenter, msg))
 				.addMessageSource(msg)
 				.addCancelTask(closeWizard)
 				.build();

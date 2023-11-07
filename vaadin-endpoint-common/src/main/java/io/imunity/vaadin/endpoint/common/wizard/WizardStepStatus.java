@@ -7,5 +7,5 @@ package io.imunity.vaadin.endpoint.common.wizard;
 
 enum WizardStepStatus
 {
-	IN_PROGRESS, COMPLITED, NEXT_STEP_REQUIRED
+	IN_PROGRESS, COMPLITED, NEXT_STEP_REQUIRED, PREV_STEP_REQUIRED
 }
