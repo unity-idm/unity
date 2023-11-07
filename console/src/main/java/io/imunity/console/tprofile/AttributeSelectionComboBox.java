@@ -23,6 +23,7 @@ public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 {
 	protected Map<String, AttributeType> attributeTypesByName;
 	private boolean filterImmutable = true;
+	private String label;
 
 	public AttributeSelectionComboBox(String caption, AttributeTypeManagement aTypeMan) throws EngineException
 	{
@@ -46,6 +47,7 @@ public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 	{
 		this.attributeTypesByName = attributeTypes.stream()
 				.collect(Collectors.toMap(AttributeType::getName, Function.identity()));
+		this.label = caption;
 		
 		setSizeUndefined();
 		setLabel(caption);
@@ -66,5 +68,11 @@ public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 	{
 		if (attributeTypesByName.containsKey(name))
 			setValue(attributeTypesByName.get(name));
+	}
+	
+	@Override
+	public String getLabel()
+	{
+		return label;
 	}
 }

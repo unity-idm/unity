@@ -4,15 +4,12 @@
  */
 package io.imunity.console.tprofile;
 
-import com.vaadin.flow.component.dnd.DropEffect;
-import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.data.binder.Binder;
+
 import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
-
-import java.util.Optional;
 
 /**
  * For editing MVEL expressions. Decorates the {@link MVELExpressionField} with
@@ -25,32 +22,19 @@ public class ExpressionActionParameterComponent extends MVELExpressionField impl
 	public ExpressionActionParameterComponent(ActionParameterDefinition param, MessageSource msg)
 	{
 		super(msg, param.getName() + ":", msg.getMessage(param.getDescriptionKey()),
-				(MVELExpressionContext) param.getDetails().get());
+				(MVELExpressionContext) param.getDetails()
+						.get());
 		binder = new Binder<>(StringValueBean.class);
 		configureBinding(binder, "value", param.isMandatory());
-		binder.setBean(new StringValueBean());
-		addDropHandler();
+		binder.setBean(new StringValueBean());	
 		setWidthFull();
-	}
-
-	private void addDropHandler()
-	{
-		DropTarget<ExpressionActionParameterComponent> dropTarget = DropTarget.create(this);
-		dropTarget.setDropEffect(DropEffect.MOVE);
-
-		dropTarget.addDropListener(event -> {
-			Optional<?> dragData = event.getDragData();
-			if (dragData.isPresent() && dragData.get() instanceof DragDropBean bean)
-			{
-				setValue(getValue() + bean.getExpression());
-			}
-		});
 	}
 
 	@Override
 	public String getActionValue()
 	{
-		return binder.getBean().getValue();
+		return binder.getBean()
+				.getValue();
 	}
 
 	@Override

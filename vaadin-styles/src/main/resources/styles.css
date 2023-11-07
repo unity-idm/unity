@@ -557,3 +557,7 @@ vaadin-text-field::part(error-message) {
 .grid-details-vaadin-form {
     margin-bottom: 0.75em;
 }
+
+.v-drag-over-target.drop-layout {
+    outline: 1px solid var(--lumo-primary-color);
+}

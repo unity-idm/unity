@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.account_association.wizard;
+package io.imunity.vaadin.endpoint.common.wizard;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
@@ -14,7 +14,7 @@ public abstract class WizardStep extends Component implements HasComponents
 {
 	protected final String label;
 	protected final Component component;
-	private Wizard wizard;
+	protected Wizard wizard;
 	private WizardStepStatus status = WizardStepStatus.IN_PROGRESS;
 
 	public WizardStep(String label, Component component)
@@ -57,6 +57,11 @@ public abstract class WizardStep extends Component implements HasComponents
 	protected final void stepRequiredNewStep()
 	{
 		status = WizardStepStatus.NEXT_STEP_REQUIRED;
+	}
+	
+	protected final void goToPrevStep()
+	{
+		wizard.prevStep();
 	}
 
 	protected abstract void initialize();

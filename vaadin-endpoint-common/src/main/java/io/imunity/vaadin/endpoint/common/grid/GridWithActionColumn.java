@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.flow.function.ValueProvider;
 
 import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
@@ -129,7 +131,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			removeColumn(actionColumn);
 			actionColumn = null;
 		}
-		actionColumn = addComponentColumn(e -> getButtonComponent(Set.of(e))).setHeader(msg.getMessage("actions"))
+		actionColumn = super.addComponentColumn(e -> getButtonComponent(Set.of(e))).setHeader(msg.getMessage("actions"))
 				.setTextAlign(ColumnTextAlign.END);
 
 	}
@@ -218,5 +220,13 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		dataProvider.removeFilters();
 		for (SerializablePredicate<T> p : filters)
 			dataProvider.addFilter(p);
+	}
+	
+	@Override
+	public <V extends Component> Column<T> addComponentColumn(ValueProvider<T, V> componentProvider)
+	{
+		Column<T> addComponentColumn = super.addComponentColumn(componentProvider);
+		refreshActionColumn();
+		return addComponentColumn;
 	}
 }

@@ -4,9 +4,17 @@
  */
 package io.imunity.console.views.directory_setup.automation.mvel;
 
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+
+import java.util.Collection;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.dnd.DropEffect;
+import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -14,12 +22,11 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
+
 import io.imunity.console.components.TooltipFactory;
+import io.imunity.console.tprofile.DragDropBean;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
-
-import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 
 /**
  * Plain text field allowing for editing an MVEL expression
@@ -33,7 +40,7 @@ public class MVELExpressionField extends CustomField<String>
 	private boolean mandatory;
 	private MVELExpressionContext context;
 
-	public MVELExpressionField(MessageSource msg, String caption, String description, MVELExpressionContext context)
+	public MVELExpressionField(MessageSource msg, String description, MVELExpressionContext context)
 	{
 		this.field = new TextField();
 		field.setWidth(TEXT_FIELD_BIG.value());
@@ -53,7 +60,6 @@ public class MVELExpressionField extends CustomField<String>
 		iconsLayout.getStyle().set("margin-top", BASE_MARGIN.value());
 		iconsLayout.setClassName("field-icon-gap");
 		layout.add(field, iconsLayout);
-		field.setLabel(caption);
 
 		field.addValueChangeListener(e ->
 		{
@@ -61,6 +67,33 @@ public class MVELExpressionField extends CustomField<String>
 			fireEvent(new ComponentValueChangeEvent<>(this, e.getSource(), getValue(), e.isFromClient()));
 		});
 		add(layout);
+		addDropHandler();
+	}
+	
+	private void addDropHandler()
+	{
+		DropTarget<MVELExpressionField> dropTarget = DropTarget.create(this);
+		dropTarget.setDropEffect(DropEffect.MOVE);
+
+		dropTarget.addDropListener(event ->
+		{
+			Optional<?> dragData = event.getDragData();
+			if (dragData.isPresent() && dragData.get() instanceof Collection)
+			{
+				Object next = ((Collection<?>) dragData.get()).iterator()
+						.next();
+				if (next != null && next instanceof DragDropBean)
+				{
+					field.setValue((field.getValue() != null ? field.getValue() : "") + ((DragDropBean) next).getExpression());
+				}
+			}
+		});
+	}
+	
+	public MVELExpressionField(MessageSource msg, String caption, String description, MVELExpressionContext context)
+	{
+		this(msg, description, context);
+		setLabel(caption);
 	}
 
 	public void configureBinding(Binder<?> binder, String fieldName, boolean mandatory)
@@ -79,7 +112,7 @@ public class MVELExpressionField extends CustomField<String>
 	@Override
 	public String getValue()
 	{
-		return value;
+		return field.getValue();
 	}
 
 	@Override
@@ -122,7 +155,7 @@ public class MVELExpressionField extends CustomField<String>
 	@Override
 	protected String generateModelValue()
 	{
-		return field.getValue();
+		return value;
 	}
 
 	@Override

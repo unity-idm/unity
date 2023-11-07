@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@Component
+@Component("InputTranslationsControllerV8")
 public class InputTranslationsController extends TranslationsControllerBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InputTranslationsController.class);

@@ -20,7 +20,9 @@ import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 public class AttributeActionParameterComponent extends AttributeSelectionComboBox implements ActionParameterComponent
 {
 	private Binder<StringValueBean> binder;
+	private String label;
 
+	
 	public AttributeActionParameterComponent(ActionParameterDefinition desc,
 			MessageSource msg, Collection<AttributeType> attributeTypes)
 	{
@@ -101,8 +103,15 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 	}
 
 	@Override
+	public void setLabel(String label)
+	{
+		this.label = label;
+		super.setLabel(label);
+	}
+	
+	@Override
 	public String getLabel()
 	{
-		return super.getLabel();
+		return label;
 	}
 }

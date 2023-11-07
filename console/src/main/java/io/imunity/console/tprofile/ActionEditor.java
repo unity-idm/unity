@@ -76,12 +76,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 	
 		actions.setItems(items);
 		actions.setRequiredIndicatorVisible(true);
-		actions.addValueChangeListener(e ->
-		{
-			setParams(actions.getValue(), null);
-			if (callback != null)
-				callback.accept(getStringRepresentation(), getActionIfValid());
-		});
+		
 		
 		actionParams = new Span();
 		actionParams.setText(msg.getMessage("ActionEditor.actionParameters"));
@@ -91,6 +86,8 @@ public class ActionEditor extends FormLayoutEmbeddable
 		if (toEdit != null)
 		{
 			setInput(toEdit);
+			callback.accept(getStringRepresentation(), getActionIfValid());
+
 		} else
 		{
 			if (!items.isEmpty())
@@ -99,6 +96,14 @@ public class ActionEditor extends FormLayoutEmbeddable
 				setParams(actions.getValue(), null);
 			}
 		}
+		actions.addValueChangeListener(e ->
+		{
+			setParams(actions.getValue(), null);
+			if (callback != null)
+				callback.accept(getStringRepresentation(), getActionIfValid());
+		});
+		
+		
 	}
 
 	public void setInput(TranslationAction toEdit)

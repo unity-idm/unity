@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDetails implements ActionParameterComponent
 {
 	private final Binder<StringValueBean> binder;
+	private String label;
 	
 	public LocalizedTextActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
@@ -106,6 +107,19 @@ public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDet
 			 return i18nValue.getDefaultLocaleValue(msg);
 		 return null;
 	}	
+	
+	@Override
+	public String getLabel()
+	{
+		return label;
+	}
 
+	@Override
+	public void setLabel(String label)
+	{
+		this.label = label;
+		super.setLabel(label);
+	}
+	
 }
 

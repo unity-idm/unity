@@ -14,10 +14,12 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServlet;
-import io.imunity.vaadin.account_association.wizard.Wizard;
-import io.imunity.vaadin.account_association.wizard.WizardStepPreparer;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
+import io.imunity.vaadin.endpoint.common.wizard.Wizard;
+import io.imunity.vaadin.endpoint.common.wizard.WizardStepPreparer;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;

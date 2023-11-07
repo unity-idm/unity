@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.account_association.wizard;
+package io.imunity.vaadin.endpoint.common.wizard;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -138,7 +138,7 @@ public class Wizard extends VerticalLayout
 		nextButton.setEnabled(false);
 		backButton.setEnabled(true);
 	}
-	private void prevStep()
+	void prevStep()
 	{
 		contentLayout.removeAll();
 		contentLayout.add(wizardStepController.getPrev());

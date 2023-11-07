@@ -14,7 +14,8 @@ import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 public class TextAreaActionParameterComponent extends TextArea implements ActionParameterComponent
 {
 	private Binder<StringValueBean> binder;
-	
+	private String label;
+
 	public TextAreaActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
 		super(desc.getName() + ":");
@@ -64,8 +65,15 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 	}
 
 	@Override
+	public void setLabel(String label)
+	{
+		this.label = label;
+		super.setLabel(label);
+	}
+	
+	@Override
 	public String getLabel()
 	{
-		return super.getLabel();
+		return label;
 	}
 }
