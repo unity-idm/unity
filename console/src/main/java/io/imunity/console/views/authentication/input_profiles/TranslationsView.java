@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Sets;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -25,7 +24,6 @@ import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.RouterLink;
 
 import io.imunity.console.utils.ObjectToJsonFileExporterHelper;
@@ -70,6 +68,7 @@ public abstract class TranslationsView extends ConsoleViewComponent
 		refreshProfileList();
 
 		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
 		NativeLabel title = new NativeLabel(getHeaderCaption());
 		main.add(title);
 		List<Button> buttons = getButtonsBar();
@@ -78,7 +77,9 @@ public abstract class TranslationsView extends ConsoleViewComponent
 		main.setMargin(false);
 		profileList.sort(GridSortOrder.asc(name)
 				.build());
+		profileList.setHeightFull();
 		getContent().add(main);
+		getContent().setSizeFull();
 	}
 
 	private List<SingleActionHandler<TranslationProfile>> getActionsHandlers()
@@ -181,9 +182,9 @@ public abstract class TranslationsView extends ConsoleViewComponent
 				.navigate(getNewView(), profile.getName());
 	}
 
-	protected abstract <T, C extends Component & HasUrlParameter<T>> Class<? extends C> getEditView();
+	protected abstract Class<? extends ConsoleViewComponent> getEditView();
 
-	protected abstract <T, C extends Component & HasUrlParameter<T>> Class<? extends C> getNewView();
+	protected abstract Class<? extends ConsoleViewComponent> getNewView();
 
 	protected abstract String getHeaderCaption();
 }

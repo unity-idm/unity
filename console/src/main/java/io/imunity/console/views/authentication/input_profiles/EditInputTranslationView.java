@@ -7,11 +7,10 @@ package io.imunity.console.views.authentication.input_profiles;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
+import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -28,12 +27,13 @@ class EditInputTranslationView extends EditTranslationView
 		super(msg, controller, notificationPresenter);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T, C extends Component & HasUrlParameter<T>> Class<? extends C> getViewAll()
+	public Class<? extends ConsoleViewComponent> getViewAll()
 	{
-		return (Class<? extends C>) RemoteDataProfilesView.class;
+		return RemoteDataProfilesView.class;
 	}
+
+	
 
 	
 

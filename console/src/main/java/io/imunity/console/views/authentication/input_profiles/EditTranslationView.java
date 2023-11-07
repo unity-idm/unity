@@ -7,12 +7,10 @@ package io.imunity.console.views.authentication.input_profiles;
 
 import java.util.Optional;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 
 import io.imunity.console.tprofile.TranslationProfileEditor;
@@ -147,5 +145,5 @@ public abstract class EditTranslationView extends ConsoleViewComponent
 		return Optional.ofNullable(breadCrumbParameter);
 	}
 
-	public abstract <T, C extends Component & HasUrlParameter<T>> Class<? extends C> getViewAll();
+	public abstract Class<? extends ConsoleViewComponent> getViewAll();
 }

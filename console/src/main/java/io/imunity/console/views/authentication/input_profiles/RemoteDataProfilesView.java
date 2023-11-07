@@ -11,13 +11,12 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
+import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.ShowViewActionLayoutFactory;
 import io.imunity.vaadin.auth.sandbox.SandboxWizardDialog;
 import io.imunity.vaadin.elements.Breadcrumb;
@@ -44,18 +43,16 @@ public class RemoteDataProfilesView extends TranslationsView
 		super(msg, controller, notificationPresenter);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected <T, C extends Component & HasUrlParameter<T>> Class<? extends C> getEditView()
+	protected Class<? extends ConsoleViewComponent> getEditView()
 	{
-		return (Class<? extends C>) EditInputTranslationView.class;
+		return EditInputTranslationView.class;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected <T, C extends Component & HasUrlParameter<T>> Class<? extends C> getNewView()
+	protected Class<? extends ConsoleViewComponent> getNewView()
 	{
-		return (Class<? extends C>) NewInputTranslationView.class;
+		return NewInputTranslationView.class;
 	}
 
 	@Override
