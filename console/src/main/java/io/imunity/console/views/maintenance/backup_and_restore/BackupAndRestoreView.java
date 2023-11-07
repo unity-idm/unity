@@ -79,7 +79,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 
 	private VerticalLayout createExportUI()
 	{
-		Panel exportPanel = new Panel(Optional.of(msg.getMessage("ImportExport.exportCaption")));
+		Panel exportPanel = new Panel(msg.getMessage("ImportExport.exportCaption"));
 		VerticalLayout layout = new VerticalLayout();
 		layout.setClassName(SMALL_GAP.getName());
 		exportPanel.add(layout);
@@ -187,7 +187,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 
 	private VerticalLayout createImportUI()
 	{
-		Panel importPanel = new Panel(Optional.of(msg.getMessage("ImportExport.importCaption")));
+		Panel importPanel = new Panel(msg.getMessage("ImportExport.importCaption"));
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSpacing(false);
 		importPanel.add(layout);

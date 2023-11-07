@@ -3,12 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.endpoint.common;
+package io.imunity.vaadin.elements;
 
 public enum Styles
 {
-	dropLayout("drop-layout");
-
+	dropLayout("drop-layout"),
+	panel("panel");
+	
 	private String value;
 
 	private Styles(String value)

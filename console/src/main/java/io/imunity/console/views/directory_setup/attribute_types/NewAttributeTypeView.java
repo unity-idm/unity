@@ -23,6 +23,7 @@ import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -110,7 +111,7 @@ class NewAttributeTypeView extends ConsoleViewComponent
 		try
 		{
 			at = editor.getAttributeType();
-		} catch (Exception e)
+		} catch (IllegalAttributeTypeException e)
 		{
 			return;
 		}

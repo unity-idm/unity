@@ -22,7 +22,7 @@ public class GenericElementsTable<T> extends Grid<T>
 	private final GridContextMenuSupport<T> contextMenuSupp;
 	private final boolean sortable;
 	private final Collection<SerializablePredicate<T>> filters;
-	private GridListDataView<T> dataView;
+	private final GridListDataView<T> dataView;
 	
 	public GenericElementsTable(String columnHeader)
 	{

@@ -77,8 +77,7 @@ class ImportAttributeTypesView extends ConsoleViewComponent
 		} catch (ControllerException e)
 		{
 			notificationPresenter.showError(e.getCaption(), e.getDetails());
-			UI.getCurrent()
-					.navigate(AttributeTypesView.class);
+			UI.getCurrent().navigate(AttributeTypesView.class);
 			return;
 		}
 
@@ -99,6 +98,7 @@ class ImportAttributeTypesView extends ConsoleViewComponent
 			ats = editor.getAttributeTypes();
 		} catch (Exception e)
 		{
+			notificationPresenter.showError("", e.getMessage());
 			return;
 		}
 
@@ -111,8 +111,7 @@ class ImportAttributeTypesView extends ConsoleViewComponent
 			return;
 		}
 
-		UI.getCurrent()
-				.navigate(AttributeTypesView.class);
+		UI.getCurrent().navigate(AttributeTypesView.class);
 
 	}
 }
