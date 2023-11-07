@@ -76,6 +76,13 @@ public class NotificationPresenter
 		errorNotification.open();
 		errorNotification.addDetachListener(e -> runAfterClose.run());
 	}
+	
+	public void showWarning(String caption, String description)
+	{
+		NoticeNotification noticeNotification = new NoticeNotification(caption, description);
+		noticeNotification.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
+		noticeNotification.open();
+	}
 
 	private static class ErrorNotification extends Notification
 	{
