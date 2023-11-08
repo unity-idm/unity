@@ -32,7 +32,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.maintenance.idpStatistics")
+@Breadcrumb(key = "WebConsoleMenu.maintenance.idpStatistics", parent = "WebConsoleMenu.maintenance")
 @Route(value = "/idp-usage-statistics", layout = ConsoleMenu.class)
 public class IdPUsageStatisticsView extends ConsoleViewComponent
 {

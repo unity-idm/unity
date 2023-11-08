@@ -43,7 +43,7 @@ import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.maintenance.backupAndRestore")
+@Breadcrumb(key = "WebConsoleMenu.maintenance.backupAndRestore", parent = "WebConsoleMenu.maintenance")
 @Route(value = "/backup-and-restore", layout = ConsoleMenu.class)
 public class BackupAndRestoreView extends ConsoleViewComponent
 {

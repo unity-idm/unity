@@ -57,7 +57,7 @@ import static java.lang.String.join;
 import static java.util.Objects.nonNull;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.maintenance.auditLog")
+@Breadcrumb(key = "WebConsoleMenu.maintenance.auditLog", parent = "WebConsoleMenu.maintenance")
 @Route(value = "/audit-log", layout = ConsoleMenu.class)
 public class AuditLogView extends ConsoleViewComponent
 {

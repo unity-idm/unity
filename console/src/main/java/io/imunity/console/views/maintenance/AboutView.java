@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.version.VersionInformationProvider;
 import jakarta.annotation.security.PermitAll;
 
 @PermitAll
-@Breadcrumb(key = "WebConsoleMenu.maintenance.about")
+@Breadcrumb(key = "WebConsoleMenu.maintenance.about", parent = "WebConsoleMenu.maintenance")
 @Route(value = "/about", layout = ConsoleMenu.class)
 public class AboutView extends ConsoleViewComponent
 {
