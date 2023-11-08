@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * 
  * @author K. Benedyczak
  */
-@Component
+@Component("GroupDetailsPanelV8")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GroupDetailsPanel extends SafePanel
 {

@@ -4,13 +4,9 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.Collection;
-import java.util.Set;
-
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.GroupMembership;
@@ -21,16 +17,19 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
+import java.util.Collection;
+import java.util.Set;
+
 /**
  * Factory of actions which allow for viewing entity details
  * 
  * @author K. Benedyczak
  */
-@Component
+@Component("EntityDetailsHandlerV8")
 class EntityDetailsHandler
 {
 	@Autowired
-	private ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory;
+	private ObjectFactory<EntityDetailsPanelV8> entityDetailsPanelFactory;
 
 	@Autowired
 	private EntityManagement entityMan;
@@ -50,7 +49,7 @@ class EntityDetailsHandler
 	{
 		IdentityEntry selected = selection.iterator().next();
 		EntityWithLabel entity = selected.getSourceEntity();
-		final EntityDetailsPanel identityDetailsPanel = entityDetailsPanelFactory.getObject();
+		final EntityDetailsPanelV8 identityDetailsPanel = entityDetailsPanelFactory.getObject();
 		Collection<GroupMembership> groups;
 		try
 		{

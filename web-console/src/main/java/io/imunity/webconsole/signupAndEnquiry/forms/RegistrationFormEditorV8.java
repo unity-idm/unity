@@ -4,51 +4,24 @@
  */
 package io.imunity.webconsole.signupAndEnquiry.forms;
 
-import static io.imunity.tooltip.TooltipExtension.tooltip;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.vaadin.ui.*;
+import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
+import io.imunity.webconsole.tprofile.RegistrationTranslationProfileEditor;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.risto.stepper.IntStepper;
-
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Slider;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
-import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
-import io.imunity.webconsole.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec;
-import pl.edu.icm.unity.base.registration.ExternalSignupSpec;
-import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
-import pl.edu.icm.unity.base.registration.RegistrationFormLayouts;
-import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.base.registration.*;
 import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec.AuthnGridSettings;
 import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -66,6 +39,12 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
 import pl.edu.icm.unity.webui.forms.reg.RemoteAuthnProvidersMultiSelection;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static io.imunity.tooltip.TooltipExtension.tooltip;
+
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
  * or to create a new one (name can be chosen).
@@ -73,9 +52,9 @@ import pl.edu.icm.unity.webui.forms.reg.RemoteAuthnProvidersMultiSelection;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class RegistrationFormEditor extends BaseFormEditor
+public class RegistrationFormEditorV8 extends BaseFormEditor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormEditor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormEditorV8.class);
 	private final MessageSource msg;
 	private final GroupsManagement groupsMan;
 	private final NotificationsManagement notificationsMan;
@@ -119,7 +98,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private ComboBox<String> realmNames;
 	
 	@Autowired
-	public RegistrationFormEditor(MessageSource msg, UnityServerConfiguration serverConfig,
+	public RegistrationFormEditorV8(MessageSource msg, UnityServerConfiguration serverConfig,
 			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan, CredentialManagement credMan,
@@ -147,7 +126,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		this.serverConfig = serverConfig;
 	}
 	
-	public RegistrationFormEditor init(boolean copyMode)
+	public RegistrationFormEditorV8 init(boolean copyMode)
 			throws EngineException
 	{
 		this.copyMode = copyMode;

@@ -20,11 +20,11 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  */
 public class EnquiryFormEditDialog extends AbstractDialog
 {
-	private EnquiryFormEditor editor;
+	private EnquiryFormEditorV8 editor;
 	private Callback callback;
 	
 	public EnquiryFormEditDialog(MessageSource msg, String caption, Callback callback, 
-			EnquiryFormEditor editor)
+			EnquiryFormEditorV8 editor)
 	{
 		super(msg, caption);
 		this.editor = editor;

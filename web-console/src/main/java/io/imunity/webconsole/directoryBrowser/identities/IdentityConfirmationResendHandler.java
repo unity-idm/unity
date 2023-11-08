@@ -4,11 +4,8 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.Identity;
@@ -20,12 +17,14 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
+import java.util.Set;
+
 /**
  * Factory of actions which trigger re-sending of (verifiable) identity confirmation.
  * 
  * @author K. Benedyczak
  */
-@Component
+@Component("IdentityConfirmationResendHandlerV8")
 class IdentityConfirmationResendHandler
 {
 	@Autowired

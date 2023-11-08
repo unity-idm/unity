@@ -17,9 +17,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 
 import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditDialog;
-import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditorV8;
 import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditDialog;
-import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditorV8;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -75,15 +75,15 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 	private RegistrationsManagement registrationMan;
 	private EnquiryManagement enquiryMan;
 	private AttributeTypeManagement attrTypeMan;
-	private ObjectFactory<RegistrationFormEditor> regFormEditorFactory;
-	private ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
+	private ObjectFactory<RegistrationFormEditorV8> regFormEditorFactory;
+	private ObjectFactory<EnquiryFormEditorV8> enquiryFormEditorFactory;
 	private EventsBus bus;
 	private GroupDelegationConfigGenerator configGenerator;
 
 	GroupDelegationEditConfigDialog(MessageSource msg, RegistrationsManagement registrationMan,
 			EnquiryManagement enquiryMan, AttributeTypeManagement attrTypeMan,
-			ObjectFactory<RegistrationFormEditor> regFormEditorFactory,
-			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory, EventsBus bus,
+			ObjectFactory<RegistrationFormEditorV8> regFormEditorFactory,
+			ObjectFactory<EnquiryFormEditorV8> enquiryFormEditorFactory, EventsBus bus,
 			GroupDelegationConfigGenerator configGenerator, Group group,
 			Consumer<GroupDelegationConfiguration> callback)
 	{
@@ -326,7 +326,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 	private void showEditRegFormEditDialog(RegistrationForm target, String caption)
 	{
 		RegistrationForm deepCopy = new RegistrationForm(target.toJson());
-		RegistrationFormEditor editor;
+		RegistrationFormEditorV8 editor;
 		try
 		{
 			editor = regFormEditorFactory.getObject().init(false);
@@ -377,7 +377,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 
 	private void showEditEnquriyDialog(EnquiryForm target, String caption)
 	{
-		EnquiryFormEditor editor;
+		EnquiryFormEditorV8 editor;
 		try
 		{
 			editor = enquiryFormEditorFactory.getObject().init(false);

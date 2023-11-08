@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class CredentialsChangeDialog extends AbstractDialog
+public class CredentialsChangeDialogV8 extends AbstractDialog
 {
 	private CredentialManagement credMan;
 	private EntityCredentialManagement ecredMan;
@@ -42,7 +42,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private AdditionalAuthnHandlerV8 additionalAuthnHandler;
 	
 	@Autowired
-	public CredentialsChangeDialog(AdditionalAuthnHandlerV8 additionalAuthnHandler, MessageSource msg, CredentialManagement credMan,
+	public CredentialsChangeDialogV8(AdditionalAuthnHandlerV8 additionalAuthnHandler, MessageSource msg, CredentialManagement credMan,
 	                               EntityCredentialManagement ecredMan, EntityManagement entityMan,
 	                               CredentialRequirementManagement credReqMan,
 	                               CredentialEditorRegistryV8 credEditorReg, TokensManagement tokenMan)
@@ -58,7 +58,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 		setSizeEm(49, 55);
 	}
 
-	public CredentialsChangeDialog init(long entityId, boolean simpleMode, Callback callback)
+	public CredentialsChangeDialogV8 init(long entityId, boolean simpleMode, Callback callback)
 	{
 		this.entityId = entityId;
 		this.callback = callback;

@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * 
  * @author P.Piernik
  */
-@Component
+@Component("AttributesComponentPanelV8")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AttributesComponentPanel extends SafePanel
 {

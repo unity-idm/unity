@@ -21,7 +21,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directoryBrowser.identities.EntityDetailsDialog;
-import io.imunity.webconsole.directoryBrowser.identities.EntityDetailsPanel;
+import io.imunity.webconsole.directoryBrowser.identities.EntityDetailsPanelV8;
 import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -90,7 +90,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 	private final AuditEventManagement eventManagement;
 	private final EntityManagement entityMan;
 	private final EntityManagement idsMan;
-	private final ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory;
+	private final ObjectFactory<EntityDetailsPanelV8> entityDetailsPanelFactory;
 
 	private final Label titleLabel = new Label();
 	private final Label diabledMsg = new Label();
@@ -106,7 +106,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 	@Autowired
 	AuditEventsView(MessageSource msg, AuditEventManagement eventManagement,
 					EntityManagement entityMan, EntityManagement idsMan,
-					ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory)
+					ObjectFactory<EntityDetailsPanelV8> entityDetailsPanelFactory)
 	{
 		this.msg = msg;
 		this.eventManagement = eventManagement;
@@ -366,7 +366,7 @@ class AuditEventsView extends CustomComponent implements UnityView
 			NotificationPopup.showError("Error", "Cannot display entity details.");
 			return;
 		}
-		final EntityDetailsPanel identityDetailsPanel = entityDetailsPanelFactory.getObject();
+		final EntityDetailsPanelV8 identityDetailsPanel = entityDetailsPanelFactory.getObject();
 		identityDetailsPanel.setInput(new EntityWithLabel(entity, label), groups);
 		new EntityDetailsDialog(msg, identityDetailsPanel).show();
 	}

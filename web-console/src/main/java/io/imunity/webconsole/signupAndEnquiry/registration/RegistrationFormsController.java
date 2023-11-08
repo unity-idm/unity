@@ -11,7 +11,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditorV8;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
@@ -31,11 +31,11 @@ public class RegistrationFormsController
 	private final MessageSource msg;
 	private final RegistrationsManagement regMan;
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
-	private final ObjectFactory<RegistrationFormEditor> editorFactory;
+	private final ObjectFactory<RegistrationFormEditorV8> editorFactory;
 
 	@Autowired
 	RegistrationFormsController(MessageSource msg, RegistrationsManagement regMan,
-			PublicRegistrationURLSupport publicRegistrationURLSupport, ObjectFactory<RegistrationFormEditor> editorFactory)
+			PublicRegistrationURLSupport publicRegistrationURLSupport, ObjectFactory<RegistrationFormEditorV8> editorFactory)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
@@ -112,11 +112,11 @@ public class RegistrationFormsController
 		return publicRegistrationURLSupport.getPublicRegistrationLink(form);
 	}
 
-	RegistrationFormEditor getEditor(RegistrationForm form, boolean copyMode) throws ControllerException
+	RegistrationFormEditorV8 getEditor(RegistrationForm form, boolean copyMode) throws ControllerException
 	{
 		try
 		{
-			RegistrationFormEditor editor = editorFactory.getObject().init(copyMode);
+			RegistrationFormEditorV8 editor = editorFactory.getObject().init(copyMode);
 			if (form != null)
 			{
 				editor.setForm(form);

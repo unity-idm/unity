@@ -4,19 +4,9 @@
  */
 package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import io.imunity.webconsole.directorySetup.attributeClasses.RequiredAttributesDialog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import io.imunity.webconsole.directorySetup.attributeClasses.RequiredAttributesDialog;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.AttributesClass;
@@ -36,12 +26,14 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 
+import java.util.*;
+
 /**
  * Utility class simplifies addition of an entity to a list of groups. If needed it asks for required attributes
  * with a separate dialog, for each group.
  * @author K. Benedyczak
  */
-@Component
+@Component("GroupManagementHelperV8")
 public class GroupManagementHelper
 {
 	private MessageSource msg;

@@ -4,12 +4,8 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.Set;
-import java.util.function.Supplier;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -17,12 +13,15 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
+import java.util.Set;
+import java.util.function.Supplier;
+
 /**
  * Factory of actions which allow for changing entity's attribute classes
  * 
  * @author K. Benedyczak
  */
-@Component
+@Component("EntityAttributeClassHandlerV8")
 class EntityAttributeClassHandler
 {
 	@Autowired

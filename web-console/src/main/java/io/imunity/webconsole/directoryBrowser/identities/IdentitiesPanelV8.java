@@ -4,22 +4,11 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.List;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Sets;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.*;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.VerticalLayout;
-
 import io.imunity.webconsole.attribute.AttributeChangedEvent;
 import io.imunity.webconsole.authentication.credentialReq.CredentialRequirementChangedEvent;
 import io.imunity.webconsole.authentication.localCredentials.CredentialDefinitionChangedEvent;
@@ -27,6 +16,8 @@ import io.imunity.webconsole.directoryBrowser.RefreshAndSelectEvent;
 import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
 import io.imunity.webconsole.directorySetup.attributeTypes.AttributeTypesUpdatedEvent;
 import io.imunity.webconsole.signupAndEnquiry.invitations.InvitationEntry;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
@@ -40,33 +31,30 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
-import pl.edu.icm.unity.webui.common.HamburgerMenu;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
+import java.util.List;
+import java.util.Set;
+
 /**
- * Component wrapping {@link IdentitiesTreeGrid}. Allows to configure its mode,
+ * Component wrapping {@link IdentitiesTreeGridV8}. Allows to configure its mode,
  * feeds it with data to be visualised etc.
  * 
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class IdentitiesPanel extends SafePanel
+public class IdentitiesPanelV8 extends SafePanel
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesPanel.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesPanelV8.class);
 	private MessageSource msg;
 	private AttributeTypeManagement attrsMan;
 
 	private VerticalLayout main;
-	private IdentitiesTreeGrid identitiesTable;
+	private IdentitiesTreeGridV8 identitiesTable;
 
 	private Toolbar<InvitationEntry> toolbar;
 	private HorizontalLayout filtersBar;
@@ -76,12 +64,12 @@ public class IdentitiesPanel extends SafePanel
 	private SearchField searchText;
 	
 	@Autowired
-	public IdentitiesPanel(MessageSource msg, AttributeTypeManagement attrsMan,
+	public IdentitiesPanelV8(MessageSource msg, AttributeTypeManagement attrsMan,
 			RemoveFromGroupHandler removeFromGroupHandler, AddToGroupHandler addToGroupHandler,
 			EntityCreationHandler entityCreationDialogHandler, DeleteEntityHandler deleteEntityHandler,
 			IdentityConfirmationResendHandler confirmationResendHandler,
 			IdentityConfirmHandler confirmHandler, EntityMergeHandler entityMergeHandler,
-			IdentitiesTreeGrid identitiesTable, AttributeSupport attributeSupport)
+			IdentitiesTreeGridV8 identitiesTable, AttributeSupport attributeSupport)
 	{
 		this.msg = msg;
 		this.identitiesTable = identitiesTable;
@@ -271,7 +259,7 @@ public class IdentitiesPanel extends SafePanel
 				identitiesTable.setShowTargeted(c.isChecked());
 			} catch (EngineException e)
 			{
-				setIdProblem(IdentitiesPanel.this.identitiesTable.getGroup(), e);
+				setIdProblem(IdentitiesPanelV8.this.identitiesTable.getGroup(), e);
 			}
 		});
 		showTargeted.setCheckable(true);

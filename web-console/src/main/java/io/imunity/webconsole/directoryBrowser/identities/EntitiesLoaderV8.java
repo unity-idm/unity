@@ -4,17 +4,9 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.base.Stopwatch;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.base.Stopwatch;
-
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -23,6 +15,12 @@ import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Loads entities from a given group, and resolves their attributes. Operation is done
  * in async way for larger amounts of entities. Client has to provide consumer for collected data.  
@@ -30,13 +28,13 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-class EntitiesLoader
+class EntitiesLoaderV8
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EntitiesLoader.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EntitiesLoaderV8.class);
 	private BulkGroupQueryService bulkQueryService;
 
 	@Autowired
-	EntitiesLoader(BulkGroupQueryService bulkQueryService)
+	EntitiesLoaderV8(BulkGroupQueryService bulkQueryService)
 	{
 		this.bulkQueryService = bulkQueryService;
 	}

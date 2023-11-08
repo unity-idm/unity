@@ -18,9 +18,9 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webconsole.directoryBrowser.attributes.AttributesComponentPanel;
-import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupBrowserPanel;
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupBrowserPanelV8;
 import io.imunity.webconsole.directoryBrowser.groupdetails.GroupDetailsPanel;
-import io.imunity.webconsole.directoryBrowser.identities.IdentitiesPanel;
+import io.imunity.webconsole.directoryBrowser.identities.IdentitiesPanelV8;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -36,14 +36,14 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "DirectoryBrowser";
 
 	private MessageSource msg;
-	private GroupBrowserPanel groupBrowserPanel;
+	private GroupBrowserPanelV8 groupBrowserPanel;
 	private AttributesComponentPanel attributesPanel;
-	private IdentitiesPanel identitiesPanel;
+	private IdentitiesPanelV8 identitiesPanel;
 	private GroupDetailsPanel groupDetailsPanel;
 
 	@Autowired
-	public DirectoryBrowser(MessageSource msg, GroupBrowserPanel groupBrowser,
-			IdentitiesPanel identitiesTable, GroupDetailsPanel groupDetails,
+	public DirectoryBrowser(MessageSource msg, GroupBrowserPanelV8 groupBrowser,
+			IdentitiesPanelV8 identitiesTable, GroupDetailsPanel groupDetails,
 			AttributesComponentPanel attributesComponent)
 	{
 		this.msg = msg;

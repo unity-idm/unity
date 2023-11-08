@@ -4,14 +4,10 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupManagementHelper;
+import io.imunity.webconsole.directoryBrowser.identities.NewEntityCredentialsPanelV8.CredentialsPanelFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupManagementHelper;
-import io.imunity.webconsole.directoryBrowser.identities.NewEntityCredentialsPanel.CredentialsPanelFactory;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -25,11 +21,14 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 /**
  * Simplifies entity creation dialog instantiation, also provides handy action
  * @author K. Benedyczak
  */
-@Component
+@Component("EntityCreationHandlerV8")
 class EntityCreationHandler
 {
 	@Autowired

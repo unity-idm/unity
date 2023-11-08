@@ -4,14 +4,9 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.Collection;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.authn.CredentialInfo;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.entity.Entity;
@@ -27,13 +22,16 @@ import pl.edu.icm.unity.webui.common.identities.MembershipFormatter;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
+import java.util.Collection;
+import java.util.Map;
+
 /**
  * Presents a complete and comprehensive information about a single entity. No editing is possible.
  * Targeted for admin user.
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class EntityDetailsPanel extends FormLayout
+public class EntityDetailsPanelV8 extends FormLayout
 {
 	private MessageSource msg;
 	private IdentityFormatter idFormatter;
@@ -46,7 +44,7 @@ public class EntityDetailsPanel extends FormLayout
 	private ListOfElementsWithActions<String> groups;
 	
 	@Autowired
-	public EntityDetailsPanel(MessageSource msg, IdentityFormatter idFormatter)
+	public EntityDetailsPanelV8(MessageSource msg, IdentityFormatter idFormatter)
 	{
 		this.msg = msg;
 		this.idFormatter = idFormatter;

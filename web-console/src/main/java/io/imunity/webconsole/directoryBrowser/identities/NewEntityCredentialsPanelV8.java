@@ -4,23 +4,12 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import io.imunity.webconsole.directoryBrowser.identities.SingleCredentialPanel.ObtainedCredential;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-
-import io.imunity.webconsole.directoryBrowser.identities.SingleCredentialPanel.ObtainedCredential;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -33,13 +22,16 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistryV8;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
  * Editing of credentials of an entity which does not exist yet.
  */
 @PrototypeComponent
-class NewEntityCredentialsPanel extends VerticalLayout
+class NewEntityCredentialsPanelV8 extends VerticalLayout
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NewEntityCredentialsPanel.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NewEntityCredentialsPanelV8.class);
 	private CredentialManagement credMan;
 	private CredentialRequirementManagement credReqMan;
 	private CredentialEditorRegistryV8 credEditorReg;
@@ -50,7 +42,7 @@ class NewEntityCredentialsPanel extends VerticalLayout
 	private String credReqId;
 
 	@Autowired
-	private NewEntityCredentialsPanel(MessageSource msg, 
+	private NewEntityCredentialsPanelV8(MessageSource msg,
 			CredentialManagement credMan, 
 			CredentialRequirementManagement credReqMan,
 			CredentialEditorRegistryV8 credEditorReg)
@@ -64,17 +56,17 @@ class NewEntityCredentialsPanel extends VerticalLayout
 	@org.springframework.stereotype.Component
 	public static class CredentialsPanelFactory
 	{
-		private ObjectFactory<NewEntityCredentialsPanel> factory;
+		private ObjectFactory<NewEntityCredentialsPanelV8> factory;
 
 		@Autowired
-		CredentialsPanelFactory(ObjectFactory<NewEntityCredentialsPanel> factory)
+		CredentialsPanelFactory(ObjectFactory<NewEntityCredentialsPanelV8> factory)
 		{
 			this.factory = factory;
 		}
 		
-		public NewEntityCredentialsPanel getInstance(String credReqId)
+		public NewEntityCredentialsPanelV8 getInstance(String credReqId)
 		{
-			NewEntityCredentialsPanel panel = factory.getObject();
+			NewEntityCredentialsPanelV8 panel = factory.getObject();
 			panel.init(credReqId);
 			return panel;
 		}

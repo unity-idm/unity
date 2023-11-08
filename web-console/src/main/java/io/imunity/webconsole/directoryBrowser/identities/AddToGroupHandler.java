@@ -4,26 +4,19 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupManagementHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.webui.common.*;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-
-import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupManagementHelper;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.GroupComboBox;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Action to add user(s) to a given group, which is selected in a dialog. This is alternative to drag'n'drop 
@@ -31,7 +24,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
  * 
  * @author K. Benedyczak
  */
-@Component
+@Component("AddToGroupHandlerV8")
 class AddToGroupHandler
 {
 	private final GroupManagementHelper groupManagementHelper;

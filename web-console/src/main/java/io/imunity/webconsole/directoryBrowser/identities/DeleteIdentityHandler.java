@@ -4,12 +4,8 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.Set;
-import java.util.function.Consumer;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -20,12 +16,15 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
+import java.util.Set;
+import java.util.function.Consumer;
+
 /**
  * Factory of actions which (after confirmation) trigger removal of identities
  * 
  * @author K. Benedyczak
  */
-@Component
+@Component("DeleteIdentityHandlerV8")
 class DeleteIdentityHandler
 {
 	@Autowired

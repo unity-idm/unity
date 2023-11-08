@@ -4,20 +4,13 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Consumer;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.Identity;
@@ -25,15 +18,15 @@ import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Identity creation dialog. Adds the identity to an existing entity.
@@ -65,7 +58,7 @@ class IdentityCreationDialog extends AbstractDialog
 		this.callback = callback;
 	}
 
-	@Component
+	@Component("IdentityCreationDialogHandlerV8")
 	static class IdentityCreationDialogHandler
 	{
 		@Autowired

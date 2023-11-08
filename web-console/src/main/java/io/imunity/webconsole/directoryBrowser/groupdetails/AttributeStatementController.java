@@ -5,15 +5,9 @@
 
 package io.imunity.webconsole.directoryBrowser.groupdetails;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
+import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.base.attribute.AttributeStatement;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -23,7 +17,12 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
-@Component
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+@Component("AttributeStatementControllerV8")
 class AttributeStatementController
 {
 	private AttributeHandlerRegistryV8 attributeHandlerRegistry;

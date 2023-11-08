@@ -4,21 +4,6 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Sets;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.HierarchicalQuery;
@@ -29,9 +14,12 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
-
 import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
 import io.imunity.webconsole.directoryBrowser.identities.IdentityCreationDialog.IdentityCreationDialogHandler;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
@@ -51,16 +39,13 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.GridSelectionSupport;
-import pl.edu.icm.unity.webui.common.HamburgerMenu;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
-import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
+import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialogV8;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Displays a tree grid with identities. Can present contents in two modes: -
@@ -70,16 +55,16 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
+public class IdentitiesTreeGridV8 extends TreeGrid<IdentityEntry>
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTreeGrid.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTreeGridV8.class);
 	public static final String ENTITY_DND_TYPE = "entity";
 
 	private final AttributeSupport attributeSupport;
 	private final CredentialManagement credentialManagement;
 	private final IdentityTypeSupport idTypeSupport;
 	private final MessageSource msg;
-	private final EntitiesLoader entitiesLoader;
+	private final EntitiesLoaderV8 entitiesLoader;
 	private final AttributeHandlerRegistryV8 attrHandlerRegistry;
 
 	private boolean groupByEntity;
@@ -102,7 +87,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	private AddToGroupHandler addToGroupHandler;
 	private RemoveFromGroupHandler removeFromGroupHandler;
 	private IdentityCreationDialogHandler identityCreationDialogHanlder;
-	private ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory;
+	private ObjectFactory<CredentialsChangeDialogV8> credentialChangeDialogFactory;
 	private ChangeEntityStateHandler changeEntityStateHandler;
 	private ChangeCredentialRequirementHandler credentialRequirementHandler;
 	private EntityAttributeClassHandler entityAttributeClassHandler;
@@ -113,13 +98,13 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	@SuppressWarnings("unchecked")
 	@Autowired
-	public IdentitiesTreeGrid(MessageSource msg, AttributeSupport attributeSupport,
-	                          IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
+	public IdentitiesTreeGridV8(MessageSource msg, AttributeSupport attributeSupport,
+	                          IdentityTypeSupport idTypeSupport, EntitiesLoaderV8 entitiesLoader,
 	                          AttributeHandlerRegistryV8 attrHandlerRegistry, PreferencesManagement preferencesMan,
 	                          CredentialManagement credentialManagement, EntityDetailsHandler entityDetailsHandler,
 	                          AddToGroupHandler addToGroupHandler, RemoveFromGroupHandler removeFromGroupHandler,
 	                          IdentityCreationDialogHandler identityCreationDialogHanlder,
-	                          ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory,
+	                          ObjectFactory<CredentialsChangeDialogV8> credentialChangeDialogFactory,
 	                          ChangeEntityStateHandler changeEntityStateHandler,
 	                          ChangeCredentialRequirementHandler credentialRequirementHandler,
 	                          EntityAttributeClassHandler entityAttributeClassHandler,

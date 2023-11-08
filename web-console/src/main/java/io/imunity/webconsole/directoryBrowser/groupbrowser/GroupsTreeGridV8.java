@@ -4,16 +4,6 @@
  */
 package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Sets;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.TreeDataProvider;
@@ -28,27 +18,20 @@ import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
 import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
-
-import io.imunity.webconsole.directoryBrowser.identities.IdentitiesTreeGrid;
+import io.imunity.webconsole.directoryBrowser.identities.IdentitiesTreeGridV8;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
-import pl.edu.icm.unity.webui.common.DnDGridUtils;
-import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.GridSelectionSupport;
-import pl.edu.icm.unity.webui.common.HamburgerMenu;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SearchField;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Tree with groups obtained dynamically from the engine.
@@ -56,7 +39,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class GroupsTreeGrid extends TreeGrid<TreeNode>
+public class GroupsTreeGridV8 extends TreeGrid<TreeNode>
 {
 	private MessageSource msg;
 	private EventsBus bus;
@@ -67,7 +50,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private boolean authzError = false;
 	
 	@Autowired
-	public GroupsTreeGrid(MessageSource msg, GroupBrowserController controller)
+	public GroupsTreeGridV8(MessageSource msg, GroupBrowserController controller)
 	{
 
 		this.msg = msg;
@@ -188,7 +171,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		TreeGridDropTarget<TreeNode> dropTarget = new TreeGridDropTarget<>(this, DropMode.ON_TOP);
 		dropTarget.setDropEffect(DropEffect.MOVE);
 		dropTarget.setDropCriteriaScript(
-				DnDGridUtils.getTypedCriteriaScript(IdentitiesTreeGrid.ENTITY_DND_TYPE));
+				DnDGridUtils.getTypedCriteriaScript(IdentitiesTreeGridV8.ENTITY_DND_TYPE));
 		dropTarget.addGridDropListener(e -> {
 			e.getDragSourceExtension().ifPresent(source -> {
 				if (source instanceof GridDragSource && e.getDropTargetRow().isPresent()

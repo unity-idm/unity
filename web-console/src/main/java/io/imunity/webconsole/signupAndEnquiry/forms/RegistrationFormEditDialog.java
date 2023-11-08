@@ -23,11 +23,11 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 public class RegistrationFormEditDialog extends AbstractDialog
 {
 
-	private RegistrationFormEditor editor;
+	private RegistrationFormEditorV8 editor;
 	private Callback callback;
 	
 	public RegistrationFormEditDialog(MessageSource msg, String caption, Callback callback, 
-			RegistrationFormEditor attributeEditor)
+			RegistrationFormEditorV8 attributeEditor)
 	{
 		super(msg, caption);
 		this.editor = attributeEditor;

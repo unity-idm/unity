@@ -5,29 +5,18 @@
 
 package io.imunity.webconsole.directoryBrowser.attributes;
 
-import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar.MenuItem;
-
 import io.imunity.webconsole.attribute.AttributeEditDialog;
 import io.imunity.webconsole.attribute.AttributeEditor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -37,19 +26,13 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.GridWithActionColumn;
-import pl.edu.icm.unity.webui.common.HamburgerMenu;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.*;
+
+import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
 
 /**
  * Shows attributes grid
@@ -57,7 +40,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-@Component
+@Component("AttributesGridV8")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AttributesGrid extends CustomComponent
 {

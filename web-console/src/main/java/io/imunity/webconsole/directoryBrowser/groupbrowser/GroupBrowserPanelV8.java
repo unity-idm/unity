@@ -26,13 +26,13 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * 
  */
 @PrototypeComponent
-public class GroupBrowserPanel extends SafePanel
+public class GroupBrowserPanelV8 extends SafePanel
 {
-	private GroupsTreeGrid groupsTree;
+	private GroupsTreeGridV8 groupsTree;
 	private MessageSource msg;
 
 	@Autowired
-	public GroupBrowserPanel(GroupsTreeGrid groupsTree, MessageSource msg)
+	public GroupBrowserPanelV8(GroupsTreeGridV8 groupsTree, MessageSource msg)
 	{
 		this.groupsTree = groupsTree;
 		this.msg = msg;

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditorV8;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
@@ -31,11 +31,11 @@ public class EnquiryFormsController
 	private final MessageSource msg;
 	private final EnquiryManagement enqMan;
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
-	private final ObjectFactory<EnquiryFormEditor> editorFactory;
+	private final ObjectFactory<EnquiryFormEditorV8> editorFactory;
 
 	@Autowired
 	EnquiryFormsController(MessageSource msg, EnquiryManagement enqMan,
-			PublicRegistrationURLSupport publicRegistrationURLSupport, ObjectFactory<EnquiryFormEditor> editorFactory)
+			PublicRegistrationURLSupport publicRegistrationURLSupport, ObjectFactory<EnquiryFormEditorV8> editorFactory)
 	{
 		this.msg = msg;
 		this.enqMan = enqMan;
@@ -110,11 +110,11 @@ public class EnquiryFormsController
 		return publicRegistrationURLSupport.getWellknownEnquiryLink(form.getName());
 	}
 
-	EnquiryFormEditor getEditor(EnquiryForm form, boolean copyMode) throws ControllerException
+	EnquiryFormEditorV8 getEditor(EnquiryForm form, boolean copyMode) throws ControllerException
 	{
 		try
 		{
-			EnquiryFormEditor editor = editorFactory.getObject().init(copyMode);
+			EnquiryFormEditorV8 editor = editorFactory.getObject().init(copyMode);
 			if (form != null)
 			{
 				editor.setForm(form);

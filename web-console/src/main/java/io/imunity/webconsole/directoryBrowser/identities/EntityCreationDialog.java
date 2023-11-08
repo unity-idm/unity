@@ -25,7 +25,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupChangedEvent;
 import io.imunity.webconsole.directoryBrowser.groupbrowser.GroupManagementHelper;
-import io.imunity.webconsole.directoryBrowser.identities.NewEntityCredentialsPanel.CredentialsPanelFactory;
+import io.imunity.webconsole.directoryBrowser.identities.NewEntityCredentialsPanelV8.CredentialsPanelFactory;
 import io.imunity.webconsole.directoryBrowser.identities.SingleCredentialPanel.ObtainedCredential;
 import io.imunity.webconsole.directorySetup.attributeClasses.RequiredAttributesDialog;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -83,7 +83,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 	private EventsBus bus;
 	private Collection<FixedAttributeEditor> attributeEditors;
 	private CredentialsPanelFactory credentialsPanelFactory;
-	private NewEntityCredentialsPanel newEntityCredentialsPanel;
+	private NewEntityCredentialsPanelV8 newEntityCredentialsPanel;
 	private TabSheet tabs;
 	private EntityCredentialManagement ecredMan;
 	
@@ -95,7 +95,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 			Consumer<Identity> callback,
 			AttributeSupport attributeSupport,
 			AttributeHandlerRegistryV8 reg,
-			NewEntityCredentialsPanel.CredentialsPanelFactory credentialsPanelFactory,
+			NewEntityCredentialsPanelV8.CredentialsPanelFactory credentialsPanelFactory,
 			EntityCredentialManagement ecredMan)
 	{
 		super(msg.getMessage("EntityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);

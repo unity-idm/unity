@@ -4,31 +4,26 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.HashMap;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.*;
+
+import java.util.HashMap;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Factory of actions which (after confirmation) trigger removal of entity
  * 
  * @author K. Benedyczak
  */
-@Component
+@Component("DeleteEntityHandlerV8")
 class DeleteEntityHandler
 {
 	@Autowired

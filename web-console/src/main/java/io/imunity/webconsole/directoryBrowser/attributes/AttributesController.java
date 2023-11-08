@@ -5,18 +5,10 @@
 
 package io.imunity.webconsole.directoryBrowser.attributes;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import io.imunity.webconsole.attribute.AttributeChangedEvent;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import io.imunity.webconsole.attribute.AttributeChangedEvent;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -40,12 +32,14 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.util.*;
+
 /**
  * 
  * @author P.Piernik
  *
  */
-@Component
+@Component("AttributesControllerV8")
 class AttributesController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AttributesController.class);

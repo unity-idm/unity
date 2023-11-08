@@ -14,7 +14,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditorV8;
 import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView;
 import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView.SignupAndEnquiryFormsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -43,7 +43,7 @@ class NewRegistrationFormView extends CustomComponent implements UnityView
 
 	private RegistrationFormsController controller;
 	private MessageSource msg;
-	private RegistrationFormEditor editor;
+	private RegistrationFormEditorV8 editor;
 
 	NewRegistrationFormView(RegistrationFormsController controller, MessageSource msg)
 	{

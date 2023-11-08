@@ -8,14 +8,14 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 
 /**
- * Simple dialog showing a given {@link EntityDetailsPanel}
+ * Simple dialog showing a given {@link EntityDetailsPanelV8}
  * @author K. Benedyczak
  */
 public class EntityDetailsDialog extends AbstractDialog
 {
-	private EntityDetailsPanel contents;
+	private EntityDetailsPanelV8 contents;
 	
-	public EntityDetailsDialog(MessageSource msg, EntityDetailsPanel contents)
+	public EntityDetailsDialog(MessageSource msg, EntityDetailsPanelV8 contents)
 	{
 		super(msg, msg.getMessage("IdentityDetails.entityDetailsCaption"),
 				msg.getMessage("close"));

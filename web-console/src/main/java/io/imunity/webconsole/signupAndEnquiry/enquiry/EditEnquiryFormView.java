@@ -14,7 +14,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditor;
+import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditorV8;
 import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView;
 import io.imunity.webconsole.signupAndEnquiry.forms.SignupAndEnquiryFormsView.SignupAndEnquiryFormsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -42,7 +42,7 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 
 	private EnquiryFormsController controller;
 	private MessageSource msg;
-	private EnquiryFormEditor editor;
+	private EnquiryFormEditorV8 editor;
 	private String enquiryFormName;
 
 	EditEnquiryFormView(EnquiryFormsController controller, MessageSource msg)

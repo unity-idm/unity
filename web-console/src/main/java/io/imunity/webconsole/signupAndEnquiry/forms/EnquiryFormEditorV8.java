@@ -4,38 +4,24 @@
  */
 package io.imunity.webconsole.signupAndEnquiry.forms;
 
-import java.util.ArrayList;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Lists;
 import com.vaadin.data.Binder;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.ui.*;
 import io.imunity.webconsole.tprofile.ActionParameterComponentProviderV8;
 import io.imunity.webconsole.tprofile.RegistrationTranslationProfileEditor;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
-import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -45,14 +31,12 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GroupsSelectionList;
-import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory;
+
+import java.util.ArrayList;
 
 /**
  * Allows to edit an {@link EnquiryForm}. Can be configured to edit an existing form (name is fixed)
@@ -61,9 +45,9 @@ import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementConfiguratio
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class EnquiryFormEditor extends BaseFormEditor
+public class EnquiryFormEditorV8 extends BaseFormEditor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryFormEditor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryFormEditorV8.class);
 	
 	private MessageSource msg;
 	private GroupsManagement groupsMan;
@@ -93,7 +77,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	
 	@Autowired
-	public EnquiryFormEditor(MessageSource msg, UnityServerConfiguration serverConfig,
+	public EnquiryFormEditorV8(MessageSource msg, UnityServerConfiguration serverConfig,
 							 GroupsManagement groupsMan, NotificationsManagement notificationsMan,
 							 MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 							 AttributeTypeManagement attributeMan, CredentialManagement authenticationMan,
@@ -117,7 +101,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		this.imageAccessService = imageAccessService;
 	}
 
-	public EnquiryFormEditor init(boolean copyMode)
+	public EnquiryFormEditorV8 init(boolean copyMode)
 			throws EngineException
 	{
 		this.copyMode = copyMode;
