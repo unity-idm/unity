@@ -30,6 +30,11 @@ public class GridContextMenuSupport<T>
 			fillContextMenu(contextMenu, selection);
 		});
 	}
+
+	public List<SingleActionHandler<T>> getActionHandlers()
+	{
+		return actionHandlers;
+	}
 	
 	public void addActionHandler(SingleActionHandler<T> actionHandler)
 	{

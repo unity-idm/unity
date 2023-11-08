@@ -5,7 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.HasComponents;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +15,13 @@ import java.util.function.Consumer;
 
 public class CompositeLayoutAdapter
 {
-	private final VerticalLayout layout;
+	private final HasComponents layout;
 	
 	private List<Element> elements = new ArrayList<>();
 
 	private int offset = 0;
 	
-	public CompositeLayoutAdapter(VerticalLayout layout, ComposableComponents... container)
+	public CompositeLayoutAdapter(HasComponents layout, ComposableComponents... container)
 	{
 		this.layout = layout;
 		for (ComposableComponents c: container)

@@ -31,6 +31,7 @@ public class EffectiveAttrClassViewer extends VerticalLayout
 	private final Grid<String> allowed;
 	private final Grid<String> mandatory;
 	private final VerticalLayout rightMenu;
+	private final SplitLayout mainLayout;
 	private Map<String, AttributesClass> allClasses;
 	
 	public EffectiveAttrClassViewer(MessageSource msg)
@@ -69,13 +70,18 @@ public class EffectiveAttrClassViewer extends VerticalLayout
 
 		VerticalLayout leftMenu = new VerticalLayout(new H5(msg.getMessage("AttributesClass.parentsInEffective")), parents);
 
-		SplitLayout splitLayout = new SplitLayout(leftMenu, new VerticalLayout(rightMenu));
-		splitLayout.setWidthFull();
-		splitLayout.setSplitterPosition(30);
-		add(splitLayout);
+		mainLayout = new SplitLayout(leftMenu, new VerticalLayout(rightMenu));
+		mainLayout.setWidthFull();
+		setSplitterPosition(30);
+		add(mainLayout);
 		setHeight(27, Unit.EM);
 	}
-	
+
+	public void setSplitterPosition(double position)
+	{
+		mainLayout.setSplitterPosition(position);
+	}
+
 	public void setInput(String rootClass, Map<String, AttributesClass> allClasses)
 	{
 		this.allClasses = allClasses;

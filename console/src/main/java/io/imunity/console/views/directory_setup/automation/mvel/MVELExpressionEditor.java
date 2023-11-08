@@ -71,10 +71,11 @@ class MVELExpressionEditor
 		{
 			if (!mandatory && value == null)
 				return ValidationResult.ok();
+			else if (mandatory && value == null)
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			try
 			{
 				MVEL.compileExpression(value);
-
 			} catch (Exception e)
 			{
 				String info;

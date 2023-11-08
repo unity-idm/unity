@@ -12,6 +12,8 @@ public enum VaadinClassNames
 	SMALL_GAP("small-gap"),
 	EMPTY_DETAILS_ICON("empty-details-icon"),
 	GRID_DETAILS_FORM_ITEM("grid-details-vaadin-form-item"),
+	BOLD("u-bold"),
+	IMMUTABLE_ATTRIBUTE("u-immutableAttribute"),
 	GRID_DETAILS_FORM("grid-details-vaadin-form");
 
 	private final String name;

@@ -4,21 +4,15 @@
  */
 package io.imunity.vaadin.endpoint.common;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.google.common.html.HtmlEscapers;
-import com.vaadin.event.selection.SelectionListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-
 import io.imunity.vaadin.elements.SearchField;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
+
+import java.util.*;
+import java.util.function.Consumer;
 
 
 /**
@@ -51,11 +45,11 @@ public class Toolbar<T> extends HorizontalLayout
 	 * @return a listener that can be registered on a selectable component as {@link Tree} or {@link Table}
 	 * to update the toolbar's target.
 	 */
-	public SelectionListener<T> getSelectionListener()
+	public Consumer<Set<T>> getSelectionListener()
 	{
 		return event ->
 		{
-			target = event.getAllSelectedItems();
+			target = event;
 			for (Button button: buttons.keySet())
 				updateButtonState(button);
 		};
@@ -105,6 +99,13 @@ public class Toolbar<T> extends HorizontalLayout
 		add(menuBar.getTarget());
 		menuBar.getTarget().getElement().getStyle().set("margin-left", "1.3em");
 		setAlignSelf(FlexComponent.Alignment.START, menuBar.getTarget());
+	}
+
+	public void addHamburger(ActionMenuWithHandlerSupport<?> menuBar, FlexComponent.Alignment alignment)
+	{
+		add(menuBar.getTarget());
+		menuBar.getTarget().getElement().getStyle().set("margin-left", "1.3em");
+		setAlignSelf(alignment, menuBar.getTarget());
 	}
 	
 	public void addSearch(SearchField search)

@@ -4,8 +4,10 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,9 @@ import java.util.*;
 @Component
 public class AttributeHandlerRegistry
 {
+	private static final int SHORT_TEXT_VALUE_LENGHT = 100;
+	private static final int PREVIEW_IMAGE_SIZE = 29;
+
 	private final MessageSource msg;
 	private final AttributeTypeSupport aTypeSupport;
 
@@ -130,6 +135,44 @@ public class AttributeHandlerRegistry
 		return vl;
 	}
 
+	public String getSimplifiedAttributeRepresentation(Attribute attribute)
+	{
+		return getSimplifiedAttributeRepresentation(attribute, attribute.getName());
+	}
+
+	private String getSimplifiedAttributeRepresentation(Attribute attribute, String displayedName)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(displayedName);
+		List<?> values = attribute.getValues();
+		if (!values.isEmpty())
+		{
+			sb.append(": ");
+			sb.append(getSimplifiedAttributeValuesRepresentation(attribute));
+		}
+		return sb.toString();
+	}
+
+	private String getSimplifiedAttributeValuesRepresentation(Attribute attribute)
+	{
+		WebAttributeHandler handler = getHandlerWithStringFallback(attribute);
+		return getSimplifiedAttributeValuesRepresentation(attribute, handler);
+	}
+
+	public String getSimplifiedAttributeValuesRepresentation(Attribute attribute, WebAttributeHandler handler)
+	{
+		StringBuilder sb = new StringBuilder();
+		List<String> values = attribute.getValues();
+		for (int i = 0; i < values.size(); i++)
+		{
+			String val = handler.getValueAsString(values.get(i));
+			if (i > 0)
+				sb.append(", ");
+			sb.append(val);
+		}
+		return sb.toString();
+	}
+
 	public Div getSimpleRepresentation(Attribute attribute, AttributeViewerContext context)
 	{
 		Div vl = new Div();
@@ -161,4 +204,34 @@ public class AttributeHandlerRegistry
 		return factory.getSyntaxEditorComponent(syntax);
 	}
 
+	public com.vaadin.flow.component.Component getSimplifiedShortValuesRepresentation(Attribute attribute)
+	{
+		WebAttributeHandler handler = getHandlerWithStringFallback(attribute);
+
+		if (attribute.getValues() != null && !attribute.getValues().isEmpty())
+		{
+			com.vaadin.flow.component.Component rep = handler.getRepresentation(attribute.getValues().get(0),
+					AttributeViewerContext.builder().withCustomWidth(PREVIEW_IMAGE_SIZE)
+							.withCustomWidthUnit(Unit.PIXELS).withCustomHeight(PREVIEW_IMAGE_SIZE)
+							.withCustomHeightUnit(Unit.PIXELS).withMaxTextSize(SHORT_TEXT_VALUE_LENGHT)
+							.withShowAsLabel(true).build());
+			if (attribute.getValues().size() > 1)
+			{
+				HorizontalLayout wrapper = new HorizontalLayout();
+				wrapper.setPadding(false);
+				wrapper.setSpacing(false);
+				wrapper.add(rep);
+				wrapper.add(new Span(msg.getMessage("MessageUtils.andMore",
+						String.valueOf(attribute.getValues().size() - 1))));
+				return wrapper;
+
+			} else
+			{
+				return rep;
+			}
+		} else
+		{
+			return new Span();
+		}
+	}
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class IdentityEditorRegistry
@@ -30,5 +31,10 @@ public class IdentityEditorRegistry
 		if (factory == null)
 			throw new IllegalArgumentException("Identity type " + type + " has no editor factory registered");
 		return factory.createInstance();
+	}
+
+	public Set<String> getSupportedTypes()
+	{
+		return factoriesByType.keySet();
 	}
 }

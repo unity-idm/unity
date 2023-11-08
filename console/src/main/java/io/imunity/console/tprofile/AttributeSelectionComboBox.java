@@ -5,6 +5,7 @@
 package io.imunity.console.tprofile;
 
 import com.vaadin.flow.component.combobox.ComboBox;
+import io.imunity.console.views.directory_browser.ComboBoxNonEmptyValueSupport;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -27,9 +28,9 @@ public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 	public AttributeSelectionComboBox(String caption, AttributeTypeManagement aTypeMan) throws EngineException
 	{
 		Collection<AttributeType> attributeTypes = aTypeMan.getAttributeTypes();
-		initContents(caption, attributeTypes);		
+		initContents(caption, attributeTypes);
 	}
-	
+
 	public AttributeSelectionComboBox(String caption, Collection<AttributeType> attributeTypes,
 									  boolean filterImmutable)
 	{
@@ -44,6 +45,7 @@ public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 	
 	private void initContents(String caption, Collection<AttributeType> attributeTypes)
 	{
+		ComboBoxNonEmptyValueSupport.install(this);
 		this.attributeTypesByName = attributeTypes.stream()
 				.collect(Collectors.toMap(AttributeType::getName, Function.identity()));
 		
@@ -58,7 +60,7 @@ public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 		setItems(items);
 		setItemLabelGenerator(AttributeType::getName);
 
-		if (items.size() > 0)
+		if (!items.isEmpty())
 			setValue(items.get(0));
 	}
 	

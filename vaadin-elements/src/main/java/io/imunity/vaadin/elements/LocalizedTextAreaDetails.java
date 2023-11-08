@@ -26,6 +26,10 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 {
 	public Map<Locale, LocalizedTextArea> fields = new LinkedHashMap<>();
 
+	public LocalizedTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale)
+	{
+		this(enabledLocales, currentLocale, Optional.empty(), locale -> "");
+	}
 	public LocalizedTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale, Optional<String> label, Function<Locale, String> valueGenerator)
 	{
 		VerticalLayout content = new VerticalLayout();

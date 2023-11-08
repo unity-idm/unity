@@ -62,7 +62,7 @@ html {
   --big-dialog-width: 65em;
 }
 
-h1, h2, h3, h4, h5, h6, b, strong {
+h1, h2, h3, h4, h5, h6 {
     font-weight: var(--unity-font-weight);
 }
 
@@ -142,6 +142,10 @@ vaadin-icon {
 
 vaadin-form-item {
     --vaadin-form-item-label-width: 11em;
+}
+
+.medium-vaadin-form-item > vaadin-form-item {
+    --vaadin-form-item-label-width: 17em;
 }
 
 .big-vaadin-form-item > vaadin-form-item {
@@ -489,6 +493,7 @@ vaadin-details.multi-tab-details {
 
 .disabled-icon {
     opacity: 0.5;
+    pointer-events: none;
 }
 
 .confirmation-status-icon {
@@ -556,4 +561,24 @@ vaadin-text-field::part(error-message) {
 
 .grid-details-vaadin-form {
     margin-bottom: 0.75em;
+}
+
+.u-immutableAttribute {
+	color: gray;
+}
+
+.u-bold {
+	font-weight: bold;
+}
+
+vaadin-context-menu-item > hr, vaadin-context-menu-list-box > hr {
+    margin: 0;
+}
+
+vaadin-context-menu-item.hr, vaadin-context-menu-list-box.hr {
+    min-height: 0;
+}
+
+vaadin-grid-cell-content > vaadin-text-field[invalid] {
+    margin-top: 1.8em;
 }

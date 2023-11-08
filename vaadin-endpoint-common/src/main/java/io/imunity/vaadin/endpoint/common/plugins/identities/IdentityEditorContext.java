@@ -5,7 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.identities;
 
 import com.vaadin.flow.component.Unit;
-import pl.edu.icm.unity.webui.common.ConfirmationEditMode;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.ConfirmationEditMode;
 
 public class IdentityEditorContext
 {

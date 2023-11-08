@@ -122,6 +122,14 @@ public class I18nString
 	{
 		this.values.putAll(values);
 	}
+
+	public void addAllMapValues(Map<Locale, String> values)
+	{
+		this.values.putAll(values.entrySet().stream()
+				.filter(entry -> !entry.getValue().isBlank())
+				.collect(toMap(entry -> entry.getKey().toString(), Entry::getValue))
+		);
+	}
 	
 	public Map<String, String> getMap()
 	{

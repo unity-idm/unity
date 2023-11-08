@@ -5,11 +5,7 @@
 
 package io.imunity.vaadin.endpoint.common.grid;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -21,11 +17,15 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.function.SerializablePredicate;
-
 import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Grid with actions column.
@@ -104,6 +104,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 
 	public void removeElement(T el)
 	{
+		contents.remove(el);
 		dataProvider.removeItem(el);
 		deselectAll();
 	}
@@ -122,6 +123,11 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		refreshActionColumn();
 	}
 
+	public void setActionColumnHeader(Component component)
+	{
+		actionColumn.setHeader(component);
+	}
+
 	public void refreshActionColumn()
 	{
 		if (actionColumn != null)
@@ -136,7 +142,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 
 	public void addHamburgerActions(List<SingleActionHandler<T>> handlers)
 	{
-		handlers.forEach(h -> this.hamburgerActionHandlers.add(h));
+		this.hamburgerActionHandlers.addAll(handlers);
 		refreshActionColumn();
 	}
 
@@ -171,7 +177,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	public Column<T> addShowDetailsColumn(Renderer<T> renderer)
 	{
 		setItemDetailsRenderer(renderer);
-		Column<T> showDetailsColumn = addComponentColumn(t -> createDetailsArrow(t)).setFlexGrow(0)
+		Column<T> showDetailsColumn = addComponentColumn(this::createDetailsArrow).setFlexGrow(0)
 				.setWidth("33px");
 		showDetailsColumn.setResizable(false);
 		showDetailsColumn.setSortable(false);

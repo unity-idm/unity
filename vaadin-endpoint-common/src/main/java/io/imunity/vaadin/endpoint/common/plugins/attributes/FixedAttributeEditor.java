@@ -44,6 +44,11 @@ public class FixedAttributeEditor
 			labelledValues.add(new LabelledValue(value, labelContext.getLabel()));
 		valuesComponent.setEntries(labelledValues);
 	}
+
+	public void placeOnLayout(com.vaadin.flow.component.formlayout.FormLayout layout)
+	{
+		new CompositeLayoutAdapter(layout, getComponentsGroup());
+	}
 	
 	public AttributeType getAttributeType()
 	{

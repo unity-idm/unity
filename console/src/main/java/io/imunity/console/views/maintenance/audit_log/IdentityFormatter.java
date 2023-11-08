@@ -13,7 +13,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 
 @Component
-class IdentityFormatter
+public class IdentityFormatter
 {
 	@Autowired
 	private MessageSource msg;

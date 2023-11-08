@@ -10,7 +10,7 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import io.imunity.console.views.DirectoryBrowserView;
+import io.imunity.console.views.directory_browser.DirectoryBrowserView;
 import io.imunity.console.views.ServicesEditView;
 import io.imunity.console.views.ServicesView;
 import io.imunity.console.views.authentication.CredentialsView;

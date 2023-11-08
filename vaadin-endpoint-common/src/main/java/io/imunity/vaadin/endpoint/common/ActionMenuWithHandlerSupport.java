@@ -1,19 +1,15 @@
 package io.imunity.vaadin.endpoint.common;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.data.selection.SelectionListener;
-
 import io.imunity.vaadin.elements.ActionMenu;
+import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
+
+import java.util.*;
 
 public class ActionMenuWithHandlerSupport<T> extends ActionMenu
 {
@@ -26,18 +22,17 @@ public class ActionMenuWithHandlerSupport<T> extends ActionMenu
 		this.target = Collections.emptySet();
 	}
 
-	public void addActionHandler(SingleActionHandler<T> handler)
+	public MenuItem addActionHandler(SingleActionHandler<T> handler)
 	{
-		MenuItem menuItem = addItem(handler.getCaption(), c ->
+		MenuItem menuItem = addItem(new MenuButton(handler.getCaption(), handler.getIcon()), c ->
 		{
 			if (!handler.isEnabled(target))
 				return;
 			handler.handle(target);
 		});
-		menuItem.addComponentAsFirst(createIcon(handler.getIcon()
-				.create()));
 		items.put(menuItem, handler);
 		updateMenuState(menuItem);
+		return menuItem;
 	}
 
 	private Component createIcon(Icon vaadinIcon)

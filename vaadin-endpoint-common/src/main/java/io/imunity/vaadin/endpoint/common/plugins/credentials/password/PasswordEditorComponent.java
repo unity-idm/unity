@@ -32,6 +32,7 @@ public class PasswordEditorComponent extends VerticalLayout implements Focusable
 		root.setSpacing(false);
 		root.setPadding(false);
 		root.add(fieldsComponent, qualityComponent);
+		root.getStyle().set("position", "relative");
 		add(root);
 		setPadding(false);
 	}

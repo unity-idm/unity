@@ -228,6 +228,10 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 			editor.setPlaceholder(normalizedLabel);
 		else
 			this.label.setText(normalizedLabel);
+		if(label == null)
+			this.label.getStyle().set("display", "none");
+		else
+			this.label.getStyle().remove("display");
 	}
 
 	@Override

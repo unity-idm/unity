@@ -92,8 +92,10 @@ public class NotificationPresenter
 
 			Span label = new Span(header);
 			label.getStyle().set("font-weight", "bold");
+			Span span = new Span(description);
+			span.getStyle().set("white-space", "pre-wrap");
 			HorizontalLayout layout = new HorizontalLayout(
-					new VerticalLayout(label, new Text(description)),
+					new VerticalLayout(label, span),
 					closeButton
 			);
 			layout.setAlignItems(FlexComponent.Alignment.CENTER);
