@@ -20,7 +20,6 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 
-import java.util.Optional;
 import java.util.Set;
 
 
@@ -53,7 +52,7 @@ class GroupAttributesClassesDialog extends AbstractAttributesClassesDialog
 		effective = new EffectiveAttrClassViewer(msg);
 		effective.setWidthFull();
 
-		Panel extraInfo = new Panel(Optional.of(msg.getMessage("EntityAttributesClasses.infoPanel")));
+		Panel extraInfo = new Panel(msg.getMessage("EntityAttributesClasses.infoPanel"));
 		effective.setSplitterPosition(40);
 		extraInfo.add(effective);
 		extraInfo.setWidthFull();

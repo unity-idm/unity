@@ -127,7 +127,7 @@ public class AttributeEditor extends VerticalLayout
 	private void initCommon()
 	{
 		removeAll();
-		Panel panel = new Panel(Optional.empty());
+		Panel panel = new Panel();
 		panel.add(attrValuesContainer);
 		panel.setMargin(false);
 		attrTypePanel.addFormItem(panel, "");
