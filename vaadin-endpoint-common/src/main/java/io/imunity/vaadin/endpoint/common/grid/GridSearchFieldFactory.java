@@ -14,7 +14,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
  * @author P.Piernik
  *
  */
-public class FilterableGridHelper
+public class GridSearchFieldFactory
 {
 	public static SearchField generateSearchField(FilterableGrid<? extends FilterableEntry> grid, MessageSource msg)
 	{

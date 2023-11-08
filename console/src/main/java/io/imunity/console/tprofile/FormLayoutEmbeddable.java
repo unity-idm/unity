@@ -62,9 +62,12 @@ public class FormLayoutEmbeddable
 		if(component instanceof HasTooltip hasTooltip)
 		{
 			String text = hasTooltip.getTooltip().getText();
-			hasTooltip.setTooltipText("");
-			Component tooltip = TooltipFactory.get(text);
-			item.add(tooltip);
+			if (text != null)
+			{
+				hasTooltip.setTooltipText("");
+				Component tooltip = TooltipFactory.get(text);
+				item.add(tooltip);
+			}
 		}
 	}
 

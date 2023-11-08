@@ -15,7 +15,8 @@ import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 public class BooleanActionParameterComponent extends Checkbox implements ActionParameterComponent
 {	
 	private final Binder<StringValueBean> binder;
-	
+	private String label;
+
 	public BooleanActionParameterComponent(ActionParameterDefinition desc,
 			MessageSource msg)
 	{
@@ -53,9 +54,16 @@ public class BooleanActionParameterComponent extends Checkbox implements ActionP
 	}
 
 	@Override
+	public void setLabel(String label)
+	{
+		this.label = label;
+		super.setLabel(label);
+	}
+	
+	@Override
 	public String getLabel()
 	{
-		return super.getLabel();
+		return label;
 	}
 
 	@Override

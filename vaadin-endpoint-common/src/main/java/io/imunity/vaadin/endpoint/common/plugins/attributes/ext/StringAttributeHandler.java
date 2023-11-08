@@ -115,10 +115,9 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 				value.setMin(0);
 				
 			}
-			try {
+			
 			binder.setBean(value);
-			}catch (Exception e) {
-				e.printStackTrace();			}
+			
 			return fl;
 		}
 

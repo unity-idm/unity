@@ -3,9 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.account_association.wizard;
+package io.imunity.vaadin.endpoint.common.wizard;
 
 enum WizardStepStatus
 {
-	IN_PROGRESS, COMPLITED, NEXT_STEP_REQUIRED
+	IN_PROGRESS, COMPLITED, NEXT_STEP_REQUIRED, PREV_STEP_REQUIRED
 }

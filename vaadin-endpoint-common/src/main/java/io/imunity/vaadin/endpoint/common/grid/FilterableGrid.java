@@ -8,11 +8,6 @@ package io.imunity.vaadin.endpoint.common.grid;
 
 import com.vaadin.flow.function.SerializablePredicate;
 
-/**
- * 
- * @author P.Piernik
- *
- */
 public interface FilterableGrid<T>
 {
 	void clearFilters();

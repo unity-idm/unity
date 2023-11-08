@@ -582,3 +582,11 @@ vaadin-context-menu-item.hr, vaadin-context-menu-list-box.hr {
 vaadin-grid-cell-content > vaadin-text-field[invalid] {
     margin-top: 1.8em;
 }
+
+.v-drag-over-target.drop-layout {
+    outline: 1px solid var(--lumo-primary-color);
+}
+
+.panel{
+	box-shadow  : 0 2px 3px rgba(0, 0, 0, 0.05)
+}

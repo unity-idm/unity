@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +52,7 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
+import pl.edu.icm.unity.engine.api.project.ProjectAddInvitationResult;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
@@ -96,7 +98,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	}
 
 	@Override
-	public void addInvitations(Set<ProjectInvitationParam> invitationParams) throws EngineException
+	public ProjectAddInvitationResult addInvitations(Set<ProjectInvitationParam> invitationParams) throws EngineException
 	{
 		for (String project: invitationParams.stream().map(p -> p.project).collect(Collectors.toSet()))
 		{
@@ -113,32 +115,43 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		{
 			// ok
 		}
+		
+		
+		Set<ProjectInvitationParam> toSkip = new HashSet<>();
+		
 		if (entities != null && !entities.isEmpty())
 		{
-
 			for (ProjectInvitationParam invitation : invitationParams)
 			{
-				assertNotMemberAlready(entities.stream()
+				if (checkIsAlreadyMember(entities.stream()
 						.filter(e -> e.contactEmail.equals(invitation.contactAddress))
-						.collect(Collectors.toSet()), invitation.project);
+						.collect(Collectors.toSet()), invitation.project))
+				{
+					toSkip.add(invitation);
+				}
 			}
-
 		}
-		for (ProjectInvitationParam param : invitationParams)
+		for (ProjectInvitationParam param : invitationParams.stream().filter(i -> !toSkip.contains(i)).collect(Collectors.toSet()))
 		{
 			String code = invitationMan.addInvitation(createComboInvitation(param));
 			invitationMan.sendInvitation(code);
 		}
 	
+		return ProjectAddInvitationResult.builder()
+				.withProjectAlreadyMemberEmails(toSkip.stream()
+						.map(a -> a.contactAddress)
+						.collect(Collectors.toSet()))
+				.build();
+		
 	}
 
-	private void assertNotMemberAlready(Set<EntityWithContactInfo> collect, String project)
+	private boolean checkIsAlreadyMember(Set<EntityWithContactInfo> collect, String project)
 	{
 		if (collect.stream().filter(e -> e.groups.contains(project)).findAny().isPresent())
 		{
-			throw new AlreadyMemberException();
+			return true;
 		}
-		
+		return false;
 	}
 
 	private ComboInvitationParam createComboInvitation(ProjectInvitationParam param) throws EngineException

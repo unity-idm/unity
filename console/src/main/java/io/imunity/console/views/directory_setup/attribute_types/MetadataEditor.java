@@ -7,7 +7,6 @@ package io.imunity.console.views.directory_setup.attribute_types;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.flow.component.Component;
@@ -163,7 +162,6 @@ class MetadataEditor extends VerticalLayout
 		}
 	}
 	
-	
 	private class MetadataEditDialog extends Dialog
 	{
 		private MetaUpdated parent;
@@ -193,7 +191,7 @@ class MetadataEditor extends VerticalLayout
 			main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 			main.addClassName("big-vaadin-form-item");
 			
-			editorPanel = new Panel(Optional.empty());
+			editorPanel = new Panel();
 			editorPanel.setMargin(false);
 			if (initialKey != null)
 			{
@@ -230,9 +228,6 @@ class MetadataEditor extends VerticalLayout
 			main.addFormItem(editorPanel, "");
 			return main;
 		}
-
-		
-		
 		
 		private void onConfirm()
 		{
@@ -246,9 +241,7 @@ class MetadataEditor extends VerticalLayout
 				notificationPresenter.showError("", e.getMessage());
 			}
 		}
-
 	}
-	
 	
 	private interface MetaUpdated
 	{

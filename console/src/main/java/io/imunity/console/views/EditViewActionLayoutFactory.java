@@ -42,4 +42,14 @@ public class EditViewActionLayoutFactory
 		buttonsLayout.setClassName("edit-view-action-buttons-layout");
 		return buttonsLayout;
 	}
+
+	public static HorizontalLayout createActionLayout(MessageSource msg, Class<? extends ConsoleViewComponent> closeRedirectClass)
+	{
+		Button cancelButton = new Button(msg.getMessage("cancel"));
+		cancelButton.addClickListener(event -> UI.getCurrent().navigate(closeRedirectClass));
+		cancelButton.setWidthFull();
+		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton);
+		buttonsLayout.setClassName("edit-view-action-buttons-layout");
+		return buttonsLayout;
+	}
 }

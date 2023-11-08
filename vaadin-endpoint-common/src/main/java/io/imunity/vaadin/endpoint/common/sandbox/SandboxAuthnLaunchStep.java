@@ -3,13 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.account_association;
+package io.imunity.vaadin.endpoint.common.sandbox;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinService;
-import io.imunity.vaadin.account_association.wizard.WizardStep;
+
+import io.imunity.vaadin.endpoint.common.wizard.WizardStep;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
@@ -17,7 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier;
 
 import static java.util.Optional.ofNullable;
 
-class SandboxAuthnLaunchStep extends WizardStep
+public class SandboxAuthnLaunchStep extends WizardStep
 {
 	private final String callerId = VaadinService.getCurrentRequest().getWrappedSession().getId();
 	private final UI parentUI = UI.getCurrent();
@@ -25,8 +26,8 @@ class SandboxAuthnLaunchStep extends WizardStep
 	private final SandboxAuthnNotifier sandboxAuthnNotifier;
 	private final Runnable sandboxNewWindowOpener;
 	private SandboxAuthnNotifier.AuthnResultListener listener;
-	SandboxAuthnEvent event;
-	Long sessionEntityId;
+	public SandboxAuthnEvent event;
+	public Long sessionEntityId;
 
 	public SandboxAuthnLaunchStep(String label, Component component, SandboxAuthnNotifier sandboxAuthnNotifier, Runnable sandboxNewWindowOpener)
 	{

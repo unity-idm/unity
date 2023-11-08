@@ -126,7 +126,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		syntax.setItems(syntaxes);
 		addFormItem(syntax, msg.getMessage("AttributeType.type"));
 
-		Panel syntaxPanelP = new Panel(Optional.empty());
+		Panel syntaxPanelP = new Panel();
 		syntaxPanelP.setMargin(false);
 
 		syntaxPanel = new VerticalLayout();
@@ -146,7 +146,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 
 		metaEditor = new MetadataEditor(msg, attrMetaHandlerReg, notificationPresenter);
 		metaEditor.setMargin(true);
-		Panel metaPanel = new Panel(Optional.of(msg.getMessage("AttributeType.metadata")));
+		Panel metaPanel = new Panel(msg.getMessage("AttributeType.metadata"));
 		metaPanel.add(metaEditor);
 		metaPanel.setMargin(false);
 		
@@ -156,7 +156,6 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		binder.forField(name)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind("name");
-		binder.bind(displayedName, "displayedName");
 		binder.forField(displayedName)
 				.bind(i18nMessage -> i18nMessage.getDisplayedName()
 						.getLocalizedMap(),

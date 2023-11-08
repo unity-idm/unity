@@ -8,6 +8,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.ext;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.AttributeMetadataEditor;
@@ -59,9 +60,9 @@ public class ContactEmailMetadataHandler implements WebAttributeMetadataHandler
 				VerticalLayout ret = new VerticalLayout();
 				ret.setSpacing(true);
 				ret.setMargin(false);
-				ret.add(new NativeLabel(msg.getMessage("ContactEmailMetadataHandler.label")));
-				ret.add(new NativeLabel(" "));
-				ret.add(new NativeLabel(msg.getMessage("MetadataHandler.noParamsAreNeeded")));
+				ret.add(new Span(msg.getMessage("ContactEmailMetadataHandler.label")));
+				ret.add(new Span(" "));
+				ret.add(new Span(msg.getMessage("MetadataHandler.noParamsAreNeeded")));
 				return ret;
 			}
 		};

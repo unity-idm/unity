@@ -15,10 +15,11 @@ import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.project.ProjectAddInvitationResult;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
-import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.AlreadyMemberException;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,8 +133,14 @@ class InvitationsService
 
 		try
 		{
-			invitationMan.addInvitations(toAdd);
-		} catch (EngineException | AlreadyMemberException e)
+			ProjectAddInvitationResult addInvitations = invitationMan.addInvitations(toAdd);
+			if (!addInvitations.projectAlreadyMemberEmails.isEmpty())
+			{
+				notificationPresenter.showWarning("", msg.getMessage("InvitationsController.alreadyAMember",
+						String.join(",", addInvitations.projectAlreadyMemberEmails)));
+			}
+
+		} catch (EngineException e)
 		{
 			log.warn("Can not add invitations", e);
 			notificationPresenter.showError(msg.getMessage("InvitationsController.addInvitationError"),

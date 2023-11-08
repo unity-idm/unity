@@ -41,6 +41,8 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
  */
 class ImportAttributeTypeEditor extends VerticalLayout
 {
+	private static final int MAX_FILE_SIZE_IN_BYTES = 50000000;
+	
 	private enum SourceType
 	{
 		File, PredefinedSet
@@ -114,7 +116,7 @@ class ImportAttributeTypeEditor extends VerticalLayout
 
 		memoryBuffer = new MemoryBuffer();
 		upload = new Upload(memoryBuffer);
-		upload.setMaxFileSize(5000000);
+		upload.setMaxFileSize(MAX_FILE_SIZE_IN_BYTES);
 		upload.setAcceptedFileTypes("application/json");
 		upload.addFinishedListener(e -> reloadTableFromFile());
 		upload.getElement()

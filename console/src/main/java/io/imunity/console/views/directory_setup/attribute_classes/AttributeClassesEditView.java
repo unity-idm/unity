@@ -112,7 +112,7 @@ public class AttributeClassesEditView extends ConsoleViewComponent
 		mainLayout.addFormItem(allowArbitrary, "");
 		mainLayout.addFormItem(mandatory, msg.getMessage("AttributesClass.mandatory"));
 
-		Panel panel = new Panel(Optional.of(msg.getMessage("AttributesClass.resultingClass")));
+		Panel panel = new Panel(msg.getMessage("AttributesClass.resultingClass"));
 		panel.setSizeFull();
 		panel.setMargin(false);
 		panel.add(effectiveViewer);

@@ -12,7 +12,8 @@ import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 public class DefaultActionParameterComponent extends TextField implements ActionParameterComponent
 {
 	protected Binder<StringValueBean> binder;
-
+	private String label;
+	
 	public DefaultActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
 		setLabel(desc.getName() + ":");
@@ -65,10 +66,17 @@ public class DefaultActionParameterComponent extends TextField implements Action
 	{
 		super.setReadOnly(readOnly);
 	}
+	
+	@Override
+	public void setLabel(String label)
+	{
+		this.label = label;
+		super.setLabel(label);
+	}
 
 	@Override
 	public String getLabel()
 	{
-		return super.getLabel();
+		return label;
 	}
 }

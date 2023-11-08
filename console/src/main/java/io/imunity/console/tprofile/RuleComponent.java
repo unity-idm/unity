@@ -90,10 +90,12 @@ public class RuleComponent extends VerticalLayout
 		VerticalLayout headerWrapper = new VerticalLayout();
 		headerWrapper.setMargin(false);
 		headerWrapper.setSpacing(false);
+		headerWrapper.setPadding(false);
 		
 		HorizontalLayout header = new HorizontalLayout();
 		header.setSizeFull();
 		header.setMargin(false);
+		header.setPadding(false);
 	
 		showHide = new LinkButton("", event -> showHideContent(!content.isVisible()));
 		showHide.add(VaadinIcon.ANGLE_DOWN.create());
@@ -105,7 +107,7 @@ public class RuleComponent extends VerticalLayout
 		header.add(info);
 
 		dragImg = new LinkButton("", e -> {});
-		dragImg.add(VaadinIcon.RESIZE_V.create());
+		dragImg.add(VaadinIcon.RESIZE_H.create());
 		dragImg.setSizeFull();
 		dragImg.setWidth(1, Unit.EM);
 
@@ -120,6 +122,7 @@ public class RuleComponent extends VerticalLayout
 				VaadinIcon.TRASH), s -> callback.remove(RuleComponent.this));
 		embedProfileMenuItem = actionMenu.addItem(new MenuButton(msg.getMessage("TranslationProfileEditor.embedProfile"),
 				VaadinIcon.EXPAND_SQUARE), e -> onEmbedProfileAction(embedProfileMenuItem));
+		embedProfileMenuItem.setVisible(false);
 		top = actionMenu.addItem(new MenuButton(msg.getMessage("TranslationProfileEditor.moveTop"),
 				VaadinIcon.ARROW_UP),
 				s -> callback.moveTop(RuleComponent.this));	
@@ -140,11 +143,12 @@ public class RuleComponent extends VerticalLayout
 		headerWrapper.add(header);
 		headerWrapper.add(new Hr());
 			
-		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"),
+		condition = new MVELExpressionField(msg,
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder().withTitleKey("TranslationProfileEditor.ruleConditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(getConditionContextVars())
 						.build());
+		
 		condition.setWidth(100, Unit.PERCENTAGE);
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
 				actionComponentProvider, this::onActionChanged, notificationPresenter);
@@ -154,8 +158,10 @@ public class RuleComponent extends VerticalLayout
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
-		content = new FormLayout();	
-		content.add(condition);
+		main.setPadding(false);
+		content = new FormLayout();
+		content.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		content.addFormItem(condition, msg.getMessage("TranslationProfileEditor.ruleCondition"));
 		actionEditor.addToLayout(content);
 		content.add(mappingResultComponent);
 		showHideContent(false);
@@ -168,6 +174,10 @@ public class RuleComponent extends VerticalLayout
 		binder = new Binder<>(TranslationRule.class);
 		condition.configureBinding(binder, "condition", true);		
 		binder.setBean(new TranslationRule(editMode? Objects.requireNonNull(toEdit).getCondition() : "true", null));
+		
+		add(main);
+		setMargin(false);
+		setPadding(false);
 	}
 	
 	private Map<String, String> getConditionContextVars()
@@ -362,8 +372,8 @@ public class RuleComponent extends VerticalLayout
 	
 	private void showHideContent(boolean show)
 	{
-		showHide.add(show ? VaadinIcon.ARROW_UP.create()
-				: VaadinIcon.ARROW_DOWN.create());
+		showHide.removeAll();
+		showHide.add(show ? VaadinIcon.ANGLE_DOWN.create() : VaadinIcon.ANGLE_UP.create());
 		content.setVisible(show);
 	}
 	

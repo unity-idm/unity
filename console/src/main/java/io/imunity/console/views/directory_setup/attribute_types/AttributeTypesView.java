@@ -33,7 +33,7 @@ import io.imunity.vaadin.elements.SearchField;
 import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
 import io.imunity.vaadin.endpoint.common.Toolbar;
-import io.imunity.vaadin.endpoint.common.grid.FilterableGridHelper;
+import io.imunity.vaadin.endpoint.common.grid.GridSearchFieldFactory;
 import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 import jakarta.annotation.security.PermitAll;
@@ -102,7 +102,7 @@ public class AttributeTypesView extends ConsoleViewComponent
 		hamburgerMenu.addActionHandlers(getHamburgerCommonHandlers());
 		attrTypesGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		SearchField search = FilterableGridHelper.generateSearchField(attrTypesGrid, msg);
+		SearchField search = GridSearchFieldFactory.generateSearchField(attrTypesGrid, msg);
 
 		Toolbar<AttributeTypeEntry> toolbar = new Toolbar<>();
 		toolbar.addHamburger(hamburgerMenu);
