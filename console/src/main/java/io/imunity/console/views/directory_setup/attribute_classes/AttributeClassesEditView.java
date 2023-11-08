@@ -86,6 +86,7 @@ public class AttributeClassesEditView extends ConsoleViewComponent
 		TextField name = new TextField();
 		name.setPlaceholder(msg.getMessage("AttributesClass.defaultName"));
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
+		name.setReadOnly(edit);
 
 		TextField typeDescription = new TextField();
 		typeDescription.setWidth(TEXT_FIELD_BIG.value());
