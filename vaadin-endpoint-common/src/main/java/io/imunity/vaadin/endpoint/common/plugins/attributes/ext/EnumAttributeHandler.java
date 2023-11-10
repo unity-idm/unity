@@ -12,6 +12,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+
+import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.GenericElementsTable;
@@ -142,7 +144,7 @@ class EnumAttributeHandler implements WebAttributeHandler
 		private final EnumAttributeSyntax initial;
 		private final MessageSource msg;
 		private TextField value;
-		private GenericElementsTable<String> current;
+		private GridWithActionColumn<String> current;
 
 		public EnumSyntaxEditor(EnumAttributeSyntax initial, MessageSource msg)
 		{
@@ -180,16 +182,17 @@ class EnumAttributeHandler implements WebAttributeHandler
 			
 			vl.add(hl);
 	
-			current = new GenericElementsTable<>(msg.getMessage("EnumAttributeHandler.allowed"));
+			current = new GridWithActionColumn<String>(msg, List.of(getDeleteAction()));
+			current.addColumn(v -> v).setHeader(msg.getMessage("EnumAttributeHandler.value"));
+			current.refreshActionColumn();
 			current.setHeight(12, Unit.EM);
 			current.setWidth(26, Unit.EM);
-			current.addActionHandler(getDeleteAction());
 			
 			vl.add(current);
 			
 			if (initial != null)
 			{
-				current.setInput(initial.getAllowed());
+				current.setItems(new ArrayList<>(initial.getAllowed()));
 				
 			}
 			return vl;

@@ -46,7 +46,8 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private Collection<SerializablePredicate<T>> filters;
 	private List<SingleActionHandler<T>> actionHandlers;
 	private List<SingleActionHandler<T>> hamburgerActionHandlers;
-
+	
+	
 	public GridWithActionColumn(MessageSource msg, List<SingleActionHandler<T>> actionHandlers)
 	{
 		this.msg = msg;
@@ -75,14 +76,14 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	public void addElement(T el)
 	{
 		contents.add(el);
-		dataProvider.refreshAll();
+		dataProvider.addItem(el);
 		deselectAll();
 	}
 
 	public void addElement(int index, T el)
 	{
 		contents.add(index, el);
-		dataProvider.refreshAll();
+		dataProvider.addItemAfter(contents.get(index), el);
 		deselectAll();
 	}
 
@@ -140,7 +141,6 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		}
 		actionColumn = super.addComponentColumn(e -> getButtonComponent(Set.of(e))).setHeader(msg.getMessage("actions"))
 				.setTextAlign(ColumnTextAlign.END);
-
 	}
 
 	public void addHamburgerActions(List<SingleActionHandler<T>> handlers)
@@ -228,7 +228,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		for (SerializablePredicate<T> p : filters)
 			dataProvider.addFilter(p);
 	}
-
+	
 	@Override
 	public <V extends Component> Column<T> addComponentColumn(ValueProvider<T, V> componentProvider)
 	{

@@ -590,3 +590,9 @@ vaadin-grid-cell-content > vaadin-text-field[invalid] {
 .panel{
 	box-shadow  : 0 2px 3px rgba(0, 0, 0, 0.05)
 }
+
+:host([hide-header-row]) {
+    thead :nth-child(1)[part='row'], thead :nth-child(2)[part='row'] {
+        display: none;
+    }
+}

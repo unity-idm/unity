@@ -12,10 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.converter.StringToIntegerConverter;
-import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
@@ -72,9 +71,9 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			FormLayout fl = new FormLayout();
 			fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		
-			
-			
-			TextField min = new TextField();
+			IntegerField min = new IntegerField();
+			min.setMin(0);
+			min.setStepButtonsVisible(true);
 			fl.addFormItem(min, msg.getMessage("StringAttributeHandler.minLenE"));
 
 			IntegerBoundEditor max = new IntegerBoundEditor(msg,
@@ -86,15 +85,10 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			TextField regexp = new TextField();
 			fl.addFormItem(regexp, msg.getMessage("StringAttributeHandler.regexpE"));
 
-			Checkbox editWithTextArea = new Checkbox(msg.getMessage("StringAttributeHandler.editWithTextAreaE"));
+			Checkbox editWithTextArea = new Checkbox();
 			fl.addFormItem(editWithTextArea, msg.getMessage("StringAttributeHandler.editWithTextAreaE"));
 			
 			binder.forField(min).asRequired(msg.getMessage("fieldRequired"))
-					.withConverter(new StringToIntegerConverter(msg.getMessage(
-							"IntegerBoundEditor.notANumber")))
-					.withValidator(new IntegerRangeValidator(msg.getMessage(
-							"StringAttributeHandler.wrongMin"), 0,
-							Integer.MAX_VALUE))
 					.bind("min");
 			max.configureBinding(binder, "max");
 			binder.forField(regexp).bind("regexp");

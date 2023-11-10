@@ -200,17 +200,17 @@ class AttributeTypeController
 
 		return attributeType == null
 				? new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType, attrMetaHandlerRegistry,
-						atSupport, notificationPresenter)
+						atSupport)
 				: attributeType.isTypeImmutable() ? new ImmutableAttributeTypeEditor(msg, attributeType)
 						: new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType,
-								attrMetaHandlerRegistry, atSupport, notificationPresenter);
+								attrMetaHandlerRegistry, atSupport);
 	}
 
 	RegularAttributeTypeEditor getRegularAttributeTypeEditor(AttributeType attributeType)
 	{
 
 		return new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType, attrMetaHandlerRegistry,
-				atSupport, notificationPresenter);
+				atSupport);
 
 	}
 }

@@ -4,6 +4,9 @@
  */
 package io.imunity.console.views.directory_setup.attribute_types;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -17,14 +20,12 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.converter.StringToIntegerConverter;
-import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.Panel;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
@@ -48,14 +49,13 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 	private final MessageSource msg;
 	private final AttributeHandlerRegistry registry;
 	private final AttributeMetadataHandlerRegistry attrMetaHandlerReg;
-	private final NotificationPresenter notificationPresenter;
 	
 	private Binder<AttributeType> binder;
 
 	private TextField name;
 	private LocalizedTextFieldDetails displayedName;
 	private LocalizedTextAreaDetails typeDescription;
-	private TextField min;
+	private IntegerField min;
 	private IntegerBoundEditor max;
 	private Checkbox uniqueVals;
 	private Checkbox selfModificable;
@@ -67,20 +67,19 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 	private AttributeTypeSupport atSupport;
 
 	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistry registry,
-			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport, NotificationPresenter notificationPresenter)
+			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
-		this(msg, registry, null, attrMetaHandlerReg, atSupport, notificationPresenter);
+		this(msg, registry, null, attrMetaHandlerReg, atSupport);
 	}
 
 	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistry registry, AttributeType toEdit,
-			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport, NotificationPresenter notificationPresenter)
+			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
 		super();
 		this.msg = msg;
 		this.registry = registry;
 		this.attrMetaHandlerReg = attrMetaHandlerReg;
 		this.atSupport = atSupport;
-		this.notificationPresenter = notificationPresenter;
 		
 		initUI(toEdit);
 	}
@@ -95,18 +94,23 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		name = new TextField();
 		if (toEdit != null)
 			name.setReadOnly(true);
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		addFormItem(name, msg.getMessage("AttributeType.name"));
 
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
+		displayedName.setWidth(TEXT_FIELD_BIG.value());
 		addFormItem(displayedName, msg.getMessage("AttributeType.displayedName"));
 
 		typeDescription = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
+		typeDescription.setWidthFull();
 
 		addFormItem(typeDescription, msg.getMessage("AttributeType.description"));
 
-		min = new TextField();
+		min = new IntegerField();
+		min.setMin(0);
+		min.setStepButtonsVisible(true);
 		addFormItem(min, msg.getMessage("AttributeType.min"));
 
 		max = new IntegerBoundEditor(msg, msg.getMessage("AttributeType.maxUnlimited"), Integer.MAX_VALUE, 0, null);
@@ -144,9 +148,9 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 			syntaxPanel.add(editor.getEditor());
 		});
 
-		metaEditor = new MetadataEditor(msg, attrMetaHandlerReg, notificationPresenter);
+		metaEditor = new MetadataEditor(msg, attrMetaHandlerReg);
 		metaEditor.setMargin(true);
-		Panel metaPanel = new Panel(msg.getMessage("AttributeType.metadata"));
+		Panel metaPanel = new Panel();
 		metaPanel.add(metaEditor);
 		metaPanel.setMargin(false);
 		
@@ -170,9 +174,6 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 
 		binder.forField(min)
 				.asRequired(msg.getMessage("fieldRequired"))
-				.withConverter(new StringToIntegerConverter(msg.getMessage("IntegerBoundEditor.notANumber")))
-				.withValidator(
-						new IntegerRangeValidator(msg.getMessage("AttributeType.invalidNumber"), 0, Integer.MAX_VALUE))
 				.bind("minElements");
 		max.configureBinding(binder, "maxElements");
 		binder.bind(uniqueVals, "uniqueValues");

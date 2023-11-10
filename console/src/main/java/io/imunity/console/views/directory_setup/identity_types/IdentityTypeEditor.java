@@ -4,7 +4,8 @@
  */
 package io.imunity.console.views.directory_setup.identity_types;
 
-import com.vaadin.flow.component.Unit;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -64,10 +65,11 @@ class IdentityTypeEditor extends FormLayout
 
 		name = new TextField();
 		name.setReadOnly(true);
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		addFormItem(name, msg.getMessage("IdentityType.name"));
 
 		description = new TextArea();
-		description.setWidth(100, Unit.PERCENTAGE);
+		description.setWidthFull();
 		addFormItem(description, msg.getMessage("IdentityType.description"));
 
 		selfModifiable = new Checkbox();

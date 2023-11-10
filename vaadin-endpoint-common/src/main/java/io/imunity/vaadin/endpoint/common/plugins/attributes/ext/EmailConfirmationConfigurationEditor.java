@@ -6,10 +6,8 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.converter.StringToIntegerConverter;
-import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
@@ -46,19 +44,17 @@ class EmailConfirmationConfigurationEditor extends FormLayout
 				"EmailConfirmationConfiguration.confirmationMsgTemplateDesc"));
 		msgTemplate.setRequired(false);
 
-		TextField validityTime = new TextField();
-
+		IntegerField validityTime = new IntegerField();
+		validityTime.setMin(1);
+		validityTime.setMax(60 * 24 * 365);
+		validityTime.setStepButtonsVisible(true);
+		
 		addFormItem(msgTemplate, msg.getMessage(
 				"EmailConfirmationConfiguration.confirmationMsgTemplate"));
 		addFormItem(validityTime, msg.getMessage("EmailConfirmationConfiguration.validityTime"));
 
 		binder.forField(msgTemplate).bind("messageTemplate");
 		binder.forField(validityTime).asRequired(msg.getMessage("fieldRequired"))
-				.withConverter(new StringToIntegerConverter(
-						msg.getMessage("notAnIntNumber")))
-				.withValidator(new IntegerRangeValidator(msg
-						.getMessage("outOfBoundsNumber", 1, 60 * 24 * 365),
-						1, 60 * 24 * 365))
 				.bind("validityTime");
 
 		if (initial != null)

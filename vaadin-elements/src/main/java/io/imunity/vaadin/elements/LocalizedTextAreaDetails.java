@@ -93,6 +93,12 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 		fields.values().forEach(HasSize::setWidthFull);
 	}
 
+	public void setWidth(String width)
+	{
+		super.setWidth(width);
+		fields.values().forEach(HasSize::setWidthFull);
+	}
+
 	@Override
 	public void focus()
 	{

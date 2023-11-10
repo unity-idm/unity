@@ -5,7 +5,6 @@
 
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
@@ -67,13 +66,13 @@ class MobileNumberConfirmationConfigurationEditor extends FormLayout
 		validityTime.setMin(1);
 		validityTime.setMax(60 * 24 * 365);
 		validityTime.setStep(1);
-		validityTime.setWidth(4, Unit.EM);
+		validityTime.setStepButtonsVisible(true);
 
 		IntegerField codeLength = new IntegerField();
 		codeLength.setMin(1);
 		codeLength.setMax(50);
 		codeLength.setStep(1);
-		codeLength.setWidth(3, Unit.EM);
+		codeLength.setStepButtonsVisible(true);
 
 		addFormItem(msgTemplate, msg.getMessage(msgPrefix + "confirmationMsgTemplate"));
 		addFormItem(validityTime, msg.getMessage(msgPrefix + "validityTime"));

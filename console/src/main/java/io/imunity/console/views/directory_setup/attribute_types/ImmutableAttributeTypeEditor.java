@@ -4,6 +4,9 @@
  */
 package io.imunity.console.views.directory_setup.attribute_types;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -13,7 +16,7 @@ import java.util.stream.Collectors;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.textfield.TextField;
 
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
@@ -34,7 +37,7 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 	private final MessageSource msg;
 
 	private AttributeType original;
-	private NativeLabel name;
+	private TextField name;
 	private LocalizedTextFieldDetails displayedName;
 	private LocalizedTextAreaDetails typeDescription;
 	private Checkbox selfModificable;
@@ -52,16 +55,20 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		addClassName("big-vaadin-form-item");
 		
-		name = new NativeLabel(toEdit.getName());
+		name = new TextField();
+		name.setValue(toEdit.getName());
+		name.setReadOnly(true);
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		addFormItem(name, msg.getMessage("AttributeType.name"));
 
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
+		displayedName.setWidth(TEXT_FIELD_BIG.value());
 		addFormItem(displayedName, msg.getMessage("AttributeType.displayedName"));
 
 		typeDescription = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
-
+		typeDescription.setWidthFull();
 		addFormItem(typeDescription, msg.getMessage("AttributeType.description"));
 
 		selfModificable = new Checkbox();
@@ -82,7 +89,7 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 	{
 		AttributeType ret = new AttributeType();
 		ret.setDescription(convert(typeDescription.getValue()));
-		ret.setName(name.getText());
+		ret.setName(name.getValue());
 		I18nString displayedNameS = convert(displayedName.getValue());
 		displayedNameS.setDefaultValue(ret.getName());
 		ret.setDisplayedName(displayedNameS);
