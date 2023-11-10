@@ -4,6 +4,11 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -11,21 +16,16 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
+
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerFactory;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.TextOnlyAttributeHandler;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 
 public class StringAttributeHandler extends TextOnlyAttributeHandler
@@ -78,10 +78,9 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			fl.addFormItem(min, msg.getMessage("StringAttributeHandler.minLenE"));
 
 			IntegerBoundEditor max = new IntegerBoundEditor(msg,
-					msg.getMessage("StringAttributeHandler.maxLenUndef"), Optional.empty(),
-					Integer.MAX_VALUE, 0, null);
+					msg.getMessage("StringAttributeHandler.maxLenUndef"),
+					Integer.MAX_VALUE, 1, null);
 
-			max.setMax(Integer.MAX_VALUE).setMin(1);
 			fl.addFormItem(max, msg.getMessage("NumericAttributeHandler.maxE"));
 
 			TextField regexp = new TextField();

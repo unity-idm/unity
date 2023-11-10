@@ -4,7 +4,6 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.vaadin.flow.component.Component;
@@ -44,15 +43,12 @@ class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 		
 		IntegerBoundEditor maxWidth = new IntegerBoundEditor(msg,
 				msg.getMessage("ImageAttributeHandler.maxWidthUnlimited"),
-				Optional.empty(),
 				Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
 		IntegerBoundEditor maxHeight = new IntegerBoundEditor(msg,
 				msg.getMessage("ImageAttributeHandler.maxHeightUnlimited"),
-				Optional.empty(),
 				Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
 		IntegerBoundEditor maxSize = new IntegerBoundEditor(msg,
 				msg.getMessage("ImageAttributeHandler.maxSizeUnlimited"),
-				Optional.empty(),
 				Integer.MAX_VALUE, 100, Integer.MAX_VALUE);
 
 		binder = new Binder<>(ImageSyntaxBindingValue.class);

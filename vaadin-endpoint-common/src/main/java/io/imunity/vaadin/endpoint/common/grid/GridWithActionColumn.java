@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -231,8 +232,21 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	@Override
 	public <V extends Component> Column<T> addComponentColumn(ValueProvider<T, V> componentProvider)
 	{
-		Column<T> addComponentColumn = super.addComponentColumn(componentProvider);
+		Column<T> addComponentColumn = super.addComponentColumn(componentProvider).setResizable(true);
 		refreshActionColumn();
 		return addComponentColumn;
 	}
+	
+	public <V extends Component> Column<T> addBooleanColumn(Function<T, Boolean> checkBox)
+	{
+		Column<T> addComponentColumn = super.addComponentColumn(v -> getBoolIcon(checkBox.apply(v))).setResizable(true);
+		refreshActionColumn();
+		return addComponentColumn;
+	}
+	
+	private Icon getBoolIcon(boolean value)
+	{
+		return value ? VaadinIcon.CHECK_CIRCLE_O.create() : VaadinIcon.MINUS_CIRCLE_O.create();
+	}
+	
 }

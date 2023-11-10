@@ -4,8 +4,6 @@
  */
 package io.imunity.console.views.directory_setup.identity_types;
 
-import java.util.Optional;
-
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -100,7 +98,7 @@ class IdentityTypeEditor extends FormLayout
 			addFormItem(minVerified, msg.getMessage("IdentityType.minVerified"));
 		}
 
-		max = new IntegerBoundEditor(msg, msg.getMessage("IdentityType.maxUnlimited"), Optional.empty(), Integer.MAX_VALUE, 0, null);
+		max = new IntegerBoundEditor(msg, msg.getMessage("IdentityType.maxUnlimited"), Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
 		addFormItem(max, msg.getMessage("IdentityType.max"));
 		
 		if (typeDefinition.isEmailVerifiable())

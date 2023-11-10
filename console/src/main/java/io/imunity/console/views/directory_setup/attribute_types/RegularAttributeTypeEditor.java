@@ -109,7 +109,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		min = new TextField();
 		addFormItem(min, msg.getMessage("AttributeType.min"));
 
-		max = new IntegerBoundEditor(msg, msg.getMessage("AttributeType.maxUnlimited"), Optional.empty(), Integer.MAX_VALUE, 0, null);
+		max = new IntegerBoundEditor(msg, msg.getMessage("AttributeType.maxUnlimited"), Integer.MAX_VALUE, 0, null);
 		addFormItem(max, msg.getMessage("AttributeType.max"));
 
 		uniqueVals = new Checkbox(msg.getMessage("AttributeType.uniqueValuesCheck"));

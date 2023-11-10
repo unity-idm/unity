@@ -4,6 +4,8 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors;
 
+import java.util.Objects;
+
 public class ValueWrapper
 {
 	private String value;
@@ -34,4 +36,25 @@ public class ValueWrapper
 	{
 		this.unlimited = unlimited;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(unlimited, value);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ValueWrapper other = (ValueWrapper) obj;
+		return unlimited == other.unlimited && Objects.equals(value, other.value);
+	}
+	
+	
 }

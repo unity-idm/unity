@@ -5,33 +5,28 @@
 
 package io.imunity.console.views.directory_setup.identity_types;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.checkbox.Checkbox;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.NativeLabel;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
-
-import java.util.Comparator;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.directorySetup.identityTypes", parent = "WebConsoleMenu.directorySetup")
@@ -42,7 +37,7 @@ public class IdentityTypesView extends ConsoleViewComponent
 	private final IdentityTypesController controller;
 	private final NotificationPresenter notificationPresenter;
 
-	private Grid<IdentityTypeEntry> identityTypesGrid;
+	private GridWithActionColumn<IdentityTypeEntry> identityTypesGrid;
 
 	IdentityTypesView(MessageSource msg, IdentityTypesController controller,
 			NotificationPresenter notificationPresenter)
@@ -55,21 +50,25 @@ public class IdentityTypesView extends ConsoleViewComponent
 
 	private void init()
 	{
-		identityTypesGrid = new Grid<>();
-		identityTypesGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-		identityTypesGrid.setItemDetailsRenderer(new ComponentRenderer<>(this::getDetailsComponent));
-
+		identityTypesGrid = new GridWithActionColumn<IdentityTypeEntry>(msg, getActionsHandlers());
+		identityTypesGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
+		identityTypesGrid.setMultiSelect(false);
+		
 		Grid.Column<IdentityTypeEntry> nameColumn = identityTypesGrid
-				.addComponentColumn(this::createNameWithDetailsArrow)
+				.addComponentColumn(this::createNameColumn)
 				.setHeader(msg.getMessage("AuthenticationFlowsComponent.nameCaption"))
 				.setAutoWidth(true)
 				.setSortable(true)
-				.setComparator(Comparator.comparing(r -> r.type().getName()));
-		identityTypesGrid.addComponentColumn(v -> generateCheckBox(v.typeDefinition().isDynamic()))
+				.setComparator(Comparator.comparing(r -> r.type()
+						.getName()));
+		identityTypesGrid.addBooleanColumn(v -> v.typeDefinition()
+				.isDynamic())
 				.setHeader(msg.getMessage("IdentityTypesView.automaticCaption"));
-		identityTypesGrid.addComponentColumn(v -> generateCheckBox(v.type().isSelfModificable()))
+		
+		identityTypesGrid.addBooleanColumn(v ->v.type()
+				.isSelfModificable())
 				.setHeader(msg.getMessage("IdentityTypesView.modifiableByUserCaption"));
-
+		
 		try
 		{
 			identityTypesGrid.setItems(controller.getIdentityTypes());
@@ -82,52 +81,42 @@ public class IdentityTypesView extends ConsoleViewComponent
 
 		identityTypesGrid.sort(GridSortOrder.asc(nameColumn)
 				.build());
-		identityTypesGrid.addComponentColumn(this::createRowActionMenu)
-				.setHeader(msg.getMessage("actions"))
-				.setTextAlign(ColumnTextAlign.END);
 		getContent().add(identityTypesGrid);
 
 	}
 
-	private Checkbox generateCheckBox(boolean initialValue)
+	private List<SingleActionHandler<IdentityTypeEntry>> getActionsHandlers()
 	{
-		Checkbox checkbox = new Checkbox(initialValue);
-		checkbox.setReadOnly(true);
-		return checkbox;
-	}
-
-	private Component createRowActionMenu(IdentityTypeEntry entry)
-	{
-		Icon generalSettings = new ActionIconBuilder()
-				.icon(EDIT)
-				.tooltipText(msg.getMessage("edit"))
-				.navigation(EditIdentityTypeView.class, entry.type().getName())
+		SingleActionHandler<IdentityTypeEntry> edit = SingleActionHandler.builder4Edit(msg, IdentityTypeEntry.class)
+				.withHandler(r -> gotoEdit(r.iterator()
+						.next()))
 				.build();
 
-		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings);
-		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		return horizontalLayout;
+		return Arrays.asList(edit);
 	}
 
-	private HorizontalLayout createNameWithDetailsArrow(IdentityTypeEntry entry)
+	private void gotoEdit(IdentityTypeEntry next)
 	{
-		RouterLink label = new RouterLink(entry.type().getName(), EditIdentityTypeView.class, entry.type().getName());
-		Icon openIcon = VaadinIcon.ANGLE_RIGHT.create();
-		Icon closeIcon = VaadinIcon.ANGLE_DOWN.create();
-		openIcon.setVisible(!identityTypesGrid.isDetailsVisible(entry));
-		closeIcon.setVisible(identityTypesGrid.isDetailsVisible(entry));
-		openIcon.addClickListener(e -> identityTypesGrid.setDetailsVisible(entry, true));
-		closeIcon.addClickListener(e -> identityTypesGrid.setDetailsVisible(entry, false));
-		return new HorizontalLayout(openIcon, closeIcon, label);
+		UI.getCurrent()
+				.navigate(EditIdentityTypeView.class, next.type()
+						.getName());
+	}
+
+	private RouterLink createNameColumn(IdentityTypeEntry entry)
+	{
+		return new RouterLink(entry.type()
+				.getName(), EditIdentityTypeView.class,
+				entry.type()
+						.getName());
 	}
 
 	private FormLayout getDetailsComponent(IdentityTypeEntry i)
 	{
 		FormLayout wrapper = new FormLayout();
-		NativeLabel label = new NativeLabel(i.type().getDescription());
+		NativeLabel label = new NativeLabel(i.type()
+				.getDescription());
 		label.setWidthFull();
-		wrapper.addFormItem(label,
-				msg.getMessage("IdentityTypesView.descriptionLabelCaption"));
+		wrapper.addFormItem(label, msg.getMessage("IdentityTypesView.descriptionLabelCaption"));
 		return wrapper;
 	}
 

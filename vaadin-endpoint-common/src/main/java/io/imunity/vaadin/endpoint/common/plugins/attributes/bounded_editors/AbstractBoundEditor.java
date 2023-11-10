@@ -25,7 +25,8 @@ public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrap
 
 	private final Checkbox unlimited;
 	private final TextField limit;
-
+	private Binder<ValueWrapper> binder;
+	
 	public AbstractBoundEditor(MessageSource msg, String labelUnlimited, Optional<String> labelLimit,
 			T bound, T min, T max)
 	{
@@ -40,7 +41,7 @@ public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrap
 		unlimited = new Checkbox();
 		unlimited.setLabel(labelUnlimited);
 		limit = new TextField();
-		Binder<ValueWrapper> binder = new Binder<>(ValueWrapper.class);
+		binder = new Binder<>(ValueWrapper.class);
 		binder.bind(limit, "value");
 		binder.bind(unlimited, "unlimited");
 		binder.setBean(new ValueWrapper("", false));
@@ -49,7 +50,8 @@ public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrap
 			boolean limited = !unlimited.getValue();
 			limit.setEnabled(limited);
 		});
-		limit.addValueChangeListener(this::fireEvent);
+		unlimited.addValueChangeListener(this::fireEvent);
+		limit.addValueChangeListener(this::fireEvent);	
 		add(initContent());
 	}
 
@@ -89,7 +91,7 @@ public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrap
 	@Override
 	protected ValueWrapper generateModelValue()
 	{
-		return new ValueWrapper(limit.getValue(), unlimited.getValue());
+		return binder.getBean();
 	}
 
 	@Override
@@ -104,5 +106,6 @@ public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrap
 			unlimited.setValue(false);
 			limit.setValue(value.getValue());
 		}
+		
 	}
 }
