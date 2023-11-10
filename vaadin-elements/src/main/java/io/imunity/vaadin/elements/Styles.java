@@ -8,8 +8,11 @@ package io.imunity.vaadin.elements;
 public enum Styles
 {
 	dropLayout("drop-layout"),
-	panel("panel");
-	
+	panel("panel"),
+	trueConditionBackground("u-trueCondition-bg"),
+	falseConditionBackground("u-falseCondition-bg"),
+	errorBackground("u-error-bg");
+
 	private String value;
 
 	private Styles(String value)

@@ -22,6 +22,7 @@ import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.Styles;
 import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -43,7 +44,6 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Styles;
 
 import java.util.Map;
 import java.util.Objects;

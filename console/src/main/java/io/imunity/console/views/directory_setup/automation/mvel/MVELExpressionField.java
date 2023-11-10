@@ -90,6 +90,18 @@ public class MVELExpressionField extends CustomField<String>
 		});
 	}
 	
+	@Override
+	public void addClassName(String className)
+	{
+		field.addClassName(className);
+	}
+	
+	@Override
+	public boolean removeClassName(String className)
+	{
+		return field.removeClassName(className);
+	}
+	
 	public MVELExpressionField(MessageSource msg, String caption, String description, MVELExpressionContext context)
 	{
 		this(msg, description, context);

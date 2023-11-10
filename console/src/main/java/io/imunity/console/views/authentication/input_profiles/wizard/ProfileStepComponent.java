@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -123,6 +124,7 @@ class ProfileStepComponent extends HorizontalLayout
 
 		// attributesTable
 		attributesTable = new Grid<>();
+		attributesTable.addThemeVariants(GridVariant.LUMO_COMPACT);
 		attributesTable.addColumn(DragDropBean::getExpression)
 				.setHeader(msg.getMessage("Wizard.ProfileStepComponent.expression"));
 		attributesTable.addColumn(DragDropBean::getValue)
