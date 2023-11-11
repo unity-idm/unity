@@ -93,7 +93,7 @@ public class InvitationsView extends UpmanViewComponent
 		InvitationForm invitationForm = new InvitationForm(msg, projectGroup, projectService.getProjectGroups(projectGroup).getAllOffspring(), getContent());
 		dialog.add(invitationForm);
 
-		Button saveButton = new SubmitButton(msg::getMessage);
+		SubmitButton saveButton = new SubmitButton(msg::getMessage);
 		saveButton.addClickListener(event ->
 		{
 			if(invitationForm.isValid())
@@ -103,7 +103,9 @@ public class InvitationsView extends UpmanViewComponent
 				loadData();
 			}
 		});
-
+		invitationForm.addEmailFieldBlurListener(e -> saveButton.addEnterShortcut());
+		invitationForm.addEmailFieldFocusListener(e -> saveButton.removeEnterShortcut());
+		
 		dialog.getFooter().add(saveButton);
 		return dialog;
 	}

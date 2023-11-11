@@ -13,8 +13,10 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 
+import com.vaadin.flow.component.BlurNotifier.BlurEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.FocusNotifier.FocusEvent;
 import com.vaadin.flow.component.HtmlContainer;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -50,9 +52,8 @@ class InvitationForm extends FormLayout
 		emailsTextArea.setPlaceholder(msg.getMessage("NewInvitationDialog.emailsPrompt"));
 		emailsTextArea.setWidth("24em");
 		emailsTextArea.focus();
-		emailsTextArea.addKeyPressListener(Key.ENTER, e -> emailsTextArea.setValue(emailsTextArea.getValue() + "\n"));
 		emailsTextArea.setTooltipText(msg.getMessage("NewInvitationDialog.emailsDesc"));
-
+		
 		allowModifyGroupsCheckbox = new Checkbox(msg.getMessage("NewInvitationDialog.allowModifyGroups"));
 		allowModifyGroupsCheckbox.setEnabled(false);
 
@@ -139,5 +140,15 @@ class InvitationForm extends FormLayout
 		addFormItem(groupsComboBox, new FormLayoutLabel(msg.getMessage("NewInvitationDialog.groups")));
 		addFormItem(allowModifyGroupsCheckbox, "");
 		addFormItem(expirationDateTimePicker, new FormLayoutLabel(msg.getMessage("NewInvitationDialog.invitationLivetime")));
+	}
+	
+	void addEmailFieldFocusListener(ComponentEventListener<FocusEvent<TextArea>> listener)
+	{
+		emailsTextArea.addFocusListener(listener);
+	}
+	
+	void addEmailFieldBlurListener(ComponentEventListener<BlurEvent<TextArea>> listener)
+	{
+		emailsTextArea.addBlurListener(listener);
 	}
 }
