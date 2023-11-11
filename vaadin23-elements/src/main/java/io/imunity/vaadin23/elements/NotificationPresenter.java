@@ -9,6 +9,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -43,9 +44,8 @@ public class NotificationPresenter
 
 	public void showWarning(String caption, String description)
 	{
-		ErrorNotification errorNotification = new ErrorNotification(caption, description);
-		errorNotification.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
-		errorNotification.open();
+		NoticeNotification warnNotification = new NoticeNotification(caption, description);
+		warnNotification.open();
 	}
 
 	private static class ErrorNotification extends Notification
@@ -65,6 +65,28 @@ public class NotificationPresenter
 			label.getStyle().set("font-weight", "bold");
 			HorizontalLayout layout = new HorizontalLayout(
 					VaadinIcon.EXCLAMATION_CIRCLE.create(),
+					new VerticalLayout(label, new Text(description)),
+					closeButton
+			);
+			layout.setAlignItems(FlexComponent.Alignment.CENTER);
+
+			add(layout);
+			setPosition(MIDDLE);
+		}
+	}
+	
+	private static class NoticeNotification extends Notification
+	{
+		private NoticeNotification(String header, String description)
+		{
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(event -> close());
+
+			Span label = new Span(header);
+			label.getStyle().set("font-weight", "bold");
+			HorizontalLayout layout = new HorizontalLayout(
 					new VerticalLayout(label, new Text(description)),
 					closeButton
 			);
