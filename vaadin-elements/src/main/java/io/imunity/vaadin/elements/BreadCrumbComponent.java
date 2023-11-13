@@ -25,7 +25,7 @@ public class BreadCrumbComponent extends Composite<Div>
 
 	public BreadCrumbComponent(List<MenuComponent> menuRouts, Function<String, String> msg)
 	{
-		getContent().setId("breadcrumb");
+		getContent().setClassName("u-breadcrumb");
 		getContent().setSizeFull();
 		this.menuRouts = menuRouts;
 		this.msg = msg;

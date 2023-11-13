@@ -194,7 +194,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 
 		Span info = new Span(msg.getMessage("ImportExport.uploadInfo"));
 		Span fileUploaded = new Span(msg.getMessage("ImportExport.noFileUploaded"));
-		fileUploaded.getStyle().set("margin", "var(--small-margin) 0");
+		fileUploaded.getStyle().set("margin", "var(--unity-small-margin) 0");
 
 		memoryBuffer = new MemoryBuffer();
 		upload = new Upload(memoryBuffer);

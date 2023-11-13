@@ -60,7 +60,7 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 				.setTextAlign(ColumnTextAlign.END)
 				.setResizable(true);
 
-		setClassNameGenerator(model -> model.expirationTime.isBefore(Instant.now()) ? "light-red-row" : "usual-row");
+		setClassNameGenerator(model -> model.expirationTime.isBefore(Instant.now()) ? "u-error-row" : "u-usual-row");
 	}
 
 	private static String format(Instant instant)

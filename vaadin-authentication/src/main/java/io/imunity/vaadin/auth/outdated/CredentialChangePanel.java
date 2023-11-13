@@ -33,6 +33,8 @@ import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 
 import java.util.Optional;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.LOGO_IMAGE;
+
 /**
  * Panel allowing to set a credential.
  */
@@ -87,7 +89,7 @@ class CredentialChangePanel extends VerticalLayout
 		setMargin(false);
 		
 		Optional<Image> logo = imageAccessService.loadImageFromUri(uiConfig.logoURL);
-		logo.ifPresent(logoImg -> logoImg.setId("unity-logo-image"));
+		logo.ifPresent(logoImg -> logoImg.addClassName(LOGO_IMAGE.getName()));
 		logo.ifPresent(this::add);
 
 		Span info = new Span(msg.getMessage("OutdatedCredentialDialog.info"));

@@ -24,7 +24,7 @@ public class EditViewActionLayoutFactory
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName("edit-view-action-buttons-layout");
+		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
 		return buttonsLayout;
 	}
 	
@@ -39,7 +39,7 @@ public class EditViewActionLayoutFactory
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName("edit-view-action-buttons-layout");
+		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
 		return buttonsLayout;
 	}
 
@@ -49,7 +49,7 @@ public class EditViewActionLayoutFactory
 		cancelButton.addClickListener(event -> UI.getCurrent().navigate(closeRedirectClass));
 		cancelButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton);
-		buttonsLayout.setClassName("edit-view-action-buttons-layout");
+		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
 		return buttonsLayout;
 	}
 }

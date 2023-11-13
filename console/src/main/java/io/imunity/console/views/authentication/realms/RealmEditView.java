@@ -119,7 +119,7 @@ public class RealmEditView extends ConsoleViewComponent
 	{
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		mainLayout.addClassName("big-vaadin-form-item");
+		mainLayout.addClassName("u-big-vaadin-form-item");
 		mainLayout.addFormItem(name, msg.getMessage("AuthenticationRealm.name"))
 				.add(getTooltipIcon("AuthenticationRealm.name.tooltip"));
 		mainLayout.addFormItem(description, msg.getMessage("AuthenticationRealm.description"))

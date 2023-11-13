@@ -38,10 +38,10 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		content.setSelectedTab(null);
 		details.setContent(content);
 		details.addThemeVariants(DetailsVariant.REVERSE);
-		details.setClassName("multi-tab-details");
+		details.setClassName("u-multi-tab-details");
 		details.setWidthFull();
 		add(details);
-		setClassName("multi-tab");
+		setClassName("u-multi-tab");
 	}
 
 	public void select(TabComponent tabComponent)
@@ -57,7 +57,7 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		label.setText("");
 		label.addComponentAsFirst(menuComponent.icon.create());
 		components.forEach(TabComponent::hideText);
-		details.addClassName("multi-tab-details-mini");
+		details.addClassName("u-multi-tab-details-mini");
 		Tooltip tooltip = setTooltipText(menuComponent.tabName);
 		tooltip.setPosition(Tooltip.TooltipPosition.END_TOP);
 	}
@@ -68,7 +68,7 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		label.setText(menuComponent.tabName);
 		label.addComponentAsFirst(menuComponent.icon.create());
 		components.forEach(TabComponent::showText);
-		details.removeClassName("multi-tab-details-mini");
+		details.removeClassName("u-multi-tab-details-mini");
 		setTooltipText(null);
 	}
 }

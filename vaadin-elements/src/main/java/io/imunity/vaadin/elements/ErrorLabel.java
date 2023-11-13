@@ -11,6 +11,6 @@ public class ErrorLabel extends Span
 	public ErrorLabel(String label)
 	{
 		add(label);
-		addClassName("error-label");
+		addClassName("u-error-label");
 	}
 }

@@ -85,7 +85,7 @@ class MergingUserConfirmationStep extends WizardStep
 	protected void setError(String message)
 	{
 		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
-		icon.setClassName("warning-icon");
+		icon.setClassName("u-warning-icon");
 		((HorizontalLayout)component).add(icon);
 		((HorizontalLayout)component).add(new Span(message));
 		((HorizontalLayout)component).setAlignItems(FlexComponent.Alignment.CENTER);

@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
 
 public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
@@ -158,7 +159,7 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 	private static Component createUpmanIcon(String url)
 	{
 		Icon home = VaadinIcon.FAMILY.create();
-		home.getStyle().set("cursor", "pointer");
+		home.addClassName(POINTER.getName());
 		home.addClickListener(event -> UI.getCurrent().getPage().setLocation(url));
 		return home;
 	}

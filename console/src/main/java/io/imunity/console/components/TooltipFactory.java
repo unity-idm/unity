@@ -16,7 +16,7 @@ public class TooltipFactory
 	{
 		Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
 		icon.setTooltipText(tooltipText);
-		icon.setClassName("field-icon-gap");
+		icon.setClassName("u-field-icon-gap");
 		return icon;
 	}
 
@@ -24,7 +24,7 @@ public class TooltipFactory
 	{
 		Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
 		HtmlTooltipAttach.to(icon, new Html("<div>" + tooltipText + "</div>"));
-		icon.setClassName("field-icon-gap");
+		icon.setClassName("u-field-icon-gap");
 		return icon;
 	}
 }

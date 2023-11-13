@@ -9,6 +9,9 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.DISABLED_ICON;
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+
 
 public class ActionIconBuilder
 {
@@ -29,9 +32,9 @@ public class ActionIconBuilder
 		if(listener != null)
 			targetIcon.addClickListener(e -> run(listener));
 		if(enabled)
-			targetIcon.setClassName("pointer");
+			targetIcon.setClassName(POINTER.getName());
 		else
-			targetIcon.setClassName("disabled-icon");
+			targetIcon.setClassName(DISABLED_ICON.getName());
 		targetIcon.getElement().setAttribute("onclick", "event.stopPropagation();");
 		targetIcon.setVisible(visible);
 		return targetIcon;

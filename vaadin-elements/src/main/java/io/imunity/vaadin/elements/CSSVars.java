@@ -7,13 +7,13 @@ package io.imunity.vaadin.elements;
 
 public enum CSSVars
 {
-	TEXT_FIELD_BIG("var(--vaadin-text-field-big)"),
-	RICH_FIELD_BIG("var(--vaadin-rich-field-big)"),
-	TEXT_FIELD_MEDIUM("var(--vaadin-text-field-medium)"),
-	BIG_MARGIN("var(--big-margin)"),
-	MEDIUM_MARGIN("var(--medium-margin)"),
-	SMALL_MARGIN("var(--small-margin)"),
-	BASE_MARGIN("var(--base-margin)");
+	TEXT_FIELD_BIG("var(--unity-text-field-big)"),
+	RICH_FIELD_BIG("var(--unity-rich-field-big)"),
+	TEXT_FIELD_MEDIUM("var(--unity-text-field-medium)"),
+	BIG_MARGIN("var(--unity-big-margin)"),
+	MEDIUM_MARGIN("var(--unity-medium-margin)"),
+	SMALL_MARGIN("var(--unity-small-margin)"),
+	BASE_MARGIN("var(--unity-base-margin)");
 	
 	final String var;
 	

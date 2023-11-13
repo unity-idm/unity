@@ -166,7 +166,7 @@ public class SignInView extends HomeViewComponent
 		getContent().add(userOptInCheckBox);
 		userOptInCheckBox.addValueChangeListener(e -> setUserMFAOptin(e.getValue(), entityId));
 		userOptInCheckBox.setValue(getUserOptInAttribute(entityId));
-		userOptInCheckBox.getStyle().set("padding-top", "var(--base-padding)");
+		userOptInCheckBox.getStyle().set("padding-top", "var(--unity-base-padding)");
 		return userOptInCheckBox;
 	}
 

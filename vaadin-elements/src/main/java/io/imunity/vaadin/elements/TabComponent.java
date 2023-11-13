@@ -26,7 +26,7 @@ public class TabComponent extends Tab implements TabTextHider
 	public TabComponent(MenuComponent menu)
 	{
 		this.routerLink = new RouterLink(menu.tabName, menu.component);
-		routerLink.setClassName("tab-component-link");
+		routerLink.setClassName("u-tab-component-link");
 		this.icon = ofNullable(menu.icon).map(vaadinIcon -> (Component)vaadinIcon.create()).orElseGet(Div::new);
 		add(routerLink);
 		routerLink.addComponentAsFirst(icon);

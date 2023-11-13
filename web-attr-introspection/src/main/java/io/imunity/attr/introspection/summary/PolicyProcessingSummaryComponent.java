@@ -217,7 +217,7 @@ public class PolicyProcessingSummaryComponent extends VerticalLayout
 		{
 			summaryTitle.setText(msg.getMessage("PolicyProcessingSummaryComponent.good"));
 			summaryTitle.getElement().getThemeList().add("badge contrast");
-			summaryTitle.setId("badge-warning");
+			summaryTitle.setClassName("u-badge-warning");
 			return wrapper;
 		}
 

@@ -26,6 +26,8 @@ import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 
 import java.util.function.Consumer;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.MONOSPACE;
+
 class MVELExpressionEditorDialog extends Dialog
 {
 	private static final int CHEET_SHEET_LINES_COUNT = 4;
@@ -59,7 +61,7 @@ class MVELExpressionEditorDialog extends Dialog
 		inputLabel = new InputLabel("");
 		inputLabel.getElement().setProperty("innerHTML", msg.getMessage("MVELExpressionField.evalTo", msg.getMessage(context.evalToKey)));
 		value.setValue(initValue);
-		value.getStyle().set("font-family", "monospace");
+		value.addClassName(MONOSPACE.getName());
 		value.getStyle().set("resize", "vertical");
 		value.getStyle().set("overflow", "auto");
 		value.setWidthFull();

@@ -219,7 +219,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		HorizontalLayout horizontalLayout = new HorizontalLayout(actions, columnToggleMenu.getTarget());
 		horizontalLayout.setSpacing(false);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		actions.getStyle().set("margin-right", "var(--small-margin)");
+		actions.getStyle().set("margin-right", "var(--unity-small-margin)");
 		return horizontalLayout;
 	}
 

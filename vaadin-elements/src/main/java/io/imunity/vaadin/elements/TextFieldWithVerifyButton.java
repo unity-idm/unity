@@ -19,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 import static java.util.Optional.ofNullable;
 
 public class TextFieldWithVerifyButton extends CustomField<String>
@@ -40,7 +41,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		this.verifyButtonIcon = new Div(verifyButtonIcon);
 		this.label = new InputLabel("");
 		verifyButtonIcon.setTooltipText(verifyButtonDesc);
-		verifyButtonIcon.getStyle().set("cursor", "pointer");
+		verifyButtonIcon.addClassName(POINTER.getName());
 		editor = new TextField();
 		editor.setWidthFull();
 		adminConfirmCheckBox = new Checkbox(adminConfirmCheckBoxLabel);
@@ -51,9 +52,9 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		fieldLayout.getStyle().set("position", "relative");
 
 		confirmationStatusIcon = new Div();
-		confirmationStatusIcon.setClassName("confirmation-status-icon");
+		confirmationStatusIcon.setClassName("u-confirmation-status-icon");
 
-		this.verifyButtonIcon.setClassName("verify-button-icon");
+		this.verifyButtonIcon.setClassName("u-verify-button-icon");
 
 		fieldLayout.add(editor, confirmationStatusIcon, this.verifyButtonIcon);
 		fieldLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -78,7 +79,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		{
 			label.remove();
 			requiredIndicator = new Span();
-			requiredIndicator.setClassName("required-label");
+			requiredIndicator.setClassName("u-required-label");
 			label.add(requiredIndicator);
 		}
 	}
@@ -94,10 +95,10 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		{
 			editor.setInvalid(true);
 			editor.setErrorMessage(error);
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName("invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName("u-invalid"));
 		}
 		else
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName("invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName("u-invalid"));
 	}
 
 
@@ -106,9 +107,9 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		editor.setInvalid(invalid);
 		if(invalid)
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName("invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName("u-invalid"));
 		else
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName("invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName("u-invalid"));
 	}
 
 	@Override

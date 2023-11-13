@@ -25,7 +25,7 @@ public class LocalizedRichTextEditor extends VerticalLayout
 	{
 		setSpacing(false);
 		setPadding(false);
-		addClassName("rich-editor");
+		addClassName("u-rich-editor");
 
 		this.locale = locale;
 		this.tinyMce = new TinyMce();
@@ -39,10 +39,10 @@ public class LocalizedRichTextEditor extends VerticalLayout
 						"blocks fontfamily fontsize | align outdent indent | removeformat")
 				.configure("block_formats",
 						"Paragraph=p; Plain text=div; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Heading 5=h5; Heading 6=h6; Preformatted=pre;");
-		tinyMce.addClassName("rich-editor-tinymc");
+		tinyMce.addClassName("u-rich-editor-tinymc");
 
 		FlagIcon flagIcon = new FlagIcon(locale.getLanguage());
-		flagIcon.addClassName("rich-editor-flag-icon");
+		flagIcon.addClassName("u-rich-editor-flag-icon");
 		add(tinyMce, flagIcon);
 	}
 

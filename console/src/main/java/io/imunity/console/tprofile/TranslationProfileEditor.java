@@ -6,13 +6,6 @@
 package io.imunity.console.tprofile;
 
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
@@ -26,10 +19,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.Styles;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -40,6 +31,14 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.VaadinClassNames.DROP_LAYOUT;
 
 public class TranslationProfileEditor extends VerticalLayout
 {
@@ -233,7 +232,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		HorizontalLayout drop = new HorizontalLayout();
 		drop.setWidthFull();
 		drop.setHeight(1, Unit.EM);
-		drop.addClassName(Styles.dropLayout.toString());
+		drop.addClassName(DROP_LAYOUT.getName());
 		
 		DropTarget<HorizontalLayout> dropTarget = DropTarget.create(drop);
 		dropTarget.setDropEffect(DropEffect.MOVE);

@@ -70,9 +70,9 @@ public class AuthnsGridWidget extends VerticalLayout
 					AuthenticationOptionKeyUtils.encodeToCSS(item.getId()));
 		providersChoiceGrid.setSizeUndefined();
 		providersChoiceGrid.setAllRowsVisible(true);
-		providersChoiceGrid.getStyle().set("margin", "var(--auth-component-margin) 0");
+		providersChoiceGrid.getStyle().set("margin", "var(--unity-auth-component-margin) 0");
 		providersChoiceGrid.getStyle().set("height",
-			"calc(" + height + "* (var(--auth-component-height) + var(--auth-full-component-margin)) - var(--auth-full-component-margin))");
+			"calc(" + height + "* (var(--unity-auth-component-height) + var(--unity-auth-full-component-margin)) - var(--unity-auth-full-component-margin))");
 
 		reloadContents();
 		add(providersChoiceGrid);

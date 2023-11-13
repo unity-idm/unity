@@ -28,6 +28,9 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.DISABLED_ICON;
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+
 
 class TrustedDevicesComponent extends VerticalLayout
 {
@@ -87,7 +90,7 @@ class TrustedDevicesComponent extends VerticalLayout
 	private Icon getRefreshAction()
 	{
 		Icon icon = VaadinIcon.REFRESH.create();
-		icon.addClassName("pointer");
+		icon.addClassName(POINTER.getName());
 		icon.addClickListener(event -> refresh());
 		return icon;
 	}
@@ -95,12 +98,12 @@ class TrustedDevicesComponent extends VerticalLayout
 	private Icon getDeleteAction()
 	{
 		Icon icon = VaadinIcon.TRASH.create();
-		icon.setClassName("disabled-icon");
+		icon.setClassName(DISABLED_ICON.getName());
 		tokensGrid.addSelectionListener(e -> {
 			if(e.getAllSelectedItems().isEmpty())
-				icon.setClassName("disabled-icon");
+				icon.setClassName(DISABLED_ICON.getName());
 			else
-				icon.setClassName("pointer");
+				icon.setClassName(POINTER.getName());
 		});
 		icon.addClickListener(event -> deleteHandler(tokensGrid.getSelectedItems()));
 		return icon;

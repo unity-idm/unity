@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.RICH_FIELD_BIG;
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
 public class LocalizedRichTextEditorDetails extends CustomField<Map<Locale, String>>
@@ -85,7 +86,7 @@ public class LocalizedRichTextEditorDetails extends CustomField<Map<Locale, Stri
 	{
 		Icon icon = angleDown.create();
 		icon.setColor("unset");
-		icon.getStyle().set("cursor", "pointer");
+		icon.addClassName(POINTER.getName());
 		return icon;
 	}
 

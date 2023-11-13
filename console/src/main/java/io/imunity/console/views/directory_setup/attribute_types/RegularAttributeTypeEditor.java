@@ -88,7 +88,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 	{
 		setWidthFull();
 		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		addClassName("big-vaadin-form-item");
+		addClassName("u-big-vaadin-form-item");
 		
 		
 		name = new TextField();

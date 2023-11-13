@@ -24,6 +24,8 @@ import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 
 import java.util.Map;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+
 class OTPEditorComponent extends VerticalLayout
 {
 	private static final Map<HashFunction, Integer> QR_BASE_SIZES = ImmutableMap.of(HashFunction.SHA1, 41,
@@ -58,7 +60,7 @@ class OTPEditorComponent extends VerticalLayout
 		textCodeComponent.setVisible(false);
 
 		Span switchCodeLabel = new Span(msg.getMessage("OTPEditorComponent.switchModeToText"));
-		switchCodeLabel.getStyle().set("cursor", "pointer");
+		switchCodeLabel.addClassName(POINTER.getName());
 		switchCodeComponent = new Div(switchCodeLabel);
 		switchCodeComponent.getStyle().set("text-decoration", "underline");
 		switchCodeComponent.addClickListener(e -> switchCodeComponent());
@@ -93,7 +95,7 @@ class OTPEditorComponent extends VerticalLayout
 		String messageKey = state ? "OTPEditorComponent.switchModeToText" : "OTPEditorComponent.switchModeToQR";
 		switchCodeComponent.removeAll();
 		Span label = new Span(msg.getMessage(messageKey));
-		label.getStyle().set("cursor", "pointer");
+		label.addClassName(POINTER.getName());
 		switchCodeComponent.add(label);
 	}
 	
@@ -140,7 +142,7 @@ class OTPEditorComponent extends VerticalLayout
 			user.getStyle().set("padding", "0");
 
 			Span customUserLabel = new Span(msg.getMessage("OTPEditorComponent.customizeUser"));
-			customUserLabel.getStyle().set("cursor", "pointer");
+			customUserLabel.addClassName(POINTER.getName());
 			Div customizeUser = new Div(customUserLabel);
 			customizeUser.getStyle().set("text-decoration", "underline");
 			customizeUser.addClickListener(e -> {customizeUser.setVisible(false); user.setVisible(true);});

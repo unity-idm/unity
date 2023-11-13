@@ -54,7 +54,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 
 	protected void initView()
 	{
-		setId("unity-layout");
+		setClassName("u-main-layout");
 
 		ExtraLayoutPanel top = new ExtraLayoutPanel("unity-layout-top", vaadinEndpointProperties.getExtraTopPanel().orElse(null));
 		ExtraLayoutPanel left = new ExtraLayoutPanel("unity-layout-left", vaadinEndpointProperties.getExtraLeftPanel().orElse(null));
@@ -63,14 +63,14 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 
 
 		HorizontalLayout mainLayout = new HorizontalLayout();
-		mainLayout.setId("unity-main-container");
+		mainLayout.setClassName("u-main-layout-container");
 
 		leftContainerContent = appLayoutComponents.getLeftContainerWithNavigation();
-		leftContainerContent.setId("unity-left-content-container");
+		leftContainerContent.setClassName("u-main-layout-left-container");
 		leftContainerContent.getStyle().set("width", null);
 
 		VerticalLayout rightContainerContent = appLayoutComponents.getRightContainerWithNavbarAndViewContent();
-		rightContainerContent.setId("unity-right-content-container");
+		rightContainerContent.setClassName("u-main-layout-right-container");
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout(this.leftContainerContent, rightContainerContent);
 		horizontalLayout.getStyle().set("gap", "0");
@@ -115,7 +115,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 		verticalLayout.setAlignItems(Alignment.END);
 		verticalLayout.setJustifyContentMode(JustifyContentMode.END);
 		verticalLayout.setHeightFull();
-		verticalLayout.setClassName("minimization-container");
+		verticalLayout.setClassName("u-main-layout-left-minimization-container");
 		leftContainerContent.add(verticalLayout);
 	}
 

@@ -11,21 +11,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 
 public class MenuButton extends Div
 {
-	private final Icon createdIcon;
 	public MenuButton(String label, VaadinIcon icon)
 	{
-		createdIcon = icon.create();
+		Icon createdIcon = icon.create();
 		add(createdIcon, new Span(label));
-		addClassName("menu-button");
-	}
-
-	@Override
-	public void setEnabled(boolean enabled)
-	{
-		super.setEnabled(enabled);
-		if(enabled)
-			createdIcon.removeClassName("disable-icon-color");
-		else
-			createdIcon.addClassName("disable-icon-color");
+		addClassName("u-menu-button");
 	}
 }

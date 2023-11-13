@@ -46,6 +46,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.DISABLED_ICON;
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+
 
 class GroupDelegationEditConfigDialog extends ConfirmDialog
 {
@@ -550,13 +553,13 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 			boolean en = combo.getValue() != null;
 			if(en)
 			{
-				edit.setClassName("pointer");
-				validate.setClassName("pointer");
+				edit.setClassName(POINTER.getName());
+				validate.setClassName(POINTER.getName());
 			}
 			else
 			{
-				edit.setClassName("disabled-icon");
-				validate.setClassName("disabled-icon");
+				edit.setClassName(DISABLED_ICON.getName());
+				validate.setClassName(DISABLED_ICON.getName());
 			}
 		}
 
@@ -576,9 +579,9 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		{
 			super.setEnabled(enabled);
 			if(enabled)
-				generate.setClassName("pointer");
+				generate.setClassName(POINTER.getName());
 			else
-				generate.setClassName("disabled-icon");
+				generate.setClassName(DISABLED_ICON.getName());
 		}
 
 		@Override

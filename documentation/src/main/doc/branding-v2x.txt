@@ -28,7 +28,7 @@ https://demo.vaadin.com/lumo-editor/[Lumo editor] to generate generic CSS which 
 Couple of example CSS modifications follows:
 
 ----
-#unity-main-container {
+.u-main-layout-container {
    background: #fff url("VAADIN/themes/common/img/background.png") no-repeat scroll center center;
 }
 

@@ -114,7 +114,7 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 	private Icon crateIcon(VaadinIcon angleDown, Optional<String> label)
 	{
 		Icon icon = angleDown.create();
-		icon.addClassName("details-icon");
+		icon.addClassName("u-details-icon");
 		if(label.isPresent())
 			icon.setClassName(EMPTY_DETAILS_ICON.getName());
 		return icon;

@@ -22,6 +22,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.List;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+
 class UnityAppLayoutComponentsHolder
 {
 	private final BreadCrumbComponent breadCrumbComponent;
@@ -117,7 +119,7 @@ class UnityAppLayoutComponentsHolder
 	private HorizontalLayout createNavbar(HorizontalLayout leftNavbarSite, HorizontalLayout rightNavbarSite)
 	{
 		HorizontalLayout navbarComponent = new HorizontalLayout(leftNavbarSite, rightNavbarSite);
-		navbarComponent.setId("unity-navbar");
+		navbarComponent.setClassName("u-main-layout-navbar");
 		return navbarComponent;
 	}
 
@@ -148,7 +150,7 @@ class UnityAppLayoutComponentsHolder
 	private Icon createLogoutIcon(Runnable logout)
 	{
 		Icon logoutIcon = new Icon(VaadinIcon.SIGN_OUT);
-		logoutIcon.getStyle().set("cursor", "pointer");
+		logoutIcon.addClassName(POINTER.getName());
 		logoutIcon.addClickListener(
 				event -> logout.run()
 		);

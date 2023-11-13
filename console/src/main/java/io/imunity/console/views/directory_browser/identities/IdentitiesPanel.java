@@ -45,6 +45,7 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import java.util.List;
 import java.util.Set;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
 @PrototypeComponent
@@ -331,7 +332,7 @@ public class IdentitiesPanel extends VerticalLayout
 		{
 			Span info = new Span(description);
 			Icon remove = VaadinIcon.TRASH.create();
-			remove.addClassName("pointer");
+			remove.addClassName(POINTER.getName());
 			remove.addClickListener(event -> {
 				identitiesTable.removeFilter(filter);
 				filtersBar.remove(FilterInfo.this);

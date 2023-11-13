@@ -40,7 +40,7 @@ public class PasswordQualityComponent extends VerticalLayout
 		getStyle().set("margin-left", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
 
 		if (context.isShowLabelInline())
-			setClassName("no-padding-top");
+			setClassName("u-no-padding-top");
 
 		onNewPassword("");
 	}

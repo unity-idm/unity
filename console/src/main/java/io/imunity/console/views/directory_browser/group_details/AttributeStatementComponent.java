@@ -147,7 +147,7 @@ class AttributeStatementComponent extends VerticalLayout
 
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName("medium-vaadin-form-item");
+		main.addClassName("u-medium-vaadin-form-item");
 		main.addFormItem(extraAttributesGroupCB, "");
 		main.addFormItem(extraAttributesGroupCombo, msg.getMessage("AttributeStatementComponent.extraGroupSelect"));
 		main.addFormItem(condition, msg.getMessage("AttributeStatementComponent.condition"));

@@ -38,6 +38,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.vaadin.elements.VaadinClassNames.LOGO_IMAGE;
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 import static java.util.stream.Collectors.toList;
 
 public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
@@ -88,7 +90,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 	private static Component createHomeIcon(String url)
 	{
 		Icon home = VaadinIcon.HOME.create();
-		home.getStyle().set("cursor", "pointer");
+		home.addClassName(POINTER.getName());
 		home.addClickListener(event -> UI.getCurrent().getPage().setLocation(url));
 		return home;
 	}
@@ -179,7 +181,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 		private void setImage(ProjectGroup projectGroup)
 		{
 			Image image = projectService.getProjectLogoFallbackToEmptyImage(projectGroup);
-			image.setId("unity-logo-image");
+			image.addClassName(LOGO_IMAGE.getName());
 			imageLayout.removeAll();
 			imageLayout.add(image);
 		}

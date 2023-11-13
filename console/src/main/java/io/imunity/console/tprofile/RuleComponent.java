@@ -22,7 +22,6 @@ import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.Styles;
 import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -48,6 +47,8 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import static io.imunity.vaadin.elements.VaadinClassNames.*;
 
 public class RuleComponent extends VerticalLayout
 {
@@ -319,8 +320,8 @@ public class RuleComponent extends VerticalLayout
 	private void setLayoutForEvaluatedCondition(boolean conditionResult)
 	{
 		removeRuleComponentEvaluationStyle();
-		setColorForInputComponents((conditionResult ? 
-				Styles.trueConditionBackground : Styles.falseConditionBackground).toString());
+		setColorForInputComponents((conditionResult ?
+				TRUE_CONDITION_BACKGROUND.getName() : FALSE_CONDITION_BACKGROUND.getName()));
 	}
 	
 	private void displayMappingResult(MappingResult mappingResult) 
@@ -331,7 +332,7 @@ public class RuleComponent extends VerticalLayout
 	
 	private void indicateConditionError(Exception e) 
 	{
-		condition.addClassName(Styles.errorBackground.toString());
+		condition.addClassName(ERROR_BACKGROUND.getName());
 		condition.setErrorMessage(ExceptionMessageHumanizer.getHumanReadableMessage(e));
 	}
 
@@ -351,9 +352,9 @@ public class RuleComponent extends VerticalLayout
 	
 	private void removeRuleComponentEvaluationStyle()
 	{
-		condition.removeClassName(Styles.trueConditionBackground.toString());
-		condition.removeClassName(Styles.errorBackground.toString());
-		condition.removeClassName(Styles.falseConditionBackground.toString());
+		condition.removeClassName(TRUE_CONDITION_BACKGROUND.getName());
+		condition.removeClassName(ERROR_BACKGROUND.getName());
+		condition.removeClassName(FALSE_CONDITION_BACKGROUND.getName());
 		condition.setErrorMessage(null);
 		
 		actionEditor.removeComponentEvaluationStyle();

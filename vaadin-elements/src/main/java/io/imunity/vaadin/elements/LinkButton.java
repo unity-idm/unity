@@ -10,6 +10,8 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+
 public class LinkButton extends Div
 {
 	private final Span label;
@@ -17,10 +19,10 @@ public class LinkButton extends Div
 	public LinkButton(String txt, ComponentEventListener<ClickEvent<Div>> listener)
 	{
 		label = new Span(txt);
-		label.getStyle().set("cursor", "pointer");
+		label.addClassName(POINTER.getName());
 		add(label);
 		getStyle().set("text-decoration", "underline");
-		getStyle().set("cursor", "pointer");
+		addClassName(POINTER.getName());
 		addClickListener(listener);
 	}
 

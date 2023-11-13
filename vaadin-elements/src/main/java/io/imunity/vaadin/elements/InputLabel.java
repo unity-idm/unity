@@ -13,7 +13,7 @@ public class InputLabel extends Span
 	public InputLabel(String label)
 	{
 		setText(label);
-		addClassName("input-label");
+		addClassName("u-input-label");
 	}
 
 	@Override
@@ -23,14 +23,14 @@ public class InputLabel extends Span
 		if(text == null || text.isBlank())
 			getStyle().set("padding-top" ,"0");
 		else
-			getStyle().set("padding-top" ,"var(--input-label-top-padding)");
+			getStyle().set("padding-top" ,"var(--unity-input-label-top-padding)");
 	}
 
 	public void setRequired(boolean required)
 	{
 		if (required)
 		{
-			addClassName("indicator");
+			addClassName("u-indicator");
 			this.required = true;
 		}
 	}
@@ -39,8 +39,8 @@ public class InputLabel extends Span
 	{
 		if(required)
 		{
-			removeClassName("indicator");
-			addClassName("error-indicator");
+			removeClassName("u-indicator");
+			addClassName("u-error-indicator");
 		}
 	}
 
@@ -48,8 +48,8 @@ public class InputLabel extends Span
 	{
 		if(required)
 		{
-			removeClassName("error-indicator");
-			addClassName("indicator");
+			removeClassName("u-error-indicator");
+			addClassName("u-indicator");
 		}
 	}
 }

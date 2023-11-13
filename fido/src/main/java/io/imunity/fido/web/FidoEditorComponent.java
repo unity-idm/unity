@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -80,12 +81,12 @@ class FidoEditorComponent extends VerticalLayout
 		addButton.setText(msg.getMessage("Fido.register"));
 		addButton.setWidthFull();
 		addButton.addClickListener(e -> fidoComponent.invokeRegistration(username.getValue(), loginLessAllowed.getValue()));
-		addButton.getStyle().set("margin-top", "var(--fido-top-margin)");
+		addButton.getStyle().set("margin-top", "var(--unity-fido-top-margin)");
 
 		Span advancedOptionsLabel = new Span(msg.getMessage("Fido.advancedOptions"));
 		advancedOptionsButton = new Div(advancedOptionsLabel);
 		advancedOptionsButton.getStyle().set("text-decoration", "underline");
-		advancedOptionsButton.getStyle().set("cursor", "pointer");
+		advancedOptionsButton.addClassName(POINTER.getName());
 
 		advancedOptionsButton.addClickListener(e -> {
 			advancedOptions.setVisible(!advancedOptions.isVisible());

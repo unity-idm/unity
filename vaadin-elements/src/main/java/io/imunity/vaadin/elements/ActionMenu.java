@@ -8,6 +8,7 @@ import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.icon.Icon;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 
 public class ActionMenu extends ContextMenu
 {
@@ -15,9 +16,9 @@ public class ActionMenu extends ContextMenu
 	{
 		super(MENU.create());
 		Icon target = (Icon)getTarget();
-		target.getStyle().set("cursor", "pointer");
+		target.addClassName(POINTER.getName());
 		setOpenOnClick(true);
-		addClassName("action-menu");
+		addClassName("u-action-menu");
 	}
 
 }

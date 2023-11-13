@@ -39,6 +39,7 @@ import static io.imunity.console.views.EditViewActionLayoutFactory.createActionL
 import static io.imunity.vaadin.elements.BreadCrumbParameter.BREAD_CRUMB_SEPARATOR;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.VaadinClassNames.MONOSPACE;
 
 @PermitAll
 @Route(value = "/pki/edit", layout = ConsoleMenu.class)
@@ -105,7 +106,7 @@ public class PKIEditView extends ConsoleViewComponent
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
 		Upload upload = new Upload(memoryBuffer);
 		upload.setMaxFileSize(MAX_FILE_SIZE);
-		upload.getStyle().set("margin", "var(--base-margin) 0");
+		upload.getStyle().set("margin", "var(--unity-base-margin) 0");
 		upload.addSucceededListener(e ->
 		{
 			try
@@ -120,7 +121,7 @@ public class PKIEditView extends ConsoleViewComponent
 
 		value = new TextArea();
 		value.setWidthFull();
-		value.setClassName("monospace");
+		value.setClassName(MONOSPACE.getName());
 		value.setHeight(TEXT_FIELD_MEDIUM.value());
 		value.addValueChangeListener(e -> refreshDetails());
 
@@ -188,7 +189,7 @@ public class PKIEditView extends ConsoleViewComponent
 	private static Span getMonospaceLabel(String value)
 	{
 		Span label = new Span(value);
-		label.setClassName("monospace");
+		label.setClassName(MONOSPACE.getName());
 		return label;
 	}
 

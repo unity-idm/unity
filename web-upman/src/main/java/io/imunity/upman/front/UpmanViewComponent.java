@@ -20,7 +20,7 @@ public abstract class UpmanViewComponent extends UnityViewComponent implements H
 	{
 		if(ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class) == null)
 			return;
-		getContent().setClassName("unity-view");
+		getContent().setClassName("u-view");
 		getContent().setHeightFull();
 	}
 

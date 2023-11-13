@@ -74,8 +74,8 @@ public class Wizard extends VerticalLayout
 		buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
 		buttonsLayout.setWidthFull();
 
-		contentLayout.getStyle().set("background-color", "var(--contrast)");
-		contentLayout.getStyle().set("border-radius", "var(--border-radius)");
+		contentLayout.getStyle().set("background-color", "var(--unity-contrast)");
+		contentLayout.getStyle().set("border-radius", "var(--unity-border-radius)");
 
 		add(titleComponent, labelsLayout, progressBar, contentLayout, buttonsLayout);
 		getStyle().set("gap", "0");

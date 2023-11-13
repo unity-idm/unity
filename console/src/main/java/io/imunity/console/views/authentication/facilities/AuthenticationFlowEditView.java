@@ -110,7 +110,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		mainLayout.addClassName("big-vaadin-form-item");
+		mainLayout.addClassName("u-big-vaadin-form-item");
 		mainLayout.addFormItem(name, msg.getMessage("AuthenticationFlow.name"));
 		mainLayout.addFormItem(policy, msg.getMessage("AuthenticationFlow.policy"));
 		mainLayout.addFormItem(firstFactorAuthenticators, msg.getMessage("AuthenticationFlow.firstFactorAuthenticators"));

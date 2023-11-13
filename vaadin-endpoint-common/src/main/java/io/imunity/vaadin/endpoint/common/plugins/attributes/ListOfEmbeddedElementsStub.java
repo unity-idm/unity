@@ -200,11 +200,11 @@ public class ListOfEmbeddedElementsStub<T>
 			cc.add(c.getComponents());
 			
 			add = VaadinIcon.PLUS_CIRCLE_O.create();
-			add.setClassName("small-icon");
+			add.setClassName("u-small-icon");
 			add.setTooltipText(msg.getMessage("add"));
 			add.addClickListener(event -> addEntry(null, Entry.this));
 			remove = VaadinIcon.TRASH.create();
-			remove.setClassName("small-icon");
+			remove.setClassName("u-small-icon");
 			remove.setTooltipText(msg.getMessage("remove"));
 			remove.addClickListener(event -> remove(Entry.this));
 			

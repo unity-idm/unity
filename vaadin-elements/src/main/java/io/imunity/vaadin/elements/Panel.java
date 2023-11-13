@@ -5,11 +5,12 @@
 
 package io.imunity.vaadin.elements;
 
-import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
-
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
+import static io.imunity.vaadin.elements.VaadinClassNames.PANEL;
 
 public class Panel extends VerticalLayout
 {
@@ -24,7 +25,7 @@ public class Panel extends VerticalLayout
 		setMargin(true);
 		setPadding(false);
 		setSpacing(false);
-		addClassName(Styles.panel.toString());
+		addClassName(PANEL.getName());
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setWidthFull();
 		if (header != null)
@@ -35,7 +36,7 @@ public class Panel extends VerticalLayout
 			horizontalLayout.add(label);
 		}
 		horizontalLayout.getStyle()
-				.set("background-color", "var(--contrast)");
+				.set("background-color", "var(--unity-contrast)");
 		add(horizontalLayout);
 		setSizeUndefined();
 	}

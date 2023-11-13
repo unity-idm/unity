@@ -19,8 +19,8 @@ public class AuthNGridTextWrapper extends VerticalLayout
 		setMargin(false);
 		setPadding(false);
 		addClassName("u-authnOptionTextElement");
-		getStyle().set("height", "var(--auth-component-height)");
-		getStyle().set("margin", "var(--auth-component-margin) 0");
+		getStyle().set("height", "var(--unity-auth-component-height)");
+		getStyle().set("margin", "var(--unity-auth-component-margin) 0");
 		add(toWrap);
 		if (alignment.equals(Alignment.CENTER))
 			addClassName("u-authnOptionTextCenteredElement");

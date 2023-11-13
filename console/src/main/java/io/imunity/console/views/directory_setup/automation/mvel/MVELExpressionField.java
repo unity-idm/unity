@@ -6,6 +6,7 @@ package io.imunity.console.views.directory_setup.automation.mvel;
 
 import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -49,7 +50,7 @@ public class MVELExpressionField extends CustomField<String>
 
 		editorButton.addClickListener(e -> new MVELExpressionEditorDialog(msg, this.context, mandatory,
 				field.getValue(), field::setValue).open());
-		editorButton.setClassName("pointer");
+		editorButton.setClassName(POINTER.getName());
 		this.editor = new MVELExpressionEditor(this, msg);
 
 		HorizontalLayout layout = new HorizontalLayout();
@@ -58,7 +59,7 @@ public class MVELExpressionField extends CustomField<String>
 		HorizontalLayout iconsLayout = new HorizontalLayout(editorButton, tooltip);
 		iconsLayout.setSpacing(false);
 		iconsLayout.getStyle().set("margin-top", BASE_MARGIN.value());
-		iconsLayout.setClassName("field-icon-gap");
+		iconsLayout.setClassName("u-field-icon-gap");
 		layout.add(field, iconsLayout);
 
 		field.addValueChangeListener(e ->

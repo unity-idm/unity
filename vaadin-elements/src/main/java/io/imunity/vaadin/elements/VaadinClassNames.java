@@ -9,12 +9,21 @@ public enum VaadinClassNames
 {
 	DIALOG_CONFIRM("u-dialog-confirm"),
 	SUBMIT_BUTTON("submit-button"),
-	SMALL_GAP("small-gap"),
-	EMPTY_DETAILS_ICON("empty-details-icon"),
-	GRID_DETAILS_FORM_ITEM("grid-details-vaadin-form-item"),
+	SMALL_GAP("u-small-gap"),
+	EMPTY_DETAILS_ICON("u-empty-details-icon"),
+	GRID_DETAILS_FORM_ITEM("u-grid-details-vaadin-form-item"),
 	BOLD("u-bold"),
 	IMMUTABLE_ATTRIBUTE("u-immutableAttribute"),
-	GRID_DETAILS_FORM("grid-details-vaadin-form");
+	GRID_DETAILS_FORM("u-grid-details-vaadin-form"),
+	DISABLED_ICON("u-disabled-icon"),
+	POINTER("u-pointer"),
+	DROP_LAYOUT("u-drop-layout"),
+	PANEL("u-panel"),
+	TRUE_CONDITION_BACKGROUND("u-trueCondition-bg"),
+	FALSE_CONDITION_BACKGROUND("u-falseCondition-bg"),
+	ERROR_BACKGROUND("u-error-bg"),
+	MONOSPACE("u-monospace"),
+	LOGO_IMAGE("u-logo-image");
 
 	private final String name;
 
