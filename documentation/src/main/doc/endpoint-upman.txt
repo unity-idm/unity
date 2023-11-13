@@ -10,7 +10,7 @@ UpMan can be used to expose a simple group management interface to non-technical
 
 Endpoint configuration itself contains only standard options common for all web endpoints. 
 
-Separate endpoint <<endp-rest-upman>> exposes a RESTful API allowing for management of Unity projects.
+Separate <<endp-rest-upman>> exposes a RESTful API allowing for management of Unity projects.
 
 ==== Exposing groups for management in UpMan
 
