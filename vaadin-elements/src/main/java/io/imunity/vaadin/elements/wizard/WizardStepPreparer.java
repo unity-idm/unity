@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.endpoint.common.wizard;
+package io.imunity.vaadin.elements.wizard;
 
 import java.util.function.BiConsumer;
 

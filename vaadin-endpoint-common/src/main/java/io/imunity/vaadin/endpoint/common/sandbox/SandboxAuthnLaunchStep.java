@@ -10,7 +10,7 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinService;
 
-import io.imunity.vaadin.endpoint.common.wizard.WizardStep;
+import io.imunity.vaadin.elements.wizard.WizardStep;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;

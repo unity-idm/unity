@@ -6,7 +6,7 @@
 package io.imunity.console.views.authentication.input_profiles.wizard;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.wizard.WizardStep;
+import io.imunity.vaadin.elements.wizard.WizardStep;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;

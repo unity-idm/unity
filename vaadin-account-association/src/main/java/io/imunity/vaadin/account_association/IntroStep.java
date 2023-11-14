@@ -6,7 +6,7 @@ package io.imunity.vaadin.account_association;
 
 import com.vaadin.flow.component.html.Span;
 
-import io.imunity.vaadin.endpoint.common.wizard.WizardStep;
+import io.imunity.vaadin.elements.wizard.WizardStep;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 public class IntroStep extends WizardStep

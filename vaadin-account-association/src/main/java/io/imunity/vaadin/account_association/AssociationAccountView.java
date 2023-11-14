@@ -16,10 +16,10 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServlet;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.wizard.Wizard;
+import io.imunity.vaadin.elements.wizard.WizardStepPreparer;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
-import io.imunity.vaadin.endpoint.common.wizard.Wizard;
-import io.imunity.vaadin.endpoint.common.wizard.WizardStepPreparer;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
@@ -80,7 +80,7 @@ class AssociationAccountView extends Composite<VerticalLayout> implements HasDyn
 						(step1, step2) -> step2.prepareStep(step1.ctx.getRemotePrincipal().orElse(null)))
 				)
 				.addStep(new FinalConnectIdStep(null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg, finishTask))
-				.addMessageSource(msg)
+				.addMessageSource(m -> msg.getMessage(m))
 				.addCancelTask(() -> UI.getCurrent().navigate(StatusView.class, QueryParameters.of(StatusView.TITLE_PARAM, msg.getMessage("Wizard.canceled"))))
 				.title(msg.getMessage("ConnectId.wizardCaption"))
 				.build();

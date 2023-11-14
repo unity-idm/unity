@@ -18,10 +18,10 @@ import com.vaadin.flow.server.VaadinServlet;
 
 import io.imunity.console.tprofile.TranslationProfileEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.wizard.Wizard;
+import io.imunity.vaadin.elements.wizard.WizardStepPreparer;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
-import io.imunity.vaadin.endpoint.common.wizard.Wizard;
-import io.imunity.vaadin.endpoint.common.wizard.WizardStepPreparer;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
@@ -64,7 +64,7 @@ public class ProfileWizardProvider
 				.addStep(new ProfileStep(msg.getMessage("Wizard.ProfileStep.caption"),
 						new ProfileStepComponent(msg, editor), notificationPresenter, msg))
 				.addStep(new AddProfileStep(null, new VerticalLayout(), editor, finish, notificationPresenter, msg))
-				.addMessageSource(msg)
+				.addMessageSource(m -> msg.getMessage(m))
 				.addCancelTask(closeWizard)
 				.build();
 	}
