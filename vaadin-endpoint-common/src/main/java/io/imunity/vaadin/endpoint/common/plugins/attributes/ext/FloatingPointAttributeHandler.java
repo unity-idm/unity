@@ -63,7 +63,7 @@ class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 		}
 
 		@Override
-		public Component getEditor()
+		public Optional<Component>  getEditor()
 		{
 			FormLayout fl = new FormLayout();
 			fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
@@ -96,7 +96,7 @@ class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 
 			fl.addFormItem(min, msg.getMessage("NumericAttributeHandler.minE"));
 			fl.addFormItem(max, msg.getMessage("NumericAttributeHandler.maxE"));
-			return fl;
+			return Optional.of(fl);
 		}
 
 		@Override

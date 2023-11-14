@@ -4,12 +4,19 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeValueEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -28,9 +35,9 @@ class BooleanAttributeHandler implements WebAttributeHandler
 	private static class BooleanSyntaxEditor implements AttributeSyntaxEditor<Boolean>
 	{
 		@Override
-		public Component getEditor()
+		public Optional<Component>  getEditor()
 		{
-			return new FormLayout();
+			return Optional.empty();
 		}
 	
 		@Override

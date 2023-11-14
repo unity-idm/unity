@@ -4,7 +4,6 @@
  */
 package io.imunity.console.views.directory_setup.attribute_types;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 import java.util.HashSet;
@@ -27,6 +26,7 @@ import com.vaadin.flow.data.binder.Binder;
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.elements.Panel;
+import io.imunity.vaadin.elements.VaadinClassNames;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
@@ -61,10 +61,11 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 	private Checkbox selfModificable;
 	private Checkbox global;
 	private ComboBox<String> syntax;
-	private VerticalLayout syntaxPanel;
+	private VerticalLayout syntaxPanelContent;
 	private AttributeSyntaxEditor<?> editor;
 	private MetadataEditor metaEditor;
 	private AttributeTypeSupport atSupport;
+	private FormItem sytaxPanelFormItem;
 
 	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistry registry,
 			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
@@ -75,7 +76,6 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistry registry, AttributeType toEdit,
 			AttributeMetadataHandlerRegistry attrMetaHandlerReg, AttributeTypeSupport atSupport)
 	{
-		super();
 		this.msg = msg;
 		this.registry = registry;
 		this.attrMetaHandlerReg = attrMetaHandlerReg;
@@ -99,7 +99,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
-		displayedName.setWidth(TEXT_FIELD_BIG.value());
+		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
 		addFormItem(displayedName, msg.getMessage("AttributeType.displayedName"));
 
 		typeDescription = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
@@ -130,31 +130,29 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		syntax.setItems(syntaxes);
 		addFormItem(syntax, msg.getMessage("AttributeType.type"));
 
-		Panel syntaxPanelP = new Panel();
-		syntaxPanelP.setMargin(false);
-
-		syntaxPanel = new VerticalLayout();
-		syntaxPanel.setSpacing(false);
+		Panel syntaxPanel = new Panel();
 		syntaxPanel.setMargin(false);
-		syntaxPanelP.add(syntaxPanel);
+		syntaxPanel.addClassName(VaadinClassNames.MARGIN_VERTICAL.getName());
+		
+		syntaxPanelContent = new VerticalLayout();
+		syntaxPanelContent.setSpacing(false);
+		syntaxPanelContent.setMargin(false);
+		syntaxPanel.add(syntaxPanelContent);
 
-		addFormItem(syntaxPanelP, "");
+		sytaxPanelFormItem = addFormItem(syntaxPanel, "");
 
 		syntax.addValueChangeListener(event ->
 		{
 			String syntaxId = (String) syntax.getValue();
 			editor = registry.getSyntaxEditor(syntaxId, null);
-			syntaxPanel.removeAll();
-			syntaxPanel.add(editor.getEditor());
+			syntaxPanelContent.removeAll();
+			Optional<Component> editorC = editor.getEditor();
+			sytaxPanelFormItem.setVisible(editorC.isPresent());
+			editorC.ifPresent(syntaxPanelContent::add);	
 		});
 
 		metaEditor = new MetadataEditor(msg, attrMetaHandlerReg);
-		metaEditor.setMargin(true);
-		Panel metaPanel = new Panel();
-		metaPanel.add(metaEditor);
-		metaPanel.setMargin(false);
-		
-		addFormItem(metaPanel, msg.getMessage("AttributeType.metadata"));
+		addFormItem(metaEditor, msg.getMessage("AttributeType.metadata"));
 
 		binder = new Binder<>(AttributeType.class);
 		binder.forField(name)
@@ -220,9 +218,10 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		String syntaxId = aType.getValueSyntax();
 		AttributeValueSyntax<?> syntaxObj = atSupport.getSyntax(aType);
 		editor = registry.getSyntaxEditor(syntaxId, syntaxObj);
-		syntaxPanel.removeAll();
-		syntaxPanel.add(editor.getEditor());
-		metaEditor.setInput(aType.getMetadata());
+		syntaxPanelContent.removeAll();
+		Optional<Component> editorC = editor.getEditor();
+		sytaxPanelFormItem.setVisible(editorC.isPresent());
+		editorC.ifPresent(syntaxPanelContent::add);			metaEditor.setInput(aType.getMetadata());
 	}
 
 	@Override

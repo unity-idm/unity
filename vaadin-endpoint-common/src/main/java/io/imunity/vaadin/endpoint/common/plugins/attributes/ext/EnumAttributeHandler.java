@@ -153,7 +153,7 @@ class EnumAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public Component getEditor()
+		public Optional<Component>  getEditor()
 		{
 			VerticalLayout vl = new VerticalLayout();
 			vl.setSpacing(true);
@@ -195,7 +195,7 @@ class EnumAttributeHandler implements WebAttributeHandler
 				current.setItems(new ArrayList<>(initial.getAllowed()));
 				
 			}
-			return vl;
+			return Optional.of(vl);
 		}
 
 		@Override

@@ -4,6 +4,7 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.vaadin.flow.component.Component;
@@ -35,7 +36,7 @@ class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 	}
 
 	@Override
-	public Component getEditor()
+	public Optional<Component> getEditor()
 	{
 		FormLayout fl = new FormLayout();
 		fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
@@ -73,7 +74,7 @@ class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 			value.setMaxSize(1024000);
 		}
 		binder.setBean(value);
-		return fl;
+		return Optional.of(fl);
 	}
 
 	@Override

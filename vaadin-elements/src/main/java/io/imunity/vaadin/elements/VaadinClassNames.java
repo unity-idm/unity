@@ -23,8 +23,9 @@ public enum VaadinClassNames
 	FALSE_CONDITION_BACKGROUND("u-falseCondition-bg"),
 	ERROR_BACKGROUND("u-error-bg"),
 	MONOSPACE("u-monospace"),
-	LOGO_IMAGE("u-logo-image");
-
+	LOGO_IMAGE("u-logo-image"),
+	MARGIN_VERTICAL("u-margin-vertical");
+	
 	private final String name;
 
 	VaadinClassNames(String name)

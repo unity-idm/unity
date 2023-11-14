@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.attributes.NullAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 class DateTimeAttributeHandler implements WebAttributeHandler
@@ -64,9 +65,9 @@ class DateTimeAttributeHandler implements WebAttributeHandler
 	{
 
 		@Override
-		public Component getEditor()
+		public Optional<Component>  getEditor()
 		{
-			return AttributeHandlerHelper.getEmptyEditor();
+			return Optional.empty();
 		}
 
 		@Override

@@ -4,6 +4,8 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
@@ -11,7 +13,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 
 public interface AttributeSyntaxEditor<T>
 {
-	Component getEditor();
+	Optional<Component> getEditor();
 	
 	AttributeValueSyntax<T> getCurrentValue() throws IllegalAttributeTypeException;
 }

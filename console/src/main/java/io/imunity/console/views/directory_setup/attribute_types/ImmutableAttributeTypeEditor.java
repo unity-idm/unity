@@ -4,16 +4,7 @@
  */
 package io.imunity.console.views.directory_setup.attribute_types;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
-import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
-import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.message.MessageSource;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 import java.util.HashSet;
 import java.util.Locale;
@@ -21,8 +12,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.textfield.TextField;
+
+import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Allows to edit an attribute type which has immutable type. For such
@@ -62,7 +62,7 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale(), Optional.empty(), locale -> "");
-		displayedName.setWidth(TEXT_FIELD_BIG.value());
+		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
 		addFormItem(displayedName, msg.getMessage("AttributeType.displayedName"));
 
 		typeDescription = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
