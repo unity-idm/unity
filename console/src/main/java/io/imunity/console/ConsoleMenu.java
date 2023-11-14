@@ -10,16 +10,18 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import io.imunity.console.views.directory_browser.DirectoryBrowserView;
 import io.imunity.console.views.ServicesEditView;
 import io.imunity.console.views.ServicesView;
-import io.imunity.console.views.authentication.CredentialsView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsEditView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsView;
+import io.imunity.console.views.authentication.credentials.CredentialsEditView;
+import io.imunity.console.views.authentication.credentials.CredentialsInfoView;
+import io.imunity.console.views.authentication.credentials.CredentialsView;
 import io.imunity.console.views.authentication.facilities.FacilitiesView;
 import io.imunity.console.views.authentication.input_profiles.RemoteDataProfilesView;
 import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.console.views.authentication.realms.RealmsView;
+import io.imunity.console.views.directory_browser.DirectoryBrowserView;
 import io.imunity.console.views.directory_setup.attribute_classes.AttributeClassesEditView;
 import io.imunity.console.views.directory_setup.attribute_classes.AttributeClassesView;
 import io.imunity.console.views.directory_setup.attribute_types.AttributeTypesView;
@@ -69,6 +71,7 @@ public class ConsoleMenu extends UnityAppLayout
 								MenuComponent.builder(CredentialsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.authentication.localCredentials"))
 										.icon(VaadinIcon.LOCK)
+										.subViews(CredentialsEditView.class, CredentialsInfoView.class)
 										.build(),
 								MenuComponent.builder(CredentialRequirementsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.authentication.credentialRequirements"))
