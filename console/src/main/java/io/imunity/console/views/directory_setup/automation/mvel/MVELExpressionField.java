@@ -4,13 +4,6 @@
  */
 package io.imunity.console.views.directory_setup.automation.mvel;
 
-import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
-
-import java.util.Collection;
-import java.util.Optional;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.customfield.CustomField;
@@ -23,11 +16,18 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
-
 import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.DragDropBean;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+
+import java.util.Collection;
+import java.util.Optional;
+
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.VaadinClassNames.FIELD_ICON_GAP;
+import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 
 /**
  * Plain text field allowing for editing an MVEL expression
@@ -59,7 +59,7 @@ public class MVELExpressionField extends CustomField<String>
 		HorizontalLayout iconsLayout = new HorizontalLayout(editorButton, tooltip);
 		iconsLayout.setSpacing(false);
 		iconsLayout.getStyle().set("margin-top", BASE_MARGIN.value());
-		iconsLayout.setClassName("u-field-icon-gap");
+		iconsLayout.setClassName(FIELD_ICON_GAP.getName());
 		layout.add(field, iconsLayout);
 
 		field.addValueChangeListener(e ->

@@ -85,6 +85,10 @@ html {
     Styling based on html/vaadin tags/components
 */
 
+body {
+    overflow-y :hidden;
+}
+
 h1, h2, h3, h4, h5, h6 {
     font-weight: var(--unity-font-weight);
 }
@@ -185,6 +189,10 @@ vaadin-grid-cell-content > vaadin-text-field[invalid] {
     margin-top: 1.8em;
 }
 
+vaadin-form-item > vaadin-integer-field {
+    width: 8em;
+}
+
 /*
     Styling based on part selector
 */
@@ -261,6 +269,10 @@ vcf-tooltip[theme=light]::part(container) {
 
 vaadin-text-field::part(error-message) {
     text-wrap: nowrap;
+}
+
+vaadin-tooltip-overlay::part(content) {
+    white-space: break-spaces;
 }
 
 /*
@@ -631,4 +643,9 @@ vaadin-details.u-multi-tab-details {
 
 .u-error-bg {
 	background-color: var(--unity-false-condition-color);
+}
+
+.u-img-field {
+    max-width: 15em;
+    max-height: 15em;
 }

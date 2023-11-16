@@ -2,37 +2,38 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.fido.web.v8;
+package io.imunity.fido.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.vaadin.ui.*;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
 import com.yubico.webauthn.data.AttestationConveyancePreference;
 import com.yubico.webauthn.data.UserVerificationRequirement;
 import io.imunity.fido.credential.FidoCredential;
+import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 
-import static io.imunity.tooltip.TooltipExtension.tooltip;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static java.util.Objects.isNull;
 
-/**
- * Basic Fido credential definition editor. Requires configuration to be added.
- *
- * @author R. Ledzinski
- */
-public class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
-{
-	private MessageSource msg;
 
-	private ComboBox<AttestationConveyancePreference> attestationConveyance;
-	private ComboBox<UserVerificationRequirement> userVerification;
-	private CheckBox loginLessAllowed;
+class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
+{
+	private final MessageSource msg;
+
+	private Select<AttestationConveyancePreference> attestationConveyance;
+	private Select<UserVerificationRequirement> userVerification;
+	private Checkbox loginLessAllowed;
 	private TextField hostName;
 
-	public FidoCredentialDefinitionEditor(MessageSource msg)
+	FidoCredentialDefinitionEditor(MessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -40,24 +41,29 @@ public class FidoCredentialDefinitionEditor implements CredentialDefinitionEdito
 	@Override
 	public Component getEditor(String credentialDefinitionConfiguration)
 	{
-		attestationConveyance = new ComboBox<>(msg.getMessage("Fido.credEditor.attestationConveyance"));
+		attestationConveyance = new Select<>();
 		attestationConveyance.setItems(AttestationConveyancePreference.values());
-		attestationConveyance.setEmptySelectionAllowed(false);
-		attestationConveyance.setTextInputAllowed(false);
-		tooltip(attestationConveyance, msg.getMessage("Fido.credEditor.attestationConveyance.tip.v8"));
-		userVerification = new ComboBox<>(msg.getMessage("Fido.credEditor.userVerification"));
+		attestationConveyance.setWidth(TEXT_FIELD_MEDIUM.value());
+		userVerification = new Select<>();
+		userVerification.setWidth(TEXT_FIELD_MEDIUM.value());
 		userVerification.setItems(UserVerificationRequirement.values());
-		userVerification.setEmptySelectionAllowed(false);
-		userVerification.setTextInputAllowed(false);
-		loginLessAllowed = new CheckBox(msg.getMessage("Fido.credEditor.loginLess"));
-		tooltip(loginLessAllowed, msg.getMessage("Fido.credEditor.loginLess.tip.v8"));
-		tooltip(userVerification, msg.getMessage("Fido.credEditor.userVerification.tip.v8"));
-		hostName = new TextField(msg.getMessage("Fido.credEditor.hostName"));
-		tooltip(hostName, msg.getMessage("Fido.credEditor.hostName.tip"));
+		userVerification.setItemLabelGenerator(Enum::name);
+		loginLessAllowed = new Checkbox(msg.getMessage("Fido.credEditor.loginLess"));
+		hostName = new TextField();
+		hostName.setWidth(TEXT_FIELD_MEDIUM.value());
 
-		FormLayout ret = new FormLayout(attestationConveyance, userVerification, hostName, loginLessAllowed);
-		ret.setMargin(true);
-		
+		FormLayout ret = new FormLayout();
+		ret.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
+		ret.addFormItem(attestationConveyance, msg.getMessage("Fido.credEditor.attestationConveyance"))
+				.add(TooltipFactory.get(msg.getMessage("Fido.credEditor.attestationConveyance.tip")));
+		ret.addFormItem(userVerification, msg.getMessage("Fido.credEditor.userVerification"))
+				.add(TooltipFactory.get(msg.getMessage("Fido.credEditor.userVerification.tip")));
+		ret.addFormItem(hostName, msg.getMessage("Fido.credEditor.hostName"))
+				.add(TooltipFactory.get(msg.getMessage("Fido.credEditor.hostName.tip")));
+		ret.addFormItem(loginLessAllowed, "")
+				.add(TooltipFactory.get(msg.getMessage("Fido.credEditor.loginLess.tip")));
+
 		FidoCredential credential = isNull(credentialDefinitionConfiguration) ? 
 				new FidoCredential() : FidoCredential.deserialize(credentialDefinitionConfiguration);
 		initUIState(credential);

@@ -17,13 +17,13 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 @Component
 class OTPCredentialEditorFactoryV8 implements CredentialEditorFactory
 {
-	private final ObjectFactory<OTPCredentialDefinitionEditor> credDefEditorFactory;
+	private final ObjectFactory<OTPCredentialDefinitionEditorV8> credDefEditorFactory;
 	private final ObjectFactory<CredentialDefinitionViewer> credDefViewerFactory;
 	private final ObjectFactory<CredentialEditor> credentialEditiorFactory;
 
 	@Autowired
 	public OTPCredentialEditorFactoryV8(
-			ObjectFactory<OTPCredentialDefinitionEditor> credDefEditorFactory,
+			ObjectFactory<OTPCredentialDefinitionEditorV8> credDefEditorFactory,
 			ObjectFactory<CredentialDefinitionViewer> credDefViewerFactory,
 			ObjectFactory<CredentialEditor> credentialEditiorFactory)
 	{

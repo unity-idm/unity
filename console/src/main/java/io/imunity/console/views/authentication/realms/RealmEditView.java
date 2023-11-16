@@ -32,6 +32,7 @@ import java.util.Optional;
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.VaadinClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 @PermitAll
 @Route(value = "/realms/edit", layout = ConsoleMenu.class)
@@ -119,7 +120,7 @@ public class RealmEditView extends ConsoleViewComponent
 	{
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		mainLayout.addClassName("u-big-vaadin-form-item");
+		mainLayout.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		mainLayout.addFormItem(name, msg.getMessage("AuthenticationRealm.name"))
 				.add(getTooltipIcon("AuthenticationRealm.name.tooltip"));
 		mainLayout.addFormItem(description, msg.getMessage("AuthenticationRealm.description"))

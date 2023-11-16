@@ -18,7 +18,10 @@ import pl.edu.icm.unity.base.msg_template.confirm.MobileNumberConfirmationTempla
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
-class MobileNumberConfirmationConfigurationEditor extends FormLayout
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.VaadinClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+
+public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 {
 	private final MessageSource msg;
 	private final MessageTemplateManagement msgTemplateMan;
@@ -33,7 +36,7 @@ class MobileNumberConfirmationConfigurationEditor extends FormLayout
 		this(initial, msg, msgTemplateMan, msgPrefix, EmailConfirmationConfiguration.DEFAULT_VALIDITY);
 	}
 	
-	MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
+	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
 	                                                   MessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix, int defaultValidity)
 	{
 		this.initial = initial;
@@ -54,11 +57,12 @@ class MobileNumberConfirmationConfigurationEditor extends FormLayout
 	private void initUI()
 	{
 		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
-		
 		binder = new Binder<>(MobileNumberConfirmationConfiguration.class);
 
 		CompatibleTemplatesComboBox msgTemplate = new CompatibleTemplatesComboBox(MobileNumberConfirmationTemplateDef.NAME, msgTemplateMan);
+		msgTemplate.setWidth(TEXT_FIELD_MEDIUM.value());
 		msgTemplate.setRequired(true);
 		msgTemplate.setDefaultValue();
 
@@ -105,7 +109,6 @@ class MobileNumberConfirmationConfigurationEditor extends FormLayout
 			init.setCodeLength(MobileNumberConfirmationConfiguration.DEFAULT_CODE_LENGTH);
 			binder.setBean(init);
 		}
-		
 	}
 
 	public MobileNumberConfirmationConfiguration getCurrentValue() throws FormValidationException
@@ -117,7 +120,6 @@ class MobileNumberConfirmationConfigurationEditor extends FormLayout
 		}
 
 		return binder.getBean();
-
 	}
 
 }

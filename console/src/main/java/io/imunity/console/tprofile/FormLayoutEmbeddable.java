@@ -9,7 +9,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.shared.HasTooltip;
-import io.imunity.console.components.TooltipFactory;
+import io.imunity.vaadin.elements.TooltipFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -17,12 +17,12 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 
 @PrototypeComponent
-class OTPCredentialDefinitionViewer implements CredentialDefinitionViewer
+class OTPCredentialDefinitionViewerV8 implements CredentialDefinitionViewer
 {
 	private MessageSource msg;
 	
 	@Autowired
-	OTPCredentialDefinitionViewer(MessageSource msg)
+	OTPCredentialDefinitionViewerV8(MessageSource msg)
 	{
 		this.msg = msg;
 	}

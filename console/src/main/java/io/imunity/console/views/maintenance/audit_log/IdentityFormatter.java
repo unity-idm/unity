@@ -4,6 +4,7 @@
  */
 package io.imunity.console.views.maintenance.audit_log;
 
+import io.imunity.vaadin.endpoint.common.plugins.attributes.components.ConfirmationInfoFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.identity.Identity;

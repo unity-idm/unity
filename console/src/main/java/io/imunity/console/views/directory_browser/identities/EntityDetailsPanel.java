@@ -9,6 +9,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.console.views.maintenance.audit_log.IdentityFormatter;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.components.ListOfElementsWithActions;
 import pl.edu.icm.unity.base.authn.CredentialInfo;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.entity.Entity;

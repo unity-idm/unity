@@ -6,27 +6,22 @@ package io.imunity.fido.web;
 
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.service.FidoCredentialVerificator;
-import io.imunity.fido.web.v8.FidoCredentialDefinitionEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionViewer;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 
 @Component
 class FidoCredentialEditorFactory implements CredentialEditorFactory
 {
-	private MessageSource msg;
-	private FidoRegistration fidoRegistration;
-	private NotificationPresenter notificationPresenter;
+	private final MessageSource msg;
+	private final FidoRegistration fidoRegistration;
+	private final NotificationPresenter notificationPresenter;
 
-	@Autowired
-	public FidoCredentialEditorFactory(final MessageSource msg, final FidoRegistration fidoRegistration,
-	                                   NotificationPresenter notificationPresenter)
+	FidoCredentialEditorFactory(MessageSource msg, FidoRegistration fidoRegistration, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.fidoRegistration = fidoRegistration;

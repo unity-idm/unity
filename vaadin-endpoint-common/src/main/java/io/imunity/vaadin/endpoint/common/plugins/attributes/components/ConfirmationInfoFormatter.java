@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.maintenance.audit_log;
+package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import java.sql.Date;
 
 @Component
-class ConfirmationInfoFormatter
+public class ConfirmationInfoFormatter
 {
 	@Autowired
 	private MessageSource msg;

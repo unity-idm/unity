@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.VaadinClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 /**
  * Allows to edit an attribute type which has immutable type. For such
@@ -52,7 +53,7 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 	{
 		setWidthFull();
 		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		addClassName("u-big-vaadin-form-item");
+		addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		
 		name = new TextField();
 		name.setValue(toEdit.getName());

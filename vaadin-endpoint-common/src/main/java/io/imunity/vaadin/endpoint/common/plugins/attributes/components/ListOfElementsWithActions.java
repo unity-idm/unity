@@ -1,23 +1,25 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.directory_browser.identities;
+package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static io.imunity.vaadin.elements.VaadinClassNames.DISABLED_ICON;
 
 
 public class ListOfElementsWithActions<T> extends Div
@@ -29,13 +31,12 @@ public class ListOfElementsWithActions<T> extends Div
 	private final VerticalLayout main;
 	private boolean addSeparatorLine;
 
-	ListOfElementsWithActions(LabelConverter<T> labelConverter)
+	public ListOfElementsWithActions(LabelConverter<T> labelConverter)
 	{
-
 		this(List.of(new Column<>(null, labelConverter)), null);
 	}
 
-	ListOfElementsWithActions(List<Column<T>> columns, ActionColumn<T> actionColumn)
+	public ListOfElementsWithActions(List<Column<T>> columns, ActionColumn<T> actionColumn)
 	{
 		this.columns = columns;
 		this.actionColumn = actionColumn;
@@ -44,7 +45,6 @@ public class ListOfElementsWithActions<T> extends Div
 		main = new VerticalLayout();
 		main.setPadding(false);
 		main.setSpacing(false);
-		main.setId("ListOfElements");
 		add(main);
 		addHeader();
 	}
@@ -54,6 +54,29 @@ public class ListOfElementsWithActions<T> extends Div
 		Entry component = new Entry(entry);
 		components.add(component);
 		main.add(component);
+	}
+
+	public void removeEntry(Entry entry)
+	{
+		components.remove(entry);
+		main.remove(entry);
+	}
+
+	public void removeEntry(T element)
+	{
+		ListOfElementsWithActions.Entry entry = getElement(element);
+		if (entry != null)
+			removeEntry(entry);
+	}
+
+	public ListOfElementsWithActions.Entry getElement(T element)
+	{
+		for (ListOfElementsWithActions.Entry e : components)
+		{
+			if (e.getComponent() == element)
+				return e;
+		}
+		return null;
 	}
 
 	public void clearContents()
@@ -167,6 +190,7 @@ public class ListOfElementsWithActions<T> extends Div
 	private HorizontalLayout buildColumnsLayout(T element)
 	{
 		HorizontalLayout labels = new HorizontalLayout();
+		labels.setAlignItems(FlexComponent.Alignment.CENTER);
 		labels.setWidthFull();
 		labels.setPadding(false);
 		for (Column<T> column : columns)
@@ -191,12 +215,12 @@ public class ListOfElementsWithActions<T> extends Div
 				elementsSet.add(element);
 				if (handler.isVisible(elementsSet))
 				{
-					Button actionButton = new Button();
-					actionButton.setIcon(handler.getIcon().create());
+					Icon actionButton = handler.getIcon().create();
 					actionButton.setTooltipText(handler.getCaption());
 					actionButton.addClickListener(e -> handler
 							.handle(Stream.of(element).collect(Collectors.toSet())));
-					actionButton.setEnabled(handler.isEnabled(elementsSet));
+					if(!handler.isEnabled(elementsSet))
+						actionButton.addClassName(DISABLED_ICON.getName());
 					buttons.add(actionButton);
 				}
 			}

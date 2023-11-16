@@ -15,6 +15,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.StringBindingValue;
 import io.imunity.vaadin.elements.TextFieldWithVerifyButton;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.components.ConfirmationInfoFormatter;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleStringFieldBinder;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
@@ -38,7 +39,6 @@ import pl.edu.icm.unity.stdext.credential.sms.SMSCredential;
 import pl.edu.icm.unity.stdext.credential.sms.SMSCredentialExtraInfo;
 import pl.edu.icm.unity.stdext.utils.ContactMobileMetadataProvider;
 import pl.edu.icm.unity.stdext.utils.MobileNumberUtils;
-import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 import java.util.*;
 
@@ -56,7 +56,8 @@ public class SMSCredentialEditor implements CredentialEditor
 	private final AttributeSupport attrSup;
 	private final ConfirmationInfoFormatter formatter;
 	private final MobileNumberConfirmationManager  mobileConfirmationMan;
-	
+	private final NotificationPresenter notificationPresenter;
+
 	private ComboBox<String> currentMobileAttr;
 	private SMSCredential helper;
 	private RadioButtonGroup<CredentialSource> credentialSource;
@@ -64,7 +65,6 @@ public class SMSCredentialEditor implements CredentialEditor
 	private ConfirmationInfo confirmationInfo;
 	private boolean skipUpdate = false;
 	private CredentialEditorContext context;
-	private NotificationPresenter notificationPresenter;
 
 	public SMSCredentialEditor(MessageSource msg, AttributeTypeSupport attrTypeSupport,
 	                           AttributeSupport attrSup,
@@ -168,9 +168,7 @@ public class SMSCredentialEditor implements CredentialEditor
 		updateConfirmationStatusIconAndButtons();
 		ret.add(editor);
 		credentialSource.setItemEnabledProvider(i -> {
-			if (i.equals(CredentialSource.Existing) && userMobiles.isEmpty())
-				return false;
-			return true;
+			return !i.equals(CredentialSource.Existing) || !userMobiles.isEmpty();
 		});
 
 		if (!userMobiles.isEmpty())
@@ -277,7 +275,7 @@ public class SMSCredentialEditor implements CredentialEditor
 
 		} else
 		{
-			builder.append(mobile.substring(0, 3));
+			builder.append(mobile, 0, 3);
 			for (int i = 3; i < mobile.length() - 2; i++)
 			{
 				builder.append("*");

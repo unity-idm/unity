@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.VaadinClassNames.FIELD_ICON_GAP;
 import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
 
 public class AttributeFieldWithEdit extends CustomField<Attribute>
@@ -55,7 +56,7 @@ public class AttributeFieldWithEdit extends CustomField<Attribute>
 		attributeTF.setWidth(TEXT_FIELD_MEDIUM.value());
 		Icon icon = VaadinIcon.EDIT.create();
 		icon.setTooltipText(msg.getMessage("AttributeField.edit"));
-		icon.addClassNames(POINTER.getName(), "u-field-icon-gap");
+		icon.addClassNames(POINTER.getName(), FIELD_ICON_GAP.getName());
 		icon.getStyle().set("margin-top", BASE_MARGIN.value());
 		icon.addClickListener(e -> editAttribute());
 		HorizontalLayout hl = new HorizontalLayout();

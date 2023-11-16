@@ -36,8 +36,12 @@ public class PasswordQualityComponent extends VerticalLayout
 		qualityMeter.addClassName("u-password-quality");
 
 		add(qualityMeter);
-		getStyle().set("position", "absolute");
-		getStyle().set("margin-left", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
+
+		if(context.getCustomWidth() != null && context.getCustomWidthUnit() != null)
+		{
+			getStyle().set("position", "absolute");
+			getStyle().set("margin-left", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
+		}
 
 		if (context.isShowLabelInline())
 			setClassName("u-no-padding-top");

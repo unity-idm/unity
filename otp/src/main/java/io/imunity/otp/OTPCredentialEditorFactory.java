@@ -5,14 +5,13 @@
 
 package io.imunity.otp;
 
-import io.imunity.otp.v8.OTPCredentialDefinitionEditor;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionViewer;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 
 
 @Component
@@ -20,17 +19,17 @@ class OTPCredentialEditorFactory implements CredentialEditorFactory
 {
 	private final ObjectFactory<OTPCredentialDefinitionEditor> credDefEditorFactory;
 	private final ObjectFactory<CredentialDefinitionViewer> credDefViewerFactory;
-	private final ObjectFactory<CredentialEditor> credentialEditiorFactory;
+	private final ObjectFactory<CredentialEditor> credentialEditorFactory;
 
 	@Autowired
 	public OTPCredentialEditorFactory(
 			ObjectFactory<OTPCredentialDefinitionEditor> credDefEditorFactory,
 			ObjectFactory<CredentialDefinitionViewer> credDefViewerFactory,
-			ObjectFactory<CredentialEditor> credentialEditiorFactory)
+			ObjectFactory<CredentialEditor> credentialEditorFactory)
 	{
 		this.credDefEditorFactory = credDefEditorFactory;
 		this.credDefViewerFactory = credDefViewerFactory;
-		this.credentialEditiorFactory = credentialEditiorFactory;
+		this.credentialEditorFactory = credentialEditorFactory;
 	}
 
 	@Override
@@ -42,7 +41,7 @@ class OTPCredentialEditorFactory implements CredentialEditorFactory
 	@Override
 	public CredentialEditor createCredentialEditor()
 	{
-		return credentialEditiorFactory.getObject();
+		return credentialEditorFactory.getObject();
 	}
 
 	@Override

@@ -4,16 +4,12 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.credentials;
 
-
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
-import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
-
 public interface CredentialEditorFactory
 {
 	String getSupportedCredentialType();
 	
 	CredentialEditor createCredentialEditor();
-	
+
 	CredentialDefinitionEditor creteCredentialDefinitionEditor();
 	
 	CredentialDefinitionViewer creteCredentialDefinitionViewer();

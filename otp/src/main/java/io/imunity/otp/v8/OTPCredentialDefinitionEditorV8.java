@@ -40,7 +40,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static io.imunity.tooltip.TooltipExtension.tooltip;
 
 @PrototypeComponent
-public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
+public class OTPCredentialDefinitionEditorV8 implements CredentialDefinitionEditor
 {
 	private final int WIDE_FIELD_SIZE_EM = 20;
 	private MessageSource msg;
@@ -56,7 +56,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 	private UnityServerConfiguration serverConfig;
 	
 	@Autowired
-	OTPCredentialDefinitionEditor(MessageSource msg, MessageTemplateManagement msgTplManagement,
+	OTPCredentialDefinitionEditorV8(MessageSource msg, MessageTemplateManagement msgTplManagement,
 			FileStorageService fileStorageService,
 			URIAccessService uriAccessService,  UnityServerConfiguration serverConfig)
 	{
@@ -74,7 +74,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		
 		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit(), true);
 		logo.setCaption(msg.getMessage("OTPCredentialDefinitionEditor.logo"));
-		tooltip(logo, msg.getMessage("OTPCredentialDefinitionEditor.logo.tip"));
+		tooltip(logo, msg.getMessage("OTPCredentialDefinitionEditor.logo.tip.v8"));
 		logo.configureBinding(binder, "logo");
 		
 		

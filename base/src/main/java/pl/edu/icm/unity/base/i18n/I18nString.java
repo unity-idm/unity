@@ -34,6 +34,12 @@ public class I18nString
 		this.values = new HashMap<>();
 	}
 
+	public I18nString(Map<Locale, String> values)
+	{
+		this();
+		addAllMapValues(values);
+	}
+
 	public I18nString(String defaultValue)
 	{
 		this();

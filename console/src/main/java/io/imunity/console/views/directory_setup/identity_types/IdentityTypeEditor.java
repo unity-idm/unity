@@ -4,8 +4,6 @@
  */
 package io.imunity.console.views.directory_setup.identity_types;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -14,7 +12,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
-
 import io.imunity.vaadin.endpoint.common.confirmations.EmailConfirmationConfigurationEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
 import pl.edu.icm.unity.base.identity.IdentityType;
@@ -23,6 +20,9 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.VaadinClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 /**
  * Allows to edit an identity type. It is only possible to edit description and
@@ -61,7 +61,7 @@ class IdentityTypeEditor extends FormLayout
 	private void initUI(IdentityType toEdit)
 	{
 		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		addClassName("u-big-vaadin-form-item");
+		addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
 		name = new TextField();
 		name.setReadOnly(true);

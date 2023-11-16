@@ -29,6 +29,7 @@ import java.util.*;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.VaadinClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 @PermitAll
 @Route(value = "/facilities/authentication-flow", layout = ConsoleMenu.class)
@@ -110,7 +111,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		mainLayout.addClassName("u-big-vaadin-form-item");
+		mainLayout.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		mainLayout.addFormItem(name, msg.getMessage("AuthenticationFlow.name"));
 		mainLayout.addFormItem(policy, msg.getMessage("AuthenticationFlow.policy"));
 		mainLayout.addFormItem(firstFactorAuthenticators, msg.getMessage("AuthenticationFlow.firstFactorAuthenticators"));
