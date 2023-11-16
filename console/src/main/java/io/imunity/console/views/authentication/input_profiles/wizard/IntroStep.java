@@ -7,7 +7,7 @@ package io.imunity.console.views.authentication.input_profiles.wizard;
 
 import com.vaadin.flow.component.html.Span;
 
-import io.imunity.vaadin.endpoint.common.wizard.WizardStep;
+import io.imunity.vaadin.elements.wizard.WizardStep;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 class IntroStep extends WizardStep

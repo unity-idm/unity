@@ -26,18 +26,19 @@ public class Panel extends VerticalLayout
 		setPadding(false);
 		setSpacing(false);
 		addClassName(PANEL.getName());
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		horizontalLayout.setWidthFull();
 		if (header != null)
 		{
+			HorizontalLayout horizontalLayout = new HorizontalLayout();
+			horizontalLayout.setWidthFull();
 			Span label = new Span(header);
 			label.getStyle()
 					.set("margin", SMALL_MARGIN.value());
 			horizontalLayout.add(label);
+			horizontalLayout.getStyle()
+			.set("background-color", "var(--unity-contrast)");
+			add(horizontalLayout);
 		}
-		horizontalLayout.getStyle()
-				.set("background-color", "var(--unity-contrast)");
-		add(horizontalLayout);
+		
 		setSizeUndefined();
 	}
 }

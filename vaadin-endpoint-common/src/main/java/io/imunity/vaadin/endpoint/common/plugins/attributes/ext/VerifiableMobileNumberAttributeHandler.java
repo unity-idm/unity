@@ -117,7 +117,7 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public Component getEditor()
+		public Optional<Component>  getEditor()
 		{
 
 			MobileNumberConfirmationConfiguration confirmationConfig = null;
@@ -127,7 +127,7 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 			
 			editor = new MobileNumberConfirmationConfigurationEditor(confirmationConfig,
 					msg, msgTemplateMan);
-			return editor;
+			return Optional.of(editor);
 
 		}
 

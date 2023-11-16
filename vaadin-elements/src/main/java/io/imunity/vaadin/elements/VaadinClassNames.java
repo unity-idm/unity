@@ -26,6 +26,7 @@ public enum VaadinClassNames
 	MONOSPACE("u-monospace"),
 	BIG_VAADIN_FORM_ITEM_LABEL("u-big-vaadin-form-item"),
 	MEDIUM_VAADIN_FORM_ITEM_LABEL("u-medium-vaadin-form-item"),
+	MARGIN_VERTICAL("u-margin-vertical"),
 	LOGO_IMAGE("u-logo-image");
 
 	private final String name;

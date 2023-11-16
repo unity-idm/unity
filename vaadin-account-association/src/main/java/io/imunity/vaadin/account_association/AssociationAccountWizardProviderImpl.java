@@ -13,11 +13,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinServlet;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.wizard.Wizard;
+import io.imunity.vaadin.elements.wizard.WizardStepPreparer;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
-import io.imunity.vaadin.endpoint.common.wizard.Wizard;
-import io.imunity.vaadin.endpoint.common.wizard.WizardStepPreparer;
 
 import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -73,7 +73,7 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 						(step1, step2) -> step2.prepareStep(step1.ctx.getRemotePrincipal().orElse(null)))
 				)
 				.addStep(new FinalConnectIdStep(null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg, finishTask))
-				.addMessageSource(msg)
+				.addMessageSource(m -> msg.getMessage(m))
 				.addCancelTask(closeWizard)
 				.build();
 	}
@@ -111,7 +111,7 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 				)
 				.addStep(new FinalConnectIdAtLoginStep(
 						null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg, unknownUser, closeWizard))
-				.addMessageSource(msg)
+				.addMessageSource(m -> msg.getMessage(m))
 				.addCancelTask(closeWizard)
 				.build();
 	}

@@ -6,6 +6,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -64,7 +65,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 		}
 
 		@Override
-		public Component getEditor()
+		public Optional<Component>  getEditor()
 		{
 			binder = new Binder<>(StringSyntaxBindingValue.class);
 
@@ -85,8 +86,8 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			TextField regexp = new TextField();
 			fl.addFormItem(regexp, msg.getMessage("StringAttributeHandler.regexpE"));
 
-			Checkbox editWithTextArea = new Checkbox();
-			fl.addFormItem(editWithTextArea, msg.getMessage("StringAttributeHandler.editWithTextAreaE"));
+			Checkbox editWithTextArea = new Checkbox(msg.getMessage("StringAttributeHandler.editWithTextAreaE"));
+			fl.addFormItem(editWithTextArea, "");
 			
 			binder.forField(min).asRequired(msg.getMessage("fieldRequired"))
 					.bind("min");
@@ -111,7 +112,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			
 			binder.setBean(value);
 			
-			return fl;
+			return Optional.of(fl);
 		}
 
 		@Override

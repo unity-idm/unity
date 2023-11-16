@@ -46,6 +46,7 @@ class MetadataEditor extends VerticalLayout
 	{
 		setMargin(false);
 		setPadding(false);
+		setSpacing(false);
 		addNew = new Button();
 		addNew.addThemeName(ButtonVariant.LUMO_ICON.name());
 		addNew.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());

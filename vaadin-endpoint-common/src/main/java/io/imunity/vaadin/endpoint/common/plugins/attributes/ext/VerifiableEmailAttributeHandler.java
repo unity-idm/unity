@@ -100,7 +100,7 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public Component getEditor()
+		public Optional<Component>  getEditor()
 		{
 			EmailConfirmationConfiguration confirmationConfig = null;
 			if (initial != null && initial.getEmailConfirmationConfiguration().isPresent())
@@ -108,7 +108,7 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 			editor = new EmailConfirmationConfigurationEditor(confirmationConfig, msg,
 					msgTemplateMan);
-			return editor;
+			return Optional.of(editor);
 
 		}
 

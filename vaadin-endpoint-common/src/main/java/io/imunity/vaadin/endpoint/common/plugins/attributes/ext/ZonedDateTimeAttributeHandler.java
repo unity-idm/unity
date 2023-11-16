@@ -22,6 +22,7 @@ import pl.edu.icm.unity.stdext.attr.ZonedDateTimeAttributeSyntax;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 
 class ZonedDateTimeAttributeHandler implements WebAttributeHandler
@@ -69,9 +70,9 @@ class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 	{
 
 		@Override
-		public Component getEditor()
+		public Optional<Component>  getEditor()
 		{
-			return AttributeHandlerHelper.getEmptyEditor();
+			return Optional.empty();
 		}
 
 		@Override

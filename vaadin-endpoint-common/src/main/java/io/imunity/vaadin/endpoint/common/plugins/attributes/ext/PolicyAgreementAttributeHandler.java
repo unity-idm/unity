@@ -5,17 +5,24 @@
 
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
+import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
 import io.imunity.vaadin.elements.ReadOnlyField;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerFactory;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.TextOnlyAttributeHandler;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -24,11 +31,6 @@ import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementState;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.stdext.attr.PolicyAgreementAttributeSyntax;
-
-import java.util.Collections;
-import java.util.List;
-
-import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
 
 class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 {
@@ -106,9 +108,9 @@ class PolicyAgreementAttributeHandler extends TextOnlyAttributeHandler
 	private static class PolicyAgreementSyntaxEditor implements AttributeSyntaxEditor<String>
 	{
 		@Override
-		public Component getEditor()
+		public Optional<Component>  getEditor()
 		{
-			return new VerticalLayout();
+			return Optional.empty();
 		}
 
 		@Override

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.endpoint.common.wizard;
+package io.imunity.vaadin.elements.wizard;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -14,10 +14,10 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
-import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class Wizard extends VerticalLayout
 {
@@ -31,7 +31,7 @@ public class Wizard extends VerticalLayout
 	private final WizardStepController wizardStepController;
 
 
-	public Wizard(List<WizardStep> steps, List<WizardStepPreparer<?,?>> stepPreparers, MessageSource msg, Runnable cancelTask, String title)
+	public Wizard(List<WizardStep> steps, List<WizardStepPreparer<?,?>> stepPreparers, Function<String, String> msg, Runnable cancelTask, String title)
 	{
 		this.wizardStepController = new WizardStepController(steps, stepPreparers);
 		List<String> labels = steps.stream()
@@ -45,19 +45,19 @@ public class Wizard extends VerticalLayout
 
 		initLabelsLayout(labels, labelsLayout);
 
-		Button cancelButton = new Button(msg.getMessage("Wizard.cancel"), e -> cancelTask.run());
+		Button cancelButton = new Button(msg.apply("Wizard.cancel"), e -> cancelTask.run());
 		cancelButton.setId("Wizard.cancel");
 
-		nextButton.setText(msg.getMessage("Wizard.next"));
+		nextButton.setText(msg.apply("Wizard.next"));
 		nextButton.setId("Wizard.next");
 		nextButton.addClickListener(event -> nextStep());
 		nextButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-		backButton.setText(msg.getMessage("Wizard.back"));
+		backButton.setText(msg.apply("Wizard.back"));
 		backButton.setId("Wizard.back");
 		backButton.addClickListener(event -> prevStep());
 
-		finishButton.setText(msg.getMessage("Wizard.finish"));
+		finishButton.setText(msg.apply("Wizard.finish"));
 		finishButton.setId("Wizard.finish");
 		finishButton.addClickListener(e ->
 		{
@@ -196,7 +196,7 @@ public class Wizard extends VerticalLayout
 		private final List<WizardStep> wizardSteps = new ArrayList<>();
 		private final List<WizardStepPreparer<?, ?>> stepPreparers = new ArrayList<>();
 		private Runnable cancelTask;
-		private MessageSource msg;
+		private Function<String, String> msg;
 		private String title;
 
 		private WizardBuilder()
@@ -215,7 +215,7 @@ public class Wizard extends VerticalLayout
 			return this;
 		}
 
-		public WizardBuilder addMessageSource(MessageSource msg)
+		public WizardBuilder addMessageSource(Function<String, String>  msg)
 		{
 			this.msg = msg;
 			return this;
