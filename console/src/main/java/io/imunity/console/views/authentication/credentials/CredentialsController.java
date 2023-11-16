@@ -6,13 +6,12 @@
 package io.imunity.console.views.authentication.credentials;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
+import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
-import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,15 +21,12 @@ class CredentialsController
 {
 	private final CredentialManagement credMan;
 	private final MessageSource msg;
-	private final CredentialEditorRegistry credentialEditorReg;
 	private final NotificationPresenter notificationPresenter;
 
-	CredentialsController(CredentialManagement credMan, MessageSource msg,
-			CredentialEditorRegistry credentialEditorReg, NotificationPresenter notificationPresenter)
+	CredentialsController(CredentialManagement credMan, MessageSource msg, NotificationPresenter notificationPresenter)
 	{
 		this.credMan = credMan;
 		this.msg = msg;
-		this.credentialEditorReg = credentialEditorReg;
 		this.notificationPresenter = notificationPresenter;
 	}
 
