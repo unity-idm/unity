@@ -44,13 +44,13 @@ for (int i=0; i<30; i++)
 
 addDemoUserAsManager();
 
-RegistrationForm fbiRegistrationForm = groupDelegationConfigGenerator.generateProjectRegistrationForm(FBI_GROUP, FBI_LOGO_SMALL, Arrays.asList(TEAMNAME_ATTR))
-RegistrationForm univRegistrationForm = groupDelegationConfigGenerator.generateProjectRegistrationForm(UNIV_GROUP, UNIV_LOGO_SMALL, Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR))
+RegistrationForm fbiRegistrationForm = groupDelegationConfigGenerator.generateProjectRegistrationForm(FBI_GROUP, FBI_LOGO_SMALL, Arrays.asList(TEAMNAME_ATTR), List.of())
+RegistrationForm univRegistrationForm = groupDelegationConfigGenerator.generateProjectRegistrationForm(UNIV_GROUP, UNIV_LOGO_SMALL, Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR), List.of())
 registrationsManagement.addForm(fbiRegistrationForm);  
 registrationsManagement.addForm(univRegistrationForm);  
 
-EnquiryForm fbiJoinEnquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(FBI_GROUP, FBI_LOGO_SMALL)
-EnquiryForm univJoinEnquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(UNIV_GROUP, UNIV_LOGO_SMALL)
+EnquiryForm fbiJoinEnquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(FBI_GROUP, FBI_LOGO_SMALL, List.of())
+EnquiryForm univJoinEnquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(UNIV_GROUP, UNIV_LOGO_SMALL, List.of())
 enquiryManagement.addEnquiry(fbiJoinEnquiryForm);  		 
 enquiryManagement.addEnquiry(univJoinEnquiryForm);  	
 
@@ -109,7 +109,7 @@ void addGroup(String path, String name)
 void setGroupDelegationConfig(String path, String logo, String registrationForm, String enquiryForm, String stickyEnquiryForm, List<String> attributes)
 {  		
 	log.info("Setting delegation configuration for group " + path);
-	GroupDelegationConfiguration config = new GroupDelegationConfiguration(true, true, logo, registrationForm, enquiryForm, stickyEnquiryForm, attributes);
+	GroupDelegationConfiguration config = new GroupDelegationConfiguration(true, true, logo, registrationForm, enquiryForm, stickyEnquiryForm, attributes, List.of());
 	GroupContents content = groupsManagement.getContents(path, GroupContents.METADATA);
 	Group g = content.getGroup();
 	g.setDelegationConfiguration(config);

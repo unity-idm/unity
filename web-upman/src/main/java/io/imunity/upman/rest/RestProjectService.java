@@ -7,7 +7,9 @@ package io.imunity.upman.rest;
 
 import static java.util.Optional.ofNullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +19,9 @@ import javax.transaction.Transactional;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
+import io.imunity.rest.api.types.policy.RestPolicyDocument;
+import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
+import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
 import io.imunity.upman.rest.DelegationComputer.RollbackState;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -25,6 +30,11 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementContentChecker;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentUpdateRequest;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -41,6 +51,10 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.FormType;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 class RestProjectService
 {
@@ -51,7 +65,9 @@ class RestProjectService
 	private final RegistrationsManagement registrationsManagement;
 	private final EnquiryManagement enquiryManagement;
 	private final EntityManagement idsMan;
-
+	private final PolicyDocumentManagement policyDocumentManagement;
+	private final List<IdpPolicyAgreementContentChecker> idpPolicyAgreementContentCheckers;
+	
 	private final String rootGroup;
 	private final String authorizationGroup;
 
@@ -63,6 +79,8 @@ class RestProjectService
 	                          EnquiryManagement enquiryManagement,
 	                          UpmanRestAuthorizationManager authz,
 	                          EntityManagement idsMan,
+	                          PolicyDocumentManagement policyDocumentManagement,
+	                          List<IdpPolicyAgreementContentChecker> idpPolicyAgreementContentCheckers,
 	                          String rootGroup,
 	                          String authorizationGroup)
 	{
@@ -75,6 +93,8 @@ class RestProjectService
 		this.rootGroup = rootGroup;
 		this.authorizationGroup = authorizationGroup;
 		this.idsMan = idsMan;
+		this.policyDocumentManagement = policyDocumentManagement;
+		this.idpPolicyAgreementContentCheckers = idpPolicyAgreementContentCheckers;
 	}
 
 	@Transactional
@@ -122,7 +142,7 @@ class RestProjectService
 				project.enableSubprojects,
 				project.logoUrl,
 				registrationFormName, joinEnquiryName, updateEnquiryName,
-				project.readOnlyAttributes)
+				project.readOnlyAttributes, List.of())
 			);
 
 			groupMan.updateGroup(projectPath, toAdd);
@@ -169,7 +189,7 @@ class RestProjectService
 				project.enableSubprojects,
 				project.logoUrl,
 				registrationFormName, joinEnquiryName, updateEnquiryName,
-				project.readOnlyAttributes)
+				project.readOnlyAttributes, List.of())
 			);
 			groupMan.updateGroup(projectPath, toUpdate);
 		}
@@ -392,5 +412,194 @@ class RestProjectService
 					.collect(Collectors.toList())
 			)
 			.build();
+	}
+
+	public List<RestPolicyDocument> getPolicyDocuments(String projectId) throws EngineException {
+		assertAuthorization();
+
+		GroupContents groupContent = groupMan.getContents(getProjectPath(projectId), GroupContents.METADATA);
+		Map<Long, PolicyDocumentWithRevision> policyDocuments = policyDocumentManagement.getPolicyDocuments().stream()
+				.collect(Collectors.toMap(p -> p.id, p -> p));
+
+		return groupContent.getGroup().getDelegationConfiguration().policyDocumentsIds.stream()
+				.map(p -> policyDocuments.get(p)).map(RestProjectService::mapPolicy).collect(Collectors.toList());
+	}
+
+	public RestPolicyDocument getPolicyDocument(String projectId, Long policyId) throws EngineException {
+		assertAuthorization();
+		GroupContents groupContent = groupMan.getContents(getProjectPath(projectId), GroupContents.METADATA);
+		assertGetProjectPolicyAuthorization(groupContent.getGroup().getDelegationConfiguration(), policyId);
+		return mapPolicy(policyDocumentManagement.getPolicyDocument(policyId));
+	}
+	
+	private void assertGetProjectPolicyAuthorization(GroupDelegationConfiguration groupDelegationConfiguration,
+			Long policyId) throws AuthorizationException {
+		if (!groupDelegationConfiguration.policyDocumentsIds.contains(policyId)) {
+			throw new AuthorizationException(
+					"Access to policy document is denied. The policy document is not in project scope.");
+		}
+	}
+
+	private static RestPolicyDocument mapPolicy(PolicyDocumentWithRevision policyDocument) {
+		return RestPolicyDocument.builder().withId(policyDocument.id).withName(policyDocument.name)
+				.withDisplayedName(policyDocument.displayedName.getMap()).withMandatory(policyDocument.mandatory)
+				.withContentType(policyDocument.contentType.name()).withRevision(policyDocument.revision)
+				.withContent(policyDocument.content.getMap()).build();
+	}
+
+	public void removePolicyDocument(String projectId, Long policyId) throws EngineException {
+		assertAuthorization();
+		GroupContents groupContent = groupMan.getContents(getProjectPath(projectId), GroupContents.METADATA);
+		Group group = groupContent.getGroup();
+		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
+		assertUpdateOrRemoveProjectPolicyAuthorization(group, policyId);
+		
+		List<Long> updatedPolicies = groupDelegationConfiguration.policyDocumentsIds.stream().filter(p -> !p.equals(policyId))
+				.collect(Collectors.toList());
+		
+		GroupDelegationConfiguration updatedGroupDelegationConfiguration = new GroupDelegationConfiguration(groupDelegationConfiguration.enabled,
+				groupDelegationConfiguration.enableSubprojects, groupDelegationConfiguration.logoUrl,
+				groupDelegationConfiguration.registrationForm, groupDelegationConfiguration.signupEnquiryForm,
+				groupDelegationConfiguration.membershipUpdateEnquiryForm, groupDelegationConfiguration.attributes,
+				updatedPolicies);
+		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
+		groupMan.updateGroup(getProjectPath(projectId), group);
+		policyDocumentManagement.removePolicyDocument(policyId);
+		synchronizeForms(updatedGroupDelegationConfiguration);
+	}
+
+	public void updatePolicyDocument(String projectId, RestPolicyDocumentUpdateRequest policy) throws EngineException {
+		assertAuthorization();
+		assertUpdateOrRemoveProjectPolicyAuthorization(groupMan.getContents(getProjectPath(projectId), GroupContents.METADATA).getGroup(), policy.id);	
+		policyDocumentManagement.updatePolicyDocument(mapPolicyDocumentRequest(policy));
+	}
+	
+	private void assertUpdateOrRemoveProjectPolicyAuthorization(Group group,
+			Long policyId) throws EngineException {
+		
+		if (group.getDelegationConfiguration().policyDocumentsIds == null)
+		{
+			throw new IllegalArgumentException("Policy with id " + policyId + "is unknown");
+		}
+		
+		
+		if (!group.getDelegationConfiguration().policyDocumentsIds.contains(policyId)) {
+			throw new PolicyAuthorizationException();
+		}
+		
+		assertIdPsContainsPolicyDocument(policyId);
+		assertOtherGroupsContainsPolicyDocument(group, policyId);
+		
+		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
+		List<RegistrationForm> regForms = new ArrayList<>(registrationsManagement.getForms());
+		if (groupDelegationConfiguration.registrationForm != null)
+		{
+			regForms.removeIf(r -> r.getName().equals(groupDelegationConfiguration.registrationForm));
+		}
+		assertFormsContainsPolicyDocument(regForms, policyId);
+
+		
+		List<EnquiryForm> enqForms = new ArrayList<>(enquiryManagement.getEnquires());
+		if (groupDelegationConfiguration.signupEnquiryForm != null)
+		{
+			enqForms.removeIf(r -> r.getName().equals(groupDelegationConfiguration.signupEnquiryForm));
+		}
+		if (groupDelegationConfiguration.membershipUpdateEnquiryForm != null)
+		{
+			enqForms.removeIf(r -> r.getName().equals(groupDelegationConfiguration.membershipUpdateEnquiryForm));
+		}
+		assertFormsContainsPolicyDocument(enqForms, policyId);
+	}
+	
+	private void assertOtherGroupsContainsPolicyDocument(Group group,
+			Long policyId) throws EngineException
+	{
+		Map<String, Group> allGroups = groupMan.getAllGroups();
+		for (Group g : allGroups.values().stream()
+				.filter(g -> !g.equals(group) && g.getDelegationConfiguration() != null).collect(Collectors.toList())) {
+			if (g.getDelegationConfiguration().policyDocumentsIds != null
+					&& g.getDelegationConfiguration().policyDocumentsIds.contains(policyId)) {
+				throw new PolicyAuthorizationException();
+			}
+		}
+	}
+	
+	private void assertIdPsContainsPolicyDocument(Long policyId) throws EngineException
+	{
+		for (IdpPolicyAgreementContentChecker idpChecker : idpPolicyAgreementContentCheckers)
+		{
+			if (idpChecker.isPolicyUsedOnEndpoints(policyId))
+			{
+				throw new PolicyAuthorizationException();
+			}
+		}
+	}
+	
+	private void assertFormsContainsPolicyDocument(List<? extends BaseForm> forms, Long policyId) throws AuthorizationException
+	{
+		for (BaseForm form : forms)
+		{
+			if (form.getPolicyAgreements().stream().map(p -> p.documentsIdsToAccept).flatMap(Collection::stream)
+					.anyMatch(s -> s.equals(policyId))) {
+				throw new AuthorizationException(
+						"Access to policy document is denied. The policy document is used in other context.");
+			}
+		}
+	}
+	
+	public void addPolicyDocument(String projectId, RestPolicyDocumentRequest policy) throws EngineException {
+		assertAuthorization();
+		long addedPolicyDocument = policyDocumentManagement.addPolicyDocument(mapPolicyDocumentRequest(policy));
+		GroupContents groupContent = groupMan.getContents(getProjectPath(projectId), GroupContents.METADATA);
+		Group group = groupContent.getGroup();
+		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
+		List<Long> updatedPolicies = new ArrayList<>();
+		if (groupDelegationConfiguration.policyDocumentsIds != null)
+		{
+			updatedPolicies.addAll(groupDelegationConfiguration.policyDocumentsIds);
+		}
+		
+		updatedPolicies.add(addedPolicyDocument);
+		
+		GroupDelegationConfiguration updatedGroupDelegationConfiguration = new GroupDelegationConfiguration(groupDelegationConfiguration.enabled,
+				groupDelegationConfiguration.enableSubprojects, groupDelegationConfiguration.logoUrl,
+				groupDelegationConfiguration.registrationForm, groupDelegationConfiguration.signupEnquiryForm,
+				groupDelegationConfiguration.membershipUpdateEnquiryForm, groupDelegationConfiguration.attributes,
+				updatedPolicies);
+		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
+		groupMan.updateGroup(getProjectPath(projectId), group);
+		synchronizeForms(updatedGroupDelegationConfiguration);
+	}
+	
+	private void synchronizeForms(GroupDelegationConfiguration groupDelegationConfiguration)
+			throws EngineException {
+		if (groupDelegationConfiguration.registrationForm != null) {
+			groupDelegationConfigGenerator.synchronizePolicy(groupDelegationConfiguration.registrationForm,
+					FormType.REGISTRATION, groupDelegationConfiguration.policyDocumentsIds);
+		}
+
+		if (groupDelegationConfiguration.signupEnquiryForm != null) {
+			groupDelegationConfigGenerator.synchronizePolicy(groupDelegationConfiguration.signupEnquiryForm,
+					FormType.ENQUIRY, groupDelegationConfiguration.policyDocumentsIds);
+		}
+	}
+	
+	private static PolicyDocumentCreateRequest mapPolicyDocumentRequest(RestPolicyDocumentRequest restRequest) {
+		return PolicyDocumentCreateRequest.createRequestBuilder().withName(restRequest.name)
+				.withContentType(restRequest.contentType).withContent(restRequest.content)
+				.withDisplayedName(restRequest.displayedName).withMandatory(restRequest.mandatory).build();
+	}
+	
+	private static PolicyDocumentUpdateRequest mapPolicyDocumentRequest(RestPolicyDocumentUpdateRequest restRequest) {
+		return PolicyDocumentUpdateRequest.updateRequestBuilder().withId(restRequest.id).withName(restRequest.name)
+				.withContentType(restRequest.contentType).withContent(restRequest.content)
+				.withDisplayedName(restRequest.displayedName).withMandatory(restRequest.mandatory).build();
+	}
+	
+	private class PolicyAuthorizationException extends AuthorizationException {
+		public PolicyAuthorizationException() {
+			super("Access to policy document is denied. The policy document is also used in other than this project context.");
+
+		}
 	}
 }

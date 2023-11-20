@@ -184,7 +184,7 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 						config.enabled, config.enableSubprojects, config.logoUrl, config.registrationForm,
 						needSignUpFormUpdate ? "" : config.signupEnquiryForm,
 						needMembershipFormUpdate ? "" : config.membershipUpdateEnquiryForm,
-						config.attributes);
+						config.attributes, config.policyDocumentsIds);
 				group.setDelegationConfiguration(newConfig);
 				groupDAO.update(group);
 			}
@@ -224,7 +224,7 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 				{
 					GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
 							config.enabled, config.enableSubprojects, config.logoUrl, config.registrationForm,
-							config.signupEnquiryForm, "", config.attributes);
+							config.signupEnquiryForm, "", config.attributes, config.policyDocumentsIds);
 					group.setDelegationConfiguration(newConfig);
 					needUpdate = true;
 				}

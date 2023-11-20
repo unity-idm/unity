@@ -13,6 +13,7 @@ class GroupDelegationConfigurationMapper
 	{
 		return DBGroupDelegationConfiguration.builder()
 				.withAttributes(groupDelegationConfiguration.attributes)
+				.withPolicyDocumentsIds(groupDelegationConfiguration.policyDocumentsIds)
 				.withEnabled(groupDelegationConfiguration.enabled)
 				.withEnableSubprojects(groupDelegationConfiguration.enableSubprojects)
 				.withLogoUrl(groupDelegationConfiguration.logoUrl)
@@ -27,7 +28,8 @@ class GroupDelegationConfigurationMapper
 		return new GroupDelegationConfiguration(dbGroupDelegationConfiguration.enabled,
 				dbGroupDelegationConfiguration.enableSubprojects, dbGroupDelegationConfiguration.logoUrl,
 				dbGroupDelegationConfiguration.registrationForm, dbGroupDelegationConfiguration.signupEnquiryForm,
-				dbGroupDelegationConfiguration.membershipUpdateEnquiryForm, dbGroupDelegationConfiguration.attributes);
+				dbGroupDelegationConfiguration.membershipUpdateEnquiryForm, dbGroupDelegationConfiguration.attributes,
+				dbGroupDelegationConfiguration.policyDocumentsIds);
 
 	}
 }

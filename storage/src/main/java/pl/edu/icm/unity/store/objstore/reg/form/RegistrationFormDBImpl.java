@@ -177,7 +177,7 @@ class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationForm> imp
 						GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
 								config.enabled, config.enableSubprojects, config.logoUrl, "",
 								config.signupEnquiryForm,
-								config.membershipUpdateEnquiryForm, config.attributes);
+								config.membershipUpdateEnquiryForm, config.attributes, config.policyDocumentsIds);
 						group.setDelegationConfiguration(newConfig);
 						groupDAO.update(group);
 					}

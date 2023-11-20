@@ -78,7 +78,7 @@ public class TestProjectBase
 		GroupContents con = new GroupContents();
 		Group group = new Group(path);
 		group.setDelegationConfiguration(new GroupDelegationConfiguration(true, false,  null, "regForm", "enqForm",
-				"stickyReqForm", List.of()));
+				"stickyReqForm", List.of(), List.of()));
 		con.setGroup(group);
 		return con;
 	}

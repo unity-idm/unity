@@ -80,7 +80,7 @@ class DelegationComputer
 			EnquiryForm joinEnquiryForm = groupDelegationConfigGenerator
 				.generateProjectJoinEnquiryForm(
 					fullGroupName,
-					logoUrl);
+					logoUrl, List.of());
 			enquiryManagement.addEnquiry(joinEnquiryForm);
 			joinEnquiryName = joinEnquiryForm.getName();
 			addToRollback(joinEnquiryName, rollbackState);
@@ -102,7 +102,7 @@ class DelegationComputer
 		{
 			RegistrationForm regForm = groupDelegationConfigGenerator
 				.generateProjectRegistrationForm(
-					fullGroupName, logoUrl, readOnlyAttributes);
+					fullGroupName, logoUrl, readOnlyAttributes, List.of());
 			registrationsManagement.addForm(regForm);
 			registrationFormName = regForm.getName();
 			addToRollback(registrationFormName, rollbackState);

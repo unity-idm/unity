@@ -18,9 +18,17 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 public class ConfirmDialog extends AbstractDialog
 {
 	private Callback callback;
+	private Runnable cancelCallback;
 	private String question;
 	private boolean htmlContent = false;
 
+	public ConfirmDialog(MessageSource msg, String question, Callback callback, Runnable cancelCallback)
+	{
+		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, callback);
+		this.cancelCallback = cancelCallback;
+	}
+	
+	
 	public ConfirmDialog(MessageSource msg, String question, Callback callback)
 	{
 		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, callback);
@@ -83,5 +91,14 @@ public class ConfirmDialog extends AbstractDialog
 	{
 		close();
 		callback.onConfirm();
+	}
+	
+	@Override
+	protected void onCancel() {
+		if (cancelCallback != null)
+		{
+			cancelCallback.run();
+		}
+		super.onCancel();
 	}
 }

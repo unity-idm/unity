@@ -378,7 +378,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 				subprojectDelegationConfiguration.enableSubprojects, 
 				subprojectDelegationConfiguration.logoUrl,
 				registrationFormName, joinEnquiryName, updateEnquiryName,
-				projectDelConfig.attributes));
+				projectDelConfig.attributes, projectDelConfig.policyDocumentsIds));
 		groupMan.updateGroup(subgroupPath, group);
 	}
 	

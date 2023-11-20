@@ -44,7 +44,11 @@
 			<artifactId>unity-server-web-elements</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-rest-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine-api</artifactId>

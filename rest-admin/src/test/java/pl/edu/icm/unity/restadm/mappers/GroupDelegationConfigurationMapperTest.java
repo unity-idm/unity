@@ -20,7 +20,7 @@ public class GroupDelegationConfigurationMapperTest
 	@Override
 	protected GroupDelegationConfiguration getFullAPIObject()
 	{
-		return new GroupDelegationConfiguration(true, false, "logo", "regForm", "enqForm", "enqForm2", List.of("at1"));
+		return new GroupDelegationConfiguration(true, false, "logo", "regForm", "enqForm", "enqForm2", List.of("at1"), List.of(1L));
 	}
 
 	@Override
@@ -34,6 +34,7 @@ public class GroupDelegationConfigurationMapperTest
 				.withSignupEnquiryForm("enqForm")
 				.withMembershipUpdateEnquiryForm("enqForm2")
 				.withAttributes(List.of("at1"))
+				.withPolicyDocumentsIds(List.of(1L))
 				.build();
 	}
 
