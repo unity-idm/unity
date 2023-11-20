@@ -14,6 +14,7 @@ public class GroupDelegationConfigurationMapper
 	{
 		return RestGroupDelegationConfiguration.builder()
 				.withAttributes(groupDelegationConfiguration.attributes)
+				.withPolicyDocumentsIds(groupDelegationConfiguration.policyDocumentsIds)
 				.withEnabled(groupDelegationConfiguration.enabled)
 				.withEnableSubprojects(groupDelegationConfiguration.enableSubprojects)
 				.withLogoUrl(groupDelegationConfiguration.logoUrl)
@@ -29,7 +30,7 @@ public class GroupDelegationConfigurationMapper
 				restGroupDelegationConfiguration.enableSubprojects, restGroupDelegationConfiguration.logoUrl,
 				restGroupDelegationConfiguration.registrationForm, restGroupDelegationConfiguration.signupEnquiryForm,
 				restGroupDelegationConfiguration.membershipUpdateEnquiryForm,
-				restGroupDelegationConfiguration.attributes);
+				restGroupDelegationConfiguration.attributes, restGroupDelegationConfiguration.policyDocumentsIds);
 
 	}
 }

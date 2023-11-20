@@ -5,6 +5,15 @@
 
 package io.imunity.upman.rest;
 
+import static io.imunity.upman.rest.ProjectManagerRestRoleAttributeTypeProvider.AUTHORIZATION_ROLE;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -16,15 +25,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static io.imunity.upman.rest.ProjectManagerRestRoleAttributeTypeProvider.AUTHORIZATION_ROLE;
+import pl.edu.icm.unity.engine.api.project.RestGroupAuthorizationRole;
 
 @Component
 class UpmanRestAuthorizationManager
@@ -63,17 +64,16 @@ class UpmanRestAuthorizationManager
 
 	private void assertClientIsProjectManager(String authorizationPath, long clientId) throws AuthorizationException
 	{
-		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(authorizationPath, clientId);
+		Set<RestGroupAuthorizationRole> roles = getAuthManagerAttribute(authorizationPath, clientId);
 
-		if (!(roles.contains(GroupAuthorizationRole.manager)
-				|| roles.contains(GroupAuthorizationRole.projectsAdmin)))
+		if (!roles.contains(RestGroupAuthorizationRole.manager))
 		{
 			throw new AuthorizationException(
 					"Access is denied. The operation requires unity rest manager capability");
 		}
 	}
 
-	private Set<GroupAuthorizationRole> getAuthManagerAttribute(String authorizationPath, long entity) throws AuthorizationException
+	private Set<RestGroupAuthorizationRole> getAuthManagerAttribute(String authorizationPath, long entity) throws AuthorizationException
 	{
 		List<AttributeExt> attributes;
 		try
@@ -92,12 +92,12 @@ class UpmanRestAuthorizationManager
 					+ " group");
 		}
 
-		Set<GroupAuthorizationRole> roles = new HashSet<>();
+		Set<RestGroupAuthorizationRole> roles = new HashSet<>();
 		for (AttributeExt attr : attributes)
 		{
 			for (String val : attr.getValues())
 			{
-				roles.add(GroupAuthorizationRole.valueOf(val));
+				roles.add(RestGroupAuthorizationRole.valueOf(val));
 			}
 		}
 		return roles;

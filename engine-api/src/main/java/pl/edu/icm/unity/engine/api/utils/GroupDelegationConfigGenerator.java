@@ -7,9 +7,11 @@
 package pl.edu.icm.unity.engine.api.utils;
 
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 
 /**
@@ -19,15 +21,15 @@ import pl.edu.icm.unity.base.registration.RegistrationForm;
  */
 public interface GroupDelegationConfigGenerator
 {
-	RegistrationForm generateProjectRegistrationForm(String groupPath, String logo, List<String> attributes) throws EngineException;
+	RegistrationForm generateProjectRegistrationForm(String groupPath, String logo, List<String> attributes, List<Long> policyDocuments) throws EngineException;
 
-	EnquiryForm generateProjectJoinEnquiryForm(String groupPath, String logo) throws EngineException;
+	EnquiryForm generateProjectJoinEnquiryForm(String groupPath, String logo, List<Long> policyDocuments) throws EngineException;
 
 	EnquiryForm generateProjectUpdateEnquiryForm(String groupPath, String logo) throws EngineException;
 	
-	List<String> validateRegistrationForm(String groupPath, String formName);
+	List<String> validateRegistrationForm(String groupPath, String formName, Set<Long> projectPolicyDocumentsIds);
 	
-	List<String> validateJoinEnquiryForm(String groupPath, String formName);
+	List<String> validateJoinEnquiryForm(String groupPath, String formName, Set<Long> projectPolicyDocumentsIds);
 
 	List<String> validateUpdateEnquiryForm(String groupPath, String formName);
 
@@ -40,5 +42,6 @@ public interface GroupDelegationConfigGenerator
 	EnquiryForm generateSubprojectJoinEnquiryForm(String toCopyName, String projectPath, String subprojectPath,
 			String logo);
 
+	void synchronizePolicy(String formName, FormType formType, List<Long> projectPolicyDocumentsIds) throws EngineException;
 	
 }

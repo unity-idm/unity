@@ -58,6 +58,7 @@ import io.imunity.rest.api.types.basic.RestExternalizedAttribute;
 import io.imunity.rest.api.types.basic.RestGroup;
 import io.imunity.rest.api.types.basic.RestToken;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
+import io.imunity.rest.api.types.registration.RestEnquiryForm;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
 import io.imunity.rest.api.types.registration.invite.RestEnquiryInvitationParam;
 import io.imunity.rest.api.types.registration.invite.RestInvitationParam;
@@ -84,6 +85,8 @@ import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.msg_template.MessageTemplateDefinition;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
@@ -93,6 +96,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -122,6 +126,8 @@ import pl.edu.icm.unity.restadm.mappers.TokenMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.EndpointConfigurationMapper;
 import pl.edu.icm.unity.restadm.mappers.endpoint.ResolvedEndpointMapper;
 import pl.edu.icm.unity.restadm.mappers.idp.statistic.GroupedIdpStatisticMapper;
+import pl.edu.icm.unity.restadm.mappers.registration.EnquiryFormMapper;
+import pl.edu.icm.unity.restadm.mappers.registration.EnquiryResponseStateMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.RegistrationFormMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.RegistrationRequestStateMapper;
 import pl.edu.icm.unity.restadm.mappers.registration.invite.InvitationParamMapper;
@@ -130,7 +136,6 @@ import pl.edu.icm.unity.restadm.mappers.translation.TranslationRuleMapper;
 import pl.edu.icm.unity.restadm.mappers.userimport.ImportResultMapper;
 import pl.edu.icm.unity.restadm.token.Token2JsonFormatter;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
-
 /**
  * RESTful API implementation.
  * 
@@ -163,7 +168,9 @@ public class RESTAdmin implements RESTAdminHandler
 	private ExternalDataParser dataParser;
 	private IdpStatisticManagement idpStatisticManagement;
 	private GroupMembersService groupMembersService;
-
+	private EnquiryManagement enquiryManagement;
+	
+	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan,
 			GroupsManagement groupsMan,
@@ -182,7 +189,8 @@ public class RESTAdmin implements RESTAdminHandler
 			UserNotificationTriggerer userNotificationTriggerer,
 			ExternalDataParser dataParser,
 			IdpStatisticManagement idpStatisticManagement,
-			GroupMembersService groupMembersService)
+			GroupMembersService groupMembersService,
+			EnquiryManagement enquiryManagement)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -202,6 +210,7 @@ public class RESTAdmin implements RESTAdminHandler
 		this.dataParser = dataParser;
 		this.idpStatisticManagement = idpStatisticManagement;
 		this.groupMembersService = groupMembersService;
+		this.enquiryManagement = enquiryManagement;
 	}
 
 	
@@ -977,6 +986,72 @@ public class RESTAdmin implements RESTAdminHandler
 		return mapper.writeValueAsString(RegistrationRequestStateMapper.map(request.get()));
 	}
 	
+	@Path("/enquiryForms")
+	@GET
+	public String getEnquiryForms() throws EngineException, JsonProcessingException
+	{
+		List<EnquiryForm> forms = enquiryManagement.getEnquires();
+		return mapper.writeValueAsString(forms.stream()
+				.map(EnquiryFormMapper::map)
+				.collect(Collectors.toList()));
+	}
+	
+	@Path("/enquiryForm/{formId}")
+	@DELETE
+	public void removeEnquiryForm(@PathParam("formId") String formId, 
+			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
+	{
+		if (dropRequests == null)
+			dropRequests = false;
+		enquiryManagement.removeEnquiry(formId, dropRequests);
+	}
+	
+	@Path("/enquiryForm")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void addEnquiryForm(String json) throws EngineException, IOException
+	{
+		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+		enquiryManagement.addEnquiry(EnquiryFormMapper.map(form));
+	}
+	
+	@Path("/enquiryForm")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateEnquiryForm(@QueryParam("ignoreRequestsAndInvitations") Boolean ignoreRequestsAndInvitations,
+			@QueryParam("ignoreInvitations") Boolean ignoreInvitations, String json)
+			throws EngineException, IOException
+	{
+		if (ignoreRequestsAndInvitations == null)
+			ignoreRequestsAndInvitations = false;
+		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+		enquiryManagement.updateEnquiry(EnquiryFormMapper.map(form), ignoreRequestsAndInvitations);
+	}
+	
+	@Path("/enquiryResponses")
+	@GET
+	public String getEnquiryResponses() throws EngineException, JsonProcessingException
+	{
+		List<EnquiryResponseState> requests = enquiryManagement.getEnquiryResponses();
+		return mapper.writeValueAsString(requests.stream()
+				.map(EnquiryResponseStateMapper::map)
+				.collect(Collectors.toList()));
+	}
+	
+	@Path("/enquiryResponse/{responseId}")
+	@GET
+	public String getEnquiryResponse(@PathParam("responseId") String requestId) 
+			throws EngineException, JsonProcessingException
+	{
+		List<EnquiryResponseState> requests = enquiryManagement.getEnquiryResponses();
+		Optional<EnquiryResponseState> request = requests.stream().
+				filter(r -> r.getRequestId().equals(requestId)).
+				findAny();
+		if (!request.isPresent())
+			throw new WrongArgumentException("There is no enquiry response with id " + requestId);
+		return mapper.writeValueAsString(EnquiryResponseStateMapper.map(request.get()));
+	}
+
 	@Path("/invitations")
 	@GET
 	public String getInvitations() throws EngineException, JsonProcessingException

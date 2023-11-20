@@ -105,7 +105,7 @@ public class TestGroupMembersService
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
 		DelegatedGroup delGroup = new DelegatedGroup("/project", new GroupDelegationConfiguration(true, false, null,
-				null, null, null, List.of("extraAttr")), true, new I18nString("name"));
+				null, null, null, List.of("extraAttr"), List.of()), true, new I18nString("name"));
 
 		DelegatedGroupContents con = new DelegatedGroupContents(delGroup, Optional.empty());
 

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
 import java.util.*;
@@ -40,6 +41,7 @@ class GroupBrowserController
 	private final GroupDelegationConfigGenerator delConfigUtils;
 	private final GroupManagementHelper groupManagementHelper;
 	private final NotificationPresenter notificationPresenter;
+	private final PolicyDocumentManagement policyDocumentManagement;
 
 	GroupBrowserController(MessageSource msg, GroupsManagement groupsMan,
 			AttributeClassManagement acMan, BulkGroupQueryService bulkQueryService,
@@ -47,7 +49,7 @@ class GroupBrowserController
 			AttributeTypeManagement attrTypeMan, ObjectFactory<RegistrationFormEditor> regFormEditorFactory,
 			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory,
 			GroupDelegationConfigGenerator delConfigUtils, GroupManagementHelper groupManagementHelper,
-			NotificationPresenter notificationPresenter)
+			NotificationPresenter notificationPresenter, PolicyDocumentManagement policyDocumentManagement)
 	{
 		this.msg = msg;
 		this.groupsMan = groupsMan;
@@ -61,6 +63,7 @@ class GroupBrowserController
 		this.delConfigUtils = delConfigUtils;
 		this.groupManagementHelper = groupManagementHelper;
 		this.notificationPresenter = notificationPresenter;
+		this.policyDocumentManagement = policyDocumentManagement;
 	}
 
 	Map<String, List<Group>> getAllGroupWithSubgroups(String path)
@@ -150,7 +153,7 @@ class GroupBrowserController
 			Consumer<Group> update)
 	{
 		Group editedGroup = getFreshGroup(group.getPathEncoded());
-		return new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan,
+		return new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan, policyDocumentManagement,
 				regFormEditorFactory, enquiryFormEditorFactory, bus, delConfigUtils, editedGroup,
 				delConfig ->
 				{

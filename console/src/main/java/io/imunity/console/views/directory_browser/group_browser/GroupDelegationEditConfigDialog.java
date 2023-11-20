@@ -33,16 +33,24 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -64,6 +72,8 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 	private FormComboWithButtons signupEnquiryFormComboWithButtons;
 	private FormComboWithButtons membershipUpdateEnquiryFormComboWithButtons;
 	private MultiSelectComboBox<String> attributes;
+	private MultiSelectComboBox<PolicyDocumentWithRevision> policyDocuments;
+
 	private Binder<DelegationConfiguration> binder;
 
 	private final RegistrationsManagement registrationMan;
@@ -73,9 +83,11 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 	private final ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
 	private final EventsBus bus;
 	private final GroupDelegationConfigGenerator configGenerator;
+	private final PolicyDocumentManagement policyDocumentManagement;
+
 
 	GroupDelegationEditConfigDialog(MessageSource msg, RegistrationsManagement registrationMan,
-			EnquiryManagement enquiryMan, AttributeTypeManagement attrTypeMan,
+			EnquiryManagement enquiryMan, AttributeTypeManagement attrTypeMan, PolicyDocumentManagement policyDocumentManagement,
 			ObjectFactory<RegistrationFormEditor> regFormEditorFactory,
 			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory, EventsBus bus,
 			GroupDelegationConfigGenerator configGenerator, Group group,
@@ -87,6 +99,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
 		this.attrTypeMan = attrTypeMan;
+		this.policyDocumentManagement = policyDocumentManagement;
 		this.regFormEditorFactory = regFormEditorFactory;
 		this.enquiryFormEditorFactory = enquiryFormEditorFactory;
 		this.bus = bus;
@@ -165,6 +178,27 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		{
 			attributes.setValue(new ArrayList<>(toEdit.attributes));
 		}
+		
+		policyDocuments = new MultiSelectComboBox<>();
+		policyDocuments.setItemLabelGenerator(p -> p.name);
+	
+		Collection<PolicyDocumentWithRevision> policyDocs;
+		try
+		{
+			policyDocs = policyDocumentManagement.getPolicyDocuments();
+		} catch (EngineException e)
+		{
+			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			throw new RuntimeException(e);
+		}
+
+		policyDocuments.setItems(policyDocs);
+
+		if (toEdit.policyDocumentsIds != null)
+		{
+			policyDocuments.setValue(policyDocs.stream()
+					.filter(d -> toEdit.policyDocumentsIds.contains(d.id)).collect(Collectors.toList()));
+		}
 
 		binder = new Binder<>(DelegationConfiguration.class);
 		binder.forField(enableDelegation).bind("enabled");
@@ -182,6 +216,8 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		main.addFormItem(logoUrl, msg.getMessage("GroupDelegationEditConfigDialog.logoUrlCaption"));
 		main.addFormItem(enableSubprojects, "");
 		main.addFormItem(attributes, msg.getMessage("GroupDelegationEditConfigDialog.attributes"));
+		main.addFormItem(policyDocuments, msg.getMessage("GroupDelegationEditConfigDialog.policyDocuments"));
+
 		main.addFormItem(registrationFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"));
 		main.addFormItem(signupEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry"));
 		main.addFormItem(membershipUpdateEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"));
@@ -211,7 +247,11 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		EnquiryForm form;
 		try
 		{
-			form = configGenerator.generateProjectJoinEnquiryForm(group.toString(), logoUrl.getValue());
+			form = configGenerator.generateProjectJoinEnquiryForm(group.toString(), logoUrl.getValue(),
+					policyDocuments.getSelectedItems()
+							.stream()
+							.map(p -> p.id)
+							.collect(Collectors.toList()));
 			enquiryMan.addEnquiry(form);
 
 		} catch (EngineException e)
@@ -264,7 +304,10 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		try
 		{
 			form = configGenerator.generateProjectRegistrationForm(group.toString(), logoUrl.getValue(),
-					new ArrayList<>(attributes.getSelectedItems()));
+					new ArrayList<>(attributes.getSelectedItems()), policyDocuments.getSelectedItems()
+							.stream()
+							.map(p -> p.id)
+							.collect(Collectors.toList()));
 			registrationMan.addForm(form);
 
 		} catch (EngineException e)
@@ -285,26 +328,91 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 			GroupDelegationConfiguration config = new GroupDelegationConfiguration(
 					groupDelConfig.isEnabled(),  groupDelConfig.isEnableSubprojects(), groupDelConfig.getLogoUrl(),
 					groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
-					groupDelConfig.getMembershipUpdateEnquiryForm(), new ArrayList<>(attributes.getSelectedItems()));
+					groupDelConfig.getMembershipUpdateEnquiryForm(), new ArrayList<>(attributes.getSelectedItems()), 
+					policyDocuments.getSelectedItems()
+					.stream()
+					.map(p -> p.id)
+					.collect(Collectors.toList()));
 
-			callback.accept(config);
-			close();
+
+			Map<String, FormType> formsToSynch = getFormsToSynch(groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
+					policyDocuments.getSelectedItems().stream().map(p -> p.id).collect(Collectors.toSet()));	
+			if (formsToSynch.size() > 0)
+				getSynchronizationDialog(formsToSynch, () -> {
+					callback.accept(config);
+					close();	
+				}).open();
+			else {
+				callback.accept(config);
+				close();
+			}
 		} catch (Exception e)
 		{
 			notificationPresenter.showError( msg.getMessage("GroupDelegationEditConfigDialog.cannotUpdate"),
 					e.getMessage());
 		}
 	}
+	
+	private ConfirmDialog getSynchronizationDialog(Map<String, FormType> formsToSynch, Runnable close)
+	{
+		return new ConfirmDialog("", msg.getMessage("GroupDelegationEditConfigDialog.synchronizePolicy",
+				String.join("&", formsToSynch.keySet())), msg.getMessage("ok"), e ->
+				{
+					try
+					{
+						for (Entry<String, FormType> form : formsToSynch.entrySet())
+						{
+							configGenerator.synchronizePolicy(form.getKey(), form.getValue(),
+									policyDocuments.getSelectedItems()
+											.stream()
+											.map(p -> p.id)
+											.collect(Collectors.toList()));
+						}
+
+					} catch (EngineException ex)
+					{
+						NotificationPopup.showError(msg,
+								msg.getMessage("GroupDelegationEditConfigDialog.errorUpdateForm"), ex);
+					}
+					close.run();
+				}, msg.getMessage("cancel"), e -> close.run());
+	}
+
+	private Map<String, FormType> getFormsToSynch(String registrationFormName, String enquiryFormName,
+			Set<Long> policyDocumentsIds) throws EngineException {
+
+		Map<String, FormType> ret = new HashMap<>();
+		RegistrationForm registrationForm = registrationMan.getForm(registrationFormName);
+		if (!policyDocumentsIds.equals(registrationForm.getPolicyAgreements().stream().map(p -> p.documentsIdsToAccept)
+				.flatMap(Collection::stream).collect(Collectors.toSet()))) {
+			ret.put(registrationFormName, FormType.REGISTRATION);
+		}
+		EnquiryForm enquiryForm = enquiryMan.getEnquiry(enquiryFormName);
+		if (!policyDocumentsIds.equals(enquiryForm.getPolicyAgreements().stream().map(p -> p.documentsIdsToAccept)
+				.flatMap(Collection::stream).collect(Collectors.toSet()))) {
+			ret.put(enquiryFormName, FormType.ENQUIRY);
+		}
+
+		return ret;
+	}
 
 	private void showJoinRegistrationValidation(String formName)
 	{
-		List<String> messages = configGenerator.validateRegistrationForm(group.toString(), formName);
+		List<String> messages = configGenerator.validateRegistrationForm(group.toString(), formName,
+				policyDocuments.getSelectedItems()
+						.stream()
+						.map(p -> p.id)
+						.collect(Collectors.toSet()));
 		new ValidationResultDialog(msg, messages, formName).open();
 	}
 
 	private void showJoinEnquiryValidation(String formName)
 	{
-		List<String> messages = configGenerator.validateJoinEnquiryForm(group.toString(), formName);
+		List<String> messages = configGenerator.validateJoinEnquiryForm(group.toString(), formName,
+				policyDocuments.getSelectedItems()
+						.stream()
+						.map(p -> p.id)
+						.collect(Collectors.toSet()));
 		new ValidationResultDialog(msg, messages, formName).open();
 	}
 

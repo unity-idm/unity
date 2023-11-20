@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ import pl.edu.icm.unity.base.msg_template.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msg_template.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.base.msg_template.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msg_template.reg.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.base.registration.BaseFormNotifications;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
@@ -47,9 +50,11 @@ import pl.edu.icm.unity.engine.utils.GroupDelegationConfigGeneratorImpl;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.store.api.GroupDAO;
+import pl.edu.icm.unity.store.api.PolicyDocumentDAO;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
+import pl.edu.icm.unity.store.types.StoredPolicyDocument;
 
 @ExtendWith(MockitoExtension.class)
 public class TestGroupDelegationConfigGenerator extends TestProjectBase
@@ -67,11 +72,14 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	@Mock
 	private RegistrationFormDB mockRegistrationFormDB;
 
+	@Mock
+	private PolicyDocumentDAO mockPolicyDocumentDB;
+	
 	@BeforeEach
 	public void init()
 	{
 		generator = new GroupDelegationConfigGeneratorImpl(mockMsg, mockRegistrationFormDB, mockMsgTemplateDB,
-				mockEnqFormDB, mockAttrHelper, mockGroupDB);
+				mockEnqFormDB, mockAttrHelper, mockGroupDB, mockPolicyDocumentDB);
 	}
 
 	@Test
@@ -81,15 +89,17 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockRegistrationFormDB.getAll()).thenReturn(List.of());
 		when(mockAttrHelper.getAttributeTypeWithSingeltonMetadata(eq(EntityNameMetadataProvider.NAME)))
 				.thenReturn(new AttributeType("name", null));
+		when(mockPolicyDocumentDB.getByKey(1L)).thenReturn(new StoredPolicyDocument(1L, "Policy"));
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		RegistrationForm form = generator.generateProjectRegistrationForm("/A", "https://logo.url",
-				Arrays.asList("at1"));
+				Arrays.asList("at1"), List.of(1L));
 		assertThat(form.getName()).isEqualTo("aregSuffix");
 		assertThat(form.getAttributeParams().get(0).getAttributeType()).isEqualTo("name");
 		assertThat(form.getAttributeParams().get(1).getAttributeType()).isEqualTo("at1");
 		assertThat(form.getGroupParams().get(0).getGroupPath()).isEqualTo("/A/?*/**");
 		assertThat(form.getIdentityParams().get(0).getIdentityType()).isEqualTo(EmailIdentity.ID);
+		assertThat(form.getPolicyAgreements().get(0).documentsIdsToAccept.get(0)).isEqualTo(1L);
 		assertAutomationProfile(form.getTranslationProfile(), "/A");
 		assertNotificationTemplates(form.getNotificationsConfiguration());
 	}
@@ -99,12 +109,14 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.joinEnquiryNameSuffix"))).thenReturn("enSuffix");
 		when(mockEnqFormDB.getAll()).thenReturn(List.of());
+		when(mockPolicyDocumentDB.getByKey(1L)).thenReturn(new StoredPolicyDocument(1L, "Policy"));
 		addGroup("/A", "a", true, true);
 		addTemplates();
-		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url");
+		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url", List.of(1L));
 		assertThat(form.getName()).isEqualTo("aenSuffix");
 		assertThat(form.getTargetCondition()).isEqualTo("!(groups contains '/A')");
 		assertThat(form.getGroupParams().get(0).getGroupPath()).isEqualTo("/A/?*/**");
+		assertThat(form.getPolicyAgreements().get(0).documentsIdsToAccept.get(0)).isEqualTo(1L);
 		assertAutomationProfile(form.getTranslationProfile(), "/A");
 		assertNotificationTemplates(form.getNotificationsConfiguration());
 	}
@@ -128,10 +140,11 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockRegistrationFormDB.getAll()).thenReturn(List.of());
 		when(mockAttrHelper.getAttributeTypeWithSingeltonMetadata(eq(EntityNameMetadataProvider.NAME)))
 				.thenReturn(new AttributeType("name", null));
+		when(mockPolicyDocumentDB.getByKey(1L)).thenReturn(new StoredPolicyDocument(1L, "Policy"));
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		RegistrationForm form = generator.generateProjectRegistrationForm("/A", "https://logo.url",
-				Arrays.asList("at1"));
+				Arrays.asList("at1"), List.of(1L));
 		when(mockRegistrationFormDB.get(eq("aregSuffix"))).thenReturn(form);
 		addGroup("/A/B", "ab", true, true);
 		RegistrationForm sform = generator.generateSubprojectRegistrationForm("aregSuffix", "/A", "/A/B",
@@ -143,6 +156,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		assertThat(sform.getIdentityParams().get(0).getIdentityType()).isEqualTo(EmailIdentity.ID);
 		assertAutomationProfile(sform.getTranslationProfile(), "/A");
 		assertNotificationTemplates(sform.getNotificationsConfiguration());
+		assertPolicies(sform.getPolicyAgreements(), List.of(1L, 2L));
 	}
 
 	@Test
@@ -150,9 +164,10 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	{
 		when(mockMsg.getMessage(eq("FormGenerator.joinEnquiryNameSuffix"))).thenReturn("enSuffix");
 		when(mockEnqFormDB.getAll()).thenReturn(List.of());
+		when(mockPolicyDocumentDB.getByKey(1L)).thenReturn(new StoredPolicyDocument(1L, "Policy"));
 		addGroup("/A", "a", true, true);
 		addTemplates();
-		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url");
+		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url", List.of(1L));
 		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
 		addGroup("/A/B", "ab", true, true);
 		EnquiryForm sform = generator.generateSubprojectJoinEnquiryForm("aenSuffix", "/A", "/A/B",
@@ -162,6 +177,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		assertThat(sform.getGroupParams().get(0).getGroupPath()).isEqualTo("/A/B/?*/**");
 		assertAutomationProfile(sform.getTranslationProfile(), "/A/B");
 		assertNotificationTemplates(sform.getNotificationsConfiguration());
+		assertPolicies(sform.getPolicyAgreements(), List.of(1L, 2L));
 	}
 
 	@Test
@@ -187,13 +203,15 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		when(mockRegistrationFormDB.getAll()).thenReturn(List.of());
 		when(mockAttrHelper.getAttributeTypeWithSingeltonMetadata(eq(EntityNameMetadataProvider.NAME)))
 				.thenReturn(new AttributeType("name", null));
+		when(mockPolicyDocumentDB.getByKey(1L)).thenReturn(new StoredPolicyDocument(1L, "Policy"));
+		when(mockPolicyDocumentDB.getAll()).thenReturn(List.of(new StoredPolicyDocument(1L, "policy")));
 		addGroup("/A", "a", true, true);
 		addTemplates();
 		RegistrationForm form = generator.generateProjectRegistrationForm("/A", "https://logo.url",
-				Arrays.asList("at1"));
+				Arrays.asList("at1"), List.of(1L));
 		when(mockRegistrationFormDB.get(eq("aregSuffix"))).thenReturn(form);
 
-		List<String> errors = generator.validateRegistrationForm("/A", "aregSuffix");
+		List<String> errors = generator.validateRegistrationForm("/A", "aregSuffix", Set.of(1L));
 		assertThat(errors.size()).isEqualTo(0);
 	}
 
@@ -201,12 +219,15 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	public void shouldValidateJoinEnquiryForm() throws EngineException
 	{
 		when(mockEnqFormDB.getAll()).thenReturn(List.of());
+		when(mockPolicyDocumentDB.getByKey(1L)).thenReturn(new StoredPolicyDocument(1L, "Policy"));
+		when(mockPolicyDocumentDB.getAll()).thenReturn(List.of(new StoredPolicyDocument(1L, "policy")));
+
 		addGroup("/A", "a", true, true);
 		addTemplates();
-		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url");
+		EnquiryForm form = generator.generateProjectJoinEnquiryForm("/A", "https://logo.url", List.of(1L));
 		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
 
-		List<String> errors = generator.validateJoinEnquiryForm("/A", "aenSuffix");
+		List<String> errors = generator.validateJoinEnquiryForm("/A", "aenSuffix", Set.of(1L));
 		assertThat(errors.size()).isEqualTo(0);
 	}
 
@@ -228,10 +249,14 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	{
 		RegistrationForm form = new RegistrationFormBuilder().withName("aregSuffix")
 				.withDefaultCredentialRequirement(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.withPolicyAgreements(List.of(new PolicyAgreementConfiguration(List.of(1L),
+						PolicyAgreementPresentationType.CHECKBOX_NOTSELECTED, new I18nString())))
 				.build();
 		when(mockRegistrationFormDB.get(eq("aregSuffix"))).thenReturn(form);
+		when(mockPolicyDocumentDB.getAll()).thenReturn(List.of(new StoredPolicyDocument(1L, "policy")));
 		when(mockMsg.getMessage(anyString())).thenAnswer(i -> i.getArguments()[0]);
-		List<String> errors = generator.validateRegistrationForm("/A", "aregSuffix");
+		when(mockMsg.getMessage(anyString(), anyString())).thenAnswer(i -> i.getArguments()[0]);
+		List<String> errors = generator.validateRegistrationForm("/A", "aregSuffix", Set.of(2L));
 		assertThat(errors.get(0)).isEqualTo("FormGenerator.noEmailIdentity");
 		assertThat(errors.get(1)).isEqualTo("FormGenerator.noAutoAccept");
 		assertThat(errors.get(2)).isEqualTo("FormGenerator.noAutoGroupAdd");
@@ -239,6 +264,8 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		assertThat(errors.get(4)).isEqualTo("FormGenerator.noAcceptTemplate");
 		assertThat(errors.get(5)).isEqualTo("FormGenerator.noRejectTemplate");
 		assertThat(errors.get(6)).isEqualTo("FormGenerator.noUpdateTemplate");
+		assertThat(errors.get(7)).isEqualTo("FormGenerator.missingFormPolicies");
+		assertThat(errors.get(8)).isEqualTo("FormGenerator.additionalFormPolicies");
 	}
 
 	@Test
@@ -246,16 +273,23 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 	{
 		EnquiryForm form = new EnquiryFormBuilder().withName("aenSuffix").withTargetGroups(new String[] { "/" })
 				.withType(EnquiryForm.EnquiryType.STICKY).withTargetCondition("!(groups contains '/B')")
+				.withPolicyAgreements(List.of(new PolicyAgreementConfiguration(List.of(1L),
+						PolicyAgreementPresentationType.CHECKBOX_NOTSELECTED, new I18nString())))
 				.build();
 		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
 		when(mockMsg.getMessage(anyString())).thenAnswer(i -> i.getArguments()[0]);
-		List<String> errors = generator.validateJoinEnquiryForm("/A", "aenSuffix");
+		when(mockMsg.getMessage(anyString(), anyString())).thenAnswer(i -> i.getArguments()[0]);
+		when(mockPolicyDocumentDB.getAll()).thenReturn(List.of(new StoredPolicyDocument(1L, "policy")));
+
+		List<String> errors = generator.validateJoinEnquiryForm("/A", "aenSuffix", Set.of(2L));
 		assertThat(errors.get(0)).isEqualTo("FormGenerator.noAutoAccept");
 		assertThat(errors.get(1)).isEqualTo("FormGenerator.noAutoGroupAdd");
 		assertThat(errors.get(2)).isEqualTo("FormGenerator.noInvitationTemplate");
 		assertThat(errors.get(3)).isEqualTo("FormGenerator.noAcceptTemplate");
 		assertThat(errors.get(4)).isEqualTo("FormGenerator.noRejectTemplate");
 		assertThat(errors.get(5)).isEqualTo("FormGenerator.noUpdateTemplate");
+		assertThat(errors.get(6)).isEqualTo("FormGenerator.missingFormPolicies");
+		assertThat(errors.get(7)).isEqualTo("FormGenerator.additionalFormPolicies");
 	}
 
 	@Test
@@ -275,7 +309,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		Group group = new Group(path);
 		group.setDisplayedName(new I18nString(name));
 		group.setDelegationConfiguration(new GroupDelegationConfiguration(groupWithEnabledDelegation,
-				enableSubproject, null, null, null, null, List.of()));
+				enableSubproject, null, null, null, null, List.of(), List.of()));
 		when(mockGroupDB.get(eq(path))).thenReturn(group);
 	}
 
@@ -317,5 +351,14 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		assertThat(notConfig.getAcceptedTemplate()).isNotEmpty();
 		assertThat(notConfig.getRejectedTemplate()).isNotEmpty();
 		assertThat(notConfig.getUpdatedTemplate()).isNotEmpty();
+	}
+	
+	private void assertPolicies(List<PolicyAgreementConfiguration> policyAgreements, List<Long> selected)
+	{
+		for (PolicyAgreementConfiguration policyAgreementConfiguration : policyAgreements)
+		{
+			assertThat(policyAgreementConfiguration.documentsIdsToAccept.get(0))
+					.isEqualTo(selected.get(policyAgreements.indexOf(policyAgreementConfiguration)));
+		}
 	}
 }

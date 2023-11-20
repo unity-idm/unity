@@ -154,7 +154,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 			Arrays.asList(new StoredAttribute(new AttributeExt(baseAttribute, false), 1L)));
 		Group group = new Group("/project");
 		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(true, true, null, null, null, null, List.of()));
+				new GroupDelegationConfiguration(true, true, null, null, null, null, List.of(), List.of()));
 		when(mockGroupDao.get(eq("/project"))).thenReturn(group);
 		Throwable exception = catchThrowable(() -> dGroupManWithMockAuthz.removeProject("/project", "/project/sub"));
 		assertExceptionType(exception, AuthorizationException.class);
@@ -178,7 +178,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 											1L)));
 		Group group = new Group("/project");
 		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(true, true, null, null, null, null, List.of()));
+				new GroupDelegationConfiguration(true, true, null, null, null, null, List.of(), List.of()));
 		when(mockGroupDao.get(eq("/project"))).thenReturn(group);
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getEnabledGroupContentsWithDefaultMember("/project1"));
 
@@ -194,7 +194,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	{
 		GroupContents con = getEnabledGroupContentsWithDefaultMember("/project");
 		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, "reg", "e1", "e2", 
-				null));		
+				null, null));		
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
 		dGroupManNoAuthz.removeProject("/project1", "/project1/group1");
 		verify(mockRegistrationMan).removeFormWithoutDependencyChecking(eq("reg"));
@@ -207,7 +207,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	{
 		GroupContents con = getEnabledGroupContentsWithDefaultMember("/project");
 		con.getGroup().setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, "reg", "e1", "e2", null));
+				new GroupDelegationConfiguration(false, false, null, "reg", "e1", "e2", null, null));
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
 		dGroupManNoAuthz.removeGroup("/project1", "/project1/group1");
 		verify(mockRegistrationMan, never()).removeFormWithoutDependencyChecking(eq("reg"));
@@ -248,7 +248,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		GroupContents con = getEnabledGroupContentsWithDefaultMember("/project");
 		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, null, null, null,
-				Arrays.asList("extraAttr")));
+				Arrays.asList("extraAttr"), List.of()));
 
 		when(mockIdMan.getEntity(any()))
 				.thenReturn(new Entity(
@@ -294,7 +294,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	{
 		GroupContents contents = getGroupContent("/project");
 		contents.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, null, null,
-				null, Arrays.asList("extraAttr")));
+				null, Arrays.asList("extraAttr"), List.of()));
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(contents);
 
 		Throwable exception = catchThrowable(() -> dGroupManNoAuthz.getAttributeDisplayedName("/project", "demo"));
