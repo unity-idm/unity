@@ -12,27 +12,33 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.HasValidator;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.VaadinClassNames.EMPTY_DETAILS_ICON;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
-public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> implements LocalizedErrorMessageHandler
+public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> implements HasValidator<Map<Locale, String>>
 {
-	public Map<Locale, LocalizedTextField> fields = new LinkedHashMap<>();
-	private final HorizontalLayout summary;
+	private final Map<Locale, LocalizedTextField> fields = new LinkedHashMap<>();
+	private final Binder<Map<Locale, String>> binder = new Binder<>();
+	private Validator<String> validator = (val, context) -> ValidationResult.ok();
 
 	public LocalizedTextFieldDetails(Collection<Locale> enabledLocales, Locale currentLocale)
 	{
-		this(enabledLocales, currentLocale, Optional.empty(), locale -> "");
+		this(enabledLocales, currentLocale, null);
 	}
 
-	public LocalizedTextFieldDetails(Collection<Locale> enabledLocales, Locale currentLocale, Optional<String> label, Function<Locale, String> valueGenerator)
+	public LocalizedTextFieldDetails(Collection<Locale> enabledLocales, Locale currentLocale, String label)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
@@ -59,11 +65,10 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 		});
 
 		LocalizedTextField defaultField = new LocalizedTextField(currentLocale);
-		defaultField.setValue(valueGenerator.apply(currentLocale));
-		label.ifPresent(defaultField::setLabel);
+		defaultField.setLabel(label);
 		fields.put(currentLocale, defaultField);
 
-		summary = new HorizontalLayout(defaultField, angleDown, angleUp);
+		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
 		summary.setWidthFull();
 		summary.setClassName(SMALL_GAP.getName());
 
@@ -72,16 +77,14 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 				.forEach(locale ->
 				{
 					LocalizedTextField localizedTextField = new LocalizedTextField(locale);
-					localizedTextField.setValue(valueGenerator.apply(locale));
 					content.add(localizedTextField);
 					fields.put(locale, localizedTextField);
 				});
-
-		fields.values().forEach(field -> field.addValueChangeListener(event ->
-		{
-			if(!event.getValue().isBlank())
-				setInvalid(false);
-		}));
+		fields.forEach((locale, field) ->
+				binder.forField(field)
+				.withValidator((val, context) -> validator.apply(val, context))
+				.bind(map -> map.get(locale), (map, val) -> map.put(locale, val))
+		);
 
 		add(summary, content);
 		propagateValueChangeEventFromNestedTextFieldToThisComponent();
@@ -92,51 +95,6 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 		fields.values().forEach(localizedTextField -> localizedTextField.addValueChangeListener(event ->
 				fireEvent(new ComponentValueChangeEvent<>(this, event.getHasValue(), event.getOldValue(), event.isFromClient()))
 		));
-	}
-
-	public void setWidthFull()
-	{
-		super.setWidth("100%");
-		fields.values().forEach(HasSize::setWidthFull);
-	}
-
-	public void setWidth(String width)
-	{
-		summary.setWidth(width);
-		fields.values().forEach(HasSize::setWidthFull);
-	}
-
-	public void focus()
-	{
-		fields.values().iterator().next().focus();
-	}
-
-	private Icon crateIcon(VaadinIcon angleDown, Optional<String> label)
-	{
-		Icon icon = angleDown.create();
-		icon.addClassName("u-details-icon");
-		if(label.isPresent())
-			icon.setClassName(EMPTY_DETAILS_ICON.getName());
-		return icon;
-	}
-
-	@Override
-	public void setValue(Map<Locale, String> value)
-	{
-		fields.forEach((key, val) -> fields.get(key).setValue(value.getOrDefault(key, "")));
-	}
-
-	@Override
-	public Map<Locale, String> getValue()
-	{
-		return fields.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getValue()));
-	}
-
-	@Override
-	public void setReadOnly(boolean readOnly)
-	{
-		super.setReadOnly(readOnly);
-		fields.values().forEach(field -> field.setReadOnly(readOnly));
 	}
 
 	public void addValuesChangeListener(BiConsumer<HasValue<?, String>, Integer> consumer)
@@ -153,24 +111,62 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 		);
 	}
 
-	@Override
-	public void setErrorMessage(String errorMessage)
+	public void setValidator(Validator<String> validator)
 	{
-		if(errorMessage.isBlank())
-			return;
-		fields.values().iterator().next().setErrorMessage(errorMessage);
+		this.validator = validator;
+	}
+
+	public Collection<LocalizedTextField> getSlottedFields()
+	{
+		return fields.values();
+	}
+
+	private Icon crateIcon(VaadinIcon angleDown, String label)
+	{
+		Icon icon = angleDown.create();
+		icon.addClassName("u-details-icon");
+		if(label != null)
+			icon.setClassName(EMPTY_DETAILS_ICON.getName());
+		return icon;
 	}
 
 	@Override
-	public void setErrorMessage(Locale locale, String errorMessage)
+	public void setWidthFull()
 	{
-		fields.get(locale).setErrorMessage(errorMessage);
+		super.setWidthFull();
+		fields.values().forEach(HasSize::setWidthFull);
 	}
 
 	@Override
-	public String getErrorMessage()
+	public void setWidth(String width)
 	{
-		return fields.values().iterator().next().getErrorMessage();
+		super.setWidth(width);
+		fields.values().forEach(HasSize::setWidthFull);
+	}
+
+	@Override
+	public void focus()
+	{
+		fields.values().iterator().next().focus();
+	}
+
+	@Override
+	public void setValue(Map<Locale, String> value)
+	{
+		binder.setBean(new LinkedHashMap<>(value));
+	}
+
+	@Override
+	public Map<Locale, String> getValue()
+	{
+		return binder.getBean();
+	}
+
+	@Override
+	public void setReadOnly(boolean readOnly)
+	{
+		super.setReadOnly(readOnly);
+		fields.values().forEach(field -> field.setReadOnly(readOnly));
 	}
 
 	@Override
@@ -186,11 +182,15 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 	}
 
 	@Override
-	public void setInvalid(boolean invalid)
+	public Validator<Map<Locale, String>> getDefaultValidator()
 	{
-		super.setInvalid(invalid);
-		fields.values().forEach(field -> field.setInvalid(invalid));
-		getElement().getParent().getClassList().set("invalid", invalid);
-		getElement().getParent().getClassList().set("valid", !invalid);
+		return (value, context) ->
+		{
+			if (binder.isValid()) {
+				return ValidationResult.ok();
+			} else {
+				return ValidationResult.error("");
+			}
+		};
 	}
 }

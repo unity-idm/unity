@@ -25,6 +25,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.*;
+import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nMessage;
@@ -41,7 +42,6 @@ import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
 
-import jakarta.annotation.security.PermitAll;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,8 +67,10 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 	private ComboBox<String> consumer;
 	private ComboBox<String> notificationChannels;
 	private boolean editMode;
-	private MessageValidator bodyValidator;
-	private MessageValidator subjectValidator;
+	private MessagesValidator bodyValidator;
+	private SingleMessageValidator innerBodyValidator;
+	private MessagesValidator subjectValidator;
+	private SingleMessageValidator innerSubjectValidator;
 	private Binder<MessageTemplate> binder;
 	private Binder<I18nMessage> messageBinder;
 	private Map<String, NotificationChannelInfo> notificationChannelsMap;
@@ -118,8 +120,10 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 	private void initUI(MessageTemplate toEdit)
 	{
-		subjectValidator = new MessageValidator(null, false);
-		bodyValidator = new MessageValidator(null, true);
+		subjectValidator = new MessagesValidator();
+		innerSubjectValidator = new SingleMessageValidator(null, false);
+		bodyValidator = new MessagesValidator();
+		innerBodyValidator = new SingleMessageValidator(null, true);
 
 		TextField name = new TextField();
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
@@ -154,9 +158,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 		LocalizedTextFieldDetails subject = new LocalizedTextFieldDetails(
 				msg.getEnabledLocales().values(),
-				msg.getLocale(),
-				Optional.empty(),
-				locale -> Optional.ofNullable(toEdit.getMessage().getSubject().getValueRaw(locale.getLanguage())).orElse("")
+				msg.getLocale()
 		);
 		subject.setWidthFull();
 		subject.addValuesChangeListener(focussedField::set);
@@ -167,10 +169,9 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 		LocalizedTextAreaDetails body = new LocalizedTextAreaDetails(
 				msg.getEnabledLocales().values(),
-				msg.getLocale(),
-				Optional.empty(),
-				locale -> Optional.ofNullable(toEdit.getMessage().getBody().getValueRaw(locale.getLanguage())).orElse("")
+				msg.getLocale()
 		);
+		body.setValue(toEdit.getMessage().getBody().getLocalizedMap());
 		body.setWidthFull();
 		body.addValuesChangeListener(focussedField::set);
 
@@ -190,7 +191,6 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 		configBinder(name, description, subject, messageType, body);
 		setBean(toEdit, name, consumers);
-		body.fields.values().forEach(x -> x.setInvalid(false));
 	}
 
 	private FormLayout createFormLayout(TextField name, TextField description, LocalizedTextFieldDetails subject,
@@ -262,9 +262,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 				.withValidator(
 						str -> str.stream().allMatch(val -> val.matches("[a-zA-Z0-9_\\-.]*")),
 						msg.getMessage("MessageTemplatesEditor.customVariableIllegalCharsError")
-				).bind(ignore -> null, (x, y) ->
-				{
-				});
+				).bind(ignore -> null, (x, y) -> {});
 		binder.forField(consumer)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind(MessageTemplate::getConsumer, MessageTemplate::setConsumer);
@@ -293,10 +291,12 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 				.bind(MessageTemplate::getType, MessageTemplate::setType);
 
 		messageBinder = new Binder<>(I18nMessage.class);
+		subject.setValidator(innerSubjectValidator);
 		messageBinder.forField(subject)
-				.withValidator(subjectValidator)
 				.asRequired(getRequiredValidatorTemplatesShownAware(subject))
+				.withValidator(subjectValidator)
 				.bind(i18nMessage -> i18nMessage.getSubject().getLocalizedMap(), (localizedValues, localizedValues2) -> localizedValues.setSubject(convert(localizedValues2)));
+		body.setValidator(innerBodyValidator);
 		messageBinder.forField(body)
 				.asRequired(getRequiredValidatorTemplatesShownAware(body))
 				.withValidator(bodyValidator)
@@ -363,7 +363,9 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		boolean showTemplate = !(notificationChannel != null && notificationChannel.isSupportingTemplates());
 		templateItems.forEach(item -> item.setVisible(showTemplate));
 		subjectValidator.setEnabled(showTemplate);
+		innerSubjectValidator.setEnabled(showTemplate);
 		bodyValidator.setEnabled(showTemplate);
+		innerBodyValidator.setEnabled(showTemplate);
 
 		notTemplateItems.forEach(item -> item.setVisible(!showTemplate));
 	}
@@ -482,18 +484,18 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		MessageTemplateDefinition c = getConsumer();
 		if (c != null)
 		{
-			subjectValidator.setConsumer(c);
-			bodyValidator.setConsumer(c);
+			innerSubjectValidator.setConsumer(c);
+			innerBodyValidator.setConsumer(c);
 		}
 	}
 
-	private class MessageValidator implements Validator<Map<Locale, String>>
+	private class SingleMessageValidator implements Validator<String>
 	{
 		private MessageTemplateDefinition c;
 		private final boolean checkMandatory;
 		private boolean enabled;
 
-		MessageValidator(MessageTemplateDefinition c, boolean checkMandatory)
+		SingleMessageValidator(MessageTemplateDefinition c, boolean checkMandatory)
 		{
 			this.c = c;
 			this.checkMandatory = checkMandatory;
@@ -510,6 +512,40 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		}
 
 		@Override
+		public ValidationResult apply(String value, ValueContext context)
+		{
+			if (!enabled)
+				return ValidationResult.ok();
+			if(value.isBlank())
+				return ValidationResult.ok();
+			try
+			{
+				MessageTemplateValidator.validateText(c, value, checkMandatory);
+			} catch (MessageTemplateValidator.IllegalVariablesException e)
+			{
+				return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.errorUnknownVars" ,
+						e.getUnknown().toString()));
+
+			} catch (MessageTemplateValidator.MandatoryVariablesException e)
+			{
+				return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.errorMandatoryVars",
+						e.getMandatory().toString()));
+			}
+
+			return ValidationResult.ok();
+		}
+	}
+
+	private class MessagesValidator implements Validator<Map<Locale, String>>
+	{
+		private boolean enabled;
+
+		void setEnabled(boolean enabled)
+		{
+			this.enabled = enabled;
+		}
+
+		@Override
 		public ValidationResult apply(Map<Locale, String> value, ValueContext context)
 		{
 			if (!enabled)
@@ -517,42 +553,8 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 
 			if (context.getHasValue().isPresent() && context.getHasValue().get().isEmpty())
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
-
-			if (value == null)
+			if (value == null || value.values().stream().allMatch(String::isBlank))
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
-
-			LocalizedErrorMessageHandler errorHandler = ((LocalizedErrorMessageHandler)context.getComponent().get());
-			if (value.values().stream().allMatch(String::isBlank))
-			{
-				value.keySet().forEach(locale -> errorHandler.setErrorMessage(locale, msg.getMessage("fieldRequired")));
-				return ValidationResult.error(msg.getMessage("fieldRequired"));
-			}
-
-			boolean invalid = false;
-			for (Map.Entry<Locale, String> message: value.entrySet())
-			{
-				if(message.getValue().isBlank())
-				{
-					errorHandler.setErrorMessage(message.getKey(), null);
-					continue;
-				}
-				try
-				{
-					MessageTemplateValidator.validateText(c, message.getValue(), checkMandatory);
-					errorHandler.setErrorMessage(message.getKey(), null);
-				} catch (MessageTemplateValidator.IllegalVariablesException e)
-				{
-					invalid = true;
-					errorHandler.setErrorMessage(message.getKey(), msg.getMessage("MessageTemplatesEditor.errorUnknownVars", e.getUnknown().toString()));
-
-				} catch (MessageTemplateValidator.MandatoryVariablesException e)
-				{
-					invalid = true;
-					errorHandler.setErrorMessage(message.getKey(), msg.getMessage("MessageTemplatesEditor.errorMandatoryVars", e.getMandatory().toString()));
-				}
-			}
-			if(invalid)
-				return ValidationResult.error("");
 
 			return ValidationResult.ok();
 		}

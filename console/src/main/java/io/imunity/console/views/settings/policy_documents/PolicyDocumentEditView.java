@@ -20,16 +20,19 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
+import io.imunity.console.components.LocalizedRichTextEditorDetails;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
-import io.imunity.console.components.LocalizedRichTextEditorDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
@@ -92,8 +95,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		name.setPlaceholder(msg.getMessage("PolicyDocumentEditor.defaultName"));
 
 		LocalizedTextFieldDetails displayedName = new LocalizedTextFieldDetails(
-				msg.getEnabledLocales().values(), msg.getLocale(), Optional.empty(),
-				locale -> toEdit.getDisplayedName().getOrDefault(locale, ""));
+				msg.getEnabledLocales().values(), msg.getLocale());
 		displayedName.setWidth(TEXT_FIELD_BIG.value());
 
 		Checkbox optional = new Checkbox();
@@ -102,7 +104,12 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 		ComboBox<PolicyDocumentContentType> type = new ComboBox<>();
 		type.setItems(PolicyDocumentContentType.values());
 		type.setItemLabelGenerator(item -> msg.getMessage("PolicyDocumentType." + item));
-		type.addValueChangeListener(e -> setContentType(e.getValue()));
+		type.addValueChangeListener(e ->
+		{
+			setContentType(e.getValue());
+			if(e.isFromClient())
+				content.setValue(Map.of());
+		});
 
 		initFormLayout(name, displayedName, optional, revision, type);
 		initBinder(allNames, name, displayedName, optional, type);
@@ -193,30 +200,22 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 			content = new LocalizedRichTextEditorDetails(msg.getEnabledLocales().values(), msg.getLocale(),
 					locale -> "");
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.text"));
-			contentBind = binder.forField(content)
-					.bind(PolicyDocumentEntry::getContent, PolicyDocumentEntry::setContent);
 		} else
 		{
-			content = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale(), Optional.empty(), locale -> "");
+			LocalizedTextFieldDetails content = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
 			contentItem = mainLayout.addFormItem(content, msg.getMessage("PolicyDocumentEditor.url"));
 			content.setWidth(TEXT_FIELD_BIG.value());
-			contentBind = binder.forField(content).withValidator((val, context) ->
+			content.setValidator((val, context) ->
 			{
-				if (val != null)
-				{
-					for (String v : val.values())
-						if (v != null && !v.isEmpty() && !URIHelper.isWebReady(v))
-						{
-							return ValidationResult
-									.error(msg.getMessage("FileField.notWebUri"));
-						}
-				}
-
-				return ValidationResult.ok();
-
-			}).bind(PolicyDocumentEntry::getContent, PolicyDocumentEntry::setContent);
+				if (val != null && !val.isEmpty() && !URIHelper.isWebReady(val))
+					return ValidationResult.error(msg.getMessage("FileField.notWebUri"));
+				else
+					return ValidationResult.ok();
+			});
+			this.content = content;
 		}
+		contentBind = binder.forField(content)
+				.bind(PolicyDocumentEntry::getContent, PolicyDocumentEntry::setContent);
 		contentItem.getStyle().set("align-items", "flex-start");
-		content.setValue(Map.of());
 	}
 }

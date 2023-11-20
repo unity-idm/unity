@@ -12,25 +12,32 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.HasValidator;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
 import static io.imunity.vaadin.elements.VaadinClassNames.EMPTY_DETAILS_ICON;
 import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
 
-public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> implements LocalizedErrorMessageHandler
+public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> implements HasValidator<Map<Locale, String>>
 {
-	public Map<Locale, LocalizedTextArea> fields = new LinkedHashMap<>();
+	private final Map<Locale, LocalizedTextArea> fields = new LinkedHashMap<>();
+	private final Binder<Map<Locale, String>> binder = new Binder<>();
+	private Validator<String> validator = (val, context) -> ValidationResult.ok();
 
 	public LocalizedTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale)
 	{
-		this(enabledLocales, currentLocale, Optional.empty(), locale -> "");
+		this(enabledLocales, currentLocale, null);
 	}
-	public LocalizedTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale, Optional<String> label, Function<Locale, String> valueGenerator)
+	public LocalizedTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale, String label)
 	{
 		VerticalLayout content = new VerticalLayout();
 		content.setVisible(false);
@@ -57,8 +64,7 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 		});
 
 		LocalizedTextArea defaultField = new LocalizedTextArea(currentLocale);
-		defaultField.setValue(valueGenerator.apply(currentLocale));
-		label.ifPresent(defaultField::setLabel);
+		defaultField.setLabel(label);
 		fields.put(currentLocale, defaultField);
 
 		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
@@ -70,10 +76,14 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 				.forEach(locale ->
 				{
 					LocalizedTextArea localeTextField = new LocalizedTextArea(locale);
-					localeTextField.setValue(valueGenerator.apply(locale));
 					content.add(localeTextField);
 					fields.put(locale, localeTextField);
 				});
+		fields.forEach((locale, field) ->
+				binder.forField(field)
+						.withValidator((val, context) -> validator.apply(val, context))
+						.bind(map -> map.get(locale), (map, val) -> map.put(locale, val))
+		);
 
 		add(summary, content);
 		propagateValueChangeEventFromNestedTextAreaToThisComponent();
@@ -86,44 +96,13 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 		));
 	}
 
-	@Override
-	public void setWidthFull()
-	{
-		super.setWidthFull();
-		fields.values().forEach(HasSize::setWidthFull);
-	}
-
-	public void setWidth(String width)
-	{
-		super.setWidth(width);
-		fields.values().forEach(HasSize::setWidthFull);
-	}
-
-	@Override
-	public void focus()
-	{
-		fields.values().iterator().next().focus();
-	}
-
-	private Icon crateIcon(VaadinIcon angleDown, Optional<String> label)
+	private Icon crateIcon(VaadinIcon angleDown, String label)
 	{
 		Icon icon = angleDown.create();
 		icon.addClassName("u-details-icon");
-		if(label.isPresent())
+		if(label != null)
 			icon.setClassName(EMPTY_DETAILS_ICON.getName());
 		return icon;
-	}
-
-	@Override
-	public void setValue(Map<Locale, String> value)
-	{
-		fields.forEach((key, val) -> fields.get(key).setValue(value.getOrDefault(key, "")));
-	}
-
-	@Override
-	public Map<Locale, String> getValue()
-	{
-		return fields.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getValue()));
 	}
 
 	public void addValuesChangeListener(BiConsumer<HasValue<?, String>, Integer> consumer)
@@ -139,32 +118,48 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 		);
 	}
 
+	public void setValidator(Validator<String> validator)
+	{
+		this.validator = validator;
+	}
+
+	@Override
+	public void setWidthFull()
+	{
+		super.setWidthFull();
+		fields.values().forEach(HasSize::setWidthFull);
+	}
+
+	@Override
+	public void setWidth(String width)
+	{
+		super.setWidth(width);
+		fields.values().forEach(HasSize::setWidthFull);
+	}
+
+	@Override
+	public void focus()
+	{
+		fields.values().iterator().next().focus();
+	}
+
+	@Override
+	public void setValue(Map<Locale, String> value)
+	{
+		binder.setBean(new LinkedHashMap<>(value));
+	}
+
+	@Override
+	public Map<Locale, String> getValue()
+	{
+		return binder.getBean();
+	}
+
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
 		super.setReadOnly(readOnly);
 		fields.values().forEach(field -> field.setReadOnly(readOnly));
-	}
-
-	@Override
-	public void setErrorMessage(String errorMessage)
-	{
-		if(errorMessage.isBlank())
-			return;
-		fields.values().iterator().next().setErrorMessage(errorMessage);
-	}
-
-	@Override
-	public void setErrorMessage(Locale locale, String errorMessage)
-	{
-		fields.get(locale).setErrorMessage(errorMessage);
-		fields.get(locale).setInvalid(errorMessage != null);
-	}
-
-	@Override
-	public String getErrorMessage()
-	{
-		return fields.values().iterator().next().getErrorMessage();
 	}
 
 	@Override
@@ -180,10 +175,14 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 	}
 
 	@Override
-	public void setInvalid(boolean invalid)
+	public Validator<Map<Locale, String>> getDefaultValidator()
 	{
-		super.setInvalid(invalid);
-		getElement().getParent().getClassList().set("invalid", invalid);
-		getElement().getParent().getClassList().set("valid", !invalid);
+		return (value, context) ->
+		{
+			if (binder.isValid())
+				return ValidationResult.ok();
+			else
+				return ValidationResult.error("");
+		};
 	}
 }

@@ -133,8 +133,7 @@ class MenuItemFactory
 		dialogLayout.setWidth("30em");
 		LocalizedTextFieldDetails localizedTextFieldDetails = new LocalizedTextFieldDetails(
 				msg.getEnabledLocales().values(), msg.getLocale(),
-				Optional.of(msg.getMessage("AddGroupDialog.info", group.currentDisplayedName)),
-				locale -> ""
+				msg.getMessage("AddGroupDialog.info", group.currentDisplayedName)
 		);
 		localizedTextFieldDetails.focus();
 
@@ -158,7 +157,7 @@ class MenuItemFactory
 		Button saveButton = new SubmitButton(msg::getMessage);
 		saveButton.addClickListener(event ->
 		{
-			Map<Locale, String> localeToTxt = localizedTextFieldDetails.fields.values().stream()
+			Map<Locale, String> localeToTxt = localizedTextFieldDetails.getSlottedFields().stream()
 					.collect(Collectors.toMap(field -> field.locale, TextField::getValue));
 			groupService.addGroup(projectGroup, group, localeToTxt, isPublic.getValue());
 			if(subProjectConfigurationLayout.enableDelegation.getValue())
@@ -206,10 +205,9 @@ class MenuItemFactory
 
 		LocalizedTextFieldDetails details = new LocalizedTextFieldDetails(
 				msg.getEnabledLocales().values(),
-				msg.getLocale(),
-				Optional.empty(),
-				locale -> Optional.ofNullable(group.displayedName.getValueRaw(locale.getLanguage())).orElse("")
+				msg.getLocale()
 		);
+		details.setValue(group.displayedName.getLocalizedMap());
 		details.focus();
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
@@ -217,7 +215,7 @@ class MenuItemFactory
 		dialogLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 		dialog.add(dialogLayout);
 
-		Button saveButton = createRenameButton(projectGroup, group, dialog, details.fields.values());
+		Button saveButton = createRenameButton(projectGroup, group, dialog, details.getSlottedFields());
 		dialog.getFooter().add(saveButton);
 
 		return dialog;

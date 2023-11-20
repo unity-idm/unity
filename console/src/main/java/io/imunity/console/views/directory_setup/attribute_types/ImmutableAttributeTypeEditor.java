@@ -18,7 +18,6 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
@@ -62,12 +61,12 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 		addFormItem(name, msg.getMessage("AttributeType.name"));
 
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
-				.values()), msg.getLocale(), Optional.empty(), locale -> "");
+				.values()), msg.getLocale());
 		displayedName.setWidth(TEXT_FIELD_BIG.value());
 		addFormItem(displayedName, msg.getMessage("AttributeType.displayedName"));
 
 		typeDescription = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
-				.values()), msg.getLocale(), Optional.empty(), locale -> "");
+				.values()), msg.getLocale());
 		typeDescription.setWidthFull();
 		addFormItem(typeDescription, msg.getMessage("AttributeType.description"));
 

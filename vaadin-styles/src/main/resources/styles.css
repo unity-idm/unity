@@ -190,6 +190,10 @@ vaadin-form-item > vaadin-integer-field {
     width: 8em;
 }
 
+vaadin-custom-field[invalid] > vaadin-horizontal-layout > vaadin-text-area, vaadin-custom-field[invalid] > vaadin-horizontal-layout > vaadin-text-field {
+    --lumo-contrast-10pct: var(--lumo-error-color-10pct)
+}
+
 /*
     Styling based on part selector
 */

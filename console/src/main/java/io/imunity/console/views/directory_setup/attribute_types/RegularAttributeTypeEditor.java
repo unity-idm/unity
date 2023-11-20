@@ -93,12 +93,11 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		addFormItem(name, msg.getMessage("AttributeType.name"));
 
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
-				.values()), msg.getLocale(), Optional.empty(), locale -> "");
+				.values()), msg.getLocale());
 		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
 		addFormItem(displayedName, msg.getMessage("AttributeType.displayedName"));
 
-		typeDescription = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales()
-				.values()), msg.getLocale(), Optional.empty(), locale -> "");
+		typeDescription = new LocalizedTextAreaDetails(msg.getEnabledLocales().values(), msg.getLocale());
 		typeDescription.setWidthFull();
 
 		addFormItem(typeDescription, msg.getMessage("AttributeType.description"));

@@ -14,7 +14,6 @@ import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDetails implements ActionParameterComponent
@@ -24,7 +23,7 @@ public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDet
 	
 	public LocalizedTextActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
-		super(msg.getEnabledLocales().values(), msg.getLocale(), Optional.empty(), locale -> "");
+		super(msg.getEnabledLocales().values(), msg.getLocale());
 		setLabel(desc.getName());
 		setTooltipText(msg.getMessage(desc.getDescriptionKey()));
 		binder = new Binder<>(StringValueBean.class);
