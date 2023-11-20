@@ -18,6 +18,7 @@ import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
 import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.DragDropBean;
+import io.imunity.vaadin.elements.FormItemRequiredIndicatorHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 
@@ -83,7 +84,7 @@ public class MVELExpressionField extends CustomField<String>
 			{
 				Object next = ((Collection<?>) dragData.get()).iterator()
 						.next();
-				if (next != null && next instanceof DragDropBean)
+				if (next instanceof DragDropBean)
 				{
 					field.setValue((field.getValue() != null ? field.getValue() : "") + ((DragDropBean) next).getExpression());
 				}
@@ -181,15 +182,7 @@ public class MVELExpressionField extends CustomField<String>
 	public void setInvalid(boolean invalid)
 	{
 		super.setInvalid(invalid);
-		if(invalid)
-		{
-			field.getElement().setAttribute("invalid", true);
-			getParent().ifPresent(parent -> parent.getStyle().remove("--lumo-required-field-indicator-color"));
-		}
-		else
-		{
-			field.getElement().removeAttribute("invalid");
-			getParent().ifPresent(parent -> parent.getStyle().set("--lumo-required-field-indicator-color", "var(--lumo-primary-text-color)"));
-		}
+		field.setInvalid(invalid);
+		FormItemRequiredIndicatorHandler.setInvalid(this, invalid);
 	}
 }

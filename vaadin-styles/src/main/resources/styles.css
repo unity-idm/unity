@@ -268,10 +268,6 @@ vcf-tooltip[theme=light]::part(container) {
     box-shadow: 0 0 0 1px var(--lumo-shade-5pct), var(--lumo-box-shadow-m);
 }
 
-vaadin-text-field::part(error-message) {
-    text-wrap: nowrap;
-}
-
 vaadin-tooltip-overlay::part(content) {
     white-space: break-spaces;
 }

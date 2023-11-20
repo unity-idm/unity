@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import java.util.Optional;
 
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 @PermitAll
 @Route(value = "/automation/edit", layout = ConsoleMenu.class)
@@ -82,6 +83,7 @@ public class AutomationEditView extends ConsoleViewComponent
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		CronExpressionField cronExpression = new CronExpressionField(msg, "");
+		cronExpression.setWidth(TEXT_FIELD_MEDIUM.value());
 		Component tooltip = TooltipFactory.getWithHtmlContent(msg.getMessage("CronExpressionField.cronExpressionDescription"));
 
 		MVELExpressionField condition = new MVELExpressionField(msg, "",

@@ -9,6 +9,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
+import io.imunity.vaadin.elements.FormItemRequiredIndicatorHandler;
 import org.quartz.CronExpression;
 import pl.edu.icm.unity.base.message.MessageSource;
 
@@ -60,9 +61,6 @@ class CronExpressionField extends TextField
 	public void setInvalid(boolean invalid)
 	{
 		super.setInvalid(invalid);
-		if(invalid)
-			getParent().ifPresent(parent -> parent.getStyle().set("--lumo-required-field-indicator-color", "var(--lumo-error-text-color)"));
-		else
-			getParent().ifPresent(parent -> parent.getStyle().set("--lumo-required-field-indicator-color", "var(--lumo-primary-text-color)"));
+		FormItemRequiredIndicatorHandler.setInvalid(this, invalid);
 	}
 }

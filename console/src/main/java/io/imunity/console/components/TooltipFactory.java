@@ -17,7 +17,7 @@ public class TooltipFactory
 	public static Component getWithHtmlContent(String tooltipText)
 	{
 		Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
-		HtmlTooltipAttach.to(icon, new Html("<div>" + tooltipText + "</div>"));
+		HtmlTooltipAttacher.to(icon, new Html("<div>" + tooltipText + "</div>"));
 		icon.setClassName(FIELD_ICON_GAP.getName());
 		return icon;
 	}

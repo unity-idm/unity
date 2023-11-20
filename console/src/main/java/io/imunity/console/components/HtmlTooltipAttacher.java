@@ -11,7 +11,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 
-class HtmlTooltipAttach
+class HtmlTooltipAttacher
 {
 	static void to(Component component, Html tooltipContent)
 	{
