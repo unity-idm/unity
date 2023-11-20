@@ -657,3 +657,7 @@ vaadin-details.u-multi-tab-details {
     max-width: 15em;
     max-height: 15em;
 }
+
+.u-avoid-y-scroller {
+    height: calc(var(--vh, 1vh) * 92.5);
+}

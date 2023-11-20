@@ -4,25 +4,11 @@
  */
 package pl.edu.icm.unity.engine.msgtemplate;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.AbstractMap;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.Logger;
-
 import eu.unicore.util.configuration.ConfigIncludesProcessor;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
@@ -34,6 +20,14 @@ import pl.edu.icm.unity.base.notifications.NotificationChannelInfo;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Loads message templates from file configuration
@@ -60,22 +54,41 @@ class MessageTemplateLoader
 
 	void initializeMsgTemplates(File file, Predicate<String> filter)
 	{
+		Properties props = getProperties(file);
+		initializeMsgTemplates(props, filter);
+	}
+
+	Set<String> getMessagesTemplatesFromProperties(File file)
+	{
+		Properties props = getProperties(file);
+
+		Set<String> templateKeys = new HashSet<>();
+		for (Object keyO: props.keySet())
+		{
+			String key = (String) keyO;
+			if (key.contains("."))
+				templateKeys.add(key.substring(0, key.indexOf('.')));
+		}
+		return templateKeys;
+	}
+
+	private static Properties getProperties(File file)
+	{
 		Properties props = null;
 		try
 		{
 			props = FilePropertiesHelper.load(file);
 			boolean newFormat = props.keySet().stream()
-					.filter(k -> k.toString().contains(".bodyFile"))
-					.findAny().isPresent();
+					.anyMatch(k -> k.toString().contains(".bodyFile"));
 			if (newFormat)
 				props = ConfigIncludesProcessor.preprocess(props, logLegacy);
 		} catch (IOException e)
 		{
 			throw new InternalException("Can't load message templates config file", e);
 		}
-		initializeMsgTemplates(props, filter);
+		return props;
 	}
-	
+
 	void initializeMsgTemplates(Properties props, Predicate<String> filter)
 	{
 		Map<String, NotificationChannelInfo> notificationChannels;

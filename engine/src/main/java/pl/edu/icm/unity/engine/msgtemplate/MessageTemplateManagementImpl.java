@@ -4,16 +4,9 @@
  */
 package pl.edu.icm.unity.engine.msgtemplate;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.msg_template.GenericMessageTemplateDef;
@@ -26,13 +19,19 @@ import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
-import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link MessageTemplateManagement}
@@ -155,6 +154,14 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 			}
 		}
 		return ret;
+	}
+
+	@Override
+	@Transactional
+	public Set<String> getMessagesTemplatesFromConfiguration()
+	{
+		authz.checkAuthorizationRT("/", AuthzCapability.maintenance);
+		return loader.getMessagesTemplatesFromProperties(configFile);
 	}
 	
 	@Transactional

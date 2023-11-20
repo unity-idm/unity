@@ -49,6 +49,7 @@ public class MessageTemplatesView extends ConsoleViewComponent
 	private final MessageSource msg;
 	private final MessageTemplateController controller;
 	private final TextField search = new TextField();
+	private final Set<String> templatesFromConfig;
 	private Grid<MessageTemplateEntry> messageTemplateGrid;
 	private FormLayout selectedMessageTemplateDetails;
 
@@ -56,6 +57,7 @@ public class MessageTemplatesView extends ConsoleViewComponent
 	{
 		this.msg = msg;
 		this.controller = controller;
+		this.templatesFromConfig = controller.getMessagesTemplatesFromConfiguration();
 
 		MainMenu globalHamburgerHandlers = createMainMenu();
 		initGrid(globalHamburgerHandlers);
@@ -65,7 +67,8 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		splitLayout.setSplitterPosition(60);
 		VerticalLayout layout = new VerticalLayout(createHeaderLayout(globalHamburgerHandlers.menu), splitLayout);
 		layout.setSpacing(false);
-		layout.setSizeFull();
+		layout.setWidthFull();
+		layout.addClassName("u-avoid-y-scroller");
 		getContent().setHeightFull();
 		getContent().add(layout);
 		refresh();
@@ -95,23 +98,28 @@ public class MessageTemplatesView extends ConsoleViewComponent
 				.addComponentColumn(m -> new RouterLink(m.messageTemplate.getName(), MessageTemplateEditView.class, m.messageTemplate.getName()))
 				.setHeader(msg.getMessage("MessageTemplatesView.nameCaption"))
 				.setAutoWidth(true)
+				.setResizable(true)
 				.setSortable(true)
 				.setComparator(Comparator.comparing(m -> m.messageTemplate.getName()));
 
 		messageTemplateGrid.addColumn(m -> m.messageTemplate.getNotificationChannel())
 				.setHeader(msg.getMessage("MessageTemplatesView.channelCaption"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		messageTemplateGrid.addColumn(m -> m.messageTemplate.getType().toString())
 				.setHeader(msg.getMessage("MessageTemplatesView.messageTypeCaption"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		messageTemplateGrid.addColumn(m -> m.messageTemplate.getConsumer())
 				.setHeader(msg.getMessage("MessageTemplatesView.purposeCaption"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		messageTemplateGrid.addComponentColumn(this::createRowActionMenu)
 				.setHeader(msg.getMessage("actions"))
+				.setResizable(true)
 				.setTextAlign(ColumnTextAlign.END);
 		messageTemplateGrid.sort(GridSortOrder.asc(nameColumn).build());
 
@@ -124,6 +132,8 @@ public class MessageTemplatesView extends ConsoleViewComponent
 					: controller.getPreprocedMessageTemplate(event.getFirstSelectedItem().get().messageTemplate);
 			setSelectedMessageTemplateDetails(messageTemplate);
 			globalHamburgerHandlers.setEnabled(!event.getAllSelectedItems().isEmpty());
+			globalHamburgerHandlers.setResetButtonEnabled(event.getAllSelectedItems().stream().anyMatch(
+					entry -> templatesFromConfig.contains(entry.messageTemplate.getName())));
 		});
 	}
 
@@ -202,7 +212,8 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		});
 
 		MenuButton resetButton = new MenuButton(msg.getMessage("MessageTemplatesView.resetToDefault"), RETWEET);
-		actionMenu.addItem(resetButton, e -> resetFromConfig(Set.of(entry)));
+		actionMenu.addItem(resetButton, e -> resetFromConfig(Set.of(entry)))
+				.setVisible(templatesFromConfig.contains(entry.messageTemplate.getName()));
 
 		Icon generalSettings = new ActionIconBuilder()
 				.icon(EDIT)
@@ -233,7 +244,7 @@ public class MessageTemplatesView extends ConsoleViewComponent
 
 		Component target = actionMenu.getTarget();
 		target.getElement().getStyle().set("margin-left", "1.3em");
-		return new MainMenu(target, Set.of(removeButton, resetButton));
+		return new MainMenu(target, removeButton, resetButton);
 	}
 
 	private void preview(MessageTemplateEntry toPreview)

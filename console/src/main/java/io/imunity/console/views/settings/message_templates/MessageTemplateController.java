@@ -120,6 +120,11 @@ class MessageTemplateController
 		}
 		return new MessageTemplate();
 	}
+
+	Set<String> getMessagesTemplatesFromConfiguration()
+	{
+		return msgMan.getMessagesTemplatesFromConfiguration();
+	}
 	
 	void reloadFromConfiguration(Set<String> toReload)
 	{
