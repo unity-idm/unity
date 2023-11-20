@@ -110,6 +110,7 @@ public class AutomationEditView extends ConsoleViewComponent
 		if(binder.isValid() && actionEditor.getActionIfValid().isPresent())
 		{
 			ScheduledProcessingRuleParam rule = binder.getBean();
+			rule.setTranslationAction(actionEditor.getActionIfValid().get());
 			if (!edit)
 				controller.scheduleRule(rule);
 			else
