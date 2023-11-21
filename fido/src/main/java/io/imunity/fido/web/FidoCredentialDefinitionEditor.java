@@ -14,6 +14,7 @@ import com.yubico.webauthn.data.AttestationConveyancePreference;
 import com.yubico.webauthn.data.UserVerificationRequirement;
 import io.imunity.fido.credential.FidoCredential;
 import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.base.Constants;
@@ -27,15 +28,17 @@ import static java.util.Objects.isNull;
 class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
 {
 	private final MessageSource msg;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	private Select<AttestationConveyancePreference> attestationConveyance;
 	private Select<UserVerificationRequirement> userVerification;
 	private Checkbox loginLessAllowed;
 	private TextField hostName;
 
-	FidoCredentialDefinitionEditor(MessageSource msg)
+	FidoCredentialDefinitionEditor(MessageSource msg, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -56,13 +59,13 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		ret.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		ret.addFormItem(attestationConveyance, msg.getMessage("Fido.credEditor.attestationConveyance"))
-				.add(TooltipFactory.get(msg.getMessage("Fido.credEditor.attestationConveyance.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("Fido.credEditor.attestationConveyance.tip")));
 		ret.addFormItem(userVerification, msg.getMessage("Fido.credEditor.userVerification"))
-				.add(TooltipFactory.get(msg.getMessage("Fido.credEditor.userVerification.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("Fido.credEditor.userVerification.tip")));
 		ret.addFormItem(hostName, msg.getMessage("Fido.credEditor.hostName"))
 				.add(TooltipFactory.get(msg.getMessage("Fido.credEditor.hostName.tip")));
 		ret.addFormItem(loginLessAllowed, "")
-				.add(TooltipFactory.get(msg.getMessage("Fido.credEditor.loginLess.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("Fido.credEditor.loginLess.tip")));
 
 		FidoCredential credential = isNull(credentialDefinitionConfiguration) ? 
 				new FidoCredential() : FidoCredential.deserialize(credentialDefinitionConfiguration);

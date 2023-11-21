@@ -44,14 +44,14 @@ public class FidoCredentialDefinitionEditor implements CredentialDefinitionEdito
 		attestationConveyance.setItems(AttestationConveyancePreference.values());
 		attestationConveyance.setEmptySelectionAllowed(false);
 		attestationConveyance.setTextInputAllowed(false);
-		tooltip(attestationConveyance, msg.getMessage("Fido.credEditor.attestationConveyance.tip.v8"));
+		tooltip(attestationConveyance, msg.getMessage("Fido.credEditor.attestationConveyance.tip"));
 		userVerification = new ComboBox<>(msg.getMessage("Fido.credEditor.userVerification"));
 		userVerification.setItems(UserVerificationRequirement.values());
 		userVerification.setEmptySelectionAllowed(false);
 		userVerification.setTextInputAllowed(false);
 		loginLessAllowed = new CheckBox(msg.getMessage("Fido.credEditor.loginLess"));
-		tooltip(loginLessAllowed, msg.getMessage("Fido.credEditor.loginLess.tip.v8"));
-		tooltip(userVerification, msg.getMessage("Fido.credEditor.userVerification.tip.v8"));
+		tooltip(loginLessAllowed, msg.getMessage("Fido.credEditor.loginLess.tip"));
+		tooltip(userVerification, msg.getMessage("Fido.credEditor.userVerification.tip"));
 		hostName = new TextField(msg.getMessage("Fido.credEditor.hostName"));
 		tooltip(hostName, msg.getMessage("Fido.credEditor.hostName.tip"));
 

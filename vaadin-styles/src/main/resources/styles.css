@@ -373,7 +373,7 @@ vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
 }
 
 .u-big-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 21em;
+    --vaadin-form-item-label-width: 23em;
 }
 
 .u-fido-layout {
@@ -664,4 +664,8 @@ vaadin-details.u-multi-tab-details {
 
 .u-avoid-y-scroller {
     height: 92.5vh;
+}
+
+.u-panel > vaadin-form-layout {
+    margin-left: var(--unity-base-margin);
 }

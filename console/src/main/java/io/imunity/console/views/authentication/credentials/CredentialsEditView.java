@@ -37,6 +37,7 @@ import java.util.Set;
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.MARGIN_VERTICAL;
 
 
 @PermitAll
@@ -136,6 +137,7 @@ public class CredentialsEditView extends ConsoleViewComponent
 
 		credentialEditorPanel = new Panel();
 		credentialEditorPanel.setMargin(false);
+		credentialEditorPanel.addClassName(MARGIN_VERTICAL.getName());
 		main.addFormItem(credentialEditorPanel, "");
 
 		String firstType = supportedTypes.iterator().next();

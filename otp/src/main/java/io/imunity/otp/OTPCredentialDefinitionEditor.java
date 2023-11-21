@@ -15,8 +15,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Validator;
 import io.imunity.otp.OTPResetSettings.ConfirmationMode;
-import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.elements.CssClassNames;
+import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.base.json.JsonUtil;
@@ -39,6 +40,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 {
 	private static final int WIDE_FIELD_SIZE_EM = 20;
 	private final MessageSource msg;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	private final MessageTemplateManagement msgTplManagement;
 	private final FileStorageService fileStorageService;
 	private Binder<OTPDefinitionBean> binder;
@@ -49,11 +51,12 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 	private Checkbox enableReset;
 
 	OTPCredentialDefinitionEditor(MessageSource msg, MessageTemplateManagement msgTplManagement,
-			FileStorageService fileStorageService)
+			FileStorageService fileStorageService, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.msgTplManagement = msgTplManagement;
 		this.fileStorageService = fileStorageService;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -66,8 +69,8 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 
 		ImageField logo = new ImageField();
 		formLayout.addFormItem(logo, msg.getMessage("OTPCredentialDefinitionEditor.logo"))
-						.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.logo.tip")));
-		logo.setWidth("33em");
+						.add(htmlTooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.logo.tip")));
+		logo.setWidth("30em");
 		binder.forField(logo).bind("logo");
 
 		TextField issuer = new TextField();

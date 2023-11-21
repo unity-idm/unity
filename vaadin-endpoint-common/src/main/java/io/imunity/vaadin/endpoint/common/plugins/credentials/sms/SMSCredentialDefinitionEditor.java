@@ -113,7 +113,7 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 		binder.forField(msgTemplate).asRequired().bind("messageTemplate");
 		
 		codeLength = new IntegerField();
-		codeLength.setMin(1);
+		codeLength.setMin(3);
 		codeLength.setMax(50);
 		codeLength.setStepButtonsVisible(true);
 		formLayout.addFormItem(codeLength, msg.getMessage("SMSCredentialDefinitionEditor.codeLength"));

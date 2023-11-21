@@ -24,8 +24,8 @@ import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
 
 public class ListOfElementsWithActions<T> extends Div
 {
-	List<Column<T>> columns;
-	ActionColumn<T> actionColumn;
+	private final List<Column<T>> columns;
+	private final ActionColumn<T> actionColumn;
 
 	private final List<Entry> components;
 	private final VerticalLayout main;

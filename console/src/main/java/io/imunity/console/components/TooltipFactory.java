@@ -9,10 +9,12 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 
 import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
 
-public class TooltipFactory
+@org.springframework.stereotype.Component
+public class TooltipFactory implements HtmlTooltipFactory
 {
 	public static Component getWithHtmlContent(String tooltipText)
 	{
@@ -20,5 +22,11 @@ public class TooltipFactory
 		HtmlTooltipAttacher.to(icon, new Html("<div>" + tooltipText + "</div>"));
 		icon.setClassName(FIELD_ICON_GAP.getName());
 		return icon;
+	}
+
+	@Override
+	public Component get(String tooltipText)
+	{
+		return getWithHtmlContent(tooltipText);
 	}
 }
