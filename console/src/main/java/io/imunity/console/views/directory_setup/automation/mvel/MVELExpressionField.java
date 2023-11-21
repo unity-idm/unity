@@ -82,12 +82,9 @@ public class MVELExpressionField extends CustomField<String>
 			Optional<?> dragData = event.getDragData();
 			if (dragData.isPresent() && dragData.get() instanceof Collection)
 			{
-				Object next = ((Collection<?>) dragData.get()).iterator()
-						.next();
-				if (next instanceof DragDropBean)
-				{
-					field.setValue((field.getValue() != null ? field.getValue() : "") + ((DragDropBean) next).getExpression());
-				}
+				Object next = ((Collection<?>) dragData.get()).iterator().next();
+				if (next instanceof DragDropBean dragDropBean)
+					field.setValue((field.getValue() != null ? field.getValue() : "") + dragDropBean.getExpression());
 			}
 		});
 	}

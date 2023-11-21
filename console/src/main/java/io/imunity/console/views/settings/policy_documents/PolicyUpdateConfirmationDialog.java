@@ -15,6 +15,7 @@ class PolicyUpdateConfirmationDialog extends Dialog
 	PolicyUpdateConfirmationDialog(String header, String txt, String saveTxt, Runnable saveRunnable, String saveSilently,
 								   Runnable saveSilentlyRunnable, String cancelTxt)
 	{
+		setWidth("40em");
 		getHeader().add(new Span(header));
 		add(new Span(txt));
 		Button saveButton = new Button(saveTxt);

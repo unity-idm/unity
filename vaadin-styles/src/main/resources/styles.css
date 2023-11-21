@@ -272,6 +272,10 @@ vaadin-tooltip-overlay::part(content) {
     white-space: break-spaces;
 }
 
+vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
+    box-shadow: unset;
+}
+
 /*
     Styling based on vaadin and unity classes
 */
@@ -659,5 +663,5 @@ vaadin-details.u-multi-tab-details {
 }
 
 .u-avoid-y-scroller {
-    height: calc(var(--vh, 1vh) * 92.5);
+    height: 92.5vh;
 }
