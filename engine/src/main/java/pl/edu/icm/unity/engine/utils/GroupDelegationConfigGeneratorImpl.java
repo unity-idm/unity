@@ -418,7 +418,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 	
 	@Transactional
 	@Override
-	public void synchronizePolicy(String formName, FormType formType, List<Long> projectPolicyDocumentsIds) throws EngineException {
+	public void resetFormsPolicies(String formName, FormType formType, List<Long> projectPolicyDocumentsIds) throws EngineException {
 		if (formType.equals(FormType.REGISTRATION))
 		{
 			RegistrationForm form = regFormDB.get(formName);
@@ -584,8 +584,8 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 		params.add(param);
 	}
 
-	private void addPolicyParam(List<PolicyAgreementConfiguration> params, Long policyDocumentId)
-			throws EngineException {
+	private void addPolicyParam(List<PolicyAgreementConfiguration> params, Long policyDocumentId) throws EngineException
+	{
 		StoredPolicyDocument policyDocument = policyDocumentDB.getByKey(policyDocumentId);
 		PolicyAgreementConfiguration param = new PolicyAgreementConfiguration(List.of(policyDocument.getId()),
 				PolicyAgreementPresentationType.CHECKBOX_NOTSELECTED,

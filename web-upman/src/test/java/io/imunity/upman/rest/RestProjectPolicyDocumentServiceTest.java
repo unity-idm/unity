@@ -101,8 +101,8 @@ public class RestProjectPolicyDocumentServiceTest
 				null, null, null, null, List.of(1L));
 		group.setDelegationConfiguration(groupDelegationConfiguration);
 
-		verify(groupDelegationConfigGenerator).synchronizePolicy("regForm", FormType.REGISTRATION, List.of(1L));
-		verify(groupDelegationConfigGenerator).synchronizePolicy("enqForm", FormType.ENQUIRY, List.of(1L));
+		verify(groupDelegationConfigGenerator).resetFormsPolicies("regForm", FormType.REGISTRATION, List.of(1L));
+		verify(groupDelegationConfigGenerator).resetFormsPolicies("enqForm", FormType.ENQUIRY, List.of(1L));
 
 	}
 

@@ -324,7 +324,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 				String.join("&", formsToSynch.keySet())), () -> {
 					try {
 						for (Entry<String, FormType> form : formsToSynch.entrySet()) {
-							configGenerator.synchronizePolicy(form.getKey(), form.getValue(), policyDocuments
+							configGenerator.resetFormsPolicies(form.getKey(), form.getValue(), policyDocuments
 									.getSelectedItems().stream().map(p -> p.id).collect(Collectors.toList()));
 						}
 
