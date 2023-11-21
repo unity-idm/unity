@@ -18,7 +18,7 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 
 @PrototypeComponent

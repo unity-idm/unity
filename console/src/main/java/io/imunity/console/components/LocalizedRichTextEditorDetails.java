@@ -18,8 +18,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.RICH_FIELD_BIG;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
-import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 public class LocalizedRichTextEditorDetails extends CustomField<Map<Locale, String>>
 {

@@ -20,7 +20,7 @@ public class SubmitButton extends Button
 	public SubmitButton(Function<String, String> messageGetter)
 	{
 		super(messageGetter.apply("OK"));
-		addClassName(VaadinClassNames.SUBMIT_BUTTON.getName());
+		addClassName(CssClassNames.SUBMIT_BUTTON.getName());
 		addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		addEnterShortcut();
 	}

@@ -14,7 +14,7 @@ import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 class SingleCredentialEditComponent extends VerticalLayout
 {

@@ -16,7 +16,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Validator;
 import io.imunity.otp.OTPResetSettings.ConfirmationMode;
 import io.imunity.vaadin.elements.TooltipFactory;
-import io.imunity.vaadin.elements.VaadinClassNames;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.base.json.JsonUtil;
@@ -62,7 +62,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		binder = new Binder<>(OTPDefinitionBean.class);
 		FormLayout formLayout = new FormLayout();
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		formLayout.setClassName(VaadinClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		formLayout.setClassName(CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		ImageField logo = new ImageField();
 		formLayout.addFormItem(logo, msg.getMessage("OTPCredentialDefinitionEditor.logo"))

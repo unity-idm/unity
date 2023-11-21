@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.DISABLED_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
 
 
 public class ListOfElementsWithActions<T> extends Div

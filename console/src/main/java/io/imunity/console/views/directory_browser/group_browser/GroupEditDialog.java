@@ -37,7 +37,7 @@ import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 class GroupEditDialog extends ConfirmDialog
 {

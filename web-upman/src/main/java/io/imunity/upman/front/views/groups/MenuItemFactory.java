@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition.ASIDE;
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static io.imunity.vaadin.elements.CssClassNames.SUBMIT_BUTTON;
 
 class MenuItemFactory
 {
@@ -178,7 +179,7 @@ class MenuItemFactory
 	private Dialog createConfirmDialog(String txt, Runnable runnable)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
-		dialog.addClassName(VaadinClassNames.DIALOG_CONFIRM.getName());
+		dialog.addClassName(CssClassNames.DIALOG_CONFIRM.getName());
 
 		Span label = new Span(txt);
 
@@ -229,7 +230,7 @@ class MenuItemFactory
 	private Button createRenameButton(ProjectGroup projectGroup, Group group, Dialog dialog, Collection<LocalizedTextField> fields)
 	{
 		Button button = new SubmitButton(msg::getMessage);
-		button.addClassName("submit-button");
+		button.addClassName(SUBMIT_BUTTON.getName());
 		button.addClickListener(event ->
 		{
 			Map<Locale, String> collect = fields.stream().collect(Collectors.toMap(x -> x.locale, TextField::getValue));

@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import java.util.Optional;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.VaadinClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
 {

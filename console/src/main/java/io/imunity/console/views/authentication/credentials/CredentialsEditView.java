@@ -100,7 +100,7 @@ public class CredentialsEditView extends ConsoleViewComponent
 	{
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.setClassName(VaadinClassNames.BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		main.setClassName(CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
 		TextField name = new TextField();
 		name.setWidth(TEXT_FIELD_MEDIUM.value());

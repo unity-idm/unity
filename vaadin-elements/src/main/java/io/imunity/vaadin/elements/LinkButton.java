@@ -10,7 +10,8 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.UNDERLINE;
 
 public class LinkButton extends Div
 {
@@ -21,7 +22,7 @@ public class LinkButton extends Div
 		label = new Span(txt);
 		label.addClassName(POINTER.getName());
 		add(label);
-		getStyle().set("text-decoration", "underline");
+		addClassName(UNDERLINE.getName());
 		addClassName(POINTER.getName());
 		addClickListener(listener);
 	}

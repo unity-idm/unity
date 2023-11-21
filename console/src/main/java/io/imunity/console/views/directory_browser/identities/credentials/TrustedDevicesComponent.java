@@ -28,8 +28,8 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.DISABLED_ICON;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 
 class TrustedDevicesComponent extends VerticalLayout

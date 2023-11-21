@@ -17,6 +17,7 @@ import com.vaadin.flow.server.VaadinService;
 import io.imunity.fido.FidoRegistration;
 import io.imunity.fido.credential.FidoCredential;
 import io.imunity.fido.credential.FidoCredentialInfo;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -85,7 +86,7 @@ class FidoEditorComponent extends VerticalLayout
 
 		Span advancedOptionsLabel = new Span(msg.getMessage("Fido.advancedOptions"));
 		advancedOptionsButton = new Div(advancedOptionsLabel);
-		advancedOptionsButton.getStyle().set("text-decoration", "underline");
+		advancedOptionsButton.addClassName(CssClassNames.UNDERLINE.getName());
 		advancedOptionsButton.addClassName(POINTER.getName());
 
 		advancedOptionsButton.addClickListener(e -> {

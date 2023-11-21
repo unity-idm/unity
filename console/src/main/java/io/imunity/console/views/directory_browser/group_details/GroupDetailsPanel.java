@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 @PrototypeComponent
 public class GroupDetailsPanel extends VerticalLayout

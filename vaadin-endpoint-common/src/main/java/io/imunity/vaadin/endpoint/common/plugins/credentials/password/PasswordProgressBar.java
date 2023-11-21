@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.progressbar.ProgressBarVariant;
+import io.imunity.vaadin.elements.CssClassNames;
 
 
 class PasswordProgressBar extends VerticalLayout
@@ -97,7 +98,7 @@ class PasswordProgressBar extends VerticalLayout
 			icon = VaadinIcon.EXCLAMATION_CIRCLE_O.create();
 			icon.getStyle().set("color", "red");
 		}
-		icon.setClassName("u-small-icon");
+		icon.setClassName(CssClassNames.SMALL_ICON.getName());
 		return icon;
 	}
 

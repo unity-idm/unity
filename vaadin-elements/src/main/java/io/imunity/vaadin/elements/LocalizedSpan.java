@@ -12,7 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.Locale;
 import java.util.Map;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 public class LocalizedSpan extends VerticalLayout
 {

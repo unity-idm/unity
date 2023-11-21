@@ -16,6 +16,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.forms.components.QRCodeFactory;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.base.json.JsonUtil;
@@ -24,7 +25,7 @@ import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 
 import java.util.Map;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 class OTPEditorComponent extends VerticalLayout
 {
@@ -62,7 +63,7 @@ class OTPEditorComponent extends VerticalLayout
 		Span switchCodeLabel = new Span(msg.getMessage("OTPEditorComponent.switchModeToText"));
 		switchCodeLabel.addClassName(POINTER.getName());
 		switchCodeComponent = new Div(switchCodeLabel);
-		switchCodeComponent.getStyle().set("text-decoration", "underline");
+		switchCodeComponent.addClassName(CssClassNames.UNDERLINE.getName());
 		switchCodeComponent.addClickListener(e -> switchCodeComponent());
 		
 		verificationComponent = new VerificationComponent();
@@ -144,7 +145,7 @@ class OTPEditorComponent extends VerticalLayout
 			Span customUserLabel = new Span(msg.getMessage("OTPEditorComponent.customizeUser"));
 			customUserLabel.addClassName(POINTER.getName());
 			Div customizeUser = new Div(customUserLabel);
-			customizeUser.getStyle().set("text-decoration", "underline");
+			customizeUser.addClassName(CssClassNames.UNDERLINE.getName());
 			customizeUser.addClickListener(e -> {customizeUser.setVisible(false); user.setVisible(true);});
 			
 			qr = new Image();

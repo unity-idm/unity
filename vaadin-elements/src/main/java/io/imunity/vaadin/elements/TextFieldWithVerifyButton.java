@@ -19,7 +19,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 import static java.util.Optional.ofNullable;
 
 public class TextFieldWithVerifyButton extends CustomField<String>
@@ -79,7 +79,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		{
 			label.remove();
 			requiredIndicator = new Span();
-			requiredIndicator.setClassName("u-required-label");
+			requiredIndicator.setClassName(REQUIRED_LABEL.getName());
 			label.add(requiredIndicator);
 		}
 	}
@@ -95,10 +95,10 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		{
 			editor.setInvalid(true);
 			editor.setErrorMessage(error);
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName("u-invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName(INVALID.getName()));
 		}
 		else
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName("u-invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName(INVALID.getName()));
 	}
 
 
@@ -107,9 +107,9 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		editor.setInvalid(invalid);
 		if(invalid)
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName("u-invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName(INVALID.getName()));
 		else
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName("u-invalid"));
+			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName(INVALID.getName()));
 	}
 
 	@Override

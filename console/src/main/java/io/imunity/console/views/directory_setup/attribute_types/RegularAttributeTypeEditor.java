@@ -15,7 +15,7 @@ import com.vaadin.flow.data.binder.Binder;
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.elements.Panel;
-import io.imunity.vaadin.elements.VaadinClassNames;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
@@ -31,7 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.VaadinClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 /**
  * Allows to edit an attribute type. Can be configured to edit an existing
@@ -126,7 +126,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 
 		Panel syntaxPanel = new Panel();
 		syntaxPanel.setMargin(false);
-		syntaxPanel.addClassName(VaadinClassNames.MARGIN_VERTICAL.getName());
+		syntaxPanel.addClassName(CssClassNames.MARGIN_VERTICAL.getName());
 
 		syntaxPanelContent = new VerticalLayout();
 		syntaxPanelContent.setSpacing(false);

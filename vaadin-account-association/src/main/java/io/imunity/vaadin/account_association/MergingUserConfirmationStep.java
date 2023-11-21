@@ -23,6 +23,8 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 
+import static io.imunity.vaadin.elements.CssClassNames.WARNING_ICON;
+
 class MergingUserConfirmationStep extends WizardStep
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, MergingUserConfirmationStep.class);
@@ -85,7 +87,7 @@ class MergingUserConfirmationStep extends WizardStep
 	protected void setError(String message)
 	{
 		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
-		icon.setClassName("u-warning-icon");
+		icon.addClassName(WARNING_ICON.getName());
 		((HorizontalLayout)component).add(icon);
 		((HorizontalLayout)component).add(new Span(message));
 		((HorizontalLayout)component).setAlignItems(FlexComponent.Alignment.CENTER);

@@ -11,6 +11,7 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -200,11 +201,11 @@ public class ListOfEmbeddedElementsStub<T>
 			cc.add(c.getComponents());
 			
 			add = VaadinIcon.PLUS_CIRCLE_O.create();
-			add.setClassName("u-small-icon");
+			add.setClassName(CssClassNames.SMALL_ICON.getName());
 			add.setTooltipText(msg.getMessage("add"));
 			add.addClickListener(event -> addEntry(null, Entry.this));
 			remove = VaadinIcon.TRASH.create();
-			remove.setClassName("u-small-icon");
+			remove.setClassName(CssClassNames.SMALL_ICON.getName());
 			remove.setTooltipText(msg.getMessage("remove"));
 			remove.addClickListener(event -> remove(Entry.this));
 			

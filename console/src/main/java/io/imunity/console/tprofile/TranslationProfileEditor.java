@@ -38,7 +38,7 @@ import java.util.Optional;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.VaadinClassNames.DROP_LAYOUT;
+import static io.imunity.vaadin.elements.CssClassNames.DROP_LAYOUT;
 
 public class TranslationProfileEditor extends VerticalLayout
 {

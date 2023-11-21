@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 
 import java.util.Optional;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.LOGO_IMAGE;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 
 /**
  * Panel allowing to set a credential.

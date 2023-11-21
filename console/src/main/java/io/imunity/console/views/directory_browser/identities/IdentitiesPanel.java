@@ -45,8 +45,8 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import java.util.List;
 import java.util.Set;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
-import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 @PrototypeComponent
 public class IdentitiesPanel extends VerticalLayout

@@ -20,8 +20,8 @@ import java.util.Collection;
 
 import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.VaadinClassNames.FIELD_ICON_GAP;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 public class AttributeFieldWithEdit extends CustomField<Attribute>
 {

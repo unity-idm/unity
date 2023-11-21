@@ -6,6 +6,8 @@ package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.html.Span;
 
+import static io.imunity.vaadin.elements.CssClassNames.*;
+
 public class InputLabel extends Span
 {
 	private boolean required;
@@ -14,6 +16,7 @@ public class InputLabel extends Span
 	{
 		setText(label);
 		addClassName("u-input-label");
+		addClassName(NO_PADDING_TOP.getName());
 	}
 
 	@Override
@@ -21,7 +24,7 @@ public class InputLabel extends Span
 	{
 		super.setText(text);
 		if(text == null || text.isBlank())
-			getStyle().set("padding-top" ,"0");
+			getStyle().remove("padding-top");
 		else
 			getStyle().set("padding-top" ,"var(--unity-input-label-top-padding)");
 	}
@@ -30,7 +33,7 @@ public class InputLabel extends Span
 	{
 		if (required)
 		{
-			addClassName("u-indicator");
+			addClassName(INDICATOR.getName());
 			this.required = true;
 		}
 	}
@@ -39,8 +42,8 @@ public class InputLabel extends Span
 	{
 		if(required)
 		{
-			removeClassName("u-indicator");
-			addClassName("u-error-indicator");
+			removeClassName(INDICATOR.getName());
+			addClassName(ERROR_INDICATOR.getName());
 		}
 	}
 
@@ -48,8 +51,8 @@ public class InputLabel extends Span
 	{
 		if(required)
 		{
-			removeClassName("u-error-indicator");
-			addClassName("u-indicator");
+			removeClassName(ERROR_INDICATOR.getName());
+			addClassName(INDICATOR.getName());
 		}
 	}
 }

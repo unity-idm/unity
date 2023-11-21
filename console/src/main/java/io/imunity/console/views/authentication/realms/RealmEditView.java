@@ -32,7 +32,7 @@ import java.util.Optional;
 import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.VaadinClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 @PermitAll
 @Route(value = "/realms/edit", layout = ConsoleMenu.class)

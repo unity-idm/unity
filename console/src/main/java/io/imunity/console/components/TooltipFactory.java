@@ -10,7 +10,7 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.FIELD_ICON_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
 
 public class TooltipFactory
 {

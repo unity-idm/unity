@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
 
 public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver

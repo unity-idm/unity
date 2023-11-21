@@ -82,7 +82,7 @@ html {
 }
 
 /*
-    Styling based on html/vaadin tags/components
+    Styling based on plain html/vaadin tags
 */
 
 
@@ -273,7 +273,7 @@ vaadin-tooltip-overlay::part(content) {
 }
 
 /*
-    Styling based on vaadin classes
+    Styling based on vaadin and unity classes
 */
 
 .v-drag-over-target.u-drop-layout {
@@ -282,7 +282,7 @@ vaadin-tooltip-overlay::part(content) {
 
 
 /*
-    Styling based on classes
+    Styling based on unity classes and vaadin tags
 */
 
 .u-view {
@@ -644,7 +644,7 @@ vaadin-details.u-multi-tab-details {
 	background-color: var(--unity-false-condition-color);
 }
 
-.u-margin-vertical{
+.u-margin-vertical {
 	margin-top: var(--unity-small-margin);
 	margin-bottom: var(--unity-small-margin);
 }
@@ -652,6 +652,10 @@ vaadin-details.u-multi-tab-details {
 .u-img-field {
     max-width: 15em;
     max-height: 15em;
+}
+
+.u-underline {
+    text-decoration: underline;
 }
 
 .u-avoid-y-scroller {

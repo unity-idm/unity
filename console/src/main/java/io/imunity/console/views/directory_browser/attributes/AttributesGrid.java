@@ -48,7 +48,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.*;
+import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
 
 
@@ -197,7 +198,7 @@ public class AttributesGrid extends VerticalLayout
 		HorizontalLayout horizontalLayout = new HorizontalLayout(actions, columnToggleMenu.getTarget());
 		horizontalLayout.setSpacing(false);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		actions.getStyle().set("margin-right", "var(--unity-small-margin)");
+		actions.getStyle().set("margin-right", SMALL_MARGIN.value());
 		return horizontalLayout;
 	}
 

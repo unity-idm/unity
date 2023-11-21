@@ -46,8 +46,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.DISABLED_ICON;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 
 class GroupDelegationEditConfigDialog extends ConfirmDialog

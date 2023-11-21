@@ -40,7 +40,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
-import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.MARGIN_VERTICAL;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.maintenance.backupAndRestore", parent = "WebConsoleMenu.maintenance")
@@ -194,7 +195,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 
 		Span info = new Span(msg.getMessage("ImportExport.uploadInfo"));
 		Span fileUploaded = new Span(msg.getMessage("ImportExport.noFileUploaded"));
-		fileUploaded.getStyle().set("margin", "var(--unity-small-margin) 0");
+		fileUploaded.addClassName(MARGIN_VERTICAL.getName());
 
 		memoryBuffer = new MemoryBuffer();
 		upload = new Upload(memoryBuffer);

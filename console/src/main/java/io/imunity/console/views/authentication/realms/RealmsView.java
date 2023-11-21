@@ -13,7 +13,6 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -36,8 +35,8 @@ import java.util.Comparator;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
-import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM;
-import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM_ITEM;
+import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM;
+import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM_ITEM;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.authentication.realms", parent = "WebConsoleMenu.authentication")

@@ -27,7 +27,7 @@ import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin.elements.BaseDialog;
 import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.SubmitButton;
-import io.imunity.vaadin.elements.VaadinClassNames;
+import io.imunity.vaadin.elements.CssClassNames;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -153,7 +153,7 @@ class MenuItemFactory
 	private Dialog createSelfRemoveDialog(String txt, Runnable job)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
-		dialog.addClassName(VaadinClassNames.DIALOG_CONFIRM.getName());
+		dialog.addClassName(CssClassNames.DIALOG_CONFIRM.getName());
 		dialog.add(new VerticalLayout(new Span(txt)));
 
 		Button saveButton = new SubmitButton(msg::getMessage);

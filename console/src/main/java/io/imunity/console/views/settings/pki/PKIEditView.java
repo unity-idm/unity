@@ -39,7 +39,7 @@ import static io.imunity.console.views.EditViewActionLayoutFactory.createActionL
 import static io.imunity.vaadin.elements.BreadCrumbParameter.BREAD_CRUMB_SEPARATOR;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.VaadinClassNames.MONOSPACE;
+import static io.imunity.vaadin.elements.CssClassNames.MONOSPACE;
 
 @PermitAll
 @Route(value = "/pki/edit", layout = ConsoleMenu.class)

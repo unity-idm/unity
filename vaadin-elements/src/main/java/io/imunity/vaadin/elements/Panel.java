@@ -10,7 +10,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
-import static io.imunity.vaadin.elements.VaadinClassNames.PANEL;
+import static io.imunity.vaadin.elements.CssClassNames.PANEL;
 
 public class Panel extends VerticalLayout
 {

@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 
 import java.util.function.Consumer;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.MONOSPACE;
+import static io.imunity.vaadin.elements.CssClassNames.MONOSPACE;
 
 class MVELExpressionEditorDialog extends Dialog
 {

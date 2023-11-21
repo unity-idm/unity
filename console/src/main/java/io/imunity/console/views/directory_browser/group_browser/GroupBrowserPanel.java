@@ -14,7 +14,7 @@ import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 @PrototypeComponent
 public class GroupBrowserPanel extends VerticalLayout

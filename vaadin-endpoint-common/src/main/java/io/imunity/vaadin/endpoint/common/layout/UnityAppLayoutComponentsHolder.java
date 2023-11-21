@@ -22,7 +22,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.List;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 class UnityAppLayoutComponentsHolder
 {

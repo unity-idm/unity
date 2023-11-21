@@ -24,8 +24,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
-import static io.imunity.vaadin.elements.VaadinClassNames.EMPTY_DETAILS_ICON;
-import static io.imunity.vaadin.elements.VaadinClassNames.SMALL_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 
 public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> implements HasValidator<Map<Locale, String>>
 {
@@ -99,7 +98,7 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 	private Icon crateIcon(VaadinIcon angleDown, String label)
 	{
 		Icon icon = angleDown.create();
-		icon.addClassName("u-details-icon");
+		icon.addClassName(DETAILS_ICON.getName());
 		if(label != null)
 			icon.setClassName(EMPTY_DETAILS_ICON.getName());
 		return icon;

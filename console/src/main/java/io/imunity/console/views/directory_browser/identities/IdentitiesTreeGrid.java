@@ -58,6 +58,8 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
+
 
 @PrototypeComponent
 public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
@@ -219,7 +221,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		HorizontalLayout horizontalLayout = new HorizontalLayout(actions, columnToggleMenu.getTarget());
 		horizontalLayout.setSpacing(false);
 		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		actions.getStyle().set("margin-right", "var(--unity-small-margin)");
+		actions.getStyle().set("margin-right", SMALL_MARGIN.value());
 		return horizontalLayout;
 	}
 

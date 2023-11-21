@@ -27,8 +27,8 @@ import java.util.Optional;
 
 import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.VaadinClassNames.FIELD_ICON_GAP;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 /**
  * Plain text field allowing for editing an MVEL expression

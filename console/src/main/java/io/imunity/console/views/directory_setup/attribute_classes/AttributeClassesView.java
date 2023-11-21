@@ -38,8 +38,8 @@ import java.util.Comparator;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
-import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM;
-import static io.imunity.vaadin.elements.VaadinClassNames.GRID_DETAILS_FORM_ITEM;
+import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM;
+import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM_ITEM;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.directorySetup.attributeClasses", parent = "WebConsoleMenu.directorySetup")

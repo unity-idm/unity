@@ -9,8 +9,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.DISABLED_ICON;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 
 public class ActionIconBuilder

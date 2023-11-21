@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
-import static io.imunity.vaadin.elements.VaadinClassNames.LOGO_IMAGE;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 import static java.util.stream.Collectors.toList;
 
 public class ConsoleMenu extends UnityAppLayout

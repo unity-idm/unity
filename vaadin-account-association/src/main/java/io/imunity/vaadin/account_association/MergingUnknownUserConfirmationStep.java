@@ -15,6 +15,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 
+import static io.imunity.vaadin.elements.CssClassNames.WARNING_ICON;
+
 class MergingUnknownUserConfirmationStep extends WizardStep
 {
 	private final MessageSource msg;
@@ -50,7 +52,7 @@ class MergingUnknownUserConfirmationStep extends WizardStep
 	protected void setError(String message)
 	{
 		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
-		icon.setClassName("u-warning-icon");
+		icon.addClassName(WARNING_ICON.getName());
 		((HorizontalLayout)component).add(icon);
 		((HorizontalLayout)component).add(new Span(message));
 		((HorizontalLayout)component).setAlignItems(FlexComponent.Alignment.CENTER);

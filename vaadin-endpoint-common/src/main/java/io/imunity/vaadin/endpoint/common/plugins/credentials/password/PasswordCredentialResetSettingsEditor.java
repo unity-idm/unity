@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.VaadinClassNames.*;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 import static io.imunity.vaadin.endpoint.common.plugins.attributes.components.ListOfElementsWithActions.ActionColumn.Position.Left;
 
 class PasswordCredentialResetSettingsEditor

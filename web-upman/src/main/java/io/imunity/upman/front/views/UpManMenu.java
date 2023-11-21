@@ -38,8 +38,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.vaadin.elements.VaadinClassNames.LOGO_IMAGE;
-import static io.imunity.vaadin.elements.VaadinClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 import static java.util.stream.Collectors.toList;
 
 public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver

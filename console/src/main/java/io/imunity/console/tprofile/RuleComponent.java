@@ -48,7 +48,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.imunity.vaadin.elements.VaadinClassNames.*;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 
 public class RuleComponent extends VerticalLayout
 {

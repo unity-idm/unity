@@ -32,7 +32,7 @@ Couple of example CSS modifications follows:
    background: #fff url("VAADIN/themes/common/img/background.png") no-repeat scroll center center;
 }
 
-vaadin-button.submit-button {
+vaadin-button.u-submit-button {
    background-color: #52A899;
    color: white;
    width: 100%;
