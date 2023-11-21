@@ -25,8 +25,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
-import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
 import jakarta.ws.rs.NotFoundException;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.entity.Entity;
@@ -38,24 +36,15 @@ import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
-import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
-import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
-import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementContentChecker;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentCreateRequest;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentUpdateRequest;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -79,21 +68,15 @@ class RestProjectServiceTest
 	private EnquiryManagement enquiryManagement;
 	@Mock
 	private EntityManagement idsMan;
-	private RestProjectService restProjectService;
 	
-	@Mock 
-	private IdpPolicyAgreementContentChecker idpPolicyAgreementContentChecker;
+	private RestProjectService restProjectService;
 
-	@Mock
-	private PolicyDocumentManagement policyDocumentManagement;
 
 	@BeforeEach
 	void setUp()
 	{
-		restProjectService = new RestProjectService(
-			delGroupMan, groupMan, groupDelegationConfigGenerator,
-			registrationsManagement, enquiryManagement, authz, idsMan, policyDocumentManagement, List.of(idpPolicyAgreementContentChecker), "/A", "/A/B"
-		);
+		restProjectService = new RestProjectService(delGroupMan, groupMan, groupDelegationConfigGenerator,
+				registrationsManagement, enquiryManagement, authz, idsMan, "/A", "A/B");
 	}
 
 	@Test
@@ -474,204 +457,7 @@ class RestProjectServiceTest
 	}
 	
 	
-	@Test 
-	void shouldAddPolicyDocument() throws EngineException
-	{
-		
-		when(policyDocumentManagement.addPolicyDocument(new PolicyDocumentCreateRequest("Policy1", new I18nString(),
-				false, PolicyDocumentContentType.EMBEDDED, new I18nString()))).thenReturn(1L);
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(true));
-		content.setGroup(group);
-
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);
-		restProjectService.addPolicyDocument("A",
-				RestPolicyDocumentRequest.builder().withName("Policy1").withMandatory(false).withDisplayedName(Map.of())
-						.withContent(Map.of()).withContentType(PolicyDocumentContentType.EMBEDDED.name()).build());
-		GroupDelegationConfiguration groupDelegationConfiguration = new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of(1L));
-		group.setDelegationConfiguration(groupDelegationConfiguration);
-		verify(groupMan).updateGroup("/A/A", group);
-	}
 	
-	@Test 
-	void shouldSynchronizeFormsAfterAddPolicyDocument() throws EngineException
-	{
-		
-		when(policyDocumentManagement.addPolicyDocument(new PolicyDocumentCreateRequest("Policy1", new I18nString(),
-				false, PolicyDocumentContentType.EMBEDDED, new I18nString()))).thenReturn(1L);
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				"regForm", "enqForm", null, null, null));
-		content.setGroup(group);
-
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);
-		restProjectService.addPolicyDocument("A",
-				RestPolicyDocumentRequest.builder().withName("Policy1").withMandatory(false).withDisplayedName(Map.of())
-						.withContent(Map.of()).withContentType(PolicyDocumentContentType.EMBEDDED.name()).build());
-		GroupDelegationConfiguration groupDelegationConfiguration = new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of(1L));
-		group.setDelegationConfiguration(groupDelegationConfiguration);
-			
-		verify(groupDelegationConfigGenerator).synchronizePolicy("regForm", FormType.REGISTRATION, List.of(1L));
-		verify(groupDelegationConfigGenerator).synchronizePolicy("enqForm", FormType.ENQUIRY, List.of(1L));
-
-	}
-	
-	@Test 
-	void shouldRemovePolicyDocument() throws EngineException
-	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of(1L)));
-		content.setGroup(group);
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);
-		restProjectService.removePolicyDocument("A", 1L);
-		verify(policyDocumentManagement).removePolicyDocument(1L);
-		GroupDelegationConfiguration groupDelegationConfiguration = new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of());
-		group.setDelegationConfiguration(groupDelegationConfiguration);
-		verify(groupMan).updateGroup("/A/A", group);
-	}
-	
-	@Test 
-	void shouldBlockRemoveWhenPolicyDocumentIsConfiguredInAnotherGroup() throws EngineException
-	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of(1L)));
-		content.setGroup(group);
-		
-		Group groupB = new Group("/B");
-		groupB.setDisplayedName(new I18nString());
-		groupB.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of(1L)));
-		
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);	
-		when(groupMan.getAllGroups()).thenReturn(Map.of("/A", group , "/B", groupB));
-				
-		Assertions.assertThrows(AuthorizationException.class, () -> restProjectService.removePolicyDocument("A", 1L));		
-	}
-	
-	@Test 
-	void shouldBlockRemoveWhenPolicyDocumentIsConfiguredInAnotherForm() throws EngineException
-	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				"regForm", null, null, null, List.of(1L)));
-		content.setGroup(group);
-	
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);	
-				
-		when(registrationsManagement.getForms())
-				.thenReturn(List.of(new RegistrationFormBuilder().withName("regForm2").withDefaultCredentialRequirement("cr")
-						.withAddedPolicyAgreement(new PolicyAgreementConfiguration(List.of(1L), null, null)).build()));		
-		Assertions.assertThrows(AuthorizationException.class, () -> restProjectService.removePolicyDocument("A", 1L));		
-	}
-	
-	@Test 
-	void shouldBlockRemoveWhenPolicyDocumentIsConfiguredInIdp() throws EngineException
-	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of(1L)));
-		content.setGroup(group);
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);	
-		when(idpPolicyAgreementContentChecker.isPolicyUsedOnEndpoints(1L)).thenReturn(true);			
-	
-		Assertions.assertThrows(AuthorizationException.class, () -> restProjectService.removePolicyDocument("A", 1L));		
-	}
-
-	@Test
-	void shouldUpdatePolicyDocument() throws EngineException {
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
-		content.setGroup(group);
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);
-		restProjectService.updatePolicyDocument("A",
-				RestPolicyDocumentUpdateRequest.builder().withName("name2").withDisplayedName(Map.of())
-						.withContent(Map.of("pl", "demo")).withContentType(PolicyDocumentContentType.EMBEDDED.name())
-						.withId(1L).withMandatory(true).build());
-		verify(policyDocumentManagement).updatePolicyDocument(PolicyDocumentUpdateRequest.updateRequestBuilder()
-				.withName("name2").withId(1L).withContentType(PolicyDocumentContentType.EMBEDDED.name())
-				.withMandatory(true).withDisplayedName(Map.of()).withContent(Map.of("pl", "demo")).build());
-	}
-	
-	@Test 
-	void shouldBlockUpdateWhenPolicyDocumentIsConfiguredInAnotherGroup() throws EngineException
-	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of(1L)));
-		content.setGroup(group);
-		
-		Group groupB = new Group("/B");
-		groupB.setDisplayedName(new I18nString());
-		groupB.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of(1L)));
-		
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);	
-		when(groupMan.getAllGroups()).thenReturn(Map.of("/A", group , "/B", groupB));
-				
-		Assertions.assertThrows(AuthorizationException.class, () -> restProjectService.updatePolicyDocument("A", RestPolicyDocumentUpdateRequest.builder().withName("name2").withDisplayedName(Map.of())
-				.withContent(Map.of("pl", "demo")).withContentType(PolicyDocumentContentType.EMBEDDED.name())
-				.withId(1L).withMandatory(true).build()));		
-	}
-	
-	@Test 
-	void shouldBlockUpdateWhenPolicyDocumentIsConfiguredInAnotherForm() throws EngineException
-	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				"regForm", null, null, null, List.of(1L)));
-		content.setGroup(group);
-	
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);	
-				
-		when(registrationsManagement.getForms())
-				.thenReturn(List.of(new RegistrationFormBuilder().withName("regForm2").withDefaultCredentialRequirement("cr")
-						.withAddedPolicyAgreement(new PolicyAgreementConfiguration(List.of(1L), null, null)).build()));		
-		Assertions.assertThrows(AuthorizationException.class, () -> restProjectService.updatePolicyDocument("A", RestPolicyDocumentUpdateRequest.builder().withName("name2").withDisplayedName(Map.of())
-				.withContent(Map.of("pl", "demo")).withContentType(PolicyDocumentContentType.EMBEDDED.name())
-				.withId(1L).withMandatory(true).build()));		
-	}
-	
-	@Test 
-	void shouldBlockUpdateWhenPolicyDocumentIsConfiguredInIdp() throws EngineException
-	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(false, false, null,
-				null, null, null, null, List.of(1L)));
-		content.setGroup(group);
-		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);	
-		when(idpPolicyAgreementContentChecker.isPolicyUsedOnEndpoints(1L)).thenReturn(true);			
-	
-		Assertions.assertThrows(AuthorizationException.class, () -> restProjectService.updatePolicyDocument("A", RestPolicyDocumentUpdateRequest.builder().withName("name2").withDisplayedName(Map.of())
-				.withContent(Map.of("pl", "demo")).withContentType(PolicyDocumentContentType.EMBEDDED.name())
-				.withId(1L).withMandatory(true).build()));		
-	}
-
 	private I18nString convertToI18nString(Map<String, String> map)
 	{
 		I18nString i18nString = new I18nString();
