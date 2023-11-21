@@ -163,13 +163,13 @@ class RestProjectPolicyDocumentService
 	{
 		if (groupDelegationConfiguration.registrationForm != null)
 		{
-			groupDelegationConfigGenerator.synchronizePolicy(groupDelegationConfiguration.registrationForm,
+			groupDelegationConfigGenerator.resetFormsPolicies(groupDelegationConfiguration.registrationForm,
 					FormType.REGISTRATION, groupDelegationConfiguration.policyDocumentsIds);
 		}
 
 		if (groupDelegationConfiguration.signupEnquiryForm != null)
 		{
-			groupDelegationConfigGenerator.synchronizePolicy(groupDelegationConfiguration.signupEnquiryForm,
+			groupDelegationConfigGenerator.resetFormsPolicies(groupDelegationConfiguration.signupEnquiryForm,
 					FormType.ENQUIRY, groupDelegationConfiguration.policyDocumentsIds);
 		}
 	}

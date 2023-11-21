@@ -42,6 +42,6 @@ public interface GroupDelegationConfigGenerator
 	EnquiryForm generateSubprojectJoinEnquiryForm(String toCopyName, String projectPath, String subprojectPath,
 			String logo);
 
-	void synchronizePolicy(String formName, FormType formType, List<Long> projectPolicyDocumentsIds) throws EngineException;
+	void resetFormsPolicies(String formName, FormType formType, List<Long> projectPolicyDocumentsIds) throws EngineException;
 	
 }
