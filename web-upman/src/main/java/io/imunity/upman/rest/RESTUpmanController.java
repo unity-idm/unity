@@ -21,7 +21,6 @@ import javax.ws.rs.core.MediaType;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -32,16 +31,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
+import io.imunity.upman.rest.RestProjectPolicyDocumentService.RestProjectPolicyDocumentServiceFactory;
+import io.imunity.upman.rest.RestProjectService.RestProjectServiceFactory;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementContentChecker;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
-import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -53,11 +46,15 @@ public class RESTUpmanController
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTUpmanController.class);
 	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 	private RestProjectService restProjectService;
+	private RestProjectPolicyDocumentService restProjectPolicyDocumentService;
+
 	private String rootGroup;
 
-	private void init(RestProjectService restProjectService, String rootGroup)
+	private void init(RestProjectService restProjectService, RestProjectPolicyDocumentService restProjectPolicyDocumentService,
+			String rootGroup)
 	{
 		this.restProjectService = restProjectService;
+		this.restProjectPolicyDocumentService = restProjectPolicyDocumentService;
 		this.rootGroup = rootGroup;
 		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NON_PRIVATE);
 	}
@@ -173,59 +170,57 @@ public class RESTUpmanController
 	}
 	
 	
-	@Path("/policyDocuments/{project-id}")
+	@Path("/projects/{project-id}/policyDocuments")
 	@GET
 	public String getPolicyDocuments(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException {
-
-		log.debug("getPolicyDocuments query for " + projectId);
-		List<RestPolicyDocument> policies = restProjectService.getPolicyDocuments(projectId);
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("getPolicyDocuments query for {}", projectId);
+		List<RestPolicyDocument> policies = restProjectPolicyDocumentService.getPolicyDocuments(projectId);
 		return mapper.writeValueAsString(policies);
-
 	}
-	
-	@Path("/policyDocument/{project-id}/{policy-id}")
+
+	@Path("/projects/{project-id}/policyDocument/{policy-id}")
 	@GET
 	public String getPolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
-			throws EngineException, JsonProcessingException {
-
+			throws EngineException, JsonProcessingException
+	{
 		log.debug("getPolicyDocument {}, {}", projectId, policyId);
-		RestPolicyDocument policy  = restProjectService.getPolicyDocument(projectId, policyId);
+		RestPolicyDocument policy = restProjectPolicyDocumentService.getPolicyDocument(projectId, policyId);
 		return mapper.writeValueAsString(policy);
-
 	}
 
-
-	@Path("/policyDocument/{project-id}/{policy-id}")
+	@Path("/projects/{project-id}/policyDocument/{policy-id}")
 	@DELETE
 	public void removePolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
-			throws EngineException {
+			throws EngineException
+	{
 		log.debug("removePolicyDocument {}, {}", projectId, policyId);
-		restProjectService.removePolicyDocument(projectId, policyId);
-
+		restProjectPolicyDocumentService.removePolicyDocument(projectId, policyId);
 	}
 
-	@Path("/policyDocument/{project-id}")
+	@Path("/projects/{project-id}/policyDocument")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void addPolicyDocument(@PathParam("project-id") String projectId, String json)
-			throws EngineException, IOException {
+			throws EngineException, IOException
+	{
 		RestPolicyDocumentRequest policy = JsonUtil.parse(json, RestPolicyDocumentRequest.class);
 		log.debug("addPolicyDocument {}, {}", projectId, policy.name);
-		restProjectService.addPolicyDocument(projectId, policy);
+		restProjectPolicyDocumentService.addPolicyDocument(projectId, policy);
 	}
 
-	@Path("/policyDocument/{project-id}")
+	@Path("/projects/{project-id}/policyDocument")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updatePolicyDocument(@PathParam("project-id") String projectId, String json)
-			throws EngineException, IOException {
-
+			throws EngineException, IOException
+	{
 		RestPolicyDocumentUpdateRequest policy = JsonUtil.parse(json, RestPolicyDocumentUpdateRequest.class);
 		log.debug("updatePolicyDocument {}, {}", projectId, policy.id);
-		restProjectService.updatePolicyDocument(projectId, policy);
+		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy);
 	}
-	
+
 	public <T> T parse(String contents, Class<T> clazz)
 	{
 		try
@@ -244,49 +239,25 @@ public class RESTUpmanController
 	public static class RESTUpmanControllerFactory
 	{
 		private final ObjectFactory<RESTUpmanController> factory;
-		private final DelegatedGroupManagement delGroupMan;
-		private final GroupsManagement groupMan;
-		private final GroupDelegationConfigGenerator groupDelegationConfigGenerator;
-		private final UpmanRestAuthorizationManager authz;
-		private final RegistrationsManagement registrationsManagement;
-		private final EnquiryManagement enquiryManagement;
-		private final EntityManagement idsMan;
-		private final PolicyDocumentManagement policyDocumentManagement;
-		private final List<IdpPolicyAgreementContentChecker> idpPolicyAgreementContentCheckers;
+		private final RestProjectServiceFactory restProjectServiceFactory;
+		private final RestProjectPolicyDocumentServiceFactory restProjectPolicyDocumentServiceFactory;
 
-		
 		@Autowired
 		RESTUpmanControllerFactory(ObjectFactory<RESTUpmanController> factory,
-		                           @Qualifier("insecure") DelegatedGroupManagement delGroupMan,
-		                           @Qualifier("insecure") GroupsManagement groupMan,
-		                           @Qualifier("insecure") GroupDelegationConfigGenerator groupDelegationConfigGenerator,
-		                           UpmanRestAuthorizationManager authz,
-		                           @Qualifier("insecure") RegistrationsManagement registrationsManagement,
-		                           @Qualifier("insecure") EnquiryManagement enquiryManagement,
-		                           @Qualifier("insecure") EntityManagement idsMan,
-		                           @Qualifier("insecure") PolicyDocumentManagement policyDocumentManagement,
-		                           List<IdpPolicyAgreementContentChecker> idpPolicyAgreementContentCheckers
-)
+				RestProjectServiceFactory restProjectServiceFactory,
+				RestProjectPolicyDocumentServiceFactory restProjectPolicyDocumentServiceFactory)
+
 		{
 			this.factory = factory;
-			this.delGroupMan = delGroupMan;
-			this.groupMan = groupMan;
-			this.groupDelegationConfigGenerator = groupDelegationConfigGenerator;
-			this.authz = authz;
-			this.registrationsManagement = registrationsManagement;
-			this.enquiryManagement = enquiryManagement;
-			this.idsMan = idsMan;
-			this.policyDocumentManagement = policyDocumentManagement;
-			this.idpPolicyAgreementContentCheckers = idpPolicyAgreementContentCheckers;
+			this.restProjectServiceFactory = restProjectServiceFactory;
+			this.restProjectPolicyDocumentServiceFactory = restProjectPolicyDocumentServiceFactory;
 		}
 
 		public RESTUpmanController newInstance(String rootGroup, String authorizeGroup)
 		{
 			RESTUpmanController object = factory.getObject();
-			object.init(new RestProjectService(
-				delGroupMan, groupMan, groupDelegationConfigGenerator, registrationsManagement, enquiryManagement,
-				authz, idsMan, policyDocumentManagement, idpPolicyAgreementContentCheckers, rootGroup, authorizeGroup
-			), rootGroup);
+			object.init(restProjectServiceFactory.newInstance(rootGroup, authorizeGroup),
+					restProjectPolicyDocumentServiceFactory.newInstance(rootGroup, authorizeGroup), rootGroup);
 			return object;
 		}
 	}

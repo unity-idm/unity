@@ -41,20 +41,20 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class GroupBrowserController
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 
-	private GroupsManagement groupsMan;
-	private EntityManagement identitiesMan;
-	private AttributeClassManagement acMan;
-	private BulkGroupQueryService bulkQueryService;
-	private RegistrationsManagement registrationMan;
-	private PolicyDocumentManagement policyDocumentManagement;
-	private EnquiryManagement enquiryMan;
-	private AttributeTypeManagement attrTypeMan;
-	private ObjectFactory<RegistrationFormEditor> regFormEditorFactory;
-	private ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
-	private GroupDelegationConfigGenerator delConfigUtils;
-	private GroupManagementHelper groupManagementHelper;
+	private final GroupsManagement groupsMan;
+	private final EntityManagement identitiesMan;
+	private final AttributeClassManagement acMan;
+	private final BulkGroupQueryService bulkQueryService;
+	private final RegistrationsManagement registrationMan;
+	private final PolicyDocumentManagement policyDocumentManagement;
+	private final EnquiryManagement enquiryMan;
+	private final AttributeTypeManagement attrTypeMan;
+	private final ObjectFactory<RegistrationFormEditor> regFormEditorFactory;
+	private final ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
+	private final GroupDelegationConfigGenerator delConfigUtils;
+	private final GroupManagementHelper groupManagementHelper;
 
 	@Autowired
 	GroupBrowserController(MessageSource msg, GroupsManagement groupsMan, EntityManagement identitiesMan,
