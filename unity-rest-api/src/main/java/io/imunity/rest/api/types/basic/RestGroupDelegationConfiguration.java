@@ -20,6 +20,7 @@ public class RestGroupDelegationConfiguration
 	public final String signupEnquiryForm;
 	public final String membershipUpdateEnquiryForm;
 	public final List<String> attributes;
+	public final List<Long> policyDocumentsIds;
 	public final boolean enableSubprojects;
 
 	private RestGroupDelegationConfiguration(Builder builder)
@@ -32,13 +33,16 @@ public class RestGroupDelegationConfiguration
 		this.attributes = Optional.ofNullable(builder.attributes)
 				.map(List::copyOf)
 				.orElse(null);
+		this.policyDocumentsIds = Optional.ofNullable(builder.policyDocumentsIds)
+				.map(List::copyOf)
+				.orElse(null);
 		this.enableSubprojects = builder.enableSubprojects;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(attributes, enableSubprojects, enabled, logoUrl, membershipUpdateEnquiryForm,
+		return Objects.hash(attributes, policyDocumentsIds, enableSubprojects, enabled, logoUrl, membershipUpdateEnquiryForm,
 				registrationForm, signupEnquiryForm);
 	}
 
@@ -52,7 +56,8 @@ public class RestGroupDelegationConfiguration
 		if (getClass() != obj.getClass())
 			return false;
 		RestGroupDelegationConfiguration other = (RestGroupDelegationConfiguration) obj;
-		return Objects.equals(attributes, other.attributes) && enableSubprojects == other.enableSubprojects
+		return Objects.equals(attributes, other.attributes) && 
+				Objects.equals(policyDocumentsIds, other.policyDocumentsIds) && enableSubprojects == other.enableSubprojects
 				&& enabled == other.enabled && Objects.equals(logoUrl, other.logoUrl)
 				&& Objects.equals(membershipUpdateEnquiryForm, other.membershipUpdateEnquiryForm)
 				&& Objects.equals(registrationForm, other.registrationForm)
@@ -72,6 +77,7 @@ public class RestGroupDelegationConfiguration
 		private String signupEnquiryForm;
 		private String membershipUpdateEnquiryForm;
 		private List<String> attributes;
+		private List<Long> policyDocumentsIds;
 		private boolean enableSubprojects;
 
 		private Builder()
@@ -116,6 +122,13 @@ public class RestGroupDelegationConfiguration
 			return this;
 		}
 
+		public Builder withPolicyDocumentsIds(List<Long> policyDocumentsIds) {
+			this.policyDocumentsIds = Optional.ofNullable(policyDocumentsIds)
+					.map(List::copyOf)
+					.orElse(null);
+			return this;
+		}
+		
 		public Builder withEnableSubprojects(boolean enableSubprojects)
 		{
 			this.enableSubprojects = enableSubprojects;
@@ -126,6 +139,8 @@ public class RestGroupDelegationConfiguration
 		{
 			return new RestGroupDelegationConfiguration(this);
 		}
+
+		
 	}
 
 }

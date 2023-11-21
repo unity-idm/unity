@@ -34,7 +34,7 @@ public class GroupBaseMapperTest extends MapperWithMinimalTestBase<Group, DBGrou
 		group.setDisplayedName(new I18nString("groupDisp"));
 		group.setPublic(false);
 		group.setDelegationConfiguration(new GroupDelegationConfiguration(true, false, "logo", "regForm", "enqForm",
-				"enqForm2", List.of("at1")));
+				"enqForm2", List.of("at1"), List.of(1L)));
 		group.setAttributeStatements(new AttributeStatement[]
 		{ new AttributeStatement("true", "/extra", ConflictResolution.merge, "name", "a") });
 		group.setProperties(List.of(new GroupProperty("key", "value")));
@@ -69,6 +69,7 @@ public class GroupBaseMapperTest extends MapperWithMinimalTestBase<Group, DBGrou
 						.withSignupEnquiryForm("enqForm")
 						.withMembershipUpdateEnquiryForm("enqForm2")
 						.withAttributes(List.of("at1"))
+						.withPolicyDocumentsIds(List.of(1L))
 						.build())
 				.withProperties(List.of(DBGroupProperty.builder()
 						.withKey("key")

@@ -5,6 +5,8 @@ UNITY
  <<{{{./manual.html}User manual}}>>
  
  <<{{{./rest-api-v1.html}REST API reference}}>>  
+ 
+ <<{{{./upman-rest-api-v1.html}Upman REST API reference}}>>  
 
  <<{{{./apidocs/index.html}Java API docs}}>>  
 

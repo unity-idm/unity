@@ -5,26 +5,38 @@
 
 package io.imunity.webconsole.directoryBrowser.groupbrowser;
 
-import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditorV8;
-import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditorV8;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditorV8;
+import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditorV8;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.*;
+import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
-
-import java.util.*;
-import java.util.function.Consumer;
 
 @Component("GroupBrowserControllerV8")
 class GroupBrowserController
@@ -36,6 +48,7 @@ class GroupBrowserController
 	private AttributeClassManagement acMan;
 	private BulkGroupQueryService bulkQueryService;
 	private RegistrationsManagement registrationMan;
+	private PolicyDocumentManagement policyDocumentManagement;
 	private EnquiryManagement enquiryMan;
 	private AttributeTypeManagement attrTypeMan;
 	private ObjectFactory<RegistrationFormEditorV8> regFormEditorFactory;
@@ -46,7 +59,8 @@ class GroupBrowserController
 	@Autowired
 	GroupBrowserController(MessageSource msg, GroupsManagement groupsMan, EntityManagement identitiesMan,
 			AttributeClassManagement acMan, BulkGroupQueryService bulkQueryService,
-			RegistrationsManagement registrationMan, EnquiryManagement enquiryMan,
+			RegistrationsManagement registrationMan, PolicyDocumentManagement policyDocumentManagement, 
+			EnquiryManagement enquiryMan,
 			AttributeTypeManagement attrTypeMan, ObjectFactory<RegistrationFormEditorV8> regFormEditorFactory,
 			ObjectFactory<EnquiryFormEditorV8> enquiryFormEditorFactory,
 			GroupDelegationConfigGenerator delConfigUtils, GroupManagementHelper groupManagementHelper)
@@ -57,6 +71,7 @@ class GroupBrowserController
 		this.acMan = acMan;
 		this.bulkQueryService = bulkQueryService;
 		this.registrationMan = registrationMan;
+		this.policyDocumentManagement = policyDocumentManagement;
 		this.enquiryMan = enquiryMan;
 		this.attrTypeMan = attrTypeMan;
 		this.regFormEditorFactory = regFormEditorFactory;
@@ -184,7 +199,7 @@ class GroupBrowserController
 			Consumer<Group> update) throws ControllerException
 	{
 		Group editedGroup = getFreshGroup(group.getPathEncoded()); 
-		return new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan,
+		return new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan, policyDocumentManagement,
 				regFormEditorFactory, enquiryFormEditorFactory, bus, delConfigUtils, editedGroup,
 				delConfig -> {
 					editedGroup.setDelegationConfiguration(delConfig);

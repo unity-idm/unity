@@ -194,6 +194,8 @@ include::endpoint-home.txt[]
 
 include::endpoint-upman.txt[]
 
+include::endpoint-restupman.txt[]
+
 include::endpoint-saml.txt[]
 
 include::endpoint-oauth.txt[]
@@ -201,8 +203,6 @@ include::endpoint-oauth.txt[]
 include::endpoint-jwt.txt[]
 
 include::endpoint-restadmin.txt[]
-
-include::endpoint-restupman.txt[]
 
 include::endpoint-wellknown.txt[]
 

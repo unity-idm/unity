@@ -76,7 +76,7 @@ public class TestProjectService
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
-		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of());
+		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of(), List.of());
 		when(delGroupMan.getContents(project.path, project.path))
 				.thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), empty()));
 		UI.setCurrent(new UI());
@@ -89,7 +89,7 @@ public class TestProjectService
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
-		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, null, "", "", "", List.of());
+		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, null, "", "", "", List.of(), List.of());
 		when(delGroupMan.getContents(project.path, project.path))
 				.thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), empty()));
 		UI.setCurrent(new UI());
@@ -102,7 +102,7 @@ public class TestProjectService
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 
-		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of());
+		GroupDelegationConfiguration configuration = new GroupDelegationConfiguration(true, true, "url", "", "", "", List.of(), List.of());
 		when(delGroupMan.getContents(project.path, project.path))
 				.thenReturn(new DelegatedGroupContents(new DelegatedGroup("path", configuration, true, new I18nString("name")), empty()));
 

@@ -20,6 +20,7 @@ class DBGroupDelegationConfiguration
 	final String signupEnquiryForm;
 	final String membershipUpdateEnquiryForm;
 	final List<String> attributes;
+	final List<Long> policyDocumentsIds;
 	final boolean enableSubprojects;
 
 	private DBGroupDelegationConfiguration(Builder builder)
@@ -32,13 +33,16 @@ class DBGroupDelegationConfiguration
 		this.attributes = Optional.ofNullable(builder.attributes)
 				.map(List::copyOf)
 				.orElse(null);
+		this.policyDocumentsIds = Optional.ofNullable(builder.policyDocumentsIds)
+				.map(List::copyOf)
+				.orElse(null);
 		this.enableSubprojects = builder.enableSubprojects;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(attributes, enableSubprojects, enabled, logoUrl, membershipUpdateEnquiryForm,
+		return Objects.hash(attributes, policyDocumentsIds, enableSubprojects, enabled, logoUrl, membershipUpdateEnquiryForm,
 				registrationForm, signupEnquiryForm);
 	}
 
@@ -52,7 +56,8 @@ class DBGroupDelegationConfiguration
 		if (getClass() != obj.getClass())
 			return false;
 		DBGroupDelegationConfiguration other = (DBGroupDelegationConfiguration) obj;
-		return Objects.equals(attributes, other.attributes) && enableSubprojects == other.enableSubprojects
+		return Objects.equals(attributes, other.attributes) && Objects.equals(policyDocumentsIds, other.policyDocumentsIds)
+				&& enableSubprojects == other.enableSubprojects
 				&& enabled == other.enabled && Objects.equals(logoUrl, other.logoUrl)
 				&& Objects.equals(membershipUpdateEnquiryForm, other.membershipUpdateEnquiryForm)
 				&& Objects.equals(registrationForm, other.registrationForm)
@@ -72,6 +77,7 @@ class DBGroupDelegationConfiguration
 		private String signupEnquiryForm;
 		private String membershipUpdateEnquiryForm;
 		private List<String> attributes;
+		private List<Long> policyDocumentsIds;
 		private boolean enableSubprojects;
 
 		private Builder()
@@ -111,6 +117,14 @@ class DBGroupDelegationConfiguration
 		Builder withAttributes(List<String> attributes)
 		{
 			this.attributes = Optional.ofNullable(attributes)
+					.map(List::copyOf)
+					.orElse(null);
+			return this;
+		}
+		
+		Builder withPolicyDocumentsIds(List<Long> policyDocumentsIds)
+		{
+			this.policyDocumentsIds = Optional.ofNullable(policyDocumentsIds)
 					.map(List::copyOf)
 					.orElse(null);
 			return this;

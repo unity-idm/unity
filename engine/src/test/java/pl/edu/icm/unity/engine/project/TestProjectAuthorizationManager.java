@@ -205,7 +205,7 @@ public class TestProjectAuthorizationManager
 	{
 		Group group = new Group(path);
 		group.setDelegationConfiguration(new GroupDelegationConfiguration(groupWithEnabledDelegation, 
-				enableSubproject, null, null, null, null, List.of()));
+				enableSubproject, null, null, null, null, List.of(), List.of()));
 		when(mockGroupDao.get(eq(path))).thenReturn(group);
 	}
 
