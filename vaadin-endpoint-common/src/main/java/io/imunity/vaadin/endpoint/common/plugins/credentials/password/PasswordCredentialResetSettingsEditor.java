@@ -223,6 +223,8 @@ class PasswordCredentialResetSettingsEditor
 			boolean state = requireQuestionConfirmation.getValue();
 			questionAdder.setEnabled(state);
 			questions.setEnabled(state);
+			if(!state)
+				addIcon.addClassName(DISABLED_ICON.getName());
 		} else
 		{
 			questionAdder.setEnabled(false);
