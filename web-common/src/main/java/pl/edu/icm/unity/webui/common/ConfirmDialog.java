@@ -94,7 +94,8 @@ public class ConfirmDialog extends AbstractDialog
 	}
 	
 	@Override
-	protected void onCancel() {
+	protected void onCancel()
+	{
 		if (cancelCallback != null)
 		{
 			cancelCallback.run();

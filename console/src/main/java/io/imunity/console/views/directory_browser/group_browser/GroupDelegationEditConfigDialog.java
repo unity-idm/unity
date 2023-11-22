@@ -362,7 +362,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 					{
 						for (Entry<String, FormType> form : formsToSynch.entrySet())
 						{
-							configGenerator.synchronizePolicy(form.getKey(), form.getValue(),
+							configGenerator.resetFormsPolicies(form.getKey(), form.getValue(),
 									policyDocuments.getSelectedItems()
 											.stream()
 											.map(p -> p.id)
