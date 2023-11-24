@@ -595,7 +595,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
-				<version>4.0.0</version>
+				<version>4.0.1</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.apache.geronimo.javamail</groupId>
