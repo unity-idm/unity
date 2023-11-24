@@ -23,10 +23,12 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupProperty;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +43,8 @@ import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 class GroupEditDialog extends ConfirmDialog
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, GroupEditDialog.class);
+
 	private final MessageSource msg;
 	private final Button confirmButton;
 	private final Callback callback;
@@ -151,8 +155,9 @@ class GroupEditDialog extends ConfirmDialog
 		editor.getBinder().forField(field)
 				.withValidator((value, context) ->
 				{
-					if (groupPropertyBeans.stream().filter(k -> !k.key.equals(edited.key)).map(k -> k.key)
-							.anyMatch(k -> k.equals(value)))
+					if (groupPropertyBeans.stream().filter(bean -> !bean.key.equals(edited.key))
+							.map(bean -> bean.key)
+							.anyMatch(key -> key.equals(value)))
 					{
 						return ValidationResult.error(msg.getMessage("GroupEditDialog.propertyNameExists"));
 					}
@@ -228,6 +233,7 @@ class GroupEditDialog extends ConfirmDialog
 		{
 			path.setInvalid(true);
 			path.setErrorMessage(msg.getMessage("GroupEditDialog.invalidGroup"));
+			LOG.error(e);
 		}
 	}
 

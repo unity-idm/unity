@@ -329,6 +329,11 @@
 				<version>2.0.2</version>
 			</dependency>
 			<dependency>
+				<groupId>com.vaadin.componentfactory</groupId>
+				<artifactId>togglebutton</artifactId>
+				<version>3.0.0</version>
+			</dependency>
+			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter</artifactId>
 				<version>${junit5.version}</version>

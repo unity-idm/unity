@@ -7,6 +7,9 @@ package io.imunity.console.attribute;
 
 import io.imunity.vaadin.endpoint.common.bus.Event;
 
-public record AttributeChangedEvent(String group, String attributeName) implements Event
+public record AttributeChangedEvent(
+		String group,
+		String attributeName) implements Event
 {
+
 }

@@ -20,7 +20,7 @@ import java.util.Optional;
 
 class AttributeDetailsComponent extends VerticalLayout
 {
-	private static final int IMAGE_SCALE = 500;
+	private static final int IMAGE_SCALE_PX = 500;
 
 	private final MessageSource msg;
 
@@ -52,8 +52,8 @@ class AttributeDetailsComponent extends VerticalLayout
 				"<div>" + msg.getMessage(a.isDirect() ? "Attribute.direct" : "Attribute.fromStatement") + "</div>"));
 		Optional.ofNullable(a.getRemoteIdp()).ifPresent(
 				remoteIdp -> info.add(new Html("<div>" + msg.getMessage("Attribute.remoteIdp", remoteIdp) + "</div>")));
-		Optional.ofNullable(a.getRemoteIdp()).ifPresent(translationProfile -> new Html(
-				"<div>" + msg.getMessage("Attribute.translationProfile", translationProfile) + "</div>"));
+		Optional.ofNullable(a.getRemoteIdp()).ifPresent(translationProfile -> info.add(new Html(
+				"<div>" + msg.getMessage("Attribute.translationProfile", translationProfile) + "</div>")));
 		Span infoDate = new Span(created + " " + updated);
 		VerticalLayout contents = new VerticalLayout();
 		contents.setPadding(false);
@@ -81,8 +81,8 @@ class AttributeDetailsComponent extends VerticalLayout
 	{
 		Component c = handler.getRepresentation(value,
 				AttributeViewerContext.builder().withCustomWidth(100)
-						.withCustomWidthUnit(Unit.PERCENTAGE).withImageScaleHeight(IMAGE_SCALE)
-						.withImageScaleWidth(IMAGE_SCALE).build());
+						.withCustomWidthUnit(Unit.PERCENTAGE).withImageScaleHeight(IMAGE_SCALE_PX)
+						.withImageScaleWidth(IMAGE_SCALE_PX).build());
 		contents.add(c);
 	}
 

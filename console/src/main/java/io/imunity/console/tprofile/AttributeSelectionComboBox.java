@@ -4,8 +4,7 @@
  */
 package io.imunity.console.tprofile;
 
-import com.vaadin.flow.component.combobox.ComboBox;
-import io.imunity.console.views.directory_browser.ComboBoxNonEmptyValueSupport;
+import io.imunity.console.components.NonEmptyComboBox;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * Allows to select an attribute name
  */
-public class AttributeSelectionComboBox extends ComboBox<AttributeType>
+public class AttributeSelectionComboBox extends NonEmptyComboBox<AttributeType>
 {
 	protected Map<String, AttributeType> attributeTypesByName;
 	private boolean filterImmutable = true;
@@ -46,7 +45,6 @@ public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 	
 	private void initContents(String caption, Collection<AttributeType> attributeTypes)
 	{
-		ComboBoxNonEmptyValueSupport.install(this);
 		this.attributeTypesByName = attributeTypes.stream()
 				.collect(Collectors.toMap(AttributeType::getName, Function.identity()));
 		this.label = caption;

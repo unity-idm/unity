@@ -85,6 +85,7 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 				.bind(map -> map.get(locale), (map, val) -> map.put(locale, val))
 		);
 
+		setValue(new LinkedHashMap<>());
 		add(summary, content);
 		propagateValueChangeEventFromNestedTextFieldToThisComponent();
 	}

@@ -5,6 +5,7 @@
 package io.imunity.console.views.directory_browser.group_browser;
 
 import com.google.common.collect.Sets;
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
@@ -12,13 +13,13 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.FOLDER_OPEN_O;
 import static com.vaadin.flow.component.icon.VaadinIcon.TAGS;
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 
 @PrototypeComponent
 public class GroupsTreeGrid extends TreeGrid<TreeNode>
@@ -51,6 +53,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private final GroupBrowserController controller;
 	private final boolean authzError;
 	private TreeData<TreeNode> treeData;
+	private boolean multiselectHasClicked;
 
 	GroupsTreeGrid(MessageSource msg, GroupBrowserController controller)
 	{
@@ -60,8 +63,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		GridSelectionSupport.installClickListener(this);
 		addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
-		setSelectionMode(SelectionMode.MULTI);
-		addSelectionListener(event -> selectionChanged());
 
 		SearchField search = new SearchField(msg.getMessage("search"), event -> {
 			deselectAll();
@@ -75,10 +76,8 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		search.setWidth(10, Unit.EM);
 
 		toolbar = new Toolbar<>();
-		addSelectionListener(e -> toolbar.getSelectionListener().accept(e.getAllSelectedItems()));
-
 		ActionMenuWithHandlerSupport<TreeNode> hamburgerMenu = new ActionMenuWithHandlerSupport<>();
-		addSelectionListener(hamburgerMenu.getSelectionListener());
+		addSelectionListeners(hamburgerMenu);
 
 		SingleActionHandler<TreeNode> expandAllAction = getExpandAllAction();
 		SingleActionHandler<TreeNode> collapseAllAction = getCollapseAllAction();
@@ -91,7 +90,21 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		hamburgerMenu.addActionHandler(deleteAction);
 
 		toolbar.addHamburger(hamburgerMenu, FlexComponent.Alignment.END);
-		toolbar.addSearch(search);
+		ToggleButton toggle = new ToggleButton(msg.getMessage("GroupDetails.multiselect"));
+		toggle.addValueChangeListener(event ->
+		{
+			multiselectHasClicked = true;
+			if(event.getValue())
+				setSelectionMode(SelectionMode.MULTI);
+			else
+				setSelectionMode(SelectionMode.SINGLE);
+			getDataProvider().refreshAll();
+		});
+		VerticalLayout searchLayout = new VerticalLayout(toggle, search);
+		searchLayout.setPadding(false);
+		searchLayout.setSpacing(false);
+		searchLayout.setAlignItems(FlexComponent.Alignment.END);
+		toolbar.add(searchLayout);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 
 		this.bus = WebSession.getCurrent().getEventBus();
@@ -101,10 +114,18 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		setDataProvider(dataProvider);
 		dataProvider.setSortComparator((g1, g2) -> g1.toString().compareTo(g2.toString()));
 
-		addComponentHierarchyColumn(n -> new Div(getIcon(n), new Span(" " + n.toString()))).setFlexGrow(10);
+		addComponentHierarchyColumn(n ->
+		{
+			Div div = new Div(getIcon(n), new Span(" " + n.toString()));
+			div.getElement().setAttribute("onclick", "event.stopPropagation();");
+			div.addSingleClickListener(event -> select(n));
+			return div;
+		})
+				.setFrozen(true)
+				.setAutoWidth(true);
 		addComponentColumn(this::getRowHamburgerMenuComponent)
-				.setFlexGrow(0)
-				.setTextAlign(ColumnTextAlign.END);
+				.setAutoWidth(true)
+				.setFlexGrow(0);
 
 		setSizeFull();
 		ComponentUtil.setData(UI.getCurrent(), GroupsTreeGrid.class, this);
@@ -116,6 +137,19 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		{
 			select(treeData.getRootItems().get(0));
 		}
+	}
+
+	private void addSelectionListeners(ActionMenuWithHandlerSupport<TreeNode> hamburgerMenu)
+	{
+		setSelectionMode(SelectionMode.MULTI);
+		addSelectionListener(event -> selectionChanged());
+		addSelectionListener(e -> toolbar.getSelectionListener().accept(e.getAllSelectedItems()));
+		addSelectionListener(hamburgerMenu.getSelectionListener());
+
+		setSelectionMode(SelectionMode.SINGLE);
+		addSelectionListener(event -> selectionChanged());
+		addSelectionListener(e -> toolbar.getSelectionListener().accept(e.getAllSelectedItems()));
+		addSelectionListener(hamburgerMenu.getSelectionListener());
 	}
 
 	Icon getIcon(TreeNode node)
@@ -153,7 +187,11 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		addSelectionListener(
 				event ->  target.setVisible(menuVisibleOnSelection(event.getAllSelectedItems(), node))
 		);
-		return target;
+
+		Div div = new Div(target);
+		if(multiselectHasClicked) //fixed vaadin bug
+			div.getStyle().set("padding-right", BASE_MARGIN.value());
+		return div;
 	}
 
 	private void configExpandCollapseNode(TreeNode node, MenuItem expandItem, MenuItem collapseItem)

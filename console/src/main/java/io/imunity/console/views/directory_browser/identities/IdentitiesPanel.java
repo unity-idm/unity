@@ -285,6 +285,7 @@ public class IdentitiesPanel extends VerticalLayout
 				identitiesTable.showGroup(null);
 			} catch (EngineException e)
 			{
+				log.trace(e);
 				// ignored, shouldn't happen anyway
 			}
 			add(new H5(msg.getMessage("Identities.captionNoGroup")));

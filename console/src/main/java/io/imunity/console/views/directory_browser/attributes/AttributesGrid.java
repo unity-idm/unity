@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static io.imunity.console.tprofile.Constants.FORM_PROFILE;
 import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 import static io.imunity.vaadin.elements.CssClassNames.*;
 import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
@@ -115,21 +116,7 @@ public class AttributesGrid extends VerticalLayout
 		updatedOnColumn.setVisible(false);
 		columnToggleMenu.addColumn(msg.getMessage("AttributesGrid.updateCaption"), updatedOnColumn);
 
-		Grid.Column<AttributeExt> sourceColumn = attributesGrid.addColumn(a ->
-				{
-					if (a.getTranslationProfile() != null)
-					{
-						if(a.getTranslationProfile().equals("form profile"))
-							return msg.getMessage("Attribute.formAutomation");
-						return a.getTranslationProfile() + (a.getRemoteIdp() != null ? " " + a.getRemoteIdp() : "");
-					} else if (a.isDirect())
-					{
-						return msg.getMessage("Attribute.direct");
-					} else
-					{
-						return msg.getMessage("Attribute.fromStatement");
-					}
-				})
+		Grid.Column<AttributeExt> sourceColumn = attributesGrid.addColumn(a -> getSourceName(msg, a))
 				.setHeader(msg.getMessage("AttributesGrid.sourceCaption"))
 				.setResizable(true)
 				.setSortable(true)
@@ -190,6 +177,20 @@ public class AttributesGrid extends VerticalLayout
 
 		updateAttributesFilter(false, effectiveAttrsFilter);
 		updateAttributesFilter(true, internalAttrsFilter);
+	}
+
+	private String getSourceName(MessageSource msg, AttributeExt a)
+	{
+		if (a.getTranslationProfile() != null)
+		{
+			if(a.getTranslationProfile().equals(FORM_PROFILE))
+				return msg.getMessage("Attribute.formAutomation");
+			return a.getTranslationProfile() + (a.getRemoteIdp() != null ? " " + a.getRemoteIdp() : "");
+		}
+		else if (a.isDirect())
+			return msg.getMessage("Attribute.direct");
+		 else
+			return msg.getMessage("Attribute.fromStatement");
 	}
 
 	private HorizontalLayout getActions(ColumnToggleMenu columnToggleMenu)

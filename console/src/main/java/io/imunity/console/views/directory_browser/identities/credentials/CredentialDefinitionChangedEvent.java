@@ -8,6 +8,9 @@ package io.imunity.console.views.directory_browser.identities.credentials;
 import io.imunity.vaadin.endpoint.common.bus.Event;
 
 
-public record CredentialDefinitionChangedEvent(boolean updatedExisting, String name) implements Event
+public record CredentialDefinitionChangedEvent(
+		boolean updatedExisting,
+		String name) implements Event
 {
+
 }

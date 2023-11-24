@@ -20,6 +20,6 @@ public class EnquiryFormEditor extends VerticalLayout
 
 	public void setForm(EnquiryForm target)
 	{
-
+		//todo remember to use FORM_PROFILE var
 	}
 }

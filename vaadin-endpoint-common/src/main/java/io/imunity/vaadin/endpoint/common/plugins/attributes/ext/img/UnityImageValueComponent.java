@@ -70,6 +70,19 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		scaleLayout.getStyle().set("gap", "0.5em");
 		scaleLayout.getStyle().set("margin-top", "0.5em");
 		scaleLayout.getStyle().set("margin-bottom", "0.5em");
+		scale.addValueChangeListener(event ->
+		{
+			if(event.getValue())
+			{
+				image.setMaxWidth(imgConfig.getMaxWidth() + "px");
+				image.setMaxHeight(imgConfig.getMaxHeight() + "px");
+			}
+			else
+			{
+				image.getStyle().remove("max-width");
+				image.getStyle().remove("max-height");
+			}
+		});
 		scale.setValue(true);
 
 		MemoryBuffer memoryBuffer = new MemoryBuffer();

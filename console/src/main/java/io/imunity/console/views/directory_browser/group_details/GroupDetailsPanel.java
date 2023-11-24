@@ -24,6 +24,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
+import static io.imunity.vaadin.elements.CssClassNames.MONOSPACE;
 import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 @PrototypeComponent
@@ -52,7 +53,8 @@ public class GroupDetailsPanel extends VerticalLayout
 		attrStatements = new AttributeStatementsComponent(msg, controller);
 		path = new TextField();
 		path.setWidthFull();
-		path.setEnabled(false);
+		path.setReadOnly(true);
+		path.addClassName(MONOSPACE.getName());
 		setSizeFull();
 		add(main);
 
@@ -95,7 +97,7 @@ public class GroupDetailsPanel extends VerticalLayout
 		} catch (Exception e)
 		{
 			log.fatal("Problem retrieving group contents of " + group, e);
-			add(VaadinIcon.EXCLAMATION_CIRCLE_O.create(), new ErrorLabel(msg.getMessage("GroupDetails.internalError", e.toString())));
+			add(VaadinIcon.EXCLAMATION_CIRCLE_O.create(), new ErrorLabel(msg.getMessage("GroupDetails.internalError", e.getMessage())));
 		}
 	}
 }

@@ -4,15 +4,14 @@
  */
 package io.imunity.console.views.directory_browser.group_details;
 
-import com.vaadin.flow.component.combobox.ComboBox;
-import io.imunity.console.views.directory_browser.ComboBoxNonEmptyValueSupport;
+import io.imunity.console.components.NonEmptyComboBox;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class GroupComboBox extends ComboBox<String>
+public class GroupComboBox extends NonEmptyComboBox<String>
 {
 	private Collection<String> groups;
 	private GroupsManagement groupsMan;
@@ -22,14 +21,12 @@ public class GroupComboBox extends ComboBox<String>
 	{
 		super(caption);
 		this.groups = groups;
-		init();
 	}
 
 	public GroupComboBox(String caption, GroupsManagement groupsMan)
 	{
 		super(caption);
 		this.groupsMan = groupsMan;
-		init();
 	}
 
 	
@@ -45,11 +42,6 @@ public class GroupComboBox extends ComboBox<String>
 		setItems(processedGroups);
 		if (!processedGroups.isEmpty())
 			setValue(processedGroups.get(0));
-	}
-
-	private void init()
-	{
-		ComboBoxNonEmptyValueSupport.install(this);
 	}
 
 	@Override

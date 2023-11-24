@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+
+package io.imunity.console.components;
+
+import com.vaadin.flow.component.combobox.ComboBox;
+
+public class NonEmptyComboBox<T> extends ComboBox<T>
+{
+	public NonEmptyComboBox()
+	{
+		init();
+	}
+
+	public NonEmptyComboBox(String label)
+	{
+		super(label);
+		init();
+	}
+
+	private void init()
+	{
+		addValueChangeListener(e ->
+		{
+			if(e.getValue() == null)
+				setValue(e.getOldValue());
+		});
+	}
+}

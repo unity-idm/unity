@@ -11,9 +11,11 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 
 import java.util.HashSet;
 
@@ -21,6 +23,8 @@ import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 class GroupAddDialog extends ConfirmDialog
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, GroupAddDialog.class);
+
 	private final MessageSource msg;
 	private final Callback callback;
 	private final String parent;
@@ -89,6 +93,7 @@ class GroupAddDialog extends ConfirmDialog
 			name.setErrorMessage(msg.getMessage("GroupEditDialog.invalidGroup"));
 			open();
 			nameFormItem.getElement().setAttribute("invalid", true);
+			LOG.debug(e);
 		}
 	}
 	

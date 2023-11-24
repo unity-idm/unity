@@ -7,13 +7,14 @@ package io.imunity.console.views.directory_browser.identities;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import io.imunity.console.views.directory_browser.ComboBoxNonEmptyValueSupport;
+import io.imunity.console.components.NonEmptyComboBox;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.*;
 
 class RemoveAttributeColumnDialog extends ConfirmDialog
 {
+	private static final String GROUP_PREFIX = "@/";
 	private final Callback callback;
 	private final Set<String> alreadyUsedInRoot;
 	private final Set<String> alreadyUsedInCurrent;
@@ -41,21 +42,20 @@ class RemoveAttributeColumnDialog extends ConfirmDialog
 	private FormLayout getContents()
 	{
 		labelsToAttr = new HashMap<>();
-		attributeType = new ComboBox<>(msg.getMessage("RemoveAttributeColumnDialog.info"));
-		ComboBoxNonEmptyValueSupport.install(attributeType);
+		attributeType = new NonEmptyComboBox<>(msg.getMessage("RemoveAttributeColumnDialog.info"));
 		attributeType.setWidthFull();
 		List<String> values = new ArrayList<>();
 		for (String at: alreadyUsedInRoot)
 		{
 			String value = toRootGroupLabel(at);
 			values.add(value);
-			labelsToAttr.put(value, at + "@/" );
+			labelsToAttr.put(value, at + GROUP_PREFIX );
 		}
 		for (String at: alreadyUsedInCurrent)
 		{
 			String value = toCurrentGroupLabel(at);
 			values.add(value);
-			labelsToAttr.put(value, at + "@/" + currentGroup );
+			labelsToAttr.put(value, at + GROUP_PREFIX + currentGroup );
 		}
 		attributeType.setItems(values);
 		if (!alreadyUsedInRoot.isEmpty())
@@ -76,7 +76,7 @@ class RemoveAttributeColumnDialog extends ConfirmDialog
 
 	private String toRootGroupLabel(String attribute)
 	{
-		return attribute + "@/ (fixed)";
+		return attribute + GROUP_PREFIX + " (fixed)";
 	}
 
 	
@@ -89,7 +89,7 @@ class RemoveAttributeColumnDialog extends ConfirmDialog
 			return;
 		}
 		String parsable = labelsToAttr.get(selected);
-		int split = parsable.lastIndexOf("@/");
+		int split = parsable.lastIndexOf(GROUP_PREFIX);
 		String group = parsable.substring(split+2);
 		String attr = parsable.substring(0, split);
 		callback.onChosen(attr, group);

@@ -27,7 +27,7 @@ public class GroupBrowserPanel extends VerticalLayout
 		this.groupsTree = groupsTree;
 		this.msg = msg;
 		init();
-		setClassName(SMALL_GAP.getName());
+		addClassName(SMALL_GAP.getName());
 	}
 
 	private void init()

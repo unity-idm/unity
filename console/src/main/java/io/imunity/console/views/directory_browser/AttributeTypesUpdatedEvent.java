@@ -10,6 +10,8 @@ import pl.edu.icm.unity.base.attribute.AttributeType;
 import java.util.Collection;
 
 
-public record AttributeTypesUpdatedEvent(Collection<AttributeType> attributeTypes) implements Event
+public record AttributeTypesUpdatedEvent(
+		Collection<AttributeType> attributeTypes) implements Event
 {
+
 }

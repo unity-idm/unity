@@ -198,6 +198,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 					.setHeader(msg.getMessage(column.captionKey))
 					.setFlexGrow(column.defWidth)
 					.setResizable(true)
+					.setSortable(true)
 					.setKey(column.name());
 			baseColumn.setVisible(!column.initiallyCollapsed);
 			columnToggleMenu.addColumn(msg.getMessage(column.captionKey), baseColumn);
@@ -417,7 +418,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			{
 				Column<IdentityEntry> entryColumn = addColumn(ie -> ie.getCredentialStatus(cd.getKey()))
 						.setHeader(cd.getValue().getName())
-						.setFlexGrow(IdentitiesGridColumnConstants.CRED_STATUS_COL_RATIO)
+						.setSortable(true)
 						.setResizable(true)
 						.setKey(colKey);
 				entryColumn.setVisible(false);
@@ -444,12 +445,14 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			return;
 		}
 
-		Column<IdentityEntry> entryColumn = addColumn(ie -> ie.getAttribute(key)).setHeader(
-						attribute + (group == null ? "@" + this.group : "@/"))
+		Column<IdentityEntry> entryColumn = addColumn(ie -> ie.getAttribute(key))
+				.setHeader(attribute + (group == null ? "@" + this.group : "@/"))
 				.setFlexGrow(IdentitiesGridColumnConstants.ATTR_COL_RATIO)
 				.setResizable(true)
+				.setSortable(true)
 				.setKey(key);
 		columnToggleMenu.addColumn(entryColumn.getHeaderText(), entryColumn);
+		refreshActionColumn();
 
 		savePreferences();
 		try
@@ -664,27 +667,33 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	public void selectionChanged(Set<IdentityEntry> selectedItems)
 	{
 		IdentityEntry selected = null;
+		if(selectedItems.isEmpty())
+		{
+			lastSelected = null;
+			bus.fireEvent(new EntityChangedEvent(null, group, false));
+			return;
+		}
 		if (selectedItems.size() == 1)
 		{
 			selected = selectedItems.iterator().next();
 		}
-		if (selected == null)
+		if (selectedItems.size() > 1)
 		{
 			lastSelected = null;
-			bus.fireEvent(new EntityChangedEvent(null, group));
+			bus.fireEvent(new EntityChangedEvent(null, group, true));
 		} else if (selected.getSourceIdentity() == null)
 		{
 			if (selected.equals(lastSelected))
 				return;
 			lastSelected = selected;
-			bus.fireEvent(new EntityChangedEvent(selected.getSourceEntity(), group));
+			bus.fireEvent(new EntityChangedEvent(selected.getSourceEntity(), group, false));
 		} else
 		{
 			if (lastSelected != null && selected.getSourceEntity().getEntity()
 					.equals(lastSelected.getSourceEntity().getEntity()))
 				return;
 			lastSelected = selected;
-			bus.fireEvent(new EntityChangedEvent(selected.getSourceEntity(), group));
+			bus.fireEvent(new EntityChangedEvent(selected.getSourceEntity(), group, false));
 		}
 	}
 

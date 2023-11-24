@@ -10,4 +10,6 @@ import io.imunity.vaadin.endpoint.common.bus.Event;
 public record CredentialDefinitionChangedEvent(
 		boolean updatedExisting,
 		String name) implements Event
-{}
+{
+
+}

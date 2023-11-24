@@ -10,7 +10,7 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import io.imunity.console.views.directory_browser.ComboBoxNonEmptyValueSupport;
+import io.imunity.console.components.NonEmptyComboBox;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.Collection;
@@ -46,8 +46,7 @@ class AddFilterDialog extends ConfirmDialog
 	private Component getContents()
 	{
 		Span info = new Span(msg.getMessage("AddFilterDialog.column"));
-		column = new ComboBox<>();
-		ComboBoxNonEmptyValueSupport.install(column);
+		column = new NonEmptyComboBox<>();
 		if (!columns.isEmpty())
 		{
 			column.setItems(
@@ -64,8 +63,7 @@ class AddFilterDialog extends ConfirmDialog
 				return msg.getMessage("Identities." + i);
 		});
 
-		operand = new ComboBox<>();
-		ComboBoxNonEmptyValueSupport.install(operand);
+		operand = new NonEmptyComboBox<>();
 		operand.setItems(Operand.values());
 		operand.setItemLabelGenerator(item -> msg.getMessage("AddFilterDialog.operand." + item));
 		operand.setValue(Operand.contain);
@@ -100,7 +98,7 @@ class AddFilterDialog extends ConfirmDialog
 		EntityFilter filter = (op == Operand.notEqual || op == Operand.notContain) ?
 			ie -> !baseFilter.test(ie) : baseFilter;
 		
-		String description = colCaption + " " + opLabel + " '" + argumentV + "'";
+		String description = colCaption + " " + msg.getMessage("AddFilterDialog.operand." + opLabel) + " '" + argumentV + "'";
 		
 		callback.onConfirm(filter, description);
 	}

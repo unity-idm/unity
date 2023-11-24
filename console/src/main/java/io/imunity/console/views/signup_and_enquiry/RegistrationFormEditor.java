@@ -15,7 +15,7 @@ public class RegistrationFormEditor extends VerticalLayout
 {
 	public void setForm(RegistrationForm deepCopy)
 	{
-
+		//todo remember to use FORM_PROFILE var
 	}
 
 	public RegistrationFormEditor init(boolean b)

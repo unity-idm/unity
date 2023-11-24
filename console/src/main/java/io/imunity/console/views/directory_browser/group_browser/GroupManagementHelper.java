@@ -10,6 +10,7 @@ import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.console.views.directory_setup.attribute_classes.RequiredAttributesDialog;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -26,12 +28,22 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @Component
 public class GroupManagementHelper
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, GroupManagementHelper.class);
+
 	private final MessageSource msg;
 	private final GroupsManagement groupsMan;
 	private final AttributeTypeManagement attrMan;
@@ -171,6 +183,7 @@ public class GroupManagementHelper
 		} catch (EngineException e)
 		{
 			showSummary(notMember, added, currentGroup);
+			LOG.error(e);
 			return;
 		}
 				

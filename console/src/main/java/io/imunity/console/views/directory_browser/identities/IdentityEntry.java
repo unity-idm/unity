@@ -5,11 +5,13 @@
 package io.imunity.console.views.directory_browser.identities;
 
 import io.imunity.console.views.directory_browser.EntityWithLabel;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.StringUtils;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 
 import java.util.HashMap;
@@ -19,6 +21,8 @@ import java.util.Set;
 
 public class IdentityEntry
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, IdentityEntry.class);
+
 	private final Map<BaseColumn, String> columnsToValues = new HashMap<>();
 	private final EntityWithLabel sourceEntity;
 	private final Identity sourceIdentity;
@@ -99,6 +103,7 @@ public class IdentityEntry
 			return getBaseValue(baseColumn);
 		} catch (IllegalArgumentException e)
 		{
+			LOG.trace(e);
 			return getAttribute(key);
 		}
 	}

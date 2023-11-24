@@ -8,6 +8,10 @@ import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.vaadin.endpoint.common.bus.Event;
 import pl.edu.icm.unity.base.group.Group;
 
-public record EntityChangedEvent(EntityWithLabel entity, Group group) implements Event
+public record EntityChangedEvent(
+		EntityWithLabel entity,
+		Group group,
+		boolean multiSelected) implements Event
 {
+
 }

@@ -40,6 +40,14 @@ public class ColumnToggleMenu extends ContextMenu
 			column.setVisible(event.getSource().isChecked());
 			Optional.ofNullable(clickListener).ifPresent(Runnable::run);
 		});
+		//prevent close on click
+		menuItem.getElement().addEventListener("click", event ->
+		{
+			if (menuItem.isChecked())
+				menuItem.getElement().executeJs("this.setAttribute('menu-item-checked', '')");
+			else
+				menuItem.getElement().executeJs("this.removeAttribute('menu-item-checked')");
+		}).addEventData("event.preventDefault()");
 		menuItem.setCheckable(true);
 		menuItem.setChecked(column.isVisible());
 		columns.put(column, menuItem);

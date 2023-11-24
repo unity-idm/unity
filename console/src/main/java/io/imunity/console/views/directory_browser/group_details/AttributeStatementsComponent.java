@@ -52,7 +52,7 @@ class AttributeStatementsComponent extends VerticalLayout
 
 		attrStatementsGrid = new GridWithActionColumn<>(msg, Collections.emptyList());
 		attrStatementsGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
-		attrStatementsGrid.addColumn(AttrStatementWithId::toShortString)
+		attrStatementsGrid.addColumn(attrStatementWithId -> msg.getMessage("AttributeStatements.nameValue", attrStatementWithId.toShortString()))
 				.setHeader(msg.getMessage("AttributeStatements.nameCaption"))
 				.setAutoWidth(true)
 				.setResizable(true);

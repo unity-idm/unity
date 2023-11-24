@@ -194,6 +194,10 @@ vaadin-custom-field[invalid] > vaadin-horizontal-layout > vaadin-text-area, vaad
     --lumo-contrast-10pct: var(--lumo-error-color-10pct)
 }
 
+vaadin-grid-cell-content > vaadin-checkbox {
+    margin-right: -1em;
+}
+
 /*
     Styling based on part selector
 */
@@ -266,10 +270,6 @@ vcf-tooltip[theme=light]::part(container) {
     color: var(--lumo-body-text-color);
     border-radius: var(--lumo-border-radius-m);
     box-shadow: 0 0 0 1px var(--lumo-shade-5pct), var(--lumo-box-shadow-m);
-}
-
-vaadin-tooltip-overlay::part(content) {
-    white-space: break-spaces;
 }
 
 vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {

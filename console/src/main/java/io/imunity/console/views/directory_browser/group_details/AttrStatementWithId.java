@@ -10,8 +10,8 @@ import java.util.UUID;
 
 class AttrStatementWithId
 {
-	public final AttributeStatement statement;
-	public final String id;
+	final AttributeStatement statement;
+	final String id;
 	
 	AttrStatementWithId(AttributeStatement statement)
 	{
@@ -21,7 +21,7 @@ class AttrStatementWithId
 
 	String toShortString()
 	{
-		return "Assign " + (statement.dynamicAttributeMode() ? 
+		return (statement.dynamicAttributeMode() ?
 				statement.getDynamicAttributeType() :
 					statement.getFixedAttribute().getName());
 	}

@@ -83,7 +83,7 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 						.withValidator((val, context) -> validator.apply(val, context))
 						.bind(map -> map.get(locale), (map, val) -> map.put(locale, val))
 		);
-
+		setValue(new LinkedHashMap<>());
 		add(summary, content);
 		propagateValueChangeEventFromNestedTextAreaToThisComponent();
 	}
