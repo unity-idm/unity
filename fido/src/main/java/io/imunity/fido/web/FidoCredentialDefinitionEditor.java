@@ -22,6 +22,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 import static java.util.Objects.isNull;
 
 
@@ -57,6 +58,7 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 
 		FormLayout ret = new FormLayout();
 		ret.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		ret.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		ret.addFormItem(attestationConveyance, msg.getMessage("Fido.credEditor.attestationConveyance"))
 				.add(htmlTooltipFactory.get(msg.getMessage("Fido.credEditor.attestationConveyance.tip")));

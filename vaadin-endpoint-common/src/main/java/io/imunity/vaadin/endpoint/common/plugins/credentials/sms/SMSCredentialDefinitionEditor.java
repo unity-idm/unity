@@ -30,13 +30,9 @@ import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABE
 
 public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor, CredentialDefinitionViewer
 {
-	private MessageSource msg;
-	private MessageTemplateManagement msgTplMan;
-	
-	private IntegerField codeLength;
-	private IntegerField validityTime;
-	private IntegerField authSMSLimit;
-	private CompatibleTemplatesComboBox msgTemplate;
+	private final MessageSource msg;
+	private final MessageTemplateManagement msgTplMan;
+
 	private SMSCredentialRecoverySettingsEditor recoverySettings;
 	private MobileNumberConfirmationConfigurationEditor confirmationConfigEditor;
 	private Binder<SMSCredential> binder;
@@ -107,31 +103,32 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 		formLayout.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		msgTemplate = new CompatibleTemplatesComboBox(SMSAuthnTemplateDef.NAME, msgTplMan);
+		CompatibleTemplatesComboBox msgTemplate = new CompatibleTemplatesComboBox(SMSAuthnTemplateDef.NAME, msgTplMan);
 		formLayout.addFormItem(msgTemplate, msg.getMessage("SMSCredentialDefinitionEditor.msgTemplate"));
 		msgTemplate.setWidth(TEXT_FIELD_MEDIUM.value());
 		binder.forField(msgTemplate).asRequired().bind("messageTemplate");
-		
-		codeLength = new IntegerField();
+
+		IntegerField codeLength = new IntegerField();
 		codeLength.setMin(3);
 		codeLength.setMax(50);
 		codeLength.setStepButtonsVisible(true);
 		formLayout.addFormItem(codeLength, msg.getMessage("SMSCredentialDefinitionEditor.codeLength"));
 		binder.forField(codeLength).asRequired().bind("codeLength");
-		
-		validityTime = new IntegerField();
+
+		IntegerField validityTime = new IntegerField();
 		validityTime.setMin(1);
 		validityTime.setMax(525600);
 		validityTime.setStepButtonsVisible(true);
 		formLayout.addFormItem(validityTime, msg.getMessage("SMSCredentialDefinitionEditor.validityTime"));
 		binder.forField(validityTime).asRequired().bind("validityTime");
-		
-		authSMSLimit = new IntegerField();
+
+		IntegerField authSMSLimit = new IntegerField();
 		authSMSLimit.setMin(1);
 		authSMSLimit.setMax(10000);
 		authSMSLimit.setStepButtonsVisible(true);
 		formLayout.addFormItem(authSMSLimit, msg.getMessage("SMSCredentialDefinitionEditor.smsLimit"));
 		binder.forField(authSMSLimit).asRequired().bind("authnSMSLimit");
+		formLayout.add(new Hr());
 
 		SMSCredential helper = new SMSCredential();
 		

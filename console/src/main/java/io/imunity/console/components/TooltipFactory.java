@@ -13,6 +13,7 @@ import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 
 import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
 
+
 @org.springframework.stereotype.Component
 public class TooltipFactory implements HtmlTooltipFactory
 {

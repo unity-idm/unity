@@ -43,14 +43,14 @@ class PasswordProgressBar extends VerticalLayout
 
 	public void setColorToGreen()
 	{
-		progressBar.removeThemeVariants(ProgressBarVariant.LUMO_CONTRAST);
+		progressBar.removeThemeVariants(ProgressBarVariant.LUMO_ERROR);
 		progressBar.addThemeVariants(ProgressBarVariant.LUMO_SUCCESS);
 	}
 
 	public void setColorToRed()
 	{
 		progressBar.removeThemeVariants(ProgressBarVariant.LUMO_SUCCESS);
-		progressBar.addThemeVariants(ProgressBarVariant.LUMO_CONTRAST);
+		progressBar.addThemeVariants(ProgressBarVariant.LUMO_ERROR);
 	}
 
 	public void setHint(String txt)
