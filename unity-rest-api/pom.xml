@@ -14,7 +14,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>unity-rest-api</artifactId>
-
+	<packaging>jar</packaging>
+	<name>UNITY Server ${m.name} module</name>
+	<description>REST API</description>
+	<properties>
+		<m.name>rest-api</m.name>
+	</properties>
     <scm>
         <connection>${scm.base}/${m.name}</connection>
         <developerConnection>${scm.base}/${m.name}</developerConnection>

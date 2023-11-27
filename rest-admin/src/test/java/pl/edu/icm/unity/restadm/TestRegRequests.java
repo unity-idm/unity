@@ -21,7 +21,7 @@ import io.imunity.rest.api.types.registration.RestRegistrationRequest;
 import io.imunity.rest.api.types.registration.RestRegistrationRequestState;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.restadm.mappers.registration.RegistrationRequestMapper;
+import pl.edu.icm.unity.rest.mappers.registration.RegistrationRequestMapper;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;

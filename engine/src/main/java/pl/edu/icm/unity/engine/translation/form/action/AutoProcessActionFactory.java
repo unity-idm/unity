@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.translation.form.action;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
@@ -54,6 +55,11 @@ public class AutoProcessActionFactory extends AbstractRegistrationTranslationAct
 				RegistrationContext context, String currentProfile) throws EngineException
 		{
 			state.setAutoAction(action);
+		}
+		
+		@Override
+		public void validate(RegistrationActionValidationContext context) throws EngineException
+		{
 		}
 		
 		private void setParameters(String[] parameters)

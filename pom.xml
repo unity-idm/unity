@@ -69,6 +69,8 @@
 		<module>web-upman</module>
 		<module>idp-spi</module>
 		<module>rest</module>
+		<module>unity-rest-api</module>
+		<module>rest-mappers</module>
 		<module>rest-admin</module>
 		<module>ws</module>
 		<module>saml</module>
@@ -85,7 +87,6 @@
 		<module>fido</module>
 		<module>web-attr-introspection</module>
 		<module>scim</module>
-        <module>unity-rest-api</module>
         <module>vaadin23-endpoint-common</module>
         <module>vaadin23-elements</module>
     </modules>

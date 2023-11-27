@@ -11,10 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
 import io.imunity.upman.rest.UpmanRestEndpointProperties;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
@@ -24,7 +34,16 @@ public class UpmanRestServiceConfiguration
 	private GroupWithIndentIndicator authorizationGroup;
 	private List<String> allowedCORSheaders;
 	private List<String> allowedCORSorigins;
+	private List<String> rootGroupAttributes;
 
+	
+	UpmanRestServiceConfiguration(String attribute)
+	{
+		this.allowedCORSheaders = new ArrayList<>();
+		this.allowedCORSorigins = new ArrayList<>();
+		this.rootGroupAttributes = new ArrayList<>(List.of(attribute));
+	}
+	
 	UpmanRestServiceConfiguration()
 	{
 		this.allowedCORSheaders = new ArrayList<>();
@@ -71,6 +90,16 @@ public class UpmanRestServiceConfiguration
 		this.allowedCORSorigins = allowedCORSorigins;
 	}
 
+	public List<String> getRootGroupAttributes()
+	{
+		return rootGroupAttributes;
+	}
+
+	public void setRootGroupAttributes(List<String> rootGroupAttributes)
+	{
+		this.rootGroupAttributes = rootGroupAttributes;
+	}
+	
 	public String toProperties()
 	{
 		Properties raw = new Properties();
@@ -78,6 +107,15 @@ public class UpmanRestServiceConfiguration
 		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.ROOT_GROUP, rootGroup.group.getPathEncoded());
 		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.AUTHORIZATION_GROUP, authorizationGroup.group.getPathEncoded());
 
+		if (!CollectionUtils.isEmpty(rootGroupAttributes))
+		{
+			for (int i = 0; i < rootGroupAttributes.size(); i++)
+			{
+				raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.ROOT_GROUP_ATTRIBUTES
+						+ (i + 1), rootGroupAttributes.get(i));
+			}
+		}
+	
 		allowedCORSheaders.forEach(cors -> {
 
 			int i = allowedCORSheaders.indexOf(cors) + 1;
@@ -114,6 +152,33 @@ public class UpmanRestServiceConfiguration
 			false);
 		allowedCORSheaders = restAdminProp.getListOfValues(UpmanRestEndpointProperties.ENABLED_CORS_HEADERS);
 		allowedCORSorigins = restAdminProp.getListOfValues(UpmanRestEndpointProperties.ENABLED_CORS_ORIGINS);
+		rootGroupAttributes = restAdminProp.getListOfValues(UpmanRestEndpointProperties.ROOT_GROUP_ATTRIBUTES);
 	}
+	
+	@Component
+	public static class UpmanRestServiceConfigurationProvider
+	{
+		private static final Logger log = Log.getLogger(Log.U_SERVER_REST, UpmanRestServiceConfigurationProvider.class);
 
+		private final AttributeSupport attributeSupport;
+
+		@Autowired
+		public UpmanRestServiceConfigurationProvider(AttributeSupport attributeSupport)
+		{
+			this.attributeSupport = attributeSupport;
+		}
+
+		UpmanRestServiceConfiguration getNewConfig() 
+		{
+			AttributeType nameAttr = null;
+			try
+			{
+				nameAttr = attributeSupport.getAttributeTypeWithSingeltonMetadata(EntityNameMetadataProvider.NAME);
+			} catch (EngineException e)
+			{
+				log.error("Can not get name attribute", e);
+			}
+			return nameAttr == null ? new UpmanRestServiceConfiguration() : new UpmanRestServiceConfiguration(nameAttr.getName());
+		}	
+	}
 }

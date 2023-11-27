@@ -6,6 +6,7 @@
 package io.imunity.upman.rest.console;
 
 import io.imunity.upman.rest.RESTUpmanEndpoint;
+import io.imunity.upman.rest.console.UpmanRestServiceConfiguration.UpmanRestServiceConfigurationProvider;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -24,25 +25,29 @@ import java.util.Set;
 class UpmanRestServiceEditor implements ServiceEditor
 {
 	private final MessageSource msg;
+	private final UpmanRestServiceConfigurationProvider configProvider;
 	private final List<String> allRealms;
 	private final List<AuthenticationFlowDefinition> flows;
 	private final List<AuthenticatorInfo> authenticators;
 	private final List<String> usedPaths;
 	private final Set<String> serverContextPaths;
 	private final List<Group> groups;
+	private final List<String> attributes;
 	private UpmanRestServiceEditorComponent editor;
 
-	UpmanRestServiceEditor(MessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-	                       List<AuthenticatorInfo> authenticators, List<String> usedPaths,
-	                       Set<String> serverContextPaths, List<Group> groups)
+	UpmanRestServiceEditor(MessageSource msg, UpmanRestServiceConfigurationProvider configProvider,
+			List<String> allRealms, List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
+			List<String> usedPaths, Set<String> serverContextPaths, List<Group> groups, List<String> attributes)
 	{
 		this.msg = msg;
+		this.configProvider = configProvider;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.usedPaths = usedPaths;
 		this.serverContextPaths = serverContextPaths;
 		this.groups = groups;
+		this.attributes = attributes;
 	}
 
 	@Override
@@ -50,12 +55,12 @@ class UpmanRestServiceEditor implements ServiceEditor
 	{
 
 		UpmanRestServiceEditorGeneralTab upmanRestServiceEditorGeneralTab = new UpmanRestServiceEditorGeneralTab(
-				msg, RESTUpmanEndpoint.TYPE, usedPaths, serverContextPaths, groups);
+				msg, RESTUpmanEndpoint.TYPE, usedPaths, serverContextPaths, groups, attributes);
 
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding());
 
-		editor = new UpmanRestServiceEditorComponent(msg, upmanRestServiceEditorGeneralTab, authenticationTab,
+		editor = new UpmanRestServiceEditorComponent(msg, configProvider, upmanRestServiceEditorGeneralTab, authenticationTab,
 				(DefaultServiceDefinition) endpoint);
 		return editor;
 	}

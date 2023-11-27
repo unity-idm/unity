@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
@@ -59,6 +60,11 @@ public class SubmitMessageActionFactory extends AbstractRegistrationTranslationA
 				RegistrationContext context, String currentProfile) throws EngineException
 		{
 			log.error("The submissionMessage form action is effectless. Please reconfigure your form to use Finalization config instead.");
+		}
+		
+		@Override
+		public void validate(RegistrationActionValidationContext context) throws EngineException
+		{
 		}
 	}
 }

@@ -62,5 +62,7 @@ public abstract class RegistrationTranslationAction extends TranslationActionIns
 	protected abstract void invokeWrapped(TranslatedRegistrationRequest state,
 			Object mvelCtx, RegistrationContext contexts, String currentProfile) throws EngineException;
 
+	
+	public abstract void validate(RegistrationActionValidationContext context) throws EngineException;
 }
 

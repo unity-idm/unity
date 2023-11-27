@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -76,6 +77,11 @@ public class FilterAttributeActionFactory extends AbstractRegistrationTranslatio
 					log.debug("Filtering attribute " + a);
 					state.removeAttribute(a);
 				}
+		}
+		
+		@Override
+		public void validate(RegistrationActionValidationContext context) throws EngineException
+		{
 		}
 		
 		private void setParameters(String[] parameters)

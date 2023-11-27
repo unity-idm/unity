@@ -42,8 +42,8 @@ import pl.edu.icm.unity.engine.api.bulk.GroupsWithMembers;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.restadm.mappers.AttributeExtMapper;
-import pl.edu.icm.unity.restadm.mappers.EntityMapper;
+import pl.edu.icm.unity.rest.mappers.AttributeExtMapper;
+import pl.edu.icm.unity.rest.mappers.EntityMapper;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 

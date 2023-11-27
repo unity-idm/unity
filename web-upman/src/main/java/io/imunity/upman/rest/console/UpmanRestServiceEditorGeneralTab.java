@@ -5,34 +5,39 @@
 
 package io.imunity.upman.rest.console;
 
+import java.util.List;
+import java.util.Set;
+
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
+
+import io.imunity.tooltip.TooltipExtension;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
-
-import java.util.List;
-import java.util.Set;
 
 class UpmanRestServiceEditorGeneralTab extends GeneralTab
 {
 
 	private Binder<UpmanRestServiceConfiguration> restBinder;
 	private final List<Group> allGroups;
+	private final List<String> attributes;
 
 	public UpmanRestServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type,
 	                                        List<String> usedEndpointsPaths, Set<String> serverContextPaths,
-	                                        List<Group> allGroups)
+	                                        List<Group> allGroups, List<String> attributes)
 	{
 		super(msg, type, usedEndpointsPaths, serverContextPaths);
 		this.allGroups = allGroups;
+		this.attributes = attributes;
 	}
 
 	public void initUI(Binder<DefaultServiceDefinition> serviceBinder,
@@ -41,9 +46,30 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 		super.initUI(serviceBinder, editMode);
 		this.restBinder = restBinder;
 		mainLayout.addComponent(buildGroupSection());
+		mainLayout.addComponent(buildAttributeSection());
 		mainLayout.addComponent(buildCorsSection());
 	}
 
+	
+	private Component buildAttributeSection()
+	{
+		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
+		main.setMargin(false);
+		ChipsWithDropdown<String> rootGroupAttributes = new ChipsWithDropdown<>();
+		rootGroupAttributes.setCaption(msg.getMessage("UpmanRestServiceEditorComponent.rootGroupAttributes"));
+		rootGroupAttributes.setItems(attributes);
+		rootGroupAttributes.setDescription(msg.getMessage("UpmanRestServiceEditorComponent.rootGroupAttributesDescription"));
+		rootGroupAttributes.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
+
+		TooltipExtension.tooltip(rootGroupAttributes);
+		
+		main.addComponent(rootGroupAttributes);
+		restBinder.forField(rootGroupAttributes).asRequired().bind("rootGroupAttributes");
+		CollapsibleLayout attributes = new CollapsibleLayout(msg.getMessage("UpmanRestServiceEditorComponent.attributes"), main);
+		attributes.expand();
+		return attributes;
+	}
+	
 	private Component buildGroupSection()
 	{
 
@@ -65,7 +91,7 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 		restBinder.forField(authorizationGroup).asRequired().bind("authorizationGroup");
 
 		CollapsibleLayout components = new CollapsibleLayout(msg.getMessage("UpmanRestServiceEditorComponent.groups"), main);
-		components.expand();
+		components.expand();		
 		return components;
 	}
 

@@ -5,13 +5,19 @@
 
 package io.imunity.upman.rest.console;
 
-import io.imunity.upman.rest.RESTUpmanEndpoint;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
+
+import io.imunity.upman.rest.RESTUpmanEndpoint;
+import io.imunity.upman.rest.console.UpmanRestServiceConfiguration.UpmanRestServiceConfigurationProvider;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -23,9 +29,6 @@ import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
 import pl.edu.icm.unity.webui.console.services.ServiceController;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
-import java.util.ArrayList;
-import java.util.stream.Collectors;
-
 @Component
 class UpmanRestServiceController extends DefaultServicesControllerBase implements ServiceController
 {
@@ -34,11 +37,14 @@ class UpmanRestServiceController extends DefaultServicesControllerBase implement
 	private final AuthenticatorManagement authMan;
 	private final NetworkServer networkServer;
 	private final BulkGroupQueryService bulkService;
+	private final AttributeSupport attributeSupport;
+	private final UpmanRestServiceConfigurationProvider configProvider;
 
 
 	UpmanRestServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 	                           AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
-	                           EndpointFileConfigurationManagement serviceFileConfigController,  BulkGroupQueryService bulkService)
+	                           EndpointFileConfigurationManagement serviceFileConfigController,  BulkGroupQueryService bulkService,
+	                           AttributeSupport attributeSupport, UpmanRestServiceConfigurationProvider configProvider)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
@@ -46,6 +52,8 @@ class UpmanRestServiceController extends DefaultServicesControllerBase implement
 		this.authMan = authMan;
 		this.networkServer = networkServer;
 		this.bulkService = bulkService;
+		this.attributeSupport = attributeSupport;
+		this.configProvider = configProvider;
 	}
 
 	@Override
@@ -57,14 +65,15 @@ class UpmanRestServiceController extends DefaultServicesControllerBase implement
 	@Override
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
-		return new UpmanRestServiceEditor(msg,
-			realmsMan.getRealms().stream().map(DescribedObjectROImpl::getName).collect(Collectors.toList()),
-			new ArrayList<>(flowsMan.getAuthenticationFlows()),
-			new ArrayList<>(authMan.getAuthenticators(null)),
-			endpointMan.getEndpoints().stream().map(Endpoint::getContextAddress).collect(Collectors.toList()),
-			networkServer.getUsedContextPaths(),
-			bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream()
-				.map(g -> g.getGroup()).collect(Collectors.toList())
-		);
+		return new UpmanRestServiceEditor(msg, configProvider, realmsMan.getRealms().stream().map(DescribedObjectROImpl::getName)
+				.collect(Collectors.toList()), new ArrayList<>(flowsMan.getAuthenticationFlows()),
+				new ArrayList<>(authMan.getAuthenticators(null)), endpointMan.getEndpoints().stream().map(Endpoint::getContextAddress)
+						.collect(Collectors.toList()),
+				networkServer.getUsedContextPaths(),
+				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream().map(g -> g.getGroup())
+						.collect(Collectors.toList()),
+						attributeSupport.getAttributeTypesAsMap().values().stream().map(a -> a.getName()).collect(Collectors.toList())
+				);
+						
 	}
 }

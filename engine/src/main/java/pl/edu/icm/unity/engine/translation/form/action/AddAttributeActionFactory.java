@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -30,6 +31,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
@@ -128,6 +130,26 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 			}
 		}
 
+		@Override
+		public void validate(RegistrationActionValidationContext context) throws EngineException
+		{
+			if (group.equals("/"))
+			{
+				if (!context.allowedRootGroupAttributes.contains(unityAttribute))
+				{
+					throw new IllegalArgumentException("Attribute " + unityAttribute + " is forbidden in root group");
+				} else
+				{
+					return;
+				}
+			}
+
+			if (!Group.isChildOrSame(group, context.allowedGroupWithChildren))
+			{
+				throw new IllegalArgumentException("Attribute " + unityAttribute + " is forbidden in " + group);
+			}
+		}
+		
 		private void setParameters(String[] parameters)
 		{
 			unityAttribute = parameters[0];

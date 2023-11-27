@@ -7,6 +7,7 @@ package io.imunity.upman.rest.console;
 
 import com.vaadin.data.Binder;
 import io.imunity.upman.rest.RESTUpmanEndpoint;
+import io.imunity.upman.rest.console.UpmanRestServiceConfiguration.UpmanRestServiceConfigurationProvider;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
@@ -20,7 +21,7 @@ class UpmanRestServiceEditorComponent extends ServiceEditorBase
 	private final Binder<UpmanRestServiceConfiguration> restBinder;
 	private final Binder<DefaultServiceDefinition> serviceBinder;
 
-	public UpmanRestServiceEditorComponent(MessageSource msg, UpmanRestServiceEditorGeneralTab generalTab,
+	public UpmanRestServiceEditorComponent(MessageSource msg, UpmanRestServiceConfigurationProvider configProvider, UpmanRestServiceEditorGeneralTab generalTab,
 	                                       AuthenticationTab authTab, DefaultServiceDefinition toEdit)
 	{
 		super(msg);
@@ -35,7 +36,7 @@ class UpmanRestServiceEditorComponent extends ServiceEditorBase
 		
 		serviceBinder.setBean(
 				editMode ? toEdit : new DefaultServiceDefinition(RESTUpmanEndpoint.TYPE.getName()));
-		UpmanRestServiceConfiguration config = new UpmanRestServiceConfiguration();
+		UpmanRestServiceConfiguration config = configProvider.getNewConfig();
 		if (editMode && toEdit.getConfiguration() != null)
 		{
 			config.fromProperties(toEdit.getConfiguration(), msg);

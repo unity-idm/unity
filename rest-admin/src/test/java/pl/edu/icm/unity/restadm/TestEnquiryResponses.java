@@ -21,7 +21,7 @@ import io.imunity.rest.api.types.registration.RestEnquiryResponse;
 import io.imunity.rest.api.types.registration.RestEnquiryResponseState;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.restadm.mappers.registration.EnquiryResponseMapper;
+import pl.edu.icm.unity.rest.mappers.registration.EnquiryResponseMapper;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;

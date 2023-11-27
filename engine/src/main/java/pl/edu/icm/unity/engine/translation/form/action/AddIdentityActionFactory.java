@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -98,6 +99,11 @@ public class AddIdentityActionFactory extends AbstractRegistrationTranslationAct
 			IdentityParam identity = dataParser.parseAsIdentity(typeDefinition, value, null, currentProfile); 
 			log.debug("Mapped identity: " + identity);
 			state.addIdentity(identity);
+		}
+		
+		@Override
+		public void validate(RegistrationActionValidationContext context) throws EngineException
+		{
 		}
 
 		private void setParameters(String[] parameters)

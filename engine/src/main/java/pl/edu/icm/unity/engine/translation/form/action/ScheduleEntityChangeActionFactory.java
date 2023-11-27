@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
@@ -69,6 +70,11 @@ public class ScheduleEntityChangeActionFactory extends AbstractRegistrationTrans
 			EntityChange change = new EntityChange(scheduledOp, changeDate);
 			log.debug("Entity scheduled operation: " + scheduledOp);
 			state.setEntityChange(change);
+		}
+		
+		@Override
+		public void validate(RegistrationActionValidationContext context) throws EngineException
+		{
 		}
 		
 		private void setParameters(String[] parameters)

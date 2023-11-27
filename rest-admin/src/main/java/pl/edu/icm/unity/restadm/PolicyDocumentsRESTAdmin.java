@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentNotFoundExceptio
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.restadm.mappers.policy.PolicyDocumentMapper;
+import pl.edu.icm.unity.rest.mappers.policy.PolicyDocumentMapper;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;

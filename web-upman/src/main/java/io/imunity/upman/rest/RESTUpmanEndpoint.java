@@ -71,7 +71,8 @@ public class RESTUpmanEndpoint extends RESTEndpoint
 			RESTUpmanController ret =
 				factory.newInstance(
 					upmanRestEndpointProperties.getValue(UpmanRestEndpointProperties.ROOT_GROUP),
-					upmanRestEndpointProperties.getValue(UpmanRestEndpointProperties.AUTHORIZATION_GROUP)
+					upmanRestEndpointProperties.getValue(UpmanRestEndpointProperties.AUTHORIZATION_GROUP),
+					upmanRestEndpointProperties.getListOfValues(UpmanRestEndpointProperties.ROOT_GROUP_ATTRIBUTES)
 				);
 			objects.add(ret);
 			RestEndpointHelper.installExceptionHandlers(objects);
