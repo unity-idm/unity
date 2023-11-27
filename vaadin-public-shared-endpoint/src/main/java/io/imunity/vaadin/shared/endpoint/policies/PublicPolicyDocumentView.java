@@ -75,7 +75,7 @@ class PublicPolicyDocumentView extends UnityViewComponent implements BeforeEnter
 		getContent().removeAll();
 		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
 		Span label = new Span(msg.getMessage("Empty"));
-		label.getStyle().set("color", "red");
+		label.getStyle().set("color", "var(--lumo-error-color)");
 		HorizontalLayout horizontalLayout = new HorizontalLayout(icon, label);
 		horizontalLayout.setMargin(true);
 		getContent().add(horizontalLayout);

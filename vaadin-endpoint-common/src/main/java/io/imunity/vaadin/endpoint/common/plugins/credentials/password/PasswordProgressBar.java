@@ -96,7 +96,7 @@ class PasswordProgressBar extends VerticalLayout
 		else
 		{
 			icon = VaadinIcon.EXCLAMATION_CIRCLE_O.create();
-			icon.getStyle().set("color", "red");
+			icon.getStyle().set("color", "var(--lumo-error-color)");
 		}
 		icon.setClassName(CssClassNames.SMALL_ICON.getName());
 		return icon;

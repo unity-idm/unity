@@ -23,7 +23,7 @@ html {
   --lumo-primary-color-10pct: rgba(0, 105, 151, 0.1);
   --lumo-primary-color: #006997;
   --lumo-header-text-color: #006997;
-  --lumo-error-color: #FF4637;
+  --lumo-error-color: #d11135;
   --lumo-success-color: #00B720;
   --_lumo-button-primary-background-color: #6BBFCE;
 
@@ -84,7 +84,6 @@ html {
 /*
     Styling based on plain html/vaadin tags
 */
-
 
 h1, h2, h3, h4, h5, h6 {
     font-weight: var(--unity-font-weight);

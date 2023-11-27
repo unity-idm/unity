@@ -95,7 +95,7 @@ class CredentialChangePanel extends VerticalLayout
 		Span info = new Span(msg.getMessage("OutdatedCredentialDialog.info"));
 		info.addClassName("u-outdatedcred-info");
 		info.setWidth(uiConfig.width * 2, Unit.EM);
-		info.getStyle().set("color", "red");
+		info.getStyle().set("color", "var(--lumo-error-color)");
 		info.getStyle().set("text-align", "center");
 		add(info);
 		setAlignItems(Alignment.CENTER);
