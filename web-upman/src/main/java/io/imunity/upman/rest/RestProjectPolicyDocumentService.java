@@ -108,14 +108,21 @@ class RestProjectPolicyDocumentService
 	}
 
 	@Transactional
-	void updatePolicyDocument(String projectId, RestPolicyDocumentUpdateRequest policy) throws EngineException
+	void updatePolicyDocument(String projectId, RestPolicyDocumentUpdateRequest policy, boolean updateRevision) throws EngineException
 	{
 		assertAuthorization();
 		restPolicyDocumentAuthorizationManager.assertUpdateOrRemoveProjectPolicyAuthorization(
 				groupMan.getContents(ProjectPathProvider.getProjectPath(projectId, rootGroup), GroupContents.METADATA)
 						.getGroup(),
 				policy.id);
-		policyDocumentManagement.updatePolicyDocument(PolicyDocumentMapper.map(policy));
+		if (updateRevision)
+		{
+			policyDocumentManagement.updatePolicyDocumentWithRevision(PolicyDocumentMapper.map(policy));
+
+		} else
+		{
+			policyDocumentManagement.updatePolicyDocument(PolicyDocumentMapper.map(policy));
+		}
 	}
 
 	void addPolicyDocument(String projectId, RestPolicyDocumentRequest policy) throws EngineException

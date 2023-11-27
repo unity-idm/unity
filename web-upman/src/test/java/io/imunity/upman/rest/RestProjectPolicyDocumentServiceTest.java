@@ -141,7 +141,7 @@ public class RestProjectPolicyDocumentServiceTest
 				.withContentType(PolicyDocumentContentType.EMBEDDED.name())
 				.withId(1L)
 				.withMandatory(true)
-				.build());
+				.build(), false);
 		verify(policyDocumentManagement).updatePolicyDocument(PolicyDocumentUpdateRequest.updateRequestBuilder()
 				.withName("name2")
 				.withId(1L)
@@ -151,5 +151,34 @@ public class RestProjectPolicyDocumentServiceTest
 				.withContent(Map.of("pl", "demo"))
 				.build());
 	}
+	
+	@Test
+	void shouldUpdatePolicyDocumentWithRevision() throws EngineException
+	{
+		GroupContents content = new GroupContents();
+		Group group = new Group("/A");
+		group.setDisplayedName(new I18nString());
+		group.setDelegationConfiguration(
+				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
+		content.setGroup(group);
+		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);
+		restProjectService.updatePolicyDocument("A", RestPolicyDocumentUpdateRequest.builder()
+				.withName("name2")
+				.withDisplayedName(Map.of())
+				.withContent(Map.of("pl", "demo"))
+				.withContentType(PolicyDocumentContentType.EMBEDDED.name())
+				.withId(1L)
+				.withMandatory(true)
+				.build(), true);
+		verify(policyDocumentManagement).updatePolicyDocumentWithRevision(PolicyDocumentUpdateRequest.updateRequestBuilder()
+				.withName("name2")
+				.withId(1L)
+				.withContentType(PolicyDocumentContentType.EMBEDDED.name())
+				.withMandatory(true)
+				.withDisplayedName(Map.of())
+				.withContent(Map.of("pl", "demo"))
+				.build());
+	}
+
 
 }

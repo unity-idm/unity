@@ -212,12 +212,12 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/policyDocument")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updatePolicyDocument(@PathParam("project-id") String projectId, String json)
+	public void updatePolicyDocument(@PathParam("project-id") String projectId, @QueryParam("incrementRevision") Boolean incrementRevision, String json)
 			throws EngineException, IOException
 	{
 		RestPolicyDocumentUpdateRequest policy = JsonUtil.parse(json, RestPolicyDocumentUpdateRequest.class);
 		log.debug("updatePolicyDocument {}, {}", projectId, policy.id);
-		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy);
+		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy, incrementRevision != null && incrementRevision);
 	}
 
 	@Path("/projects/{project-id}/registrationForm")
