@@ -5,23 +5,13 @@
 
 package io.imunity.webconsole.authentication.authenticators;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.vaadin.event.selection.SingleSelectionListener;
-
 import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
 import io.imunity.webconsole.translationProfile.dryrun.DryRunWizardProvider;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -39,13 +29,16 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactoriesR
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
  * Authenticators controller
  * 
  * @author P.Piernik
  *
  */
-@Component
+@Component("AuthenticatorsControllerV8")
 public class AuthenticatorsController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticatorsController.class);

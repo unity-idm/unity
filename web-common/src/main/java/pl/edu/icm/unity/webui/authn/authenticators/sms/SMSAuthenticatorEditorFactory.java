@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
  * @author P.Piernik
  *
  */
-@Component
+@Component("SMSAuthenticatorEditorFactoryV8")
 class SMSAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private MessageSource msg;

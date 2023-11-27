@@ -18,6 +18,7 @@ import io.imunity.console.views.authentication.credentials.CredentialsEditView;
 import io.imunity.console.views.authentication.credentials.CredentialsInfoView;
 import io.imunity.console.views.authentication.credentials.CredentialsView;
 import io.imunity.console.views.authentication.facilities.AuthenticationFlowEditView;
+import io.imunity.console.views.authentication.facilities.AuthenticatorEditView;
 import io.imunity.console.views.authentication.facilities.FacilitiesView;
 import io.imunity.console.views.authentication.input_profiles.RemoteDataProfilesView;
 import io.imunity.console.views.authentication.realms.RealmEditView;
@@ -68,7 +69,7 @@ public class ConsoleMenu extends UnityAppLayout
 								MenuComponent.builder(FacilitiesView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.authentication.facilities"))
 										.icon(VaadinIcon.SIGN_IN)
-										.subViews(AuthenticationFlowEditView.class)
+										.subViews(AuthenticationFlowEditView.class, AuthenticatorEditView.class)
 										.build(),
 								MenuComponent.builder(CredentialsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.authentication.localCredentials"))

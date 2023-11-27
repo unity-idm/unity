@@ -3,32 +3,32 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.authn.authenticators.cert;
+package io.imunity.vaadin.auth.authenticators.sms;
 
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
-import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
+import pl.edu.icm.unity.stdext.credential.sms.SMSVerificator;
 
 /**
- * Factory for {@link CertificateAuthenticatorEditor}
+ * Factory for {@link SMSAuthenticatorEditor}
  * 
  * @author P.Piernik
  *
  */
-@Component("CertificateAuthenticatorEditorFactoryV8")
-class CertificateAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+@Component
+class SMSAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private MessageSource msg;
 	private CredentialManagement credMan;
 
 	@Autowired
-	CertificateAuthenticatorEditorFactory(MessageSource msg, CredentialManagement credMan)
+	SMSAuthenticatorEditorFactory(MessageSource msg,
+			CredentialManagement credMan)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -37,12 +37,12 @@ class CertificateAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	@Override
 	public String getSupportedAuthenticatorType()
 	{
-		return CertificateVerificator.NAME;
+		return SMSVerificator.NAME;
 	}
 
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new CertificateAuthenticatorEditor(msg, credMan.getCredentialDefinitions());
+		return new SMSAuthenticatorEditor(msg, credMan.getCredentialDefinitions());
 	}
 }

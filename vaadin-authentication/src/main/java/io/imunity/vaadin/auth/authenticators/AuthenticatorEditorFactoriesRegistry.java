@@ -3,10 +3,8 @@
  * See LICENCE.txt file for licensing information.
  */
 
+package io.imunity.vaadin.auth.authenticators;
 
-package pl.edu.icm.unity.webui.authn.authenticators;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
@@ -14,15 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Maintains a simple registry of available {@link AuthenticatorEditorFactory}ies.
- * @author P.Piernik
- *
- */
-@Component("AuthenticatorEditorFactoriesRegistryV8")
+
+@Component
 public class AuthenticatorEditorFactoriesRegistry extends TypesRegistryBase<AuthenticatorEditorFactory>
 {
-	@Autowired
 	public AuthenticatorEditorFactoriesRegistry(Optional<List<AuthenticatorEditorFactory>> typeElements)
 	{
 		super(typeElements.orElseGet(ArrayList::new));

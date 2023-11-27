@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
  * @author P.Piernik
  *
  */
-@Component
+@Component("PasswordAuthenticatorEditorFactoryV8")
 class PasswordAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private MessageSource msg;

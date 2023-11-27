@@ -106,6 +106,13 @@ public class MappingResultComponent extends VerticalLayout
 		setVisible(true);
 	}
 
+	public void displayMappingResult(MappingResult mappingResult, String inputTranslationProfile)
+	{
+		titleLabel.setHtmlContent("<div>" + msg.getMessage("DryRun.MappingResultComponent.title", inputTranslationProfile) + "</div>");
+		noneLabel.setText("");
+		displayMappingResult(mappingResult);
+	}
+
 	private void displayItsTables(List<MappedIdentity> identities) 
 	{
 		idsTable.setItems(Collections.emptyList());
