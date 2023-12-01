@@ -86,14 +86,15 @@ class IdentityTypeEditor extends FormLayout
 		min = new IntegerField();
 		min.setStepButtonsVisible(true);
 		min.setMin(0);
-	
+		min.setMax(Integer.MAX_VALUE);
 	
 		addFormItem(min, msg.getMessage("IdentityType.min"));
 
 		minVerified = new IntegerField();
 		minVerified.setStepButtonsVisible(true);
 		minVerified.setMin(0);
-	
+		minVerified.setMax(Integer.MAX_VALUE);
+
 		typeDefinition = idTypeSupport.getTypeDefinition(toEdit.getName());
 		if (typeDefinition.isEmailVerifiable())
 		{

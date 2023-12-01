@@ -5,17 +5,15 @@
 
 package io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors;
 
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Validator;
-import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 public class IntegerBoundEditor extends CustomField<Integer>
 {
@@ -39,9 +37,19 @@ public class IntegerBoundEditor extends CustomField<Integer>
 		unlimited.setLabel(labelUnlimited);
 		limit = new IntegerField();
 		if (max != null)
+		{
 			limit.setMax(max);
+		}else
+		{
+			limit.setMax(Integer.MAX_VALUE);
+		}
 		if (min != null)
+		{
 			limit.setMin(min);
+		}else
+		{
+			limit.setMin(Integer.MIN_VALUE);
+		}
 		limit.setStepButtonsVisible(true);
 		unlimited.addValueChangeListener(event ->
 		{
@@ -50,8 +58,7 @@ public class IntegerBoundEditor extends CustomField<Integer>
 			if (!limited)
 				limit.setValue(0);
 		});
-		
-		
+		limit.setWidth(8, Unit.EM);
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.add(limit, unlimited);
 		hl.setAlignSelf(Alignment.CENTER, limit);
@@ -72,26 +79,27 @@ public class IntegerBoundEditor extends CustomField<Integer>
 	{
 		return unlimited.getValue() ? bound : limit.getValue();
 	}
+	
+	@Override
+	protected void setModelValue(Integer newModelValue, boolean fromClient)
+	{
+		if (newModelValue != null)
+			super.setModelValue(newModelValue, fromClient);
+	}
 
 	@Override
 	protected void setPresentationValue(Integer newPresentationValue)
 	{
-		unlimited.setValue(newPresentationValue.equals(bound));
-		limit.setValue(newPresentationValue.equals(bound) ? 0 : newPresentationValue);
+		if (newPresentationValue != null)
+		{
+			unlimited.setValue(newPresentationValue.equals(bound));
+			limit.setValue(newPresentationValue.equals(bound) ? 0 : newPresentationValue);
+		}
 	}
-	
 	
 	public void configureBinding(Binder<?> binder, String fieldName)
 	{
 		binder.forField(this)
-			.withValidator(getValidator(msg, min, max))
 			.bind(fieldName);
-	}
-	
-	private static Validator<Integer> getValidator(MessageSource msg, Integer min, Integer max)
-	{
-		String range = AttributeTypeUtils.getBoundsDesc(msg, min, max);
-		return new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
-				min, max);		
 	}
 }

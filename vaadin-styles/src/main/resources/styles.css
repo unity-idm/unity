@@ -668,3 +668,7 @@ vaadin-details.u-multi-tab-details {
 .u-panel > vaadin-form-layout {
     margin-left: var(--unity-base-margin);
 }
+
+.u-width-full {
+	width: 100% !important;
+}

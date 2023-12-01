@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -21,6 +22,7 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
@@ -82,6 +84,7 @@ public class IdentityTypesView extends ConsoleViewComponent
 		identityTypesGrid.sort(GridSortOrder.asc(nameColumn)
 				.build());
 		getContent().add(identityTypesGrid);
+		getContent().setHeightFull();
 
 	}
 
@@ -113,10 +116,12 @@ public class IdentityTypesView extends ConsoleViewComponent
 	private FormLayout getDetailsComponent(IdentityTypeEntry i)
 	{
 		FormLayout wrapper = new FormLayout();
+		wrapper.setWidthFull();
 		NativeLabel label = new NativeLabel(i.type()
 				.getDescription());
 		label.setWidthFull();
-		wrapper.addFormItem(label, msg.getMessage("IdentityTypesView.descriptionLabelCaption"));
+		FormItem addFormItem = wrapper.addFormItem(label, msg.getMessage("IdentityTypesView.descriptionLabelCaption"));
+		addFormItem.addClassName(CssClassNames.WIDTH_FULL.getName());
 		return wrapper;
 	}
 

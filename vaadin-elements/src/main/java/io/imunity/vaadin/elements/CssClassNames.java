@@ -36,8 +36,10 @@ public enum CssClassNames
 	SMALL_ICON("u-small-icon"),
 	REQUIRED_LABEL("u-required-label"),
 	ERROR_INDICATOR("u-error-indicator"),
-	LOGO_IMAGE("u-logo-image");
+	LOGO_IMAGE("u-logo-image"),
+	WIDTH_FULL("u-width-full");
 
+	
 	private final String name;
 
 	CssClassNames(String name)
