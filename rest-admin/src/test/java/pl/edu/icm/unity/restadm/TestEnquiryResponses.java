@@ -19,9 +19,9 @@ import com.google.common.collect.Lists;
 
 import io.imunity.rest.api.types.registration.RestEnquiryResponse;
 import io.imunity.rest.api.types.registration.RestEnquiryResponseState;
+import io.imunity.rest.mappers.registration.EnquiryResponseMapper;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.rest.mappers.registration.EnquiryResponseMapper;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;

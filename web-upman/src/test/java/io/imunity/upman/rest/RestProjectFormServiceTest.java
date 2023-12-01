@@ -16,13 +16,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.rest.api.types.registration.RestEnquiryForm;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
+import io.imunity.rest.mappers.registration.EnquiryFormMapper;
+import io.imunity.rest.mappers.registration.RegistrationFormMapper;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.rest.mappers.registration.EnquiryFormMapper;
-import pl.edu.icm.unity.rest.mappers.registration.RegistrationFormMapper;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -52,8 +52,8 @@ public class RestProjectFormServiceTest
 	@BeforeEach
 	void setUp()
 	{
-		service = new RestProjectFormService(authz, groupDelegationConfigGenerator, groupMan, registrationsManagement,
-				enquiryManagement, validator, "/A", "/A/B");
+		service = new RestProjectFormService(authz, new RestProjectFormServiceNoAuthz(groupDelegationConfigGenerator,
+				groupMan, registrationsManagement, enquiryManagement, validator, "/A"), "/A/B");
 	}
 
 	@Test
@@ -67,12 +67,14 @@ public class RestProjectFormServiceTest
 		service.addRegistrationForm("A", form);
 		Group group2 = new Group("/A/A");
 		group2.setDisplayedName(new I18nString());
-		group2.setDelegationConfiguration(
-				new GroupDelegationConfiguration(true, false, null, "form", null, null, null, null));
+		group2.setDelegationConfiguration(GroupDelegationConfiguration.builder()
+				.withRegistrationForm("form")
+				.withEnabled(true)
+				.build());
 		verify(groupMan).updateGroup("/A/A", group2);
 		verify(registrationsManagement).addForm(RegistrationFormMapper.map(form));
 	}
-	
+
 	@Test
 	public void shouldNotAddRegistrationFormWhenValidationFailed() throws EngineException
 	{
@@ -81,15 +83,18 @@ public class RestProjectFormServiceTest
 				.withName("form")
 				.withDefaultCredentialRequirement("cred")
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator).assertRegistrationForm(RegistrationFormMapper.map(form), "A");
-		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> service.addRegistrationForm("A", form));
+		doThrow(IllegalArgumentException.class).when(validator)
+				.assertRegistrationFormIsRestrictedToProjectGroup(RegistrationFormMapper.map(form), "/A/A");
+		Assertions.assertThrows(IllegalArgumentException.class, () -> service.addRegistrationForm("A", form));
 	}
 
 	@Test
 	public void shouldUpdateRegistrationForm() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, "form", null, null, null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withRegistrationForm("form")
+				.withEnabled(true)
+				.build());
 
 		RestRegistrationForm form = RestRegistrationForm.builder()
 				.withName("form")
@@ -98,24 +103,30 @@ public class RestProjectFormServiceTest
 		service.updateRegistrationForm("A", form);
 		verify(registrationsManagement).updateForm(RegistrationFormMapper.map(form), true);
 	}
-	
+
 	@Test
 	public void shouldNotUpdateRegistrationFormWhenValidationFailed() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, "form", null, null, null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withRegistrationForm("form")
+				.withEnabled(true)
+				.build());
 		RestRegistrationForm form = RestRegistrationForm.builder()
 				.withName("form")
 				.withDefaultCredentialRequirement("cred")
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator).assertRegistrationForm(RegistrationFormMapper.map(form), "A");
-		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> service.updateRegistrationForm("A", form));
+		doThrow(IllegalArgumentException.class).when(validator)
+				.assertRegistrationFormIsRestrictedToProjectGroup(RegistrationFormMapper.map(form), "/A/A");
+		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateRegistrationForm("A", form));
 	}
 
 	@Test
 	public void shouldRemoveRegistrationForm() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, "form", null, null, null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withRegistrationForm("form")
+				.withEnabled(true)
+				.build());
 		service.removeRegistrationForm("A");
 		verify(registrationsManagement).removeForm("form", true);
 	}
@@ -123,7 +134,10 @@ public class RestProjectFormServiceTest
 	@Test
 	public void shouldGetRegistrationForm() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, "form", null, null, null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withRegistrationForm("form")
+				.withEnabled(true)
+				.build());
 
 		RestRegistrationForm form = RestRegistrationForm.builder()
 				.withName("form")
@@ -149,12 +163,14 @@ public class RestProjectFormServiceTest
 		service.addSignupEnquiryForm("A", form);
 		Group group2 = new Group("/A/A");
 		group2.setDisplayedName(new I18nString());
-		group2.setDelegationConfiguration(
-				new GroupDelegationConfiguration(true, false, null, null, "form", null, null, null));
+		group2.setDelegationConfiguration(GroupDelegationConfiguration.builder()
+				.withSignupEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 		verify(groupMan).updateGroup("/A/A", group2);
 		verify(enquiryManagement).addEnquiry(EnquiryFormMapper.map(form));
 	}
-	
+
 	@Test
 	public void shouldNotAddJoinEnquiryFormWhenValidationFailed() throws EngineException
 	{
@@ -165,15 +181,18 @@ public class RestProjectFormServiceTest
 				.withType(EnquiryType.REQUESTED_MANDATORY.name())
 				.withTargetGroups(List.of("/"))
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator).assertCommonForm(EnquiryFormMapper.map(form), "A");
-		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> service.addSignupEnquiryForm("A", form));
+		doThrow(IllegalArgumentException.class).when(validator)
+				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
+		Assertions.assertThrows(IllegalArgumentException.class, () -> service.addSignupEnquiryForm("A", form));
 	}
 
 	@Test
 	public void shouldUpdateJoinEnquiryForm() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, null, "form", null, null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withSignupEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 		RestEnquiryForm form = RestEnquiryForm.builder()
 				.withName("form")
 				.withTargetCondition("true")
@@ -183,26 +202,32 @@ public class RestProjectFormServiceTest
 		service.updateSignupEnquiryForm("A", form);
 		verify(enquiryManagement).updateEnquiry(EnquiryFormMapper.map(form), true);
 	}
-	
+
 	@Test
 	public void shouldNotUpdateJoinEnquiryFormWhenValidationFailed() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, null, "form", null, null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withSignupEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 		RestEnquiryForm form = RestEnquiryForm.builder()
 				.withName("form")
 				.withTargetCondition("true")
 				.withType(EnquiryType.REQUESTED_MANDATORY.name())
 				.withTargetGroups(List.of("/"))
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator).assertCommonForm(EnquiryFormMapper.map(form), "A");
-		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> service.updateSignupEnquiryForm("A", form));
+		doThrow(IllegalArgumentException.class).when(validator)
+				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
+		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateSignupEnquiryForm("A", form));
 	}
 
 	@Test
 	public void shouldRemoveJoinEnquiryForm() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, null, "form", null, null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withSignupEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 		service.removeSignupEnquiryForm("A");
 		verify(enquiryManagement).removeEnquiry("form", true);
 	}
@@ -210,7 +235,10 @@ public class RestProjectFormServiceTest
 	@Test
 	public void shouldGetJoinEnquiryForm() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, null, "form", null, null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withSignupEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 		RestEnquiryForm form = RestEnquiryForm.builder()
 				.withName("form")
 				.withTargetCondition("true")
@@ -238,12 +266,14 @@ public class RestProjectFormServiceTest
 		service.addMembershipUpdateEnquiryForm("A", form);
 		Group group2 = new Group("/A/A");
 		group2.setDisplayedName(new I18nString());
-		group2.setDelegationConfiguration(
-				new GroupDelegationConfiguration(true, false, null, null, null, "form", null, null));
+		group2.setDelegationConfiguration(GroupDelegationConfiguration.builder()
+				.withMembershipUpdateEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 		verify(groupMan).updateGroup("/A/A", group2);
 		verify(enquiryManagement).addEnquiry(EnquiryFormMapper.map(form));
 	}
-	
+
 	@Test
 	public void shouldNotAddMembershipUpdateEnquiryFormWhenValidationFailed() throws EngineException
 	{
@@ -254,7 +284,8 @@ public class RestProjectFormServiceTest
 				.withType(EnquiryType.REQUESTED_MANDATORY.name())
 				.withTargetGroups(List.of("/"))
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator).assertCommonForm(EnquiryFormMapper.map(form), "A");
+		doThrow(IllegalArgumentException.class).when(validator)
+				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class,
 				() -> service.addMembershipUpdateEnquiryForm("A", form));
 	}
@@ -262,7 +293,10 @@ public class RestProjectFormServiceTest
 	@Test
 	public void shouldUpdateMembershipUpdateEnquiryForm() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, null, null, "form", null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withMembershipUpdateEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 		RestEnquiryForm form = RestEnquiryForm.builder()
 				.withName("form")
 				.withTargetCondition("true")
@@ -272,18 +306,22 @@ public class RestProjectFormServiceTest
 		service.updateMembershipUpdateEnquiryForm("A", form);
 		verify(enquiryManagement).updateEnquiry(EnquiryFormMapper.map(form), true);
 	}
-	
+
 	@Test
 	public void shouldNotUpdateMembershipUpdateFormWhenValidationFailed() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, null, null, "form", null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withMembershipUpdateEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 		RestEnquiryForm form = RestEnquiryForm.builder()
 				.withName("form")
 				.withTargetCondition("true")
 				.withType(EnquiryType.REQUESTED_MANDATORY.name())
 				.withTargetGroups(List.of("/"))
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator).assertCommonForm(EnquiryFormMapper.map(form), "A");
+		doThrow(IllegalArgumentException.class).when(validator)
+				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class,
 				() -> service.updateMembershipUpdateEnquiryForm("A", form));
 	}
@@ -291,7 +329,10 @@ public class RestProjectFormServiceTest
 	@Test
 	public void shouldRemoveMembershipUpdateEnquiryForm() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, null, null, "form", null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withMembershipUpdateEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 		service.removeMembershipUpdateEnquiryForm("A");
 		verify(enquiryManagement).removeEnquiry("form", true);
 	}
@@ -299,7 +340,10 @@ public class RestProjectFormServiceTest
 	@Test
 	public void shouldGetMembershipUpdateEnquiryForm() throws EngineException
 	{
-		setUpGroupContent(new GroupDelegationConfiguration(true, false, null, null, null, "form", null, null));
+		setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withMembershipUpdateEnquiryForm("form")
+				.withEnabled(true)
+				.build());
 
 		RestEnquiryForm form = RestEnquiryForm.builder()
 				.withName("form")

@@ -87,8 +87,8 @@
 		<module>fido</module>
 		<module>web-attr-introspection</module>
 		<module>scim</module>
-        <module>vaadin23-endpoint-common</module>
-        <module>vaadin23-elements</module>
+		<module>vaadin23-endpoint-common</module>
+		<module>vaadin23-elements</module>
     </modules>
 
 	<developers>

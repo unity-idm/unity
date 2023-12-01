@@ -69,10 +69,10 @@
 		    <artifactId>unity-server-rest</artifactId>
 		    <version>${project.version}</version>
 	    </dependency>
-	    <dependency>
-			<groupId>io.imunity</groupId>
+		<dependency>
+		<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest-mappers</artifactId>
-			<version>${project.version}</version>
+		<version>${project.version}</version>
 		</dependency>
 	    <dependency>
 		    <groupId>io.imunity</groupId>

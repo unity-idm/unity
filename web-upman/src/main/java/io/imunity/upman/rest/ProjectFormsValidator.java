@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
-import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationActionFactory;
@@ -29,29 +29,24 @@ class ProjectFormsValidator
 {
 	private final RegistrationActionsRegistry registrationActionsRegistry;
 	private final GroupsManagement groupMan;
-
-	private final String rootGroup;
 	private final List<String> rootGroupAttributes;
 
-	public ProjectFormsValidator(RegistrationActionsRegistry registrationActionsRegistry, GroupsManagement groupMan,
-			String rootGroup, List<String> rootGroupAttributes)
+	public ProjectFormsValidator(RegistrationActionsRegistry registrationActionsRegistry, GroupsManagement groupMan, List<String> rootGroupAttributes)
 	{
 		this.registrationActionsRegistry = registrationActionsRegistry;
 		this.groupMan = groupMan;
-		this.rootGroup = rootGroup;
 		this.rootGroupAttributes = rootGroupAttributes;
 	}
 
-	public void assertRegistrationForm(RegistrationForm registrationForm, String projectId)
+	public void assertRegistrationFormIsRestrictedToProjectGroup(RegistrationForm registrationForm, String projectPath)
 			throws IllegalArgumentException, EngineException
 	{
-		assertCommonForm(registrationForm, projectId);
+		assertCommonPartOfFormIsRestrictedToProjectGroup(registrationForm, projectPath);
 		assertAutoLoginToRealm(registrationForm.getAutoLoginToRealm());
 	}
 	
-	public void assertCommonForm(BaseForm form, String projectId) throws EngineException
+	public void assertCommonPartOfFormIsRestrictedToProjectGroup(BaseForm form, String projectPath) throws EngineException
 	{
-		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		assertAdminGroup(form.getNotificationsConfiguration(), projectPath);
 		assertGroups(form.getGroupParams(), projectPath);
 		assertAttributes(form.getAttributeParams(), projectPath);
@@ -70,7 +65,7 @@ class ProjectFormsValidator
 	{
 		RegistrationTranslationActionFactory factory = registrationActionsRegistry.getByName(action.getName());
 		RegistrationTranslationAction instance = factory.getInstance(action.getParameters());
-		instance.validate(RegistrationActionValidationContext.builder()
+		instance.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder()
 				.withAllowedGroupWithChildren(projectPath)
 				.withAllowedRootGroupAttributes(
 						rootGroupAttributes)
@@ -170,9 +165,9 @@ class ProjectFormsValidator
 			this.registrationActionsRegistry = registrationActionsRegistry;
 		}
 
-		ProjectFormsValidator newInstance(String rootGroup, List<String> rootGroupAttributes)
+		ProjectFormsValidator newInstance(List<String> rootGroupAttributes)
 		{
-			return new ProjectFormsValidator(registrationActionsRegistry, groupMan, rootGroup, rootGroupAttributes);
+			return new ProjectFormsValidator(registrationActionsRegistry, groupMan, rootGroupAttributes);
 		}
 	}
 }

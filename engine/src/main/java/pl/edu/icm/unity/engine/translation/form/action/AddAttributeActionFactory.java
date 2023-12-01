@@ -20,9 +20,10 @@ import com.google.common.collect.Sets;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
-import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -131,22 +132,21 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 		}
 
 		@Override
-		public void validate(RegistrationActionValidationContext context) throws EngineException
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
 		{
 			if (group.equals("/"))
 			{
-				if (!context.allowedRootGroupAttributes.contains(unityAttribute))
-				{
-					throw new IllegalArgumentException("Attribute " + unityAttribute + " is forbidden in root group");
-				} else
+				if (context.allowedRootGroupAttributes.contains(unityAttribute))
 				{
 					return;
 				}
+				
+				throw new ActionValidationException("Attribute " + unityAttribute + " is forbidden in root group");
 			}
 
-			if (!Group.isChildOrSame(group, context.allowedGroupWithChildren))
+			if (!Group.isChildOrSame(group, context.parentGroup))
 			{
-				throw new IllegalArgumentException("Attribute " + unityAttribute + " is forbidden in " + group);
+				throw new ActionValidationException("Attribute " + unityAttribute + " is forbidden in " + group);
 			}
 		}
 		

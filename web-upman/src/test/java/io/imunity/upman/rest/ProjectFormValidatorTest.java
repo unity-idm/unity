@@ -35,16 +35,16 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 public class ProjectFormValidatorTest
 {
 	@Mock
-	RegistrationActionsRegistry registrationActionsRegistry;
+	private RegistrationActionsRegistry registrationActionsRegistry;
 	@Mock
-	GroupsManagement groupsManagement;
+	private GroupsManagement groupsManagement;
 
-	ProjectFormsValidator validator;
+	private ProjectFormsValidator validator;
 
 	@BeforeEach
 	void setUp()
 	{
-		validator = new ProjectFormsValidator(registrationActionsRegistry, groupsManagement, "/projects",
+		validator = new ProjectFormsValidator(registrationActionsRegistry, groupsManagement,
 				List.of("attr1"));
 	}
 
@@ -59,7 +59,7 @@ public class ProjectFormValidatorTest
 				.build();
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> validator.assertRegistrationForm(registrationForm, "A"));
+				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 
 	}
 
@@ -74,7 +74,7 @@ public class ProjectFormValidatorTest
 				.withAutoLoginToRealm("realm")
 				.build();
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> validator.assertRegistrationForm(registrationForm, "A"));
+				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class ProjectFormValidatorTest
 				.thenReturn(Map.of("/project/B", new Group("/project/B"), "/project/A", new Group("/project/A")));
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> validator.assertRegistrationForm(registrationForm, "A"));
+				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class ProjectFormValidatorTest
 				.build();
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> validator.assertRegistrationForm(registrationForm, "A"));
+				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class ProjectFormValidatorTest
 				.build();
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> validator.assertRegistrationForm(registrationForm, "A"));
+				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
@@ -152,7 +152,7 @@ public class ProjectFormValidatorTest
 				.thenReturn(new AddAttributeActionFactory(attributeTypeSupport, mock(ExternalDataParser.class)));
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> validator.assertRegistrationForm(registrationForm, "A"));
+				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
@@ -174,7 +174,7 @@ public class ProjectFormValidatorTest
 				.thenReturn(new AddToGroupActionFactory());
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> validator.assertRegistrationForm(registrationForm, "A"));
+				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
@@ -209,7 +209,7 @@ public class ProjectFormValidatorTest
 				.thenReturn(new AddAttributeActionFactory(attributeTypeSupport, mock(ExternalDataParser.class)));
 
 		Assertions.assertDoesNotThrow(
-				() -> validator.assertRegistrationForm(registrationForm, "A"));
+				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 }

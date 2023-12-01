@@ -14,8 +14,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
-import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -94,17 +95,17 @@ public class AddToGroupActionFactory extends AbstractRegistrationTranslationActi
 		}
 		
 		@Override
-		public void validate(RegistrationActionValidationContext context) throws EngineException
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
 		{
 			if (!((rawExpression.startsWith("\"") || rawExpression.startsWith("'"))
 					&& (rawExpression.endsWith("\"") || rawExpression.endsWith("'"))))
 			{
-				throw new IllegalArgumentException("Only literal expression is allowed");
+				throw new ActionValidationException("Only literal expression is allowed");
 			}
 			String group = rawExpression.substring(1, rawExpression.length() -1);	
-			if (!Group.isChildOrSame(group, context.allowedGroupWithChildren))
+			if (!Group.isChildOrSame(group, context.parentGroup))
 			{
-				throw new IllegalArgumentException("Group " + group + " is forbidden");
+				throw new ActionValidationException("Group " + group + " is forbidden");
 			}
 		}
 		

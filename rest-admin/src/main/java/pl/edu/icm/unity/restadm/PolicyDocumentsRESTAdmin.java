@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
+import io.imunity.rest.mappers.policy.PolicyDocumentMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
@@ -16,7 +18,6 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentNotFoundExceptio
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.rest.mappers.policy.PolicyDocumentMapper;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;

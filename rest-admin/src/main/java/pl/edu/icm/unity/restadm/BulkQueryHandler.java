@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.rest.api.types.basic.RestEntityGroupAttributes;
 import io.imunity.rest.api.types.basic.RestGroupMember;
 import io.imunity.rest.api.types.basic.RestMultiGroupMembers;
+import io.imunity.rest.mappers.AttributeExtMapper;
+import io.imunity.rest.mappers.EntityMapper;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
@@ -42,8 +44,6 @@ import pl.edu.icm.unity.engine.api.bulk.GroupsWithMembers;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.rest.mappers.AttributeExtMapper;
-import pl.edu.icm.unity.rest.mappers.EntityMapper;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 

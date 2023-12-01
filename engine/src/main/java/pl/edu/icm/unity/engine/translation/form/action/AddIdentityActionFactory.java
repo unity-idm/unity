@@ -16,8 +16,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
-import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -102,7 +103,7 @@ public class AddIdentityActionFactory extends AbstractRegistrationTranslationAct
 		}
 		
 		@Override
-		public void validate(RegistrationActionValidationContext context) throws EngineException
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
 		{
 		}
 

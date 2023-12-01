@@ -7,8 +7,9 @@ package pl.edu.icm.unity.engine.translation.form.action;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam;
-import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionValidationContext;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
@@ -61,7 +62,7 @@ public class AutoProcessInvitationsActionFactory extends AbstractRegistrationTra
 		}
 
 		@Override
-		public void validate(RegistrationActionValidationContext context) throws EngineException
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
 		{
 		}
 		

@@ -30,7 +30,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.registration.RestEnquiryForm;
 import io.imunity.rest.api.types.registration.RestEnquiryFormNotifications;
-import pl.edu.icm.unity.rest.mappers.registration.layout.FormLayoutSettingsMapper;
+import io.imunity.rest.mappers.registration.layout.FormLayoutSettingsMapper;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 

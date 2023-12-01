@@ -53,6 +53,18 @@ public class GroupDelegationConfiguration
 		this.policyDocumentsIds = policyDocumentsIds != null ? new ArrayList<>(policyDocumentsIds) : null;
 		this.enableSubprojects = enableSubprojects != null ? enableSubprojects : false;
 	}
+	
+	private GroupDelegationConfiguration(Builder builder)
+	{
+		this.enabled = builder.enabled;
+		this.logoUrl = builder.logoUrl;
+		this.registrationForm = builder.registrationForm;
+		this.signupEnquiryForm = builder.signupEnquiryForm;
+		this.membershipUpdateEnquiryForm = builder.membershipUpdateEnquiryForm;
+		this.attributes = builder.attributes != null ? List.copyOf(builder.attributes) : null;
+		this.policyDocumentsIds = builder.policyDocumentsIds != null ? List.copyOf(builder.policyDocumentsIds) : null;
+		this.enableSubprojects = builder.enableSubprojects;
+	}
 
 	@Override
 	public int hashCode()
@@ -78,5 +90,92 @@ public class GroupDelegationConfiguration
 				&& Objects.equals(this.policyDocumentsIds, other.policyDocumentsIds)
 				&& Objects.equals(this.enableSubprojects, other.enableSubprojects);
 
+	}
+
+	public static Builder builder()
+	{
+		return new Builder();
+	}
+
+	public static final class Builder
+	{
+		private boolean enabled = true;
+		private String logoUrl;
+		private String registrationForm;
+		private String signupEnquiryForm;
+		private String membershipUpdateEnquiryForm;
+		private List<String> attributes = null;
+		private List<Long> policyDocumentsIds = null;
+		private boolean enableSubprojects = false;
+
+		private Builder()
+		{
+		}
+
+		public Builder withEnabled(boolean enabled)
+		{
+			this.enabled = enabled;
+			return this;
+		}
+
+		public Builder copy(GroupDelegationConfiguration toCopy)
+		{
+			this.enabled = toCopy.enabled;
+			this.logoUrl = toCopy.logoUrl;
+			this.registrationForm = toCopy.registrationForm;
+			this.signupEnquiryForm = toCopy.signupEnquiryForm;
+			this.membershipUpdateEnquiryForm = toCopy.membershipUpdateEnquiryForm;
+			this.attributes = toCopy.attributes == null ? null : new ArrayList<>(toCopy.attributes);
+			this.policyDocumentsIds = toCopy.policyDocumentsIds == null ? null : new ArrayList<>(toCopy.policyDocumentsIds);
+			this.enableSubprojects = toCopy.enableSubprojects;
+			return this;
+		}
+		
+		public Builder withLogoUrl(String logoUrl)
+		{
+			this.logoUrl = logoUrl;
+			return this;
+		}
+
+		public Builder withRegistrationForm(String registrationForm)
+		{
+			this.registrationForm = registrationForm;
+			return this;
+		}
+
+		public Builder withSignupEnquiryForm(String signupEnquiryForm)
+		{
+			this.signupEnquiryForm = signupEnquiryForm;
+			return this;
+		}
+
+		public Builder withMembershipUpdateEnquiryForm(String membershipUpdateEnquiryForm)
+		{
+			this.membershipUpdateEnquiryForm = membershipUpdateEnquiryForm;
+			return this;
+		}
+
+		public Builder withAttributes(List<String> attributes)
+		{
+			this.attributes = attributes;
+			return this;
+		}
+
+		public Builder withPolicyDocumentsIds(List<Long> policyDocumentsIds)
+		{
+			this.policyDocumentsIds = policyDocumentsIds;
+			return this;
+		}
+
+		public Builder withEnableSubprojects(boolean enableSubprojects)
+		{
+			this.enableSubprojects = enableSubprojects;
+			return this;
+		}
+
+		public GroupDelegationConfiguration build()
+		{
+			return new GroupDelegationConfiguration(this);
+		}
 	}
 }
