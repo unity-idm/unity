@@ -18,6 +18,8 @@ import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -76,6 +78,11 @@ public class FilterAttributeActionFactory extends AbstractRegistrationTranslatio
 					log.debug("Filtering attribute " + a);
 					state.removeAttribute(a);
 				}
+		}
+		
+		@Override
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
+		{
 		}
 		
 		private void setParameters(String[] parameters)

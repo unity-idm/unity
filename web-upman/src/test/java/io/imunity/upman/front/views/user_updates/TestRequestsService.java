@@ -5,9 +5,12 @@
 
 package io.imunity.upman.front.views.user_updates;
 
-import io.imunity.upman.front.model.ProjectGroup;
-import io.imunity.upman.utils.DelegatedGroupsHelper;
-import io.imunity.vaadin.elements.NotificationPresenter;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +18,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import io.imunity.upman.front.model.ProjectGroup;
+import io.imunity.upman.utils.DelegatedGroupsHelper;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
@@ -22,12 +28,6 @@ import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
-
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class TestRequestsService

@@ -16,8 +16,6 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.ws.rs.core.Response.Status;
-
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -33,6 +31,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
+import jakarta.ws.rs.core.Response.Status;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.image.ImageType;

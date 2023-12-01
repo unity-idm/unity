@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 
 import io.imunity.rest.api.types.registration.RestEnquiryResponse;
 import io.imunity.rest.api.types.registration.RestEnquiryResponseState;
+import io.imunity.rest.mappers.registration.EnquiryResponseMapper;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -31,7 +32,6 @@ import pl.edu.icm.unity.base.registration.EnquiryResponseBuilder;
 import pl.edu.icm.unity.base.registration.RegistrationContext;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.restadm.mappers.registration.EnquiryResponseMapper;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 
 public class TestEnquiryResponses extends RESTAdminTestBase

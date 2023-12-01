@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
@@ -33,10 +34,10 @@ import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.base.registration.GroupSelection;
 import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationRequest;
 import pl.edu.icm.unity.base.registration.Selection;
-import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -44,8 +45,9 @@ import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
-import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
@@ -93,6 +95,66 @@ public class TestFormProfileActions
 		Attribute a = state.getAttributes().iterator().next();
 		assertThat(a.getName()).isEqualTo("stringA");
 		assertThat(a.getValues().get(0)).isEqualTo("a1");
+	}
+	
+	@Test
+	public void shouldThrowExceptionWhenForbiddenRootGroupAttribute() throws EngineException
+	{
+		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
+		AttributeType sA = new AttributeType("stringA", StringAttributeSyntax.ID);
+		when(attrsMan.getType("stringA")).thenReturn(sA);
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, parser);
+		RegistrationTranslationAction action = factory.getInstance("stringA", "/", 
+				"attr['attribute']");
+		Assertions.assertThrows(IllegalArgumentException.class,
+				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withAllowedRootGroupAttributes(List.of("allowedAttr")).build()));
+	}
+	
+	@Test
+	public void shouldThrowExceptionWhenForbiddenGroupInAttribute() throws EngineException
+	{
+		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
+		AttributeType sA = new AttributeType("stringA", StringAttributeSyntax.ID);
+		when(attrsMan.getType("stringA")).thenReturn(sA);
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, parser);
+		RegistrationTranslationAction action = factory.getInstance("stringA", "/A/B", 
+				"attr['attribute']");
+		Assertions.assertThrows(IllegalArgumentException.class,
+				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withAllowedGroupWithChildren("/project").build()));
+	}
+	
+	@Test
+	public void shouldValidateWithSuccessWhenAllowedByParenGroup() throws EngineException
+	{
+		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
+		AttributeType sA = new AttributeType("stringA", StringAttributeSyntax.ID);
+		when(attrsMan.getType("stringA")).thenReturn(sA);
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, parser);
+		RegistrationTranslationAction action = factory.getInstance("stringA", "/project/A", "attr['attribute']");
+
+		Assertions.assertDoesNotThrow(() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder()
+				.withAllowedGroupWithChildren("/project")
+				.withAllowedRootGroupAttributes(List.of())
+				.build()));
+	}
+	
+	@Test
+	public void shouldValidateWithSuccessWhenRootGroupAttribute() throws EngineException
+	{
+		AttributeTypeSupport attrsMan = mock(AttributeTypeSupport.class);
+		AttributeType sA = new AttributeType("stringA", StringAttributeSyntax.ID);
+		when(attrsMan.getType("stringA")).thenReturn(sA);
+		ExternalDataParser parser = mock(ExternalDataParser.class);
+		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, parser);
+
+		RegistrationTranslationAction action2 = factory.getInstance("stringA", "/", "attr['attribute']");
+		Assertions.assertDoesNotThrow(() -> action2.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder()
+				.withAllowedRootGroupAttributes(List.of("stringA"))
+				.withAllowedGroupWithChildren("/project")
+				.build()));
 	}
 
 	@Test
@@ -162,6 +224,34 @@ public class TestFormProfileActions
 		GroupParam g = state.getGroups().iterator().next();
 		assertThat(g.getGroup()).isEqualTo("/A");
 	}
+	
+	@Test
+	public void shouldThrowExceptionWhenNotLiteralGroupExpression() throws EngineException
+	{
+		AddToGroupActionFactory factory = new AddToGroupActionFactory();
+		RegistrationTranslationAction action = factory.getInstance("[attr]");
+		Assertions.assertThrows(IllegalArgumentException.class,
+				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().build()));	
+	}
+	
+	@Test
+	public void shouldThrowExceptionWhenForbiddenGroup() throws EngineException
+	{
+		AddToGroupActionFactory factory = new AddToGroupActionFactory();
+		RegistrationTranslationAction action = factory.getInstance("'/A'");
+		Assertions.assertThrows(IllegalArgumentException.class,
+				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withAllowedGroupWithChildren("/B").build()));	
+	}
+	
+	@Test
+	public void shouldValidateAddToGroupWithSuccess() throws EngineException
+	{
+		AddToGroupActionFactory factory = new AddToGroupActionFactory();
+		RegistrationTranslationAction action = factory.getInstance("'/B/C'");
+		Assertions.assertDoesNotThrow(
+				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withAllowedGroupWithChildren("/B").build()));	
+	}
+	
 
 	@Test
 	public void testFilterGroup() throws EngineException

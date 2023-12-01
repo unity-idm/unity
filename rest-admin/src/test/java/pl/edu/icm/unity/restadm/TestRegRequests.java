@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 
 import io.imunity.rest.api.types.registration.RestRegistrationRequest;
 import io.imunity.rest.api.types.registration.RestRegistrationRequestState;
+import io.imunity.rest.mappers.registration.RegistrationRequestMapper;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -28,13 +29,12 @@ import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.base.registration.RegistrationRequest;
 import pl.edu.icm.unity.base.registration.RegistrationRequestBuilder;
-import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.restadm.mappers.registration.RegistrationRequestMapper;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 

@@ -5,18 +5,18 @@
 
 package io.imunity.upman.rest.console;
 
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.configtester.ConfigurationComparator;
-import pl.edu.icm.unity.configtester.ConfigurationGenerator;
+import static io.imunity.upman.rest.UpmanRestEndpointProperties.META;
+import static io.imunity.upman.rest.UpmanRestEndpointProperties.PREFIX;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
 
-import static io.imunity.upman.rest.UpmanRestEndpointProperties.META;
-import static io.imunity.upman.rest.UpmanRestEndpointProperties.PREFIX;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.configtester.ConfigurationComparator;
+import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 
 public class UpmanRestEndpointPropertiesTest
 {

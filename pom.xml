@@ -68,6 +68,8 @@
 		<module>web-upman</module>
 		<module>idp-spi</module>
 		<module>rest</module>
+		<module>unity-rest-api</module>
+		<module>rest-mappers</module>
 		<module>rest-admin</module>
 		<module>ws</module>
 		<module>saml</module>
@@ -83,7 +85,6 @@
 		<module>fido</module>
 		<module>web-attr-introspection</module>
 		<module>scim</module>
-		<module>unity-rest-api</module>
 		<module>vaadin-endpoint-common</module>
 		<module>vaadin-elements</module>
 		<module>vaadin-public-shared-endpoint</module>
@@ -297,7 +298,7 @@
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.8</version>
+				<version>1.6.13</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>sonatype-nexus-staging</serverId>

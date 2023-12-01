@@ -11,7 +11,9 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
@@ -59,6 +61,11 @@ public class AutoProcessInvitationsActionFactory extends AbstractRegistrationTra
 			state.addInvitationProcessingParam(invitationProcessing);
 		}
 
+		@Override
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
+		{
+		}
+		
 		private void setParameters(String[] parameters)
 		{
 			String formName = parameters[0];

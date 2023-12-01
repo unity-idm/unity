@@ -10,8 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.ws.rs.core.Response.Status;
-
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -34,6 +32,7 @@ import io.imunity.rest.api.types.basic.RestGroupContents;
 import io.imunity.rest.api.types.basic.RestGroupMember;
 import io.imunity.rest.api.types.basic.RestGroupProperty;
 import io.imunity.rest.api.types.basic.RestI18nString;
+import jakarta.ws.rs.core.Response.Status;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.group.Group;

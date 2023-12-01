@@ -13,6 +13,8 @@ import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -65,6 +67,11 @@ public class RedirectActionFactory extends AbstractRegistrationTranslationAction
 				RegistrationContext context, String currentProfile) throws EngineException
 		{
 			log.error("The redirect form action is effect less. Please reconfigure your form to use Finalization config instead.");
+		}
+		
+		@Override
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
+		{
 		}
 	}
 }

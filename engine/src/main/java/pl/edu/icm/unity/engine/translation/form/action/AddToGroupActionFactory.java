@@ -13,12 +13,15 @@ import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -56,6 +59,7 @@ public class AddToGroupActionFactory extends AbstractRegistrationTranslationActi
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				AddToGroupActionFactory.AddToGroupAction.class);
 		private Serializable expression;
+		private String rawExpression;
 		
 		public AddToGroupAction(TranslationActionType description, String[] parameters)
 		{
@@ -90,9 +94,25 @@ public class AddToGroupActionFactory extends AbstractRegistrationTranslationActi
 			}
 		}
 		
+		@Override
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
+		{
+			if (!((rawExpression.startsWith("\"") || rawExpression.startsWith("'"))
+					&& (rawExpression.endsWith("\"") || rawExpression.endsWith("'"))))
+			{
+				throw new ActionValidationException("Only literal expression is allowed");
+			}
+			String group = rawExpression.substring(1, rawExpression.length() -1);	
+			if (!Group.isChildOrSame(group, context.parentGroup))
+			{
+				throw new ActionValidationException("Group " + group + " is forbidden");
+			}
+		}
+		
 		private void setParameters(String[] parameters)
 		{
 			expression = MVEL.compileExpression(parameters[0]);
+			rawExpression = parameters[0];
 		}
 	}
 }

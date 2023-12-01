@@ -20,6 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
+import io.imunity.rest.api.types.registration.RestEnquiryForm;
+import io.imunity.rest.api.types.registration.RestRegistrationForm;
+import io.imunity.upman.rest.RestProjectFormService.RestProjectFormServiceFactory;
 import io.imunity.upman.rest.RestProjectPolicyDocumentService.RestProjectPolicyDocumentServiceFactory;
 import io.imunity.upman.rest.RestProjectService.RestProjectServiceFactory;
 import jakarta.ws.rs.BadRequestException;
@@ -31,6 +34,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.json.JsonUtil;
@@ -46,14 +50,17 @@ public class RESTUpmanController
 	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
 	private RestProjectService restProjectService;
 	private RestProjectPolicyDocumentService restProjectPolicyDocumentService;
+	private RestProjectFormService restProjectFormService;
 
 	private String rootGroup;
 
-	private void init(RestProjectService restProjectService, RestProjectPolicyDocumentService restProjectPolicyDocumentService,
-			String rootGroup)
+	private void init(RestProjectService restProjectService,
+			RestProjectPolicyDocumentService restProjectPolicyDocumentService,
+			RestProjectFormService restProjectFormService, String rootGroup)
 	{
 		this.restProjectService = restProjectService;
 		this.restProjectPolicyDocumentService = restProjectPolicyDocumentService;
+		this.restProjectFormService = restProjectFormService;
 		this.rootGroup = rootGroup;
 		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NON_PRIVATE);
 	}
@@ -69,8 +76,7 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}")
 	@GET
-	public String getProject(@PathParam("project-id") String projectId)
-		throws EngineException, JsonProcessingException
+	public String getProject(@PathParam("project-id") String projectId) throws EngineException, JsonProcessingException
 	{
 		log.debug("getProject query for " + projectId);
 		RestProject project = restProjectService.getProject(projectId);
@@ -79,8 +85,7 @@ public class RESTUpmanController
 
 	@Path("/projects")
 	@POST
-	public String addProject(String projectJson)
-		throws EngineException, JsonProcessingException
+	public String addProject(String projectJson) throws EngineException, JsonProcessingException
 	{
 		log.info("addProject {}", projectJson);
 		RestProjectCreateRequest project = parse(projectJson, RestProjectCreateRequest.class);
@@ -90,8 +95,7 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}")
 	@PUT
-	public void updateProject(@PathParam("project-id") String projectId, String projectJson)
-		throws EngineException
+	public void updateProject(@PathParam("project-id") String projectId, String projectJson) throws EngineException
 	{
 		log.info("updateProject {}", projectJson);
 		RestProjectUpdateRequest project = parse(projectJson, RestProjectUpdateRequest.class);
@@ -100,8 +104,7 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}")
 	@DELETE
-	public void removeProject(@PathParam("project-id") String projectId)
-		throws EngineException, JsonProcessingException
+	public void removeProject(@PathParam("project-id") String projectId) throws EngineException, JsonProcessingException
 	{
 		log.info("removeProject {}", projectId);
 		restProjectService.removeProject(projectId);
@@ -110,7 +113,7 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/members")
 	@GET
 	public String getProjectMembers(@PathParam("project-id") String projectId)
-		throws EngineException, JsonProcessingException
+			throws EngineException, JsonProcessingException
 	{
 		log.debug("getProjectMember {}", projectId);
 		List<RestProjectMembership> members = restProjectService.getProjectMembers(projectId);
@@ -120,7 +123,7 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/members/{userId}")
 	@GET
 	public String getProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String email)
-		throws EngineException, JsonProcessingException
+			throws EngineException, JsonProcessingException
 	{
 		log.debug("getProjectMember {}, {}", projectId, email);
 		RestProjectMembership member = restProjectService.getProjectMember(projectId, email);
@@ -130,7 +133,7 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/members/{userId}")
 	@DELETE
 	public void removeProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String userId)
-		throws EngineException
+			throws EngineException
 	{
 		log.info("removeProjectMember {}, {}", projectId, userId);
 		restProjectService.removeProjectMember(projectId, userId);
@@ -139,7 +142,7 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/members/{userId}")
 	@POST
 	public void addProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String userId)
-		throws EngineException
+			throws EngineException
 	{
 		log.info("removeProjectMember {}, {}", projectId, userId);
 		restProjectService.addProjectMember(projectId, userId);
@@ -148,8 +151,7 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/members/{userId}/role")
 	@GET
 	public String getProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
-	                                           @PathParam("userId") String userId)
-		throws EngineException, JsonProcessingException
+			@PathParam("userId") String userId) throws EngineException, JsonProcessingException
 	{
 		log.debug("getProjectMemberAuthorizationRole {}, {}", projectId, userId);
 		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole(projectId, userId);
@@ -159,16 +161,13 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/members/{userId}/role")
 	@PUT
 	public void addProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
-	                                            @PathParam("userId") String userId, String roleJson)
-		throws EngineException
+			@PathParam("userId") String userId, String roleJson) throws EngineException
 	{
 		log.info("addProjectMemberAuthorizationRole {}, {}", projectId, userId);
 		RestAuthorizationRole role = parse(roleJson, RestAuthorizationRole.class);
-		restProjectService.setProjectAuthorizationRole(
-			projectId, userId, role);
+		restProjectService.setProjectAuthorizationRole(projectId, userId, role);
 	}
-	
-	
+
 	@Path("/projects/{project-id}/policyDocuments")
 	@GET
 	public String getPolicyDocuments(@PathParam("project-id") String projectId)
@@ -212,12 +211,155 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/policyDocument")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updatePolicyDocument(@PathParam("project-id") String projectId, String json)
+	public void updatePolicyDocument(@PathParam("project-id") String projectId, @QueryParam("incrementRevision") Boolean incrementRevision, String json)
 			throws EngineException, IOException
 	{
 		RestPolicyDocumentUpdateRequest policy = JsonUtil.parse(json, RestPolicyDocumentUpdateRequest.class);
 		log.debug("updatePolicyDocument {}, {}", projectId, policy.id);
-		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy);
+		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy, incrementRevision != null && incrementRevision);
+	}
+
+	@Path("/projects/{project-id}/registrationForm")
+	@GET
+	public String getRegistrationForm(@PathParam("project-id") String projectId)
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("getRegistrationForm {}", projectId);
+		RestRegistrationForm form = restProjectFormService.getRegistrationForm(projectId);
+		return mapper.writeValueAsString(form);
+	}
+
+	@Path("/projects/{project-id}/registrationForm")
+	@DELETE
+	public void removeRegistrationForm(@PathParam("project-id") String projectId) throws EngineException
+	{
+		log.debug("removeRegistrationForm {}", projectId);
+		restProjectFormService.removeRegistrationForm(projectId);
+	}
+
+	@Path("/projects/{project-id}/registrationForm")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void addRegistrationForm(@PathParam("project-id") String projectId,
+			@QueryParam("autogenerate") Boolean autogenerate, String json) throws EngineException, IOException
+	{
+
+		log.debug("addRegistrationForm {}, autogenerate={}", projectId, autogenerate);
+
+		if (autogenerate != null && autogenerate)
+		{
+			restProjectFormService.generateRegistrationForm(projectId);
+		} else
+		{
+			RestRegistrationForm form = JsonUtil.parse(json, RestRegistrationForm.class);
+			restProjectFormService.addRegistrationForm(projectId, form);
+		}
+	}
+
+	@Path("/projects/{project-id}/registrationForm")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateRegistrationForm(@PathParam("project-id") String projectId, String json)
+			throws EngineException, IOException
+	{
+		RestRegistrationForm form = JsonUtil.parse(json, RestRegistrationForm.class);
+		log.debug("updateRegistrationForm {}, {}", projectId, form.name);
+		restProjectFormService.updateRegistrationForm(projectId, form);
+	}
+
+	@Path("/projects/{project-id}/signUpEnquiry")
+	@GET
+	public String getSignupEnquiryForm(@PathParam("project-id") String projectId)
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("getSignUpEnquiryForm {}", projectId);
+		RestEnquiryForm form = restProjectFormService.getSignupEnquiryForm(projectId);
+		return mapper.writeValueAsString(form);
+	}
+
+	@Path("/projects/{project-id}/signUpEnquiry")
+	@DELETE
+	public void removeSignupEnquiryForm(@PathParam("project-id") String projectId) throws EngineException
+	{
+		log.debug("removeSignupEnquiryForm {}", projectId);
+		restProjectFormService.removeSignupEnquiryForm(projectId);
+	}
+
+	@Path("/projects/{project-id}/signUpEnquiry")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void addSignupEnquiryForm(@PathParam("project-id") String projectId,
+			@QueryParam("autogenerate") Boolean autogenerate, String json) throws EngineException, IOException
+	{
+		log.debug("addSignupEnquiryForm {}, autogenerate={}", projectId, autogenerate);
+
+		if (autogenerate != null && autogenerate)
+		{
+			restProjectFormService.generateSignupEnquiryForm(projectId);
+		} else
+		{
+			RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+			restProjectFormService.addSignupEnquiryForm(projectId, form);
+		}
+
+	}
+
+	@Path("/projects/{project-id}/signUpEnquiry")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateSignupEnquiryForm(@PathParam("project-id") String projectId, String json)
+			throws EngineException, IOException
+	{
+		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+		log.debug("updateSignupEnquiryForm {}, {}", projectId, form.name);
+		restProjectFormService.updateSignupEnquiryForm(projectId, form);
+	}
+
+	@Path("/projects/{project-id}/membershipUpdateEnquiry")
+	@GET
+	public String getMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId)
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("getMembershipUpdateEnquiryForm {}", projectId);
+		RestEnquiryForm form = restProjectFormService.getMembershipUpdateEnquiryForm(projectId);
+		return mapper.writeValueAsString(form);
+	}
+
+	@Path("/projects/{project-id}/membershipUpdateEnquiry")
+	@DELETE
+	public void removeMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId) throws EngineException
+	{
+		log.debug("removeMembershipUpdateEnquiryForm {}", projectId);
+		restProjectFormService.removeMembershipUpdateEnquiryForm(projectId);
+	}
+
+	@Path("/projects/{project-id}/membershipUpdateEnquiry")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void addMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
+			@QueryParam("autogenerate") Boolean autogenerate, String json) throws EngineException, IOException
+	{
+		log.debug("addMembershipUpdateEnquiryForm {}, autogenerate={}", projectId, autogenerate);
+
+		if (autogenerate != null && autogenerate)
+		{
+			restProjectFormService.generateMembershipUpdateEnquiryForm(projectId);
+		} else
+		{
+			RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+			restProjectFormService.addMembershipUpdateEnquiryForm(projectId, form);
+		}
+	}
+
+	@Path("/projects/{project-id}/membershipUpdateEnquiry")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId, String json)
+			throws EngineException, IOException
+	{
+		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+		log.debug("updateMembershipUpdateEnquiryForm {}, {}", projectId, form.name);
+		restProjectFormService.updateMembershipUpdateEnquiryForm(projectId, form);
 	}
 
 	public <T> T parse(String contents, Class<T> clazz)
@@ -225,11 +367,10 @@ public class RESTUpmanController
 		try
 		{
 			return mapper.readValue(contents, clazz);
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
-			if(e.getCause() instanceof BadRequestException)
-				throw (BadRequestException)e.getCause();
+			if (e.getCause() instanceof BadRequestException)
+				throw (BadRequestException) e.getCause();
 			throw new BadRequestException("Can't perform JSON deserialization", e);
 		}
 	}
@@ -240,29 +381,29 @@ public class RESTUpmanController
 		private final ObjectFactory<RESTUpmanController> factory;
 		private final RestProjectServiceFactory restProjectServiceFactory;
 		private final RestProjectPolicyDocumentServiceFactory restProjectPolicyDocumentServiceFactory;
+		private final RestProjectFormServiceFactory restProjectFormServiceFactory;
 
 		@Autowired
 		RESTUpmanControllerFactory(ObjectFactory<RESTUpmanController> factory,
 				RestProjectServiceFactory restProjectServiceFactory,
-				RestProjectPolicyDocumentServiceFactory restProjectPolicyDocumentServiceFactory)
+				RestProjectPolicyDocumentServiceFactory restProjectPolicyDocumentServiceFactory,
+				RestProjectFormServiceFactory restFormServiceFactory)
 
 		{
 			this.factory = factory;
 			this.restProjectServiceFactory = restProjectServiceFactory;
 			this.restProjectPolicyDocumentServiceFactory = restProjectPolicyDocumentServiceFactory;
+			this.restProjectFormServiceFactory = restFormServiceFactory;
 		}
 
-		public RESTUpmanController newInstance(String rootGroup, String authorizeGroup)
+		public RESTUpmanController newInstance(String rootGroup, String authorizeGroup, List<String> rootGroupAttributes)
 		{
 			RESTUpmanController object = factory.getObject();
 			object.init(restProjectServiceFactory.newInstance(rootGroup, authorizeGroup),
-					restProjectPolicyDocumentServiceFactory.newInstance(rootGroup, authorizeGroup), rootGroup);
+					restProjectPolicyDocumentServiceFactory.newInstance(rootGroup, authorizeGroup),
+					restProjectFormServiceFactory.newInstance(rootGroup, authorizeGroup, rootGroupAttributes), rootGroup);
 			return object;
 		}
 	}
 
 }
-
-
-
-

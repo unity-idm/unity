@@ -21,15 +21,18 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.registration.GroupSelection;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition.Type;
+import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -128,6 +131,25 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 			}
 		}
 
+		@Override
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
+		{
+			if (group.equals("/"))
+			{
+				if (context.allowedRootGroupAttributes.contains(unityAttribute))
+				{
+					return;
+				}
+				
+				throw new ActionValidationException("Attribute " + unityAttribute + " is forbidden in root group");
+			}
+
+			if (!Group.isChildOrSame(group, context.parentGroup))
+			{
+				throw new ActionValidationException("Attribute " + unityAttribute + " is forbidden in " + group);
+			}
+		}
+		
 		private void setParameters(String[] parameters)
 		{
 			unityAttribute = parameters[0];

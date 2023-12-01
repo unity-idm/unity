@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.ws.rs.core.Response;
-
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -32,6 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
+import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.policy_document.PolicyDocumentContentType;
 

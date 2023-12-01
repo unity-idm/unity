@@ -12,6 +12,8 @@ import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
@@ -59,6 +61,11 @@ public class SubmitMessageActionFactory extends AbstractRegistrationTranslationA
 				RegistrationContext context, String currentProfile) throws EngineException
 		{
 			log.error("The submissionMessage form action is effectless. Please reconfigure your form to use Finalization config instead.");
+		}
+		
+		@Override
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
+		{
 		}
 	}
 }

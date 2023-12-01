@@ -10,6 +10,7 @@ import org.apache.log4j.NDC;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.translation.TranslationActionType;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 
 /**
@@ -62,5 +63,7 @@ public abstract class RegistrationTranslationAction extends TranslationActionIns
 	protected abstract void invokeWrapped(TranslatedRegistrationRequest state,
 			Object mvelCtx, RegistrationContext contexts, String currentProfile) throws EngineException;
 
+	
+	public abstract void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException;
 }
 

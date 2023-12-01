@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationActionType;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
+import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
@@ -54,6 +56,11 @@ public class AutoProcessActionFactory extends AbstractRegistrationTranslationAct
 				RegistrationContext context, String currentProfile) throws EngineException
 		{
 			state.setAutoAction(action);
+		}
+		
+		@Override
+		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
+		{
 		}
 		
 		private void setParameters(String[] parameters)

@@ -13,8 +13,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.ws.rs.core.Response.Status;
-
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -38,6 +36,7 @@ import io.imunity.rest.api.types.registration.invite.RestInvitationParam;
 import io.imunity.rest.api.types.registration.invite.RestInvitationWithCode;
 import io.imunity.rest.api.types.registration.invite.RestPrefilledEntry;
 import io.imunity.rest.api.types.registration.invite.RestRegistrationInvitationParam;
+import jakarta.ws.rs.core.Response.Status;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;

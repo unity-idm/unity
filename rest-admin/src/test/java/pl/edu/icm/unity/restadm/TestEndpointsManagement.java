@@ -11,8 +11,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import jakarta.ws.rs.core.Response.Status;
-
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -31,6 +29,7 @@ import com.google.common.collect.Lists;
 import io.imunity.rest.api.types.basic.RestI18nString;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
 import io.imunity.rest.api.types.endpoint.RestResolvedEndpoint;
+import jakarta.ws.rs.core.Response.Status;
 
 /**
  * Endpoints management test

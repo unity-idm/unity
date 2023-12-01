@@ -4,21 +4,21 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import static java.lang.Long.parseLong;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentId;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import pl.edu.icm.unity.base.Constants;
-import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentNotFoundException;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
-import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.restadm.mappers.policy.PolicyDocumentMapper;
-
+import io.imunity.rest.mappers.policy.PolicyDocumentMapper;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -30,11 +30,12 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.lang.Long.parseLong;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentNotFoundException;
+import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path(RESTAdminEndpoint.V1_PATH)

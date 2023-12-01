@@ -5,17 +5,17 @@
 
 package io.imunity.upman.front.views;
 
-import io.imunity.upman.front.model.Group;
-import io.imunity.upman.front.model.GroupTreeNode;
-import pl.edu.icm.unity.base.i18n.I18nString;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import io.imunity.upman.front.model.Group;
+import io.imunity.upman.front.model.GroupTreeNode;
+import pl.edu.icm.unity.base.i18n.I18nString;
 
 public class TestGroupTreeNode
 {

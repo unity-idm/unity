@@ -27,6 +27,7 @@ public class UpmanRestEndpointProperties extends UnityPropertiesHelper
 	public static final String AUTHORIZATION_GROUP = "authorizationGroup";
 	public static final String ENABLED_CORS_ORIGINS = "allowedCorsOrigins.";
 	public static final String ENABLED_CORS_HEADERS = "allowedCorsHeaders.";
+	public static final String ROOT_GROUP_ATTRIBUTES = "rootGroupAttributes.";
 
 	static
 	{
@@ -34,6 +35,8 @@ public class UpmanRestEndpointProperties extends UnityPropertiesHelper
 				.setDescription("Root group."));
 		META.put(AUTHORIZATION_GROUP, new PropertyMD().setDescription(
 				"Group where ProjectManagementRESTAPIRole will be check."));
+		META.put(ROOT_GROUP_ATTRIBUTES, new PropertyMD().setList(true).
+				setDescription("Attributes eligible for setting in the root group, by the forms configured for the project over the REST API."));
 		META.put(ENABLED_CORS_ORIGINS, new PropertyMD().setList(false).setDescription(
 			"List of origins allowed for the CORS requests. "
 				+ "The complete set of HTTP methods is enabled for the enumerated resources. "
