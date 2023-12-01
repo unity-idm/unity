@@ -100,7 +100,7 @@ public class RestProjectFormServiceTest
 				.withName("form")
 				.withDefaultCredentialRequirement("cred")
 				.build();
-		service.updateRegistrationForm("A", form);
+		service.updateRegistrationForm("A", form, true);
 		verify(registrationsManagement).updateForm(RegistrationFormMapper.map(form), true);
 	}
 
@@ -117,7 +117,7 @@ public class RestProjectFormServiceTest
 				.build();
 		doThrow(IllegalArgumentException.class).when(validator)
 				.assertRegistrationFormIsRestrictedToProjectGroup(RegistrationFormMapper.map(form), "/A/A");
-		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateRegistrationForm("A", form));
+		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateRegistrationForm("A", form, true));
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class RestProjectFormServiceTest
 				.withRegistrationForm("form")
 				.withEnabled(true)
 				.build());
-		service.removeRegistrationForm("A");
+		service.removeRegistrationForm("A", true);
 		verify(registrationsManagement).removeForm("form", true);
 	}
 
@@ -199,7 +199,7 @@ public class RestProjectFormServiceTest
 				.withType(EnquiryType.REQUESTED_MANDATORY.name())
 				.withTargetGroups(List.of("/"))
 				.build();
-		service.updateSignupEnquiryForm("A", form);
+		service.updateSignupEnquiryForm("A", form, true);
 		verify(enquiryManagement).updateEnquiry(EnquiryFormMapper.map(form), true);
 	}
 
@@ -218,7 +218,7 @@ public class RestProjectFormServiceTest
 				.build();
 		doThrow(IllegalArgumentException.class).when(validator)
 				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
-		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateSignupEnquiryForm("A", form));
+		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateSignupEnquiryForm("A", form, true));
 	}
 
 	@Test
@@ -228,7 +228,7 @@ public class RestProjectFormServiceTest
 				.withSignupEnquiryForm("form")
 				.withEnabled(true)
 				.build());
-		service.removeSignupEnquiryForm("A");
+		service.removeSignupEnquiryForm("A", true);
 		verify(enquiryManagement).removeEnquiry("form", true);
 	}
 
@@ -303,7 +303,7 @@ public class RestProjectFormServiceTest
 				.withType(EnquiryType.REQUESTED_MANDATORY.name())
 				.withTargetGroups(List.of("/"))
 				.build();
-		service.updateMembershipUpdateEnquiryForm("A", form);
+		service.updateMembershipUpdateEnquiryForm("A", form, true);
 		verify(enquiryManagement).updateEnquiry(EnquiryFormMapper.map(form), true);
 	}
 
@@ -323,7 +323,7 @@ public class RestProjectFormServiceTest
 		doThrow(IllegalArgumentException.class).when(validator)
 				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> service.updateMembershipUpdateEnquiryForm("A", form));
+				() -> service.updateMembershipUpdateEnquiryForm("A", form, true));
 	}
 
 	@Test
@@ -333,7 +333,7 @@ public class RestProjectFormServiceTest
 				.withMembershipUpdateEnquiryForm("form")
 				.withEnabled(true)
 				.build());
-		service.removeMembershipUpdateEnquiryForm("A");
+		service.removeMembershipUpdateEnquiryForm("A", true);
 		verify(enquiryManagement).removeEnquiry("form", true);
 	}
 
