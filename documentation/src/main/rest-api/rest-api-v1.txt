@@ -1268,6 +1268,67 @@ Returns an array with all registration requests which are stored in the system.
 
 Returns a registration request by its id.
 
+=== Get enquiry forms
+
++@Path("/enquiryForms")+ +
++@GET+ +
+
+Returns a JSON array with enquiry forms defined in the system. The syntax is complex
+and is not provided here.
+
+
+=== Remove enquiry form
+
++@Path("/enquiryForm/{formId}")+ +
++@QueryParam("dropRequests")+ +
++@DELETE+ +
+
+Removes enquiry form with the given id. An optional query parameter +dropRequests+ can be 
+provided with a boolean value, to control whether the form should be removed also if it
+has pending requests (the requests will be removed with the form).  
+
+
+=== Create enquiry form
+	
++@Path("/enquiryForm")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Creates a new enquiry form specified by the JSON object passed as request body.
+The form description is quite complex. The easiest way is to create a enquiry form using the AdminUI
+and then check the resulting JSON (GET on +/registrationForms+).
+
+
+=== Update enquiry form
+
++@Path("/enquiryForm")+ +
++@QueryParam("ignoreRequests")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Updates an existing enquiry form. The body of the request should include 
+a JSON description of a form, as during form creation. The only difference is
+that this method expects existing form id. 
+The optional boolean +ignoreRequests+ query parameter can be used to force form
+update even if it has attached pending requests. Beware, however, that those
+requests can easily become invalid.
+
+
+=== Get enquiry responses
+
++@Path("/enquiryResponses")+ +
++@GET+ +
+
+Returns an array with all enquiry responses which are stored in the system.
+
+
+=== Get enquiry response
+
++@Path("/enquiryResponse/{responseId}")+ +
++@GET+ +
+
+Returns a enquiry response by its id.
+
 
 
 === Get registration invitations

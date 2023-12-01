@@ -36,19 +36,14 @@ import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
-import pl.edu.icm.unity.base.registration.EnquiryForm;
-import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
-import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,13 +54,7 @@ class RestProjectServiceTest
 	@Mock
 	private GroupsManagement groupMan;
 	@Mock
-	private GroupDelegationConfigGenerator groupDelegationConfigGenerator;
-	@Mock
 	private UpmanRestAuthorizationManager authz;
-	@Mock
-	private RegistrationsManagement registrationsManagement;
-	@Mock
-	private EnquiryManagement enquiryManagement;
 	@Mock
 	private EntityManagement idsMan;
 	
@@ -75,49 +64,7 @@ class RestProjectServiceTest
 	@BeforeEach
 	void setUp()
 	{
-		restProjectService = new RestProjectService(delGroupMan, groupMan, groupDelegationConfigGenerator,
-				registrationsManagement, enquiryManagement, authz, idsMan, "/A", "A/B");
-	}
-
-	@Test
-	void shouldAddProjectWithAutogenerateForms() throws EngineException
-	{
-		RestProjectCreateRequest request = RestProjectCreateRequest.builder()
-			.withProjectId("B")
-			.withPublic(false)
-			.withDisplayedName(Map.of("en", "CoolGroup"))
-			.withDescription(Map.of("en", "description"))
-			.withLogoUrl("logoUrl")
-			.withEnableSubprojects(true)
-			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
-			.build();
-
-		RegistrationForm registrationForm = mock(RegistrationForm.class);
-		when(groupDelegationConfigGenerator.generateProjectRegistrationForm("/A/B", "logoUrl", List.of(), List.of()))
-			.thenReturn(registrationForm);
-		when(registrationForm.getName()).thenReturn("regName");
-
-		EnquiryForm enquiryForm = mock(EnquiryForm.class);
-		when(groupDelegationConfigGenerator.generateProjectJoinEnquiryForm("/A/B", "logoUrl", List.of()))
-			.thenReturn(enquiryForm);
-		when(enquiryForm.getName()).thenReturn("enqName");
-
-		EnquiryForm updateEnquiryForm = mock(EnquiryForm.class);
-		when(groupDelegationConfigGenerator.generateProjectUpdateEnquiryForm("/A/B", "logoUrl"))
-			.thenReturn(updateEnquiryForm);
-		when(updateEnquiryForm.getName()).thenReturn("updateEnqName");
-
-		restProjectService.addProject(request);
-
-		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
-		verify(groupMan).addGroup(argument.capture());
-		assertThat(argument.getValue().getPathEncoded()).isEqualTo("/A/B");
-		assertThat(argument.getValue().getDelegationConfiguration().registrationForm).isEqualTo("regName");
-		assertThat(argument.getValue().getDelegationConfiguration().signupEnquiryForm).isEqualTo("enqName");
-		assertThat(argument.getValue().getDelegationConfiguration().membershipUpdateEnquiryForm).isEqualTo("updateEnqName");
+		restProjectService = new RestProjectService(delGroupMan, groupMan, authz, idsMan, "/A", "A/B");
 	}
 
 	@Test
@@ -131,9 +78,6 @@ class RestProjectServiceTest
 			.withLogoUrl("logoUrl")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, false))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, false))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, false))
 			.build();
 
 		restProjectService.addProject(request);
@@ -144,75 +88,6 @@ class RestProjectServiceTest
 		assertThat(argument.getValue().getDelegationConfiguration().registrationForm).isEqualTo(null);
 		assertThat(argument.getValue().getDelegationConfiguration().signupEnquiryForm).isEqualTo(null);
 		assertThat(argument.getValue().getDelegationConfiguration().membershipUpdateEnquiryForm).isEqualTo(null);
-	}
-
-	@Test
-	void shouldAddProjectWithDefinedForms() throws EngineException
-	{
-		RestProjectCreateRequest request = RestProjectCreateRequest.builder()
-			.withProjectId("B")
-			.withPublic(false)
-			.withDisplayedName(Map.of("en", "CoolGroup"))
-			.withDescription(Map.of("en", "description"))
-			.withLogoUrl("logoUrl")
-			.withEnableSubprojects(true)
-			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm("ala", false))
-			.withSignUpEnquiry(new RestSignUpEnquiry("ola", false))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry("tola", false))
-			.build();
-		when(registrationsManagement.hasForm("ala")).thenReturn(true);
-		when(enquiryManagement.hasForm("ola")).thenReturn(true);
-		when(enquiryManagement.hasForm("tola")).thenReturn(true);
-
-		restProjectService.addProject(request);
-
-		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
-		verify(groupMan).addGroup(argument.capture());
-		assertThat(argument.getValue().getPathEncoded()).isEqualTo("/A/B");
-		assertThat(argument.getValue().getDelegationConfiguration().registrationForm).isEqualTo("ala");
-		assertThat(argument.getValue().getDelegationConfiguration().signupEnquiryForm).isEqualTo("ola");
-		assertThat(argument.getValue().getDelegationConfiguration().membershipUpdateEnquiryForm).isEqualTo("tola");
-	}
-
-	@Test
-	void shouldUpdateProjectWithAutogenerateForms() throws EngineException
-	{
-		RestProjectUpdateRequest request = RestProjectUpdateRequest.builder()
-			.withPublic(false)
-			.withDisplayedName(Map.of("en", "CoolGroup"))
-			.withDescription(Map.of("en", "description"))
-			.withEnableDelegation(true)
-			.withLogoUrl("logoUrl")
-			.withEnableSubprojects(true)
-			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
-			.build();
-
-		RegistrationForm registrationForm = mock(RegistrationForm.class);
-		when(groupDelegationConfigGenerator.generateProjectRegistrationForm("/A/B", "logoUrl", List.of(), List.of()))
-			.thenReturn(registrationForm);
-		when(registrationForm.getName()).thenReturn("regName");
-
-		EnquiryForm enquiryForm = mock(EnquiryForm.class);
-		when(groupDelegationConfigGenerator.generateProjectJoinEnquiryForm("/A/B", "logoUrl", List.of()))
-			.thenReturn(enquiryForm);
-		when(enquiryForm.getName()).thenReturn("enqName");
-
-		EnquiryForm updateEnquiryForm = mock(EnquiryForm.class);
-		when(groupDelegationConfigGenerator.generateProjectUpdateEnquiryForm("/A/B", "logoUrl"))
-			.thenReturn(updateEnquiryForm);
-		when(updateEnquiryForm.getName()).thenReturn("updateEnqName");
-
-		restProjectService.updateProject("B", request);
-
-		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
-		verify(groupMan).updateGroup(eq("/A/B"), argument.capture());
-		assertThat(argument.getValue().getDelegationConfiguration().registrationForm).isEqualTo("regName");
-		assertThat(argument.getValue().getDelegationConfiguration().signupEnquiryForm).isEqualTo("enqName");
-		assertThat(argument.getValue().getDelegationConfiguration().membershipUpdateEnquiryForm).isEqualTo("updateEnqName");
 	}
 
 	@Test
@@ -226,9 +101,6 @@ class RestProjectServiceTest
 			.withLogoUrl("logoUrl")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, false))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, false))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, false))
 			.build();
 
 		restProjectService.updateProject("B", request);
@@ -238,35 +110,6 @@ class RestProjectServiceTest
 		assertThat(argument.getValue().getDelegationConfiguration().registrationForm).isEqualTo(null);
 		assertThat(argument.getValue().getDelegationConfiguration().signupEnquiryForm).isEqualTo(null);
 		assertThat(argument.getValue().getDelegationConfiguration().membershipUpdateEnquiryForm).isEqualTo(null);
-	}
-
-	@Test
-	void shouldUpdateProjectWithDefinedForms() throws EngineException
-	{
-		RestProjectUpdateRequest request = RestProjectUpdateRequest.builder()
-			.withPublic(false)
-			.withDisplayedName(Map.of("en", "CoolGroup"))
-			.withDescription(Map.of("en", "description"))
-			.withEnableDelegation(true)
-			.withLogoUrl("logoUrl")
-			.withEnableSubprojects(true)
-			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm("ala", false))
-			.withSignUpEnquiry(new RestSignUpEnquiry("ola", false))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry("tola", false))
-			.build();
-
-		when(registrationsManagement.hasForm("ala")).thenReturn(true);
-		when(enquiryManagement.hasForm("ola")).thenReturn(true);
-		when(enquiryManagement.hasForm("tola")).thenReturn(true);
-
-		restProjectService.updateProject("B", request);
-
-		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
-		verify(groupMan).updateGroup(eq("/A/B"), argument.capture());
-		assertThat(argument.getValue().getDelegationConfiguration().registrationForm).isEqualTo("ala");
-		assertThat(argument.getValue().getDelegationConfiguration().signupEnquiryForm).isEqualTo("ola");
-		assertThat(argument.getValue().getDelegationConfiguration().membershipUpdateEnquiryForm).isEqualTo("tola");
 	}
 
 	@Test

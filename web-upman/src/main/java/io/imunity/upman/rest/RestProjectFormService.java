@@ -43,16 +43,16 @@ class RestProjectFormService
 		return service.getRegistrationForm(projectId);
 	}
 
-	void removeRegistrationForm(String projectId) throws EngineException
+	void removeRegistrationForm(String projectId, boolean dropRequests) throws EngineException
 	{
 		assertAuthorization();
-		service.removeRegistrationForm(projectId);
+		service.removeRegistrationForm(projectId, dropRequests);
 	}
 
-	void updateRegistrationForm(String projectId, RestRegistrationForm registrationForm) throws EngineException
+	void updateRegistrationForm(String projectId, RestRegistrationForm registrationForm, boolean ignoreRequests) throws EngineException
 	{
 		assertAuthorization();
-		service.updateRegistrationForm(projectId, registrationForm);
+		service.updateRegistrationForm(projectId, registrationForm, ignoreRequests);
 	}
 
 	void generateSignupEnquiryForm(String projectId) throws EngineException
@@ -74,17 +74,17 @@ class RestProjectFormService
 		return service.getSignupEnquiryForm(projectId);
 	}
 
-	void removeSignupEnquiryForm(String projectId) throws EngineException
+	void removeSignupEnquiryForm(String projectId, boolean dropRequests) throws EngineException
 	{
 		assertAuthorization();
-		service.removeSignupEnquiryForm(projectId);
+		service.removeSignupEnquiryForm(projectId, dropRequests);
 
 	}
 
-	void updateSignupEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm) throws EngineException
+	void updateSignupEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm, boolean ignoreRequests) throws EngineException
 	{
 		assertAuthorization();
-		service.updateSignupEnquiryForm(projectId, restEnquiryForm);
+		service.updateSignupEnquiryForm(projectId, restEnquiryForm, ignoreRequests);
 	}
 
 	void generateMembershipUpdateEnquiryForm(String projectId) throws EngineException
@@ -106,17 +106,17 @@ class RestProjectFormService
 		return service.getMembershipUpdateEnquiryForm(projectId);
 	}
 
-	void removeMembershipUpdateEnquiryForm(String projectId) throws EngineException
+	void removeMembershipUpdateEnquiryForm(String projectId, boolean dropRequests) throws EngineException
 	{
 		assertAuthorization();
-		service.removeMembershipUpdateEnquiryForm(projectId);
+		service.removeMembershipUpdateEnquiryForm(projectId, dropRequests);
 
 	}
 
-	void updateMembershipUpdateEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm) throws EngineException
+	void updateMembershipUpdateEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm, boolean ignoreRequests) throws EngineException
 	{
 		assertAuthorization();
-		service.updateMembershipUpdateEnquiryForm(projectId, restEnquiryForm);
+		service.updateMembershipUpdateEnquiryForm(projectId, restEnquiryForm, ignoreRequests);
 	}
 
 	private void assertAuthorization() throws AuthorizationException

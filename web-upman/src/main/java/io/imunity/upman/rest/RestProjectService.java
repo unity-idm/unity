@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import io.imunity.upman.rest.DelegationComputer.RollbackState;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -29,10 +28,8 @@ import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
-import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
@@ -43,17 +40,13 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
-import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 
 class RestProjectService
 {
 	private final DelegatedGroupManagement delGroupMan;
 	private final GroupsManagement groupMan;
-	private final GroupDelegationConfigGenerator groupDelegationConfigGenerator;
 	private final UpmanRestAuthorizationManager authz;
-	private final RegistrationsManagement registrationsManagement;
-	private final EnquiryManagement enquiryManagement;
 	private final EntityManagement idsMan;
 
 	private final String rootGroup;
@@ -62,9 +55,6 @@ class RestProjectService
 
 	public RestProjectService(DelegatedGroupManagement delGroupMan,
 	                          GroupsManagement groupMan,
-	                          GroupDelegationConfigGenerator groupDelegationConfigGenerator,
-	                          RegistrationsManagement registrationsManagement,
-	                          EnquiryManagement enquiryManagement,
 	                          UpmanRestAuthorizationManager authz,
 	                          EntityManagement idsMan,
 	                          String rootGroup,
@@ -72,9 +62,7 @@ class RestProjectService
 	{
 		this.delGroupMan = delGroupMan;
 		this.groupMan = groupMan;
-		this.groupDelegationConfigGenerator = groupDelegationConfigGenerator;
-		this.registrationsManagement = registrationsManagement;
-		this.enquiryManagement = enquiryManagement;
+	
 		this.authz = authz;
 		this.rootGroup = rootGroup;
 		this.authorizationGroup = authorizationGroup;
@@ -105,38 +93,14 @@ class RestProjectService
 		toAdd.setDisplayedName(convertToI18nString(project.displayedName));
 		toAdd.setDescription(convertToI18nString(project.description));
 
-		groupMan.addGroup(toAdd);
-
-		DelegationComputer delegationComputer = DelegationComputer.builder()
-			.withFullGroupName(projectPath)
-			.withLogoUrl(project.logoUrl)
-			.withReadOnlyAttributes(project.readOnlyAttributes)
-			.withGroupDelegationConfigGenerator(groupDelegationConfigGenerator)
-			.withRegistrationsManagement(registrationsManagement)
-			.withEnquiryManagement(enquiryManagement)
-			.build();
-		RollbackState rollbackState = delegationComputer.newRollbackState();
-		try
-		{
-			String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm, rollbackState);
-			String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry, rollbackState);
-			String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(
-					project.membershipUpdateEnquiry, rollbackState);
-			toAdd.setDelegationConfiguration(new GroupDelegationConfiguration(true,
+		toAdd.setDelegationConfiguration(new GroupDelegationConfiguration(true,
 				project.enableSubprojects,
 				project.logoUrl,
-				registrationFormName, joinEnquiryName, updateEnquiryName,
+				null, null, null,
 				project.readOnlyAttributes, List.of())
 			);
-
-			groupMan.updateGroup(projectPath, toAdd);
-		}
-		catch (Exception e)
-		{
-			delegationComputer.rollback(rollbackState);
-			groupMan.removeGroup(projectPath, false);
-			throw e;
-		}
+		
+		groupMan.addGroup(toAdd);
 
 		return new RestProjectId(projectId);
 	}
@@ -155,29 +119,12 @@ class RestProjectService
 		toUpdate.setDisplayedName(convertToI18nString(project.displayedName));
 		toUpdate.setDescription(convertToI18nString(project.description));
 
-		DelegationComputer delegationComputer = DelegationComputer.builder()
-			.withFullGroupName(projectPath)
-			.withLogoUrl(project.logoUrl)
-			.withReadOnlyAttributes(project.readOnlyAttributes)
-			.withGroupDelegationConfigGenerator(groupDelegationConfigGenerator)
-			.withRegistrationsManagement(registrationsManagement)
-			.withEnquiryManagement(enquiryManagement)
-			.build();
-		RollbackState rollbackState = delegationComputer.newRollbackState();
 		try
 		{
-			String registrationFormName = delegationComputer.computeRegistrationFormName(project.registrationForm, rollbackState);
-			String joinEnquiryName = delegationComputer.computeSignUpEnquiryName(project.signUpEnquiry, rollbackState);
-			String updateEnquiryName = delegationComputer.computeMembershipUpdateEnquiryName(project.membershipUpdateEnquiry, rollbackState);
-			toUpdate.setDelegationConfiguration(new GroupDelegationConfiguration(true,
-				project.enableSubprojects,
-				project.logoUrl,
-				registrationFormName, joinEnquiryName, updateEnquiryName,
-				project.readOnlyAttributes, List.of())
-			);
+			toUpdate.setDelegationConfiguration(new GroupDelegationConfiguration(true, project.enableSubprojects,
+					project.logoUrl, null, null, null, project.readOnlyAttributes, List.of()));
 			groupMan.updateGroup(projectPath, toUpdate);
-		}
-		catch (GroupNotFoundException e)
+		} catch (GroupNotFoundException e)
 		{
 			throw new NotFoundException(e);
 		}
@@ -405,34 +352,24 @@ class RestProjectService
 	{
 		private final DelegatedGroupManagement delGroupMan;
 		private final GroupsManagement groupMan;
-		private final GroupDelegationConfigGenerator groupDelegationConfigGenerator;
 		private final UpmanRestAuthorizationManager authz;
-		private final RegistrationsManagement registrationsManagement;
-		private final EnquiryManagement enquiryManagement;
 		private final EntityManagement idsMan;
 
 		@Autowired
 		RestProjectServiceFactory(@Qualifier("insecure") DelegatedGroupManagement delGroupMan,
 				@Qualifier("insecure") GroupsManagement groupMan,
-				@Qualifier("insecure") GroupDelegationConfigGenerator groupDelegationConfigGenerator,
 				UpmanRestAuthorizationManager authz,
-				@Qualifier("insecure") RegistrationsManagement registrationsManagement,
-				@Qualifier("insecure") EnquiryManagement enquiryManagement,
 				@Qualifier("insecure") EntityManagement idsMan)
 		{
 			this.delGroupMan = delGroupMan;
 			this.groupMan = groupMan;
-			this.groupDelegationConfigGenerator = groupDelegationConfigGenerator;
 			this.authz = authz;
-			this.registrationsManagement = registrationsManagement;
-			this.enquiryManagement = enquiryManagement;
 			this.idsMan = idsMan;
 		}
 
 		public RestProjectService newInstance(String rootGroup, String authorizeGroup)
 		{
-			return new RestProjectService(delGroupMan, groupMan, groupDelegationConfigGenerator,
-					registrationsManagement, enquiryManagement, authz, idsMan, rootGroup, authorizeGroup);
+			return new RestProjectService(delGroupMan, groupMan, authz, idsMan, rootGroup, authorizeGroup);
 		}
 	}
 	
