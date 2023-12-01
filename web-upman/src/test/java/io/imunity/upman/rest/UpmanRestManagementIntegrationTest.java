@@ -49,9 +49,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(null)
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 
@@ -72,8 +69,8 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		assertThat(project.enableSubprojects).isEqualTo(true);
 		assertThat(project.readOnlyAttributes).isEqualTo(List.of());
 		assertThat(project.registrationForm).isEqualTo(null);
-		assertThat(project.signUpEnquiry).isEqualTo("superGroupJoinEnquiry");
-		assertThat(project.membershipUpdateEnquiry).isEqualTo("superGroupUpdateEnquiry");
+		assertThat(project.signUpEnquiry).isEqualTo(null);
+		assertThat(project.membershipUpdateEnquiry).isEqualTo(null);
 	}
 
 	@Test
@@ -88,9 +85,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, false))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, false))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, false))
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
@@ -141,9 +135,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
@@ -158,9 +150,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			
 			.build();
 		add2.setEntity(new StringEntity(mapper.writeValueAsString(build2)));
 		String jsonProjectId2 = client.execute(host, add2, getClientContext(host),
@@ -190,9 +180,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image2.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			
 			.build();
 		update.setEntity(new StringEntity(mapper.writeValueAsString(updateBuild)));
 
@@ -214,9 +202,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
+			
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
@@ -231,9 +217,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image2.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(null)
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
 			.build();
 		update.setEntity(new StringEntity(mapper.writeValueAsString(updateBuild)));
 
@@ -255,9 +238,9 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		assertThat(project.logoUrl).isEqualTo("/image2.png");
 		assertThat(project.enableSubprojects).isEqualTo(true);
 		assertThat(project.readOnlyAttributes).isEqualTo(List.of());
-		assertThat(project.registrationForm).isEqualTo("superGroupRegistration1");
+		assertThat(project.registrationForm).isEqualTo(null);
 		assertThat(project.signUpEnquiry).isEqualTo(null);
-		assertThat(project.membershipUpdateEnquiry).isEqualTo("superGroupUpdateEnquiry1");
+		assertThat(project.membershipUpdateEnquiry).isEqualTo(null);
 	}
 
 	@Test
@@ -272,9 +255,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
@@ -306,9 +286,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
@@ -345,9 +322,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
@@ -386,9 +360,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
@@ -420,9 +391,6 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.withLogoUrl("/image.png")
 			.withEnableSubprojects(true)
 			.withReadOnlyAttributes(List.of())
-			.withRegistrationForm(new RestRegistrationForm(null, true))
-			.withSignUpEnquiry(new RestSignUpEnquiry(null, true))
-			.withMembershipUpdateEnquiry(new RestMembershipEnquiry(null, true))
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());

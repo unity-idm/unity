@@ -212,12 +212,13 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/policyDocument")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updatePolicyDocument(@PathParam("project-id") String projectId, @QueryParam("incrementRevision") Boolean incrementRevision, String json)
-			throws EngineException, IOException
+	public void updatePolicyDocument(@PathParam("project-id") String projectId,
+			@QueryParam("incrementRevision") Boolean incrementRevision, String json) throws EngineException, IOException
 	{
 		RestPolicyDocumentUpdateRequest policy = JsonUtil.parse(json, RestPolicyDocumentUpdateRequest.class);
 		log.debug("updatePolicyDocument {}, {}", projectId, policy.id);
-		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy, incrementRevision != null && incrementRevision);
+		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy,
+				incrementRevision != null && incrementRevision);
 	}
 
 	@Path("/projects/{project-id}/registrationForm")
@@ -232,10 +233,11 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/registrationForm")
 	@DELETE
-	public void removeRegistrationForm(@PathParam("project-id") String projectId) throws EngineException
+	public void removeRegistrationForm(@PathParam("project-id") String projectId,
+			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
 		log.debug("removeRegistrationForm {}", projectId);
-		restProjectFormService.removeRegistrationForm(projectId);
+		restProjectFormService.removeRegistrationForm(projectId, dropRequests != null && dropRequests);
 	}
 
 	@Path("/projects/{project-id}/registrationForm")
@@ -260,12 +262,12 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/registrationForm")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateRegistrationForm(@PathParam("project-id") String projectId, String json)
-			throws EngineException, IOException
+	public void updateRegistrationForm(@PathParam("project-id") String projectId,
+			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException, IOException
 	{
 		RestRegistrationForm form = JsonUtil.parse(json, RestRegistrationForm.class);
 		log.debug("updateRegistrationForm {}, {}", projectId, form.name);
-		restProjectFormService.updateRegistrationForm(projectId, form);
+		restProjectFormService.updateRegistrationForm(projectId, form, ignoreRequests != null && ignoreRequests);
 	}
 
 	@Path("/projects/{project-id}/signUpEnquiry")
@@ -280,10 +282,11 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@DELETE
-	public void removeSignupEnquiryForm(@PathParam("project-id") String projectId) throws EngineException
+	public void removeSignupEnquiryForm(@PathParam("project-id") String projectId,
+			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
 		log.debug("removeSignupEnquiryForm {}", projectId);
-		restProjectFormService.removeSignupEnquiryForm(projectId);
+		restProjectFormService.removeSignupEnquiryForm(projectId, dropRequests != null && dropRequests);
 	}
 
 	@Path("/projects/{project-id}/signUpEnquiry")
@@ -308,12 +311,12 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateSignupEnquiryForm(@PathParam("project-id") String projectId, String json)
-			throws EngineException, IOException
+	public void updateSignupEnquiryForm(@PathParam("project-id") String projectId,
+			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException, IOException
 	{
 		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
 		log.debug("updateSignupEnquiryForm {}, {}", projectId, form.name);
-		restProjectFormService.updateSignupEnquiryForm(projectId, form);
+		restProjectFormService.updateSignupEnquiryForm(projectId, form, ignoreRequests != null && ignoreRequests);
 	}
 
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
@@ -328,10 +331,11 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@DELETE
-	public void removeMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId) throws EngineException
+	public void removeMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
+			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
 		log.debug("removeMembershipUpdateEnquiryForm {}", projectId);
-		restProjectFormService.removeMembershipUpdateEnquiryForm(projectId);
+		restProjectFormService.removeMembershipUpdateEnquiryForm(projectId, dropRequests != null && dropRequests);
 	}
 
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
@@ -355,12 +359,13 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId, String json)
-			throws EngineException, IOException
+	public void updateMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
+			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException, IOException
 	{
 		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
 		log.debug("updateMembershipUpdateEnquiryForm {}, {}", projectId, form.name);
-		restProjectFormService.updateMembershipUpdateEnquiryForm(projectId, form);
+		restProjectFormService.updateMembershipUpdateEnquiryForm(projectId, form,
+				ignoreRequests != null && ignoreRequests);
 	}
 
 	public <T> T parse(String contents, Class<T> clazz)
@@ -397,12 +402,14 @@ public class RESTUpmanController
 			this.restProjectFormServiceFactory = restFormServiceFactory;
 		}
 
-		public RESTUpmanController newInstance(String rootGroup, String authorizeGroup, List<String> rootGroupAttributes)
+		public RESTUpmanController newInstance(String rootGroup, String authorizeGroup,
+				List<String> rootGroupAttributes)
 		{
 			RESTUpmanController object = factory.getObject();
 			object.init(restProjectServiceFactory.newInstance(rootGroup, authorizeGroup),
 					restProjectPolicyDocumentServiceFactory.newInstance(rootGroup, authorizeGroup),
-					restProjectFormServiceFactory.newInstance(rootGroup, authorizeGroup, rootGroupAttributes), rootGroup);
+					restProjectFormServiceFactory.newInstance(rootGroup, authorizeGroup, rootGroupAttributes),
+					rootGroup);
 			return object;
 		}
 	}

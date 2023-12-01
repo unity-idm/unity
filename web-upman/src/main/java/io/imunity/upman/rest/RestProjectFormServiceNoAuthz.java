@@ -32,10 +32,9 @@ class RestProjectFormServiceNoAuthz
 
 	private final String rootGroup;
 
-	RestProjectFormServiceNoAuthz(
-			GroupDelegationConfigGenerator groupDelegationConfigGenerator, GroupsManagement groupMan,
-			RegistrationsManagement registrationsManagement, EnquiryManagement enquiryManagement,
-			ProjectFormsValidator formValidator, String rootGroup)
+	RestProjectFormServiceNoAuthz(GroupDelegationConfigGenerator groupDelegationConfigGenerator,
+			GroupsManagement groupMan, RegistrationsManagement registrationsManagement,
+			EnquiryManagement enquiryManagement, ProjectFormsValidator formValidator, String rootGroup)
 	{
 		this.groupDelegationConfigGenerator = groupDelegationConfigGenerator;
 		this.groupMan = groupMan;
@@ -51,9 +50,9 @@ class RestProjectFormServiceNoAuthz
 		Group group = getGroup(projectPath);
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
 		assertRegistrationFormIsConfigured(projectPath, group);
-		RegistrationForm regForm = groupDelegationConfigGenerator.generateProjectRegistrationForm(
-					projectPath, groupDelegationConfiguration.logoUrl,
-					groupDelegationConfiguration.attributes, groupDelegationConfiguration.policyDocumentsIds);
+		RegistrationForm regForm = groupDelegationConfigGenerator.generateProjectRegistrationForm(projectPath,
+				groupDelegationConfiguration.logoUrl, groupDelegationConfiguration.attributes,
+				groupDelegationConfiguration.policyDocumentsIds);
 		addRegistratioFormAndUpdateGroupConfig(group, regForm);
 	}
 
@@ -66,7 +65,7 @@ class RestProjectFormServiceNoAuthz
 		formValidator.assertRegistrationFormIsRestrictedToProjectGroup(regForm, projectPath);
 		addRegistratioFormAndUpdateGroupConfig(group, regForm);
 	}
-	
+
 	private void addRegistratioFormAndUpdateGroupConfig(Group group, RegistrationForm regForm) throws EngineException
 	{
 		registrationsManagement.addForm(regForm);
@@ -77,8 +76,8 @@ class RestProjectFormServiceNoAuthz
 		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
 		groupMan.updateGroup(group.toString(), group);
 	}
-	
-	private void assertRegistrationFormIsConfigured(String projectId, Group group )
+
+	private void assertRegistrationFormIsConfigured(String projectId, Group group)
 	{
 		if (group.getDelegationConfiguration().registrationForm != null)
 		{
@@ -100,7 +99,7 @@ class RestProjectFormServiceNoAuthz
 		return RegistrationFormMapper.map(form);
 	}
 
-	void removeRegistrationForm(String projectId) throws EngineException
+	void removeRegistrationForm(String projectId, boolean dropRequests) throws EngineException
 	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
@@ -116,11 +115,12 @@ class RestProjectFormServiceNoAuthz
 				.build();
 		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
 		groupMan.updateGroup(projectPath, group);
-		registrationsManagement.removeForm(groupDelegationConfiguration.registrationForm, true);
+		registrationsManagement.removeForm(groupDelegationConfiguration.registrationForm, dropRequests);
 	}
 
-	void updateRegistrationForm(String projectId, RestRegistrationForm registrationForm) throws EngineException
-	{	
+	void updateRegistrationForm(String projectId, RestRegistrationForm registrationForm, boolean ignoreRequests)
+			throws EngineException
+	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
@@ -136,7 +136,7 @@ class RestProjectFormServiceNoAuthz
 		}
 		RegistrationForm regForm = RegistrationFormMapper.map(registrationForm);
 		formValidator.assertRegistrationFormIsRestrictedToProjectGroup(regForm, projectPath);
-		registrationsManagement.updateForm(regForm, true);
+		registrationsManagement.updateForm(regForm, ignoreRequests);
 	}
 
 	void generateSignupEnquiryForm(String projectId) throws EngineException
@@ -145,14 +145,14 @@ class RestProjectFormServiceNoAuthz
 		Group group = getGroup(projectPath);
 		assertSignupEnquiryIsConfigured(projectId, group);
 		GroupDelegationConfiguration delegationConfiguration = group.getDelegationConfiguration();
-		EnquiryForm enquiryForm  = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(
-					ProjectPathProvider.getProjectPath(projectId, rootGroup), delegationConfiguration.logoUrl,
-					delegationConfiguration.policyDocumentsIds);
+		EnquiryForm enquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(
+				ProjectPathProvider.getProjectPath(projectId, rootGroup), delegationConfiguration.logoUrl,
+				delegationConfiguration.policyDocumentsIds);
 		addSignupEnquiryFormAndUpdateGroupConfig(group, enquiryForm);
 	}
 
 	void addSignupEnquiryForm(String projectId, RestEnquiryForm form) throws EngineException
-	{		
+	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
 		assertSignupEnquiryIsConfigured(projectId, group);
@@ -160,7 +160,7 @@ class RestProjectFormServiceNoAuthz
 		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
 		addSignupEnquiryFormAndUpdateGroupConfig(group, enquiryForm);
 	}
-	
+
 	private void addSignupEnquiryFormAndUpdateGroupConfig(Group group, EnquiryForm enquiryForm) throws EngineException
 	{
 		enquiryManagement.addEnquiry(enquiryForm);
@@ -171,8 +171,8 @@ class RestProjectFormServiceNoAuthz
 		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
 		groupMan.updateGroup(group.toString(), group);
 	}
-	
-	private void assertSignupEnquiryIsConfigured(String projectId, Group group )
+
+	private void assertSignupEnquiryIsConfigured(String projectId, Group group)
 	{
 		if (group.getDelegationConfiguration().signupEnquiryForm != null)
 		{
@@ -181,7 +181,7 @@ class RestProjectFormServiceNoAuthz
 	}
 
 	RestEnquiryForm getSignupEnquiryForm(String projectId) throws EngineException
-	{		
+	{
 		Group group = getGroup(ProjectPathProvider.getProjectPath(projectId, rootGroup));
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
 		if (groupDelegationConfiguration.signupEnquiryForm == null)
@@ -193,7 +193,7 @@ class RestProjectFormServiceNoAuthz
 		return EnquiryFormMapper.map(form);
 	}
 
-	void removeSignupEnquiryForm(String projectId) throws EngineException
+	void removeSignupEnquiryForm(String projectId, boolean dropRequests) throws EngineException
 	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
@@ -209,12 +209,13 @@ class RestProjectFormServiceNoAuthz
 				.build();
 		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
 		groupMan.updateGroup(projectPath, group);
-		enquiryManagement.removeEnquiry(groupDelegationConfiguration.signupEnquiryForm, true);
+		enquiryManagement.removeEnquiry(groupDelegationConfiguration.signupEnquiryForm, dropRequests);
 
 	}
 
-	void updateSignupEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm) throws EngineException
-	{		
+	void updateSignupEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm, boolean ignoreRequests)
+			throws EngineException
+	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
@@ -230,12 +231,12 @@ class RestProjectFormServiceNoAuthz
 		}
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(restEnquiryForm);
 		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
-		enquiryManagement.updateEnquiry(enquiryForm, true);
+		enquiryManagement.updateEnquiry(enquiryForm, ignoreRequests);
 	}
 
 	void generateMembershipUpdateEnquiryForm(String projectId) throws EngineException
 	{
-		Group group = getGroup( ProjectPathProvider.getProjectPath(projectId, rootGroup));
+		Group group = getGroup(ProjectPathProvider.getProjectPath(projectId, rootGroup));
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
 		assertMembershipUpdateIsConfigured(projectId, group);
 
@@ -251,12 +252,13 @@ class RestProjectFormServiceNoAuthz
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
 		assertMembershipUpdateIsConfigured(projectId, group);
-		EnquiryForm enquiryForm  = EnquiryFormMapper.map(form);
+		EnquiryForm enquiryForm = EnquiryFormMapper.map(form);
 		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
 		addMembershipUpdateFormAndUpdateGroupConfig(group, enquiryForm);
 	}
 
-	private void addMembershipUpdateFormAndUpdateGroupConfig(Group group, EnquiryForm enquiryForm) throws EngineException
+	private void addMembershipUpdateFormAndUpdateGroupConfig(Group group, EnquiryForm enquiryForm)
+			throws EngineException
 	{
 		enquiryManagement.addEnquiry(enquiryForm);
 		GroupDelegationConfiguration updatedGroupDelegationConfiguration = GroupDelegationConfiguration.builder()
@@ -266,18 +268,18 @@ class RestProjectFormServiceNoAuthz
 		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
 		groupMan.updateGroup(group.toString(), group);
 	}
-	
-	private void assertMembershipUpdateIsConfigured(String projectId, Group group )
+
+	private void assertMembershipUpdateIsConfigured(String projectId, Group group)
 	{
 		if (group.getDelegationConfiguration().membershipUpdateEnquiryForm != null)
 		{
-			throw new IllegalArgumentException("Membership update enquiry form for project " + projectId + " already exists");
+			throw new IllegalArgumentException(
+					"Membership update enquiry form for project " + projectId + " already exists");
 		}
 	}
-	
 
 	RestEnquiryForm getMembershipUpdateEnquiryForm(String projectId) throws EngineException
-	{		
+	{
 		Group group = getGroup(ProjectPathProvider.getProjectPath(projectId, rootGroup));
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
 
@@ -290,8 +292,8 @@ class RestProjectFormServiceNoAuthz
 		return EnquiryFormMapper.map(form);
 	}
 
-	void removeMembershipUpdateEnquiryForm(String projectId) throws EngineException
-	{	
+	void removeMembershipUpdateEnquiryForm(String projectId, boolean dropRequests) throws EngineException
+	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
@@ -307,13 +309,13 @@ class RestProjectFormServiceNoAuthz
 				.build();
 		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
 		groupMan.updateGroup(projectPath, group);
-		enquiryManagement.removeEnquiry(groupDelegationConfiguration.membershipUpdateEnquiryForm, true);
+		enquiryManagement.removeEnquiry(groupDelegationConfiguration.membershipUpdateEnquiryForm, dropRequests);
 
 	}
 
-	void updateMembershipUpdateEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm)
+	void updateMembershipUpdateEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm, boolean ignoreRequests)
 			throws EngineException
-	{		
+	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
@@ -330,13 +332,13 @@ class RestProjectFormServiceNoAuthz
 		}
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(restEnquiryForm);
 		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
-		enquiryManagement.updateEnquiry(enquiryForm, true);
+		enquiryManagement.updateEnquiry(enquiryForm, ignoreRequests);
 	}
-	
+
 	private Group getGroup(String projectPath) throws EngineException
 	{
-		return groupMan.getContents(projectPath,
-				GroupContents.METADATA).getGroup();
+		return groupMan.getContents(projectPath, GroupContents.METADATA)
+				.getGroup();
 	}
 
 	@Component
@@ -366,8 +368,7 @@ class RestProjectFormServiceNoAuthz
 		RestProjectFormServiceNoAuthz newInstance(String rootGroup, List<String> rootGroupAttributes)
 		{
 			return new RestProjectFormServiceNoAuthz(groupDelegationConfigGenerator, groupMan, registrationsManagement,
-					enquiryManagement, projectFormsValidatorFactory.newInstance(rootGroupAttributes),
-					rootGroup);
+					enquiryManagement, projectFormsValidatorFactory.newInstance(rootGroupAttributes), rootGroup);
 		}
 	}
 }

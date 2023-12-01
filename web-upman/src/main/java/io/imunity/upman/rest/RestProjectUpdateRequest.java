@@ -23,14 +23,11 @@ class RestProjectUpdateRequest
 	final String logoUrl;
 	final boolean enableSubprojects;
 	final List<String> readOnlyAttributes;
-	final RestRegistrationForm registrationForm;
-	final RestSignUpEnquiry signUpEnquiry;
-	final RestMembershipEnquiry membershipUpdateEnquiry;
+	
 
 	RestProjectUpdateRequest(boolean isPublic, Map<String, String> displayedName,
 	                         Map<String, String> description, boolean enableDelegation,
-	                         String logoUrl, boolean enableSubprojects, List<String> readOnlyAttributes,
-	                         RestRegistrationForm registrationForm, RestSignUpEnquiry signUpEnquiry, RestMembershipEnquiry membershipUpdateEnquiry)
+	                         String logoUrl, boolean enableSubprojects, List<String> readOnlyAttributes)
 	{
 		this.isPublic = isPublic;
 		this.displayedName = displayedName;
@@ -39,9 +36,6 @@ class RestProjectUpdateRequest
 		this.logoUrl = logoUrl;
 		this.enableSubprojects = enableSubprojects;
 		this.readOnlyAttributes = readOnlyAttributes;
-		this.registrationForm = registrationForm;
-		this.signUpEnquiry = signUpEnquiry;
-		this.membershipUpdateEnquiry = membershipUpdateEnquiry;
 	}
 
 	@Override
@@ -55,17 +49,14 @@ class RestProjectUpdateRequest
 			Objects.equals(displayedName, that.displayedName) &&
 			Objects.equals(description, that.description) &&
 			Objects.equals(logoUrl, that.logoUrl) &&
-			Objects.equals(readOnlyAttributes, that.readOnlyAttributes) &&
-			Objects.equals(registrationForm, that.registrationForm) &&
-			Objects.equals(signUpEnquiry, that.signUpEnquiry) &&
-			Objects.equals(membershipUpdateEnquiry, that.membershipUpdateEnquiry);
+			Objects.equals(readOnlyAttributes, that.readOnlyAttributes);
 	}
 
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(isPublic, displayedName, description, enableDelegation, logoUrl,
-			enableSubprojects, readOnlyAttributes, registrationForm, signUpEnquiry, membershipUpdateEnquiry);
+			enableSubprojects, readOnlyAttributes);
 	}
 
 	@Override
@@ -79,9 +70,6 @@ class RestProjectUpdateRequest
 			", logoUrl='" + logoUrl + '\'' +
 			", enableSubprojects=" + enableSubprojects +
 			", readOnlyAttributes='" + readOnlyAttributes + '\'' +
-			", registrationForm='" + registrationForm + '\'' +
-			", signUpEnquiry='" + signUpEnquiry + '\'' +
-			", membershipUpdateEnquiry='" + membershipUpdateEnquiry + '\'' +
 			'}';
 	}
 
@@ -99,9 +87,7 @@ class RestProjectUpdateRequest
 		private String logoUrl;
 		private boolean enableSubprojects;
 		private List<String> readOnlyAttributes;
-		private RestRegistrationForm registrationForm;
-		private RestSignUpEnquiry signUpEnquiry;
-		private RestMembershipEnquiry membershipUpdateEnquiry;
+		
 
 		private RestProjectBuilder()
 		{
@@ -149,28 +135,11 @@ class RestProjectUpdateRequest
 			return this;
 		}
 
-		public RestProjectBuilder withRegistrationForm(RestRegistrationForm registrationForm)
-		{
-			this.registrationForm = registrationForm;
-			return this;
-		}
-
-		public RestProjectBuilder withSignUpEnquiry(RestSignUpEnquiry signUpEnquiry)
-		{
-			this.signUpEnquiry = signUpEnquiry;
-			return this;
-		}
-
-		public RestProjectBuilder withMembershipUpdateEnquiry(RestMembershipEnquiry membershipUpdateEnquiry)
-		{
-			this.membershipUpdateEnquiry = membershipUpdateEnquiry;
-			return this;
-		}
-
+		
 		public RestProjectUpdateRequest build()
 		{
 			return new RestProjectUpdateRequest(isPublic, displayedName, description, enableDelegation, logoUrl,
-				enableSubprojects, readOnlyAttributes, registrationForm, signUpEnquiry, membershipUpdateEnquiry);
+				enableSubprojects, readOnlyAttributes);
 		}
 	}
 }
