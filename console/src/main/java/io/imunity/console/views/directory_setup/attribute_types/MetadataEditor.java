@@ -18,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import io.imunity.vaadin.elements.CSSVars;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.AttributeMetadataHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.WebAttributeMetadataHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -52,7 +53,8 @@ class MetadataEditor extends VerticalLayout
 		addNew.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
 		metaChoice = new ComboBox<>();
 		metaChoice.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
-	
+		metaChoice.setOverlayClassName(CssClassNames.HIDDEN_COMBO_CHECKMARK.getName());
+		
 		HorizontalLayout wrapper = new HorizontalLayout();
 		wrapper.setPadding(false);
 		wrapper.setMargin(false);

@@ -140,8 +140,7 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 	@Override
 	public void setWidth(String width)
 	{
-		super.setWidth(width);
-		fields.values().forEach(HasSize::setWidthFull);
+		fields.values().forEach(f -> f.setWidth(width));
 	}
 
 	@Override

@@ -37,8 +37,8 @@ public enum CssClassNames
 	REQUIRED_LABEL("u-required-label"),
 	ERROR_INDICATOR("u-error-indicator"),
 	LOGO_IMAGE("u-logo-image"),
-	WIDTH_FULL("u-width-full");
-
+	WIDTH_FULL("u-width-full"),
+	HIDDEN_COMBO_CHECKMARK("u-combobox-hidden-checkmark");
 	
 	private final String name;
 

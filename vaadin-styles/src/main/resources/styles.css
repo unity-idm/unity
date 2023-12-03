@@ -672,3 +672,7 @@ vaadin-details.u-multi-tab-details {
 .u-width-full {
 	width: 100% !important;
 }
+
+vaadin-combo-box-overlay.u-combobox-hidden-checkmark > * ::part(checkmark){
+	visibility: hidden;
+}
