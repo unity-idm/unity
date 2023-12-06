@@ -10,8 +10,9 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
+
+import io.imunity.vaadin.endpoint.common.confirmations.MobileNumberConfirmationConfigurationEditor;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.ext.MobileNumberConfirmationConfigurationEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;

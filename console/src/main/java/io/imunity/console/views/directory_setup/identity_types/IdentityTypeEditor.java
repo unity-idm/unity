@@ -19,6 +19,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
@@ -85,15 +86,15 @@ class IdentityTypeEditor extends FormLayout
 
 		min = new IntegerField();
 		min.setStepButtonsVisible(true);
-		min.setMin(0);
-		min.setMax(Integer.MAX_VALUE);
+//		min.setMin(0);
+//		min.setMax(Integer.MAX_VALUE);
 	
 		addFormItem(min, msg.getMessage("IdentityType.min"));
 
 		minVerified = new IntegerField();
 		minVerified.setStepButtonsVisible(true);
-		minVerified.setMin(0);
-		minVerified.setMax(Integer.MAX_VALUE);
+//		minVerified.setMin(0);
+//		minVerified.setMax(Integer.MAX_VALUE);
 
 		typeDefinition = idTypeSupport.getTypeDefinition(toEdit.getName());
 		if (typeDefinition.isEmailVerifiable())
@@ -122,13 +123,13 @@ class IdentityTypeEditor extends FormLayout
 		max.configureBinding(binder, "maxInstances");
 		binder.forField(min)
 				.asRequired(msg.getMessage("fieldRequired"))
-				.withValidator(
-						new IntegerRangeValidator(msg.getMessage("IdentityType.invalidNumber"), 0, Integer.MAX_VALUE))
+				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
+						AttributeTypeUtils.getBoundsDesc(msg, 0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
 				.bind("minInstances");
 		binder.forField(minVerified)
 				.asRequired(msg.getMessage("fieldRequired"))
-				.withValidator(
-						new IntegerRangeValidator(msg.getMessage("IdentityType.invalidNumber"), 0, Integer.MAX_VALUE))
+				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
+						AttributeTypeUtils.getBoundsDesc(msg, 0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
 				.bind("minVerifiedInstances");
 		binder.setBean(toEdit);
 		refresh();

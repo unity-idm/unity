@@ -12,6 +12,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
+
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.elements.Panel;
@@ -26,6 +28,7 @@ import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -103,7 +106,6 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		addFormItem(typeDescription, msg.getMessage("AttributeType.description"));
 
 		min = new IntegerField();
-		min.setMin(0);
 		min.setStepButtonsVisible(true);
 		addFormItem(min, msg.getMessage("AttributeType.min"));
 
@@ -165,6 +167,8 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 								.setDescription(convert(localizedValues2)));
 
 		binder.forField(min)
+				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
+						AttributeTypeUtils.getBoundsDesc(msg, 0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind("minElements");
 		max.configureBinding(binder, "maxElements");

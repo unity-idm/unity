@@ -12,8 +12,10 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 public class IntegerBoundEditor extends CustomField<Integer>
 {
@@ -36,20 +38,20 @@ public class IntegerBoundEditor extends CustomField<Integer>
 		unlimited = new Checkbox();
 		unlimited.setLabel(labelUnlimited);
 		limit = new IntegerField();
-		if (max != null)
-		{
-			limit.setMax(max);
-		}else
-		{
-			limit.setMax(Integer.MAX_VALUE);
-		}
-		if (min != null)
-		{
-			limit.setMin(min);
-		}else
-		{
-			limit.setMin(Integer.MIN_VALUE);
-		}
+//		if (max != null)
+//		{
+//			limit.setMax(max);
+//		}else
+//		{
+//			limit.setMax(Integer.MAX_VALUE);
+//		}
+//		if (min != null)
+//		{
+//			limit.setMin(min);
+//		}else
+//		{
+//			limit.setMin(Integer.MIN_VALUE);
+//		}
 		limit.setStepButtonsVisible(true);
 		unlimited.addValueChangeListener(event ->
 		{
@@ -96,10 +98,13 @@ public class IntegerBoundEditor extends CustomField<Integer>
 			limit.setValue(newPresentationValue.equals(bound) ? 0 : newPresentationValue);
 		}
 	}
-	
+
 	public void configureBinding(Binder<?> binder, String fieldName)
 	{
+		String range = AttributeTypeUtils.getBoundsDesc(msg, min, max);
 		binder.forField(this)
-			.bind(fieldName);
+				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range),
+						min, max))
+				.bind(fieldName);
 	}
 }

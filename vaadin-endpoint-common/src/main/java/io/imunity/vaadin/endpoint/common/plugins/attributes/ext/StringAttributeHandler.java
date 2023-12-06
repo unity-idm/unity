@@ -16,6 +16,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
@@ -26,6 +27,7 @@ import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 
 public class StringAttributeHandler extends TextOnlyAttributeHandler
@@ -73,7 +75,6 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		
 			IntegerField min = new IntegerField();
-			min.setMin(0);
 			min.setStepButtonsVisible(true);
 			fl.addFormItem(min, msg.getMessage("StringAttributeHandler.minLenE"));
 
@@ -89,7 +90,10 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			Checkbox editWithTextArea = new Checkbox(msg.getMessage("StringAttributeHandler.editWithTextAreaE"));
 			fl.addFormItem(editWithTextArea, "");
 			
-			binder.forField(min).asRequired(msg.getMessage("fieldRequired"))
+			binder.forField(min)
+					.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
+						AttributeTypeUtils.getBoundsDesc(msg, 0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
+					.asRequired(msg.getMessage("fieldRequired"))
 					.bind("min");
 			max.configureBinding(binder, "max");
 			binder.forField(regexp).bind("regexp");

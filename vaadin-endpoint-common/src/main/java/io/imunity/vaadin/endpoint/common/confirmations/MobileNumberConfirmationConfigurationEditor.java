@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
+package io.imunity.vaadin.endpoint.common.confirmations;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -16,6 +16,7 @@ import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msg_template.confirm.MobileNumberConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
@@ -47,7 +48,7 @@ public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 		initUI();	
 	}
 	
-	MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
+	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
 	                                                   MessageSource msg, MessageTemplateManagement msgTemplateMan)
 	{
 		this(initial, msg, msgTemplateMan, "MobileNumberConfirmationConfiguration.");
@@ -67,14 +68,10 @@ public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 		msgTemplate.setDefaultValue();
 
 		IntegerField validityTime = new IntegerField();
-		validityTime.setMin(1);
-		validityTime.setMax(60 * 24 * 365);
 		validityTime.setStep(1);
 		validityTime.setStepButtonsVisible(true);
 
 		IntegerField codeLength = new IntegerField();
-		codeLength.setMin(1);
-		codeLength.setMax(50);
 		codeLength.setStep(1);
 		codeLength.setStepButtonsVisible(true);
 
@@ -85,15 +82,14 @@ public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 		binder.forField(msgTemplate).asRequired(msg.getMessage("fieldRequired"))
 				.bind("messageTemplate");
 		binder.forField(validityTime).asRequired(msg.getMessage("fieldRequired"))
-				.withValidator(new IntegerRangeValidator(
-						msg.getMessage("outOfBoundsNumber", 1, 60 * 24 * 365),
-						1,
-						60 * 24 * 365)
+				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
+						AttributeTypeUtils.getBoundsDesc(msg, 1, 60 * 24 * 365)), 1, 60 * 24 * 365)
 				)
 				.bind("validityTime");
 
 		binder.forField(codeLength).asRequired(msg.getMessage("fieldRequired")).withValidator(
-				new IntegerRangeValidator(msg.getMessage("outOfBoundsNumber", 1, 50), 1, 50))
+				new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
+						AttributeTypeUtils.getBoundsDesc(msg, 1, 50)), 1, 50))
 				.bind("codeLength");
 		
 		

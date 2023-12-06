@@ -156,8 +156,9 @@ class EnumAttributeHandler implements WebAttributeHandler
 		public Optional<Component>  getEditor()
 		{
 			VerticalLayout vl = new VerticalLayout();
-			vl.setSpacing(true);
+			vl.setSpacing(false);
 			vl.setMargin(false);
+			vl.setPadding(false);
 			
 			HorizontalLayout hl = new HorizontalLayout();
 			value = new TextField();
@@ -179,6 +180,7 @@ class EnumAttributeHandler implements WebAttributeHandler
 			hl.add(add);
 			hl.setSpacing(true);
 			hl.setMargin(false);
+			hl.setPadding(false);
 			
 			vl.add(hl);
 	

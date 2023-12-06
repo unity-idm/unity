@@ -1,11 +1,10 @@
-/*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
+/* Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
 package io.imunity.vaadin.endpoint.common.confirmations;
 
-
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -17,6 +16,7 @@ import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msg_template.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
@@ -34,8 +34,8 @@ public class EmailConfirmationConfigurationEditor extends FormLayout
 	private CompatibleTemplatesComboBox msgTemplate;
 	private IntegerField validityTime;
 
-	public EmailConfirmationConfigurationEditor(EmailConfirmationConfiguration initial,
-			MessageSource msg, MessageTemplateManagement msgTemplateMan)
+	public EmailConfirmationConfigurationEditor(EmailConfirmationConfiguration initial, MessageSource msg,
+			MessageTemplateManagement msgTemplateMan)
 	{
 		this.initial = initial;
 		this.msg = msg;
@@ -45,22 +45,25 @@ public class EmailConfirmationConfigurationEditor extends FormLayout
 
 	private void initUI()
 	{
-		binder = new Binder<>(EmailConfirmationConfiguration.class);
+		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		
+		binder = new Binder<>(EmailConfirmationConfiguration.class);
+
 		msgTemplate = new CompatibleTemplatesComboBox(EmailConfirmationTemplateDef.NAME, msgTemplateMan);
-		msgTemplate.setTooltipText(msg.getMessage(
-				"EmailConfirmationConfiguration.confirmationMsgTemplateDesc"));
+		msgTemplate.setTooltipText(msg.getMessage("EmailConfirmationConfiguration.confirmationMsgTemplateDesc"));
 
 		validityTime = new IntegerField();
 		validityTime.setStepButtonsVisible(true);
-		
+
 		addFieldToLayout(this);
-		
-		binder.forField(msgTemplate).bind("messageTemplate");
-		binder.forField(validityTime).asRequired(msg.getMessage("fieldRequired"))
-				.withValidator(new IntegerRangeValidator(msg
-						.getMessage("outOfBoundsNumber", 1, 60 * 24 * 365),
-						1, 60 * 24 * 365))
+
+		binder.forField(msgTemplate)
+				.bind("messageTemplate");
+		binder.forField(validityTime)
+				.asRequired(msg.getMessage("fieldRequired"))
+				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
+						AttributeTypeUtils.getBoundsDesc(msg, 1, 60 * 24 * 365)), 1, 60 * 24 * 365))
 				.bind("validityTime");
 
 		if (initial != null)
@@ -73,15 +76,14 @@ public class EmailConfirmationConfigurationEditor extends FormLayout
 			init.setValidityTime(EmailConfirmationConfiguration.DEFAULT_VALIDITY);
 			binder.setBean(init);
 		}
-		
+
 	}
-	
+
 	public void addFieldToLayout(FormLayout parent)
 	{
-		parent.addFormItem(msgTemplate, msg.getMessage(
-				"EmailConfirmationConfiguration.confirmationMsgTemplate"));
+		parent.addFormItem(msgTemplate, msg.getMessage("EmailConfirmationConfiguration.confirmationMsgTemplate"));
 		parent.addFormItem(validityTime, msg.getMessage("EmailConfirmationConfiguration.validityTime"));
-	
+
 	}
 
 	public EmailConfirmationConfiguration getCurrentValue() throws FormValidationException
