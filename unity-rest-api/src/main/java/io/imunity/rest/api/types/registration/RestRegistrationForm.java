@@ -230,6 +230,9 @@ public class RestRegistrationForm extends RestBaseForm
 
 		public RestRegistrationForm build()
 		{
+			if (defaultCredentialRequirement == null)
+				throw new IllegalStateException("Default credential requirement must be not-null "
+						+ "in RegistrationForm");
 			return new RestRegistrationForm(this);
 		}
 	}

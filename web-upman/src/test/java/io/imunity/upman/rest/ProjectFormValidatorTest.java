@@ -25,13 +25,13 @@ import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 
 @ExtendWith(MockitoExtension.class)
-
 public class ProjectFormValidatorTest
 {
 	@Mock
@@ -49,7 +49,7 @@ public class ProjectFormValidatorTest
 	}
 
 	@Test
-	public void shouldThrowWhenGroupAdminToNotifiedIsOutOfTheProject() throws IllegalArgumentException, EngineException
+	public void shouldThrowWhenGroupAdminToNotifiedIsOutOfTheProject() throws EngineException
 	{
 		RegistrationForm registrationForm = new RegistrationFormBuilder().withName("form")
 				.withDefaultCredentialRequirement("cred")
@@ -58,13 +58,13 @@ public class ProjectFormValidatorTest
 				.endNotificationsConfiguration()
 				.build();
 
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ProjectFormValidationException.class,
 				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 
 	}
 
 	@Test
-	public void shouldThrowWhenAutoLoginToRealmIsSet() throws IllegalArgumentException, EngineException
+	public void shouldThrowWhenAutoLoginToRealmIsSet()  throws EngineException
 	{
 		RegistrationForm registrationForm = new RegistrationFormBuilder().withName("form")
 				.withDefaultCredentialRequirement("cred")
@@ -73,12 +73,12 @@ public class ProjectFormValidatorTest
 				.endNotificationsConfiguration()
 				.withAutoLoginToRealm("realm")
 				.build();
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ProjectFormValidationException.class,
 				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
-	public void shouldThrowWhenGroupParamIsOutOfTheProject() throws IllegalArgumentException, EngineException
+	public void shouldThrowWhenGroupParamIsOutOfTheProject() throws EngineException
 	{
 		RegistrationForm registrationForm = new RegistrationFormBuilder().withName("form")
 				.withDefaultCredentialRequirement("cred")
@@ -92,12 +92,12 @@ public class ProjectFormValidatorTest
 		when(groupsManagement.getAllGroups())
 				.thenReturn(Map.of("/project/B", new Group("/project/B"), "/project/A", new Group("/project/A")));
 
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ProjectFormValidationException.class,
 				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
-	public void shouldThrowWhenAttributeParamIsOutOfTheProject() throws IllegalArgumentException, EngineException
+	public void shouldThrowWhenAttributeParamIsOutOfTheProject() throws EngineException
 	{
 		RegistrationForm registrationForm = new RegistrationFormBuilder().withName("form")
 				.withDefaultCredentialRequirement("cred")
@@ -109,12 +109,12 @@ public class ProjectFormValidatorTest
 				.endAttributeParam()
 				.build();
 
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ProjectFormValidationException.class,
 				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
-	public void shouldThrowWhenAttributeParamIsForbiddenInRootGroup() throws IllegalArgumentException, EngineException
+	public void shouldThrowWhenAttributeParamIsForbiddenInRootGroup() throws EngineException
 	{
 		RegistrationForm registrationForm = new RegistrationFormBuilder().withName("form")
 				.withDefaultCredentialRequirement("cred")
@@ -127,13 +127,13 @@ public class ProjectFormValidatorTest
 				.endAttributeParam()
 				.build();
 
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ProjectFormValidationException.class,
 				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
 	public void shouldThrowWhenAutomationAddAttributeActionValidationFailed()
-			throws IllegalArgumentException, EngineException
+			throws EngineException
 	{
 		RegistrationForm registrationForm = new RegistrationFormBuilder().withName("form")
 				.withDefaultCredentialRequirement("cred")
@@ -151,13 +151,13 @@ public class ProjectFormValidatorTest
 		when(registrationActionsRegistry.getByName(AddAttributeActionFactory.NAME))
 				.thenReturn(new AddAttributeActionFactory(attributeTypeSupport, mock(ExternalDataParser.class)));
 
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ActionValidationException.class,
 				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
 	public void shouldThrowWhenAutomationAddToGroupActionValidationFailed()
-			throws IllegalArgumentException, EngineException
+			throws EngineException
 	{
 		RegistrationForm registrationForm = new RegistrationFormBuilder().withName("form")
 				.withDefaultCredentialRequirement("cred")
@@ -173,12 +173,12 @@ public class ProjectFormValidatorTest
 		when(registrationActionsRegistry.getByName(AddToGroupActionFactory.NAME))
 				.thenReturn(new AddToGroupActionFactory());
 
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ActionValidationException.class,
 				() -> validator.assertRegistrationFormIsRestrictedToProjectGroup(registrationForm, "/projects/A"));
 	}
 
 	@Test
-	public void shouldValidateForm() throws IllegalArgumentException, EngineException
+	public void shouldValidateForm() throws EngineException
 	{
 		RegistrationForm registrationForm = new RegistrationFormBuilder().withName("form")
 				.withDefaultCredentialRequirement("cred")

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.rest.api.types.registration.RestEnquiryForm;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
@@ -30,6 +29,8 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class RestProjectFormServiceTest
@@ -76,14 +77,14 @@ public class RestProjectFormServiceTest
 	}
 
 	@Test
-	public void shouldNotAddRegistrationFormWhenValidationFailed() throws EngineException
+	public void shouldNotAddRegistrationFormWhenValidationFailed() throws EngineException, FormValidationException
 	{
 		setUpGroupContent(new GroupDelegationConfiguration(true));
 		RestRegistrationForm form = RestRegistrationForm.builder()
 				.withName("form")
 				.withDefaultCredentialRequirement("cred")
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator)
+		doThrow(FormValidationException.class).when(validator)
 				.assertRegistrationFormIsRestrictedToProjectGroup(RegistrationFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class, () -> service.addRegistrationForm("A", form));
 	}
@@ -105,7 +106,7 @@ public class RestProjectFormServiceTest
 	}
 
 	@Test
-	public void shouldNotUpdateRegistrationFormWhenValidationFailed() throws EngineException
+	public void shouldNotUpdateRegistrationFormWhenValidationFailed() throws EngineException, FormValidationException
 	{
 		setUpGroupContent(GroupDelegationConfiguration.builder()
 				.withRegistrationForm("form")
@@ -115,7 +116,7 @@ public class RestProjectFormServiceTest
 				.withName("form")
 				.withDefaultCredentialRequirement("cred")
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator)
+		doThrow(FormValidationException.class).when(validator)
 				.assertRegistrationFormIsRestrictedToProjectGroup(RegistrationFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateRegistrationForm("A", form, true));
 	}

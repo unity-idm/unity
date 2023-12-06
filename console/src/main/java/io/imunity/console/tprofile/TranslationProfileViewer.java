@@ -7,6 +7,8 @@ package io.imunity.console.tprofile;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import io.imunity.vaadin.endpoint.common.HtmlLabelFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileMode;
 import pl.edu.icm.unity.base.translation.TranslationProfile;

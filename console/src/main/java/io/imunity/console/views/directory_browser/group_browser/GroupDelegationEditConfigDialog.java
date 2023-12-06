@@ -5,9 +5,25 @@
 
 package io.imunity.console.views.directory_browser.group_browser;
 
+import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.ObjectFactory;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -22,10 +38,15 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import io.imunity.console.views.signup_and_enquiry.*;
+
+import io.imunity.console.views.signup_and_enquiry.EnquiryFormChangedEvent;
+import io.imunity.console.views.signup_and_enquiry.EnquiryFormEditDialog;
+import io.imunity.console.views.signup_and_enquiry.EnquiryFormEditor;
+import io.imunity.console.views.signup_and_enquiry.RegistrationFormChangedEvent;
+import io.imunity.console.views.signup_and_enquiry.RegistrationFormEditDialog;
+import io.imunity.console.views.signup_and_enquiry.RegistrationFormEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
-import org.springframework.beans.factory.ObjectFactory;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -33,8 +54,8 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
-import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -43,19 +64,6 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 
 class GroupDelegationEditConfigDialog extends ConfirmDialog
@@ -122,6 +130,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		membershipUpdateEnquiryFormComboWithButtons.setEnabled(enabled);
 		attributes.setEnabled(enabled);
 		enableSubprojects.setEnabled(enabled);
+		policyDocuments.setEnabled(enabled);
 	}
 
 	private Component getContents()
@@ -218,9 +227,9 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		main.addFormItem(attributes, msg.getMessage("GroupDelegationEditConfigDialog.attributes"));
 		main.addFormItem(policyDocuments, msg.getMessage("GroupDelegationEditConfigDialog.policyDocuments"));
 
-		main.addFormItem(registrationFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"));
-		main.addFormItem(signupEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry"));
-		main.addFormItem(membershipUpdateEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"));
+		main.addFormItem(registrationFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.registrationForm") + ":");
+		main.addFormItem(signupEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry") + ":");
+		main.addFormItem(membershipUpdateEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry") + ":");
 		return main;
 	}
 
@@ -335,7 +344,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 					.collect(Collectors.toList()));
 
 
-			Map<String, FormType> formsToSynch = getFormsToSynch(groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
+			Map<String, FormWithType> formsToSynch = getFormsToSynch(groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
 					policyDocuments.getSelectedItems().stream().map(p -> p.id).collect(Collectors.toSet()));	
 			if (formsToSynch.size() > 0)
 				getSynchronizationDialog(formsToSynch, () -> {
@@ -353,16 +362,16 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		}
 	}
 	
-	private ConfirmDialog getSynchronizationDialog(Map<String, FormType> formsToSynch, Runnable close)
+	private ConfirmDialog getSynchronizationDialog(Map<String, FormWithType> formsToSynch, Runnable close)
 	{
-		return new ConfirmDialog("", msg.getMessage("GroupDelegationEditConfigDialog.synchronizePolicy",
-				String.join("&", formsToSynch.keySet())), msg.getMessage("ok"), e ->
+		 ConfirmDialog dialog = new ConfirmDialog(msg.getMessage("GroupDelegationEditConfigDialog.synchronizePolicyDialogTitle"),
+				"", msg.getMessage("ok"), e ->
 				{
 					try
 					{
-						for (Entry<String, FormType> form : formsToSynch.entrySet())
+						for (Entry<String, FormWithType> form : formsToSynch.entrySet())
 						{
-							configGenerator.resetFormsPolicies(form.getKey(), form.getValue(),
+							configGenerator.resetFormsPolicies(form.getKey(), form.getValue().type,
 									policyDocuments.getSelectedItems()
 											.stream()
 											.map(p -> p.id)
@@ -376,21 +385,32 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 					}
 					close.run();
 				}, msg.getMessage("cancel"), e -> close.run());
+			Html label = new Html("<div>"
+					+ msg.getMessage("GroupDelegationEditConfigDialog.synchronizePolicy",
+							String.join(" " + msg.getMessage("and") + " ", formsToSynch.values()
+									.stream()
+									.map(f -> "<b>" + f.label + "</b>")
+									.collect(Collectors.toList())))
+					+ "</div>");
+			dialog.setText(label);
+		 return dialog;
+		
+		
 	}
 
-	private Map<String, FormType> getFormsToSynch(String registrationFormName, String enquiryFormName,
+	private Map<String, FormWithType> getFormsToSynch(String registrationFormName, String enquiryFormName,
 			Set<Long> policyDocumentsIds) throws EngineException {
 
-		Map<String, FormType> ret = new HashMap<>();
+		Map<String, FormWithType> ret = new HashMap<>();
 		RegistrationForm registrationForm = registrationMan.getForm(registrationFormName);
 		if (!policyDocumentsIds.equals(registrationForm.getPolicyAgreements().stream().map(p -> p.documentsIdsToAccept)
 				.flatMap(Collection::stream).collect(Collectors.toSet()))) {
-			ret.put(registrationFormName, FormType.REGISTRATION);
+			ret.put(registrationFormName, new FormWithType(FormType.REGISTRATION, msg.getMessage("GroupDelegationEditConfigDialog.registrationForm")));
 		}
 		EnquiryForm enquiryForm = enquiryMan.getEnquiry(enquiryFormName);
 		if (!policyDocumentsIds.equals(enquiryForm.getPolicyAgreements().stream().map(p -> p.documentsIdsToAccept)
 				.flatMap(Collection::stream).collect(Collectors.toSet()))) {
-			ret.put(enquiryFormName, FormType.ENQUIRY);
+			ret.put(enquiryFormName, new FormWithType(FormType.ENQUIRY, msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry")));
 		}
 
 		return ret;
@@ -739,6 +759,18 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 				}
 			}
 			return main;
+		}
+	}
+	
+	private static class FormWithType
+	{
+		public final FormType type;
+		public final String label;
+		
+		public FormWithType(FormType type, String label)
+		{
+			this.type = type;
+			this.label = label;
 		}
 	}
 }

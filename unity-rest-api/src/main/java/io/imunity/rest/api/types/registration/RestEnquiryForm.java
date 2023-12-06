@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -64,6 +65,7 @@ public class RestEnquiryForm extends RestBaseForm
 
 	public static final class Builder extends RestBaseFormBuilder<Builder>
 	{
+		@JsonInclude(JsonInclude.Include.NON_NULL)
 		private String type;
 		private List<String> targetGroups = Collections.emptyList();
 		private String targetCondition;
@@ -108,6 +110,10 @@ public class RestEnquiryForm extends RestBaseForm
 
 		public RestEnquiryForm build()
 		{
+			if (type == null)
+				throw new IllegalStateException("Enquiry type must be not-null");
+			if (targetGroups == null)
+				throw new IllegalStateException("Enquiry target groups can not be null");
 			return new RestEnquiryForm(this);
 		}
 	}

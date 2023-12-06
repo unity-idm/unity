@@ -10,8 +10,8 @@ public class GroupRestrictedFormValidationContext
 
 	private GroupRestrictedFormValidationContext(Builder builder)
 	{
-		this.parentGroup = builder.allowedGroupWithChildren;
-		this.allowedRootGroupAttributes = builder.allowedRootGroupAttributes;
+		this.parentGroup = builder.parentGroup;
+		this.allowedRootGroupAttributes = List.copyOf(builder.allowedRootGroupAttributes);
 	}
 
 	public static Builder builder()
@@ -21,16 +21,16 @@ public class GroupRestrictedFormValidationContext
 
 	public static final class Builder
 	{
-		private String allowedGroupWithChildren;
+		private String parentGroup;
 		private List<String> allowedRootGroupAttributes = Collections.emptyList();
 
 		private Builder()
 		{
 		}
 
-		public Builder withAllowedGroupWithChildren(String allowedGroupWithChildren)
+		public Builder withParentGroup(String parentGroup)
 		{
-			this.allowedGroupWithChildren = allowedGroupWithChildren;
+			this.parentGroup = parentGroup;
 			return this;
 		}
 

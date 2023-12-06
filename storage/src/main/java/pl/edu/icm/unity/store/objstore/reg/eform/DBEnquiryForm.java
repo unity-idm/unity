@@ -109,6 +109,10 @@ class DBEnquiryForm extends DBBaseForm
 
 		public DBEnquiryForm build()
 		{
+			if (type == null)
+				throw new IllegalStateException("Enquiry type must be not-null");
+			if (targetGroups == null)
+				throw new IllegalStateException("Enquiry target groups can not be null");
 			return new DBEnquiryForm(this);
 		}
 	}

@@ -100,12 +100,12 @@ public class AddToGroupActionFactory extends AbstractRegistrationTranslationActi
 			if (!((rawExpression.startsWith("\"") || rawExpression.startsWith("'"))
 					&& (rawExpression.endsWith("\"") || rawExpression.endsWith("'"))))
 			{
-				throw new ActionValidationException("Only literal expression is allowed");
+				throw new ActionValidationException("Only literal expression is allowed in form automation addToGroup action");
 			}
 			String group = rawExpression.substring(1, rawExpression.length() -1);	
 			if (!Group.isChildOrSame(group, context.parentGroup))
 			{
-				throw new ActionValidationException("Group " + group + " is forbidden");
+				throw new ActionValidationException("Group " + group + " is not allowed in form automation addToGroup action");
 			}
 		}
 		

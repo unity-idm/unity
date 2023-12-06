@@ -1,6 +1,8 @@
 package pl.edu.icm.unity.engine.api.translation;
 
-public class ActionValidationException extends IllegalArgumentException
+import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
+
+public class ActionValidationException extends RuntimeEngineException
 {
 	public ActionValidationException(String message)
 	{

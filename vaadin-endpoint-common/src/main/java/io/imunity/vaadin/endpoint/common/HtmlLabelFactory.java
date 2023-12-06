@@ -3,13 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.tprofile;
+package io.imunity.vaadin.endpoint.common;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.flow.component.Html;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-class HtmlLabelFactory
+public class HtmlLabelFactory
 {
 	public static Html getHtmlLabel(MessageSource msg, String name, String msgKey, Object... unsafeArgs)
 	{

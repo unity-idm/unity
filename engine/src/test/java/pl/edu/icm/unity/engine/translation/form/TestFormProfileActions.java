@@ -122,7 +122,7 @@ public class TestFormProfileActions
 		RegistrationTranslationAction action = factory.getInstance("stringA", "/A/B", 
 				"attr['attribute']");
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withAllowedGroupWithChildren("/project").build()));
+				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withParentGroup("/project").build()));
 	}
 	
 	@Test
@@ -136,7 +136,7 @@ public class TestFormProfileActions
 		RegistrationTranslationAction action = factory.getInstance("stringA", "/project/A", "attr['attribute']");
 
 		Assertions.assertDoesNotThrow(() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder()
-				.withAllowedGroupWithChildren("/project")
+				.withParentGroup("/project")
 				.withAllowedRootGroupAttributes(List.of())
 				.build()));
 	}
@@ -153,7 +153,7 @@ public class TestFormProfileActions
 		RegistrationTranslationAction action2 = factory.getInstance("stringA", "/", "attr['attribute']");
 		Assertions.assertDoesNotThrow(() -> action2.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder()
 				.withAllowedRootGroupAttributes(List.of("stringA"))
-				.withAllowedGroupWithChildren("/project")
+				.withParentGroup("/project")
 				.build()));
 	}
 
@@ -240,7 +240,7 @@ public class TestFormProfileActions
 		AddToGroupActionFactory factory = new AddToGroupActionFactory();
 		RegistrationTranslationAction action = factory.getInstance("'/A'");
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withAllowedGroupWithChildren("/B").build()));	
+				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withParentGroup("/B").build()));	
 	}
 	
 	@Test
@@ -249,7 +249,7 @@ public class TestFormProfileActions
 		AddToGroupActionFactory factory = new AddToGroupActionFactory();
 		RegistrationTranslationAction action = factory.getInstance("'/B/C'");
 		Assertions.assertDoesNotThrow(
-				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withAllowedGroupWithChildren("/B").build()));	
+				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withParentGroup("/B").build()));	
 	}
 	
 
