@@ -234,6 +234,9 @@ class DBRegistrationForm extends DBBaseForm
 
 		public DBRegistrationForm build()
 		{
+			if (defaultCredentialRequirement == null)
+				throw new IllegalStateException("Default credential requirement must be not-null "
+						+ "in RegistrationForm");
 			return new DBRegistrationForm(this);
 		}
 	}

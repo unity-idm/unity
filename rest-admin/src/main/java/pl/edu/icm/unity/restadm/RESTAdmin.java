@@ -946,7 +946,7 @@ public class RESTAdmin implements RESTAdminHandler
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void addForm(String json) throws EngineException, IOException
 	{
-		RestRegistrationForm form = JsonUtil.parse(json, RestRegistrationForm.class);
+		RestRegistrationForm form = parse(json, RestRegistrationForm.class);
 		registrationManagement.addForm(RegistrationFormMapper.map(form));
 	}
 	
@@ -959,7 +959,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (ignoreRequestsAndInvitations == null)
 			ignoreRequestsAndInvitations = false;
-		RestRegistrationForm form = JsonUtil.parse(json, RestRegistrationForm.class);
+		RestRegistrationForm form = parse(json, RestRegistrationForm.class);
 		registrationManagement.updateForm(RegistrationFormMapper.map(form), ignoreRequestsAndInvitations);
 	}
 	
@@ -1012,7 +1012,7 @@ public class RESTAdmin implements RESTAdminHandler
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void addEnquiryForm(String json) throws EngineException, IOException
 	{
-		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		enquiryManagement.addEnquiry(EnquiryFormMapper.map(form));
 	}
 	
@@ -1025,7 +1025,7 @@ public class RESTAdmin implements RESTAdminHandler
 	{
 		if (ignoreRequestsAndInvitations == null)
 			ignoreRequestsAndInvitations = false;
-		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		enquiryManagement.updateEnquiry(EnquiryFormMapper.map(form), ignoreRequestsAndInvitations);
 	}
 	
@@ -1274,6 +1274,18 @@ public class RESTAdmin implements RESTAdminHandler
 		} else
 		{
 			return new EntityParam(new IdentityTaV(idType, identity));
+		}
+	}
+	
+	private <T> T parse(String contents, Class<T> clazz)
+	{
+		try
+		{
+			return JsonUtil.parse(contents, clazz);
+		} catch (Exception e)
+		{
+			log.error("Can't perform JSON deserialization", e.getCause());
+			throw new IllegalArgumentException("Can't perform JSON argument deserialization");
 		}
 	}
 }
