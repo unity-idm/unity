@@ -84,9 +84,9 @@ public class RestProjectFormServiceTest
 				.withName("form")
 				.withDefaultCredentialRequirement("cred")
 				.build();
-		doThrow(FormValidationException.class).when(validator)
+		doThrow(ProjectFormValidationException.class).when(validator)
 				.assertRegistrationFormIsRestrictedToProjectGroup(RegistrationFormMapper.map(form), "/A/A");
-		Assertions.assertThrows(IllegalArgumentException.class, () -> service.addRegistrationForm("A", form));
+		Assertions.assertThrows(ProjectFormValidationException.class, () -> service.addRegistrationForm("A", form));
 	}
 
 	@Test
@@ -116,9 +116,9 @@ public class RestProjectFormServiceTest
 				.withName("form")
 				.withDefaultCredentialRequirement("cred")
 				.build();
-		doThrow(FormValidationException.class).when(validator)
+		doThrow(ProjectFormValidationException.class).when(validator)
 				.assertRegistrationFormIsRestrictedToProjectGroup(RegistrationFormMapper.map(form), "/A/A");
-		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateRegistrationForm("A", form, true));
+		Assertions.assertThrows(ProjectFormValidationException.class, () -> service.updateRegistrationForm("A", form, true));
 	}
 
 	@Test
