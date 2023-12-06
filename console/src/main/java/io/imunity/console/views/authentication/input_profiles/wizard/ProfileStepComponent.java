@@ -55,6 +55,7 @@ class ProfileStepComponent extends HorizontalLayout
 
 		dragdropHint.getElement()
 				.setProperty("innerHTML", msg.getMessage("Wizard.ProfileStepComponent.dragdropHint"));
+		setHeightFull();
 	}
 
 	public void handle(RemotelyAuthenticatedInput authnInput)

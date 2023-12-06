@@ -70,6 +70,7 @@ public class MVELExpressionField extends CustomField<String>
 		});
 		add(layout);
 		addDropHandler();
+		
 	}
 	
 	private void addDropHandler()

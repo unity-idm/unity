@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -76,6 +77,8 @@ public class ActionEditor extends FormLayoutEmbeddable
 	
 		actions.setItems(items);
 		actions.setRequiredIndicatorVisible(true);
+		actions.setWidth(TEXT_FIELD_MEDIUM.value());
+
 		
 		
 		actionParams = new Span();

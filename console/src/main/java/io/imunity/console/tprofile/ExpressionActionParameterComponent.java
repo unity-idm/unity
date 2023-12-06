@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 public class ExpressionActionParameterComponent extends MVELExpressionField implements ActionParameterComponent
 {
 	private final Binder<StringValueBean> binder;
+	private String label;
 
 	public ExpressionActionParameterComponent(ActionParameterDefinition param, MessageSource msg)
 	{
@@ -55,5 +56,18 @@ public class ExpressionActionParameterComponent extends MVELExpressionField impl
 	public void addValueChangeCallback(Runnable callback)
 	{
 		binder.addValueChangeListener((e) -> callback.run());
+	}
+	
+	@Override
+	public void setLabel(String label)
+	{
+		this.label = label;
+		super.setLabel(label);
+	}
+	
+	@Override
+	public String getLabel()
+	{
+		return label;
 	}
 }

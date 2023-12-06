@@ -4,6 +4,8 @@
  */
 package io.imunity.console.tprofile;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -20,6 +22,8 @@ public class DefaultActionParameterComponent extends TextField implements Action
 		setTooltipText(msg.getMessage(desc.getDescriptionKey()));
 		binder = new Binder<>(StringValueBean.class);
 		configureBinding(msg, desc.isMandatory());
+		setWidth(TEXT_FIELD_MEDIUM.value());
+
 	}
 	
 	protected void configureBinding(MessageSource msg, boolean mandatory)

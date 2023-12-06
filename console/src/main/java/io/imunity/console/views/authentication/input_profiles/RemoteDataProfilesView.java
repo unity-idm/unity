@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.Route;
@@ -76,6 +77,10 @@ public class RemoteDataProfilesView extends TranslationsView
 		{
 			wizardDialog = ((InputTranslationsService) controller).getWizardDialog(() -> refreshProfileList(),
 					e -> notificationPresenter.showError(e.getCaption(), e.getMessage()));
+			wizardDialog.setWidth(95, Unit.PERCENTAGE);
+			wizardDialog.setHeight(65, Unit.PERCENTAGE);
+			wizardDialog.getFooter().add(new Button("TEST"));
+
 		} catch (ControllerException e)
 		{
 			notificationPresenter.showError(e.getCaption(), e.getMessage());

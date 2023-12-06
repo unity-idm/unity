@@ -13,12 +13,15 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dnd.DropEffect;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -125,8 +128,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		description.setWidth(TEXT_FIELD_BIG.value());
 
 		rulesHeader = new HorizontalLayout();
-		rulesHeader.setMargin(false);
-		rulesHeader.setPadding(false);
+		rulesHeader.addClassName(CssClassNames.MARGIN_VERTICAL.getName());
 		addRule = new Button();
 		addRule.setTooltipText(msg.getMessage("TranslationProfileEditor.newRule"));
 		addRule.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
@@ -138,9 +140,10 @@ public class TranslationProfileEditor extends VerticalLayout
 		testProfileButton.setTooltipText(msg.getMessage("TranslationProfileEditor.testProfile"));
 		testProfileButton.addClickListener(e -> testRules(), e -> clearTestResults());
 
-		Span t = new Span(msg.getMessage("TranslationProfileEditor.rules"));
-		rulesHeader.add(t, addRule, testProfileButton);
-
+		rulesHeader.add(new NativeLabel(msg.getMessage("TranslationProfileEditor.rules")), addRule, testProfileButton);
+		rulesHeader.setAlignItems(Alignment.CENTER);
+		
+		
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		main.addFormItem(name, msg.getMessage("TranslationProfileEditor.name"));
@@ -151,7 +154,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		wrapper.setMargin(false);
 		wrapper.setPadding(false);
 		wrapper.setSpacing(false);
-		wrapper.add(main, rulesHeader, rulesLayout);
+		wrapper.add(main, new Span(), rulesHeader, rulesLayout);
 			
 		binder = new Binder<>(TranslationProfile.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
