@@ -122,7 +122,7 @@ public class TestFormProfileActions
 		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, parser);
 		RegistrationTranslationAction action = factory.getInstance("stringA", "/A/B", 
 				"attr['attribute']");
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ActionValidationException.class,
 				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withParentGroup("/project").build()));
 	}
 	
