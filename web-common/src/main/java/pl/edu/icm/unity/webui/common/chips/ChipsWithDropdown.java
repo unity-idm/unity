@@ -20,9 +20,12 @@ import com.vaadin.event.selection.SingleSelectionListener;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.VerticalLayout;
 
@@ -44,8 +47,7 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 	private VerticalLayout main;
 	private final boolean chipsOnTop;
 	private boolean skipRemoveInvalidSelections = false;
-
-
+	private Label emptyComboLabel;
 	public ChipsWithDropdown()
 	{
 		this(Object::toString, true);
@@ -75,6 +77,15 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		combo.setItemCaptionGenerator(item -> comboRenderer.apply(item));
 		combo.addSelectionListener(this::onSelectionChange);
 		combo.addSelectionListener(e -> fireEvent(new ValueChangeEvent<List<T>>(this, getSelectedItems(), true)));
+		emptyComboLabel = new Label();
+		emptyComboLabel.setVisible(false);
+		
+		HorizontalLayout comboWrapper = new HorizontalLayout();
+		comboWrapper.setMargin(false);
+		comboWrapper.setSpacing(false);
+		comboWrapper.addComponent(combo);
+		comboWrapper.addComponent(emptyComboLabel);
+		comboWrapper.setComponentAlignment(emptyComboLabel, Alignment.MIDDLE_LEFT);
 		
 		main = new VerticalLayout();
 		main.setMargin(false);
@@ -82,10 +93,10 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		this.chipsOnTop = chipsOnTop;
 		if (chipsOnTop)
 		{
-			main.addComponents(chipsRow, combo);
+			main.addComponents(chipsRow, comboWrapper);
 		} else
 		{
-			main.addComponents(combo, chipsRow);
+			main.addComponents(comboWrapper, chipsRow);
 		}
 	}
 	
@@ -243,9 +254,17 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		if (!readOnly)
 		{
 			if (multiSelectable)
+			{
 				combo.setVisible(!available.isEmpty());
+			}
 			else
-				combo.setVisible(selected.isEmpty() && !available.isEmpty());
+			{
+				combo.setVisible(selected.isEmpty() && !available.isEmpty());	
+			}
+			if (emptyComboLabel.getCaption() != null)
+			{
+				emptyComboLabel.setVisible(selected.isEmpty() && available.isEmpty());
+			}
 		}
 	}
 	
@@ -299,5 +318,10 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 			combo.addStyleName("error");
 		else
 			combo.removeStyleName("error");
+	}
+
+	public void setEmptyComboLabel(String emptySelectionLabel)
+	{
+		this.emptyComboLabel.setCaption(emptySelectionLabel);
 	}
 }

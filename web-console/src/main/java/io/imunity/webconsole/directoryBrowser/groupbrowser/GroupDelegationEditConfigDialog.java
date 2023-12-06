@@ -43,6 +43,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.FormType;
@@ -119,6 +120,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		membershipUpdateEnquiryFormComboWithButtons.setEnabled(enabled);
 		attributes.setEnabled(enabled);
 		enableSubprojects.setEnabled(enabled);
+		policyDocuments.setEnabled(enabled);
 	}
 
 	@Override
@@ -138,7 +140,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		logoUrl.setWidth(100, Unit.PERCENTAGE);
 
 		registrationFormComboWithButtons = new FormComboWithButtons(msg,
-				msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"),
+				msg.getMessage("GroupDelegationEditConfigDialog.registrationForm") + ":",
 				msg.getMessage("GroupDelegationEditConfigDialog.registrationFormDesc"),	
 				e -> generateJoinRegistrationForm(),
 				e -> showJoinRegistrationValidation(registrationFormComboWithButtons.getValue()),
@@ -146,14 +148,14 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		reloadRegistrationForm();
 
 		signupEnquiryFormComboWithButtons = new FormComboWithButtons(msg,
-				msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry"),
+				msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry") + ":",
 				msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiryDesc"),
 				e -> generateJoinEnquiryForm(),
 				e -> showJoinEnquiryValidation(signupEnquiryFormComboWithButtons.getValue()),
 				e -> showEnquiryFormEditDialog(signupEnquiryFormComboWithButtons.getValue()));
 
 		membershipUpdateEnquiryFormComboWithButtons = new FormComboWithButtons(msg,
-				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"),
+				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry") + ":",
 				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiryDesc"),
 				e -> generateUpdateEnquiryForm(),
 				e -> showUpdateEnquiryValidation(
@@ -178,7 +180,8 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		
 		Collection<PolicyDocumentWithRevision> policyDocs = policyDocumentManagement.getPolicyDocuments();
 		policyDocuments.setItems(policyDocs);
-
+		policyDocuments.setEmptyComboLabel(msg.getMessage("GroupDelegationEditConfigDialog.noPolicyDocuments"));
+		
 		if (toEdit.policyDocumentsIds != null)
 		{
 			policyDocuments.setSelectedItems(policyDocs.stream()
@@ -301,7 +304,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 					groupDelConfig.getmembershipUpdateEnquiryForm(), attributes.getSelectedItems(),
 					policyDocuments.getSelectedItems().stream().map(p -> p.id).collect(Collectors.toList()));
 
-			Map<String, FormType> formsToSynch = getFormsToSynch(groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
+			Map<String, FormWithType> formsToSynch = getFormsToSynch(groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
 					policyDocuments.getSelectedItems().stream().map(p -> p.id).collect(Collectors.toSet()));	
 			if (formsToSynch.size() > 0)
 				getSynchronizationDialog(formsToSynch, () -> {
@@ -318,13 +321,19 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		}
 	}
 	
-	private ConfirmDialog getSynchronizationDialog(Map<String, FormType> formsToSynch, Runnable close)
+	private ConfirmDialog getSynchronizationDialog(Map<String, FormWithType> formsToSynch, Runnable close)
 	{
-		return new ConfirmDialog(msg, msg.getMessage("GroupDelegationEditConfigDialog.synchronizePolicy",
-				String.join("&", formsToSynch.keySet())), () -> {
+		ConfirmDialog confirmDialog = new ConfirmDialog(msg, msg.getMessage("GroupDelegationEditConfigDialog.synchronizePolicyDialogTitle"),
+				msg.getMessage("GroupDelegationEditConfigDialog.synchronizePolicy",
+						String.join(" " + msg.getMessage("and") + " ", formsToSynch.values()
+								.stream()
+								.map(f -> "<b>" + f.label + "</b>")
+								.collect(Collectors.toList()))),
+				() ->
+				{
 					try {
-						for (Entry<String, FormType> form : formsToSynch.entrySet()) {
-							configGenerator.resetFormsPolicies(form.getKey(), form.getValue(), policyDocuments
+						for (Entry<String, FormWithType> form : formsToSynch.entrySet()) {
+							configGenerator.resetFormsPolicies(form.getKey(), form.getValue().type, policyDocuments
 									.getSelectedItems().stream().map(p -> p.id).collect(Collectors.toList()));
 						}
 
@@ -336,21 +345,23 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 				}, () -> {
 					close.run();
 				});
+		confirmDialog.setHTMLContent(true);
+		return confirmDialog;
 	}
 
-	private Map<String, FormType> getFormsToSynch(String registrationFormName, String enquiryFormName,
+	private Map<String, FormWithType> getFormsToSynch(String registrationFormName, String enquiryFormName,
 			Set<Long> policyDocumentsIds) throws EngineException {
 
-		Map<String, FormType> ret = new HashMap<>();
+		Map<String, FormWithType> ret = new HashMap<>();
 		RegistrationForm registrationForm = registrationMan.getForm(registrationFormName);
 		if (!policyDocumentsIds.equals(registrationForm.getPolicyAgreements().stream().map(p -> p.documentsIdsToAccept)
 				.flatMap(Collection::stream).collect(Collectors.toSet()))) {
-			ret.put(registrationFormName, FormType.REGISTRATION);
+			ret.put(registrationFormName, new FormWithType(FormType.REGISTRATION, registrationForm, msg.getMessage("GroupDelegationEditConfigDialog.registrationForm")));
 		}
 		EnquiryForm enquiryForm = enquiryMan.getEnquiry(enquiryFormName);
 		if (!policyDocumentsIds.equals(enquiryForm.getPolicyAgreements().stream().map(p -> p.documentsIdsToAccept)
 				.flatMap(Collection::stream).collect(Collectors.toSet()))) {
-			ret.put(enquiryFormName, FormType.ENQUIRY);
+			ret.put(enquiryFormName, new FormWithType(FormType.ENQUIRY, enquiryForm, msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry")));
 		}
 
 		return ret;
@@ -694,6 +705,24 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 			close();
 
 		}
+	}
+	
+	private static class FormWithType
+	{
+		public final FormType type;
+		public final BaseForm form;
+		public final String label;
+		
+		public FormWithType(FormType type, BaseForm form, String label)
+		{
+			this.type = type;
+			this.form = form;
+			this.label = label;
+		}
+		
+		
+		
+		
 	}
 	
 }

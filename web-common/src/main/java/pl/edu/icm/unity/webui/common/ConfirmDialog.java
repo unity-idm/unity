@@ -28,6 +28,12 @@ public class ConfirmDialog extends AbstractDialog
 		this.cancelCallback = cancelCallback;
 	}
 	
+	public ConfirmDialog(MessageSource msg, String caption, String question, Callback callback, Runnable cancelCallback)
+	{
+		this(msg, caption, question, callback);
+		this.cancelCallback = cancelCallback;
+	}
+	
 	
 	public ConfirmDialog(MessageSource msg, String question, Callback callback)
 	{

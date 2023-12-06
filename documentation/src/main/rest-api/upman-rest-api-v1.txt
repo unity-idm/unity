@@ -143,6 +143,85 @@ Example output:
 ]
 ----
 
+=== Add policy document
+
++@Path("/projects/{project-id}/policyDocuments")+ +
++@POST+ +
+
+Adds a new project policy document.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example input:
+----
+{
+    "name": "Policy1",
+    "displayedName": {
+        "en": "Policy1"
+    },
+    "mandatory": false,
+    "contentType": "EMBEDDED",
+    "content": {
+        "en": "Policy1"
+    }
+}
+----
+
+=== Update policy document
+
++@Path("/projects/{project-id}/policyDocuments")+ +
++@PUT+ +
+
+Updates the given policy document. If query parameter "incrementRevision" is set to true, update increment revision, and re-acceptance will be needed.
+ContentType can be one of "LINK" or "EMBEDDED"
+
+Example input:
+----
+{
+    "id": 1,
+    "name": "Policy1",
+    "displayedName": {
+        "en": "Policy1"
+    },
+    "mandatory": false,
+    "contentType": "EMBEDDED",
+    "revision": 1,
+    "content": {
+        "en": "Policy1"
+    }
+}
+----
+
+=== Remove policy document
+
++@Path("/projects/{project-id}/policyDocuments/{policy-id}")+ +
++@DELETE+ +
+
+Removes the given project policy document.
+
+=== Get policy document
+
++@Path("/projects/{project-id}/policyDocuments/{policy-id}")+ +
++@GET+ +
+
+Returns the given policy document.
+
+Example output:
+----
+{
+    "id": 1,
+    "name": "Policy1",
+    "displayedName": {
+        "en": "Policy1"
+    },
+    "mandatory": false,
+    "contentType": "EMBEDDED",
+    "revision": 1,
+    "content": {
+        "en": "Policy1"
+    }
+}
+----
+
 === Get policy documents
 
 +@Path("/projects/{project-id}/policyDocuments")+ +
@@ -182,107 +261,6 @@ Example output:
 ]
 ----
 
-=== Get policy document
-
-+@Path("/projects/{project-id}/policyDocument/{policy-id}")+ +
-+@GET+ +
-
-Returns the given policy document.
-
-Example output:
-----
-{
-    "id": 1,
-    "name": "Policy1",
-    "displayedName": {
-        "en": "Policy1"
-    },
-    "mandatory": false,
-    "contentType": "EMBEDDED",
-    "revision": 1,
-    "content": {
-        "en": "Policy1"
-    }
-}
-----
-
-=== Remove policy document
-
-+@Path("/projects/{project-id}/policyDocument/{policy-id}")+ +
-+@DELETE+ +
-
-Removes the given project policy document.
-
-
-=== Add policy document
-
-+@Path("/projects/{project-id}/policyDocument")+ +
-+@POST+ +
-
-Adds a new project policy document.
-ContentType can be one of "LINK" or "EMBEDDED"
-
-Example input:
-----
-{
-    "name": "Policy1",
-    "displayedName": {
-        "en": "Policy1"
-    },
-    "mandatory": false,
-    "contentType": "EMBEDDED",
-    "revision": 1,
-    "content": {
-        "en": "Policy1"
-    }
-}
-----
-
-=== Update policy document
-
-+@Path("/projects/{project-id}/policyDocument")+ +
-+@PUT+ +
-
-Updates the given policy document. If query parameter "incrementRevision" is set to true, update increment revision, and re-acceptance will be needed.
-ContentType can be one of "LINK" or "EMBEDDED"
-
-Example input:
-----
-{
-    "id": 1,
-    "name": "Policy1",
-    "displayedName": {
-        "en": "Policy1"
-    },
-    "mandatory": false,
-    "contentType": "EMBEDDED",
-    "revision": 1,
-    "content": {
-        "en": "Policy1"
-    }
-}
-----
-
-=== Get registration form
-
-+@Path("/projects/{project-id}/registrationForm")+ +
-+@GET+ +
-
-Returns a project registration form. The syntax is complex
-and is not provided here.
-
-
-=== Remove registration form
-
-+@Path("/projects/{project-id}/registrationForm")+ +
-+@QueryParam("dropRequests")+ +
-+@DELETE+ +
-
-Removes project registration form. An optional query parameter +dropRequests+ can be 
-provided with a boolean value, to control whether the form should be removed also if it
-has pending requests (the requests will be removed with the form).  
-
-
 === Create registration form
 	
 +@Path("/projects/{project-id}/registrationForm")+ +
@@ -307,25 +285,23 @@ The optional boolean +ignoreRequests+ query parameter can be used to force form
 update even if it has attached pending requests. Beware, however, that those
 requests can easily become invalid.
 
-=== Get signup enquiry form
+=== Remove registration form
 
-+@Path("/projects/{project-id}/signUpEnquiry")+ +
-+@GET+ +
-
-Returns a project singup enquiry form. The syntax is complex
-and is not provided here.
-
-
-=== Remove signup enquiry form
-
-+@Path("/projects/{project-id}/signUpEnquiry")+ +
++@Path("/projects/{project-id}/registrationForm")+ +
 +@QueryParam("dropRequests")+ +
 +@DELETE+ +
 
-Removes project signup enquiry form. An optional query parameter +dropRequests+ can be 
+Removes project registration form. An optional query parameter +dropRequests+ can be 
 provided with a boolean value, to control whether the form should be removed also if it
 has pending requests (the requests will be removed with the form).  
 
+=== Get registration form
+
++@Path("/projects/{project-id}/registrationForm")+ +
++@GET+ +
+
+Returns a project registration form. The syntax is complex
+and is not provided here.
 
 === Create signup enquiry form
 	
@@ -336,7 +312,6 @@ has pending requests (the requests will be removed with the form).
 
 Creates a new signup enquiry form specified by the JSON object passed as request body.
 The optional boolean +autogenerate+ query parameter can be used then request body can be skipped and form will be autogenerate for project
-
 
 === Update signup enquiry form
 
@@ -352,25 +327,23 @@ The optional boolean +ignoreRequests+ query parameter can be used to force form
 update even if it has attached pending requests. Beware, however, that those
 requests can easily become invalid.
 
-=== Get membership update enquiry form
+=== Remove signup enquiry form
 
-+@Path("/projects/{project-id}/membershipUpdateEnquiry")+ +
-+@GET+ +
-
-Returns a project membership update enquiry form. The syntax is complex
-and is not provided here.
-
-
-=== Remove membership update enquiry form
-
-+@Path("/projects/{project-id}/membershipUpdateEnquiry")+ +
++@Path("/projects/{project-id}/signUpEnquiry")+ +
 +@QueryParam("dropRequests")+ +
 +@DELETE+ +
 
-Removes project membership update enquiry form. An optional query parameter +dropRequests+ can be 
+Removes project signup enquiry form. An optional query parameter +dropRequests+ can be 
 provided with a boolean value, to control whether the form should be removed also if it
 has pending requests (the requests will be removed with the form).  
 
+=== Get signup enquiry form
+
++@Path("/projects/{project-id}/signUpEnquiry")+ +
++@GET+ +
+
+Returns a project singup enquiry form. The syntax is complex
+and is not provided here.
 
 === Create membership update enquiry form
 	
@@ -397,6 +370,23 @@ The optional boolean +ignoreRequests+ query parameter can be used to force form
 update even if it has attached pending requests. Beware, however, that those
 requests can easily become invalid.
 
+=== Remove membership update enquiry form
+
++@Path("/projects/{project-id}/membershipUpdateEnquiry")+ +
++@QueryParam("dropRequests")+ +
++@DELETE+ +
+
+Removes project membership update enquiry form. An optional query parameter +dropRequests+ can be 
+provided with a boolean value, to control whether the form should be removed also if it
+has pending requests (the requests will be removed with the form).  
+
+=== Get membership update enquiry form
+
++@Path("/projects/{project-id}/membershipUpdateEnquiry")+ +
++@GET+ +
+
+Returns a project membership update enquiry form. The syntax is complex
+and is not provided here.
 
 === Add member
 

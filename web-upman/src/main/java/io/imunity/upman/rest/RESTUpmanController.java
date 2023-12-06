@@ -37,7 +37,6 @@ import io.imunity.rest.api.types.registration.RestRegistrationForm;
 import io.imunity.upman.rest.RestProjectFormService.RestProjectFormServiceFactory;
 import io.imunity.upman.rest.RestProjectPolicyDocumentService.RestProjectPolicyDocumentServiceFactory;
 import io.imunity.upman.rest.RestProjectService.RestProjectServiceFactory;
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -179,7 +178,7 @@ public class RESTUpmanController
 		return mapper.writeValueAsString(policies);
 	}
 
-	@Path("/projects/{project-id}/policyDocument/{policy-id}")
+	@Path("/projects/{project-id}/policyDocuments/{policy-id}")
 	@GET
 	public String getPolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
 			throws EngineException, JsonProcessingException
@@ -189,7 +188,7 @@ public class RESTUpmanController
 		return mapper.writeValueAsString(policy);
 	}
 
-	@Path("/projects/{project-id}/policyDocument/{policy-id}")
+	@Path("/projects/{project-id}/policyDocuments/{policy-id}")
 	@DELETE
 	public void removePolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
 			throws EngineException
@@ -198,24 +197,24 @@ public class RESTUpmanController
 		restProjectPolicyDocumentService.removePolicyDocument(projectId, policyId);
 	}
 
-	@Path("/projects/{project-id}/policyDocument")
+	@Path("/projects/{project-id}/policyDocuments")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void addPolicyDocument(@PathParam("project-id") String projectId, String json)
 			throws EngineException, IOException
 	{
-		RestPolicyDocumentRequest policy = JsonUtil.parse(json, RestPolicyDocumentRequest.class);
+		RestPolicyDocumentRequest policy = parse(json, RestPolicyDocumentRequest.class);
 		log.debug("addPolicyDocument {}, {}", projectId, policy.name);
 		restProjectPolicyDocumentService.addPolicyDocument(projectId, policy);
 	}
 
-	@Path("/projects/{project-id}/policyDocument")
+	@Path("/projects/{project-id}/policyDocuments")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updatePolicyDocument(@PathParam("project-id") String projectId,
 			@QueryParam("incrementRevision") Boolean incrementRevision, String json) throws EngineException, IOException
 	{
-		RestPolicyDocumentUpdateRequest policy = JsonUtil.parse(json, RestPolicyDocumentUpdateRequest.class);
+		RestPolicyDocumentUpdateRequest policy = parse(json, RestPolicyDocumentUpdateRequest.class);
 		log.debug("updatePolicyDocument {}, {}", projectId, policy.id);
 		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy,
 				incrementRevision != null && incrementRevision);
@@ -254,7 +253,7 @@ public class RESTUpmanController
 			restProjectFormService.generateRegistrationForm(projectId);
 		} else
 		{
-			RestRegistrationForm form = JsonUtil.parse(json, RestRegistrationForm.class);
+			RestRegistrationForm form = parse(json, RestRegistrationForm.class);
 			restProjectFormService.addRegistrationForm(projectId, form);
 		}
 	}
@@ -265,7 +264,7 @@ public class RESTUpmanController
 	public void updateRegistrationForm(@PathParam("project-id") String projectId,
 			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException, IOException
 	{
-		RestRegistrationForm form = JsonUtil.parse(json, RestRegistrationForm.class);
+		RestRegistrationForm form = parse(json, RestRegistrationForm.class);
 		log.debug("updateRegistrationForm {}, {}", projectId, form.name);
 		restProjectFormService.updateRegistrationForm(projectId, form, ignoreRequests != null && ignoreRequests);
 	}
@@ -302,7 +301,7 @@ public class RESTUpmanController
 			restProjectFormService.generateSignupEnquiryForm(projectId);
 		} else
 		{
-			RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+			RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 			restProjectFormService.addSignupEnquiryForm(projectId, form);
 		}
 
@@ -314,7 +313,7 @@ public class RESTUpmanController
 	public void updateSignupEnquiryForm(@PathParam("project-id") String projectId,
 			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException, IOException
 	{
-		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		log.debug("updateSignupEnquiryForm {}, {}", projectId, form.name);
 		restProjectFormService.updateSignupEnquiryForm(projectId, form, ignoreRequests != null && ignoreRequests);
 	}
@@ -351,7 +350,7 @@ public class RESTUpmanController
 			restProjectFormService.generateMembershipUpdateEnquiryForm(projectId);
 		} else
 		{
-			RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+			RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 			restProjectFormService.addMembershipUpdateEnquiryForm(projectId, form);
 		}
 	}
@@ -362,7 +361,7 @@ public class RESTUpmanController
 	public void updateMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
 			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException, IOException
 	{
-		RestEnquiryForm form = JsonUtil.parse(json, RestEnquiryForm.class);
+		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		log.debug("updateMembershipUpdateEnquiryForm {}, {}", projectId, form.name);
 		restProjectFormService.updateMembershipUpdateEnquiryForm(projectId, form,
 				ignoreRequests != null && ignoreRequests);
