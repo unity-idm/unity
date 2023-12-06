@@ -29,6 +29,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,14 +77,14 @@ public class RestProjectFormServiceTest
 	}
 
 	@Test
-	public void shouldNotAddRegistrationFormWhenValidationFailed() throws EngineException
+	public void shouldNotAddRegistrationFormWhenValidationFailed() throws EngineException, FormValidationException
 	{
 		setUpGroupContent(new GroupDelegationConfiguration(true));
 		RestRegistrationForm form = RestRegistrationForm.builder()
 				.withName("form")
 				.withDefaultCredentialRequirement("cred")
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator)
+		doThrow(FormValidationException.class).when(validator)
 				.assertRegistrationFormIsRestrictedToProjectGroup(RegistrationFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class, () -> service.addRegistrationForm("A", form));
 	}
@@ -105,7 +106,7 @@ public class RestProjectFormServiceTest
 	}
 
 	@Test
-	public void shouldNotUpdateRegistrationFormWhenValidationFailed() throws EngineException
+	public void shouldNotUpdateRegistrationFormWhenValidationFailed() throws EngineException, FormValidationException
 	{
 		setUpGroupContent(GroupDelegationConfiguration.builder()
 				.withRegistrationForm("form")
@@ -115,7 +116,7 @@ public class RestProjectFormServiceTest
 				.withName("form")
 				.withDefaultCredentialRequirement("cred")
 				.build();
-		doThrow(IllegalArgumentException.class).when(validator)
+		doThrow(FormValidationException.class).when(validator)
 				.assertRegistrationFormIsRestrictedToProjectGroup(RegistrationFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateRegistrationForm("A", form, true));
 	}

@@ -49,7 +49,7 @@ class RestProjectFormServiceNoAuthz
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
-		assertRegistrationFormIsConfigured(projectPath, group);
+		assertRegistrationFormIsProvided(projectPath, group);
 		RegistrationForm regForm = groupDelegationConfigGenerator.generateProjectRegistrationForm(projectPath,
 				groupDelegationConfiguration.logoUrl, groupDelegationConfiguration.attributes,
 				groupDelegationConfiguration.policyDocumentsIds);
@@ -60,7 +60,7 @@ class RestProjectFormServiceNoAuthz
 	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
-		assertRegistrationFormIsConfigured(projectId, group);
+		assertRegistrationFormIsProvided(projectId, group);
 		RegistrationForm regForm = RegistrationFormMapper.map(form);
 		formValidator.assertRegistrationFormIsRestrictedToProjectGroup(regForm, projectPath);
 		addRegistratioFormAndUpdateGroupConfig(group, regForm);
@@ -77,7 +77,7 @@ class RestProjectFormServiceNoAuthz
 		groupMan.updateGroup(group.toString(), group);
 	}
 
-	private void assertRegistrationFormIsConfigured(String projectId, Group group)
+	private void assertRegistrationFormIsProvided(String projectId, Group group)
 	{
 		if (group.getDelegationConfiguration().registrationForm != null)
 		{
@@ -131,7 +131,8 @@ class RestProjectFormServiceNoAuthz
 
 		if (!registrationForm.name.equals(groupDelegationConfiguration.registrationForm))
 		{
-			throw new IllegalArgumentException("Can not update registration form name");
+			throw new IllegalArgumentException(
+					"Can not update registration form name to " + registrationForm.name + " for project " + projectId);
 
 		}
 		RegistrationForm regForm = RegistrationFormMapper.map(registrationForm);
@@ -143,7 +144,7 @@ class RestProjectFormServiceNoAuthz
 	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
-		assertSignupEnquiryIsConfigured(projectId, group);
+		assertSignupEnquiryIsProvided(projectId, group);
 		GroupDelegationConfiguration delegationConfiguration = group.getDelegationConfiguration();
 		EnquiryForm enquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(
 				ProjectPathProvider.getProjectPath(projectId, rootGroup), delegationConfiguration.logoUrl,
@@ -155,7 +156,7 @@ class RestProjectFormServiceNoAuthz
 	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
-		assertSignupEnquiryIsConfigured(projectId, group);
+		assertSignupEnquiryIsProvided(projectId, group);
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(form);
 		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
 		addSignupEnquiryFormAndUpdateGroupConfig(group, enquiryForm);
@@ -172,7 +173,7 @@ class RestProjectFormServiceNoAuthz
 		groupMan.updateGroup(group.toString(), group);
 	}
 
-	private void assertSignupEnquiryIsConfigured(String projectId, Group group)
+	private void assertSignupEnquiryIsProvided(String projectId, Group group)
 	{
 		if (group.getDelegationConfiguration().signupEnquiryForm != null)
 		{
@@ -226,7 +227,8 @@ class RestProjectFormServiceNoAuthz
 
 		if (!restEnquiryForm.name.equals(groupDelegationConfiguration.signupEnquiryForm))
 		{
-			throw new IllegalArgumentException("Can not update signup enquiry form name");
+			throw new IllegalArgumentException(
+					"Can not update signup enquiry form name to " + restEnquiryForm.name + " for project " + projectId);
 
 		}
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(restEnquiryForm);
@@ -238,7 +240,7 @@ class RestProjectFormServiceNoAuthz
 	{
 		Group group = getGroup(ProjectPathProvider.getProjectPath(projectId, rootGroup));
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
-		assertMembershipUpdateIsConfigured(projectId, group);
+		assertMembershipUpdateIsProvided(projectId, group);
 
 		EnquiryForm enquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(
 				ProjectPathProvider.getProjectPath(projectId, rootGroup), groupDelegationConfiguration.logoUrl,
@@ -251,7 +253,7 @@ class RestProjectFormServiceNoAuthz
 	{
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = getGroup(projectPath);
-		assertMembershipUpdateIsConfigured(projectId, group);
+		assertMembershipUpdateIsProvided(projectId, group);
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(form);
 		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
 		addMembershipUpdateFormAndUpdateGroupConfig(group, enquiryForm);
@@ -269,7 +271,7 @@ class RestProjectFormServiceNoAuthz
 		groupMan.updateGroup(group.toString(), group);
 	}
 
-	private void assertMembershipUpdateIsConfigured(String projectId, Group group)
+	private void assertMembershipUpdateIsProvided(String projectId, Group group)
 	{
 		if (group.getDelegationConfiguration().membershipUpdateEnquiryForm != null)
 		{
@@ -327,7 +329,8 @@ class RestProjectFormServiceNoAuthz
 
 		if (!restEnquiryForm.name.equals(groupDelegationConfiguration.membershipUpdateEnquiryForm))
 		{
-			throw new IllegalArgumentException("Can not update enquiry form name");
+			throw new IllegalArgumentException("Can not update embership update enquiry form name to "
+					+ restEnquiryForm.name + " for project " + projectId);
 
 		}
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(restEnquiryForm);

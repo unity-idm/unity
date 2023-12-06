@@ -140,13 +140,15 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 				{
 					return;
 				}
-				
-				throw new ActionValidationException("Attribute " + unityAttribute + " is forbidden in root group");
+
+				throw new ActionValidationException("Attribute " + unityAttribute
+						+ " is not allowed in root group in form automation addAttribute action");
 			}
 
 			if (!Group.isChildOrSame(group, context.parentGroup))
 			{
-				throw new ActionValidationException("Attribute " + unityAttribute + " is forbidden in " + group);
+				throw new ActionValidationException("Attribute " + unityAttribute + " is not allowed in " + group
+						+ " in form automation addAttribute action");
 			}
 		}
 		

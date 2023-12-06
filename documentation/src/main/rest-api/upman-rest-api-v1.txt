@@ -169,6 +169,7 @@ Example input:
 === Update policy document
 
 +@Path("/projects/{project-id}/policyDocuments")+ +
++@QueryParam("incrementRevision")+ +
 +@PUT+ +
 
 Updates the given policy document. If query parameter "incrementRevision" is set to true, update increment revision, and re-acceptance will be needed.
