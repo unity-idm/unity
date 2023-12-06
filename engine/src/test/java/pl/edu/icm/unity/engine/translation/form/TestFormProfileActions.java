@@ -42,6 +42,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
+import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
@@ -107,7 +108,7 @@ public class TestFormProfileActions
 		AddAttributeActionFactory factory = new AddAttributeActionFactory(attrsMan, parser);
 		RegistrationTranslationAction action = factory.getInstance("stringA", "/", 
 				"attr['attribute']");
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ActionValidationException.class,
 				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withAllowedRootGroupAttributes(List.of("allowedAttr")).build()));
 	}
 	
@@ -230,7 +231,7 @@ public class TestFormProfileActions
 	{
 		AddToGroupActionFactory factory = new AddToGroupActionFactory();
 		RegistrationTranslationAction action = factory.getInstance("[attr]");
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ActionValidationException.class,
 				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().build()));	
 	}
 	
@@ -239,7 +240,7 @@ public class TestFormProfileActions
 	{
 		AddToGroupActionFactory factory = new AddToGroupActionFactory();
 		RegistrationTranslationAction action = factory.getInstance("'/A'");
-		Assertions.assertThrows(IllegalArgumentException.class,
+		Assertions.assertThrows(ActionValidationException.class,
 				() -> action.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder().withParentGroup("/B").build()));	
 	}
 	
