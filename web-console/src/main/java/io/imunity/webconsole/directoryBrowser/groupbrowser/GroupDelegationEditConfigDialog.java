@@ -353,15 +353,31 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 			Set<Long> policyDocumentsIds) throws EngineException {
 
 		Map<String, FormWithType> ret = new HashMap<>();
-		RegistrationForm registrationForm = registrationMan.getForm(registrationFormName);
-		if (!policyDocumentsIds.equals(registrationForm.getPolicyAgreements().stream().map(p -> p.documentsIdsToAccept)
-				.flatMap(Collection::stream).collect(Collectors.toSet()))) {
-			ret.put(registrationFormName, new FormWithType(FormType.REGISTRATION, registrationForm, msg.getMessage("GroupDelegationEditConfigDialog.registrationForm")));
+		if (registrationFormName != null)
+		{
+			RegistrationForm registrationForm = registrationMan.getForm(registrationFormName);
+			if (!policyDocumentsIds.equals(registrationForm.getPolicyAgreements()
+					.stream()
+					.map(p -> p.documentsIdsToAccept)
+					.flatMap(Collection::stream)
+					.collect(Collectors.toSet())))
+			{
+				ret.put(registrationFormName, new FormWithType(FormType.REGISTRATION, registrationForm,
+						msg.getMessage("GroupDelegationEditConfigDialog.registrationForm")));
+			}
 		}
-		EnquiryForm enquiryForm = enquiryMan.getEnquiry(enquiryFormName);
-		if (!policyDocumentsIds.equals(enquiryForm.getPolicyAgreements().stream().map(p -> p.documentsIdsToAccept)
-				.flatMap(Collection::stream).collect(Collectors.toSet()))) {
-			ret.put(enquiryFormName, new FormWithType(FormType.ENQUIRY, enquiryForm, msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry")));
+		if (enquiryFormName != null)
+		{
+			EnquiryForm enquiryForm = enquiryMan.getEnquiry(enquiryFormName);
+			if (!policyDocumentsIds.equals(enquiryForm.getPolicyAgreements()
+					.stream()
+					.map(p -> p.documentsIdsToAccept)
+					.flatMap(Collection::stream)
+					.collect(Collectors.toSet())))
+			{
+				ret.put(enquiryFormName, new FormWithType(FormType.ENQUIRY, enquiryForm,
+						msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry")));
+			}
 		}
 
 		return ret;

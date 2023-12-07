@@ -69,7 +69,7 @@ class UpmanRestAuthorizationManager
 		if (!roles.contains(RestGroupAuthorizationRole.manager))
 		{
 			throw new AuthorizationException(
-					"Access is denied. The operation requires unity rest manager capability");
+					"Access is denied. The operation requires project management RESTAPI Role”");
 		}
 	}
 
@@ -88,7 +88,7 @@ class UpmanRestAuthorizationManager
 		} catch (EngineException e)
 		{
 			throw new AuthorizationException(
-				"Access is denied. The operation requires user " + entity + " belongs to " + authorizationPath
+				"Access is denied. The operation requires user [" + entity + "] to be a member of the " + authorizationPath
 					+ " group");
 		}
 
