@@ -18,7 +18,7 @@ All paths must be naturally prefixed with the server's base URL, endpoint deploy
 
    https://unity.example.com/rest-upman/v1/projects/PROJECT-ID
 
-== API reference
+== Projects
 
 
 === Create project
@@ -143,6 +143,8 @@ Example output:
 ]
 ----
 
+== Policy documents
+
 === Add policy document
 
 +@Path("/projects/{project-id}/policyDocuments")+ +
@@ -261,6 +263,8 @@ Example output:
     }
 ]
 ----
+
+== Forms
 
 === Create registration form
 	
@@ -388,6 +392,8 @@ has pending requests (the requests will be removed with the form).
 
 Returns a project membership update enquiry form. The syntax is complex
 and is not provided here.
+
+== Members
 
 === Add member
 

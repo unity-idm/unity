@@ -86,7 +86,7 @@ public class RestProjectPolicyDocumentServiceTest
 		Group group = new Group("/A");
 		group.setDisplayedName(new I18nString());
 		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, "regForm", "enqForm", null, null, null));
+				new GroupDelegationConfiguration(true, false, null, "regForm", "enqForm", null, null, null));
 		content.setGroup(group);
 
 		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);
@@ -113,7 +113,7 @@ public class RestProjectPolicyDocumentServiceTest
 		Group group = new Group("/A");
 		group.setDisplayedName(new I18nString());
 		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
+				new GroupDelegationConfiguration(true, false, null, null, null, null, null, List.of(1L)));
 		content.setGroup(group);
 		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);
 		restProjectService.removePolicyDocument("A", 1L);
@@ -131,7 +131,7 @@ public class RestProjectPolicyDocumentServiceTest
 		Group group = new Group("/A");
 		group.setDisplayedName(new I18nString());
 		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
+				new GroupDelegationConfiguration(true, false, null, null, null, null, null, List.of(1L)));
 		content.setGroup(group);
 		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);
 		restProjectService.updatePolicyDocument("A", RestPolicyDocumentUpdateRequest.builder()
@@ -159,7 +159,7 @@ public class RestProjectPolicyDocumentServiceTest
 		Group group = new Group("/A");
 		group.setDisplayedName(new I18nString());
 		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
+				new GroupDelegationConfiguration(true, false, null, null, null, null, null, List.of(1L)));
 		content.setGroup(group);
 		when(groupMan.getContents("/A/A", GroupContents.METADATA)).thenReturn(content);
 		restProjectService.updatePolicyDocument("A", RestPolicyDocumentUpdateRequest.builder()
