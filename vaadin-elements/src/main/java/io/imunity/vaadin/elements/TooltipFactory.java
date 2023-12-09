@@ -5,15 +5,14 @@
 
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.Component;
+import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
+
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
-import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
-
 public class TooltipFactory
 {
-	public static Component get(String tooltipText)
+	public static Icon get(String tooltipText)
 	{
 		Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
 		icon.setTooltipText(tooltipText);

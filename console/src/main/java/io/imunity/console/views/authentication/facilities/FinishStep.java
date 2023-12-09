@@ -10,17 +10,15 @@ import io.imunity.vaadin.elements.wizard.WizardStep;
 
 class FinishStep extends WizardStep
 {
-	private final Runnable finishTask;
 
-	public FinishStep(String label, Component component, Runnable finishTask)
+	public FinishStep(String label, Component component)
 	{
 		super(label, component);
-		this.finishTask = finishTask;
 	}
 
 	@Override
 	protected void initialize()
 	{
-		finishTask.run();
+		wizard.close();;
 	}
 }

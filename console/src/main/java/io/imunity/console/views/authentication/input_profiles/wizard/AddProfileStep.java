@@ -40,6 +40,8 @@ class AddProfileStep extends WizardStep
 		{
 			TranslationProfile profile = editor.getProfile();
 			addProfile.accept(profile);
+			wizard.close();
+			
 		} catch (FormValidationException e)
 		{
 			notificationPresenter.showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));

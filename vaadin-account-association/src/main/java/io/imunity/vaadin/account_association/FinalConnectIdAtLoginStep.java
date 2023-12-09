@@ -21,22 +21,19 @@ class FinalConnectIdAtLoginStep extends WizardStep
 	private final NotificationPresenter notificationPresenter;
 	private final MessageSource msg;
 	private final RemotelyAuthenticatedPrincipal unknownUser;
-	private final Runnable closeWizard;
 
 	AuthenticatedEntity locallyAuthenticatedEntity;
 
 
 	FinalConnectIdAtLoginStep(String label, Component component,
 	                          InputTranslationEngine translationEngine, NotificationPresenter notificationPresenter, MessageSource msg,
-	                          RemotelyAuthenticatedPrincipal unknownUser,
-	                          Runnable closeWizard)
+	                          RemotelyAuthenticatedPrincipal unknownUser)
 	{
 		super(label, component);
 		this.translationEngine = translationEngine;
 		this.notificationPresenter = notificationPresenter;
 		this.msg = msg;
 		this.unknownUser = unknownUser;
-		this.closeWizard = closeWizard;
 	}
 
 	@Override
@@ -55,7 +52,7 @@ class FinalConnectIdAtLoginStep extends WizardStep
 					msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"),
 					msg.getMessage("ConnectId.ConfirmStep.mergeSuccessful")
 			);
-			closeWizard.run();
+			wizard.close();
 		} catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("ConnectId.ConfirmStep.mergeFailed"), e.getMessage());

@@ -5,19 +5,29 @@
 
 package io.imunity.console.views.authentication.facilities;
 
+import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinServlet;
-import io.imunity.vaadin.auth.sandbox.SandboxWizardDialog;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.wizard.Wizard;
 import io.imunity.vaadin.elements.wizard.WizardStepPreparer;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -31,12 +41,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactoriesRegistry;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
 
 @Component
@@ -48,21 +52,19 @@ public class AuthenticatorsController
 	private final AuthenticationFlowManagement flowsMan;
 	private final MessageSource msg;
 	private final EndpointManagement endpointMan;
-	private final AuthenticatorEditorFactoriesRegistry editorsRegistry;
 	private final TranslationProfileManagement profileMan;
 	private final InputTranslationActionsRegistry inputActionsRegistry;
 	private final NotificationPresenter notificationPresenter;
 
 	AuthenticatorsController(AuthenticatorManagement authnMan, MessageSource msg,
 			EndpointManagement endpointMan, AuthenticationFlowManagement flowsMan,
-			AuthenticatorEditorFactoriesRegistry editorsRegistry, TranslationProfileManagement profileMan,
+			TranslationProfileManagement profileMan,
 			InputTranslationActionsRegistry inputActionsRegistry, NotificationPresenter notificationPresenter)
 	{
 		this.authnMan = authnMan;
 		this.msg = msg;
 		this.endpointMan = endpointMan;
 		this.flowsMan = flowsMan;
-		this.editorsRegistry = editorsRegistry;
 		this.profileMan = profileMan;
 		this.inputActionsRegistry = inputActionsRegistry;
 		this.notificationPresenter = notificationPresenter;
@@ -186,7 +188,7 @@ public class AuthenticatorsController
 				.map(ResolvedEndpoint::getName).sorted().collect(Collectors.toList());
 	}
 
-	public SandboxWizardDialog getWizard()
+	public Wizard getWizard()
 	{
 		String contextPath = VaadinServlet.getCurrent()
 				.getServletConfig()
@@ -197,9 +199,8 @@ public class AuthenticatorsController
 				.executeJs("window.open('" + contextPath + SANDBOX_PATH_ASSOCIATION
 						+ "/', '_blank', 'resizable,status=0,location=0')");
 		SandboxAuthnRouter router = Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter();
-		SandboxWizardDialog sandboxWizardDialog = new SandboxWizardDialog();
-		sandboxWizardDialog.setHeaderTitle(msg.getMessage("DryRun.wizardCaption"));
-		Wizard wizard = Wizard.builder()
+
+		return Wizard.builder()
 				.addStep(new IntroStep(msg))
 				.addStep(new SandboxAuthnLaunchStep(msg.getMessage("Wizard.SandboxStep.caption"),
 						new VerticalLayout(new Span(msg.getMessage("Wizard.SandboxStepComponent.infoLabel")),
@@ -209,12 +210,10 @@ public class AuthenticatorsController
 				.addNextStepPreparer(new WizardStepPreparer<>(SandboxAuthnLaunchStep.class, DryRunStep.class,
 						(step1, step2) -> step2.prepareStep(step1.event)))
 				.addStep(new DryRunStep(msg, profileMan, inputActionsRegistry))
-				.addStep(new FinishStep(null, new Span(), sandboxWizardDialog::close))
+				.addStep(new FinishStep(null, new Span()))
 				.addMessageSource(msg::getMessage)
-				.addCancelTask(sandboxWizardDialog::close)
+				.title(msg.getMessage("DryRun.wizardCaption"))
 				.build();
-		sandboxWizardDialog.add(wizard);
-		return sandboxWizardDialog;
 	}
 
 	public List<ResolvedEndpoint> getEndpoints()

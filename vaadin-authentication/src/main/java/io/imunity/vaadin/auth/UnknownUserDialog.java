@@ -4,6 +4,8 @@
  */
 package io.imunity.vaadin.auth;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -12,11 +14,10 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import io.imunity.vaadin.auth.sandbox.SandboxWizardDialog;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.utils.Log;
@@ -122,11 +123,7 @@ class UnknownUserDialog extends Dialog
 
 	protected void showAssociation()
 	{
-		SandboxWizardDialog dialog = new SandboxWizardDialog();
-		Component wizard = associationAccountWizardProvider.getWizardForConnectIdAtLogin(authNResult.getRemotelyAuthenticatedPrincipal(), dialog::close);
-		dialog.setHeaderTitle(msg.getMessage("ConnectId.wizardCaption"));
-		dialog.add(wizard);
-		dialog.open();
+		associationAccountWizardProvider.getWizardForConnectIdAtLogin(authNResult.getRemotelyAuthenticatedPrincipal()).open();;
 		close();
 	}
 	

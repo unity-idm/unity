@@ -5,13 +5,22 @@
 
 package io.imunity.console.tprofile;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.select.Select;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationAction;
@@ -20,14 +29,6 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Responsible for editing of a single {@link TranslationAction}
@@ -39,7 +40,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 	private final NotificationPresenter notificationPresenter;
 	private final TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 
-	private Select<String> actions;
+	private SelectWithDynamicTooltip<String> actions;
 	private Span actionParams;
 	private final ActionParameterComponentProvider actionComponentProvider;
 	private final List<ActionParameterComponent> paramComponents = new ArrayList<>();
@@ -67,7 +68,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 
 	private void initUI(TranslationAction toEdit)
 	{
-		actions = new Select<>();
+		actions = new SelectWithDynamicTooltip<>();
 		actions.setLabel(msg.getMessage("ActionEditor.ruleAction"));
 		ArrayList<String> items = new ArrayList<>();
 		tc.getAll().stream()
@@ -79,8 +80,6 @@ public class ActionEditor extends FormLayoutEmbeddable
 		actions.setRequiredIndicatorVisible(true);
 		actions.setWidth(TEXT_FIELD_MEDIUM.value());
 
-		
-		
 		actionParams = new Span();
 		actionParams.setText(msg.getMessage("ActionEditor.actionParameters"));
 

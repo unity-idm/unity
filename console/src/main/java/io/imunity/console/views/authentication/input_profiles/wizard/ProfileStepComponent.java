@@ -8,8 +8,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -30,7 +33,7 @@ class ProfileStepComponent extends HorizontalLayout
 {
 	private final MessageSource msg;
 	private final TranslationProfileEditor editor;
-	
+
 	private SplitLayout splitPanelLayout;
 	private VerticalLayout leftPanel;
 	private Grid<DragDropBean> attributesTable;
@@ -55,7 +58,7 @@ class ProfileStepComponent extends HorizontalLayout
 
 		dragdropHint.getElement()
 				.setProperty("innerHTML", msg.getMessage("Wizard.ProfileStepComponent.dragdropHint"));
-		setHeightFull();
+		
 	}
 
 	public void handle(RemotelyAuthenticatedInput authnInput)
@@ -68,9 +71,9 @@ class ProfileStepComponent extends HorizontalLayout
 	{
 		Collection<DragDropBean> values = getTableContent(input);
 		attributesTable.setItems(values);
-		attributesTable.setRowsDraggable(true);
+		attributesTable.setAllRowsVisible(true);
 	}
-	
+
 	private Collection<DragDropBean> getTableContent(RemotelyAuthenticatedInput input)
 	{
 		Collection<DragDropBean> items = new ArrayList<>();
@@ -87,7 +90,7 @@ class ProfileStepComponent extends HorizontalLayout
 	private void buildMainLayout()
 	{
 
-		setWidthFull();
+		setSizeFull();
 		splitPanelLayout = buildSplitPanelLayout();
 		add(splitPanelLayout);
 	}
@@ -97,12 +100,14 @@ class ProfileStepComponent extends HorizontalLayout
 		// common part: create layout
 		splitPanelLayout = new SplitLayout();
 		splitPanelLayout.setSizeFull();
-
+		splitPanelLayout.setSplitterPosition(60);
+			
 		// rightPanel
 		rightPanel = new VerticalLayout();
 		rightPanel.setSpacing(false);
 		rightPanel.setSizeFull();
-
+		rightPanel.setMaxHeight(30,Unit.EM);
+		
 		splitPanelLayout.addToPrimary(rightPanel);
 
 		// leftPanel
@@ -118,6 +123,8 @@ class ProfileStepComponent extends HorizontalLayout
 		leftPanel = new VerticalLayout();
 		leftPanel.setSpacing(false);
 		leftPanel.setSizeFull();
+		leftPanel.setMaxHeight(30,Unit.EM);
+
 
 		// dragdropHint
 		dragdropHint = new Span();
@@ -126,13 +133,24 @@ class ProfileStepComponent extends HorizontalLayout
 		// attributesTable
 		attributesTable = new Grid<>();
 		attributesTable.addThemeVariants(GridVariant.LUMO_COMPACT);
-		attributesTable.addColumn(DragDropBean::getExpression)
+		attributesTable.addComponentColumn(d -> getElementDrag(d))
 				.setHeader(msg.getMessage("Wizard.ProfileStepComponent.expression"));
 		attributesTable.addColumn(DragDropBean::getValue)
 				.setHeader(msg.getMessage("Wizard.ProfileStepComponent.value"));
-		attributesTable.setWidthFull();
 		leftPanel.add(attributesTable);
+		
 
 		return leftPanel;
 	}
+
+	private Div getElementDrag(DragDropBean text)
+	{
+		Div box = new Div();
+		box.setText(text.getExpression());
+		DragSource<Div> boxDragSource = DragSource.create(box);
+		boxDragSource.setDraggable(true);
+		boxDragSource.setDragData(text);
+		return box;
+	}
+
 }

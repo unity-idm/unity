@@ -9,8 +9,8 @@ import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
 import java.util.function.Consumer;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -39,7 +39,7 @@ public class ProfileWizardProvider
 		this.notificationPresenter = notificationPresenter;
 	}
 
-	public Component getWizard(TranslationProfileEditor editor, Runnable closeWizard,
+	public Wizard getWizard(TranslationProfileEditor editor, Runnable closeWizard,
 			Consumer<TranslationProfile> finish)
 	{
 		String contextPath = VaadinServlet.getCurrent()
@@ -52,7 +52,7 @@ public class ProfileWizardProvider
 						+ "/', '_blank', 'resizable,status=0,location=0')");
 		SandboxAuthnRouter router = Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter();
 
-		return Wizard.builder()
+		Wizard wizard = Wizard.builder()
 				.addStep(new IntroStep(msg))
 				.addStep(new SandboxAuthnLaunchStep(msg.getMessage("Wizard.SandboxStep.caption"),
 						new VerticalLayout(new Span(msg.getMessage("Wizard.SandboxStepComponent.infoLabel")),
@@ -67,5 +67,8 @@ public class ProfileWizardProvider
 				.addMessageSource(m -> msg.getMessage(m))
 				.addCancelTask(closeWizard)
 				.build();
+		wizard.setWidth(95, Unit.PERCENTAGE);
+		wizard.setHeight(75, Unit.PERCENTAGE);
+		return wizard;
 	}
 }

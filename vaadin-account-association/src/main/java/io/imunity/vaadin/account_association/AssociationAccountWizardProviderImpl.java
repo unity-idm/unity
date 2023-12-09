@@ -5,7 +5,10 @@
 
 package io.imunity.vaadin.account_association;
 
-import com.vaadin.flow.component.Component;
+import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
+
+import org.springframework.stereotype.Service;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
@@ -18,14 +21,10 @@ import io.imunity.vaadin.elements.wizard.WizardStepPreparer;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
-
-import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
-
-import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
 @Service
 class AssociationAccountWizardProviderImpl implements AssociationAccountWizardProvider
@@ -42,7 +41,7 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 	}
 
 	@Override
-	public Component getWizardForConnectId(Runnable finishTask, Runnable closeWizard)
+	public Wizard getWizardForConnectId(Runnable finishTask)
 	{
 		String contextPath = VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath();
 		Runnable sandBoxNewPageOpener = () -> UI.getCurrent().getPage()
@@ -74,12 +73,12 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 				)
 				.addStep(new FinalConnectIdStep(null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg, finishTask))
 				.addMessageSource(m -> msg.getMessage(m))
-				.addCancelTask(closeWizard)
+				.title(msg.getMessage("ConnectId.wizardCaption"))
 				.build();
 	}
 
 	@Override
-	public Component getWizardForConnectIdAtLogin(RemotelyAuthenticatedPrincipal unknownUser, Runnable closeWizard)
+	public Wizard getWizardForConnectIdAtLogin(RemotelyAuthenticatedPrincipal unknownUser)
 	{
 		String contextPath = VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath();
 		Runnable sandBoxNewPageOpener = () -> UI.getCurrent().getPage()
@@ -110,9 +109,9 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 						(step1, step2) -> step2.prepareStep(step1.locallyAuthenticatedEntity))
 				)
 				.addStep(new FinalConnectIdAtLoginStep(
-						null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg, unknownUser, closeWizard))
+						null, new VerticalLayout(), inputTranslationEngine, notificationPresenter, msg, unknownUser))
 				.addMessageSource(m -> msg.getMessage(m))
-				.addCancelTask(closeWizard)
+				.title(msg.getMessage("ConnectId.wizardCaption"))
 				.build();
 	}
 }

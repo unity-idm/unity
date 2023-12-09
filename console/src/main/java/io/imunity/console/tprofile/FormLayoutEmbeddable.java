@@ -8,6 +8,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.shared.HasTooltip;
 import io.imunity.vaadin.elements.TooltipFactory;
 
@@ -65,8 +66,14 @@ public class FormLayoutEmbeddable
 			if (text != null)
 			{
 				hasTooltip.setTooltipText("");
-				Component tooltip = TooltipFactory.get(text);
+				Icon tooltip = TooltipFactory.get(text);
 				item.add(tooltip);
+				if (component instanceof SelectWithDynamicTooltip<?> select)
+				{
+					select.setTooltipChangeListener(t -> {
+						tooltip.setTooltipText(t);
+					});
+				}
 			}
 		}
 	}

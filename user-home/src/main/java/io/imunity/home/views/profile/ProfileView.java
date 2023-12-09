@@ -5,6 +5,19 @@
 
 package io.imunity.home.views.profile;
 
+import static io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext.EMPTY;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasStyle;
@@ -19,19 +32,23 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
-import io.imunity.vaadin.auth.sandbox.SandboxWizardDialog;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewer;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.ComponentsGroup;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.ConfirmationEditMode;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.FixedAttributeEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.LabelContext;
 import jakarta.annotation.security.PermitAll;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -48,10 +65,6 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import java.util.*;
-
-import static io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext.EMPTY;
 
 @PermitAll
 @Breadcrumb(key = "UserHomeUI.profile")
@@ -159,18 +172,15 @@ public class ProfileView extends HomeViewComponent
 			associationButton.setId("EntityDetailsWithActions.associateAccount");
 			associationButton.addClickListener(e ->
 			{
-				SandboxWizardDialog dialog = new SandboxWizardDialog();
 				Runnable finishTask = () -> {
 					notificationPresenter.showSuccess(
 							msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"),
 							msg.getMessage("ConnectId.ConfirmStep.mergeSuccessful")
 					);
-					dialog.close();
 					init();
 				};
-				dialog.add(associationAccountWizardProvider.getWizardForConnectId(finishTask, dialog::close));
-				dialog.setHeaderTitle(msg.getMessage("ConnectId.wizardCaption"));
-				dialog.open();
+				associationAccountWizardProvider.getWizardForConnectId(finishTask).open();
+				
 			});
 			endButtonsLayout.add(associationButton);
 		}

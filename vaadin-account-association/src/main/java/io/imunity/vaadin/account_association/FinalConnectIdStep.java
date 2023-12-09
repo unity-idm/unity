@@ -48,6 +48,7 @@ class FinalConnectIdStep extends WizardStep
 			translationEngine.mergeWithExisting(authnContext.getMappingResult(), 
 					new EntityParam(loginSession.getEntityId()));
 			finishTask.run();
+			wizard.close();
 		} catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("ConnectId.ConfirmStep.mergeFailed"), e.getMessage());

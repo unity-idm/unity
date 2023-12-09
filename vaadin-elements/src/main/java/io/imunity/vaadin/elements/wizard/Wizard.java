@@ -5,21 +5,21 @@
 
 package io.imunity.vaadin.elements.wizard;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.progressbar.ProgressBar;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class Wizard extends VerticalLayout
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
+
+public class Wizard extends Dialog
 {
 	private final Button finishButton = new Button();
 	private final Button nextButton = new Button();
@@ -31,21 +31,25 @@ public class Wizard extends VerticalLayout
 	private final WizardStepController wizardStepController;
 
 
-	public Wizard(List<WizardStep> steps, List<WizardStepPreparer<?,?>> stepPreparers, Function<String, String> msg, Runnable cancelTask, String title)
+	public Wizard(List<WizardStep> steps, List<WizardStepPreparer<?, ?>> stepPreparers, Function<String, String> msg,
+			Runnable cancelTask, String title)
 	{
+		setModal(true);
+		setWidth("80%");
+		setHeight("60%");
+		
+		contentLayout.setSizeUndefined();
+		
 		this.wizardStepController = new WizardStepController(steps, stepPreparers);
 		List<String> labels = steps.stream()
 				.map(step -> step.label).toList();
 		this.progressBarIncrementer = 1.0/(steps.size() - 1);
 
-		H2 titleComponent = new H2(title);
-		titleComponent.getStyle().set("margin-top", "0");
 		HorizontalLayout labelsLayout = new HorizontalLayout();
-		HorizontalLayout buttonsLayout = new HorizontalLayout();
 
 		initLabelsLayout(labels, labelsLayout);
 
-		Button cancelButton = new Button(msg.apply("Wizard.cancel"), e -> cancelTask.run());
+		Button cancelButton = new Button(msg.apply("Wizard.cancel"), e -> {cancelTask.run(); close();});
 		cancelButton.setId("Wizard.cancel");
 
 		nextButton.setText(msg.apply("Wizard.next"));
@@ -69,16 +73,16 @@ public class Wizard extends VerticalLayout
 			contentLayout.add(wizardStepController.getNext());
 		});
 		finishButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-		buttonsLayout.add(cancelButton, backButton, nextButton, finishButton);
-		buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		buttonsLayout.setWidthFull();
-
+		
+		getFooter().add(cancelButton, backButton, nextButton, finishButton);
+		getHeader().add(labelsLayout, progressBar);
 		contentLayout.getStyle().set("background-color", "var(--unity-contrast)");
 		contentLayout.getStyle().set("border-radius", "var(--unity-border-radius)");
-
-		add(titleComponent, labelsLayout, progressBar, contentLayout, buttonsLayout);
-		getStyle().set("gap", "0");
+		
+		add(contentLayout);
+		
+		if (title != null)
+			setHeaderTitle(title);
 		init();
 	}
 
@@ -195,7 +199,7 @@ public class Wizard extends VerticalLayout
 	{
 		private final List<WizardStep> wizardSteps = new ArrayList<>();
 		private final List<WizardStepPreparer<?, ?>> stepPreparers = new ArrayList<>();
-		private Runnable cancelTask;
+		private Runnable cancelTask = () -> {};
 		private Function<String, String> msg;
 		private String title;
 

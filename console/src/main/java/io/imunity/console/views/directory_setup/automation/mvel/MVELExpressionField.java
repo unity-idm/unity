@@ -4,6 +4,13 @@
  */
 package io.imunity.console.views.directory_setup.automation.mvel;
 
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.customfield.CustomField;
@@ -16,19 +23,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
+
 import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.DragDropBean;
 import io.imunity.vaadin.elements.FormItemRequiredIndicatorHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
-
-import java.util.Collection;
-import java.util.Optional;
-
-import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 /**
  * Plain text field allowing for editing an MVEL expression
@@ -81,9 +81,9 @@ public class MVELExpressionField extends CustomField<String>
 		dropTarget.addDropListener(event ->
 		{
 			Optional<?> dragData = event.getDragData();
-			if (dragData.isPresent() && dragData.get() instanceof Collection)
+			if (dragData.isPresent())
 			{
-				Object next = ((Collection<?>) dragData.get()).iterator().next();
+				Object next = dragData.get();
 				if (next instanceof DragDropBean dragDropBean)
 					field.setValue((field.getValue() != null ? field.getValue() : "") + dragDropBean.getExpression());
 			}

@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.Route;
@@ -19,7 +18,6 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.ShowViewActionLayoutFactory;
-import io.imunity.vaadin.auth.sandbox.SandboxWizardDialog;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
@@ -72,21 +70,17 @@ public class RemoteDataProfilesView extends TranslationsView
 
 	private void showWizardDialog()
 	{
-		SandboxWizardDialog wizardDialog;
 		try
 		{
-			wizardDialog = ((InputTranslationsService) controller).getWizardDialog(() -> refreshProfileList(),
-					e -> notificationPresenter.showError(e.getCaption(), e.getMessage()));
-			wizardDialog.setWidth(95, Unit.PERCENTAGE);
-			wizardDialog.setHeight(65, Unit.PERCENTAGE);
-			wizardDialog.getFooter().add(new Button("TEST"));
+			 ((InputTranslationsService) controller).getWizardDialog(() -> refreshProfileList(),
+					e -> notificationPresenter.showError(e.getCaption(), e.getMessage())).open();;
+			
 
 		} catch (ControllerException e)
 		{
 			notificationPresenter.showError(e.getCaption(), e.getMessage());
 			return;
 		}
-		wizardDialog.open();
 	}
 
 }

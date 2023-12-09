@@ -84,7 +84,8 @@ class AssociationAccountView extends Composite<VerticalLayout> implements HasDyn
 				.addCancelTask(() -> UI.getCurrent().navigate(StatusView.class, QueryParameters.of(StatusView.TITLE_PARAM, msg.getMessage("Wizard.canceled"))))
 				.title(msg.getMessage("ConnectId.wizardCaption"))
 				.build();
-		getContent().add(wizard);
+		wizard.setSizeFull();
+		wizard.open();
 	}
 
 	@Override

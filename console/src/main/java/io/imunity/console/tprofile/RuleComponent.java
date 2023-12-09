@@ -150,7 +150,6 @@ public class RuleComponent extends VerticalLayout
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(getConditionContextVars())
 						.build());
 		
-	//	condition.setWidth(100, Unit.PERCENTAGE);
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
 				actionComponentProvider, this::onActionChanged, notificationPresenter);
 		

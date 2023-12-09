@@ -13,9 +13,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.flow.component.dialog.Dialog;
+
 import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.console.views.authentication.input_profiles.wizard.ProfileWizardProvider;
-import io.imunity.vaadin.auth.sandbox.SandboxWizardDialog;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -66,17 +67,14 @@ class InputTranslationsService extends TranslationsServiceBase
 		}
 	}
 
-	SandboxWizardDialog getWizardDialog(Runnable addCallback, Consumer<ControllerException> errorCallback)
+	Dialog getWizardDialog(Runnable addCallback, Consumer<ControllerException> errorCallback)
 			throws ControllerException
 	{
-		SandboxWizardDialog sandboxWizardDialog = new SandboxWizardDialog();
-		sandboxWizardDialog
-				.add(profileWizardProvider.getWizard(getEditor(), sandboxWizardDialog::close, t ->
-				{
-					addProfileSave(t, addCallback, errorCallback);
-					sandboxWizardDialog.close();
-				}));
-		return sandboxWizardDialog;
+		return profileWizardProvider.getWizard(getEditor(), () -> {}, t ->
+		{
+			addProfileSave(t, addCallback, errorCallback);
+			
+		});
 	}
 
 	private boolean addProfileSave(TranslationProfile profile, Runnable addCallback,
