@@ -92,15 +92,15 @@ class ProjectFormsValidator
 					continue;
 				} else
 				{
-					throw new ProjectFormValidationException("Attribute registration param "
+					throw new ProjectFormValidationException("Attribute registration parameter "
 							+ attributeRegistrationParam.getAttributeType() + " is not permited in root group");
 				}
 			}
 
 			if (!Group.isChildOrSame(attributeRegistrationParam.getGroup(), projectPath))
 			{
-				throw new ProjectFormValidationException("Attribute registration param"
-						+ attributeRegistrationParam.getAttributeType() + " is out of the project scope");
+				throw new ProjectFormValidationException("Attribute registration parameter "
+						+ attributeRegistrationParam.getAttributeType() + " is outside of the project’s root group");
 			}
 		}
 	}
@@ -129,17 +129,16 @@ class ProjectFormsValidator
 		{
 			if (!Group.isChildOrSame(group.toString(), projectPath))
 			{
-				throw new ProjectFormValidationException("Group registration param " + groupPath + " is out of the project scope");
+				throw new ProjectFormValidationException("Group registration parameter " + groupPath + " is outside of the project’s root group");
 			}
 		}
 	}
 
 	private void assertAutoLoginToRealm(String autoLoginToRealm) throws ProjectFormValidationException
 	{
-		if (autoLoginToRealm != null)
+		if (autoLoginToRealm != null && !autoLoginToRealm.isEmpty())
 		{
 			throw new ProjectFormValidationException("Auto login to realm must be unset");
-
 		}
 	}
 
@@ -152,7 +151,7 @@ class ProjectFormsValidator
 		if (!Group.isChildOrSame(notificationsConfiguration.getAdminsNotificationGroup(), projectPath))
 		{
 			throw new ProjectFormValidationException("Group with administrators to be notified "
-					+ notificationsConfiguration.getAdminsNotificationGroup() + " is out of the project scope");
+					+ notificationsConfiguration.getAdminsNotificationGroup() + " is outside of the project’s root group");
 		}
 	}
 

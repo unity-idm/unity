@@ -17,7 +17,6 @@ import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
 import io.imunity.rest.mappers.policy.PolicyDocumentMapper;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
-import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -36,6 +35,7 @@ class RestProjectPolicyDocumentService
 
 	private final String rootGroup;
 	private final String authorizationGroup;
+	private final ProjectGroupProvider projectGroupProvider;
 
 	RestProjectPolicyDocumentService(UpmanRestAuthorizationManager authz,
 			GroupDelegationConfigGenerator groupDelegationConfigGenerator,
@@ -50,6 +50,7 @@ class RestProjectPolicyDocumentService
 		this.restPolicyDocumentAuthorizationManager = restPolicyDocumentAuthorizationManager;
 		this.rootGroup = rootGroup;
 		this.authorizationGroup = authorizationGroup;
+		this.projectGroupProvider = new ProjectGroupProvider(groupMan);
 	}
 
 	@Transactional
@@ -57,13 +58,13 @@ class RestProjectPolicyDocumentService
 	{
 		assertAuthorization();
 
-		GroupContents groupContent = groupMan.getContents(ProjectPathProvider.getProjectPath(projectId, rootGroup),
-				GroupContents.METADATA);
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		Map<Long, PolicyDocumentWithRevision> policyDocuments = policyDocumentManagement.getPolicyDocuments()
 				.stream()
 				.collect(Collectors.toMap(p -> p.id, p -> p));
 
-		return groupContent.getGroup()
+		return group
 				.getDelegationConfiguration().policyDocumentsIds.stream()
 						.map(p -> policyDocuments.get(p))
 						.map(PolicyDocumentMapper::map)
@@ -74,9 +75,9 @@ class RestProjectPolicyDocumentService
 	RestPolicyDocument getPolicyDocument(String projectId, Long policyId) throws EngineException
 	{
 		assertAuthorization();
-		GroupContents groupContent = groupMan.getContents(ProjectPathProvider.getProjectPath(projectId, rootGroup),
-				GroupContents.METADATA);
-		restPolicyDocumentAuthorizationManager.assertGetProjectPolicyAuthorization(groupContent.getGroup()
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
+		restPolicyDocumentAuthorizationManager.assertGetProjectPolicyAuthorization(group
 				.getDelegationConfiguration(), policyId);
 		return PolicyDocumentMapper.map(policyDocumentManagement.getPolicyDocument(policyId));
 	}
@@ -85,9 +86,8 @@ class RestProjectPolicyDocumentService
 	void removePolicyDocument(String projectId, Long policyId) throws EngineException
 	{
 		assertAuthorization();
-		GroupContents groupContent = groupMan.getContents(ProjectPathProvider.getProjectPath(projectId, rootGroup),
-				GroupContents.METADATA);
-		Group group = groupContent.getGroup();
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
 		restPolicyDocumentAuthorizationManager.assertUpdateOrRemoveProjectPolicyAuthorization(group, policyId);
 
@@ -111,9 +111,10 @@ class RestProjectPolicyDocumentService
 	void updatePolicyDocument(String projectId, RestPolicyDocumentUpdateRequest policy, boolean updateRevision) throws EngineException
 	{
 		assertAuthorization();
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		restPolicyDocumentAuthorizationManager.assertUpdateOrRemoveProjectPolicyAuthorization(
-				groupMan.getContents(ProjectPathProvider.getProjectPath(projectId, rootGroup), GroupContents.METADATA)
-						.getGroup(),
+				group,
 				policy.id);
 		if (updateRevision)
 		{
@@ -128,10 +129,9 @@ class RestProjectPolicyDocumentService
 	void addPolicyDocument(String projectId, RestPolicyDocumentRequest policy) throws EngineException
 	{
 		assertAuthorization();
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		long addedPolicyDocument = policyDocumentManagement.addPolicyDocument(PolicyDocumentMapper.map(policy));
-		GroupContents groupContent = groupMan.getContents(ProjectPathProvider.getProjectPath(projectId, rootGroup),
-				GroupContents.METADATA);
-		Group group = groupContent.getGroup();
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
 		List<Long> updatedPolicies = new ArrayList<>();
 		if (groupDelegationConfiguration.policyDocumentsIds != null)
@@ -171,7 +171,7 @@ class RestProjectPolicyDocumentService
 	{
 		authz.assertManagerAuthorization(authorizationGroup);
 	}
-
+	
 	@Component
 	public static class RestProjectPolicyDocumentServiceFactory
 	{
