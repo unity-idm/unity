@@ -11,16 +11,15 @@ import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.console.views.translation_profiles.EditTranslationView;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 @PermitAll
 @Route(value = "/remote-data-profile/edit", layout = ConsoleMenu.class)
-class EditInputTranslationView extends EditTranslationView
+public class EditInputTranslationView extends EditTranslationView
 {
-	public static final String VIEW_NAME = "EditInputTranslation";
-
 	@Autowired
 	EditInputTranslationView(MessageSource msg, InputTranslationsService controller, NotificationPresenter notificationPresenter)
 	{

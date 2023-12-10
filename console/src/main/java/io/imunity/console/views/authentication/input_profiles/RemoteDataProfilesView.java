@@ -18,6 +18,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.ShowViewActionLayoutFactory;
+import io.imunity.console.views.translation_profiles.TranslationsView;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
@@ -81,6 +82,12 @@ public class RemoteDataProfilesView extends TranslationsView
 			notificationPresenter.showError(e.getCaption(), e.getMessage());
 			return;
 		}
+	}
+	
+	@Override
+	protected String getConfirmDeleteText(String profiles)
+	{
+		return msg.getMessage("InputTranslationsView.confirmDelete", profiles);
 	}
 
 }

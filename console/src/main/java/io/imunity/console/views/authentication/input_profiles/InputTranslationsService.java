@@ -17,6 +17,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 
 import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.console.views.authentication.input_profiles.wizard.ProfileWizardProvider;
+import io.imunity.console.views.translation_profiles.TranslationsServiceBase;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -52,7 +53,7 @@ class InputTranslationsService extends TranslationsServiceBase
 					.collect(Collectors.toList());
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.getAllError"), e);
+			throw new ControllerException(msg.getMessage("TranslationProfilesController.getAllError"), e);
 		}
 	}
 

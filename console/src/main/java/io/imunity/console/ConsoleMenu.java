@@ -5,11 +5,21 @@
 
 package io.imunity.console;
 
+import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+
 import io.imunity.console.views.ServicesEditView;
 import io.imunity.console.views.ServicesView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsEditView;
@@ -20,6 +30,8 @@ import io.imunity.console.views.authentication.credentials.CredentialsView;
 import io.imunity.console.views.authentication.facilities.AuthenticationFlowEditView;
 import io.imunity.console.views.authentication.facilities.AuthenticatorEditView;
 import io.imunity.console.views.authentication.facilities.FacilitiesView;
+import io.imunity.console.views.authentication.input_profiles.EditInputTranslationView;
+import io.imunity.console.views.authentication.input_profiles.NewInputTranslationView;
 import io.imunity.console.views.authentication.input_profiles.RemoteDataProfilesView;
 import io.imunity.console.views.authentication.realms.RealmEditView;
 import io.imunity.console.views.authentication.realms.RealmsView;
@@ -31,6 +43,9 @@ import io.imunity.console.views.directory_setup.automation.AutomationEditView;
 import io.imunity.console.views.directory_setup.automation.AutomationRunView;
 import io.imunity.console.views.directory_setup.automation.AutomationView;
 import io.imunity.console.views.directory_setup.identity_types.IdentityTypesView;
+import io.imunity.console.views.identity_provider.released_profile.EditOutputTranslationView;
+import io.imunity.console.views.identity_provider.released_profile.NewOutputTranslationView;
+import io.imunity.console.views.identity_provider.released_profile.ReleasedDataProfilesView;
 import io.imunity.console.views.maintenance.AboutView;
 import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;
@@ -44,15 +59,7 @@ import io.imunity.console.views.settings.policy_documents.PolicyDocumentsView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
-
-import java.util.List;
-import java.util.stream.Stream;
-
-import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
-import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
-import static java.util.stream.Collectors.toList;
 
 public class ConsoleMenu extends UnityAppLayout
 {
@@ -64,6 +71,15 @@ public class ConsoleMenu extends UnityAppLayout
 						MenuComponent.builder(DirectoryBrowserView.class)
 								.tabName(msg.getMessage("WebConsoleMenu.directoryBrowser"))
 								.icon(VaadinIcon.GROUP)
+								.build(),
+						MenuComponent.builder(
+								MenuComponent.builder(ReleasedDataProfilesView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.identityProvider.releasedProfiles"))
+										.icon(VaadinIcon.UPLOAD)
+										.subViews(NewOutputTranslationView.class, EditOutputTranslationView.class)
+										.build())
+								.tabName(msg.getMessage("WebConsoleMenu.identityProvider"))
+								.icon(VaadinIcon.GLOBE_WIRE)
 								.build(),
 						MenuComponent.builder(
 								MenuComponent.builder(FacilitiesView.class)
@@ -89,6 +105,7 @@ public class ConsoleMenu extends UnityAppLayout
 								MenuComponent.builder(RemoteDataProfilesView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.authentication.inputTranslation"))
 										.icon(VaadinIcon.DOWNLOAD)
+										.subViews(NewInputTranslationView.class, EditInputTranslationView.class)
 										.build()
 								)
 								.tabName(msg.getMessage("WebConsoleMenu.authentication"))

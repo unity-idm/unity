@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.authentication.input_profiles;
+package io.imunity.console.views.translation_profiles;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -156,7 +156,7 @@ public abstract class TranslationsView extends ConsoleViewComponent
 	{
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(profile.getName()));
 		new ConfirmDialog(msg.getMessage("ConfirmDialog.confirm"),
-				msg.getMessage("TranslationProfilesView.confirmDelete", confirmText), msg.getMessage("ok"),
+				getConfirmDeleteText(confirmText), msg.getMessage("ok"),
 				e -> remove(profile), msg.getMessage("cancel"), e ->
 				{
 				}).open();
@@ -187,4 +187,6 @@ public abstract class TranslationsView extends ConsoleViewComponent
 	protected abstract Class<? extends ConsoleViewComponent> getNewView();
 
 	protected abstract String getHeaderCaption();
+	
+	protected abstract String getConfirmDeleteText(String profiles);
 }

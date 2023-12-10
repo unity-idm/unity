@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.authentication.input_profiles;
+package io.imunity.console.views.translation_profiles;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;

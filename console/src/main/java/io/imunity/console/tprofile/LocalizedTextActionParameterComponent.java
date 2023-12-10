@@ -4,17 +4,19 @@
  */
 package io.imunity.console.tprofile;
 
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.flow.data.binder.Binder;
+
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
-
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDetails implements ActionParameterComponent
 {
@@ -56,7 +58,7 @@ public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDet
 
 	private Map<Locale, String> getValue(String value)
 	{
-		return getI18nValue(value).getLocalizedMap();
+		return getI18nValue(value) != null ? getI18nValue(value).getLocalizedMap() : new HashMap<>();
 	}
 
 	private I18nString getI18nValue(String value)
