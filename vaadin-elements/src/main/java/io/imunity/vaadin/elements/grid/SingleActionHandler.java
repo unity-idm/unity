@@ -2,15 +2,14 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
+package io.imunity.vaadin.elements.grid;
 
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
-
-import pl.edu.icm.unity.base.message.MessageSource;
 
 public class SingleActionHandler<T>
 {		
@@ -47,10 +46,10 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Add(MessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Add(Function<String, String> msg, Class<T> clazz)
 	{
 		return new Builder<T>()
-				.withCaption(msg.getMessage("add"))
+				.withCaption(msg.apply("add"))
 				.withIcon(VaadinIcon.PLUS_CIRCLE_O)
 				.dontRequireTarget();
 	}
@@ -61,10 +60,10 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Refresh(MessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Refresh(Function<String, String> msg, Class<T> clazz)
 	{
 		return new Builder<T>()
-				.withCaption(msg.getMessage("refresh"))
+				.withCaption(msg.apply("refresh"))
 				.withIcon(VaadinIcon.REFRESH)
 				.dontRequireTarget();
 	}
@@ -75,10 +74,10 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Delete(MessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Delete(Function<String, String> msg, Class<T> clazz)
 	{
 		return new Builder<T>()
-				.withCaption(msg.getMessage("remove"))
+				.withCaption(msg.apply("remove"))
 				.withIcon(VaadinIcon.TRASH)
 				.multiTarget();
 	}
@@ -89,10 +88,10 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Edit(MessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Edit(Function<String, String> msg, Class<T> clazz)
 	{
 		return new Builder<T>()
-				.withCaption(msg.getMessage("edit"))
+				.withCaption(msg.apply("edit"))
 				.withIcon(VaadinIcon.EDIT);
 	}
 	
@@ -102,10 +101,10 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4ShowDetails(MessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4ShowDetails(Function<String, String> msg, Class<T> clazz)
 	{
 		return new Builder<T>()
-				.withCaption(msg.getMessage("showDetails"))
+				.withCaption(msg.apply("showDetails"))
 				.withIcon(VaadinIcon.INFO);
 	}
 	
@@ -115,10 +114,10 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> Builder<T> builder4Copy(MessageSource msg, Class<T> clazz)
+	public static <T> Builder<T> builder4Copy(Function<String, String> msg, Class<T> clazz)
 	{
 		return new Builder<T>()
-				.withCaption(msg.getMessage("copy"))
+				.withCaption(msg.apply("copy"))
 				.withIcon(VaadinIcon.COPY_O);
 	}
 	

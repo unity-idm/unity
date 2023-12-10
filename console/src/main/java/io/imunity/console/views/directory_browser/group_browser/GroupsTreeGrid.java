@@ -27,11 +27,11 @@ import com.vaadin.flow.function.SerializablePredicate;
 import io.imunity.console.views.directory_browser.GridSelectionSupport;
 import io.imunity.console.views.directory_browser.identities.IdentityTreeGridDragItems;
 import io.imunity.vaadin.elements.SearchField;
-import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.Toolbar;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -339,7 +339,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	private SingleActionHandler<TreeNode> getEditAction()
 	{
-		return SingleActionHandler.builder4Edit(msg, TreeNode.class).withHandler(this::showEditDialog).build();
+		return SingleActionHandler.builder4Edit(msg::getMessage, TreeNode.class).withHandler(this::showEditDialog).build();
 	}
 
 	private void showEditDialog(Collection<TreeNode> target)
@@ -382,12 +382,12 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	private SingleActionHandler<TreeNode> getRefreshAction()
 	{
-		return SingleActionHandler.builder4Refresh(msg, TreeNode.class).withHandler(n -> refresh()).build();
+		return SingleActionHandler.builder4Refresh(msg::getMessage, TreeNode.class).withHandler(n -> refresh()).build();
 	}
 	
 	private SingleActionHandler<TreeNode> getDeleteAction()
 	{
-		return SingleActionHandler.builder4Delete(msg, TreeNode.class).withHandler(this::deleteHandler).build();
+		return SingleActionHandler.builder4Delete(msg::getMessage, TreeNode.class).withHandler(this::deleteHandler).build();
 	}
 
 	private void deleteHandler(Collection<TreeNode> items)

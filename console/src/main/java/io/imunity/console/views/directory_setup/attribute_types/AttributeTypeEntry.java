@@ -5,7 +5,9 @@
 
 package io.imunity.console.views.directory_setup.attribute_types;
 
-import io.imunity.vaadin.endpoint.common.grid.FilterableEntry;
+import java.util.function.Function;
+
+import io.imunity.vaadin.elements.grid.FilterableEntry;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
@@ -49,7 +51,7 @@ class AttributeTypeEntry implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, MessageSource msg)
+	public boolean anyFieldContains(String searched, Function<String, String>  msg)
 	{
 		String textLower = searched.toLowerCase();
 

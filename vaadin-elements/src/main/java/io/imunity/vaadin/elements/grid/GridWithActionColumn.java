@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.endpoint.common.grid;
+package io.imunity.vaadin.elements.grid;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,9 +26,6 @@ import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 
 import io.imunity.vaadin.elements.ActionIconBuilder;
-import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
-import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Grid with actions column.
@@ -38,7 +35,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
  */
 public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T>
 {
-	private final MessageSource msg;
+	private final Function<String, String> msg;
 	private List<T> contents;
 	private GridListDataView<T> dataProvider;
 	private Column<T> actionColumn;
@@ -48,7 +45,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private List<SingleActionHandler<T>> hamburgerActionHandlers;
 	
 	
-	public GridWithActionColumn(MessageSource msg, List<SingleActionHandler<T>> actionHandlers)
+	public GridWithActionColumn(Function<String, String> msg, List<SingleActionHandler<T>> actionHandlers)
 	{
 		this.msg = msg;
 		this.actionHandlers = actionHandlers;
@@ -139,7 +136,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			removeColumn(actionColumn);
 			actionColumn = null;
 		}
-		actionColumn = super.addComponentColumn(e -> getButtonComponent(Set.of(e))).setHeader(msg.getMessage("actions"))
+		actionColumn = super.addComponentColumn(e -> getButtonComponent(Set.of(e))).setHeader(msg.apply("actions"))
 				.setTextAlign(ColumnTextAlign.END);
 	}
 

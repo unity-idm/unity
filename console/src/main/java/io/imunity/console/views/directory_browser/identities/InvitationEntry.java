@@ -5,14 +5,16 @@
 
 package io.imunity.console.views.directory_browser.identities;
 
-import io.imunity.vaadin.endpoint.common.grid.FilterableEntry;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.invitation.FormPrefill;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
 import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import io.imunity.vaadin.elements.grid.FilterableEntry;
 
 
 public class InvitationEntry implements FilterableEntry
@@ -56,7 +58,7 @@ public class InvitationEntry implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, MessageSource msg)
+	public boolean anyFieldContains(String searched, Function<String, String>  msg)
 	{
 		String textLower = searched.toLowerCase();
 

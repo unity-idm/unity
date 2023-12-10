@@ -24,8 +24,8 @@ import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -52,7 +52,7 @@ public class IdentityTypesView extends ConsoleViewComponent
 
 	private void init()
 	{
-		identityTypesGrid = new GridWithActionColumn<IdentityTypeEntry>(msg, getActionsHandlers());
+		identityTypesGrid = new GridWithActionColumn<IdentityTypeEntry>(msg::getMessage, getActionsHandlers());
 		identityTypesGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
 		identityTypesGrid.setMultiSelect(false);
 		
@@ -90,7 +90,7 @@ public class IdentityTypesView extends ConsoleViewComponent
 
 	private List<SingleActionHandler<IdentityTypeEntry>> getActionsHandlers()
 	{
-		SingleActionHandler<IdentityTypeEntry> edit = SingleActionHandler.builder4Edit(msg, IdentityTypeEntry.class)
+		SingleActionHandler<IdentityTypeEntry> edit = SingleActionHandler.builder4Edit(msg::getMessage, IdentityTypeEntry.class)
 				.withHandler(r -> gotoEdit(r.iterator()
 						.next()))
 				.build();

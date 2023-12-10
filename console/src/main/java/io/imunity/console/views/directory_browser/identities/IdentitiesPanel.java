@@ -24,11 +24,12 @@ import io.imunity.vaadin.elements.ErrorLabel;
 import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.SearchField;
-import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.Toolbar;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
+
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;

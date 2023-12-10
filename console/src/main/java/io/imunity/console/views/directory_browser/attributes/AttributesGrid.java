@@ -24,14 +24,14 @@ import io.imunity.console.attribute.AttributeEditor;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.vaadin.elements.ColumnToggleMenu;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
 import io.imunity.vaadin.endpoint.common.Toolbar;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
-import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -80,7 +80,7 @@ public class AttributesGrid extends VerticalLayout
 		this.notificationPresenter = notificationPresenter;
 		this.bus = WebSession.getCurrent().getEventBus();
 
-		attributesGrid = new GridWithActionColumn<>(msg, Collections.emptyList());
+		attributesGrid = new GridWithActionColumn<>(msg::getMessage, Collections.emptyList());
 
 		attributesGrid.addShowDetailsColumn(new ComponentRenderer<>(controller::getDetailsComponent));
 
@@ -221,7 +221,7 @@ public class AttributesGrid extends VerticalLayout
 
 	private List<SingleActionHandler<AttributeExt>> getRowActionsHandlers()
 	{
-		SingleActionHandler<AttributeExt> edit = SingleActionHandler.builder4Edit(msg, AttributeExt.class)
+		SingleActionHandler<AttributeExt> edit = SingleActionHandler.builder4Edit(msg::getMessage, AttributeExt.class)
 				.withDisabledPredicate(this::isAttributeEditable).withHandler(this::showEditDialog)
 				.build();
 		return Arrays.asList(edit, getDeleteAction());
@@ -300,7 +300,7 @@ public class AttributesGrid extends VerticalLayout
 
 	private SingleActionHandler<AttributeExt> getDeleteAction()
 	{
-		return SingleActionHandler.builder4Delete(msg, AttributeExt.class)
+		return SingleActionHandler.builder4Delete(msg::getMessage, AttributeExt.class)
 				.withDisabledPredicate(a -> isAttributeEditable(a) || checkAttributeMandatory(a))
 				.withHandler(this::deleteHandler).build();
 	}

@@ -15,6 +15,8 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
+
 public class GenericElementsTable<T> extends Grid<T>
 {
 	protected List<T> contents;

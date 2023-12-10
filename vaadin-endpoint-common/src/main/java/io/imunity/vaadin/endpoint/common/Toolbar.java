@@ -9,7 +9,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.vaadin.elements.SearchField;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
+import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 
 import java.util.*;
 import java.util.function.Consumer;

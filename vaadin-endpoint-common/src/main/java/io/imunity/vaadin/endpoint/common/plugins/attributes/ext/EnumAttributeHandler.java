@@ -13,11 +13,12 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
-import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.GenericElementsTable;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
@@ -184,7 +185,7 @@ class EnumAttributeHandler implements WebAttributeHandler
 			
 			vl.add(hl);
 	
-			current = new GridWithActionColumn<String>(msg, List.of(getDeleteAction()));
+			current = new GridWithActionColumn<String>(msg::getMessage, List.of(getDeleteAction()));
 			current.addColumn(v -> v).setHeader(msg.getMessage("EnumAttributeHandler.value"));
 			current.refreshActionColumn();
 			current.setHeight(12, Unit.EM);
@@ -216,7 +217,7 @@ class EnumAttributeHandler implements WebAttributeHandler
 		
 		private SingleActionHandler<String> getDeleteAction()
 		{
-			return SingleActionHandler.builder4Delete(msg, String.class)
+			return SingleActionHandler.builder4Delete(msg::getMessage, String.class)
 					.withHandler(this::deleteHandler)
 					.build();
 		}

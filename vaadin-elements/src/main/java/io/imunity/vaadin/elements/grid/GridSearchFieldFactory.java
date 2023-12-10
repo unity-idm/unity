@@ -3,10 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.endpoint.common.grid;
+package io.imunity.vaadin.elements.grid;
+
+import java.util.function.Function;
 
 import io.imunity.vaadin.elements.SearchField;
-import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
  * Helps create search field for {@link FilterableGrid}
@@ -16,9 +17,9 @@ import pl.edu.icm.unity.base.message.MessageSource;
  */
 public class GridSearchFieldFactory
 {
-	public static SearchField generateSearchField(FilterableGrid<? extends FilterableEntry> grid, MessageSource msg)
+	public static SearchField generateSearchField(FilterableGrid<? extends FilterableEntry> grid, Function<String, String> msg)
 	{
-		SearchField searchText = new SearchField(msg.getMessage("search"), searched ->
+		SearchField searchText = new SearchField(msg.apply("search"), searched ->
 		{
 
 			grid.clearFilters();

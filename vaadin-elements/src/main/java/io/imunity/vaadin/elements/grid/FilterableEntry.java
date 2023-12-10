@@ -4,9 +4,9 @@
  */
 
 
-package io.imunity.vaadin.endpoint.common.grid;
+package io.imunity.vaadin.elements.grid;
 
-import pl.edu.icm.unity.base.message.MessageSource;
+import java.util.function.Function;
 
 /**
  * Grid entry which can be filtered
@@ -15,5 +15,5 @@ import pl.edu.icm.unity.base.message.MessageSource;
  */
 public interface FilterableEntry
 {
-	 boolean anyFieldContains(String searched, MessageSource msg);
+	 boolean anyFieldContains(String searched, Function<String, String>  msg);
 }

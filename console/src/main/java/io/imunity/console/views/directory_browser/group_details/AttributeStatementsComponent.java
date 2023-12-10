@@ -13,13 +13,14 @@ import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
+
+import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
 import io.imunity.vaadin.endpoint.common.Toolbar;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
-import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 import pl.edu.icm.unity.base.attribute.AttributeStatement;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -50,7 +51,7 @@ class AttributeStatementsComponent extends VerticalLayout
 		this.controller = controller;
 		this.bus = WebSession.getCurrent().getEventBus();
 
-		attrStatementsGrid = new GridWithActionColumn<>(msg, Collections.emptyList());
+		attrStatementsGrid = new GridWithActionColumn<>(msg::getMessage, Collections.emptyList());
 		attrStatementsGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
 		attrStatementsGrid.addColumn(attrStatementWithId -> msg.getMessage("AttributeStatements.nameValue", attrStatementWithId.toShortString()))
 				.setHeader(msg.getMessage("AttributeStatements.nameCaption"))
@@ -116,7 +117,7 @@ class AttributeStatementsComponent extends VerticalLayout
 	private List<SingleActionHandler<AttrStatementWithId>> getGlobalHamburgerActionsHandlers()
 	{
 		SingleActionHandler<AttrStatementWithId> add = SingleActionHandler
-				.builder4Add(msg, AttrStatementWithId.class).withHandler(this::showAddDialog).build();
+				.builder4Add(msg::getMessage, AttrStatementWithId.class).withHandler(this::showAddDialog).build();
 
 		return Arrays.asList(add, getDeleteAction());
 	}
@@ -124,14 +125,14 @@ class AttributeStatementsComponent extends VerticalLayout
 	private List<SingleActionHandler<AttrStatementWithId>> getRowActionsHandlers()
 	{
 		SingleActionHandler<AttrStatementWithId> edit = SingleActionHandler
-				.builder4Edit(msg, AttrStatementWithId.class).withHandler(this::showEditDialog).build();
+				.builder4Edit(msg::getMessage, AttrStatementWithId.class).withHandler(this::showEditDialog).build();
 
 		return Arrays.asList(edit, getDeleteAction());
 	}
 
 	private SingleActionHandler<AttrStatementWithId> getDeleteAction()
 	{
-		return SingleActionHandler.builder4Delete(msg, AttrStatementWithId.class)
+		return SingleActionHandler.builder4Delete(msg::getMessage, AttrStatementWithId.class)
 				.withHandler(this::deleteHandler).build();
 	}
 

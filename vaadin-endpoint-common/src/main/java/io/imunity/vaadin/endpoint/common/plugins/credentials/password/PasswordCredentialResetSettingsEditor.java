@@ -16,9 +16,10 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
+
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.ListOfElementsWithActions;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
@@ -169,7 +170,7 @@ class PasswordCredentialResetSettingsEditor
 
 		questionAdder = new TextField();
 		questionAdder.setWidth(TEXT_FIELD_MEDIUM.value());
-		SingleActionHandler<String> remove = SingleActionHandler.builder4Delete(msg, String.class)
+		SingleActionHandler<String> remove = SingleActionHandler.builder4Delete(msg::getMessage, String.class)
 				.withHandler(r -> questions.removeEntry(r.iterator().next())).build();
 
 		questions = new ListOfElementsWithActions<>(

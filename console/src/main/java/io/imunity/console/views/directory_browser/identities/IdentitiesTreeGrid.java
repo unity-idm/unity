@@ -27,12 +27,13 @@ import io.imunity.console.views.directory_browser.group_browser.GroupsTreeGrid;
 import io.imunity.console.views.directory_browser.identities.credentials.CredentialsChangeDialog;
 import io.imunity.vaadin.elements.ColumnToggleMenu;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.CachedAttributeHandlers;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;

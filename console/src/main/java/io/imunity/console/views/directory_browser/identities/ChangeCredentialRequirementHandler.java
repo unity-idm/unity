@@ -7,7 +7,8 @@ package io.imunity.console.views.directory_browser.identities;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
+
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;

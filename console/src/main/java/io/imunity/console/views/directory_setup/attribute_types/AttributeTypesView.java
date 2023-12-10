@@ -30,12 +30,12 @@ import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.SearchField;
-import io.imunity.vaadin.endpoint.common.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.GridSearchFieldFactory;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
 import io.imunity.vaadin.endpoint.common.Toolbar;
-import io.imunity.vaadin.endpoint.common.grid.GridSearchFieldFactory;
-import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.Constants;
@@ -69,7 +69,7 @@ public class AttributeTypesView extends ConsoleViewComponent
 
 	private void init()
 	{
-		attrTypesGrid = new GridWithActionColumn<AttributeTypeEntry>(msg, getActionsHandlers());
+		attrTypesGrid = new GridWithActionColumn<AttributeTypeEntry>(msg::getMessage, getActionsHandlers());
 		attrTypesGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
 		attrTypesGrid.setMultiSelect(true);
 
@@ -102,7 +102,7 @@ public class AttributeTypesView extends ConsoleViewComponent
 		hamburgerMenu.addActionHandlers(getHamburgerCommonHandlers());
 		attrTypesGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		SearchField search = GridSearchFieldFactory.generateSearchField(attrTypesGrid, msg);
+		SearchField search = GridSearchFieldFactory.generateSearchField(attrTypesGrid, msg::getMessage);
 
 		Toolbar<AttributeTypeEntry> toolbar = new Toolbar<>();
 		toolbar.addHamburger(hamburgerMenu);
@@ -131,7 +131,7 @@ public class AttributeTypesView extends ConsoleViewComponent
 	{
 
 		SingleActionHandler<AttributeTypeEntry> remove = SingleActionHandler
-				.builder4Delete(msg, AttributeTypeEntry.class)
+				.builder4Delete(msg::getMessage, AttributeTypeEntry.class)
 				.withDisabledPredicate(at -> at.attributeType.isTypeImmutable())
 				.withHandler(this::tryRemove)
 				.build();
@@ -150,7 +150,7 @@ public class AttributeTypesView extends ConsoleViewComponent
 
 	private List<SingleActionHandler<AttributeTypeEntry>> getHamburgerActionsHandlers()
 	{
-		SingleActionHandler<AttributeTypeEntry> copy = SingleActionHandler.builder4Copy(msg, AttributeTypeEntry.class)
+		SingleActionHandler<AttributeTypeEntry> copy = SingleActionHandler.builder4Copy(msg::getMessage, AttributeTypeEntry.class)
 				.withDisabledPredicate(at -> at.attributeType.isTypeImmutable())
 				.withHandler(at -> goToCopy(at.iterator()
 						.next()))
@@ -164,7 +164,7 @@ public class AttributeTypesView extends ConsoleViewComponent
 
 	private List<SingleActionHandler<AttributeTypeEntry>> getActionsHandlers()
 	{
-		SingleActionHandler<AttributeTypeEntry> edit = SingleActionHandler.builder4Edit(msg, AttributeTypeEntry.class)
+		SingleActionHandler<AttributeTypeEntry> edit = SingleActionHandler.builder4Edit(msg::getMessage, AttributeTypeEntry.class)
 				.withDisabledPredicate(at -> !at.isEditable())
 				.withHandler(r -> gotoEdit(r.iterator()
 						.next()))

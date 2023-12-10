@@ -30,8 +30,8 @@ import io.imunity.console.utils.ObjectToJsonFileExporterHelper;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.ShowViewActionLayoutFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.grid.GridWithActionColumn;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleActionHandler;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileMode;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
@@ -57,7 +57,7 @@ public abstract class TranslationsView extends ConsoleViewComponent
 
 	private void init()
 	{
-		profileList = new GridWithActionColumn<>(msg, getActionsHandlers());
+		profileList = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
 		Column<TranslationProfile> name = profileList
 				.addComponentColumn(e -> new RouterLink(e.getName(), getEditView(), e.getName()))
 				.setHeader(msg.getMessage("TranslationProfilesView.nameCaption"))
@@ -84,19 +84,19 @@ public abstract class TranslationsView extends ConsoleViewComponent
 
 	private List<SingleActionHandler<TranslationProfile>> getActionsHandlers()
 	{
-		SingleActionHandler<TranslationProfile> edit = SingleActionHandler.builder4Edit(msg, TranslationProfile.class)
+		SingleActionHandler<TranslationProfile> edit = SingleActionHandler.builder4Edit(msg::getMessage, TranslationProfile.class)
 				.withHandler(r -> gotoEdit(r.iterator()
 						.next()))
 				.build();
 
 		SingleActionHandler<TranslationProfile> remove = SingleActionHandler
-				.builder4Delete(msg, TranslationProfile.class)
+				.builder4Delete(msg::getMessage, TranslationProfile.class)
 				.withHandler(r -> tryRemove(r.iterator()
 						.next()))
 				.withDisabledPredicate(tp -> tp.getProfileMode() == ProfileMode.READ_ONLY)
 				.build();
 
-		SingleActionHandler<TranslationProfile> copy = SingleActionHandler.builder4Copy(msg, TranslationProfile.class)
+		SingleActionHandler<TranslationProfile> copy = SingleActionHandler.builder4Copy(msg::getMessage, TranslationProfile.class)
 				.withHandler(r -> gotoCopy(r.iterator()
 						.next()))
 				.build();

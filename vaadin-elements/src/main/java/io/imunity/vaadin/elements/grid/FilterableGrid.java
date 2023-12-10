@@ -4,7 +4,7 @@
  */
 
 
-package io.imunity.vaadin.endpoint.common.grid;
+package io.imunity.vaadin.elements.grid;
 
 import com.vaadin.flow.function.SerializablePredicate;
 

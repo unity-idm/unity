@@ -15,6 +15,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
