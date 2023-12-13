@@ -84,7 +84,7 @@ class RestProjectService
 		else
 			projectId = project.projectId;
 
-		String projectPath = getProjectPath(projectId);
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		if (project.displayedName == null || project.displayedName.isEmpty())
 			throw new IllegalArgumentException();
 
@@ -113,7 +113,7 @@ class RestProjectService
 		if (project.displayedName == null || project.displayedName.isEmpty())
 			throw new IllegalArgumentException("Displayed name have to be set");
 
-		String projectPath = getProjectPath(projectId);
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group toUpdate = new Group(projectPath);
 		toUpdate.setPublic(project.isPublic);
 		toUpdate.setDisplayedName(convertToI18nString(project.displayedName));
@@ -154,7 +154,7 @@ class RestProjectService
 		assertAuthorization();
 		try
 		{
-			groupMan.removeGroup(getProjectPath(projectId), true);
+			groupMan.removeGroup(ProjectPathProvider.getProjectPath(projectId, rootGroup), true);
 		}
 		catch (GroupNotFoundException e)
 		{
@@ -173,7 +173,7 @@ class RestProjectService
 		GroupContents contents;
 		try
 		{
-			contents = groupMan.getContents(getProjectPath(projectId),
+			contents = groupMan.getContents(ProjectPathProvider.getProjectPath(projectId, rootGroup),
 				GroupContents.GROUPS | GroupContents.METADATA);
 		}
 		catch (GroupNotFoundException e)
@@ -203,13 +203,13 @@ class RestProjectService
 		assertAuthorization();
 		validateGroupPresence(projectId);
 		Long id = getId(email);
-		String projectPath = getProjectPath(projectId);
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		delGroupMan.addMemberToGroup(projectPath, projectPath, id);
 	}
 
 	private void validateGroupPresence(String projectId) throws AuthorizationException
 	{
-		if (!groupMan.isPresent(getProjectPath(projectId)))
+		if (!groupMan.isPresent(ProjectPathProvider.getProjectPath(projectId, rootGroup)))
 			throw new NotFoundException(String.format("Project %s doesn't exist", projectId));
 	}
 
@@ -227,7 +227,7 @@ class RestProjectService
 		validateGroupPresence(projectId);
 		try
 		{
-			groupMan.removeMember(getProjectPath(projectId), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
+			groupMan.removeMember(ProjectPathProvider.getProjectPath(projectId, rootGroup), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
 		}
 		catch (UnknownIdentityException e)
 		{
@@ -240,7 +240,7 @@ class RestProjectService
 	{
 		assertAuthorization();
 		validateGroupPresence(projectId);
-		String projectPath = getProjectPath(projectId);
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);;
 		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
 			.map(RestProjectService::map)
 			.collect(Collectors.toList());
@@ -251,7 +251,7 @@ class RestProjectService
 	{
 		assertAuthorization();
 		validateGroupPresence(projectId);
-		String projectPath = getProjectPath(projectId);
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);;
 		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
 			.filter(member -> member.email.getValue().equals(email))
 			.map(RestProjectService::map)
@@ -275,7 +275,7 @@ class RestProjectService
 		Long id = getId(email);
 		try
 		{
-			String projectPath = getProjectPath(projectId);
+			String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 			delGroupMan.setGroupAuthorizationRole(projectPath, projectPath, id,
 				GroupAuthorizationRole.valueOf(role.role));
 		}
@@ -302,13 +302,6 @@ class RestProjectService
 		if(entities.size() == 0)
 			throw new NotFoundException(String.format("Email %s not found", email));
 		return entities.iterator().next().entity.getId();
-	}
-
-	private String getProjectPath(String projectId)
-	{
-		if(projectId.contains("/"))
-			throw new IllegalArgumentException("Project Id cannot start form /");
-		return rootGroup + "/" + projectId;
 	}
 
 	private void assertAuthorization() throws AuthorizationException
