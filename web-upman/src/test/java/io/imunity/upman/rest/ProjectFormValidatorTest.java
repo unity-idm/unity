@@ -191,7 +191,7 @@ public class ProjectFormValidatorTest
 				.withAttributeType("attr1")
 				.endAttributeParam()
 				.withAddedGroupParam()
-				.withGroupPath("/project/A/C")
+				.withGroupPath("/projects/A/C")
 				.endGroupParam()
 				.withTranslationProfile(
 						new TranslationProfile("name", "desc", ProfileType.REGISTRATION, ProfileMode.DEFAULT,
