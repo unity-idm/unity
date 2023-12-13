@@ -21,6 +21,7 @@ import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
@@ -105,7 +106,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 
 		addFormItem(typeDescription, msg.getMessage("AttributeType.description"));
 
-		min = new IntegerField();
+		min = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		min.setStepButtonsVisible(true);
 		addFormItem(min, msg.getMessage("AttributeType.min"));
 
@@ -168,7 +169,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 
 		binder.forField(min)
 				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
-						AttributeTypeUtils.getBoundsDesc(msg, 0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
+						AttributeTypeUtils.getBoundsDesc(0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind("minElements");
 		max.configureBinding(binder, "maxElements");

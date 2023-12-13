@@ -38,20 +38,20 @@ public class IntegerBoundEditor extends CustomField<Integer>
 		unlimited = new Checkbox();
 		unlimited.setLabel(labelUnlimited);
 		limit = new IntegerField();
-//		if (max != null)
-//		{
-//			limit.setMax(max);
-//		}else
-//		{
-//			limit.setMax(Integer.MAX_VALUE);
-//		}
-//		if (min != null)
-//		{
-//			limit.setMin(min);
-//		}else
-//		{
-//			limit.setMin(Integer.MIN_VALUE);
-//		}
+		if (max != null)
+		{
+			limit.setMax(max);
+		}else
+		{
+			limit.setMax(Integer.MAX_VALUE);
+		}
+		if (min != null)
+		{
+			limit.setMin(min);
+		}else
+		{
+			limit.setMin(Integer.MIN_VALUE);
+		}
 		limit.setStepButtonsVisible(true);
 		unlimited.addValueChangeListener(event ->
 		{
@@ -63,7 +63,7 @@ public class IntegerBoundEditor extends CustomField<Integer>
 		limit.setWidth(8, Unit.EM);
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.add(limit, unlimited);
-		hl.setAlignSelf(Alignment.CENTER, limit);
+		hl.setAlignSelf(Alignment.BASELINE, limit);
 		hl.setAlignSelf(Alignment.CENTER, unlimited);
 
 		hl.setSpacing(true);
@@ -86,7 +86,12 @@ public class IntegerBoundEditor extends CustomField<Integer>
 	protected void setModelValue(Integer newModelValue, boolean fromClient)
 	{
 		if (newModelValue != null)
+		{
 			super.setModelValue(newModelValue, fromClient);
+		}else
+		{
+			super.setModelValue(max + 1, fromClient);
+		}
 	}
 
 	@Override
@@ -101,7 +106,7 @@ public class IntegerBoundEditor extends CustomField<Integer>
 
 	public void configureBinding(Binder<?> binder, String fieldName)
 	{
-		String range = AttributeTypeUtils.getBoundsDesc(msg, min, max);
+		String range = AttributeTypeUtils.getBoundsDesc(min, max);
 		binder.forField(this)
 				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range),
 						min, max))

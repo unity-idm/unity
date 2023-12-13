@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Anchor;
@@ -28,6 +29,7 @@ import com.vaadin.flow.server.StreamResource;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.SearchField;
 import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
@@ -320,9 +322,12 @@ public class AttributeTypesView extends ConsoleViewComponent
 	private FormLayout getDetailsComponent(AttributeTypeEntry i)
 	{
 		FormLayout wrapper = new FormLayout();
+		wrapper.setWidthFull();
 		NativeLabel label = new NativeLabel(i.getDescription());
 		label.setWidthFull();
-		wrapper.addFormItem(label, msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
+		FormItem addFormItem = wrapper.addFormItem(label, msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
+		addFormItem.addClassName(CssClassNames.WIDTH_FULL.getName());
+
 		return wrapper;
 	}
 }

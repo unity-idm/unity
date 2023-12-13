@@ -12,6 +12,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msg_template.confirm.EmailConfirmationTemplateDef;
@@ -53,8 +54,10 @@ public class EmailConfirmationConfigurationEditor extends FormLayout
 		msgTemplate = new CompatibleTemplatesComboBox(EmailConfirmationTemplateDef.NAME, msgTemplateMan);
 		msgTemplate.setTooltipText(msg.getMessage("EmailConfirmationConfiguration.confirmationMsgTemplateDesc"));
 
-		validityTime = new IntegerField();
+		validityTime = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		validityTime.setStepButtonsVisible(true);
+		validityTime.setMax(60 * 24 * 365);
+		validityTime.setMin(1);
 
 		addFieldToLayout(this);
 
@@ -63,7 +66,7 @@ public class EmailConfirmationConfigurationEditor extends FormLayout
 		binder.forField(validityTime)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
-						AttributeTypeUtils.getBoundsDesc(msg, 1, 60 * 24 * 365)), 1, 60 * 24 * 365))
+						AttributeTypeUtils.getBoundsDesc(1, 60 * 24 * 365)), 1, 60 * 24 * 365))
 				.bind("validityTime");
 
 		if (initial != null)

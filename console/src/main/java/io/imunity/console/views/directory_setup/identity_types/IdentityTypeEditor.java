@@ -4,6 +4,9 @@
  */
 package io.imunity.console.views.directory_setup.identity_types;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -12,8 +15,10 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
+
 import io.imunity.vaadin.endpoint.common.confirmations.EmailConfirmationConfigurationEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
 import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
@@ -21,9 +26,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 /**
  * Allows to edit an identity type. It is only possible to edit description and
@@ -84,17 +86,17 @@ class IdentityTypeEditor extends FormLayout
 		NativeLabel limInfo = new NativeLabel(msg.getMessage("IdentityType.limitsDescription"));
 		addFormItem(limInfo, "");
 
-		min = new IntegerField();
+		min = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		min.setStepButtonsVisible(true);
-//		min.setMin(0);
-//		min.setMax(Integer.MAX_VALUE);
+		min.setMin(0);
+		min.setMax(Integer.MAX_VALUE);
 	
 		addFormItem(min, msg.getMessage("IdentityType.min"));
 
-		minVerified = new IntegerField();
+		minVerified = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		minVerified.setStepButtonsVisible(true);
-//		minVerified.setMin(0);
-//		minVerified.setMax(Integer.MAX_VALUE);
+		minVerified.setMin(0);
+		minVerified.setMax(Integer.MAX_VALUE);
 
 		typeDefinition = idTypeSupport.getTypeDefinition(toEdit.getName());
 		if (typeDefinition.isEmailVerifiable())
@@ -121,15 +123,16 @@ class IdentityTypeEditor extends FormLayout
 		binder.forField(selfModifiable)
 				.bind("selfModificable");
 		max.configureBinding(binder, "maxInstances");
+		
 		binder.forField(min)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
-						AttributeTypeUtils.getBoundsDesc(msg, 0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
+						AttributeTypeUtils.getBoundsDesc(0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
 				.bind("minInstances");
 		binder.forField(minVerified)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
-						AttributeTypeUtils.getBoundsDesc(msg, 0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
+						AttributeTypeUtils.getBoundsDesc(0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
 				.bind("minVerifiedInstances");
 		binder.setBean(toEdit);
 		refresh();

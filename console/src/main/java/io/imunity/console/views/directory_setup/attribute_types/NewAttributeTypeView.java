@@ -102,7 +102,7 @@ class NewAttributeTypeView extends ConsoleViewComponent
 		main.add(editor.getComponent());
 
 		getContent().add(new VerticalLayout(editor.getComponent(),
-				createActionLayout(msg, true, AttributeTypesView.class, this::onConfirm)));
+				createActionLayout(msg, false, AttributeTypesView.class, this::onConfirm)));
 	}
 
 	private void onConfirm()

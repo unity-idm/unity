@@ -11,6 +11,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.base.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -67,14 +68,19 @@ public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 		msgTemplate.setRequired(true);
 		msgTemplate.setDefaultValue();
 
-		IntegerField validityTime = new IntegerField();
+		IntegerField validityTime = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		validityTime.setStep(1);
+		validityTime.setMax(60 * 24 * 365);
+		validityTime.setMin(1);
 		validityTime.setStepButtonsVisible(true);
 
-		IntegerField codeLength = new IntegerField();
+		IntegerField codeLength = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		codeLength.setStep(1);
+		codeLength.setMin(1);
+		codeLength.setMax(50);
 		codeLength.setStepButtonsVisible(true);
 
+		
 		addFormItem(msgTemplate, msg.getMessage(msgPrefix + "confirmationMsgTemplate"));
 		addFormItem(validityTime, msg.getMessage(msgPrefix + "validityTime"));
 		addFormItem(codeLength, msg.getMessage(msgPrefix + "codeLength"));
@@ -83,13 +89,13 @@ public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 				.bind("messageTemplate");
 		binder.forField(validityTime).asRequired(msg.getMessage("fieldRequired"))
 				.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
-						AttributeTypeUtils.getBoundsDesc(msg, 1, 60 * 24 * 365)), 1, 60 * 24 * 365)
+						AttributeTypeUtils.getBoundsDesc(1, 60 * 24 * 365)), 1, 60 * 24 * 365)
 				)
 				.bind("validityTime");
 
 		binder.forField(codeLength).asRequired(msg.getMessage("fieldRequired")).withValidator(
 				new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
-						AttributeTypeUtils.getBoundsDesc(msg, 1, 50)), 1, 50))
+						AttributeTypeUtils.getBoundsDesc(1, 50)), 1, 50))
 				.bind("codeLength");
 		
 		

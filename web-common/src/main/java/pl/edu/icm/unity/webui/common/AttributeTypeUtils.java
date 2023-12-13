@@ -20,6 +20,13 @@ public class AttributeTypeUtils
 		return "[" + from + ", " + to + "]";
 	}
 
+	public static String getBoundsDesc(Integer min, Integer max)
+	{
+		String from = (min == null) ? Integer.MIN_VALUE + "" : min + "";
+		String to = (max == null) ? Integer.MAX_VALUE + "" : max + "";
+		return "[" + from + ", " + to + "]";
+	}
+
 	public static String getBoundsDesc(MessageSource msg, Long min, Long max)
 	{
 		String from = (min == null || min == Long.MIN_VALUE) ? msg.getMessage("AttributeType.noLimit") : min+"";

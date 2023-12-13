@@ -22,6 +22,7 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEdito
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerFactory;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -74,7 +75,8 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			FormLayout fl = new FormLayout();
 			fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		
-			IntegerField min = new IntegerField();
+			IntegerField min = new IntegerFieldWithDefaultOutOfRangeError(msg);
+			min.setMin(0);
 			min.setStepButtonsVisible(true);
 			fl.addFormItem(min, msg.getMessage("StringAttributeHandler.minLenE"));
 
@@ -92,7 +94,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			
 			binder.forField(min)
 					.withValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError",
-						AttributeTypeUtils.getBoundsDesc(msg, 0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
+						AttributeTypeUtils.getBoundsDesc(0, Integer.MAX_VALUE)), 0, Integer.MAX_VALUE))
 					.asRequired(msg.getMessage("fieldRequired"))
 					.bind("min");
 			max.configureBinding(binder, "max");
