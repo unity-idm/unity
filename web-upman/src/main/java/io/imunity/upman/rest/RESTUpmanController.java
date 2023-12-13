@@ -199,12 +199,13 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/policyDocuments")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void addPolicyDocument(@PathParam("project-id") String projectId, String json)
+	public String addPolicyDocument(@PathParam("project-id") String projectId, String json)
 			throws EngineException, IOException
 	{
 		RestPolicyDocumentRequest policy = parse(json, RestPolicyDocumentRequest.class);
 		log.debug("addPolicyDocument {}, {}", projectId, policy.name);
-		restProjectPolicyDocumentService.addPolicyDocument(projectId, policy);
+		RestPolicyDocumentId addPolicyDocument = restProjectPolicyDocumentService.addPolicyDocument(projectId, policy);
+		return mapper.writeValueAsString(addPolicyDocument);
 	}
 
 	@Path("/projects/{project-id}/policyDocuments")

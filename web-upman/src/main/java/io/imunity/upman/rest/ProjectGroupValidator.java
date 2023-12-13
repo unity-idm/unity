@@ -6,11 +6,10 @@ import jakarta.ws.rs.NotFoundException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.utils.Log;
 
-
 class ProjectGroupValidator
-{	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, ProjectGroupValidator.class);
+{
+	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, ProjectGroupValidator.class);
 
-	
 	static void assertIsProjectGroup(String projectId, Group group)
 	{
 		if (group.getDelegationConfiguration() == null || !group.getDelegationConfiguration().enabled)
