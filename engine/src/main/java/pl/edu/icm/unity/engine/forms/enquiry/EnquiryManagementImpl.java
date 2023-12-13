@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
+import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -386,6 +387,13 @@ public class EnquiryManagementImpl implements EnquiryManagement
 
 		if (form.getTargetGroups() == null || form.getTargetGroups().length == 0)
 			throw new WrongArgumentException("Target groups must be set in the form.");
+		for (String targetGroup : form.getTargetGroups())
+		{
+			if (!GroupPatternMatcher.isValidPattern(targetGroup))
+				throw new IllegalArgumentException(targetGroup +  
+						" is not a valid target group: must start with '/'");
+		}
+		
 		if (form.getType() == null)
 			throw new WrongArgumentException("Form type must be set.");
 		if (form.getType()
