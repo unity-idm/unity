@@ -26,7 +26,6 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.customfield.CustomField;
@@ -36,6 +35,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
@@ -182,13 +182,14 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
 			throw new RuntimeException(e);
 		}
-		attributes.setItems(attributeTypes.stream().map(AttributeType::getName).collect(Collectors.toList()));
+		attributes.setItems(attributeTypes.stream().map(AttributeType::getName).sorted().collect(Collectors.toList()));
 		if (toEdit.attributes != null)
 		{
 			attributes.setValue(new ArrayList<>(toEdit.attributes));
 		}
 		
 		policyDocuments = new MultiSelectComboBox<>();
+		policyDocuments.setWidthFull();
 		policyDocuments.setItemLabelGenerator(p -> p.name);
 	
 		Collection<PolicyDocumentWithRevision> policyDocs;
@@ -343,13 +344,16 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 					.map(p -> p.id)
 					.collect(Collectors.toList()));
 
-
-			Map<String, FormWithType> formsToSynch = getFormsToSynch(groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
-					policyDocuments.getSelectedItems().stream().map(p -> p.id).collect(Collectors.toSet()));	
+			Map<String, FormWithType> formsToSynch = getFormsToSynch(groupDelConfig.getRegistrationForm(),
+					groupDelConfig.getSignupEnquiryForm(), policyDocuments.getSelectedItems()
+							.stream()
+							.map(p -> p.id)
+							.collect(Collectors.toSet()));
 			if (formsToSynch.size() > 0)
-				getSynchronizationDialog(formsToSynch, () -> {
+				getSynchronizationDialog(formsToSynch, () ->
+				{
 					callback.accept(config);
-					close();	
+					close();
 				}).open();
 			else {
 				callback.accept(config);
@@ -365,7 +369,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 	private ConfirmDialog getSynchronizationDialog(Map<String, FormWithType> formsToSynch, Runnable close)
 	{
 		 ConfirmDialog dialog = new ConfirmDialog(msg.getMessage("GroupDelegationEditConfigDialog.synchronizePolicyDialogTitle"),
-				"", msg.getMessage("ok"), e ->
+				"", msg.getMessage("yes"), e ->
 				{
 					try
 					{
@@ -384,7 +388,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 								msg.getMessage("GroupDelegationEditConfigDialog.errorUpdateForm"), ex);
 					}
 					close.run();
-				}, msg.getMessage("cancel"), e -> close.run());
+				}, msg.getMessage("no"), e -> close.run());
 			Html label = new Html("<div>"
 					+ msg.getMessage("GroupDelegationEditConfigDialog.synchronizePolicy",
 							String.join(" " + msg.getMessage("and") + " ", formsToSynch.values()
@@ -639,7 +643,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 
 	private static class FormComboWithButtons extends CustomField<String>
 	{
-		private final ComboBox<String> combo;
+		private final Select<String> combo;
 		private final Icon generate;
 		private final Icon validate;
 		private final Icon edit;
@@ -648,7 +652,9 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 				ComponentEventListener<ClickEvent<Icon>> validateListener, ComponentEventListener<ClickEvent<Icon>> editListener)
 		{
 			setLabel(caption);
-			combo = new ComboBox<>();
+			combo = new Select<>();
+			//combo.setClearButtonVisible(true);
+			combo.setEmptySelectionAllowed(true);
 			combo.setWidth(20, Unit.EM);
 			combo.setTooltipText(description);
 			HorizontalLayout main = new HorizontalLayout();
@@ -709,7 +715,9 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 
 		public void setItems(Collection<String> items)
 		{
+			String value = combo.getValue();
 			combo.setItems(items);
+			combo.setValue(value);
 		}
 
 		@Override
@@ -769,8 +777,8 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 			{
 				for (String m : messages)
 				{
-					Span l = new Span(m);
-					l.add(VaadinIcon.CIRCLE.create());
+					Span l = new Span(VaadinIcon.CIRCLE.create());
+					l.add(" " + m);
 					main.add(l);
 				}
 			}
