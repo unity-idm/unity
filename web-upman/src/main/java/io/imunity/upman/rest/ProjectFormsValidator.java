@@ -114,6 +114,12 @@ class ProjectFormsValidator
 
 		for (GroupRegistrationParam groupRegistrationParam : groupParams)
 		{
+			if (!groupRegistrationParam.getGroupPath()
+					.startsWith(projectPath))
+			{
+				throw new ProjectFormValidationException("Group registration parameter "
+						+ groupRegistrationParam.getGroupPath() + " is outside of the project’s root group");
+			}
 			List<Group> filteredGroup = GroupPatternMatcher.filterMatching(allGroups.values()
 					.stream()
 					.collect(Collectors.toList()), groupRegistrationParam.getGroupPath());
