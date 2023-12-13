@@ -328,7 +328,7 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 						String.join(" " + msg.getMessage("and") + " ", formsToSynch.values()
 								.stream()
 								.map(f -> "<b>" + f.label + "</b>")
-								.collect(Collectors.toList()))),
+								.collect(Collectors.toList()))), msg.getMessage("yes"), msg.getMessage("no"),
 				() ->
 				{
 					try {

@@ -237,7 +237,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 					.map(p -> allPolicies.stream().filter(pd -> pd.getId().equals(p)).findFirst()
 							.orElse(new StoredPolicyDocument(p, p.toString())))
 					.map(p -> p.getName()).collect(Collectors.toList());
-			ret.add(msg.getMessage("FormGenerator.missingFormPolicies", String.join(",", collect)));
+			ret.add(msg.getMessage("FormGenerator.missingFormPolicies", String.join(", ", collect)));
 		}
 
 		if (formsPolicices.size() > common.size()) {
@@ -245,7 +245,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 					.map(p -> allPolicies.stream().filter(pd -> pd.getId().equals(p)).findFirst()
 							.orElse(new StoredPolicyDocument(p, p.toString())))
 					.map(p -> p.getName()).collect(Collectors.toList());
-			ret.add(msg.getMessage("FormGenerator.additionalFormPolicies", String.join(",", collect)));
+			ret.add(msg.getMessage("FormGenerator.additionalFormPolicies", String.join(", ", collect)));
 		}
 
 		return ret;

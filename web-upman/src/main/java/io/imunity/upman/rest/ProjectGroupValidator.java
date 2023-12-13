@@ -7,11 +7,10 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.types.basic.Group;
 
-
 class ProjectGroupValidator
-{	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, ProjectGroupValidator.class);
+{
+	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, ProjectGroupValidator.class);
 
-	
 	static void assertIsProjectGroup(String projectId, Group group)
 	{
 		if (group.getDelegationConfiguration() == null || !group.getDelegationConfiguration().enabled)

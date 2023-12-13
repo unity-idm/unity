@@ -4,9 +4,9 @@ class ProjectPathProvider
 {
 	static String getProjectPath(String projectId, String rootGroup)
 	{
-		if(projectId.contains("/"))
+		if (projectId.contains("/"))
 			throw new IllegalArgumentException("Project Id cannot start form /");
-		return rootGroup + "/" + projectId;
+		return (rootGroup.equals("/") ? "" : rootGroup) + "/" + projectId;
 	}
 
 }

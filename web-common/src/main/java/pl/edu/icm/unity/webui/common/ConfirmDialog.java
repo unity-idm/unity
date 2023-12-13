@@ -28,9 +28,10 @@ public class ConfirmDialog extends AbstractDialog
 		this.cancelCallback = cancelCallback;
 	}
 	
-	public ConfirmDialog(MessageSource msg, String caption, String question, Callback callback, Runnable cancelCallback)
+	public ConfirmDialog(MessageSource msg, String caption, String question, String confirmM, String cancelM,
+			Callback callback, Runnable cancelCallback)
 	{
-		this(msg, caption, question, callback);
+		this(msg, caption, question, confirmM, null, cancelM, null, callback);
 		this.cancelCallback = cancelCallback;
 	}
 	
@@ -43,7 +44,13 @@ public class ConfirmDialog extends AbstractDialog
 	public ConfirmDialog(MessageSource msg, String question, String confirmM, String confirmT, String cancelM,
 			String cancelT, Callback callback)
 	{
-		super(msg, msg.getMessage("ConfirmDialog.confirm"), confirmM, confirmT, cancelM, cancelT);
+		this(msg, msg.getMessage("ConfirmDialog.confirm"), question, confirmM, confirmT, cancelM, cancelT, callback);
+	}
+	
+	public ConfirmDialog(MessageSource msg, String caption, String question, String confirmM, String confirmT, String cancelM,
+			String cancelT, Callback callback)
+	{
+		super(msg, caption, confirmM, confirmT, cancelM, cancelT);
 		this.question = question;
 		this.callback = callback;
 		this.lightweightWrapperPanel = true;
