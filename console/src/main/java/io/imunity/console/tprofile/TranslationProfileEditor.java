@@ -6,6 +6,15 @@
 package io.imunity.console.tprofile;
 
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.DROP_LAYOUT;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
@@ -20,6 +29,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.LinkButton;
@@ -34,14 +44,6 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.DROP_LAYOUT;
 
 public class TranslationProfileEditor extends VerticalLayout
 {
@@ -61,10 +63,14 @@ public class TranslationProfileEditor extends VerticalLayout
 	private final ActionParameterComponentProvider actionComponentProvider;
 	private Binder<TranslationProfile> binder;
 	private boolean readOnlyMode;
+	private EditorContext editorContext = EditorContext.EDITOR;
+	private final Set<String> usedNames;
 	
 	public TranslationProfileEditor(MessageSource msg,
 									TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type,
-									ActionParameterComponentProvider actionComponentProvider, NotificationPresenter notificationPresenter)
+									ActionParameterComponentProvider actionComponentProvider, NotificationPresenter notificationPresenter, 
+									Set<String> usedNames
+									)
 	{
 		this.msg = msg;
 		this.registry = registry;
@@ -72,6 +78,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		this.actionComponentProvider = actionComponentProvider;
 		this.rules = new ArrayList<>();
 		this.notificationPresenter = notificationPresenter;
+		this.usedNames = usedNames;
 		initUI();
 	}
 
@@ -154,13 +161,24 @@ public class TranslationProfileEditor extends VerticalLayout
 		wrapper.setMargin(false);
 		wrapper.setPadding(false);
 		wrapper.setSpacing(false);
-		wrapper.add(main, new Span(), rulesHeader, rulesLayout);
+		Span span = new Span();
+		span.setHeight(2, Unit.EM);
+		wrapper.add(main, span, rulesHeader, rulesLayout);
 			
 		binder = new Binder<>(TranslationProfile.class);
-		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
+		binder.forField(name)
+				.asRequired(msg.getMessage("fieldRequired"))
+				.withValidator((v, c) ->
+				{
+					if (!name.isReadOnly() &&  usedNames.contains(v))
+						return ValidationResult.error(msg.getMessage("TranslationProfileEditor.nameError", v));
+					return ValidationResult.ok();
+
+				})
+				.bind("name");
 		binder.bind(description, "description");
 		binder.setBean(new TranslationProfile(
-				msg.getMessage("TranslationProfileEditor.defaultName"), null, type,
+				getDefaultName(usedNames), null, type,
 				new ArrayList<>()));
 		setSpacing(false);
 		setMargin(false);
@@ -169,6 +187,19 @@ public class TranslationProfileEditor extends VerticalLayout
 		refreshRules();
 	}
 
+	private String getDefaultName(Set<String> usedNames)
+	{
+		String proposal = msg.getMessage("TranslationProfileEditor.defaultName");
+		int i = 1;
+		while (usedNames.contains(proposal))
+		{
+			proposal = msg.getMessage("TranslationProfileEditor.defaultName") + " " + i++;
+		}
+
+		return proposal;
+
+	}
+	
 	protected void testRules() 
 	{
 		for (RuleComponent rule : rules)
@@ -186,6 +217,8 @@ public class TranslationProfileEditor extends VerticalLayout
 		RuleComponent r = addRuleComponentAt(trule, rules.size());
 		if (trule == null)
 			r.setFocus();
+		r.setEditorContext(editorContext);
+		
 		refreshRules();
 	}
 
@@ -193,6 +226,7 @@ public class TranslationProfileEditor extends VerticalLayout
 	{
 		RuleComponent r = new RuleComponent(msg, registry, 
 				trule, actionComponentProvider, type, new CallbackImplementation(), notificationPresenter);
+		r.setEditorContext(editorContext);
 		rules.add(index, r);
 		return r;
 	}
@@ -296,6 +330,19 @@ public class TranslationProfileEditor extends VerticalLayout
 		addRule.focus();
 	}
 	
+	public void setContext(EditorContext context)
+	{
+		if (context.equals(EditorContext.WIZARD))
+		{
+			description.setWidth(100, Unit.PERCENTAGE);
+		}
+		for (RuleComponent rule : rules)
+		{
+			rule.setEditorContext(context);
+		}
+		editorContext = context;
+		
+	}
 	private final class CallbackImplementation implements RuleComponent.Callback
 	{
 		@Override
@@ -349,3 +396,4 @@ public class TranslationProfileEditor extends VerticalLayout
 		}
 	}
 }
+

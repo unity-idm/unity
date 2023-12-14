@@ -59,8 +59,12 @@ public abstract class TranslationsServiceBase
 		initActionFactory();
 		try
 		{
-			return new TranslationProfileEditor(msg, actionsRegistry, type,
-					actionComponentFactory, notificationPresenter);
+			
+			return new TranslationProfileEditor(msg, actionsRegistry, type, actionComponentFactory,
+					notificationPresenter, type.equals(ProfileType.INPUT) ? profileMan.listInputProfiles()
+							.keySet()
+							: profileMan.listOutputProfiles()
+									.keySet());
 		} catch (Exception e)
 		{
 			throw new ControllerException(

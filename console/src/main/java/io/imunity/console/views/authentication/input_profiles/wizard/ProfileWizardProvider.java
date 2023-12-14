@@ -67,8 +67,9 @@ public class ProfileWizardProvider
 				.addMessageSource(m -> msg.getMessage(m))
 				.addCancelTask(closeWizard)
 				.build();
-		wizard.setWidth(95, Unit.PERCENTAGE);
-		wizard.setHeight(75, Unit.PERCENTAGE);
+		wizard.setWidth(110, Unit.EM);
+		wizard.setHeight(70, Unit.EM);
+		
 		return wizard;
 	}
 }

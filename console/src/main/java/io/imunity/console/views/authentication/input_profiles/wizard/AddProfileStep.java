@@ -48,7 +48,7 @@ class AddProfileStep extends WizardStep
 			stepRequiredPrevStep();
 			refreshWizard();
 			return;
-		}
+		} 
 
 		stepComplited();
 		refreshWizard();

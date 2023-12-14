@@ -5,6 +5,9 @@
 package io.imunity.console.tprofile;
 
 import com.google.common.base.Supplier;
+
+import io.imunity.vaadin.elements.CssClassNames;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
@@ -112,7 +115,7 @@ public class ActionParameterComponentProvider
 	}
 	
 	
-	public ActionParameterComponent getParameterComponent(ActionParameterDefinition param)
+	public ActionParameterComponent getParameterComponent(ActionParameterDefinition param, EditorContext context)
 	{
 		switch (param.getType())
 		{
@@ -129,7 +132,12 @@ public class ActionParameterComponentProvider
 		case UNITY_ID_TYPE:
 			return new BaseEnumActionParameterComponent(param, msg, idTypes);
 		case EXPRESSION:
-			return new ExpressionActionParameterComponent(param, msg);
+			ExpressionActionParameterComponent component = new ExpressionActionParameterComponent(param, msg);
+			if (context.equals(EditorContext.WIZARD))
+			{
+				component.addClassNameToField(CssClassNames.WIDTH_FULL.getName());
+			}
+			return component;
 		case DAYS:
 			return new DaysActionParameterComponent(param, msg);
 		case LARGE_TEXT:

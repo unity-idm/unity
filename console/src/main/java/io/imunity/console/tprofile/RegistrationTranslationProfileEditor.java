@@ -5,6 +5,8 @@
 
 package io.imunity.console.tprofile;
 
+import java.util.Set;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -19,7 +21,7 @@ public class RegistrationTranslationProfileEditor extends TranslationProfileEdit
 												RegistrationActionsRegistry registry, ActionParameterComponentProvider actionComponentProvider,
 												NotificationPresenter notificationPresenter)
 	{
-		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider, notificationPresenter);
+		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider, notificationPresenter, Set.of());
 	}
 
 	@Override

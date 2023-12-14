@@ -5,6 +5,14 @@
 
 package io.imunity.console.tprofile;
 
+import static io.imunity.vaadin.elements.CssClassNames.ERROR_BACKGROUND;
+import static io.imunity.vaadin.elements.CssClassNames.FALSE_CONDITION_BACKGROUND;
+import static io.imunity.vaadin.elements.CssClassNames.TRUE_CONDITION_BACKGROUND;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -17,8 +25,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
+
 import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
 import io.imunity.vaadin.elements.ActionMenu;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -43,12 +53,6 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
-import static io.imunity.vaadin.elements.CssClassNames.*;
 
 public class RuleComponent extends VerticalLayout
 {
@@ -331,7 +335,7 @@ public class RuleComponent extends VerticalLayout
 	
 	private void indicateConditionError(Exception e) 
 	{
-		condition.addClassName(ERROR_BACKGROUND.getName());
+		condition.addClassNameToField(ERROR_BACKGROUND.getName());
 		condition.setErrorMessage(ExceptionMessageHumanizer.getHumanReadableMessage(e));
 	}
 
@@ -345,15 +349,15 @@ public class RuleComponent extends VerticalLayout
 	
 	private void setColorForInputComponents(String style)
 	{
-		condition.addClassName(style);
+		condition.addClassNameToField(style);
 		actionEditor.setStyle(style);
 	}
 	
 	private void removeRuleComponentEvaluationStyle()
 	{
-		condition.removeClassName(TRUE_CONDITION_BACKGROUND.getName());
-		condition.removeClassName(ERROR_BACKGROUND.getName());
-		condition.removeClassName(FALSE_CONDITION_BACKGROUND.getName());
+		condition.removeClassNameFromField(TRUE_CONDITION_BACKGROUND.getName());
+		condition.removeClassNameFromField(ERROR_BACKGROUND.getName());
+		condition.removeClassNameFromField(FALSE_CONDITION_BACKGROUND.getName());
 		condition.setErrorMessage(null);
 		
 		actionEditor.removeComponentEvaluationStyle();
@@ -388,5 +392,15 @@ public class RuleComponent extends VerticalLayout
 	public void refresh()
 	{
 		actionEditor.refresh();
+	}
+
+	public void setEditorContext(EditorContext editorContext)
+	{
+		if (editorContext.equals(EditorContext.WIZARD))
+		{	condition.setWidthFull();
+			condition.addClassNameToField(CssClassNames.WIDTH_FULL.getName());
+		}
+		actionEditor.setContext(editorContext);
+		
 	}
 }

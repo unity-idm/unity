@@ -19,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 
 import io.imunity.console.tprofile.DragDropBean;
+import io.imunity.console.tprofile.EditorContext;
 import io.imunity.console.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
@@ -50,7 +51,7 @@ class ProfileStepComponent extends HorizontalLayout
 	{
 		this.msg = msg;
 		this.editor = editor;
-
+		editor.setContext(EditorContext.WIZARD);
 		buildMainLayout();
 
 		rightPanel.removeAll();
@@ -106,7 +107,7 @@ class ProfileStepComponent extends HorizontalLayout
 		rightPanel = new VerticalLayout();
 		rightPanel.setSpacing(false);
 		rightPanel.setSizeFull();
-		rightPanel.setMaxHeight(30,Unit.EM);
+		rightPanel.setMaxHeight(45,Unit.EM);
 		
 		splitPanelLayout.addToPrimary(rightPanel);
 
@@ -123,7 +124,7 @@ class ProfileStepComponent extends HorizontalLayout
 		leftPanel = new VerticalLayout();
 		leftPanel.setSpacing(false);
 		leftPanel.setSizeFull();
-		leftPanel.setMaxHeight(30,Unit.EM);
+		leftPanel.setMaxHeight(45,Unit.EM);
 
 
 		// dragdropHint
@@ -134,9 +135,9 @@ class ProfileStepComponent extends HorizontalLayout
 		attributesTable = new Grid<>();
 		attributesTable.addThemeVariants(GridVariant.LUMO_COMPACT);
 		attributesTable.addComponentColumn(d -> getElementDrag(d))
-				.setHeader(msg.getMessage("Wizard.ProfileStepComponent.expression"));
+				.setHeader(msg.getMessage("Wizard.ProfileStepComponent.expression")).setResizable(true).setAutoWidth(true);
 		attributesTable.addColumn(DragDropBean::getValue)
-				.setHeader(msg.getMessage("Wizard.ProfileStepComponent.value"));
+				.setHeader(msg.getMessage("Wizard.ProfileStepComponent.value")).setResizable(true).setAutoWidth(true);
 		leftPanel.add(attributesTable);
 		
 

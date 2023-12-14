@@ -46,6 +46,7 @@ public class MVELExpressionField extends CustomField<String>
 	{
 		this.field = new TextField();
 		field.setWidth(TEXT_FIELD_BIG.value());
+		
 		this.editorButton = VaadinIcon.COGS.create();
 		this.context = context;
 
@@ -55,6 +56,7 @@ public class MVELExpressionField extends CustomField<String>
 		this.editor = new MVELExpressionEditor(this, msg);
 
 		HorizontalLayout layout = new HorizontalLayout();
+		layout.setWidthFull();
 		layout.setSpacing(false);
 		Component tooltip = TooltipFactory.getWithHtmlContent(description);
 		HorizontalLayout iconsLayout = new HorizontalLayout(editorButton, tooltip);
@@ -90,16 +92,15 @@ public class MVELExpressionField extends CustomField<String>
 		});
 	}
 	
-	@Override
-	public void addClassName(String className)
+	
+	public void addClassNameToField(String className)
 	{
 		field.addClassName(className);
 	}
 	
-	@Override
-	public boolean removeClassName(String className)
+	public void removeClassNameFromField(String name)
 	{
-		return field.removeClassName(className);
+		field.removeClassName(name);
 	}
 	
 	public MVELExpressionField(MessageSource msg, String caption, String description, MVELExpressionContext context)
@@ -161,9 +162,9 @@ public class MVELExpressionField extends CustomField<String>
 		if (field != null)
 		{
 			field.setWidth(width, unit);
-		}
+		}	
 	}
-
+	
 	@Override
 	protected String generateModelValue()
 	{
@@ -183,4 +184,6 @@ public class MVELExpressionField extends CustomField<String>
 		field.setInvalid(invalid);
 		FormItemRequiredIndicatorHandler.setInvalid(this, invalid);
 	}
+
+	
 }

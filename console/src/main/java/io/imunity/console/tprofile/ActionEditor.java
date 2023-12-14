@@ -45,6 +45,8 @@ public class ActionEditor extends FormLayoutEmbeddable
 	private final ActionParameterComponentProvider actionComponentProvider;
 	private final List<ActionParameterComponent> paramComponents = new ArrayList<>();
 	private final BiConsumer<String, Optional<TranslationAction>> callback;
+	private EditorContext editorContext = EditorContext.EDITOR;
+
 	
 	public ActionEditor(MessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationAction toEdit, ActionParameterComponentProvider actionComponentProvider,
@@ -105,6 +107,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 				callback.accept(getStringRepresentation(), getActionIfValid());
 		});
 		
+	
 		
 	}
 
@@ -144,7 +147,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 		ActionParameterDefinition[] params = factory.getActionType().getParameters();	
 		for (int i = 0; i < params.length; i++)
 		{
-			ActionParameterComponent p = actionComponentProvider.getParameterComponent(params[i]);
+			ActionParameterComponent p = actionComponentProvider.getParameterComponent(params[i], editorContext);
 			p.addValueChangeCallback(paramCallback);
 			if (values != null && values.length > i)
 			{
@@ -283,6 +286,12 @@ public class ActionEditor extends FormLayoutEmbeddable
 				.toArray(String[]::new));
 		if (callback != null)
 			callback.accept(getStringRepresentation(), getActionIfValid());
+	}
+
+
+	public void setContext(EditorContext context)
+	{
+		editorContext = context;
 	}
 }
 

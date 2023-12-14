@@ -137,7 +137,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			actionColumn = null;
 		}
 		actionColumn = super.addComponentColumn(e -> getButtonComponent(Set.of(e))).setHeader(msg.apply("actions"))
-				.setTextAlign(ColumnTextAlign.END);
+				.setTextAlign(ColumnTextAlign.END).setFlexGrow(1).setResizable(true);
 	}
 
 	public void addHamburgerActions(List<SingleActionHandler<T>> handlers)
@@ -229,14 +229,14 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	@Override
 	public <V extends Component> Column<T> addComponentColumn(ValueProvider<T, V> componentProvider)
 	{
-		Column<T> addComponentColumn = super.addComponentColumn(componentProvider).setResizable(true);
+		Column<T> addComponentColumn = super.addComponentColumn(componentProvider).setResizable(true).setFlexGrow(2);
 		refreshActionColumn();
 		return addComponentColumn;
 	}
 	
 	public <V extends Component> Column<T> addBooleanColumn(Function<T, Boolean> checkBox)
 	{
-		Column<T> addComponentColumn = super.addComponentColumn(v -> getBoolIcon(checkBox.apply(v))).setResizable(true);
+		Column<T> addComponentColumn = super.addComponentColumn(v -> getBoolIcon(checkBox.apply(v))).setResizable(true).setFlexGrow(2);
 		refreshActionColumn();
 		return addComponentColumn;
 	}

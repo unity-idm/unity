@@ -39,6 +39,10 @@ public class Wizard extends Dialog
 		setHeight("60%");
 		
 		contentLayout.setSizeUndefined();
+//		contentLayout.setMargin(false);
+//		contentLayout.setSpacing(false);
+//		contentLayout.setPadding(false);
+		
 		
 		this.wizardStepController = new WizardStepController(steps, stepPreparers);
 		List<String> labels = steps.stream()
@@ -78,9 +82,8 @@ public class Wizard extends Dialog
 		getHeader().add(labelsLayout, progressBar);
 		contentLayout.getStyle().set("background-color", "var(--unity-contrast)");
 		contentLayout.getStyle().set("border-radius", "var(--unity-border-radius)");
-		
 		add(contentLayout);
-		
+	
 		if (title != null)
 			setHeaderTitle(title);
 		init();
