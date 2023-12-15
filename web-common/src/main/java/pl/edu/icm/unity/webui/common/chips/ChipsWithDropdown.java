@@ -29,6 +29,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.webui.common.Styles;
+
 /**
  * In a top row displays a {@link ChipsRow}. Under it a dropdown is displayed. Entry selected in dropdown
  * is added to chips. 
@@ -79,6 +81,7 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		combo.addSelectionListener(e -> fireEvent(new ValueChangeEvent<List<T>>(this, getSelectedItems(), true)));
 		emptyComboLabel = new Label();
 		emptyComboLabel.setVisible(false);
+		emptyComboLabel.addStyleName(Styles.italicGrey.toString());
 		
 		HorizontalLayout comboWrapper = new HorizontalLayout();
 		comboWrapper.setMargin(false);

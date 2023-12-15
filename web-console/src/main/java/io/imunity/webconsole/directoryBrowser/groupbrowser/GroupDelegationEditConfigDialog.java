@@ -177,10 +177,10 @@ class GroupDelegationEditConfigDialog extends AbstractDialog
 		policyDocuments = new ChipsWithDropdown<>(p -> p.name, true);
 		policyDocuments.setCaption(msg.getMessage("GroupDelegationEditConfigDialog.policyDocuments"));
 	
-		
 		Collection<PolicyDocumentWithRevision> policyDocs = policyDocumentManagement.getPolicyDocuments();
 		policyDocuments.setItems(policyDocs);
 		policyDocuments.setEmptyComboLabel(msg.getMessage("GroupDelegationEditConfigDialog.noPolicyDocuments"));
+		policyDocuments.setSelectedItems(List.of());
 		
 		if (toEdit.policyDocumentsIds != null)
 		{

@@ -113,7 +113,7 @@ public class TestEnquiryFormsManagement extends RESTAdminTestBase
 		return RestEnquiryForm.builder()
 			.withName("exForm")
 			.withType(EnquiryType.STICKY.name())
-			.withTargetGroups(List.of("/A"))
+			.withTargetGroups(List.of("/"))
 			.withTargetCondition("true")
 			.withCollectComments(true)
 			.withFormInformation(RestI18nString.builder().build())

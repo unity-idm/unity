@@ -4,10 +4,23 @@
  */
 package pl.edu.icm.unity.engine.forms.enquiry;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.capacity_limit.CapacityLimitName;
@@ -15,14 +28,22 @@ import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msg_template.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msg_template.reg.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.base.msg_template.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.base.msg_template.reg.RejectRegistrationTemplateDef;
-import pl.edu.icm.unity.base.registration.*;
+import pl.edu.icm.unity.base.registration.AdminComment;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.base.registration.EnquiryResponse;
+import pl.edu.icm.unity.base.registration.EnquiryResponseState;
+import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -31,6 +52,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -51,9 +73,6 @@ import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of the enquiry management API.
@@ -369,13 +388,22 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		baseFormValidator.checkTemplate(notCfg.getRejectedTemplate(), RejectRegistrationTemplateDef.NAME,
 				"enquiry rejected");
 
+		GroupStructuralData bulkData = bulkService.getBulkStructuralData("/");
+		Map<String, GroupContents> groupAndSubgroups = bulkService.getGroupAndSubgroups(bulkData);
+
 		if (form.getTargetGroups() == null || form.getTargetGroups().length == 0)
 			throw new WrongArgumentException("Target groups must be set in the form.");
 		for (String targetGroup : form.getTargetGroups())
 		{
 			if (!GroupPatternMatcher.isValidPattern(targetGroup))
-				throw new IllegalArgumentException(targetGroup +  
-						" is not a valid target group: must start with '/'");
+			{
+				throw new IllegalArgumentException(targetGroup + " is not a valid target group: must start with '/'");
+			}
+			if (!groupAndSubgroups.keySet()
+					.contains(targetGroup))
+			{
+				throw new IllegalArgumentException(targetGroup + " is not a valid target group");
+			}
 		}
 		
 		if (form.getType() == null)
