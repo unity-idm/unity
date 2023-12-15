@@ -11,6 +11,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.data.binder.Binder;
 
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
@@ -45,12 +46,17 @@ class BaseImageSyntaxEditor<T> implements AttributeSyntaxEditor<T>
 		IntegerBoundEditor maxWidth = new IntegerBoundEditor(msg,
 				msg.getMessage("ImageAttributeHandler.maxWidthUnlimited"),
 				Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
+		maxWidth.setWidth(CSSVars.FIELD_MEDIUM.value());
+
 		IntegerBoundEditor maxHeight = new IntegerBoundEditor(msg,
 				msg.getMessage("ImageAttributeHandler.maxHeightUnlimited"),
 				Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
+		maxHeight.setWidth(CSSVars.FIELD_MEDIUM.value());
+	
 		IntegerBoundEditor maxSize = new IntegerBoundEditor(msg,
 				msg.getMessage("ImageAttributeHandler.maxSizeUnlimited"),
 				Integer.MAX_VALUE, 100, Integer.MAX_VALUE);
+		maxSize.setWidth(CSSVars.FIELD_MEDIUM.value());
 
 		binder = new Binder<>(ImageSyntaxBindingValue.class);
 		maxWidth.configureBinding(binder, "maxWidth");

@@ -10,6 +10,7 @@ public enum CSSVars
 	TEXT_FIELD_BIG("var(--unity-text-field-big)"),
 	RICH_FIELD_BIG("var(--unity-rich-field-big)"),
 	TEXT_FIELD_MEDIUM("var(--unity-text-field-medium)"),
+	FIELD_MEDIUM("var(--unity-field-medium)"),
 	BIG_MARGIN("var(--unity-big-margin)"),
 	MEDIUM_MARGIN("var(--unity-medium-margin)"),
 	SMALL_MARGIN("var(--unity-small-margin)"),

@@ -17,6 +17,7 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.elements.Panel;
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
@@ -109,10 +110,12 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		min = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		min.setStepButtonsVisible(true);
 		addFormItem(min, msg.getMessage("AttributeType.min"));
-
+		min.setWidth(CSSVars.FIELD_MEDIUM.value());
+		
 		max = new IntegerBoundEditor(msg, msg.getMessage("AttributeType.maxUnlimited"), Integer.MAX_VALUE, 0, null);
 		addFormItem(max, msg.getMessage("AttributeType.max"));
-
+		max.setWidth(CSSVars.FIELD_MEDIUM.value());
+		
 		uniqueVals = new Checkbox(msg.getMessage("AttributeType.uniqueValuesCheck"));
 		addFormItem(uniqueVals, "");
 
@@ -123,6 +126,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		addFormItem(global, "");
 
 		syntax = new ComboBox<>();
+		syntax.setWidth(CSSVars.FIELD_MEDIUM.value());
 		SortedSet<String> syntaxes = new TreeSet<>(registry.getSupportedSyntaxes());
 		syntax.setItems(syntaxes);
 		addFormItem(syntax, msg.getMessage("AttributeType.type"));

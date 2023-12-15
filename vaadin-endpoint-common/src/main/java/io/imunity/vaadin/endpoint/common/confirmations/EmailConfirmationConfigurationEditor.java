@@ -11,6 +11,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
@@ -53,12 +54,14 @@ public class EmailConfirmationConfigurationEditor extends FormLayout
 
 		msgTemplate = new CompatibleTemplatesComboBox(EmailConfirmationTemplateDef.NAME, msgTemplateMan);
 		msgTemplate.setTooltipText(msg.getMessage("EmailConfirmationConfiguration.confirmationMsgTemplateDesc"));
-
+		msgTemplate.setWidth(CSSVars.FIELD_MEDIUM.value());	
+		
 		validityTime = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		validityTime.setStepButtonsVisible(true);
 		validityTime.setMax(60 * 24 * 365);
 		validityTime.setMin(1);
-
+		validityTime.setWidth(CSSVars.FIELD_MEDIUM.value());
+		
 		addFieldToLayout(this);
 
 		binder.forField(msgTemplate)

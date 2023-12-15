@@ -95,6 +95,12 @@ public class IntegerBoundEditor extends CustomField<Integer>
 	}
 
 	@Override
+	public void setWidth(String width)
+	{
+		limit.setWidth(width);
+	}
+	
+	@Override
 	protected void setPresentationValue(Integer newPresentationValue)
 	{
 		if (newPresentationValue != null)

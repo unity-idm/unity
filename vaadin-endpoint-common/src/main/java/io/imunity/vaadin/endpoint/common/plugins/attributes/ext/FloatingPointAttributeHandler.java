@@ -7,6 +7,8 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.data.binder.Binder;
+
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerFactory;
@@ -72,10 +74,13 @@ class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 					msg.getMessage("NumericAttributeHandler.minUndef"),
 					Optional.empty(),
 					Double.MIN_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
+			min.setWidth(CSSVars.FIELD_MEDIUM.value());
+
 			DoubleBoundEditor max = new DoubleBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.maxUndef"),
 					Optional.empty(),
 					Double.MAX_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
+			max.setWidth(CSSVars.FIELD_MEDIUM.value());
 
 			binder = new Binder<>(DoubleSyntaxBindingValue.class);
 			max.configureBinding(binder, "max");

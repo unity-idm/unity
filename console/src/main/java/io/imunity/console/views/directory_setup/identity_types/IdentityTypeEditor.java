@@ -16,6 +16,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.endpoint.common.confirmations.EmailConfirmationConfigurationEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
@@ -90,13 +91,15 @@ class IdentityTypeEditor extends FormLayout
 		min.setStepButtonsVisible(true);
 		min.setMin(0);
 		min.setMax(Integer.MAX_VALUE);
-	
+		min.setWidth(CSSVars.FIELD_MEDIUM.value());	
+
 		addFormItem(min, msg.getMessage("IdentityType.min"));
 
 		minVerified = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		minVerified.setStepButtonsVisible(true);
 		minVerified.setMin(0);
 		minVerified.setMax(Integer.MAX_VALUE);
+		minVerified.setWidth(CSSVars.FIELD_MEDIUM.value());	
 
 		typeDefinition = idTypeSupport.getTypeDefinition(toEdit.getName());
 		if (typeDefinition.isEmailVerifiable())
@@ -105,6 +108,8 @@ class IdentityTypeEditor extends FormLayout
 		}
 
 		max = new IntegerBoundEditor(msg, msg.getMessage("IdentityType.maxUnlimited"), Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
+		max.setWidth(CSSVars.FIELD_MEDIUM.value());	
+
 		addFormItem(max, msg.getMessage("IdentityType.max"));
 		
 		if (typeDefinition.isEmailVerifiable())

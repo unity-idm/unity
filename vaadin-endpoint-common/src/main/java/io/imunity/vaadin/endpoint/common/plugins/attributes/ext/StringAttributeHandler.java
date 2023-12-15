@@ -18,6 +18,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerFactory;
@@ -79,15 +80,17 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			min.setMin(0);
 			min.setStepButtonsVisible(true);
 			fl.addFormItem(min, msg.getMessage("StringAttributeHandler.minLenE"));
+			min.setWidth(CSSVars.FIELD_MEDIUM.value());
 
 			IntegerBoundEditor max = new IntegerBoundEditor(msg,
 					msg.getMessage("StringAttributeHandler.maxLenUndef"),
 					Integer.MAX_VALUE, 1, null);
-
+			max.setWidth(CSSVars.FIELD_MEDIUM.value());
 			fl.addFormItem(max, msg.getMessage("NumericAttributeHandler.maxE"));
 
 			TextField regexp = new TextField();
 			fl.addFormItem(regexp, msg.getMessage("StringAttributeHandler.regexpE"));
+			regexp.setWidth(CSSVars.FIELD_MEDIUM.value());
 
 			Checkbox editWithTextArea = new Checkbox(msg.getMessage("StringAttributeHandler.editWithTextAreaE"));
 			fl.addFormItem(editWithTextArea, "");

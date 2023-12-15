@@ -108,4 +108,10 @@ public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrap
 		}
 		
 	}
+	
+	@Override
+	public void setWidth(String width)
+	{
+		limit.setWidth(width);
+	}
 }

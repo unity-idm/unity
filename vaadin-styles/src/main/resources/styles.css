@@ -73,6 +73,7 @@ html {
   --unity-auth-full-component-margin: calc(2 * var(--unity-auth-component-margin));
 
   --unity-text-field-medium: 20em;
+  --unity-field-medium: 12em;
   --unity-text-field-big: 40em;
   --unity-rich-field-big: 55em;
   --unity-icon-size: 1.2em;

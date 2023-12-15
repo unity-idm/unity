@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
@@ -163,6 +164,8 @@ class EnumAttributeHandler implements WebAttributeHandler
 			
 			HorizontalLayout hl = new HorizontalLayout();
 			value = new TextField();
+			value.setWidth(CSSVars.FIELD_MEDIUM.value());
+
 			hl.add(value);
 			Button add = new Button();
 			add.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
