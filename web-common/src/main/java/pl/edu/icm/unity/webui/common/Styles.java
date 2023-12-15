@@ -136,6 +136,8 @@ public enum Styles
 	warnBar("u-warnBar"),
 	viewHeader("u-viewHeader"),
 	contentBackgroud("u-content-backgroud"),
+	italicGrey("u-italic-grey"),
+	
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
@@ -157,6 +159,7 @@ public enum Styles
 	vGroupBrowser("v-tree8"),
 	vPanelBorderless(ValoTheme.PANEL_BORDERLESS),
 	vPanelWell(ValoTheme.PANEL_WELL);
+	
 
 	
 	
