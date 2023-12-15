@@ -243,9 +243,8 @@ class RestProjectFormServiceNoAuthz
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
 		assertMembershipUpdateIsProvided(projectId, group);
 
-		EnquiryForm enquiryForm = groupDelegationConfigGenerator.generateProjectJoinEnquiryForm(
-				ProjectPathProvider.getProjectPath(projectId, rootGroup), groupDelegationConfiguration.logoUrl,
-				groupDelegationConfiguration.policyDocumentsIds);
+		EnquiryForm enquiryForm = groupDelegationConfigGenerator.generateProjectUpdateEnquiryForm(
+				ProjectPathProvider.getProjectPath(projectId, rootGroup), groupDelegationConfiguration.logoUrl);
 
 		addMembershipUpdateFormAndUpdateGroupConfig(group, enquiryForm);
 	}
