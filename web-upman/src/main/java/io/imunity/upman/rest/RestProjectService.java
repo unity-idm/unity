@@ -21,8 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
@@ -48,25 +50,32 @@ class RestProjectService
 	private final GroupsManagement groupMan;
 	private final UpmanRestAuthorizationManager authz;
 	private final EntityManagement idsMan;
-
+	private final ProjectGroupProvider projectGroupProvider;
+	private final RegistrationsManagement registrationsManagement;
+	private final EnquiryManagement enquiryManagement;
 	private final String rootGroup;
 	private final String authorizationGroup;
+	
 
 
 	public RestProjectService(DelegatedGroupManagement delGroupMan,
 	                          GroupsManagement groupMan,
 	                          UpmanRestAuthorizationManager authz,
 	                          EntityManagement idsMan,
+	                          RegistrationsManagement registrationsManagement,
+	                          EnquiryManagement enquiryManagement,
 	                          String rootGroup,
 	                          String authorizationGroup)
 	{
 		this.delGroupMan = delGroupMan;
 		this.groupMan = groupMan;
-	
+		this.projectGroupProvider = new ProjectGroupProvider(groupMan);
 		this.authz = authz;
 		this.rootGroup = rootGroup;
 		this.authorizationGroup = authorizationGroup;
 		this.idsMan = idsMan;
+		this.registrationsManagement = registrationsManagement;
+		this.enquiryManagement = enquiryManagement;
 	}
 
 	@Transactional
@@ -114,7 +123,7 @@ class RestProjectService
 			throw new IllegalArgumentException("Displayed name have to be set");
 
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
-		Group toUpdate = new Group(projectPath);
+		Group toUpdate = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		toUpdate.setPublic(project.isPublic);
 		toUpdate.setDisplayedName(convertToI18nString(project.displayedName));
 		toUpdate.setDescription(convertToI18nString(project.description));
@@ -152,37 +161,58 @@ class RestProjectService
 	public void removeProject(String projectId) throws EngineException
 	{
 		assertAuthorization();
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		Group projectGroup = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		try
 		{
-			groupMan.removeGroup(ProjectPathProvider.getProjectPath(projectId, rootGroup), true);
+			unsetAndRemoveProjectForms(projectGroup);
+			groupMan.removeGroup(projectGroup.toString(), true);		
 		}
 		catch (GroupNotFoundException e)
 		{
 			throw new NotFoundException(e);
 		}
-		catch (Exception e)
-		{
-			throw new IllegalArgumentException(e);
-		}
 	}
 
+	private void unsetAndRemoveProjectForms(Group projectGroup) throws EngineException
+	{
+		GroupDelegationConfiguration orgGroupDelegationConfiguration = projectGroup.getDelegationConfiguration();
+		GroupDelegationConfiguration newGroupDelegationConfiguration = GroupDelegationConfiguration.builder()
+				.copy(projectGroup.getDelegationConfiguration())
+				.withRegistrationForm(null)
+				.withSignupEnquiryForm(null)
+				.withMembershipUpdateEnquiryForm(null)
+				.build();
+		projectGroup.setDelegationConfiguration(newGroupDelegationConfiguration);
+		groupMan.updateGroup(projectGroup.toString(), projectGroup);
+
+		if (orgGroupDelegationConfiguration.registrationForm != null
+				&& !orgGroupDelegationConfiguration.registrationForm.isEmpty())
+		{
+			registrationsManagement.removeForm(orgGroupDelegationConfiguration.registrationForm, true);
+		}
+
+		if (orgGroupDelegationConfiguration.signupEnquiryForm != null
+				&& !orgGroupDelegationConfiguration.signupEnquiryForm.isEmpty())
+		{
+			enquiryManagement.removeEnquiry(orgGroupDelegationConfiguration.signupEnquiryForm, true);
+		}
+
+		if (orgGroupDelegationConfiguration.membershipUpdateEnquiryForm != null
+				&& !orgGroupDelegationConfiguration.membershipUpdateEnquiryForm.isEmpty())
+		{
+			enquiryManagement.removeEnquiry(orgGroupDelegationConfiguration.membershipUpdateEnquiryForm, true);
+		}
+	}
+	
+	
 	@Transactional
 	public RestProject getProject(String projectId) throws EngineException
 	{
 		assertAuthorization();
-		GroupContents contents;
-		try
-		{
-			contents = groupMan.getContents(ProjectPathProvider.getProjectPath(projectId, rootGroup),
-				GroupContents.GROUPS | GroupContents.METADATA);
-		}
-		catch (GroupNotFoundException e)
-		{
-			throw new NotFoundException(e);
-		}
-
-		Group group = contents.getGroup();
-		return map(projectId, group);
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		Group projectGroup = projectGroupProvider.getProjectGroup(projectId, projectPath);
+		return map(projectId, projectGroup);
 	}
 
 	@Transactional
@@ -201,16 +231,10 @@ class RestProjectService
 	public void addProjectMember(String projectId, String email) throws EngineException
 	{
 		assertAuthorization();
-		validateGroupPresence(projectId);
-		Long id = getId(email);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		projectGroupProvider.getProjectGroup(projectId, projectPath);
+		Long id = getId(email);
 		delGroupMan.addMemberToGroup(projectPath, projectPath, id);
-	}
-
-	private void validateGroupPresence(String projectId) throws AuthorizationException
-	{
-		if (!groupMan.isPresent(ProjectPathProvider.getProjectPath(projectId, rootGroup)))
-			throw new NotFoundException(String.format("Project %s doesn't exist", projectId));
 	}
 
 	private void validateRole(RestAuthorizationRole role)
@@ -224,7 +248,8 @@ class RestProjectService
 	public void removeProjectMember(String projectId, String email) throws EngineException
 	{
 		assertAuthorization();
-		validateGroupPresence(projectId);
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		try
 		{
 			groupMan.removeMember(ProjectPathProvider.getProjectPath(projectId, rootGroup), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
@@ -239,8 +264,8 @@ class RestProjectService
 	public List<RestProjectMembership> getProjectMembers(String projectId) throws EngineException
 	{
 		assertAuthorization();
-		validateGroupPresence(projectId);
-		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);;
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
 			.map(RestProjectService::map)
 			.collect(Collectors.toList());
@@ -250,8 +275,8 @@ class RestProjectService
 	public RestProjectMembership getProjectMember(String projectId, String email) throws EngineException
 	{
 		assertAuthorization();
-		validateGroupPresence(projectId);
-		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);;
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
 			.filter(member -> member.email.getValue().equals(email))
 			.map(RestProjectService::map)
@@ -270,12 +295,12 @@ class RestProjectService
 	                                                         RestAuthorizationRole role) throws EngineException
 	{
 		assertAuthorization();
-		validateGroupPresence(projectId);
+		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		validateRole(role);
 		Long id = getId(email);
 		try
 		{
-			String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 			delGroupMan.setGroupAuthorizationRole(projectPath, projectPath, id,
 				GroupAuthorizationRole.valueOf(role.role));
 		}
@@ -347,22 +372,28 @@ class RestProjectService
 		private final GroupsManagement groupMan;
 		private final UpmanRestAuthorizationManager authz;
 		private final EntityManagement idsMan;
+		private final RegistrationsManagement registrationsManagement;
+		private final EnquiryManagement enquiryManagement;
 
 		@Autowired
 		RestProjectServiceFactory(@Qualifier("insecure") DelegatedGroupManagement delGroupMan,
-				@Qualifier("insecure") GroupsManagement groupMan,
-				UpmanRestAuthorizationManager authz,
-				@Qualifier("insecure") EntityManagement idsMan)
+				@Qualifier("insecure") GroupsManagement groupMan, UpmanRestAuthorizationManager authz,
+				@Qualifier("insecure") EntityManagement idsMan,
+				@Qualifier("insecure") RegistrationsManagement registrationsManagement,
+				@Qualifier("insecure") EnquiryManagement enquiryManagement)
 		{
 			this.delGroupMan = delGroupMan;
 			this.groupMan = groupMan;
 			this.authz = authz;
 			this.idsMan = idsMan;
+			this.registrationsManagement = registrationsManagement;
+			this.enquiryManagement = enquiryManagement;
 		}
 
 		public RestProjectService newInstance(String rootGroup, String authorizeGroup)
 		{
-			return new RestProjectService(delGroupMan, groupMan, authz, idsMan, rootGroup, authorizeGroup);
+			return new RestProjectService(delGroupMan, groupMan, authz, idsMan,
+					registrationsManagement, enquiryManagement, rootGroup, authorizeGroup);
 		}
 	}
 	

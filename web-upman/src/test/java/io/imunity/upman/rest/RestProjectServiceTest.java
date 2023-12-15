@@ -27,9 +27,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
+import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
@@ -58,14 +61,21 @@ class RestProjectServiceTest
 	private UpmanRestAuthorizationManager authz;
 	@Mock
 	private EntityManagement idsMan;
+	@Mock
+	private ProjectGroupProvider projectGroupProvider;
+	@Mock
+	private RegistrationsManagement registrationsManagement;
+	@Mock
+	private EnquiryManagement enquiryManagement;
 	
 	private RestProjectService restProjectService;
-
+	
 
 	@BeforeEach
 	void setUp()
 	{
-		restProjectService = new RestProjectService(delGroupMan, groupMan, authz, idsMan, "/A", "A/B");
+		restProjectService = new RestProjectService(delGroupMan, groupMan, authz, idsMan,
+				registrationsManagement, enquiryManagement, "/A", "A/B");
 	}
 
 	@Test
@@ -104,6 +114,8 @@ class RestProjectServiceTest
 			.withReadOnlyAttributes(List.of())
 			.build();
 
+		setUpGroupContent(new GroupDelegationConfiguration(true));
+		
 		restProjectService.updateProject("B", request);
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
@@ -116,27 +128,37 @@ class RestProjectServiceTest
 	@Test
 	void shouldRemoveProject() throws EngineException
 	{
+		setUpGroupContent(new GroupDelegationConfiguration(true));
+
 		restProjectService.removeProject("B");
 
 		verify(groupMan).removeGroup("/A/B", true);
+	}
+	
+	@Test
+	void shouldRemoveProjectWithForms() throws EngineException
+	{
+		Group group = setUpGroupContent(GroupDelegationConfiguration.builder()
+				.withRegistrationForm("regForm")
+				.withMembershipUpdateEnquiryForm("updateEnquiry")
+				.withSignupEnquiryForm("signupEnquiry")
+				.build());
+
+		restProjectService.removeProject("B");
+		group.setDelegationConfiguration(new GroupDelegationConfiguration(true));
+		verify(groupMan).updateGroup("/A/B", group);
+		verify(groupMan).removeGroup("/A/B", true);
+		verify(registrationsManagement).removeForm("regForm", true);
+		verify(enquiryManagement).removeEnquiry("updateEnquiry", true);
+		verify(enquiryManagement).removeEnquiry("signupEnquiry", true);
 	}
 
 	@Test
 	void shouldGetProject() throws EngineException
 	{
-		GroupContents groupContents = new GroupContents();
-		Group group = new Group("/A/B");
-		group.setPublic(true);
-		group.setDisplayedName(convertToI18nString(Map.of("en", "disName")));
-		group.setDescription(convertToI18nString(Map.of("en", "description")));
-		group.setDelegationConfiguration(new GroupDelegationConfiguration(
-			true, true, "logoUrl", "regForm", "sigForm", "memForm", List.of("attr"), List.of()
-		));
-		groupContents.setGroup(group);
-
-		when(groupMan.getContents("/A/B", GroupContents.GROUPS | GroupContents.METADATA))
-			.thenReturn(groupContents);
-
+		setUpGroupContent(new GroupDelegationConfiguration(
+				true, true, "logoUrl", "regForm", "sigForm", "memForm", List.of("attr"), List.of()
+				));
 		RestProject project = restProjectService.getProject("B");
 		assertThat(project.projectId).isEqualTo("B");
 		assertThat(project.isPublic).isEqualTo(true);
@@ -186,8 +208,7 @@ class RestProjectServiceTest
 		when(idsMan.getAllEntitiesWithContactEmails(Set.of("email")))
 		.thenReturn(Set.of(new EntityWithContactInfo(entity, "email", Set.of("/"))));
 		when(entity.getId()).thenReturn(id);
-		when(groupMan.isPresent("/A/B")).thenReturn(true);
-
+		setUpGroupContent(new GroupDelegationConfiguration(true));
 		restProjectService.addProjectMember("B", "email");
 
 		verify(delGroupMan).addMemberToGroup("/A/B", "/A/B", id);
@@ -196,8 +217,7 @@ class RestProjectServiceTest
 	@Test
 	void shouldNotAddProjectMemberWhenGroupDoesntExist() throws EngineException
 	{
-		when(groupMan.isPresent("/A/B")).thenReturn(false);
-
+		when(groupMan.getContents("/A/B", 8)).thenThrow(GroupNotFoundException.class);
 		Assertions.assertThrows(NotFoundException.class, () -> restProjectService.addProjectMember("B", "email"));
 	}
 
@@ -206,7 +226,7 @@ class RestProjectServiceTest
 	{
 		when(idsMan.getAllEntitiesWithContactEmails(Set.of("email")))
 			.thenThrow(UnknownEmailException.class);
-		when(groupMan.isPresent("/A/B")).thenReturn(true);
+		setUpGroupContent(new GroupDelegationConfiguration(true));
 
 		Assertions.assertThrows(NotFoundException.class, () -> restProjectService.addProjectMember("B", "email"));
 	}
@@ -214,7 +234,7 @@ class RestProjectServiceTest
 	@Test
 	void shouldRemoveProjectMember() throws EngineException
 	{
-		when(groupMan.isPresent("/A/B")).thenReturn(true);
+		setUpGroupContent(new GroupDelegationConfiguration(true));
 
 		restProjectService.removeProjectMember("B", "email");
 
@@ -224,8 +244,7 @@ class RestProjectServiceTest
 	@Test
 	void shouldGetProjectMember() throws EngineException
 	{
-		GroupContents groupContents = new GroupContents();
-		groupContents.setMembers(List.of(new GroupMembership("/A/B", 2, new Date())));
+		
 
 		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
 			.thenReturn(List.of(
@@ -233,8 +252,8 @@ class RestProjectServiceTest
 				"name", new VerifiableElementBase("email@gmail.com"),
 					Optional.of(List.of(new Attribute("attr", "string", "/A/B", List.of("val"))))))
 			);
-		when(groupMan.isPresent("/A/B")).thenReturn(true);
-
+		setUpGroupContent(new GroupDelegationConfiguration(true));
+		
 		RestProjectMembership membership = restProjectService.getProjectMember("B", "email@gmail.com");
 
 		assertThat(membership.email).isEqualTo("email@gmail.com");
@@ -254,7 +273,7 @@ class RestProjectServiceTest
 					"name", new VerifiableElementBase("email@gmail.com"),
 					Optional.of(List.of(new Attribute("attr", "string", "/A/B", List.of("val"))))))
 			);
-		when(groupMan.isPresent("/A/B")).thenReturn(true);
+		setUpGroupContent(new GroupDelegationConfiguration(true));
 
 		List<RestProjectMembership> members = restProjectService.getProjectMembers("B");
 
@@ -268,16 +287,13 @@ class RestProjectServiceTest
 	@Test
 	void shouldGetProjectAuthorizationRole() throws EngineException
 	{
-		GroupContents groupContents = new GroupContents();
-		groupContents.setMembers(List.of(new GroupMembership("/A/B", 2, new Date())));
-
 		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
 			.thenReturn(List.of(
 				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.manager,
 					"name", new VerifiableElementBase("email@gmail.com"),
 					Optional.of(List.of(new Attribute("attr", "string", "/A/B", List.of("val"))))))
 			);
-		when(groupMan.isPresent("/A/B")).thenReturn(true);
+		setUpGroupContent(new GroupDelegationConfiguration(true));
 
 		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole("B", "email@gmail.com");
 
@@ -292,7 +308,7 @@ class RestProjectServiceTest
 		when(idsMan.getAllEntitiesWithContactEmails(Set.of("email")))
 			.thenReturn(Set.of(new EntityWithContactInfo(entity, "email", Set.of("/"))));
 		when(entity.getId()).thenReturn(id);
-		when(groupMan.isPresent("/A/B")).thenReturn(true);
+		setUpGroupContent(new GroupDelegationConfiguration(true));
 
 
 		restProjectService.setProjectAuthorizationRole("B", "email", new RestAuthorizationRole("manager"));
@@ -308,5 +324,18 @@ class RestProjectServiceTest
 		i18nString.addAllValues(map);
 		Optional.ofNullable(map.get("")).ifPresent(i18nString::setDefaultValue);
 		return i18nString;
+	}
+	
+	private Group setUpGroupContent(GroupDelegationConfiguration groupDelegationConfiguration) throws EngineException
+	{
+		GroupContents content = new GroupContents();
+		Group group = new Group("/A/B");
+		group.setPublic(true);
+		group.setDisplayedName(convertToI18nString(Map.of("en", "disName")));
+		group.setDescription(convertToI18nString(Map.of("en", "description")));
+		group.setDelegationConfiguration(groupDelegationConfiguration);
+		content.setGroup(group);
+		when(groupMan.getContents("/A/B", GroupContents.METADATA)).thenReturn(content);
+		return group;
 	}
 }
