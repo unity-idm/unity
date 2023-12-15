@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
@@ -48,6 +49,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -385,13 +387,22 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		baseFormValidator.checkTemplate(notCfg.getRejectedTemplate(), RejectRegistrationTemplateDef.NAME,
 				"enquiry rejected");
 
+		GroupStructuralData bulkData = bulkService.getBulkStructuralData("/");
+		Map<String, GroupContents> groupAndSubgroups = bulkService.getGroupAndSubgroups(bulkData);
+
 		if (form.getTargetGroups() == null || form.getTargetGroups().length == 0)
 			throw new WrongArgumentException("Target groups must be set in the form.");
 		for (String targetGroup : form.getTargetGroups())
 		{
 			if (!GroupPatternMatcher.isValidPattern(targetGroup))
-				throw new IllegalArgumentException(targetGroup +  
-						" is not a valid target group: must start with '/'");
+			{
+				throw new IllegalArgumentException(targetGroup + " is not a valid target group: must start with '/'");
+			}
+			if (!groupAndSubgroups.keySet()
+					.contains(targetGroup))
+			{
+				throw new IllegalArgumentException(targetGroup + " is not a valid target group");
+			}
 		}
 		
 		if (form.getType() == null)
