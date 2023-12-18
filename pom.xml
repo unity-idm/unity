@@ -19,7 +19,7 @@
 		<jetty.version>12.0.1</jetty.version>
 		<slf4j.version>2.0.9</slf4j.version>
 		<log4j.version>2.20.0</log4j.version>
-		<spring.version>5.3.25</spring.version>
+		<spring.version>5.3.31</spring.version>
 		<vaadin.version>8.14.3</vaadin.version>
 		<vaadin.version.new>24.1.10</vaadin.version.new>
 		<cxf.version>4.0.3</cxf.version>
@@ -27,7 +27,7 @@
 		<bc.version>1.76</bc.version>
 		<selenium.version>4.13.0</selenium.version>
 		<junit5.version>5.9.3</junit5.version>
-		<jackson.version>2.15.2</jackson.version>
+		<jackson.version>2.15.3</jackson.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -622,7 +622,7 @@
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis</artifactId>
-				<version>3.5.13</version>
+				<version>3.5.15</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mybatis</groupId>
@@ -733,7 +733,7 @@
 			<dependency>
 				<groupId>com.unboundid</groupId>
 				<artifactId>unboundid-ldapsdk</artifactId>
-				<version>6.0.8</version>
+				<version>6.0.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mvel</groupId>
@@ -758,7 +758,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>31.1-jre</version>
+				<version>32.0.0-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.directory.server</groupId>
