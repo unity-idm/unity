@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30" status="warn">
+	<!-- 
+		What to log?
+
+		Levels in order of verbosity: FATAL, ERROR, WARN, INFO, DEBUG, TRACE
+	-->
+	<Loggers>
+		<!-- Default log level -->
+		<Root level="INFO">
+			<!-- Default appender specifies where to log by default (can be changed per logger) -->
+			<AppenderRef ref="CONSOLE"/>
+		</Root>
+	
+		<!-- Everything produced by Unity (unless overwritten below) -->
+		<Logger name="unity.server" level="DEBUG"/>
+		
+		<!-- Loading of any configuration -->
+		<Logger name="unity.server.config" level="INFO"/>
+
+		<!-- Persistence subsystem -->
+		<Logger name="unity.server.db" level="INFO"/>
+
+		<!-- Low level persistence -->
+		<Logger name="pl.edu.icm.unity.store" level="INFO"/>
+
+		<!-- Web subsystem -->
+		<Logger name="unity.server.web" level="DEBUG"/>
+
+		<!-- PAM subsystem -->
+		<Logger name="unity.server.pam" level="INFO"/>
+
+		<!-- SAML related -->
+		<Logger name="unity.server.saml" level="DEBUG"/> 
+
+		<!-- OAuth related -->
+		<Logger name="unity.server.oauth" level="DEBUG"/>
+
+		<Logger name="unity.server.audit" level="INFO"/>
+		<Logger name="unity.server.event" level="INFO"/>
+
+		<Logger name="unity.server.fido" level="INFO"/>
+
+		<Logger name="unity.server.event" level="INFO"/>
+
+		<!-- LDAP related -->
+		<!-- <Logger name="unity.server.ldap" level="INFO"/> -->
+
+		<!-- Web Service (SOAP) related -->
+		<!-- <Logger name="unity.server.ws" level="INFO"/> -->
+
+		<!-- RESTful endpoints related -->
+		<Logger name="unity.server.rest" level="DEBUG"/>
+
+		<!-- Mapping of remotely obtained data by translation profiles -->
+		<Logger name="unity.server.externaltranslation" level="DEBUG"/>
+
+		<!-- Security related - low level (SAML processing, XML DSig, X.509 PKI)  -->
+		<!-- <Logger name="unicore.security" level="INFO"/> -->
+
+		<Logger name="unity.server.authn" level="DEBUG"/>
+		<!-- 
+			3rd party subsystems 
+		-->
+
+		<Logger name="org.springframework" level="WARN"/>
+		
+		<Logger name="net.sf.ehcache" level="WARN"/>
+		
+		<Logger name="org.eclipse.jetty" level="INFO"/>
+		<Logger name="org.eclipse.jetty.util.ssl" level="INFO"/>
+
+		<Logger name="org.apache" level="INFO"/>
+		
+		<Logger name="pl.edu.icm" level="INFO"/>
+		
+		<Logger name="org.quartz" level="WARN"/>
+	</Loggers>
+	
+	
+	<!-- Where to log? -->
+	<Appenders>
+		<Console name="CONSOLE">
+			<PatternLayout pattern="%d{ISO8601} [%t] [%X{endpoint}] [%X{user}] [%X{entityId}] [%X{clientIP}] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
+		</Console>
+	</Appenders>
+	
+</Configuration>

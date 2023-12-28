@@ -16,6 +16,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.utils.ResourceUtils;
 
 import pl.edu.icm.unity.rest.exception.BadRequestExceptionMapper;
@@ -52,8 +53,13 @@ public class RestEndpointHelper
 
 	public static Endpoint createCxfEndpoint(Application application, Bus bus)
 	{
+		OpenApiFeature feature = new OpenApiFeature();
+		feature.setScan(false);
+		feature.setUseContextBasedConfig(true);
+		
 		JAXRSServerFactoryBean sf = ResourceUtils.createApplication(application, false, false, false, bus);
-
+		sf.getFeatures().add(feature);
+		
 		JAXRSBindingFactory factory = new JAXRSBindingFactory();
 		factory.setBus(bus);
 
