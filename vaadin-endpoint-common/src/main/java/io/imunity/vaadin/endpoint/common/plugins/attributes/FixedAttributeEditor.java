@@ -4,15 +4,15 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
-import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 public class FixedAttributeEditor
 {

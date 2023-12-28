@@ -37,7 +37,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 public class InvitationsView extends UpmanViewComponent
 {
 	private final ProjectService projectService;
-	private final InvitationsService invitationsService;
+	private final ProjectInvitationsService invitationsService;
 	private final MessageSource msg;
 
 	private final Grid<InvitationModel> grid;
@@ -45,7 +45,7 @@ public class InvitationsView extends UpmanViewComponent
 	private final Button invitationButton;
 	private ProjectGroup projectGroup;
 
-	public InvitationsView(MessageSource msg, InvitationsService invitationsService, ProjectService projectService)
+	public InvitationsView(MessageSource msg, ProjectInvitationsService invitationsService, ProjectService projectService)
 	{
 		this.projectService = projectService;
 		this.invitationsService = invitationsService;

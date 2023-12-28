@@ -4,17 +4,18 @@
  */
 package io.imunity.console.views.directory_browser.identities.credentials;
 
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import pl.edu.icm.unity.base.message.MessageSource;
-
-import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 class SingleCredentialEditComponent extends VerticalLayout
 {

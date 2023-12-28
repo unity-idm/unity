@@ -3,7 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.signupAndEnquiry.invitations.editor;
+package io.imunity.console.views.signup_and_enquiry.invitations.editor;
+
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -12,16 +14,17 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.shared.ui.datefield.DateTimeResolution;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.DateTimeField;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
+import io.imunity.vaadin.elements.CSSVars;
+import io.imunity.vaadin.elements.EnumComboBox;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -34,13 +37,10 @@ import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 @PrototypeComponent
-class RegistrationInvitationEditor extends CustomComponent implements InvitationParamEditor
+class RegistrationInvitationEditor extends VerticalLayout implements InvitationParamEditor
 {
 	private enum RemoteIdentityExpectation
 	{
@@ -54,10 +54,10 @@ class RegistrationInvitationEditor extends CustomComponent implements Invitation
 	private final MessageParamEditor messageParamEditor;
 
 	private ComboBox<String> forms;
-	private DateTimeField expiration;
+	private DateTimePicker expiration;
 	private TextField contactAddress;
 	private EnumComboBox<RemoteIdentityExpectation> remoteIdentityExpectation;
-	private Label channel;
+	private NativeLabel channel;
 
 	@Autowired
 	RegistrationInvitationEditor(MessageSource msg, MessageTemplateManagement messageTemplateManagement,
@@ -77,24 +77,24 @@ class RegistrationInvitationEditor extends CustomComponent implements Invitation
 
 	private void initUI()
 	{
-		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
-		main.setSpacing(false);
-		setCompositionRoot(main);
+		
+		setMargin(false);
+		setSpacing(false);
+		setPadding(false);
 
-		FormLayoutWithFixedCaptionWidth top = FormLayoutWithFixedCaptionWidth.withShortCaptions();
-		main.addComponent(top);
+		FormLayout top = new FormLayout();
+		top.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		top.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		add(top);
 
-		channel = new Label();
-		channel.setCaption(msg.getMessage("InvitationViewer.channelId"));
-
-		forms = new ComboBox<>(msg.getMessage("InvitationEditor.RegistrationFormId"));
+		channel = new NativeLabel();
+		forms = new ComboBox<>();
 		forms.setRequiredIndicatorVisible(true);
 		forms.addValueChangeListener(event ->
 		{
 			BaseForm form = formsByName.get(forms.getValue());
 			setPerFormUI(form);
-			channel.setValue("");
+			channel.setText("");
 			if (form == null)
 			{
 				return;
@@ -102,40 +102,45 @@ class RegistrationInvitationEditor extends CustomComponent implements Invitation
 
 			String invTemplate = form.getNotificationsConfiguration().getInvitationTemplate();
 			if (invTemplate != null && msgTemplates.get(invTemplate) != null)
-				channel.setValue(msgTemplates.get(invTemplate).getNotificationChannel());
+				channel.setText(msgTemplates.get(invTemplate).getNotificationChannel());
 			else
-				channel.setValue("");
+				channel.setText("");
 
 		});
-		forms.setEmptySelectionAllowed(false);
 		forms.setItems(formsByName.keySet());
 		if (!formsByName.keySet().isEmpty())
 		{
-			forms.setSelectedItem(formsByName.keySet().iterator().next());
+			forms.setValue(formsByName.keySet().iterator().next());
 		} else
 		{
-			forms.setSelectedItem(null);
+			forms.setValue(null);
 		}
+		forms.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
 
-		expiration = new DateTimeField(msg.getMessage("InvitationViewer.expiration"));
+		expiration = new DateTimePicker();
+		expiration.setValue(LocalDateTime.now(InvitationEditor.DEFAULT_ZONE_ID).plusDays(InvitationEditor.DEFAULT_TTL_DAYS));
 		expiration.setRequiredIndicatorVisible(true);
-		expiration.setResolution(DateTimeResolution.MINUTE);
 		expiration.setValue(
 				LocalDateTime.now(InvitationEditor.DEFAULT_ZONE_ID).plusDays(InvitationEditor.DEFAULT_TTL_DAYS));
+		contactAddress = new TextField();
+		contactAddress.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
 
-		contactAddress = new TextField(msg.getMessage("InvitationViewer.contactAddress"));
-		contactAddress.setWidth(20, Unit.EM);
-
-		remoteIdentityExpectation = new EnumComboBox<>(msg.getMessage("InvitationEditor.requireSameEmail"), msg,
+		remoteIdentityExpectation = new EnumComboBox<>(msg::getMessage,
 				"InvitationEditor.idExpectation.", RemoteIdentityExpectation.class, RemoteIdentityExpectation.NONE);
+		remoteIdentityExpectation.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
 
-		top.addComponents(forms, channel, expiration, contactAddress, remoteIdentityExpectation, messageParamEditor);
-
-		CollapsibleLayout regLayout = new CollapsibleLayout(msg.getMessage("InvitationEditor.registrationPrefillInfo"),
+		top.addFormItem(forms, msg.getMessage("InvitationEditor.RegistrationFormId"));
+		top.addFormItem(channel, msg.getMessage("InvitationViewer.channelId"));
+		top.addFormItem(expiration, msg.getMessage("InvitationViewer.expiration"));
+		top.addFormItem(contactAddress, msg.getMessage("InvitationViewer.contactAddress"));
+		top.addFormItem(remoteIdentityExpectation, msg.getMessage("InvitationEditor.requireSameEmail"));
+		top.addFormItem(messageParamEditor, msg.getMessage("InvitationEditor.messageVariables"));	
+		
+		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("InvitationEditor.registrationPrefillInfo"),
 				prefillEntryEditor);
-		regLayout.setMargin(new MarginInfo(false));
-		regLayout.expand();
-		main.addComponent(regLayout);
+		accordionPanel.setWidthFull();
+		accordionPanel.setOpened(true);
+		add(accordionPanel);
 	}
 
 	private void setPerFormUI(BaseForm form)
@@ -150,7 +155,7 @@ class RegistrationInvitationEditor extends CustomComponent implements Invitation
 
 		if (forms.getValue() == null)
 		{
-			forms.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+			forms.setErrorMessage(msg.getMessage("fieldRequired"));
 			throw new FormValidationException();
 
 		}
@@ -158,7 +163,7 @@ class RegistrationInvitationEditor extends CustomComponent implements Invitation
 		String addr = contactAddress.isEmpty() ? null : contactAddress.getValue();
 		if (expiration.getValue() == null)
 		{
-			expiration.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+			expiration.setErrorMessage(msg.getMessage("fieldRequired"));
 			throw new FormValidationException();
 		}
 
@@ -198,6 +203,12 @@ class RegistrationInvitationEditor extends CustomComponent implements Invitation
 		{
 			return editorFactory.getObject();
 		}
+	}
+
+	@Override
+	public Component getComponent()
+	{
+		return this;
 	}
 
 }

@@ -40,6 +40,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		this.showLabelInline = showLabelInline;
 		this.verifyButtonIcon = new Div(verifyButtonIcon);
 		this.label = new InputLabel("");
+		this.label.setVisible(false);
 		verifyButtonIcon.setTooltipText(verifyButtonDesc);
 		verifyButtonIcon.addClassName(POINTER.getName());
 		editor = new TextField();
@@ -74,9 +75,13 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	public void setRequiredIndicatorVisible(boolean visible) 
 	{
 		if(requiredIndicator != null)
-			label.remove(requiredIndicator);
-		if(visible)
 		{
+			label.remove(requiredIndicator);
+			label.setVisible(false);
+		}
+		if(visible)
+		{ 
+			label.setVisible(true);
 			label.remove();
 			requiredIndicator = new Span();
 			requiredIndicator.setClassName(REQUIRED_LABEL.getName());
@@ -230,9 +235,15 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		else
 			this.label.setText(normalizedLabel);
 		if(label == null)
+		{
+			this.label.setVisible(false);
 			this.label.getStyle().set("display", "none");
+		}
 		else
+		{	
+			this.label.setVisible(true);
 			this.label.getStyle().remove("display");
+		}
 	}
 
 	@Override

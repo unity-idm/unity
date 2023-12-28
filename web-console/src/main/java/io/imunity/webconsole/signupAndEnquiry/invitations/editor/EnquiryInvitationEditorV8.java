@@ -46,15 +46,15 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 @PrototypeComponent
-class EnquiryInvitationEditor extends CustomComponent implements InvitationParamEditor
+class EnquiryInvitationEditorV8 extends CustomComponent implements InvitationParamEditor
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryInvitationEditor.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryInvitationEditorV8.class);
 
 	private final MessageSource msg;
 	private final NotificationProducer notificationProducer;
 	private final Map<String, EnquiryForm> formsByName;
 	private final Map<String, MessageTemplate> msgTemplates;
-	private final PrefillEntryEditor prefillEntryEditor;
+	private final PrefillEntryEditorV8 prefillEntryEditor;
 	private final MessageParamEditor messageParamEditor;
 	private ComboBox<String> forms;
 	private DateTimeField expiration;
@@ -67,9 +67,9 @@ class EnquiryInvitationEditor extends CustomComponent implements InvitationParam
 	private  Map<Long, String> availableEntities;
 	
 	@Autowired
-	EnquiryInvitationEditor(MessageSource msg, MessageTemplateManagement messageTemplateManagement,
+	EnquiryInvitationEditorV8(MessageSource msg, MessageTemplateManagement messageTemplateManagement,
 			EnquiryManagement enquiryManagement, 
-			PrefillEntryEditor prefillEntryEditor, NotificationProducer notificationProducer) throws EngineException
+			PrefillEntryEditorV8 prefillEntryEditor, NotificationProducer notificationProducer) throws EngineException
 	{
 		this.msg = msg;
 		this.notificationProducer = notificationProducer;
@@ -81,7 +81,7 @@ class EnquiryInvitationEditor extends CustomComponent implements InvitationParam
 		this.messageParamEditor = new MessageParamEditor(msg, msgTemplates);
 	}
 
-	public EnquiryInvitationEditor init(String entityNameAttr, Map<Long, EntityInGroupData> allEntities)
+	public EnquiryInvitationEditorV8 init(String entityNameAttr, Map<Long, EntityInGroupData> allEntities)
 	{
 		this.entityNameAttr = entityNameAttr;
 		this.allEntities = allEntities;
@@ -147,7 +147,7 @@ class EnquiryInvitationEditor extends CustomComponent implements InvitationParam
 		expiration.setRequiredIndicatorVisible(true);
 		expiration.setResolution(DateTimeResolution.MINUTE);
 		expiration.setValue(
-				LocalDateTime.now(InvitationEditor.DEFAULT_ZONE_ID).plusDays(InvitationEditor.DEFAULT_TTL_DAYS));
+				LocalDateTime.now(InvitationEditorV8.DEFAULT_ZONE_ID).plusDays(InvitationEditorV8.DEFAULT_TTL_DAYS));
 
 		top.addComponents(forms, channel, expiration, entity, contactAddress, messageParamEditor);
 
@@ -246,7 +246,7 @@ class EnquiryInvitationEditor extends CustomComponent implements InvitationParam
 		}
 
 		EnquiryInvitationParam param = new EnquiryInvitationParam(forms.getValue(),
-				expiration.getValue().atZone(InvitationEditor.DEFAULT_ZONE_ID).toInstant(), addr);
+				expiration.getValue().atZone(InvitationEditorV8.DEFAULT_ZONE_ID).toInstant(), addr);
 		if (entity.getValue() == null)
 		{
 			entity.setComponentError(new UserError(msg.getMessage("fieldRequired")));
@@ -268,16 +268,16 @@ class EnquiryInvitationEditor extends CustomComponent implements InvitationParam
 	}
 
 	@org.springframework.stereotype.Component
-	public static class EnquiryInvitationEditorFactory
+	public static class EnquiryInvitationEditorFactoryV8
 	{
-		private ObjectFactory<EnquiryInvitationEditor> editorFactory;
+		private ObjectFactory<EnquiryInvitationEditorV8> editorFactory;
 
-		public EnquiryInvitationEditorFactory(ObjectFactory<EnquiryInvitationEditor> editor)
+		public EnquiryInvitationEditorFactoryV8(ObjectFactory<EnquiryInvitationEditorV8> editor)
 		{
 			this.editorFactory = editor;
 		}
 
-		public EnquiryInvitationEditor getEditor(String entityNameAttr, Map<Long, EntityInGroupData> allEntities) throws EngineException
+		public EnquiryInvitationEditorV8 getEditor(String entityNameAttr, Map<Long, EntityInGroupData> allEntities) throws EngineException
 		{
 			return editorFactory.getObject().init(entityNameAttr, allEntities);
 		}

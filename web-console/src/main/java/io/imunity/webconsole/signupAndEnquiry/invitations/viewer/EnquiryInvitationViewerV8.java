@@ -28,23 +28,23 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 
 @PrototypeComponent
-class EnquiryInvitationViewer extends CustomComponent implements InvitationViewer
+class EnquiryInvitationViewerV8 extends CustomComponent implements InvitationViewer
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryInvitationViewer.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryInvitationViewerV8.class);
 
 	private final MessageSource msg;
 	private final EntityManagement entityMan;
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
-	private final CommonInvitationFieldViewer baseViewer;
-	private final PrefilledEntriesViewer prefillViewer;
-	private final ViewerUtils utils;
+	private final CommonInvitationFieldViewerV8 baseViewer;
+	private final PrefilledEntriesViewerV8 prefillViewer;
+	private final ViewerUtilsV8 utils;
 
 	private Label entity;
 	private Label formId;
 
-	EnquiryInvitationViewer(PublicRegistrationURLSupport publicRegistrationURLSupport, MessageSource msg,
-			CommonInvitationFieldViewer baseViewer, PrefilledEntriesViewer prefillViewer,
-			EntityManagement entityManagement, ViewerUtils utils)
+	EnquiryInvitationViewerV8(PublicRegistrationURLSupport publicRegistrationURLSupport, MessageSource msg,
+			CommonInvitationFieldViewerV8 baseViewer, PrefilledEntriesViewerV8 prefillViewer,
+			EntityManagement entityManagement, ViewerUtilsV8 utils)
 	{
 		this.msg = msg;
 		this.entityMan = entityManagement;

@@ -4,14 +4,19 @@
  */
 package io.imunity.console.views.directory_browser.identities;
 
+import java.util.Collection;
+import java.util.Optional;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.authn.CredentialType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -19,9 +24,6 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
-
-import java.util.Collection;
-import java.util.Optional;
 
 
 class SingleCredentialPanel extends VerticalLayout

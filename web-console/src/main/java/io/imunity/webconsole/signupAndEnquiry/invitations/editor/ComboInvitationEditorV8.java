@@ -39,14 +39,14 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 @PrototypeComponent
-class ComboInvitationEditor extends CustomComponent implements InvitationParamEditor
+class ComboInvitationEditorV8 extends CustomComponent implements InvitationParamEditor
 {
 	private final MessageSource msg;
 	private final Map<String, BaseForm> regFormsByName;
 	private final Map<String, BaseForm> enqFormsByName;
 	private final Map<String, MessageTemplate> msgTemplates;
-	private final PrefillEntryEditor regPrefillEntryEditor;
-	private final PrefillEntryEditor enqPrefillEntryEditor;
+	private final PrefillEntryEditorV8 regPrefillEntryEditor;
+	private final PrefillEntryEditorV8 enqPrefillEntryEditor;
 	private final MessageParamEditor messageParamEditor;
 
 	private ComboBox<String> regForms;
@@ -56,9 +56,9 @@ class ComboInvitationEditor extends CustomComponent implements InvitationParamEd
 	private Label regChannel;
 
 	@Autowired
-	ComboInvitationEditor(MessageSource msg, MessageTemplateManagement messageTemplateManagement,
+	ComboInvitationEditorV8(MessageSource msg, MessageTemplateManagement messageTemplateManagement,
 			RegistrationsManagement registrationsManagement, EnquiryManagement enquiryManagement,
-			PrefillEntryEditor regPrefillEntryEditor, PrefillEntryEditor enqPrefillEntryEditor) throws EngineException
+			PrefillEntryEditorV8 regPrefillEntryEditor, PrefillEntryEditorV8 enqPrefillEntryEditor) throws EngineException
 	{
 		this.msg = msg;
 		this.regFormsByName = registrationsManagement.getForms().stream()
@@ -135,7 +135,7 @@ class ComboInvitationEditor extends CustomComponent implements InvitationParamEd
 		expiration.setRequiredIndicatorVisible(true);
 		expiration.setResolution(DateTimeResolution.MINUTE);
 		expiration.setValue(
-				LocalDateTime.now(InvitationEditor.DEFAULT_ZONE_ID).plusDays(InvitationEditor.DEFAULT_TTL_DAYS));
+				LocalDateTime.now(InvitationEditorV8.DEFAULT_ZONE_ID).plusDays(InvitationEditorV8.DEFAULT_TTL_DAYS));
 
 		contactAddress = new TextField(msg.getMessage("InvitationViewer.contactAddress"));
 		contactAddress.setWidth(20, Unit.EM);
@@ -201,7 +201,7 @@ class ComboInvitationEditor extends CustomComponent implements InvitationParamEd
 		}
 
 		ComboInvitationParam param = new ComboInvitationParam(regForms.getValue(), enqForms.getValue(),
-				expiration.getValue().atZone(InvitationEditor.DEFAULT_ZONE_ID).toInstant(), addr);
+				expiration.getValue().atZone(InvitationEditorV8.DEFAULT_ZONE_ID).toInstant(), addr);
 		regPrefillEntryEditor.prefill(param.getRegistrationFormPrefill());
 		enqPrefillEntryEditor.prefill(param.getEnquiryFormPrefill());
 
@@ -212,16 +212,16 @@ class ComboInvitationEditor extends CustomComponent implements InvitationParamEd
 	}
 
 	@org.springframework.stereotype.Component
-	public static class ComboInvitationEditorFactory
+	public static class ComboInvitationEditorFactoryV8
 	{
-		private ObjectFactory<ComboInvitationEditor> editorFactory;
+		private ObjectFactory<ComboInvitationEditorV8> editorFactory;
 
-		public ComboInvitationEditorFactory(ObjectFactory<ComboInvitationEditor> editor)
+		public ComboInvitationEditorFactoryV8(ObjectFactory<ComboInvitationEditorV8> editor)
 		{
 			this.editorFactory = editor;
 		}
 
-		public ComboInvitationEditor getEditor() throws EngineException
+		public ComboInvitationEditorV8 getEditor() throws EngineException
 		{
 			return editorFactory.getObject();
 		}

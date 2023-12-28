@@ -51,12 +51,12 @@ public class TestInvitationService
 	@Mock
 	private NotificationPresenter notificationPresenter;
 
-	private InvitationsService service;
+	private ProjectInvitationsService service;
 
 	@BeforeEach
 	public void initController()
 	{
-		service = new InvitationsService(mockMsg, mockInvitationMan, mockDelGroupHelper, notificationPresenter);
+		service = new ProjectInvitationsService(mockMsg, mockInvitationMan, mockDelGroupHelper, notificationPresenter);
 	}
 
 	@Test

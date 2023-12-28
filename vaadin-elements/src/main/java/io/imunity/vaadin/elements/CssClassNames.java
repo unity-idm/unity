@@ -38,7 +38,8 @@ public enum CssClassNames
 	ERROR_INDICATOR("u-error-indicator"),
 	LOGO_IMAGE("u-logo-image"),
 	WIDTH_FULL("u-width-full"),
-	HIDDEN_COMBO_CHECKMARK("u-combobox-hidden-checkmark");
+	HIDDEN_COMBO_CHECKMARK("u-combobox-hidden-checkmark"),
+	HIDDEN_COMBO_TOGGLE_BUTTON("u-combobox-hidden-toggle-button");
 	
 	private final String name;
 

@@ -677,3 +677,9 @@ vaadin-details.u-multi-tab-details {
 vaadin-combo-box-overlay.u-combobox-hidden-checkmark > * ::part(checkmark){
 	visibility: hidden;
 }
+
+vaadin-multi-select-combo-box.u-combobox-hidden-toggle-button::part(toggle-button){
+	visibility: hidden;
+}
+
+

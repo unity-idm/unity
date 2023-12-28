@@ -2,21 +2,21 @@
  * Copyright (c) 2015, Jirav All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webconsole.signupAndEnquiry.invitations.editor;
+package io.imunity.console.views.signup_and_enquiry.invitations.editor;
+
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 import java.time.ZoneId;
 import java.util.Map;
 
 import org.springframework.beans.factory.ObjectFactory;
 
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Layout;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import io.imunity.webconsole.signupAndEnquiry.invitations.editor.EnquiryInvitationEditor.EnquiryInvitationEditorFactory;
+import io.imunity.console.views.signup_and_enquiry.invitations.editor.EnquiryInvitationEditor.EnquiryInvitationEditorFactory;
+import io.imunity.vaadin.elements.CSSVars;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -30,7 +30,6 @@ import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
@@ -39,7 +38,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  * @author Krzysztof Benedyczak
  */
 @PrototypeComponent
-public class InvitationEditor extends CustomComponent
+public class InvitationEditor extends VerticalLayout
 {
 	public static final long DEFAULT_TTL_DAYS = 3;
 	public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
@@ -48,8 +47,7 @@ public class InvitationEditor extends CustomComponent
 	private final EnquiryInvitationEditor enquiryInvitationEditor;
 	private final ComboInvitationEditor comboInvitationEditor;
 	private final Map<Long, EntityInGroupData> allEntities;
-	
-	
+
 	private ComboBox<InvitationType> type;
 	private InvitationParamEditor editor;
 	private ComboBox<Long> inviter;
@@ -61,7 +59,7 @@ public class InvitationEditor extends CustomComponent
 	{
 		this.msg = msg;
 		this.registrationInvitationEditor = registrationInvitationEditor;
-		this.allEntities = getEntities(bulkGroupQueryService);	
+		this.allEntities = getEntities(bulkGroupQueryService);
 		this.entityNameAttr = getNameAttribute(attributeSupport);
 		this.enquiryInvitationEditor = enquiryInvitationEditorFactory.getEditor(entityNameAttr, allEntities);
 		this.comboInvitationEditor = comboInvitationEditor;
@@ -74,60 +72,62 @@ public class InvitationEditor extends CustomComponent
 		content.setSizeFull();
 		content.setMargin(false);
 		content.setSpacing(false);
+		content.setPadding(false);
 
-		FormLayout top = FormLayoutWithFixedCaptionWidth.withShortCaptions();
-		top.setMargin(new MarginInfo(false, true));
+		FormLayout top = new FormLayout();
+		top.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		top.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
-		type = new ComboBox<>(msg.getMessage("InvitationEditor.type"));
-		type.setItemCaptionGenerator(i -> msg.getMessage("InvitationType." + i.toString().toLowerCase()));
+		type = new ComboBox<>();
+		type.setItemLabelGenerator(i -> msg.getMessage("InvitationType." + i.toString()
+				.toLowerCase()));
+
 		type.setItems(InvitationType.values());
-		type.setEmptySelectionAllowed(false);
 		type.addValueChangeListener(e ->
 		{
-			content.removeAllComponents();
+			content.removeAll();
 			switchEditor(type.getValue(), content);
 		});
-		top.addComponent(type);
-		
-		inviter = new ComboBox<>(msg.getMessage("InvitationEditor.inviter"));
-		inviter.setEmptySelectionAllowed(false);
-		inviter.setItemCaptionGenerator(i -> getLabel(allEntities.get(i)) + " [" + i + "]");
-		inviter.setWidth(20, Unit.EM);
-		inviter.setItems(allEntities.keySet());
-		inviter.setValue(InvocationContext.getCurrent().getLoginSession().getEntityId());
-		
-		top.addComponent(inviter);
-		
-		VerticalLayout main = new VerticalLayout(top, content);
-		main.setSpacing(false);
-		main.setMargin(false);
-		setCompositionRoot(main);
+		top.addFormItem(type, msg.getMessage("InvitationEditor.type"));
 
-		type.setSelectedItem(InvitationType.REGISTRATION);
+		inviter = new ComboBox<>();
+		inviter.setItemLabelGenerator(i -> getLabel(allEntities.get(i)) + " [" + i + "]");
+		inviter.setItems(allEntities.keySet());
+		inviter.setValue(InvocationContext.getCurrent()
+				.getLoginSession()
+				.getEntityId());
+		inviter.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
+		
+		top.addFormItem(inviter, msg.getMessage("InvitationEditor.inviter"));
+		removeAll();
+		add(top, content);
+		setSpacing(false);
+		
+		type.setValue(InvitationType.REGISTRATION);
 	}
 
-	private void switchEditor(InvitationType type, Layout content)
+	private void switchEditor(InvitationType type, VerticalLayout content)
 	{
 		if (type.equals(InvitationType.REGISTRATION))
 		{
 			editor = registrationInvitationEditor;
-			content.addComponent(registrationInvitationEditor);
+			content.add(registrationInvitationEditor.getComponent());
 		} else if (type.equals(InvitationType.ENQUIRY))
 		{
 			editor = enquiryInvitationEditor;
-			content.addComponent(enquiryInvitationEditor);
+			content.add(enquiryInvitationEditor.getComponent());
 		} else if (type.equals(InvitationType.COMBO))
 		{
 			editor = comboInvitationEditor;
-			content.addComponent(comboInvitationEditor);
+			content.add(comboInvitationEditor.getComponent());
 		}
 	}
-	
+
 	public InvitationParam getInvitation() throws FormValidationException
 	{
-		 InvitationParam invitation = editor.getInvitation();
-		 invitation.setInviterEntity(inviter.getOptionalValue());
-		 return invitation;
+		InvitationParam invitation = editor.getInvitation();
+		invitation.setInviterEntity(inviter.getOptionalValue());
+		return invitation;
 	}
 
 	public void setInvitationToForm(InvitationType type, String form)
@@ -165,26 +165,28 @@ public class InvitationEditor extends CustomComponent
 			return null;
 		return type.getName();
 	}
-	
+
 	private Map<Long, EntityInGroupData> getEntities(BulkGroupQueryService bulkQuery) throws EngineException
 	{
 		GroupMembershipData bulkMembershipData = bulkQuery.getBulkMembershipData("/");
 		return bulkQuery.getMembershipInfo(bulkMembershipData);
 	}
-	
+
 	String getLabel(EntityInGroupData info)
 	{
 		if (entityNameAttr != null)
 		{
 			AttributeExt name = info.rootAttributesByName.get(entityNameAttr);
-			if (name != null && !name.getValues().isEmpty())
+			if (name != null && !name.getValues()
+					.isEmpty())
 			{
-				return name.getValues().get(0);
+				return name.getValues()
+						.get(0);
 			}
 		}
 		return "";
 	}
-	
+
 	@org.springframework.stereotype.Component
 	public static class InvitationEditorFactory
 	{

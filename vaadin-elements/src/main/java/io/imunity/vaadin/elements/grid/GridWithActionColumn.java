@@ -245,5 +245,10 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	{
 		return value ? VaadinIcon.CHECK_CIRCLE_O.create() : VaadinIcon.MINUS_CIRCLE_O.create();
 	}
+
+	public Column<T> getActionColumn()
+	{
+		return actionColumn;
+	}
 	
 }

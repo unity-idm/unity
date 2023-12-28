@@ -22,19 +22,19 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 
 @PrototypeComponent
-class RegistrationInvitationViewer extends CustomComponent implements InvitationViewer
+class RegistrationInvitationViewerV8 extends CustomComponent implements InvitationViewer
 {
 	private final MessageSource msg;
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
-	private final CommonInvitationFieldViewer baseViewer;
-	private final PrefilledEntriesViewer prefillViewer;
-	private final ViewerUtils utils;
+	private final CommonInvitationFieldViewerV8 baseViewer;
+	private final PrefilledEntriesViewerV8 prefillViewer;
+	private final ViewerUtilsV8 utils;
 
 	private Label expectedIdentity;
 	private Label formId;
 
-	RegistrationInvitationViewer(PublicRegistrationURLSupport publicRegistrationURLSupport, MessageSource msg,
-			CommonInvitationFieldViewer baseViewer, PrefilledEntriesViewer prefillViewer, ViewerUtils utils)
+	RegistrationInvitationViewerV8(PublicRegistrationURLSupport publicRegistrationURLSupport, MessageSource msg,
+			CommonInvitationFieldViewerV8 baseViewer, PrefilledEntriesViewerV8 prefillViewer, ViewerUtilsV8 utils)
 	{
 		this.msg = msg;
 		this.publicRegistrationURLSupport = publicRegistrationURLSupport;

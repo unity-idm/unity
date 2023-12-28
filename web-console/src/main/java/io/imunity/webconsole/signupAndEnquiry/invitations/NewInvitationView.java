@@ -15,7 +15,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.signupAndEnquiry.invitations.InvitationsView.InvitationsNavigationInfoProvider;
-import io.imunity.webconsole.signupAndEnquiry.invitations.editor.InvitationEditor;
+import io.imunity.webconsole.signupAndEnquiry.invitations.editor.InvitationEditorV8;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
@@ -42,7 +42,7 @@ public class NewInvitationView extends CustomComponent implements UnityView
 
 	private final InvitationsController controller;
 	private final MessageSource msg;
-	private InvitationEditor editor;
+	private InvitationEditorV8 editor;
 
 	NewInvitationView(InvitationsController controller, MessageSource msg)
 	{

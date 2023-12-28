@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.signupAndEnquiry.invitations;
+package io.imunity.console.views.signup_and_enquiry.invitations;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,17 +11,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.signupAndEnquiry.invitations.editor.InvitationEditorV8;
-import io.imunity.webconsole.signupAndEnquiry.invitations.editor.InvitationEditorV8.InvitationEditorFactoryV8;
-import io.imunity.webconsole.signupAndEnquiry.invitations.viewer.MainInvitationViewerV8;
-import io.imunity.webconsole.signupAndEnquiry.invitations.viewer.MainInvitationViewerV8.InvitationViewerFactory;
+import io.imunity.console.views.signup_and_enquiry.invitations.editor.InvitationEditor;
+import io.imunity.console.views.signup_and_enquiry.invitations.editor.InvitationEditor.InvitationEditorFactory;
+import io.imunity.console.views.signup_and_enquiry.invitations.viewer.MainInvitationViewer;
+import io.imunity.console.views.signup_and_enquiry.invitations.viewer.MainInvitationViewer.InvitationViewerFactory;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -32,16 +34,17 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @Component
-class InvitationsController
+class InvitationsService
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InvitationsService.class);
 	private final InvitationManagement invMan;
 	private final MessageSource msg;
-	private final InvitationEditorFactoryV8 editorFactory;
+	private final InvitationEditorFactory editorFactory;
 	private final InvitationViewerFactory viewerFactory;
 
 	@Autowired
-	InvitationsController(InvitationManagement invMan, MessageSource msg, InvitationEditorFactoryV8 editorFactory,
-			InvitationViewerFactory viewerFactory)
+	InvitationsService(InvitationManagement invMan, MessageSource msg, InvitationViewerFactory viewerFactory,
+			InvitationEditorFactory editorFactory)
 	{
 		this.invMan = invMan;
 		this.msg = msg;
@@ -53,7 +56,10 @@ class InvitationsController
 	{
 		try
 		{
-			return invMan.getInvitations().stream().map(i -> new InvitationEntry(msg, i)).collect(Collectors.toList());
+			return invMan.getInvitations()
+					.stream()
+					.map(i -> new InvitationEntry(msg, i))
+					.collect(Collectors.toList());
 		} catch (EngineException e)
 		{
 			throw new ControllerException(msg.getMessage("InvitationsController.getAllError"), e);
@@ -115,10 +121,9 @@ class InvitationsController
 						msg.getMessage("InvitationsController.partiallyRemoved", removed), e);
 			}
 		}
-
 	}
 
-	MainInvitationViewerV8 getViewer() throws ControllerException
+	MainInvitationViewer getViewer() throws ControllerException
 	{
 		try
 		{
@@ -129,26 +134,27 @@ class InvitationsController
 		}
 	}
 
-	InvitationEditorV8 getEditor() throws ControllerException
+	InvitationEditor getEditor() throws ControllerException
 	{
 		try
 		{
 			return editorFactory.getEditor();
 		} catch (Exception e)
 		{
+			log.error(msg.getMessage("InvitationsController.getEditorError"), e);
 			throw new ControllerException(msg.getMessage("InvitationsController.getEditorError"), e);
 		}
-
 	}
 
-	InvitationEditorV8 getEditor(String type, String formName) throws ControllerException
+	InvitationEditor getEditor(String type, String formName) throws ControllerException
 	{
-		InvitationEditorV8 editor = getEditor();
+		InvitationEditor editor = getEditor();
 		try
 		{
 			editor.setInvitationToForm(InvitationType.valueOf(type), formName);
 		} catch (Exception e)
 		{
+			log.error(msg.getMessage("InvitationsController.invalidForm"), e);
 			throw new ControllerException(msg.getMessage("InvitationsController.invalidForm"), e);
 		}
 

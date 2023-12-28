@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.signupAndEnquiry.invitations.viewer;
+package io.imunity.console.views.signup_and_enquiry.invitations.viewer;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,15 +20,15 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 
 @Component
-class ViewerUtilsV8
+class ViewerUtils
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ViewerUtilsV8.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ViewerUtils.class);
 
 	private final RegistrationsManagement regMan;
 	private final EnquiryManagement enqMan;
 	private final MessageTemplateManagement msgTemplateMan;
 
-	ViewerUtilsV8(RegistrationsManagement regMan, EnquiryManagement enqMan, MessageTemplateManagement msgTemplateMan)
+	ViewerUtils(RegistrationsManagement regMan, EnquiryManagement enqMan, MessageTemplateManagement msgTemplateMan)
 	{
 
 		this.regMan = regMan;

@@ -27,16 +27,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-class InvitationsService
+class ProjectInvitationsService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, InvitationsService.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_UPMAN, ProjectInvitationsService.class);
 
 	private final ProjectInvitationsManagement invitationMan;
 	private final DelegatedGroupsHelper delGroupHelper;
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
 
-	public InvitationsService(MessageSource msg, ProjectInvitationsManagement invitationMan,
+	public ProjectInvitationsService(MessageSource msg, ProjectInvitationsManagement invitationMan,
 	                          DelegatedGroupsHelper delGroupHelper, NotificationPresenter notificationPresenter)
 	{
 		this.invitationMan = invitationMan;

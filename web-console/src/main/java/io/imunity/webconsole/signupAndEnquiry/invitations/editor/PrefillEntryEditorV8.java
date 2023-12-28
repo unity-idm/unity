@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistryV8;
 
 @PrototypeComponent
-class PrefillEntryEditor extends TabSheet
+class PrefillEntryEditorV8 extends TabSheet
 {
 	private ListOfEmbeddedElements<PrefilledEntry<IdentityParam>> presetIdentities;
 	private ListOfEmbeddedElements<GroupSelectionPair> presetGroups;
@@ -55,7 +55,7 @@ class PrefillEntryEditor extends TabSheet
 	private final Map<String, AttributeType> attrTypes;
 
 	@Autowired
-	PrefillEntryEditor(MessageSource msg, IdentityEditorRegistryV8 identityEditorRegistry,
+	PrefillEntryEditorV8(MessageSource msg, IdentityEditorRegistryV8 identityEditorRegistry,
 	                   AttributeHandlerRegistryV8 attrHandlersRegistry, AttributeTypeManagement attributeTypeManagement,
 	                   GroupsManagement groupsManagement) throws EngineException
 
@@ -197,16 +197,16 @@ class PrefillEntryEditor extends TabSheet
 
 	
 	@org.springframework.stereotype.Component
-	public static class PrefillEntryEditorFactory
+	public static class PrefillEntryEditorFactoryV8
 	{
-		private ObjectFactory<PrefillEntryEditor> editorFactory;
+		private ObjectFactory<PrefillEntryEditorV8> editorFactory;
 
-		public PrefillEntryEditorFactory(ObjectFactory<PrefillEntryEditor> editor)
+		public PrefillEntryEditorFactoryV8(ObjectFactory<PrefillEntryEditorV8> editor)
 		{
 			this.editorFactory = editor;
 		}
 
-		public PrefillEntryEditor getEditor() throws EngineException
+		public PrefillEntryEditorV8 getEditor() throws EngineException
 		{
 			return editorFactory.getObject();
 		}

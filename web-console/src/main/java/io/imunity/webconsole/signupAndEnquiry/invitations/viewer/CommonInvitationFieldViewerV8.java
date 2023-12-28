@@ -27,9 +27,9 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 
 @PrototypeComponent
-class CommonInvitationFieldViewer extends CustomComponent
+class CommonInvitationFieldViewerV8 extends CustomComponent
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CommonInvitationFieldViewer.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CommonInvitationFieldViewerV8.class);
 	
 	private final MessageSource msg;
 	private final AttributeSupport attributeSupport;
@@ -45,7 +45,7 @@ class CommonInvitationFieldViewer extends CustomComponent
 	private Link link;
 	private Label messageParams;
 
-	CommonInvitationFieldViewer(MessageSource msg, AttributeSupport attributeSupport)
+	CommonInvitationFieldViewerV8(MessageSource msg, AttributeSupport attributeSupport)
 	{
 		this.msg = msg;
 		this.attributeSupport = attributeSupport;

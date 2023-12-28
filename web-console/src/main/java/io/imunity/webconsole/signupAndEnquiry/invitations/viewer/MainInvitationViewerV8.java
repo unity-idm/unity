@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
  * @author Krzysztof Benedyczak
  */
 @PrototypeComponent
-public class MainInvitationViewer extends CustomComponent
+public class MainInvitationViewerV8 extends CustomComponent
 {
 	private final MessageSource msg;
 	private Label type;
@@ -38,7 +38,7 @@ public class MainInvitationViewer extends CustomComponent
 
 	private final Map<InvitationType, InvitationViewer> viewers;
 
-	public MainInvitationViewer(MessageSource msg, List<InvitationViewer> viewers)
+	public MainInvitationViewerV8(MessageSource msg, List<InvitationViewer> viewers)
 	{
 		this.msg = msg;
 		this.viewers = viewers.stream().collect(Collectors.toMap(InvitationViewer::getSupportedType, v -> v));
@@ -89,14 +89,14 @@ public class MainInvitationViewer extends CustomComponent
 	@org.springframework.stereotype.Component
 	public static class InvitationViewerFactory
 	{
-		private ObjectFactory<MainInvitationViewer> viewerFactory;
+		private ObjectFactory<MainInvitationViewerV8> viewerFactory;
 
-		public InvitationViewerFactory(ObjectFactory<MainInvitationViewer> editor)
+		public InvitationViewerFactory(ObjectFactory<MainInvitationViewerV8> editor)
 		{
 			this.viewerFactory = editor;
 		}
 
-		public MainInvitationViewer getViewer() throws EngineException
+		public MainInvitationViewerV8 getViewer() throws EngineException
 		{
 			return viewerFactory.getObject();
 		}

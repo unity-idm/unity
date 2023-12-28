@@ -17,7 +17,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.signupAndEnquiry.SignupAndEnquiryNavigationInfoProvider;
-import io.imunity.webconsole.signupAndEnquiry.invitations.viewer.MainInvitationViewer;
+import io.imunity.webconsole.signupAndEnquiry.invitations.viewer.MainInvitationViewerV8;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -64,7 +64,7 @@ class InvitationsView extends CustomComponent implements UnityView
 
 		invitationsGrid = new InvitationsGrid(msg, controller);
 
-		MainInvitationViewer viewer;
+		MainInvitationViewerV8 viewer;
 		try
 		{
 			viewer = controller.getViewer();

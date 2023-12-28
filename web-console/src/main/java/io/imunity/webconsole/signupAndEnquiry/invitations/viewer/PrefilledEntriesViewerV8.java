@@ -31,9 +31,9 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistryV8;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 @PrototypeComponent
-class PrefilledEntriesViewer extends CustomComponent
+class PrefilledEntriesViewerV8 extends CustomComponent
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PrefilledEntriesViewer.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PrefilledEntriesViewerV8.class);
 
 	private final MessageSource msg;
 	private final AttributeHandlerRegistryV8 attrHandlersRegistry;
@@ -47,7 +47,7 @@ class PrefilledEntriesViewer extends CustomComponent
 	private SafePanel attributesPanel;
 	private SafePanel groupsPanel;
 
-	PrefilledEntriesViewer(MessageSource msg, AttributeHandlerRegistryV8 attrHandlersRegistry, GroupsManagement groupMan)
+	PrefilledEntriesViewerV8(MessageSource msg, AttributeHandlerRegistryV8 attrHandlersRegistry, GroupsManagement groupMan)
 	{
 		this.msg = msg;
 		this.attrHandlersRegistry = attrHandlersRegistry;
