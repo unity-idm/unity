@@ -148,6 +148,7 @@ class EnquiryInvitationEditor extends VerticalLayout implements InvitationParamE
 		expiration = new DateTimePicker();
 		expiration.setValue(LocalDateTime.now(InvitationEditor.DEFAULT_ZONE_ID)
 				.plusDays(InvitationEditor.DEFAULT_TTL_DAYS));
+		expiration.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
 
 		top.addFormItem(forms, msg.getMessage("InvitationEditor.EnquiryFormId"));
 		top.addFormItem(channel, msg.getMessage("InvitationViewer.channelId"));

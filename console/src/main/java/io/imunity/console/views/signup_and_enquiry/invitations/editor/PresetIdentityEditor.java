@@ -81,6 +81,7 @@ public class PresetIdentityEditor extends PresetEditorBase<IdentityParam>
 			else
 			container.addFormItem(component, "");
 		}
+		super.setEditedComponentPosition(position);
 	}
 
 	@Override
@@ -92,4 +93,11 @@ public class PresetIdentityEditor extends PresetEditorBase<IdentityParam>
 		setEditedComponentPosition(position);
 		return container;
 	}
+
+	@Override
+	protected String getTitle()
+	{
+		return  msg.getMessage("PresetEditor.activeIdentity", selectedParam.getIdentityType());
+	}
+	
 }

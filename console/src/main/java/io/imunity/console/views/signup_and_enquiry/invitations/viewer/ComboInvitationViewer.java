@@ -58,6 +58,7 @@ class ComboInvitationViewer extends VerticalLayout implements InvitationViewer
 		setMargin(false);
 		setPadding(false);
 		setSpacing(false);	
+		setSizeFull();
 		FormLayout top = new FormLayout();
 		top.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		top.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());

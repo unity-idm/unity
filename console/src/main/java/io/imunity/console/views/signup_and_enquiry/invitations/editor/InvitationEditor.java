@@ -79,6 +79,7 @@ public class InvitationEditor extends VerticalLayout
 		top.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
 		type = new ComboBox<>();
+		type.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
 		type.setItemLabelGenerator(i -> msg.getMessage("InvitationType." + i.toString()
 				.toLowerCase()));
 

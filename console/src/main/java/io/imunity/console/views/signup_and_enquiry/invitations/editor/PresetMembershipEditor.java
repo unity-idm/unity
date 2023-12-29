@@ -31,6 +31,7 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 	private GroupMultiComboBox selection;
 	private List<Group> allGroups;
 	private FormLayout wrapper;
+	private GroupRegistrationParam groupRegistrationParam;
 	
 	public PresetMembershipEditor(MessageSource msg, List<Group> allGroups, List<GroupRegistrationParam> formParams)
 	{
@@ -49,13 +50,13 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 	public void setEditedComponentPosition(int position)
 	{
 		wrapper.removeAll();
-		GroupRegistrationParam groupRegistrationParam = formParams.get(position);
+		groupRegistrationParam = formParams.get(position);
 		selection.setMultiSelect(groupRegistrationParam.isMultiSelect());
 		List<Group> items = GroupPatternMatcher.filterByIncludeGroupsMode(GroupPatternMatcher.filterMatching(allGroups, 
 				groupRegistrationParam.getGroupPath()), groupRegistrationParam.getIncludeGroupsMode());
 		selection.setItems(items);
 		wrapper.addFormItem(selection, groupRegistrationParam.getGroupPath());
-		
+		super.setEditedComponentPosition(position);
 	}
 	
 	@Override
@@ -69,5 +70,11 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 		selection.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
 		setEditedComponentPosition(position);
 		return wrapper;
+	}
+	
+	@Override
+	protected String getTitle()
+	{
+		return msg.getMessage("PresetEditor.activeGroup", groupRegistrationParam.getGroupPath());
 	}
 }

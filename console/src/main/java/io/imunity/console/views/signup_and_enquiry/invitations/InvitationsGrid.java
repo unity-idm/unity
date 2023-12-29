@@ -51,15 +51,15 @@ class InvitationsGrid extends VerticalLayout
 	{
 		invitationsGrid = new GridWithActionColumn<>(msg::getMessage, Collections.emptyList());
 		invitationsGrid.addColumn(InvitationEntry::getType)
-				.setHeader(msg.getMessage("InvitationsGrid.type"));
+				.setHeader(msg.getMessage("InvitationsGrid.type")).setResizable(true);
 		invitationsGrid.addColumn(InvitationEntry::getForm)
-				.setHeader(msg.getMessage("InvitationsGrid.form"));
+				.setHeader(msg.getMessage("InvitationsGrid.form")).setResizable(true);
 		invitationsGrid.addColumn(InvitationEntry::getAddress)
-				.setHeader(msg.getMessage("InvitationsGrid.contactAddress"));
+				.setHeader(msg.getMessage("InvitationsGrid.contactAddress")).setResizable(true);
 		invitationsGrid.addColumn(InvitationEntry::getCode)
-				.setHeader(msg.getMessage("InvitationsGrid.code"));
+				.setHeader(msg.getMessage("InvitationsGrid.code")).setResizable(true);
 		invitationsGrid.addColumn(InvitationEntry::getExpiration)
-				.setHeader(msg.getMessage("InvitationsGrid.expiration"));
+				.setHeader(msg.getMessage("InvitationsGrid.expiration")).setResizable(true);
 		invitationsGrid.addHamburgerActions(getHamburgerActionsHandlers());
 		invitationsGrid.setMultiSelect(true);
 		invitationsGrid.setSizeFull();

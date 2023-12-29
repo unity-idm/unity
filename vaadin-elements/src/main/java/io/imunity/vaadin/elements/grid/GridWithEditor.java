@@ -194,7 +194,7 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 
 	private void refreshEditor()
 	{
-		Icon saveButton = new ActionIconBuilder().icon(VaadinIcon.PLUS_CIRCLE_O)
+		Icon saveButton = new ActionIconBuilder().icon(VaadinIcon.CHECK)
 				.tooltipText(msg.apply("save"))
 				.clickListener(() -> grid.getEditor()
 						.save())

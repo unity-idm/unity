@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasEnabled;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.formlayout.FormLayout;
 
 import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.elements.EnumComboBox;
@@ -42,20 +43,30 @@ public abstract class PresetEditorBase <T> implements Editor<PrefilledEntry<T>>
 	public ComponentsContainer getEditorComponent(PrefilledEntry<T> value, int position)
 	{
 		container = new ComponentsContainer();
-		active = new Checkbox(msg.getMessage("PresetEditor.active"));
+		active = new Checkbox();
 		active.addValueChangeListener(event -> {
 			setEnabled(active.getValue());
 		});
 		mode = new EnumComboBox<>(msg::getMessage, "PrefilledEntryMode.", 
 				PrefilledEntryMode.class, PrefilledEntryMode.DEFAULT);		
 		mode.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
+		FormLayout wrapper = new FormLayout();
+		wrapper.addFormItem(mode, msg.getMessage("PresetEditor.mode"));
 		
-		container.add(active, mode);
+		
+		container.add(active, wrapper);
 		
 		Component editorUI = getEditorComponentsInternal(value, position);
 		container.add(editorUI);
 		setEnabled(active.getValue());
+		active.setLabel(getTitle());
 		return container;
+	}
+	
+	@Override
+	public void setEditedComponentPosition(int position)
+	{
+		active.setLabel(getTitle());
 	}
 
 	private void setEnabled(boolean enabled)
@@ -80,6 +91,8 @@ public abstract class PresetEditorBase <T> implements Editor<PrefilledEntry<T>>
 	 * @return the components of the editor
 	 */
 	protected abstract Component getEditorComponentsInternal(PrefilledEntry<T> value, int position);
+	
+	protected abstract String getTitle();
 	
 	@Override
 	public PrefilledEntry<T> getValue() throws FormValidationException

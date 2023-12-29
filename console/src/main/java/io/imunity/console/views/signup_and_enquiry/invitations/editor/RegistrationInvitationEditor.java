@@ -122,6 +122,8 @@ class RegistrationInvitationEditor extends VerticalLayout implements InvitationP
 		expiration.setRequiredIndicatorVisible(true);
 		expiration.setValue(
 				LocalDateTime.now(InvitationEditor.DEFAULT_ZONE_ID).plusDays(InvitationEditor.DEFAULT_TTL_DAYS));
+		expiration.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
+
 		contactAddress = new TextField();
 		contactAddress.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
 

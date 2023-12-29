@@ -53,8 +53,10 @@ public class MainInvitationViewer extends VerticalLayout
 		viewerContent.setMargin(false);
 		viewerContent.setSpacing(false);
 		viewerContent.setPadding(false);
+		viewerContent.setSizeFull();
 		add(top, viewerContent);
 		setVisible(false);
+		setSizeFull();
 	}
 
 	public void setInput(InvitationWithCode invitationWithCode) throws IllegalFormTypeException

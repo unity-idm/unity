@@ -52,6 +52,7 @@ class RegistrationInvitationViewer extends VerticalLayout implements InvitationV
 		setMargin(false);
 		setPadding(false);
 		setSpacing(false);	
+		setSizeFull();
 		FormLayout top = new FormLayout();
 		top.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		top.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
@@ -66,9 +67,7 @@ class RegistrationInvitationViewer extends VerticalLayout implements InvitationV
 		prefill.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		FormItem prefillElement = prefill.addFormItem(prefillViewer, msg.getMessage("RegistrationInvitationViewer.registrationPrefillInfo"));
 		prefillViewer.addVisibleChangeListener(v -> prefillElement.setVisible(v));
-	
-		
-		add(prefill);
+	//	add(prefill);
 	}
 
 	public void setInput(InvitationWithCode invitationWithCode) throws IllegalFormTypeException
