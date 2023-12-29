@@ -107,7 +107,7 @@ class ProfileStepComponent extends HorizontalLayout
 		rightPanel = new VerticalLayout();
 		rightPanel.setSpacing(false);
 		rightPanel.setSizeFull();
-		rightPanel.setMaxHeight(45,Unit.EM);
+		rightPanel.setMaxHeight(44,Unit.EM);
 		
 		splitPanelLayout.addToPrimary(rightPanel);
 
@@ -124,7 +124,7 @@ class ProfileStepComponent extends HorizontalLayout
 		leftPanel = new VerticalLayout();
 		leftPanel.setSpacing(false);
 		leftPanel.setSizeFull();
-		leftPanel.setMaxHeight(45,Unit.EM);
+		leftPanel.setMaxHeight(44,Unit.EM);
 
 
 		// dragdropHint

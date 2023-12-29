@@ -37,12 +37,9 @@ public class Wizard extends Dialog
 		setModal(true);
 		setWidth("80%");
 		setHeight("60%");
+		setCloseOnOutsideClick(false);
 		
-		contentLayout.setSizeUndefined();
-//		contentLayout.setMargin(false);
-//		contentLayout.setSpacing(false);
-//		contentLayout.setPadding(false);
-		
+		contentLayout.setSizeFull();
 		
 		this.wizardStepController = new WizardStepController(steps, stepPreparers);
 		List<String> labels = steps.stream()
