@@ -107,7 +107,8 @@ public class NewInvitationView extends ConsoleViewComponent
 		{
 			invitation = editor.getInvitation();
 		} catch (FormValidationException e)
-		{
+		{		
+			notificationPresenter.showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
 			return;
 		}
 
