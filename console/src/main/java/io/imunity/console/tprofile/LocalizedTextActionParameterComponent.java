@@ -4,6 +4,8 @@
  */
 package io.imunity.console.tprofile;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +30,7 @@ public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDet
 		super(msg.getEnabledLocales().values(), msg.getLocale());
 		setLabel(desc.getName());
 		setTooltipText(msg.getMessage(desc.getDescriptionKey()));
+		setWidth(TEXT_FIELD_MEDIUM.value());
 		binder = new Binder<>(StringValueBean.class);
 		
 		if (desc.isMandatory())
