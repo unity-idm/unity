@@ -19,6 +19,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 
+import io.imunity.vaadin.elements.CssClassNames;
+
 public class Wizard extends Dialog
 {
 	private final Button finishButton = new Button();
@@ -39,7 +41,7 @@ public class Wizard extends Dialog
 		setHeight("60%");
 		setCloseOnOutsideClick(false);
 		
-		contentLayout.setSizeFull();
+		contentLayout.addClassName(CssClassNames.WIZARD.getName());
 		
 		this.wizardStepController = new WizardStepController(steps, stepPreparers);
 		List<String> labels = steps.stream()
@@ -77,8 +79,6 @@ public class Wizard extends Dialog
 		
 		getFooter().add(cancelButton, backButton, nextButton, finishButton);
 		getHeader().add(labelsLayout, progressBar);
-		contentLayout.getStyle().set("background-color", "var(--unity-contrast)");
-		contentLayout.getStyle().set("border-radius", "var(--unity-border-radius)");
 		add(contentLayout);
 	
 		if (title != null)

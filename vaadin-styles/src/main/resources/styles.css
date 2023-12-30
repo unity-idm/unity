@@ -674,6 +674,12 @@ vaadin-details.u-multi-tab-details {
 	width: 100% !important;
 }
 
+.u-wizard {
+	display: flow-root;
+	background-color: var(--unity-contrast);
+	border-radius: var(--unity-border-radius);
+}
+
 vaadin-combo-box-overlay.u-combobox-hidden-checkmark > * ::part(checkmark){
 	visibility: hidden;
 }

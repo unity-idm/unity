@@ -7,6 +7,7 @@ package io.imunity.vaadin.elements;
 
 public enum CssClassNames
 {
+	WIZARD("u-wizard"),
 	DIALOG_CONFIRM("u-dialog-confirm"),
 	SUBMIT_BUTTON("u-submit-button"),
 	SMALL_GAP("u-small-gap"),
