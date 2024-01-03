@@ -9,15 +9,13 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
-import io.imunity.console.tprofile.MappingResultComponent;
-import io.imunity.console.tprofile.TranslationProfileViewer;
+import io.imunity.console_utils.tprofile.MappingResultComponent;
+import io.imunity.console_utils.tprofile.TranslationProfileViewer;
 import io.imunity.vaadin.elements.wizard.WizardStep;
 import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
@@ -25,6 +23,7 @@ import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistr
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
+import java.util.Map;
 
 
 class DryRunStep extends WizardStep
@@ -32,7 +31,7 @@ class DryRunStep extends WizardStep
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, DryRunStep.class);
 
 	private final InputTranslationActionsRegistry taRegistry;
-	private final TranslationProfileManagement tpMan;
+	private final Map<String, TranslationProfile> inputProfiles;
 	private final MessageSource msg;
 	private final MappingResultComponent mappingResult;
 	private final RemotelyAuthenticatedInputComponent remoteIdpInput;
@@ -47,11 +46,11 @@ class DryRunStep extends WizardStep
 	private SandboxAuthnContext ctx;
 
 	DryRunStep(MessageSource msg,
-			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry) 
+			Map<String, TranslationProfile> inputProfiles, InputTranslationActionsRegistry taRegistry)
 	{
 		super(msg.getMessage("DryRun.DryRunStep.caption"), new VerticalLayout());
 		this.msg = msg;
-		this.tpMan = tpMan;
+		this.inputProfiles = inputProfiles;
 		this.taRegistry = taRegistry;
 
 		resultWrapper = buildResultWrapper();
@@ -75,16 +74,9 @@ class DryRunStep extends WizardStep
 	private void showProfile(String profile)
 	{
 		boolean isHRVisible = (profile != null);
-		try
-		{
-			TranslationProfile tp = tpMan.listInputProfiles().get(profile);
-			profileViewer.setInput(tp, taRegistry);
-			profileViewer.setVisible(true);
-		} catch (EngineException e)
-		{
-			isHRVisible = false;
-			log.error(e);
-		}
+		TranslationProfile tp = inputProfiles.get(profile);
+		profileViewer.setInput(tp, taRegistry);
+		profileViewer.setVisible(true);
 		hr_2.setVisible(isHRVisible);
 	}
 

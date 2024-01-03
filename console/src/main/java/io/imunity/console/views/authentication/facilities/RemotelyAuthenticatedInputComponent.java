@@ -59,14 +59,18 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 	private void initTables()
 	{
 		idsTable.addColumn(RemoteIdentity::getIdentityType)
-				.setHeader(msg.getMessage("MappingResultComponent.idsTable.type"));
+				.setHeader(msg.getMessage("MappingResultComponent.idsTable.type"))
+				.setAutoWidth(true);
 		idsTable.addColumn(RemoteIdentity::getName).setHeader(
-				msg.getMessage("MappingResultComponent.idsTable.value"));
+				msg.getMessage("MappingResultComponent.idsTable.value"))
+				.setAutoWidth(true);
 
 		attrsTable.addColumn(RemoteAttribute::getName).setHeader(
-				msg.getMessage("MappingResultComponent.attrsTable.name"));
+				msg.getMessage("MappingResultComponent.attrsTable.name"))
+				.setAutoWidth(true);
 		attrsTable.addColumn(RemoteAttribute::getValues).setHeader(
-				msg.getMessage("MappingResultComponent.attrsTable.value"));
+				msg.getMessage("MappingResultComponent.attrsTable.value"))
+				.setAutoWidth(true);
 	}
 
 	void displayAuthnInput(RemotelyAuthenticatedInput input)
@@ -101,8 +105,8 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 		} else
 		{
 			idsWrap.setVisible(true);
-			RemoteIdentity[] identityArray = collection.toArray(new RemoteIdentity[0]);
-			idsTable.setItems(identityArray);
+			idsTable.setItems(collection);
+			idsTable.setAllRowsVisible(true);
 		}
 	}
 
@@ -115,8 +119,8 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 		} else
 		{
 			attrsWrap.setVisible(true);
-			RemoteAttribute[] attributeArray = collection.toArray(new RemoteAttribute[0]);
-			attrsTable.setItems(attributeArray);
+			attrsTable.setItems(collection);
+			attrsTable.setAllRowsVisible(true);
 		}
 	}
 
@@ -137,8 +141,7 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 		// common part: create layout
 		mainLayout = new VerticalLayout();
 		mainLayout.setSizeFull();
-		mainLayout.setMargin(false);
-
+		mainLayout.setPadding(false);
 
 		// top-level component properties
 		setSizeFull();
@@ -157,9 +160,7 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 	{
 		// common part: create layout
 		titleWrap = new HorizontalLayout();
-		titleWrap.setWidth("-1px");
-		titleWrap.setHeight("-1px");
-		titleWrap.setMargin(false);
+		titleWrap.setPadding(false);
 		//titleWrap.setSpacing(true);
 
 		// titleLabel
@@ -169,7 +170,6 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 		// noneLabel
 		noneLabel = new Span();
 		noneLabel.setWidthFull();
-		noneLabel.setHeight("-1px");
 		noneLabel.setText("Label");
 		titleWrap.add(noneLabel);
 
@@ -180,7 +180,6 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 	{
 		// common part: create layout
 		mappingResultWrap = new VerticalLayout();
-		mappingResultWrap.setHeight("-1px");
 
 		// idsWrap
 		idsWrap = buildIdsWrap();
@@ -199,23 +198,17 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 
 	private VerticalLayout buildIdsWrap()
 	{
-		// common part: create layout
 		idsWrap = new VerticalLayout();
-		idsWrap.setHeight("-1px");
-		idsWrap.setMargin(false);
+		idsWrap.setPadding(false);
 
 		// idsTitleLabel
 		idsTitleLabel = new Span();
 		idsTitleLabel.setWidthFull();
-		idsTitleLabel.setHeight("-1px");
 		idsTitleLabel.setText("Label");
 		idsWrap.add(idsTitleLabel);
 
-		// idsTable
 		idsTable = new Grid<>();
-		idsTable.setWidth("100.0%");
-		idsTable.setHeight("-1px");
-		idsTable.setSizeFull();
+		idsTable.setWidthFull();
 		idsWrap.add(idsTable);
 
 		return idsWrap;
@@ -225,20 +218,17 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 	{
 		// common part: create layout
 		attrsWrap = new VerticalLayout();
-		attrsWrap.setHeight("-1px");
-		attrsWrap.setMargin(false);
+		attrsWrap.setPadding(false);
 
 		// attrsTitleLabel
 		attrsTitleLabel = new Span();
 		attrsTitleLabel.setWidthFull();
-		attrsTitleLabel.setHeight("-1px");
 		attrsTitleLabel.setText("Label");
 		attrsWrap.add(attrsTitleLabel);
 
 		// attrsTable
 		attrsTable = new Grid<>();
-		attrsTable.setWidth("100.0%");
-		attrsTable.setHeight("-1px");
+		attrsTable.setWidthFull();
 		attrsWrap.add(attrsTable);
 
 		return attrsWrap;
@@ -248,22 +238,18 @@ class RemotelyAuthenticatedInputComponent extends VerticalLayout
 	{
 		// common part: create layout
 		groupsWrap = new HorizontalLayout();
-		groupsWrap.setWidth("-1px");
-		groupsWrap.setHeight("-1px");
-		groupsWrap.setMargin(false);
+		groupsWrap.setPadding(false);
 		//groupsWrap.setSpacing(true);
 
 		// groupsTitleLabel
 		groupsTitleLabel = new Span();
 		groupsTitleLabel.setWidthFull();
-		groupsTitleLabel.setHeight("-1px");
 		groupsTitleLabel.setText("Label");
 		groupsWrap.add(groupsTitleLabel);
 
 		// groupsLabel
 		groupsLabel = new Span();
 		groupsLabel.setWidthFull();
-		groupsLabel.setHeight("-1px");
 		groupsLabel.setText("Label");
 		groupsWrap.add(groupsLabel);
 

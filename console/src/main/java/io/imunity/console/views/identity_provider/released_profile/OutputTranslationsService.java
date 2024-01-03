@@ -5,21 +5,20 @@
 
 package io.imunity.console.views.identity_provider.released_profile;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import io.imunity.console.views.translation_profiles.TranslationsServiceBase;
+import io.imunity.console_utils.tprofile.ActionParameterComponentProvider;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import io.imunity.console.tprofile.ActionParameterComponentProvider;
-import io.imunity.console.views.translation_profiles.TranslationsServiceBase;
-import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 class OutputTranslationsService extends TranslationsServiceBase

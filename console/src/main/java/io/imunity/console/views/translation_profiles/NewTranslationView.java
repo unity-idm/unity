@@ -5,24 +5,22 @@
 
 package io.imunity.console.views.translation_profiles;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
-
-import io.imunity.console.tprofile.TranslationProfileEditor;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.EditViewActionLayoutFactory;
+import io.imunity.console_utils.tprofile.TranslationProfileEditor;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.Optional;
 
 public abstract class NewTranslationView extends ConsoleViewComponent
 {

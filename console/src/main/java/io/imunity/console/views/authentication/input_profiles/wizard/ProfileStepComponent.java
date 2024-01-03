@@ -4,10 +4,6 @@
  */
 package io.imunity.console.views.authentication.input_profiles.wizard;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.grid.Grid;
@@ -17,13 +13,16 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
-
-import io.imunity.console.tprofile.DragDropBean;
-import io.imunity.console.tprofile.EditorContext;
-import io.imunity.console.tprofile.TranslationProfileEditor;
+import io.imunity.console_utils.tprofile.DragDropBean;
+import io.imunity.console_utils.tprofile.EditorContext;
+import io.imunity.console_utils.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationContextFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * UI Component used by {@link ProfileStep}.

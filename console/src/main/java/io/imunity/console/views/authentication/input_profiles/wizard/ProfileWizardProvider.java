@@ -5,18 +5,14 @@
 
 package io.imunity.console.views.authentication.input_profiles.wizard;
 
-import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
-
-import java.util.function.Consumer;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinServlet;
-
-import io.imunity.console.tprofile.TranslationProfileEditor;
+import io.imunity.console.views.sandbox.SandboxView;
+import io.imunity.console_utils.tprofile.TranslationProfileEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.wizard.Wizard;
 import io.imunity.vaadin.elements.wizard.WizardStepPreparer;
@@ -25,6 +21,8 @@ import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
+
+import java.util.function.Consumer;
 
 @org.springframework.stereotype.Component
 public class ProfileWizardProvider
@@ -48,7 +46,7 @@ public class ProfileWizardProvider
 				.getContextPath();
 		Runnable sandBoxNewPageOpener = () -> UI.getCurrent()
 				.getPage()
-				.executeJs("window.open('" + contextPath + SANDBOX_PATH_ASSOCIATION
+				.executeJs("window.open('" + contextPath + SandboxView.SANDBOX_PATH
 						+ "/', '_blank', 'resizable,status=0,location=0')");
 		SandboxAuthnRouter router = Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter();
 
@@ -64,7 +62,7 @@ public class ProfileWizardProvider
 				.addStep(new ProfileStep(msg.getMessage("Wizard.ProfileStep.caption"),
 						new ProfileStepComponent(msg, editor), notificationPresenter, msg))
 				.addStep(new AddProfileStep(null, new VerticalLayout(), editor, finish, notificationPresenter, msg))
-				.addMessageSource(m -> msg.getMessage(m))
+				.addMessageSource(msg::getMessage)
 				.addCancelTask(closeWizard)
 				.build();
 		wizard.setWidth(110, Unit.EM);

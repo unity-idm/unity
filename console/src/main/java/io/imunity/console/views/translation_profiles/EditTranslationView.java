@@ -13,7 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 
-import io.imunity.console.tprofile.TranslationProfileEditor;
+import io.imunity.console_utils.tprofile.TranslationProfileEditor;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.EditViewActionLayoutFactory;
 import io.imunity.vaadin.elements.BreadCrumbParameter;

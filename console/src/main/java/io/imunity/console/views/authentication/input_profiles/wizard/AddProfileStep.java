@@ -5,16 +5,15 @@
 
 package io.imunity.console.views.authentication.input_profiles.wizard;
 
-import java.util.function.Consumer;
-
 import com.vaadin.flow.component.Component;
-
-import io.imunity.console.tprofile.TranslationProfileEditor;
+import io.imunity.console_utils.tprofile.TranslationProfileEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.wizard.WizardStep;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import java.util.function.Consumer;
 
 class AddProfileStep extends WizardStep
 {
