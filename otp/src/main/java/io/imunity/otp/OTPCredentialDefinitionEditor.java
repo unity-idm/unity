@@ -16,6 +16,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Validator;
 import io.imunity.otp.OTPResetSettings.ConfirmationMode;
 import io.imunity.vaadin.elements.CssClassNames;
+import io.imunity.vaadin.elements.ImageField;
 import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;

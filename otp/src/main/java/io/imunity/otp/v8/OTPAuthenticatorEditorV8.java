@@ -33,12 +33,12 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 @PrototypeComponent
-class OTPAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
+class OTPAuthenticatorEditorV8 extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
 	private Binder<OTPConfigurationBean> configBinder;
 	
 	@Autowired
-	OTPAuthenticatorEditor(MessageSource msg, CredentialManagement credMan) throws EngineException
+	OTPAuthenticatorEditorV8(MessageSource msg, CredentialManagement credMan) throws EngineException
 	{
 		super(msg, credMan.getCredentialDefinitions().stream().filter(c -> c.getTypeId().equals(OTP.NAME))
 				.map(c -> c.getName()).collect(Collectors.toList()));
@@ -154,10 +154,10 @@ class OTPAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 	@org.springframework.stereotype.Component
 	static class SMSAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	{
-		private ObjectFactory<OTPAuthenticatorEditor> factory;
+		private ObjectFactory<OTPAuthenticatorEditorV8> factory;
 
 		@Autowired
-		SMSAuthenticatorEditorFactory(ObjectFactory<OTPAuthenticatorEditor> factory)
+		SMSAuthenticatorEditorFactory(ObjectFactory<OTPAuthenticatorEditorV8> factory)
 		{
 			this.factory = factory;
 		}
