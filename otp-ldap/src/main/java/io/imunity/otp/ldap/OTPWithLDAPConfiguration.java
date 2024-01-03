@@ -41,7 +41,7 @@ public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 	private int timeStepSeconds;
 	private int allowedTimeDriftSteps = 3;
 
-	private I18nString retrievalName;
+	private I18nString retrievalName = new I18nString();
 
 	public OTPWithLDAPConfiguration()
 	{
