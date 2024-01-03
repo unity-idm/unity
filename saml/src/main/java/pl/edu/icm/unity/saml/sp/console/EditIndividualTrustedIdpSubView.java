@@ -5,115 +5,114 @@
 
 package pl.edu.icm.unity.saml.sp.console;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
-import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.vaadin.auth.binding.ToggleWithDefault;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import io.imunity.vaadin.elements.NoSpaceValidator;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.api.UnitySubView;
+import io.imunity.vaadin.endpoint.common.file.FileField;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.EnableDisableCombo;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
-import pl.edu.icm.unity.webui.common.file.ImageField;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
-import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
 
-/**
- * View for edit SAML individual trusted idp
- * 
- * @author P.Piernik
- *
- */
-class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySubView
+import java.util.*;
+import java.util.function.Consumer;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
+
+class EditIndividualTrustedIdpSubView extends VerticalLayout implements UnitySubView
 {
-	private MessageSource msg;
-	private URIAccessService uriAccessService;
-	private UnityServerConfiguration serverConfig;
-	private Binder<SAMLIndividualTrustedSamlIdpConfiguration> configBinder;
-	private Set<String> certificates;
-	private Set<String> registrationForms;
-	private Set<String> usedNames;
-	private boolean editMode = false;
+	private final MessageSource msg;
+	private final Binder<SAMLIndividualTrustedSamlIdpConfiguration> configBinder;
+	private final Set<String> certificates;
+	private final Set<String> registrationForms;
+	private final Set<String> usedNames;
+	private final UnityServerConfiguration serverConfig;
+	private final boolean editMode;
 
-	EditIndividualTrustedIdpSubView(MessageSource msg, UnityServerConfiguration serverConfig, URIAccessService uriAccessService,
+	EditIndividualTrustedIdpSubView(MessageSource msg, NotificationPresenter notificationPresenter,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			SAMLIndividualTrustedSamlIdpConfiguration toEdit, SubViewSwitcher subViewSwitcher,
 			Set<String> usedNames, Set<String> certificates, Set<String> registrationForms,
-			Consumer<SAMLIndividualTrustedSamlIdpConfiguration> onConfirm, Runnable onCancel)
+			Consumer<SAMLIndividualTrustedSamlIdpConfiguration> onConfirm, Runnable onCancel,
+			UnityServerConfiguration serverConfig)
 	{
 		this.msg = msg;
 		this.certificates = certificates;
 		this.registrationForms = registrationForms;
 		this.usedNames = usedNames;
-		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
 		editMode = toEdit != null;
 
 		configBinder = new Binder<>(SAMLIndividualTrustedSamlIdpConfiguration.class);
 
 		FormLayout header = buildHeaderSection();
-		CollapsibleLayout singleLogout = buildSingleLogoutSection();
-
-		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
+		AccordionPanel singleLogout = buildSingleLogoutSection();
+		singleLogout.setWidthFull();
+		AccordionPanel remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
 				configBinder, "translationProfile");
+		remoteDataMapping.setWidthFull();
+
 
 		configBinder.setBean(editMode ? toEdit.clone() : new SAMLIndividualTrustedSamlIdpConfiguration());
 
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
-		mainView.addComponent(header);
-		mainView.addComponent(singleLogout);
-		mainView.addComponent(remoteDataMapping);
+		mainView.add(header);
+		mainView.add(singleLogout, remoteDataMapping);
 
-		Runnable onConfirmR = () -> {
+		Button cancelButton = new Button(msg.getMessage("cancel"), event -> onCancel.run());
+		cancelButton.setWidthFull();
+		Button updateButton = new Button(editMode ? msg.getMessage("update") :  msg.getMessage("create"), event ->
+		{
 			try
 			{
 				onConfirm.accept(getTrustedFederation());
 			} catch (FormValidationException e)
 			{
-				NotificationPopup.showError(msg, msg.getMessage(
-						"EditIndividualTrustedIdpSubView.invalidConfiguration"), e);
+				notificationPresenter.showError(msg.getMessage(
+						"EditIndividualTrustedIdpSubView.invalidConfiguration"), e.getMessage());
 			}
-		};
+		});
+		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		updateButton.setWidthFull();
+		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
+		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		mainView.add(buttonsLayout);
 
-		mainView.addComponent(editMode
-				? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
-				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));
-
-		setCompositionRoot(mainView);
+		add(mainView);
 	}
 
 	private FormLayout buildHeaderSection()
 	{
-		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
-		header.setMargin(true);
+		FormLayout header = new FormLayout();
+		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
-		TextField name = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.name"));
-		name.focus();
+		TextField name = new TextField();
 		configBinder.forField(name).asRequired(msg.getMessage("fieldRequired"))
-				.withValidator(new NoSpaceValidator(msg)).withValidator((s, c) -> {
+				.withValidator(new NoSpaceValidator(msg::getMessage)).withValidator((s, c) -> {
 					if (usedNames.contains(s))
 					{
 						return ValidationResult.error(msg.getMessage(
@@ -123,39 +122,48 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 						return ValidationResult.ok();
 					}
 
-				}).bind("name");
-		header.addComponent(name);
+				}).bind(SAMLIndividualTrustedSamlIdpConfiguration::getName, SAMLIndividualTrustedSamlIdpConfiguration::setName);
+		header.addFormItem(name, msg.getMessage("EditIndividualTrustedIdpSubView.name"));
 
-		I18nTextField displayedName = new I18nTextField(msg,
-				msg.getMessage("EditIndividualTrustedIdpSubView.displayedName"));
-		configBinder.forField(displayedName).asRequired(msg.getMessage("fieldRequired")).bind("displayedName");
-		header.addComponent(displayedName);
+		LocalizedTextFieldDetails displayedName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
+		configBinder.forField(displayedName)
+				.asRequired(msg.getMessage("fieldRequired"))
+				.withConverter(I18nString::new, I18nString::getLocalizedMap)
+				.withValidator(value -> !value.getMap().isEmpty(), msg.getMessage("fieldRequired"))
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getDisplayedName, SAMLIndividualTrustedSamlIdpConfiguration::setDisplayedName);
+		header.addFormItem(displayedName, msg.getMessage("EditIndividualTrustedIdpSubView.displayedName"));
 
-		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
-		logo.setCaption(msg.getMessage("EditIndividualTrustedIdpSubView.logo"));
-		logo.configureBinding(configBinder, "logo");
-		header.addComponent(logo);
+		FileField logo = new FileField(msg, "image/*", "logo.jpg", serverConfig.getFileSizeLimit());
+		configBinder.forField(logo)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getLogo, SAMLIndividualTrustedSamlIdpConfiguration::setLogo);
+		header.addFormItem(logo, msg.getMessage("EditIndividualTrustedIdpSubView.logo"));
 		
-		TextField id = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.id"));
-		id.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(id).asRequired(msg.getMessage("fieldRequired")).bind("id");
-		header.addComponent(id);
+		TextField id = new TextField();
+		id.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(id)
+				.asRequired(msg.getMessage("fieldRequired"))
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getId, SAMLIndividualTrustedSamlIdpConfiguration::setId);
+		header.addFormItem(id, msg.getMessage("EditIndividualTrustedIdpSubView.id"));
 
-		TextField address = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.address"));
-		address.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(address).bind("address");
-		header.addComponent(address);
+		TextField address = new TextField();
+		address.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(address)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getAddress, SAMLIndividualTrustedSamlIdpConfiguration::setAddress);
+		header.addFormItem(address, msg.getMessage("EditIndividualTrustedIdpSubView.address"));
 
-		ChipsWithFreeText requestedNameFormats = new ChipsWithFreeText(msg);
-		requestedNameFormats.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		requestedNameFormats.setCaption(msg.getMessage("EditIndividualTrustedIdpSubView.requestedNameFormats"));
+		MultiSelectComboBox<String> requestedNameFormats = new CustomValuesMultiSelectComboBox();
+		requestedNameFormats.setWidth(TEXT_FIELD_BIG.value());
 		requestedNameFormats.setItems(SAMLAuthenticatorEditor.STANDART_NAME_FORMATS);
-		header.addComponent(requestedNameFormats);
-		configBinder.forField(requestedNameFormats).bind("requestedNameFormats");
+		requestedNameFormats.setPlaceholder(msg.getMessage("typeOrSelect"));
+		header.addFormItem(requestedNameFormats, msg.getMessage("EditIndividualTrustedIdpSubView.requestedNameFormats"));
+		configBinder.forField(requestedNameFormats)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getRequestedNameFormats, SAMLIndividualTrustedSamlIdpConfiguration::setRequestedNameFormats);
 
-		CheckBox signRequest = new CheckBox(msg.getMessage("EditIndividualTrustedIdpSubView.signRequest"));
+		Checkbox signRequest = new Checkbox(msg.getMessage("EditIndividualTrustedIdpSubView.signRequest"));
 
-		ComboBox<Binding> binding = new ComboBox<>(msg.getMessage("EditIndividualTrustedIdpSubView.binding"));
+		Select<Binding> binding = new Select<>();
 		binding.setItems(Binding.values());
 		binding.setEmptySelectionAllowed(false);
 		binding.addValueChangeListener(e -> {
@@ -168,7 +176,8 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 
 		});
 
-		configBinder.forField(binding).bind("binding");
+		configBinder.forField(binding)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getBinding, SAMLIndividualTrustedSamlIdpConfiguration::setBinding);
 		configBinder.forField(signRequest).withValidator((v, c) -> {
 			if (v != null && v && (binding.getValue().equals(Binding.HTTP_REDIRECT)
 					|| binding.getValue().equals(Binding.SOAP)))
@@ -178,76 +187,82 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 			}
 			return ValidationResult.ok();
 
-		}).bind("signRequest");
+		}).bind(SAMLIndividualTrustedSamlIdpConfiguration::isSignRequest, SAMLIndividualTrustedSamlIdpConfiguration::setSignRequest);
 
-		header.addComponent(binding);
-		header.addComponent(signRequest);
+		header.addFormItem(binding, msg.getMessage("EditIndividualTrustedIdpSubView.binding"));
+		header.addFormItem(signRequest, "");
 
-		ChipsWithDropdown<String> certificatesCombo = new ChipsWithDropdown<>();
-		certificatesCombo.setCaption(msg.getMessage("EditIndividualTrustedIdpSubView.certificates"));
-		certificatesCombo.setItems(certificates.stream().collect(Collectors.toList()));
-		configBinder.forField(certificatesCombo).bind("certificates");
-		header.addComponent(certificatesCombo);
+		MultiSelectComboBox<String> certificatesCombo = new MultiSelectComboBox<>();
+		certificatesCombo.setItems(new ArrayList<>(certificates));
+		configBinder.forField(certificatesCombo)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getCertificates, SAMLIndividualTrustedSamlIdpConfiguration::setCertificates);
+		header.addFormItem(certificatesCombo, msg.getMessage("EditIndividualTrustedIdpSubView.certificates"));
 
-		TextField groupAttribute = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.groupMembershipAttribute"));
-		configBinder.forField(groupAttribute).bind("groupMembershipAttribute");
-		header.addComponent(groupAttribute);
+		TextField groupAttribute = new TextField();
+		configBinder.forField(groupAttribute)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getGroupMembershipAttribute, SAMLIndividualTrustedSamlIdpConfiguration::setGroupMembershipAttribute);
+		header.addFormItem(groupAttribute, msg.getMessage("EditIndividualTrustedIdpSubView.groupMembershipAttribute"));
 		
-		ComboBox<String> registrationForm = new ComboBox<>(
-				msg.getMessage("EditIndividualTrustedIdpSubView.registrationForm"));
+		ComboBox<String> registrationForm = new ComboBox<>();
 		registrationForm.setItems(registrationForms);
-		header.addComponent(registrationForm);
-		configBinder.forField(registrationForm).bind("registrationForm");
+		header.addFormItem(registrationForm, msg.getMessage("EditIndividualTrustedIdpSubView.registrationForm"));
+		configBinder.forField(registrationForm)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getRegistrationForm, SAMLIndividualTrustedSamlIdpConfiguration::setRegistrationForm);
 
-		EnableDisableCombo accountAssociation = new EnableDisableCombo(
-				msg.getMessage("EditIndividualTrustedIdpSubView.accountAssociation"), msg);
-		configBinder.forField(accountAssociation).bind("accountAssociation");
-		header.addComponent(accountAssociation);
+		Select<ToggleWithDefault> accountAssociation = new Select<>();
+		accountAssociation.setItemLabelGenerator(item -> msg.getMessage("EnableDisableCombo." + item));
+		accountAssociation.setItems(ToggleWithDefault.values());
+		accountAssociation.setValue(ToggleWithDefault.bydefault);
+		configBinder.forField(accountAssociation)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getAccountAssociation, SAMLIndividualTrustedSamlIdpConfiguration::setAccountAssociation);
+		header.addFormItem(accountAssociation, msg.getMessage("EditIndividualTrustedIdpSubView.accountAssociation"));
 
 		return header;
 	}
 
-	private CollapsibleLayout buildSingleLogoutSection()
+	private AccordionPanel buildSingleLogoutSection()
 	{
-		FormLayoutWithFixedCaptionWidth singleLogout = new FormLayoutWithFixedCaptionWidth();
-		singleLogout.setMargin(false);
+		FormLayout singleLogout = new FormLayout();
+		singleLogout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		singleLogout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		TextField postLogoutEndpoint = new TextField(
-				msg.getMessage("EditIndividualTrustedIdpSubView.postLogoutEndpoint"));
-		postLogoutEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(postLogoutEndpoint).bind("postLogoutEndpoint");
-		singleLogout.addComponent(postLogoutEndpoint);
+		TextField postLogoutEndpoint = new TextField();
+		postLogoutEndpoint.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(postLogoutEndpoint)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getPostLogoutEndpoint, SAMLIndividualTrustedSamlIdpConfiguration::setPostLogoutEndpoint);
+		singleLogout.addFormItem(postLogoutEndpoint, msg.getMessage("EditIndividualTrustedIdpSubView.postLogoutEndpoint"));
 
-		TextField postLogoutResponseEndpoint = new TextField(
-				msg.getMessage("EditIndividualTrustedIdpSubView.postLogoutResponseEndpoint"));
-		postLogoutResponseEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(postLogoutResponseEndpoint).bind("postLogoutResponseEndpoint");
-		singleLogout.addComponent(postLogoutResponseEndpoint);
+		TextField postLogoutResponseEndpoint = new TextField();
+		postLogoutResponseEndpoint.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(postLogoutResponseEndpoint)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getPostLogoutResponseEndpoint, SAMLIndividualTrustedSamlIdpConfiguration::setPostLogoutEndpoint);
+		singleLogout.addFormItem(postLogoutResponseEndpoint, msg.getMessage("EditIndividualTrustedIdpSubView.postLogoutResponseEndpoint"));
 
-		TextField redirectLogoutEndpoint = new TextField(
-				msg.getMessage("EditIndividualTrustedIdpSubView.redirectLogoutEndpoint"));
-		redirectLogoutEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(redirectLogoutEndpoint).bind("redirectLogoutEndpoint");
-		singleLogout.addComponent(redirectLogoutEndpoint);
+		TextField redirectLogoutEndpoint = new TextField();
+		redirectLogoutEndpoint.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(redirectLogoutEndpoint)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getRedirectLogoutEndpoint, SAMLIndividualTrustedSamlIdpConfiguration::setRedirectLogoutEndpoint);
+		singleLogout.addFormItem(redirectLogoutEndpoint, msg.getMessage("EditIndividualTrustedIdpSubView.redirectLogoutEndpoint"));
 
-		TextField redirectLogoutResponseEndpoint = new TextField(
-				msg.getMessage("EditIndividualTrustedIdpSubView.redirectLogoutResponseEndpoint"));
-		redirectLogoutResponseEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(redirectLogoutResponseEndpoint).bind("redirectLogoutResponseEndpoint");
-		singleLogout.addComponent(redirectLogoutResponseEndpoint);
+		TextField redirectLogoutResponseEndpoint = new TextField();
+		redirectLogoutResponseEndpoint.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(redirectLogoutResponseEndpoint)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getRedirectLogoutResponseEndpoint, SAMLIndividualTrustedSamlIdpConfiguration::setRedirectLogoutResponseEndpoint);
+		singleLogout.addFormItem(redirectLogoutResponseEndpoint, msg.getMessage("EditIndividualTrustedIdpSubView.redirectLogoutResponseEndpoint"));
 
-		TextField soapLogoutEndpoint = new TextField(
-				msg.getMessage("EditIndividualTrustedIdpSubView.soapLogoutEndpoint"));
-		soapLogoutEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(soapLogoutEndpoint).bind("soapLogoutEndpoint");
-		singleLogout.addComponent(soapLogoutEndpoint);
+		TextField soapLogoutEndpoint = new TextField();
+		soapLogoutEndpoint.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(soapLogoutEndpoint)
+				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getSoapLogoutEndpoint, SAMLIndividualTrustedSamlIdpConfiguration::setSoapLogoutEndpoint);
+		singleLogout.addFormItem(soapLogoutEndpoint, msg.getMessage("EditIndividualTrustedIdpSubView.soapLogoutEndpoint"));
 
-		return new CollapsibleLayout(msg.getMessage("EditIndividualTrustedIdpSubView.singleLogout"),
+		return new AccordionPanel(msg.getMessage("EditIndividualTrustedIdpSubView.singleLogout"),
 				singleLogout);
 	}
 
 	@Override
-	public List<String> getBredcrumbs()
+	public List<String> getBreadcrumbs()
 	{
 		if (editMode)
 			return Arrays.asList(msg.getMessage("EditIndividualTrustedIdpSubView.trustedIdp"),

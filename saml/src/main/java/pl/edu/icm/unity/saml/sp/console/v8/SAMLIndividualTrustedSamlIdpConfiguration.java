@@ -3,23 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.sp.console;
-
-import io.imunity.vaadin.auth.CommonWebAuthnProperties;
-import io.imunity.vaadin.auth.binding.ToggleWithDefault;
-import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
-import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
-import pl.edu.icm.unity.base.Constants;
-import pl.edu.icm.unity.base.exceptions.InternalException;
-import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.translation.TranslationProfile;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
-import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+package pl.edu.icm.unity.saml.sp.console.v8;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +11,29 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
+import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.SamlProperties.Binding;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.binding.ToggleWithDefault;
+import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
+/**
+ * SAML Individual trusted idp configuration
+ * 
+ * @author P.Piernik
+ *
+ */
 public class SAMLIndividualTrustedSamlIdpConfiguration
 {
 	private String name;
@@ -54,15 +60,12 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		setBinding(SAMLSPProperties.DEFAULT_IDP_BINDING);
 		accountAssociation = ToggleWithDefault.bydefault;
 		setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(SAMLSPProperties.DEFAULT_TRANSLATION_PROFILE));
-		logo = new LocalOrRemoteResource();
-		displayedName = new I18nString();
-		requestedNameFormats = new ArrayList<>();
-		certificates = new ArrayList<>();
 	}
 
-	public void fromProperties(MessageSource msg, VaadinLogoImageLoader imageAccessService, SAMLSPProperties source,
+	public void fromProperties(MessageSource msg, ImageAccessService imageAccessService, SAMLSPProperties source,
 			String name)
 	{
+
 		setName(name);
 		String prefix = SAMLSPProperties.IDP_PREFIX + name + ".";
 		setId(source.getValue(prefix + SAMLSPProperties.IDP_ID));
@@ -72,7 +75,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		if (source.isSet(prefix + SAMLSPProperties.IDP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SAMLSPProperties.IDP_LOGO);
-			setLogo(imageAccessService.loadImageFromUri(logoUri).orElseGet(LocalOrRemoteResource::new));
+			setLogo(imageAccessService.getEditableImageResourceFromUriWithUnknownTheme(logoUri).orElse(null));
 		}
 
 		if (source.isSet(prefix + SAMLSPProperties.IDP_BINDING))
@@ -88,7 +91,11 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		}
 
 		List<String> certs = source.getListOfValues(prefix + SAMLSPProperties.IDP_CERTIFICATES);
-		certificates.addAll(certs);
+		certs.forEach(
+
+				c -> {
+					certificates.add(c);
+				});
 		setRegistrationForm(source.getValue(prefix + CommonWebAuthnProperties.REGISTRATION_FORM));
 		if (source.isSet(prefix + CommonWebAuthnProperties.ENABLE_ASSOCIATION))
 		{
@@ -102,7 +109,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		}
 
 		String reqNameFormat = source.getValue(prefix + SAMLSPProperties.IDP_REQUESTED_NAME_FORMAT);
-		setRequestedNameFormats(reqNameFormat != null ? Arrays.asList(reqNameFormat) : new ArrayList<>());
+		setRequestedNameFormats(reqNameFormat != null ? Arrays.asList(reqNameFormat) : null);
 
 		setPostLogoutEndpoint(source.getValue(prefix + SamlProperties.POST_LOGOUT_URL));
 		setPostLogoutResponseEndpoint(source.getValue(prefix + SamlProperties.POST_LOGOUT_RET_URL));
@@ -122,6 +129,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		}
 		
 		groupMembershipAttribute = source.getValue(prefix + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
+
 	}
 
 	public void toProperties(Properties raw, MessageSource msg, FileStorageService fileService,
@@ -138,7 +146,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		if (getLogo() != null)
 		{
 			FileFieldUtils.saveInProperties(getLogo(), prefix + SAMLSPProperties.IDP_LOGO, raw, fileService,
-					FileStorageService.StandardOwner.AUTHENTICATOR.toString(), authName + "." + getId());
+					StandardOwner.AUTHENTICATOR.toString(), authName + "." + getId());
 		}
 
 		if (getBinding() != null)
@@ -221,7 +229,7 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 		SAMLIndividualTrustedSamlIdpConfiguration clone = new SAMLIndividualTrustedSamlIdpConfiguration();
 		clone.setName(this.getName());
 		clone.setId(new String(this.getId()));
-		clone.setLogo(this.getLogo() != null ? getLogo().clone() : null);
+		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
 		clone.setBinding(this.getBinding() != null ? Binding.valueOf(this.getBinding().toString()) : null);
 		clone.setTranslationProfile(
 				this.getTranslationProfile() != null ? this.getTranslationProfile().clone() : null);

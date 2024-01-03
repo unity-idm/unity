@@ -5,56 +5,53 @@
 
 package pl.edu.icm.unity.saml.sp.console;
 
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.NoSpaceValidator;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.api.UnitySubView;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.converter.StringToIntegerConverter;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
-import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
-import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
 
-/**
- * View for edit SAML trusted federation
- * 
- * @author P.Piernik
- *
- */
-class EditTrustedFederationSubView extends CustomComponent implements UnitySubView
+class EditTrustedFederationSubView extends VerticalLayout implements UnitySubView
 {
-	private MessageSource msg;
-	private Binder<SAMLAuthnTrustedFederationConfiguration> binder;
-	private boolean editMode = false;
-	private Set<String> validators;
-	private Set<String> certificates;
-	private Set<String> registrationForms;
-	private Set<String> usedNames;
+	private final MessageSource msg;
+	private final Binder<SAMLAuthnTrustedFederationConfiguration> binder;
+	private final boolean editMode;
+	private final Set<String> validators;
+	private final Set<String> certificates;
+	private final Set<String> registrationForms;
+	private final Set<String> usedNames;
 
 	EditTrustedFederationSubView(MessageSource msg,
 			InputTranslationProfileFieldFactory profileFieldFactory, SAMLAuthnTrustedFederationConfiguration toEdit,
 			SubViewSwitcher subViewSwitcher, Set<String> usedNames, Set<String> validators,
 			Set<String> certificates, Set<String> registrationForms,
-			Consumer<SAMLAuthnTrustedFederationConfiguration> onConfirm, Runnable onCancel)
+			Consumer<SAMLAuthnTrustedFederationConfiguration> onConfirm, Runnable onCancel, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.validators = validators;
@@ -66,42 +63,48 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 
 		binder = new Binder<>(SAMLAuthnTrustedFederationConfiguration.class);
 		FormLayout header = buildHeaderSection();
-		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
+		AccordionPanel remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
 				binder, "translationProfile");
 
 		binder.setBean(editMode ? toEdit.clone() : new SAMLAuthnTrustedFederationConfiguration());
 
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
-		mainView.addComponent(header);
-		mainView.addComponent(remoteDataMapping);
+		mainView.add(header);
+		mainView.add(remoteDataMapping);
 
-		Runnable onConfirmR = () -> {
+		Button cancelButton = new Button(msg.getMessage("cancel"), event -> onCancel.run());
+		cancelButton.setWidthFull();
+		Button updateButton = new Button(editMode ? msg.getMessage("update") :  msg.getMessage("create"), event ->
+		{
 			try
 			{
 				onConfirm.accept(getTrustedFederation());
 			} catch (FormValidationException e)
 			{
-				NotificationPopup.showError(msg, msg.getMessage(
-						"EditTrustedFederationSubView.invalidConfiguration"), e);
+				notificationPresenter.showError(msg.getMessage(
+						"EditTrustedFederationSubView.invalidConfiguration"), e.getMessage());
 			}
-		};
+		});
+		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		updateButton.setWidthFull();
+		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
+		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		mainView.add(buttonsLayout);
 
-		mainView.addComponent(editMode
-				? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
-				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));
-
-		setCompositionRoot(mainView);
-
+		add(mainView);
 	}
 
 	private FormLayout buildHeaderSection()
 	{
-		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
-		header.setMargin(true);
+		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		TextField name = new TextField(msg.getMessage("EditTrustedFederationSubView.name"));
-		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).withValidator(new NoSpaceValidator(msg))
+		TextField name = new TextField();
+		binder.forField(name)
+				.asRequired(msg.getMessage("fieldRequired"))
+				.withValidator(new NoSpaceValidator(msg::getMessage))
 				.withValidator((s, c) -> {
 					if (usedNames.contains(s))
 					{
@@ -112,61 +115,62 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 						return ValidationResult.ok();
 					}
 
-				}).bind("name");
-		header.addComponent(name);
+				}).bind(SAMLAuthnTrustedFederationConfiguration::getName, SAMLAuthnTrustedFederationConfiguration::setName);
+		header.addFormItem(name, msg.getMessage("EditTrustedFederationSubView.name"));
 		name.focus();
 
-		TextField url = new TextField(msg.getMessage("EditTrustedFederationSubView.url"));
-		url.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		binder.forField(url).asRequired(msg.getMessage("fieldRequired")).bind("url");
-		header.addComponent(url);
+		TextField url = new TextField();
+		url.setWidth(TEXT_FIELD_BIG.value());
+		binder.forField(url).asRequired(msg.getMessage("fieldRequired"))
+				.bind(SAMLAuthnTrustedFederationConfiguration::getUrl, SAMLAuthnTrustedFederationConfiguration::setUrl);
+		header.addFormItem(url, msg.getMessage("EditTrustedFederationSubView.url"));
 		
-		ChipsWithTextfield excludedIdps = new ChipsWithTextfield(msg);
-		excludedIdps.setCaption(msg.getMessage("EditTrustedFederationSubView.excludedIdps"));
-		url.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		binder.forField(excludedIdps).bind("excludedIdps");
-		header.addComponent(excludedIdps);
+		MultiSelectComboBox<String> excludedIdps = new CustomValuesMultiSelectComboBox();
+		excludedIdps.setWidth(TEXT_FIELD_BIG.value());
+		excludedIdps.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		binder.forField(excludedIdps)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(SAMLAuthnTrustedFederationConfiguration::getExcludedIdps, SAMLAuthnTrustedFederationConfiguration::setExcludedIdps);
+		header.addFormItem(excludedIdps, msg.getMessage("EditTrustedFederationSubView.excludedIdps"));
 
-		ComboBox<String> httpsTruststore = new ComboBox<>(
-				msg.getMessage("EditTrustedFederationSubView.httpsTruststore"));
+		ComboBox<String> httpsTruststore = new ComboBox<>();
 		httpsTruststore.setItems(validators);
-		binder.forField(httpsTruststore).bind("httpsTruststore");
-		header.addComponent(httpsTruststore);
+		binder.forField(httpsTruststore)
+				.bind(SAMLAuthnTrustedFederationConfiguration::getHttpsTruststore, SAMLAuthnTrustedFederationConfiguration::setHttpsTruststore);
+		header.addFormItem(httpsTruststore, msg.getMessage("EditTrustedFederationSubView.httpsTruststore"));
 
-		CheckBox ignoreSignatureVerification = new CheckBox(
+		Checkbox ignoreSignatureVerification = new Checkbox(
 				msg.getMessage("EditTrustedFederationSubView.ignoreSignatureVerification"));
-		binder.forField(ignoreSignatureVerification).bind("ignoreSignatureVerification");
-		header.addComponent(ignoreSignatureVerification);
+		binder.forField(ignoreSignatureVerification)
+				.bind(SAMLAuthnTrustedFederationConfiguration::isIgnoreSignatureVerification, SAMLAuthnTrustedFederationConfiguration::setIgnoreSignatureVerification);
+		header.addFormItem(ignoreSignatureVerification, "");
 
-		ComboBox<String> signatureVerificationCertificate = new ComboBox<>(
-				msg.getMessage("EditTrustedFederationSubView.signatureVerificationCertificate"));
+		ComboBox<String> signatureVerificationCertificate = new ComboBox<>();
 		signatureVerificationCertificate.setItems(certificates);
 		binder.forField(signatureVerificationCertificate).asRequired(
 				(v, c) -> ((v == null || v.isEmpty()) && !ignoreSignatureVerification.getValue())
 						? ValidationResult.error(msg.getMessage("fieldRequired"))
 						: ValidationResult.ok())
-				.bind("signatureVerificationCertificate");
-		header.addComponent(signatureVerificationCertificate);
+				.bind(SAMLAuthnTrustedFederationConfiguration::getSignatureVerificationCertificate, SAMLAuthnTrustedFederationConfiguration::setSignatureVerificationCertificate);
+		header.addFormItem(signatureVerificationCertificate, msg.getMessage("EditTrustedFederationSubView.signatureVerificationCertificate"));
 
-		TextField refreshInterval = new TextField();
-		refreshInterval.setCaption(msg.getMessage("EditTrustedFederationSubView.refreshInterval"));
+		IntegerField refreshInterval = new IntegerField();
+		refreshInterval.setMin(0);
 		binder.forField(refreshInterval).asRequired(msg.getMessage("fieldRequired"))
-				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
-				.bind("refreshInterval");
-		header.addComponent(refreshInterval);
+				.bind(SAMLAuthnTrustedFederationConfiguration::getRefreshInterval, SAMLAuthnTrustedFederationConfiguration::setRefreshInterval);
+		header.addFormItem(refreshInterval, msg.getMessage("EditTrustedFederationSubView.refreshInterval"));
 
-		ComboBox<String> registrationForm = new ComboBox<>(
-				msg.getMessage("EditTrustedFederationSubView.registrationForm"));
+		ComboBox<String> registrationForm = new ComboBox<>();
 		registrationForm.setItems(registrationForms);
-		binder.forField(registrationForm).bind("registrationForm");
-		header.addComponent(registrationForm);
+		binder.forField(registrationForm)
+				.bind(SAMLAuthnTrustedFederationConfiguration::getRegistrationForm, SAMLAuthnTrustedFederationConfiguration::setRegistrationForm);
+		header.addFormItem(registrationForm, msg.getMessage("EditTrustedFederationSubView.registrationForm"));
 
 		return header;
 	}
 
 	@Override
-	public List<String> getBredcrumbs()
+	public List<String> getBreadcrumbs()
 	{	
 		if (editMode)
 			return Arrays.asList(msg.getMessage("EditTrustedFederationSubView.trustedFederation"),

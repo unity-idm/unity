@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
+import pl.edu.icm.unity.saml.sp.console.v8.SAMLAuthneticatorConfiguration;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 

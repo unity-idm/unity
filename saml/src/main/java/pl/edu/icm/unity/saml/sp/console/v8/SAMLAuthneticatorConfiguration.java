@@ -1,22 +1,12 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.sp.console;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
+package pl.edu.icm.unity.saml.sp.console.v8;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -33,6 +23,11 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.util.*;
 
 /**
  * Related to {@link SAMLSPProperties}. Contains whole SAML authenticator

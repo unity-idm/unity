@@ -1,15 +1,12 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.sp.console;
+package pl.edu.icm.unity.saml.sp.console.v8;
 
-import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -17,34 +14,40 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.saml.sp.SAMLVerificator;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
-@Component
+/**
+ * Factory for {@link pl.edu.icm.unity.saml.sp.console.v8.SAMLAuthenticatorEditor}
+ * 
+ * @author P.Piernik
+ *
+ */
+@Component("SAMLAuthenticatorEditorFactoryV8")
 class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private final MessageSource msg;
-	private final InputTranslationProfileFieldFactory profileFieldFactory;
-	private final RegistrationsManagement registrationMan;
-	private final PKIManagement pkiMan;
-	private final RealmsManagement realmMan;
-	private final IdentityTypesRegistry idTypesReg;
-	private final FileStorageService fileStorageService;
-	private final URIAccessService uriAccessService;
-	private final UnityServerConfiguration serverConfig;
-	private final VaadinLogoImageLoader imageAccessService;
-	private final NotificationPresenter notificationPresenter;
-	private final SharedEndpointManagement sharedEndpointManagement;
+	private MessageSource msg;
+	private InputTranslationProfileFieldFactory profileFieldFactory;
+	private RegistrationsManagement registrationMan;
+	private PKIManagement pkiMan;
+	private RealmsManagement realmMan;
+	private IdentityTypesRegistry idTypesReg;
+	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
+	private ImageAccessService imageAccessService;
 
+	@Autowired
 	SAMLAuthenticatorEditorFactory(MessageSource msg, UnityServerConfiguration serverConfig,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan, PKIManagement pkiMan,
 			IdentityTypesRegistry idTypesReg, InputTranslationProfileFieldFactory profileFieldFactory,
 			FileStorageService fileStorageService, URIAccessService uriAccessService,
-			VaadinLogoImageLoader imageAccessService, NotificationPresenter notificationPresenter,
-			SharedEndpointManagement sharedEndpointManagement)
+			ImageAccessService imageAccessService)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
@@ -56,8 +59,7 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
 		this.imageAccessService = imageAccessService;
-		this.notificationPresenter = notificationPresenter;
-		this.sharedEndpointManagement = sharedEndpointManagement;
+
 	}
 
 	@Override
@@ -70,8 +72,7 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
 		return new SAMLAuthenticatorEditor(msg, serverConfig, pkiMan, profileFieldFactory, registrationMan,
-				realmMan, idTypesReg, fileStorageService, uriAccessService, imageAccessService, notificationPresenter,
-				sharedEndpointManagement);
+				realmMan, idTypesReg, fileStorageService, uriAccessService, imageAccessService);
 	}
 
 }

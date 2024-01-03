@@ -5,28 +5,35 @@
 
 package pl.edu.icm.unity.saml.sp.console;
 
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.tooltip.TooltipExtension;
-import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
+import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.elements.grid.EditableGrid;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.file.FileField;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -34,36 +41,25 @@ import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.sp.SAMLVerificator;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GridWithActionColumn;
-import pl.edu.icm.unity.webui.common.GridWithEditor;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
-import pl.edu.icm.unity.webui.common.file.FileField;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
-/**
- * SAML Authenticator editor
- * 
- * @author P.Piernik
- *
- */
+import java.io.ByteArrayInputStream;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
+
 class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 	public static final List<String> STANDART_NAME_FORMATS = Arrays.asList(
@@ -72,29 +68,32 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			"urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName",
 			"urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
 
-	private PKIManagement pkiMan;
-	private FileStorageService fileStorageService;
-	private URIAccessService uriAccessService;
-	private UnityServerConfiguration serverConfig;
-	private InputTranslationProfileFieldFactory profileFieldFactory;
-	private RegistrationsManagement registrationMan;
-	private Binder<SAMLAuthneticatorConfiguration> configBinder;
+	private final PKIManagement pkiMan;
+	private final FileStorageService fileStorageService;
+	private final URIAccessService uriAccessService;
+	private final UnityServerConfiguration serverConfig;
+	private final InputTranslationProfileFieldFactory profileFieldFactory;
+	private final RegistrationsManagement registrationMan;
+	private Binder<SAMLAuthenticatorConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
-	private Set<String> credentials;
-	private Set<String> realms;
-	private List<String> idTypes;
+	private final Set<String> credentials;
+	private final Set<String> realms;
+	private final List<String> idTypes;
 
-	private CheckBox defSignRequest;
+	private Checkbox defSignRequest;
 	private IndividualTrustedIdpComponent idps;
-	private CheckBox signMetadata;
-	private ImageAccessService imageAccessService;
+	private Checkbox signMetadata;
+	private final VaadinLogoImageLoader imageAccessService;
+	private final NotificationPresenter notificationPresenter;
+	private final SharedEndpointManagement sharedEndpointManagement;
 
 	SAMLAuthenticatorEditor(MessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan,
 			IdentityTypesRegistry idTypesReg, FileStorageService fileStorageService,
-			URIAccessService uriAccessService, ImageAccessService imageAccessService) throws EngineException
+			URIAccessService uriAccessService, VaadinLogoImageLoader imageAccessService,
+			NotificationPresenter notificationPresenter, SharedEndpointManagement sharedEndpointManagement) throws EngineException
 	{
 		super(msg);
 		this.fileStorageService = fileStorageService;
@@ -105,9 +104,10 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		this.registrationMan = registrationMan;
 		this.imageAccessService = imageAccessService;
 		this.credentials = pkiMan.getCredentialNames();
-		this.realms = realmMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toSet());
-		this.idTypes = idTypesReg.getAll().stream().map(i -> i.getId()).collect(Collectors.toList());
-
+		this.realms = realmMan.getRealms().stream().map(DescribedObjectROImpl::getName).collect(Collectors.toSet());
+		this.idTypes = idTypesReg.getAll().stream().map(IdentityTypeDefinition::getId).collect(Collectors.toList());
+		this.notificationPresenter = notificationPresenter;
+		this.sharedEndpointManagement = sharedEndpointManagement;
 	}
 
 	@Override
@@ -119,24 +119,26 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		boolean editMode = init(msg.getMessage("SAMLAuthenticatorEditor.defaultName"), toEdit,
 				forceNameEditable);
 
-		configBinder = new Binder<>(SAMLAuthneticatorConfiguration.class);
+		configBinder = new Binder<>(SAMLAuthenticatorConfiguration.class);
 
-		FormLayoutWithFixedCaptionWidth header = buildHeaderSection();
-		CollapsibleLayout trustedFederations = buildTrustedFederationsSection();
-		trustedFederations.expand();
-		CollapsibleLayout individualTrustedIdPs = buildIndividualTrustedIdPsSection();
-		CollapsibleLayout metadataPublishing = buildSAMLMetadaPublishingSection();
-		CollapsibleLayout singleLogout = buildSingleLogoutSection();
+		FormLayout header = buildHeaderSection();
+
+		AccordionPanel trustedFederations = buildTrustedFederationsSection();
+		trustedFederations.setOpened(true);
+		trustedFederations.setWidthFull();
+		AccordionPanel individualTrustedIdPs = buildIndividualTrustedIdPsSection();
+		individualTrustedIdPs.setWidthFull();
+		AccordionPanel metadataPublishing = buildSAMLMetadaPublishingSection();
+		metadataPublishing.setWidthFull();
+		AccordionPanel singleLogout = buildSingleLogoutSection();
+		singleLogout.setWidthFull();
 
 		VerticalLayout mainView = new VerticalLayout();
-		mainView.setMargin(false);
-		mainView.addComponent(header);
-		mainView.addComponent(trustedFederations);
-		mainView.addComponent(individualTrustedIdPs);
-		mainView.addComponent(metadataPublishing);
-		mainView.addComponent(singleLogout);
+		mainView.setPadding(false);
+		mainView.add(header);
+		mainView.add(trustedFederations, individualTrustedIdPs, metadataPublishing, singleLogout);
 
-		SAMLAuthneticatorConfiguration config = new SAMLAuthneticatorConfiguration();
+		SAMLAuthenticatorConfiguration config = new SAMLAuthenticatorConfiguration();
 		if (editMode)
 		{
 			config.fromProperties(pkiMan, uriAccessService, imageAccessService, msg, toEdit.configuration);
@@ -147,134 +149,153 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		return mainView;
 	}
 
-	private FormLayoutWithFixedCaptionWidth buildHeaderSection()
+	private FormLayout buildHeaderSection()
 	{
-		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
-		header.setMargin(true);
-		header.addComponent(name);
+		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		header.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
 		name.focus();
 
-		TextField requesterId = new TextField(msg.getMessage("SAMLAuthenticatorEditor.requesterId"));
-		requesterId.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(requesterId).asRequired(msg.getMessage("fieldRequired")).bind("requesterId");
-		header.addComponent(requesterId);
+		TextField requesterId = new TextField();
+		configBinder.forField(requesterId)
+				.asRequired(msg.getMessage("fieldRequired"))
+				.bind(SAMLAuthenticatorConfiguration::getRequesterId, SAMLAuthenticatorConfiguration::setRequesterId);
+		header.addFormItem(requesterId, msg.getMessage("SAMLAuthenticatorEditor.requesterId"));
 
 		ComboBox<String> credential = new ComboBox<>();
-		credential.setCaption(msg.getMessage("SAMLAuthenticatorEditor.credential"));
 		credential.setItems(credentials);
 		configBinder.forField(credential).asRequired(
 				(v, c) -> ((v == null || v.isEmpty()) && (isSignReq() || signMetadata.getValue()))
 						? ValidationResult.error(msg.getMessage("fieldRequired"))
 						: ValidationResult.ok())
-				.bind("credential");
-		header.addComponent(credential);
+				.bind(SAMLAuthenticatorConfiguration::getCredential, SAMLAuthenticatorConfiguration::setCredential);
+		header.addFormItem(credential, msg.getMessage("SAMLAuthenticatorEditor.credential"));
 		
 		ComboBox<String> additionalCredential = new ComboBox<>();
-		additionalCredential.setCaption(msg.getMessage("SAMLAuthenticatorEditor.additionalCredential"));
-		additionalCredential.setDescription(msg.getMessage("SAMLAuthenticatorEditor.additionalCredentialDesc"));
-		TooltipExtension.tooltip(additionalCredential);
 		additionalCredential.setItems(credentials);
 		configBinder.forField(additionalCredential)
-				.bind("additionalCredential");
-		header.addComponent(additionalCredential);
+				.bind(SAMLAuthenticatorConfiguration::getAdditionalCredential, SAMLAuthenticatorConfiguration::setAdditionalCredential);
+		header.addFormItem(additionalCredential, msg.getMessage("SAMLAuthenticatorEditor.additionalCredential"))
+				.add(TooltipFactory.get(msg.getMessage("SAMLAuthenticatorEditor.additionalCredentialDesc")));
 
-		CheckBox includeAddtionalCredentialInMetadata = new CheckBox(msg.getMessage("SAMLAuthenticatorEditor.includeAddtionalCredentialInMetadata"));
-		configBinder.forField(includeAddtionalCredentialInMetadata).bind("includeAddtionalCredentialInMetadata");
-		header.addComponent(includeAddtionalCredentialInMetadata);
+		Checkbox includeAddtionalCredentialInMetadata = new Checkbox(msg.getMessage("SAMLAuthenticatorEditor.includeAddtionalCredentialInMetadata"));
+		configBinder.forField(includeAddtionalCredentialInMetadata)
+				.bind(SAMLAuthenticatorConfiguration::isIncludeAdditionalCredentialInMetadata, SAMLAuthenticatorConfiguration::setIncludeAdditionalCredentialInMetadata);
+		header.addFormItem(includeAddtionalCredentialInMetadata, "");
 			
-		ChipsWithFreeText acceptedNameFormats = new ChipsWithFreeText(msg);
-		acceptedNameFormats.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH,
-				FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		acceptedNameFormats.setCaption(msg.getMessage("SAMLAuthenticatorEditor.acceptedNameFormats"));
+		MultiSelectComboBox<String> acceptedNameFormats = new MultiSelectComboBox<>();
 		acceptedNameFormats.setItems(STANDART_NAME_FORMATS);
-		header.addComponent(acceptedNameFormats);
-		configBinder.forField(acceptedNameFormats).bind("acceptedNameFormats");
+		acceptedNameFormats.setWidth(TEXT_FIELD_BIG.value());
+		header.addFormItem(acceptedNameFormats, msg.getMessage("SAMLAuthenticatorEditor.acceptedNameFormats"));
+		configBinder.forField(acceptedNameFormats)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(SAMLAuthenticatorConfiguration::getAcceptedNameFormats, SAMLAuthenticatorConfiguration::setAcceptedNameFormats);
 
-		CheckBox requireSignedAssertion = new CheckBox(
+		Checkbox requireSignedAssertion = new Checkbox(
 				msg.getMessage("SAMLAuthenticatorEditor.requireSignedAssertion"));
-		configBinder.forField(requireSignedAssertion).bind("requireSignedAssertion");
-		header.addComponent(requireSignedAssertion);
+		configBinder.forField(requireSignedAssertion)
+				.bind(SAMLAuthenticatorConfiguration::isRequireSignedAssertion, SAMLAuthenticatorConfiguration::setRequireSignedAssertion);
+		header.addFormItem(requireSignedAssertion, "");
 
-		defSignRequest = new CheckBox(msg.getMessage("SAMLAuthenticatorEditor.defSignRequest"));
-		configBinder.forField(defSignRequest).bind("defSignRequest");
-		header.addComponent(defSignRequest);
+		defSignRequest = new Checkbox(msg.getMessage("SAMLAuthenticatorEditor.defSignRequest"));
+		configBinder.forField(defSignRequest)
+				.bind(SAMLAuthenticatorConfiguration::isDefSignRequest, SAMLAuthenticatorConfiguration::setDefSignRequest);
+		header.addFormItem(defSignRequest, "");
 
-		ChipsWithFreeText defaultRequestedNameFormat = new ChipsWithFreeText(msg);
-		defaultRequestedNameFormat.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH,
-				FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		defaultRequestedNameFormat
-				.setCaption(msg.getMessage("SAMLAuthenticatorEditor.defaultRequestedNameFormat"));
+		MultiSelectComboBox<String> defaultRequestedNameFormat = new CustomValuesMultiSelectComboBox();
 		defaultRequestedNameFormat.setItems(STANDART_NAME_FORMATS);
-		defaultRequestedNameFormat.setMaxSelection(1);
-		header.addComponent(defaultRequestedNameFormat);
-		configBinder.forField(defaultRequestedNameFormat).bind("defaultRequestedNameFormat");
+		defaultRequestedNameFormat.setPlaceholder(msg.getMessage("typeOrSelect"));
+		defaultRequestedNameFormat.setWidth(TEXT_FIELD_BIG.value());
+		header.addFormItem(defaultRequestedNameFormat, msg.getMessage("SAMLAuthenticatorEditor.defaultRequestedNameFormat"));
+		configBinder.forField(defaultRequestedNameFormat)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(SAMLAuthenticatorConfiguration::getDefaultRequestedNameFormat, SAMLAuthenticatorConfiguration::setDefaultRequestedNameFormat);
 
-		CheckBox defAccountAssociation = new CheckBox(
+		Checkbox defAccountAssociation = new Checkbox(
 				msg.getMessage("SAMLAuthenticatorEditor.defAccountAssociation"));
-		configBinder.forField(defAccountAssociation).bind("defAccountAssociation");
-		header.addComponent(defAccountAssociation);
+		configBinder.forField(defAccountAssociation)
+				.bind(SAMLAuthenticatorConfiguration::isDefAccountAssociation, SAMLAuthenticatorConfiguration::setDefAccountAssociation);
+		header.addFormItem(defAccountAssociation, "");
 
 		return header;
 	}
 
-	private CollapsibleLayout buildTrustedFederationsSection()
+	private AccordionPanel buildTrustedFederationsSection()
 	{
-		FormLayoutWithFixedCaptionWidth trustedFederations = new FormLayoutWithFixedCaptionWidth();
-		trustedFederations.setMargin(false);
+		FormLayout trustedFederations = new FormLayout();
+		trustedFederations.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		trustedFederations.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		TrustedFederationComponent federations = new TrustedFederationComponent();
-		configBinder.forField(federations).bind("trustedFederations");
-		trustedFederations.addComponent(federations);
+		configBinder.forField(federations)
+				.bind(SAMLAuthenticatorConfiguration::getTrustedFederations, SAMLAuthenticatorConfiguration::setTrustedFederations);
+		trustedFederations.addFormItem(federations, "");
 
-		return new CollapsibleLayout(msg.getMessage("SAMLAuthenticatorEditor.trustedFederations"),
+		return new AccordionPanel(msg.getMessage("SAMLAuthenticatorEditor.trustedFederations"),
 				trustedFederations);
 	}
 
-	private CollapsibleLayout buildIndividualTrustedIdPsSection()
+	private AccordionPanel buildIndividualTrustedIdPsSection()
 	{
-		FormLayoutWithFixedCaptionWidth individualTrustedIdPs = new FormLayoutWithFixedCaptionWidth();
-		individualTrustedIdPs.setMargin(false);
+		FormLayout individualTrustedIdPs = new FormLayout();
+		individualTrustedIdPs.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		individualTrustedIdPs.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		idps = new IndividualTrustedIdpComponent();
-		configBinder.forField(idps).bind("individualTrustedIdps");
-		individualTrustedIdPs.addComponent(idps);
+		configBinder.forField(idps)
+				.bind(SAMLAuthenticatorConfiguration::getIndividualTrustedIdps, SAMLAuthenticatorConfiguration::setIndividualTrustedIdps);
+		individualTrustedIdPs.addFormItem(idps, "");
 
-		return new CollapsibleLayout(msg.getMessage("SAMLAuthenticatorEditor.individualTrustedIdPs"),
+		return new AccordionPanel(msg.getMessage("SAMLAuthenticatorEditor.individualTrustedIdPs"),
 				individualTrustedIdPs);
 	}
 
-	private CollapsibleLayout buildSAMLMetadaPublishingSection()
+	private AccordionPanel buildSAMLMetadaPublishingSection()
 	{
-		FormLayoutWithFixedCaptionWidth metadataPublishing = new FormLayoutWithFixedCaptionWidth();
-		metadataPublishing.setMargin(false);
+		FormLayout metadataPublishing = new FormLayout();
+		metadataPublishing.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		metadataPublishing.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		CheckBox publishMetadata = new CheckBox(msg.getMessage("SAMLAuthenticatorEditor.publishMetadata"));
-		configBinder.forField(publishMetadata).bind("publishMetadata");
-		metadataPublishing.addComponent(publishMetadata);
+		Checkbox publishMetadata = new Checkbox(msg.getMessage("SAMLAuthenticatorEditor.publishMetadata"));
+		configBinder.forField(publishMetadata)
+				.bind(SAMLAuthenticatorConfiguration::isPublishMetadata, SAMLAuthenticatorConfiguration::setPublishMetadata);
+		metadataPublishing.addFormItem(publishMetadata, "");
 
-		TextField metadataPath = new TextField(msg.getMessage("SAMLAuthenticatorEditor.metadataPath"));
-		metadataPath.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
+		TextField metadataPath = new TextField();
 		configBinder.forField(metadataPath)
 				.asRequired((v, c) -> ((v == null || v.isEmpty()) && publishMetadata.getValue())
 						? ValidationResult.error(msg.getMessage("fieldRequired"))
 						: ValidationResult.ok())
-				.bind("metadataPath");
+				.bind(SAMLAuthenticatorConfiguration::getMetadataPath, SAMLAuthenticatorConfiguration::setMetadataPath);
 		metadataPath.setEnabled(false);
-		metadataPublishing.addComponent(metadataPath);
+		metadataPublishing.addFormItem(metadataPath, msg.getMessage("SAMLAuthenticatorEditor.metadataPath"));
 
-		signMetadata = new CheckBox(msg.getMessage("SAMLAuthenticatorEditor.signMetadata"));
-		configBinder.forField(signMetadata).bind("signMetadata");
+		signMetadata = new Checkbox(msg.getMessage("SAMLAuthenticatorEditor.signMetadata"));
+		configBinder.forField(signMetadata)
+				.bind(SAMLAuthenticatorConfiguration::isSignMetadata, SAMLAuthenticatorConfiguration::setSignMetadata);
 		signMetadata.setEnabled(false);
-		metadataPublishing.addComponent(signMetadata);
+		metadataPublishing.addFormItem(signMetadata, "");
 
-		CheckBox autoGenerateMetadata = new CheckBox(
+		Checkbox autoGenerateMetadata = new Checkbox(
 				msg.getMessage("SAMLAuthenticatorEditor.autoGenerateMetadata"));
-		configBinder.forField(autoGenerateMetadata).bind("autoGenerateMetadata");
+		configBinder.forField(autoGenerateMetadata)
+				.bind(SAMLAuthenticatorConfiguration::isAutoGenerateMetadata, SAMLAuthenticatorConfiguration::setAutoGenerateMetadata);
 		autoGenerateMetadata.setEnabled(false);
-		metadataPublishing.addComponent(autoGenerateMetadata);
+		metadataPublishing.addFormItem(autoGenerateMetadata, "");
+
+		TextField urlMetadataPathField = new TextField();
+		urlMetadataPathField.setWidth(TEXT_FIELD_BIG.value());
+		urlMetadataPathField.setReadOnly(true);
+		FormLayout.FormItem url = metadataPublishing.addFormItem(urlMetadataPathField, "");
+		autoGenerateMetadata.addValueChangeListener(event -> url.setVisible(event.getValue()));
+		metadataPath.addValueChangeListener(item -> urlMetadataPathField.setValue(
+				sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + item.getValue()));
+		configBinder.forField(urlMetadataPathField)
+				.bindReadOnly(item -> sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + item.getMetadataPath());
 
 		FileField metadataSource = new FileField(msg, "text/xml", "metadata.xml",
 				serverConfig.getFileSizeLimit());
-		metadataSource.setCaption(msg.getMessage("SAMLAuthenticatorEditor.metadataFile"));
+		metadataSource.setSizeFull();
 		metadataSource.configureBinding(configBinder, "metadataSource", Optional.of((value, context) -> {
 			if (value != null && value.getLocal() != null)
 			{
@@ -290,7 +311,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			}
 
 			boolean isEmpty = value == null || (value.getLocal() == null
-					&& (value.getRemote() == null || value.getRemote().isEmpty()));
+					&& (value.getSrc() == null || value.getSrc().isEmpty()));
 
 			if (publishMetadata.getValue() && (!autoGenerateMetadata.getValue() && isEmpty))
 			{
@@ -301,7 +322,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		}));
 		metadataSource.setEnabled(false);
-		metadataPublishing.addComponent(metadataSource);
+		metadataPublishing.addFormItem(metadataSource, msg.getMessage("SAMLAuthenticatorEditor.metadataFile"));
 
 		publishMetadata.addValueChangeListener(e -> {
 			boolean v = e.getValue();
@@ -311,40 +332,42 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			metadataSource.setEnabled(!autoGenerateMetadata.getValue() && v);
 		});
 
-		autoGenerateMetadata.addValueChangeListener(e -> {
-			metadataSource.setEnabled(!e.getValue() && publishMetadata.getValue());
-		});
+		autoGenerateMetadata.addValueChangeListener(e -> metadataSource.setEnabled(!e.getValue() && publishMetadata.getValue()));
 
-		return new CollapsibleLayout(msg.getMessage("SAMLAuthenticatorEditor.metadataPublishing"),
+		return new AccordionPanel(msg.getMessage("SAMLAuthenticatorEditor.metadataPublishing"),
 				metadataPublishing);
 	}
 
-	private CollapsibleLayout buildSingleLogoutSection()
+	private AccordionPanel buildSingleLogoutSection()
 	{
-		FormLayoutWithFixedCaptionWidth singleLogout = new FormLayoutWithFixedCaptionWidth();
-		singleLogout.setMargin(false);
+		FormLayout singleLogout = new FormLayout();
+		singleLogout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		singleLogout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		TextField sloPath = new TextField(msg.getMessage("SAMLAuthenticatorEditor.sloPath"));
-		configBinder.forField(sloPath).bind("sloPath");
-		singleLogout.addComponent(sloPath);
+		TextField sloPath = new TextField();
+		configBinder.forField(sloPath).bind(SAMLAuthenticatorConfiguration::getSloPath, SAMLAuthenticatorConfiguration::setSloPath);
+		singleLogout.addFormItem(sloPath, msg.getMessage("SAMLAuthenticatorEditor.sloPath"));
 
-		ComboBox<String> sloRealm = new ComboBox<>(msg.getMessage("SAMLAuthenticatorEditor.sloRealm"));
+		ComboBox<String> sloRealm = new ComboBox<>();
 		sloRealm.setItems(realms);
-		singleLogout.addComponent(sloRealm);
-		configBinder.forField(sloRealm).bind("sloRealm");
+		singleLogout.addFormItem(sloRealm, msg.getMessage("SAMLAuthenticatorEditor.sloRealm"));
+		configBinder.forField(sloRealm).bind(SAMLAuthenticatorConfiguration::getSloRealm, SAMLAuthenticatorConfiguration::setSloRealm);
 
-		GridWithEditor<SAMLIdentityMapping> sloMappings = new GridWithEditor<>(msg, SAMLIdentityMapping.class);
-		sloMappings.setCaption(msg.getMessage("SAMLAuthenticatorEditor.sloMappings"));
-		singleLogout.addComponent(sloMappings);
-		sloMappings.addComboColumn(s -> s.getUnityId(), (t, v) -> t.setUnityId(v),
-				msg.getMessage("SAMLAuthenticatorEditor.sloMappings.unityId"), idTypes, 30, false);
-		sloMappings.addTextColumn(s -> s.getSamlId(), (t, v) -> t.setSamlId(v),
-				msg.getMessage("SAMLAuthenticatorEditor.sloMappings.samlId"), 70, false);
+		EditableGrid<SAMLIdentityMapping> sloMappings = new EditableGrid<>(msg::getMessage,
+				() -> new SAMLIdentityMapping(null, idTypes.iterator().next()));
+		sloMappings.setWidth("40em");
+		sloMappings.setHeight("20em");
+		singleLogout.addFormItem(sloMappings, msg.getMessage("SAMLAuthenticatorEditor.sloMappings"));
+		sloMappings.addComboBoxColumn(SAMLIdentityMapping::getUnityId, SAMLIdentityMapping::setUnityId, idTypes)
+				.setHeader(msg.getMessage("SAMLAuthenticatorEditor.sloMappings.unityId"))
+				.setAutoWidth(true);
+		sloMappings.addColumn(SAMLIdentityMapping::getSamlId, SAMLIdentityMapping::setSamlId, false)
+				.setHeader(msg.getMessage("SAMLAuthenticatorEditor.sloMappings.samlId"))
+				.setAutoWidth(true);
+		;
+		configBinder.forField(sloMappings).bind(SAMLAuthenticatorConfiguration::getSloMappings, SAMLAuthenticatorConfiguration::setSloMappings);
 
-		sloMappings.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(sloMappings).bind("sloMappings");
-
-		return new CollapsibleLayout(msg.getMessage("SAMLAuthenticatorEditor.singleLogout"), singleLogout);
+		return new AccordionPanel(msg.getMessage("SAMLAuthenticatorEditor.singleLogout"), singleLogout);
 	}
 
 	private boolean isSignReq()
@@ -363,7 +386,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	}
 
 	@Override
-	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
+	public AuthenticatorDefinition getAuthenticatorDefinition() throws FormValidationException
 	{
 		return new AuthenticatorDefinition(getName(), SAMLVerificator.NAME, getConfiguration(), null);
 	}
@@ -383,7 +406,9 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 	private Set<String> getRegistrationForms() throws EngineException
 	{
-		return registrationMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toSet());
+		return registrationMan.getForms().stream()
+				.map(DescribedObjectROImpl::getName)
+				.collect(Collectors.toSet());
 	}
 
 	private class TrustedFederationComponent extends CustomField<List<SAMLAuthnTrustedFederationConfiguration>>
@@ -392,31 +417,44 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		public TrustedFederationComponent()
 		{
-			federationList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-			federationList.addComponentColumn(
-					p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)),
-					msg.getMessage("TrustedFederationComponent.name"), 50);
+			federationList = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
+			federationList.addComponentColumn(p -> new LinkButton(p.getName(), e -> gotoEdit(p)))
+							.setHeader(msg.getMessage("TrustedFederationComponent.name"));
+			federationList.setHeight("15em");
+			add(initContent());
+			setWidth("25em");
+			setHeight("20em");
 		}
 
 		@Override
+		protected List<SAMLAuthnTrustedFederationConfiguration> generateModelValue()
+		{
+			return getValue();
+		}
+
+		@Override
+		protected void setPresentationValue(
+				List<SAMLAuthnTrustedFederationConfiguration> samlAuthnTrustedFederationConfigurations)
+		{
+			federationList.setItems(samlAuthnTrustedFederationConfigurations);
+		}
+
 		protected Component initContent()
 		{
 			VerticalLayout main = new VerticalLayout();
-			main.setMargin(false);
-			main.addStyleName(Styles.narrowTable.toString());
+			main.setPadding(false);
 			Button add = new Button();
 			add.addClickListener(e -> gotoNew());
-			add.setIcon(Images.add.getResource());
-			main.addComponent(add);
-			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
-			main.addComponent(federationList);
+			add.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
+			main.add(add, federationList);
+			main.setAlignItems(FlexComponent.Alignment.END);
 			return main;
 		}
 
 		private List<SingleActionHandler<SAMLAuthnTrustedFederationConfiguration>> getActionsHandlers()
 		{
 			SingleActionHandler<SAMLAuthnTrustedFederationConfiguration> edit = SingleActionHandler
-					.builder4Edit(msg, SAMLAuthnTrustedFederationConfiguration.class)
+					.builder4Edit(msg::getMessage, SAMLAuthnTrustedFederationConfiguration.class)
 					.withHandler(r -> {
 						SAMLAuthnTrustedFederationConfiguration edited = r.iterator().next();
 						gotoEdit(edited);
@@ -425,7 +463,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 					).build();
 
 			SingleActionHandler<SAMLAuthnTrustedFederationConfiguration> remove = SingleActionHandler
-					.builder4Delete(msg, SAMLAuthnTrustedFederationConfiguration.class)
+					.builder4Delete(msg::getMessage, SAMLAuthnTrustedFederationConfiguration.class)
 					.withHandler(r -> {
 						federationList.removeElement(r.iterator().next());
 						fireChange();
@@ -449,8 +487,9 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		{
 			gotoEditSubView(edited,
 					federationList.getElements().stream()
-							.filter(p -> p.getName() != edited.getName())
-							.map(p -> p.getName()).collect(Collectors.toSet()),
+							.map(SAMLAuthnTrustedFederationConfiguration::getName)
+							.filter(pName -> !Objects.equals(pName, edited.getName()))
+							.collect(Collectors.toSet()),
 					c -> {
 						federationList.replaceElement(edited, c);
 						fireChange();
@@ -473,7 +512,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 			} catch (EngineException e)
 			{
-				NotificationPopup.showError(msg, "Can not init trusted federation editor", e);
+				notificationPresenter.showError("Can not init trusted federation editor", e.getMessage());
 				return;
 			}
 
@@ -485,7 +524,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 					}, () -> {
 						subViewSwitcher.exitSubView();
 						federationList.focus();
-					});
+					}, notificationPresenter);
 			subViewSwitcher.goToSubView(subView);
 
 		}
@@ -496,16 +535,11 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			return federationList.getElements();
 		}
 
-		@Override
-		protected void doSetValue(List<SAMLAuthnTrustedFederationConfiguration> value)
-		{
-			federationList.setItems(value);
-		}
 
 		private void fireChange()
 		{
-			fireEvent(new ValueChangeEvent<List<SAMLAuthnTrustedFederationConfiguration>>(this,
-					federationList.getElements(), true));
+			fireEvent(new ComponentValueChangeEvent<>(this, this,
+					federationList.getElements(), false));
 		}
 	}
 
@@ -515,10 +549,26 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		public IndividualTrustedIdpComponent()
 		{
-			idpList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-			idpList.addComponentColumn(
-					p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)),
-					msg.getMessage("IndividualTrustedIdpComponent.name"), 50);
+			idpList = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
+			idpList.setHeight("15em");
+			idpList.addComponentColumn(p -> new LinkButton(p.getName(), e -> gotoEdit(p)))
+							.setHeader(msg.getMessage("IndividualTrustedIdpComponent.name"));
+			add(initContent());
+			setWidth("25em");
+			setHeight("20em");
+		}
+
+		@Override
+		protected List<SAMLIndividualTrustedSamlIdpConfiguration> generateModelValue()
+		{
+			return getValue();
+		}
+
+		@Override
+		protected void setPresentationValue(
+				List<SAMLIndividualTrustedSamlIdpConfiguration> samlIndividualTrustedSamlIdpConfigurations)
+		{
+			idpList.setItems(samlIndividualTrustedSamlIdpConfigurations);
 		}
 
 		@Override
@@ -527,25 +577,22 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			return idpList.getElements();
 		}
 
-		@Override
 		protected Component initContent()
 		{
 			VerticalLayout main = new VerticalLayout();
 			main.setMargin(false);
-			main.addStyleName(Styles.narrowTable.toString());
 			Button add = new Button();
 			add.addClickListener(e -> gotoNew());
-			add.setIcon(Images.add.getResource());
-			main.addComponent(add);
-			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
-			main.addComponent(idpList);
+			add.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
+			main.add(add, idpList);
+			main.setAlignItems(FlexComponent.Alignment.END);
 			return main;
 		}
 
 		private List<SingleActionHandler<SAMLIndividualTrustedSamlIdpConfiguration>> getActionsHandlers()
 		{
 			SingleActionHandler<SAMLIndividualTrustedSamlIdpConfiguration> edit = SingleActionHandler
-					.builder4Edit(msg, SAMLIndividualTrustedSamlIdpConfiguration.class)
+					.builder4Edit(msg::getMessage, SAMLIndividualTrustedSamlIdpConfiguration.class)
 					.withHandler(r -> {
 						SAMLIndividualTrustedSamlIdpConfiguration edited = r.iterator().next();
 						gotoEdit(edited);
@@ -554,7 +601,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 					).build();
 
 			SingleActionHandler<SAMLIndividualTrustedSamlIdpConfiguration> remove = SingleActionHandler
-					.builder4Delete(msg, SAMLIndividualTrustedSamlIdpConfiguration.class)
+					.builder4Delete(msg::getMessage, SAMLIndividualTrustedSamlIdpConfiguration.class)
 					.withHandler(r -> {
 						idpList.removeElement(r.iterator().next());
 						fireChange();
@@ -577,8 +624,8 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		private void gotoEdit(SAMLIndividualTrustedSamlIdpConfiguration edited)
 		{
 			gotoEditSubView(edited,
-					idpList.getElements().stream().filter(p -> p.getName() != edited.getName())
-							.map(p -> p.getName()).collect(Collectors.toSet()),
+					idpList.getElements().stream().map(SAMLIndividualTrustedSamlIdpConfiguration::getName)
+							.filter(pName -> !Objects.equals(pName, edited.getName())).collect(Collectors.toSet()),
 					c -> {
 						idpList.replaceElement(edited, c);
 						fireChange();
@@ -599,33 +646,26 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 			} catch (EngineException e)
 			{
-				NotificationPopup.showError(msg, "Can not init trusted IdP editor", e);
+				notificationPresenter.showError( "Can not init trusted IdP editor", e.getMessage());
 				return;
 			}
 
-			EditIndividualTrustedIdpSubView subView = new EditIndividualTrustedIdpSubView(msg, serverConfig,
-					uriAccessService, profileFieldFactory, edited, subViewSwitcher, usedNames,
+			EditIndividualTrustedIdpSubView subView = new EditIndividualTrustedIdpSubView(msg, notificationPresenter,
+					profileFieldFactory, edited, subViewSwitcher, usedNames,
 					certificates, forms, r -> {
 						onConfirm.accept(r);
 						idpList.focus();
 					}, () -> {
 						subViewSwitcher.exitSubView();
 						idpList.focus();
-					});
+					}, serverConfig);
 			subViewSwitcher.goToSubView(subView);
 
 		}
 
-		@Override
-		protected void doSetValue(List<SAMLIndividualTrustedSamlIdpConfiguration> value)
-		{
-			idpList.setItems(value);
-		}
-
 		private void fireChange()
 		{
-			fireEvent(new ValueChangeEvent<List<SAMLIndividualTrustedSamlIdpConfiguration>>(this,
-					idpList.getElements(), true));
+			fireEvent(new ComponentValueChangeEvent<>(this, this, idpList.getElements(), false));
 		}
 
 	}

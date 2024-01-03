@@ -3,7 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.sp.console;
+package pl.edu.icm.unity.saml.sp.console.v8;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -13,11 +17,12 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-
+/**
+ * SAML trusted federation configuration
+ * 
+ * @author P.Piernik
+ *
+ */
 public class SAMLAuthnTrustedFederationConfiguration
 {
 	private String name;
