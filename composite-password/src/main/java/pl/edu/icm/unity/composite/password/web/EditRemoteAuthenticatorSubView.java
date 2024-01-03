@@ -5,44 +5,39 @@
 
 package pl.edu.icm.unity.composite.password.web;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.api.UnitySubView;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.composite.password.CompositePasswordProperties;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
+import pl.edu.icm.unity.pam.PAMVerificator;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.exceptions.InternalException;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.composite.password.CompositePasswordProperties.VerificatorTypes;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
-import pl.edu.icm.unity.pam.PAMVerificator;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
-import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
-
-/**
- * SubView for editing remote authenticator
- * 
- * @author P.Piernik
- *
- */
-class EditRemoteAuthenticatorSubView extends CustomComponent implements UnitySubView
+class EditRemoteAuthenticatorSubView extends VerticalLayout implements UnitySubView
 {
-	private MessageSource msg;
-	private AuthenticatorEditorFactory factory;
-	private AuthenticatorDefinition toEdit;
+	private final MessageSource msg;
+	private final AuthenticatorEditorFactory factory;
+	private final AuthenticatorDefinition toEdit;
 
-	private boolean editMode;
+	private final boolean editMode;
 
 	EditRemoteAuthenticatorSubView(MessageSource msg, AuthenticatorEditorFactory factory,
 			AuthenticatorDefinition toEdit, Consumer<AuthenticatorDefinition> onConfirm, Runnable onCancel,
-			SubViewSwitcher subViewSwitcher)
+			SubViewSwitcher subViewSwitcher, NotificationPresenter notificationPresenter)
 	{
 
 		this.msg = msg;
@@ -63,36 +58,38 @@ class EditRemoteAuthenticatorSubView extends CustomComponent implements UnitySub
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
 
-		Runnable onConfirmR = () -> {
+		mainView.add(editor.getEditor(toEdit, subViewSwitcher, true));
+
+		Button cancelButton = new Button(msg.getMessage("cancel"), event -> onCancel.run());
+		cancelButton.setWidthFull();
+		Button updateButton = new Button(editMode ? msg.getMessage("update") :  msg.getMessage("create"), event ->
+		{
 			try
 			{
-				onConfirm.accept(editor.getAuthenticatorDefiniton());
+				onConfirm.accept(editor.getAuthenticatorDefinition());
 			} catch (FormValidationException e)
 			{
-				NotificationPopup.showError(msg,
-						msg.getMessage("EditRemoteAuthenticatorSubView.invalidConfiguration"),
-						e);
+				notificationPresenter.showError(
+						msg.getMessage("EditRemoteAuthenticatorSubView.invalid"), e.getMessage());
 			}
-		};
+		});
+		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		updateButton.setWidthFull();
+		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
+		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		mainView.add(buttonsLayout);
 
-		mainView.addComponent(editor.getEditor(toEdit, subViewSwitcher, true));
-
-		mainView.addComponent(toEdit != null
-				? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
-				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));
-
-		setCompositionRoot(mainView);
-
+		add(mainView);
 	}
 
 	@Override
-	public List<String> getBredcrumbs()
+	public List<String> getBreadcrumbs()
 	{
 		List<String> breadcrumbs = new ArrayList<>();
 		breadcrumbs.add(msg.getMessage("EditRemoteAuthenticatorSubView.caption"));
 		breadcrumbs.add(factory.getSupportedAuthenticatorType().equals(PAMVerificator.NAME)
-				? VerificatorTypes.pam.toString()
-				: VerificatorTypes.ldap.toString());
+				? CompositePasswordProperties.VerificatorTypes.pam.toString()
+				: CompositePasswordProperties.VerificatorTypes.ldap.toString());
 		if (editMode)
 		{
 			breadcrumbs.add(toEdit.id);

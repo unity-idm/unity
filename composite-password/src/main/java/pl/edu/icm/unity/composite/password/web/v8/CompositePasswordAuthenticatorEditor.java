@@ -1,31 +1,14 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.composite.password.web;
+package pl.edu.icm.unity.composite.password.web.v8;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.accordion.AccordionPanel;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.data.Binder;
+import com.vaadin.ui.*;
+import com.vaadin.ui.Button.ClickListener;
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
-import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
-import io.imunity.vaadin.auth.extensions.PasswordRetrievalProperties;
-import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.grid.GridWithActionColumn;
-import io.imunity.vaadin.elements.grid.SingleActionHandler;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import org.apache.commons.io.FileUtils;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -35,10 +18,17 @@ import pl.edu.icm.unity.composite.password.CompositePasswordProperties;
 import pl.edu.icm.unity.composite.password.CompositePasswordProperties.VerificatorTypes;
 import pl.edu.icm.unity.composite.password.CompositePasswordVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
-import pl.edu.icm.unity.ldap.client.console.LdapAuthenticatorEditorFactory;
-import pl.edu.icm.unity.pam.web.PamAuthenticatorEditorFactory;
+import pl.edu.icm.unity.ldap.client.console.v8.LdapAuthenticatorEditorFactory;
+import pl.edu.icm.unity.pam.web.v8.PamAuthenticatorEditorFactory;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
+import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalProperties;
+import pl.edu.icm.unity.webui.common.*;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,32 +38,32 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE_O;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
-
-
+/**
+ * Composite password authenticator editor
+ *
+ * @author P.Piernik
+ *
+ */
 class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private final MessageSource msg;
-	private final Collection<CredentialDefinition> credentialDefinitions;
-	private final PamAuthenticatorEditorFactory pamFactory;
-	private final LdapAuthenticatorEditorFactory ldapFactory;
-	private final NotificationPresenter notificationPresenter;
+	private MessageSource msg;
+	private Collection<CredentialDefinition> credentialDefinitions;
+	private PamAuthenticatorEditorFactory pamFactory;
+	private LdapAuthenticatorEditorFactory ldapFactory;
 
+	private RemoteAuthenticatorsComponent remoteAuthn;
 	private Binder<CompositePasswordConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
 	CompositePasswordAuthenticatorEditor(MessageSource msg,
 			Collection<CredentialDefinition> credentialDefinitions,
-			PamAuthenticatorEditorFactory pamFactory, LdapAuthenticatorEditorFactory ldapFactory, NotificationPresenter notificationPresenter)
+			PamAuthenticatorEditorFactory pamFactory, LdapAuthenticatorEditorFactory ldapFactory)
 	{
 		super(msg);
 		this.msg = msg;
 		this.credentialDefinitions = credentialDefinitions;
 		this.pamFactory = pamFactory;
 		this.ldapFactory = ldapFactory;
-		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
@@ -86,21 +76,17 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 
 		configBinder = new Binder<>(CompositePasswordConfiguration.class);
 
-		MultiSelectComboBox<String> localCredentials = new MultiSelectComboBox<>();
+		ChipsWithDropdown<String> localCredentials = new ChipsWithDropdown<>(i -> i, true);
 		localCredentials.setItems(credentialDefinitions.stream()
-				.filter(c -> c.getTypeId().equals(PasswordVerificator.NAME))
-				.map(CredentialDefinition::getName)
+				.filter(c -> c.getTypeId().equals(PasswordVerificator.NAME)).map(c -> c.getName())
 				.collect(Collectors.toList()));
-		localCredentials.setWidth(TEXT_FIELD_MEDIUM.value());
-		configBinder.forField(localCredentials)
-				.withConverter(List::copyOf, HashSet::new)
-				.bind(CompositePasswordConfiguration::getLocalCredentials, CompositePasswordConfiguration::setLocalCredentials);
-		RemoteAuthenticatorsComponent remoteAuthn = new RemoteAuthenticatorsComponent();
-		configBinder.forField(remoteAuthn)
-				.bind(CompositePasswordConfiguration::getRemoteAuthenticators, CompositePasswordConfiguration::setRemoteAuthenticators);
+		localCredentials.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.localCredentials"));
+		configBinder.forField(localCredentials).bind("localCredentials");
+		remoteAuthn = new RemoteAuthenticatorsComponent();
+		remoteAuthn.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.remoteAuthenticators"));
+		configBinder.forField(remoteAuthn).bind("remoteAuthenticators");
 
-		AccordionPanel interactiveLoginSettings = buildInteractiveLoginSettingsSection();
-		interactiveLoginSettings.setWidthFull();
+		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
 
 		CompositePasswordConfiguration config = new CompositePasswordConfiguration();
 		if (editMode)
@@ -109,33 +95,34 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 		}
 		configBinder.setBean(config);
 
-		FormLayout header = new FormLayout();
-		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
-		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		header.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
-		header.addFormItem(localCredentials, msg.getMessage("CompositePasswordAuthenticatorEditor.localCredentials"));
-		header.addFormItem(remoteAuthn, msg.getMessage("CompositePasswordAuthenticatorEditor.remoteAuthenticators"));
+		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
+		header.addComponent(name);
+		header.addComponent(localCredentials);
+		header.addComponent(remoteAuthn);
 
 		VerticalLayout main = new VerticalLayout();
-		main.setPadding(false);
-		main.add(header, interactiveLoginSettings);
+		main.setMargin(false);
+		main.addComponent(header);
+		main.addComponent(interactiveLoginSettings);
 
 		return main;
 	}
 
-	private AccordionPanel buildInteractiveLoginSettingsSection()
+	private CollapsibleLayout buildInteractiveLoginSettingsSection()
 	{
-		FormLayout formLayout = new FormLayout();
-		formLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
-		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
+		interactiveLoginSettings.setMargin(false);
+		
+		I18nTextField retrievalName = new I18nTextField(msg);
+		retrievalName.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.passwordName"));
+		configBinder.forField(retrievalName).bind("retrievalName");
+		
+		interactiveLoginSettings.addComponent(retrievalName);
+		CollapsibleLayout wrapper = new CollapsibleLayout(
+				msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
+				interactiveLoginSettings);
 
-		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
-		configBinder.forField(retrievalName)
-				.withConverter(I18nString::new, I18nString::getLocalizedMap)
-				.bind(CompositePasswordConfiguration::getRetrievalName, CompositePasswordConfiguration::setRetrievalName);
-		formLayout.addFormItem(retrievalName, msg.getMessage("CompositePasswordAuthenticatorEditor.passwordName"));
-
-		return new AccordionPanel(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"), formLayout);
+		return wrapper;
 	}
 
 	private String getConfiguration() throws FormValidationException
@@ -153,7 +140,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 	}
 
 	@Override
-	public AuthenticatorDefinition getAuthenticatorDefinition() throws FormValidationException
+	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
 	{
 		return new AuthenticatorDefinition(getName(), CompositePasswordVerificator.NAME, getConfiguration(),
 				null);
@@ -162,8 +149,8 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 
 	public static class CompositePasswordConfiguration
 	{
-		private I18nString retrievalName = new I18nString();
-		private List<String> localCredentials = new ArrayList<>();
+		private I18nString retrievalName;
+		private List<String> localCredentials;
 		private List<SimpleAuthenticatorInfo> remoteAuthenticators;
 
 		public CompositePasswordConfiguration()
@@ -185,7 +172,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 				{
 					raw.put(prefix + CompositePasswordProperties.VERIFICATORS + i + "."
 							+ CompositePasswordProperties.VERIFICATOR_TYPE,
-							CompositePasswordProperties.VerificatorTypes.password
+							VerificatorTypes.password
 									.toString());
 					raw.put(prefix + CompositePasswordProperties.VERIFICATORS + i + "."
 							+ CompositePasswordProperties.VERIFICATOR_CREDENTIAL,
@@ -324,79 +311,66 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 
 	private class RemoteAuthenticatorsComponent extends CustomField<List<SimpleAuthenticatorInfo>>
 	{
-		private GridWithActionColumn<SimpleAuthenticatorInfo> remoteAuthnGrid;
-		private List<SimpleAuthenticatorInfo> remoteAuthnList;
+		private GridWithActionColumn<SimpleAuthenticatorInfo> remoteAuthnList;
+		private VerticalLayout main;
 
 		public RemoteAuthenticatorsComponent()
 		{
 			initUI();
 		}
 
-		@Override
-		protected List<SimpleAuthenticatorInfo> generateModelValue()
-		{
-			return getValue();
-		}
-
-		@Override
-		protected void setPresentationValue(List<SimpleAuthenticatorInfo> simpleAuthenticatorInfos)
-		{
-			setValue(simpleAuthenticatorInfos);
-		}
-
-		@Override
 		public void setValue(List<SimpleAuthenticatorInfo> authenticators)
 		{
-			remoteAuthnList.addAll(authenticators);
+			for (SimpleAuthenticatorInfo info : authenticators)
+			{
+				remoteAuthnList.addElement(info);
+			}
 		}
 
 		private void initUI()
 		{
-			VerticalLayout main = new VerticalLayout();
-			main.setWidth("35em");
-			main.setHeight("20em");
+			main = new VerticalLayout();
 			main.setMargin(false);
 
 			Button addPam = new Button(msg.getMessage("RemoteAuthenticatorsComponent.addPam"));
-			addPam.addClickListener(e -> getAddButtonClickListener(VerificatorTypes.pam));
-			addPam.setIcon(PLUS_CIRCLE_O.create());
-
+			addPam.addClickListener(getAddButtonClickListener(VerificatorTypes.pam));
+			addPam.setIcon(Images.add.getResource());
+			addPam.addStyleName(Styles.buttonAction.name());
+			
 			Button addLdap = new Button(msg.getMessage("RemoteAuthenticatorsComponent.addLdap"));
-			addLdap.setIcon(PLUS_CIRCLE_O.create());
-			addLdap.addClickListener(e -> getAddButtonClickListener(VerificatorTypes.ldap));
+			addLdap.setIcon(Images.add.getResource());
+			addLdap.addStyleName(Styles.buttonAction.name());
+			addLdap.addClickListener(getAddButtonClickListener(VerificatorTypes.ldap));
 
 			HorizontalLayout buttons = new HorizontalLayout();
 			buttons.setMargin(false);
-			buttons.add(addPam, addLdap);
+			buttons.addComponents(addPam, addLdap);
 
-			main.add(buttons);
-			main.setAlignItems(FlexComponent.Alignment.END);
+			main.addComponent(buttons);
+			main.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
 
-			remoteAuthnList = new ArrayList<>();
-			remoteAuthnGrid = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
-			remoteAuthnGrid.enableRowReordering(this::updateValue);
-			remoteAuthnGrid.addColumn(t -> t.name)
-					.setHeader(msg.getMessage("RemoteAuthenticatorsComponent.name"));
-			remoteAuthnGrid.addColumn(t -> t.type.toString())
-					.setHeader(msg.getMessage("RemoteAuthenticatorsComponent.type"));
-			remoteAuthnGrid.setItems(remoteAuthnList);
+			remoteAuthnList = new GridWithActionColumn<>(msg, getActionsHandlers());
+			remoteAuthnList.addColumn(t -> t.name, msg.getMessage("RemoteAuthenticatorsComponent.name"),
+					10);
+			remoteAuthnList.addColumn(t -> t.type.toString(),
+					msg.getMessage("RemoteAuthenticatorsComponent.type"), 50);
 
-			main.add(remoteAuthnGrid);
-			add(main);
+			main.addComponent(remoteAuthnList);
 		}
 
-		private void getAddButtonClickListener(VerificatorTypes forType)
+		private ClickListener getAddButtonClickListener(VerificatorTypes forType)
 		{
+			return e -> {
 				gotoEditRemoteAuthSubView(
 						forType.equals(VerificatorTypes.ldap) ? ldapFactory : pamFactory, null,
-						remoteAuthnList.stream().map(p -> p.name)
+						remoteAuthnList.getElements().stream().map(p -> p.name)
 								.collect(Collectors.toSet()),
 						c -> {
 							subViewSwitcher.exitSubViewAndShowUpdateInfo();
-							remoteAuthnList.add(new SimpleAuthenticatorInfo(forType,
+							remoteAuthnList.addElement(new SimpleAuthenticatorInfo(forType,
 									c.id, c.configuration));
-							remoteAuthnGrid.getDataProvider().refreshAll();
 						});
+			};
 		}
 
 		private void gotoEditRemoteAuthSubView(AuthenticatorEditorFactory factory,
@@ -412,11 +386,11 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 					r -> {
 						onConfirm.accept(r);
 						fireChange();
-						remoteAuthnGrid.focus();
+						remoteAuthnList.focus();
 					}, () -> {
 						subViewSwitcher.exitSubView();
-						remoteAuthnGrid.focus();
-					}, subViewSwitcher, notificationPresenter);
+						remoteAuthnList.focus();
+					}, subViewSwitcher);
 			subViewSwitcher.goToSubView(subView);
 
 		}
@@ -424,61 +398,75 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 		private List<SingleActionHandler<SimpleAuthenticatorInfo>> getActionsHandlers()
 		{
 			SingleActionHandler<SimpleAuthenticatorInfo> edit = SingleActionHandler
-					.builder4Edit(msg::getMessage, SimpleAuthenticatorInfo.class).withHandler(r -> {
+					.builder4Edit(msg, SimpleAuthenticatorInfo.class).withHandler(r -> {
 						SimpleAuthenticatorInfo edited = r.iterator().next();
 						gotoEditRemoteAuthSubView(
 								edited.type.equals(VerificatorTypes.ldap) ? ldapFactory
 										: pamFactory,
 								edited,
-								remoteAuthnList.stream()
-										.filter(p -> !Objects.equals(p.name, edited.name))
+								remoteAuthnList.getElements().stream()
+										.filter(p -> p.name != edited.name)
 										.map(p -> p.name)
 										.collect(Collectors.toSet()),
 								c -> {
-									remoteAuthnList.remove(edited);
-									remoteAuthnList.add(
+									remoteAuthnList.replaceElement(edited,
 											new SimpleAuthenticatorInfo(
 													edited.type,
 													c.id,
 													c.configuration));
 									subViewSwitcher.exitSubView();
-									remoteAuthnGrid.getDataProvider().refreshAll();
 								});
 					}
 
 					).build();
 
 			SingleActionHandler<SimpleAuthenticatorInfo> remove = SingleActionHandler
-					.builder4Delete(msg::getMessage, SimpleAuthenticatorInfo.class).withHandler(r -> {
-						remoteAuthnList.remove(r.iterator().next());
+					.builder4Delete(msg, SimpleAuthenticatorInfo.class).withHandler(r -> {
+						remoteAuthnList.removeElement(r.iterator().next());
 						fireChange();
-						remoteAuthnGrid.focus();
-						remoteAuthnGrid.getDataProvider().refreshAll();
+						remoteAuthnList.focus();
 					}).build();
 
-			SingleActionHandler<SimpleAuthenticatorInfo> reorder = new SingleActionHandler.Builder<SimpleAuthenticatorInfo>()
-					.withIcon(VaadinIcon.RESIZE_H)
-					.build();
-			return Arrays.asList(reorder, edit, remove);
+			return Arrays.asList(edit, remove);
 		}
 
 		@Override
 		public List<SimpleAuthenticatorInfo> getValue()
 		{
-			return List.copyOf(remoteAuthnList);
+			return remoteAuthnList.getElements();
+		}
+
+		@Override
+		protected Component initContent()
+		{
+			return main;
+		}
+
+		@Override
+		protected void doSetValue(List<SimpleAuthenticatorInfo> value)
+		{
+			remoteAuthnList.setItems(value);
 		}
 
 		private void fireChange()
 		{
-			fireEvent(new ComponentValueChangeEvent<>(this, this,
-					List.copyOf(remoteAuthnList), false));
+			fireEvent(new ValueChangeEvent<List<SimpleAuthenticatorInfo>>(this,
+					remoteAuthnList.getElements(), true));
 		}
 	}
 
-	public record SimpleAuthenticatorInfo(
-			VerificatorTypes type,
-			String name,
-			String config)
-	{}
+	public static class SimpleAuthenticatorInfo
+	{
+		public final VerificatorTypes type;
+		public final String name;
+		public final String config;
+
+		public SimpleAuthenticatorInfo(VerificatorTypes type, String name, String config)
+		{
+			this.type = type;
+			this.name = name;
+			this.config = config;
+		}
+	}
 
 }

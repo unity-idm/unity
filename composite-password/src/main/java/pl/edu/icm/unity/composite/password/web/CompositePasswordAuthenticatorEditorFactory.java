@@ -5,38 +5,36 @@
 
 package pl.edu.icm.unity.composite.password.web;
 
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.composite.password.CompositePasswordVerificator;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.ldap.client.console.LdapAuthenticatorEditorFactory;
 import pl.edu.icm.unity.pam.web.PamAuthenticatorEditorFactory;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
-/**
- * Factory for {@link CompositePasswordAuthenticatorEditor}
- * 
- * @author P.Piernik
- *
- */
+
 @Component
 class CompositePasswordAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private MessageSource msg;
-	private CredentialManagement credMan;
-	private PamAuthenticatorEditorFactory pamFactory;
-	private LdapAuthenticatorEditorFactory ldapFactory;
+	private final MessageSource msg;
+	private final CredentialManagement credMan;
+	private final PamAuthenticatorEditorFactory pamFactory;
+	private final LdapAuthenticatorEditorFactory ldapFactory;
+	private final NotificationPresenter notificationPresenter;
 
 	CompositePasswordAuthenticatorEditorFactory(MessageSource msg, CredentialManagement credMan,
-			PamAuthenticatorEditorFactory pamFactory, LdapAuthenticatorEditorFactory ldapFactory)
+			PamAuthenticatorEditorFactory pamFactory, LdapAuthenticatorEditorFactory ldapFactory,
+			NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
 		this.pamFactory = pamFactory;
 		this.ldapFactory = ldapFactory;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
@@ -49,6 +47,6 @@ class CompositePasswordAuthenticatorEditorFactory implements AuthenticatorEditor
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
 		return new CompositePasswordAuthenticatorEditor(msg, credMan.getCredentialDefinitions(), pamFactory,
-				ldapFactory);
+				ldapFactory, notificationPresenter);
 	}
 }
