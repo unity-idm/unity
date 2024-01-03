@@ -1,26 +1,14 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.pam.web;
+package pl.edu.icm.unity.pam.web.v8;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.accordion.AccordionPanel;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.data.Binder;
+import com.vaadin.ui.*;
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.vaadin.auth.CommonWebAuthnProperties;
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
-import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
-import io.imunity.vaadin.auth.extensions.PasswordRetrievalProperties;
-import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -30,20 +18,31 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.pam.PAMProperties;
 import pl.edu.icm.unity.pam.PAMVerificator;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalProperties;
+import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Properties;
 
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
-
-
+/**
+ * PAM authenticator editor
+ * 
+ * @author P.Piernik
+ *
+ */
 class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private final List<String> registrationForms;
-	private final InputTranslationProfileFieldFactory profileFieldFactory;
+	private List<String> registrationForms;
+	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	private Binder<PamConfiguration> configBinder;
 
@@ -66,15 +65,15 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 		configBinder = new Binder<>(PamConfiguration.class);
 
 		FormLayout header = buildHeaderSection();
-		AccordionPanel interactiveLoginSettingsSection = buildInteractiveLoginSettingsSection();
-		interactiveLoginSettingsSection.setWidthFull();
-		AccordionPanel remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
+		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
+		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
 				configBinder, "translationProfile");
-		remoteDataMapping.setWidthFull();
 
 		VerticalLayout mainView = new VerticalLayout();
-		mainView.setPadding(false);
-		mainView.add(header, remoteDataMapping, interactiveLoginSettingsSection);
+		mainView.setMargin(false);
+		mainView.addComponent(header);
+		mainView.addComponent(remoteDataMapping);
+		mainView.addComponent(interactiveLoginSettings);
 
 		PamConfiguration config = new PamConfiguration();
 		if (editMode)
@@ -87,50 +86,44 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 		return mainView;
 	}
 
-	private FormLayout buildHeaderSection()
+	private FormLayoutWithFixedCaptionWidth buildHeaderSection()
 	{
-		TextField pamFacility = new TextField();
+		TextField pamFacility = new TextField(msg.getMessage("PamAuthenticatorEditor.pamFacility"));
 		configBinder.forField(pamFacility).asRequired(msg.getMessage("fieldRequired")).bind("pamFacility");
 
-		FormLayout header = new FormLayout();
-		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
-		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		header.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
-		header.addFormItem(pamFacility, msg.getMessage("PamAuthenticatorEditor.pamFacility"));
+		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
+		header.setMargin(true);
+		header.addComponent(name);
+		header.addComponent(pamFacility);
 		return header;
 	}
 
-	private AccordionPanel buildInteractiveLoginSettingsSection()
+	private CollapsibleLayout buildInteractiveLoginSettingsSection()
 	{
-		FormLayout interactiveLoginSettings = new FormLayout();
-		interactiveLoginSettings.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
-		interactiveLoginSettings.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
+		interactiveLoginSettings.setMargin(false);
 
-		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(),
-				msg.getLocale());
-		configBinder.forField(retrievalName)
-				.withConverter(I18nString::new, I18nString::getLocalizedMap)
-				.bind(PamConfiguration::getRetrievalName, PamConfiguration::setRetrievalName);
-		interactiveLoginSettings.addFormItem(retrievalName, msg.getMessage("PamAuthenticatorEditor.displayedName"));
+		I18nTextField retrievalName = new I18nTextField(msg);
+		retrievalName.setCaption(msg.getMessage("PamAuthenticatorEditor.displayedName"));
+		configBinder.forField(retrievalName).bind("retrievalName");
+		interactiveLoginSettings.addComponent(retrievalName);
 
-		Checkbox accountAssociation = new Checkbox(msg.getMessage("PamAuthenticatorEditor.accountAssociation"));
-		configBinder.forField(accountAssociation)
-				.bind(PamConfiguration::isAccountAssociation, PamConfiguration::setAccountAssociation);
-		interactiveLoginSettings.addFormItem(accountAssociation, "");
+		CheckBox accountAssociation = new CheckBox(msg.getMessage("PamAuthenticatorEditor.accountAssociation"));
+		configBinder.forField(accountAssociation).bind("accountAssociation");
+		interactiveLoginSettings.addComponent(accountAssociation);
 
-		ComboBox<String> registrationForm = new ComboBox<>();
-		registrationForm.setItems(registrationForms);
-		configBinder.forField(registrationForm)
-				.bind(PamConfiguration::getRegistrationForm, PamConfiguration::setRegistrationForm);
-		interactiveLoginSettings.addFormItem(registrationForm,
+		ComboBox<String> registrationForm = new ComboBox<>(
 				msg.getMessage("PamAuthenticatorEditor.registrationForm"));
+		registrationForm.setItems(registrationForms);
+		configBinder.forField(registrationForm).bind("registrationForm");
+		interactiveLoginSettings.addComponent(registrationForm);
 
-		return new AccordionPanel(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
+		return new CollapsibleLayout(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
 	}
 
 	@Override
-	public AuthenticatorDefinition getAuthenticatorDefinition() throws FormValidationException
+	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
 	{
 		return new AuthenticatorDefinition(getName(), PAMVerificator.NAME, getConfiguration(), null);
 	}
@@ -151,7 +144,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 
 	public class PamConfiguration
 	{
-		private I18nString retrievalName = new I18nString();
+		private I18nString retrievalName;
 		private String pamFacility;
 		private TranslationProfile translationProfile;
 		private boolean accountAssociation;
@@ -181,7 +174,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 			if (getRegistrationForm() != null)
 			{
 				raw.put(PasswordRetrievalProperties.P
-								+ PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN,
+						+ PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN,
 						getRegistrationForm());
 			}
 

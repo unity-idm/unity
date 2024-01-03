@@ -5,35 +5,28 @@
 
 package pl.edu.icm.unity.pam.web;
 
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
 import org.springframework.stereotype.Component;
-
-import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.pam.PAMVerificator;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
-/**
- * Factory for {@link PamAuthenticatorEditor}
- * 
- * @author P.Piernik
- *
- */
+import java.util.stream.Collectors;
+
+
 @Component
 public class PamAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 
-	private MessageSource msg;
-	private RegistrationsManagement regMan;
-	private InputTranslationProfileFieldFactory profileFieldFactory;;
+	private final MessageSource msg;
+	private final RegistrationsManagement regMan;
+	private final InputTranslationProfileFieldFactory profileFieldFactory;
 
-	@Autowired
-	public PamAuthenticatorEditorFactory(MessageSource msg, RegistrationsManagement regMan,
+	PamAuthenticatorEditorFactory(MessageSource msg, RegistrationsManagement regMan,
 			InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;
@@ -51,8 +44,8 @@ public class PamAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
 		return new PamAuthenticatorEditor(msg,
-				regMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toList()),
-				profileFieldFactory);
+				regMan.getForms().stream().map(DescribedObjectROImpl::getName)
+						.collect(Collectors.toList()), profileFieldFactory);
 	}
 
 }
