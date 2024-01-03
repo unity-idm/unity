@@ -5,22 +5,25 @@
 
 package pl.edu.icm.unity.oauth.rp.web;
 
-import java.util.Set;
-
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.converter.StringToIntegerConverter;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
+import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -30,30 +33,25 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthn
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties.VerificationProtocol;
 import pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificator;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
-/**
- * OAuthRP authenticator editor
- * 
- * @author P.Piernik
- *
- */
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
+
 class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 	private static final int LINK_FIELD_WIDTH = 50;
 
-	private OAuthAccessTokenRepository tokenMan;
-	private PKIManagement pkiMan;
-	private InputTranslationProfileFieldFactory profileFieldFactory;
+	private final OAuthAccessTokenRepository tokenMan;
+	private final PKIManagement pkiMan;
+	private final InputTranslationProfileFieldFactory profileFieldFactory;
+	private final Set<String> validators;
 
-	private Set<String> validators;
 	private Binder<OAuthRPConfiguration> configBinder;
 
 	OAuthRPAuthenticatorEditor(MessageSource msg, OAuthAccessTokenRepository tokenMan, PKIManagement pkiMan,
@@ -77,9 +75,11 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 
 		FormLayout header = buildHeaderSection();
 
-		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
+		AccordionPanel remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
 				configBinder, "translationProfile");
-		CollapsibleLayout advanced = buildAdvancedSection();
+		remoteDataMapping.setWidthFull();
+		AccordionPanel advanced = buildAdvancedSection();
+		advanced.setWidthFull();
 
 		OAuthRPConfiguration config = new OAuthRPConfiguration(pkiMan, tokenMan);
 		if (editMode)
@@ -90,47 +90,48 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 		configBinder.setBean(config);
 
 		VerticalLayout mainView = new VerticalLayout();
-		mainView.setMargin(false);
-		mainView.addComponent(header);
-		mainView.addComponent(remoteDataMapping);
-		mainView.addComponent(advanced);
+		mainView.setPadding(false);
+		mainView.add(header);
+		mainView.add(remoteDataMapping, advanced);
 
 		return mainView;
 	}
 
 	private FormLayout buildHeaderSection()
 	{
+		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		header.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
 
-		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
-		header.setMargin(true);
-		header.addComponent(name);
+		TextField clientId = new TextField();
+		clientId.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(clientId).asRequired(msg.getMessage("fieldRequired"))
+				.bind(OAuthRPConfiguration::getClientId, OAuthRPConfiguration::setClientId);
+		header.addFormItem(clientId, msg.getMessage("OAuthRPAuthenticatorEditor.clientId"));
 
-		TextField clientId = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.clientId"));
-		clientId.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(clientId).asRequired(msg.getMessage("fieldRequired")).bind("clientId");
-		header.addComponent(clientId);
-
-		TextField clientSecret = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.clientSecret"));
-		clientSecret.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
-		header.addComponent(clientSecret);
+		TextField clientSecret = new TextField();
+		clientSecret.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired"))
+				.bind(OAuthRPConfiguration::getClientSecret, OAuthRPConfiguration::setClientSecret);
+		header.addFormItem(clientSecret, msg.getMessage("OAuthRPAuthenticatorEditor.clientSecret"));
 		
-		ChipsWithTextfield requiredScopes = new ChipsWithTextfield(msg);
-		requiredScopes.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		requiredScopes.setCaption(msg.getMessage("OAuthRPAuthenticatorEditor.requiredScopes"));
-		header.addComponent(requiredScopes);
-		configBinder.forField(requiredScopes).bind("requiredScopes");
+		MultiSelectComboBox<String> requiredScopes = new CustomValuesMultiSelectComboBox();
+		requiredScopes.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		requiredScopes.setWidth(TEXT_FIELD_BIG.value());
+		header.addFormItem(requiredScopes, msg.getMessage("OAuthRPAuthenticatorEditor.requiredScopes"));
+		configBinder.forField(requiredScopes)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(OAuthRPConfiguration::getRequiredScopes, OAuthRPConfiguration::setRequiredScopes);
 		
-		ComboBox<VerificationProtocol> verificationProtocol = new ComboBox<>(
-				msg.getMessage("OAuthRPAuthenticatorEditor.verificationProtocol"));
+		Select<VerificationProtocol> verificationProtocol = new Select<>();
 		verificationProtocol.setItems(VerificationProtocol.values());
-		verificationProtocol.setEmptySelectionAllowed(false);
-		configBinder.forField(verificationProtocol).bind("verificationProtocol");
-		header.addComponent(verificationProtocol);
+		configBinder.forField(verificationProtocol)
+				.bind(OAuthRPConfiguration::getVerificationProtocol, OAuthRPConfiguration::setVerificationProtocol);
+		header.addFormItem(verificationProtocol, msg.getMessage("OAuthRPAuthenticatorEditor.verificationProtocol"));
 
-		TextField verificationEndpoint = new TextField(
-				msg.getMessage("OAuthRPAuthenticatorEditor.verificationEndpoint"));
-		verificationEndpoint.setWidth(LINK_FIELD_WIDTH, Unit.EM);
+		TextField verificationEndpoint = new TextField();
+		verificationEndpoint.setWidth(TEXT_FIELD_BIG.value());
 		verificationEndpoint.setRequiredIndicatorVisible(false);
 		configBinder.forField(verificationEndpoint).asRequired((v, c) -> {
 
@@ -141,74 +142,73 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 			{
 				return ValidationResult.ok();
 			}
-		}).bind("verificationEndpoint");
-		header.addComponent(verificationEndpoint);
+		}).bind(OAuthRPConfiguration::getVerificationEndpoint, OAuthRPConfiguration::setVerificationEndpoint);
+		header.addFormItem(verificationEndpoint, msg.getMessage("OAuthRPAuthenticatorEditor.verificationEndpoint"));
 
-		TextField profileEndpoint = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.profileEndpoint"));
-		profileEndpoint.setWidth(LINK_FIELD_WIDTH, Unit.EM);
-		configBinder.forField(profileEndpoint).bind("profileEndpoint");
-		header.addComponent(profileEndpoint);
+		TextField profileEndpoint = new TextField();
+		profileEndpoint.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(profileEndpoint)
+				.bind(OAuthRPConfiguration::getProfileEndpoint, OAuthRPConfiguration::setProfileEndpoint);
+		header.addFormItem(profileEndpoint, msg.getMessage("OAuthRPAuthenticatorEditor.profileEndpoint"));
 
 		return header;
 	}
 
-	private CollapsibleLayout buildAdvancedSection()
+	private AccordionPanel buildAdvancedSection()
 	{
-		FormLayoutWithFixedCaptionWidth advanced = new FormLayoutWithFixedCaptionWidth();
-		advanced.setMargin(false);
+		FormLayout advanced = new FormLayout();
+		advanced.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		advanced.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		TextField cacheTime = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.cacheTime"));
+		IntegerField cacheTime = new IntegerField();
 		configBinder.forField(cacheTime)
-				.withConverter(new StringToIntegerConverter(
-						msg.getMessage("OAuthRPAuthenticatorEditor.cacheTime.notANumber")))
-				.bind("cacheTime");
+				.bind(OAuthRPConfiguration::getCacheTime, OAuthRPConfiguration::setCacheTime);
+		advanced.addFormItem(cacheTime, msg.getMessage("OAuthRPAuthenticatorEditor.cacheTime"));
 
-		advanced.addComponent(cacheTime);
-
-		ComboBox<ClientAuthnMode> clientAuthenticationMode = new ComboBox<>(
-				msg.getMessage("OAuthRPAuthenticatorEditor.clientAuthenticationMode"));
+		Select<ClientAuthnMode> clientAuthenticationMode = new Select<>();
 		clientAuthenticationMode.setItems(ClientAuthnMode.values());
-		clientAuthenticationMode.setEmptySelectionAllowed(false);
-		configBinder.forField(clientAuthenticationMode).bind("clientAuthenticationMode");
-		advanced.addComponent(clientAuthenticationMode);
-		
-		ComboBox<ClientAuthnMode> clientAuthenticationModeForProfile = new ComboBox<>(
-				msg.getMessage("OAuthRPAuthenticatorEditor.clientAuthenticationModeForProfile"));
+		configBinder.forField(clientAuthenticationMode)
+				.bind(OAuthRPConfiguration::getClientAuthenticationMode, OAuthRPConfiguration::setClientAuthenticationMode);
+		advanced.addFormItem(clientAuthenticationMode, msg.getMessage("OAuthRPAuthenticatorEditor.clientAuthenticationMode"));
+
+		Select<ClientAuthnMode> clientAuthenticationModeForProfile = new Select<>();
 		clientAuthenticationModeForProfile.setItems(ClientAuthnMode.values());
 		clientAuthenticationModeForProfile.setEmptySelectionAllowed(false);
-		configBinder.forField(clientAuthenticationModeForProfile).bind("clientAuthenticationModeForProfile");
-		advanced.addComponent(clientAuthenticationModeForProfile);
-		
-		ComboBox<ServerHostnameCheckingMode> clientHostnameChecking = new ComboBox<>(
-				msg.getMessage("OAuthRPAuthenticatorEditor.clientHostnameChecking"));
+		configBinder.forField(clientAuthenticationModeForProfile)
+				.bind(OAuthRPConfiguration::getClientAuthenticationModeForProfile, OAuthRPConfiguration::setClientAuthenticationModeForProfile);
+		advanced.addFormItem(clientAuthenticationModeForProfile, msg.getMessage("OAuthRPAuthenticatorEditor.clientAuthenticationModeForProfile"));
+
+		Select<ServerHostnameCheckingMode> clientHostnameChecking = new Select<>();
 		clientHostnameChecking.setItems(ServerHostnameCheckingMode.values());
 		clientHostnameChecking.setEmptySelectionAllowed(false);
-		configBinder.forField(clientHostnameChecking).bind("clientHostnameChecking");
-		advanced.addComponent(clientHostnameChecking);
+		configBinder.forField(clientHostnameChecking)
+				.bind(OAuthRPConfiguration::getClientHostnameChecking, OAuthRPConfiguration::setClientHostnameChecking);
+		advanced.addFormItem(clientHostnameChecking, msg.getMessage("OAuthRPAuthenticatorEditor.clientHostnameChecking"));
 
-		ComboBox<String> clientTrustStore = new ComboBox<>(
-				msg.getMessage("OAuthRPAuthenticatorEditor.clientTrustStore"));
+		ComboBox<String> clientTrustStore = new ComboBox<>();
 		clientTrustStore.setItems(validators);
 
-		configBinder.forField(clientTrustStore).bind("clientTrustStore");
-		advanced.addComponent(clientTrustStore);
+		configBinder.forField(clientTrustStore)
+				.bind(OAuthRPConfiguration::getClientTrustStore, OAuthRPConfiguration::setClientTrustStore);
+		advanced.addFormItem(clientTrustStore, msg.getMessage("OAuthRPAuthenticatorEditor.clientTrustStore"));
 
-		ComboBox<ClientHttpMethod> clientHttpMethodForProfileAccess = new ComboBox<>(
-				msg.getMessage("OAuthRPAuthenticatorEditor.clientHttpMethodForProfileAccess"));
+		Select<ClientHttpMethod> clientHttpMethodForProfileAccess = new Select<>();
 		clientHttpMethodForProfileAccess.setItems(ClientHttpMethod.values());
 		clientHttpMethodForProfileAccess.setEmptySelectionAllowed(false);
-		configBinder.forField(clientHttpMethodForProfileAccess).bind("clientHttpMethodForProfileAccess");
-		advanced.addComponent(clientHttpMethodForProfileAccess);		
+		configBinder.forField(clientHttpMethodForProfileAccess)
+				.bind(OAuthRPConfiguration::getClientHttpMethodForProfileAccess, OAuthRPConfiguration::setClientHttpMethodForProfileAccess);
+		advanced.addFormItem(clientHttpMethodForProfileAccess, msg.getMessage("OAuthRPAuthenticatorEditor.clientHttpMethodForProfileAccess"));
 
-		CheckBox openIdMode = new CheckBox(msg.getMessage("OAuthRPAuthenticatorEditor.openIdMode"));
-		configBinder.forField(openIdMode).bind("openIdMode");
-		advanced.addComponent(openIdMode);
+		Checkbox openIdMode = new Checkbox(msg.getMessage("OAuthRPAuthenticatorEditor.openIdMode"));
+		configBinder.forField(openIdMode)
+				.bind(OAuthRPConfiguration::isOpenIdMode, OAuthRPConfiguration::setOpenIdMode);
+		advanced.addFormItem(openIdMode, "");
 
-		return new CollapsibleLayout(msg.getMessage("OAuthRPAuthenticatorEditor.advanced"), advanced);
+		return new AccordionPanel(msg.getMessage("OAuthRPAuthenticatorEditor.advanced"), advanced);
 	}
 
 	@Override
-	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
+	public AuthenticatorDefinition getAuthenticatorDefinition() throws FormValidationException
 	{
 		return new AuthenticatorDefinition(getName(), BearerTokenVerificator.NAME, getConfiguration(), null);
 	}

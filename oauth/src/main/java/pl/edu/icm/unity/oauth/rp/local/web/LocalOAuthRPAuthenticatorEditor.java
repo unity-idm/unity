@@ -5,38 +5,39 @@
 
 package pl.edu.icm.unity.oauth.rp.local.web;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-
-import com.vaadin.data.Binder;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.data.binder.Binder;
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
+import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
-import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.oauth.rp.local.AccessTokenAndPasswordVerificator;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 class LocalOAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 
+	private final Collection<CredentialDefinition> credentialDefinitions;
 	private Binder<LocalOAuthRPConfiguration> configBinder;
-	private Collection<CredentialDefinition> credentialDefinitions;
 
 	LocalOAuthRPAuthenticatorEditor(MessageSource msg, Collection<CredentialDefinition> credentialDefinitions)
-			throws EngineException
 	{
 		super(msg);
 		this.credentialDefinitions = credentialDefinitions;
@@ -55,45 +56,45 @@ class LocalOAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements
 
 		LocalOAuthRPConfiguration config = new LocalOAuthRPConfiguration();
 		if (editMode)
-		{
 			config.fromProperties(toEdit.configuration);
-		}
 
 		configBinder.setBean(config);
 
 		VerticalLayout mainView = new VerticalLayout();
-		mainView.setMargin(false);
-		mainView.addComponent(header);
+		mainView.setPadding(false);
+		mainView.add(header);
 
 		return mainView;
 	}
 
 	private FormLayout buildHeaderSection()
 	{
+		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		header.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
 
-		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
-		header.setMargin(true);
-		header.addComponent(name);
-
-		ComboBox<String> localCredential = new ComboBox<>();
+		Select<String> localCredential = new Select<>();
 		localCredential
 				.setItems(credentialDefinitions.stream().filter(c -> c.getTypeId().equals(PasswordVerificator.NAME))
-						.map(c -> c.getName()).collect(Collectors.toList()));
-		localCredential.setCaption(msg.getMessage("LocalOAuthRPAuthenticatorEditor.localCredential"));
-		configBinder.forField(localCredential).asRequired().bind("credential");
-		header.addComponent(localCredential);
+						.map(CredentialDefinition::getName).collect(Collectors.toList()));
+		configBinder.forField(localCredential).asRequired()
+				.bind(LocalOAuthRPConfiguration::getCredential, LocalOAuthRPConfiguration::setCredential);
+		header.addFormItem(localCredential, msg.getMessage("LocalOAuthRPAuthenticatorEditor.localCredential"));
 
-		ChipsWithTextfield requiredScopes = new ChipsWithTextfield(msg);
-		requiredScopes.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		requiredScopes.setCaption(msg.getMessage("LocalOAuthRPAuthenticatorEditor.requiredScopes"));
-		header.addComponent(requiredScopes);
-		configBinder.forField(requiredScopes).bind("requiredScopes");
+		MultiSelectComboBox<String> requiredScopes = new CustomValuesMultiSelectComboBox();
+		requiredScopes.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		requiredScopes.setWidth(TEXT_FIELD_BIG.value());
+		header.addFormItem(requiredScopes, msg.getMessage("LocalOAuthRPAuthenticatorEditor.requiredScopes"));
+		configBinder.forField(requiredScopes)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(LocalOAuthRPConfiguration::getRequiredScopes, LocalOAuthRPConfiguration::setRequiredScopes);
 
 		return header;
 	}
 
 	@Override
-	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
+	public AuthenticatorDefinition getAuthenticatorDefinition() throws FormValidationException
 	{
 		return new AuthenticatorDefinition(getName(), AccessTokenAndPasswordVerificator.NAME, getConfiguration(), null);
 	}

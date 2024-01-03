@@ -4,7 +4,7 @@
  */
 
 
-package pl.edu.icm.unity.oauth.client.console;
+package pl.edu.icm.unity.oauth.client.console.v8;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.translation.TranslationProfile;

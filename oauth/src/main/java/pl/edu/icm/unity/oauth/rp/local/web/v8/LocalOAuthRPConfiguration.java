@@ -1,4 +1,9 @@
-package pl.edu.icm.unity.oauth.rp.local.web;
+/*
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+
+package pl.edu.icm.unity.oauth.rp.local.web.v8;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import org.eclipse.jetty.util.StringUtil;
@@ -9,7 +14,6 @@ import pl.edu.icm.unity.oauth.rp.local.LocalOAuthRPProperties;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -21,7 +25,7 @@ public class LocalOAuthRPConfiguration extends OAuthBaseConfiguration
 
 	public LocalOAuthRPConfiguration()
 	{
-		requiredScopes = new ArrayList<>();
+
 	}
 
 	public void fromProperties(String source)

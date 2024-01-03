@@ -17,6 +17,7 @@ import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.endpoint.common.SessionStorage;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
@@ -108,7 +109,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
 
 		Image logo = imageAccessService.loadImageFromUri(logoURI)
-				.orElse(new Image());
+				.orElse(new LocalOrRemoteResource());
 		logo.getStyle().set("max-height", "1.5rem");
 		logo.getStyle().set("padding-top", "0.25em");
 

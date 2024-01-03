@@ -1,26 +1,33 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.client.console;
+package pl.edu.icm.unity.oauth.client.console.v8;
 
-import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
-
-@Component
+/**
+ * Factory for {@link pl.edu.icm.unity.oauth.client.console.v8.OAuthAuthenticatorEditor}
+ * 
+ * @author P.Piernik
+ *
+ */
+@Component("OAuthAuthenticatorEditorFactoryV8")
 class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private final MessageSource msg;
@@ -28,30 +35,31 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	private final RegistrationsManagement registrationMan;
 	private final PKIManagement pkiMan;
 	private final FileStorageService fileStorageService;
-	private final AdvertisedAddressProvider advertisedAddrProvider;
-	private final VaadinLogoImageLoader imageAccessService;
+	private final URIAccessService uriAccessService;
 	private final UnityServerConfiguration serverConfig;
-	private final NotificationPresenter notificationPresenter;
+	private final AdvertisedAddressProvider advertisedAddrProvider;
+	private final ImageAccessService imageAccessService;
 
+	@Autowired
 	OAuthAuthenticatorEditorFactory(MessageSource msg,
 			RegistrationsManagement registrationMan,
 			PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			FileStorageService fileStorageService,
-			VaadinLogoImageLoader imageAccessService,
-			AdvertisedAddressProvider advertisedAddrProvider,
+			URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			UnityServerConfiguration serverConfig,
-			NotificationPresenter notificationPresenter)
+			AdvertisedAddressProvider advertisedAddrProvider)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
 		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		this.imageAccessService = imageAccessService;
-		this.notificationPresenter = notificationPresenter;
-		this.advertisedAddrProvider = advertisedAddrProvider;
 		this.serverConfig = serverConfig;
+		this.advertisedAddrProvider = advertisedAddrProvider;
 	}
 
 	@Override
@@ -61,10 +69,10 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	}
 
 	@Override
-	public AuthenticatorEditor createInstance()
+	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new OAuthAuthenticatorEditor(msg, pkiMan, fileStorageService,
-				imageAccessService, profileFieldFactory, registrationMan, advertisedAddrProvider,
-				serverConfig, notificationPresenter);
+		return new OAuthAuthenticatorEditor(msg, serverConfig, pkiMan, fileStorageService, uriAccessService,
+				imageAccessService,
+				profileFieldFactory, registrationMan, advertisedAddrProvider);
 	}
 }

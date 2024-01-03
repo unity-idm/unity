@@ -1,16 +1,9 @@
 package pl.edu.icm.unity.oauth.rp.web;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.List;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
-import org.eclipse.jetty.util.StringUtil;
-import org.springframework.util.CollectionUtils;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import org.eclipse.jetty.util.StringUtil;
+import org.springframework.util.CollectionUtils;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -18,10 +11,17 @@ import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
-import pl.edu.icm.unity.oauth.client.console.OAuthBaseConfiguration;
+import pl.edu.icm.unity.oauth.client.console.v8.OAuthBaseConfiguration;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties.VerificationProtocol;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class OAuthRPConfiguration extends OAuthBaseConfiguration
 {
@@ -30,14 +30,15 @@ public class OAuthRPConfiguration extends OAuthBaseConfiguration
 	private String verificationEndpoint;
 	private boolean openIdMode;
 	private List<String> requiredScopes;
-	private PKIManagement pkiMan;
-	private OAuthAccessTokenRepository tokensDAO;
+	private final PKIManagement pkiMan;
+	private final OAuthAccessTokenRepository tokensDAO;
 
 	public OAuthRPConfiguration(PKIManagement pkiMan, OAuthAccessTokenRepository tokensDAO)
 	{
 		this.pkiMan = pkiMan;
 		this.tokensDAO = tokensDAO;
 		setVerificationProtocol(VerificationProtocol.unity);
+		requiredScopes = new ArrayList<>();
 	}
 
 	public void fromProperties(String source)

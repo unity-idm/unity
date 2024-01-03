@@ -3,17 +3,17 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.client.console;
+package pl.edu.icm.unity.oauth.client.console.v8;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.vaadin.auth.CommonWebAuthnProperties;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -33,8 +33,8 @@ public class OAuthConfiguration
 		defAccountAssociation = true;
 	}
 
-	public void fromProperties(String properties, MessageSource msg, PKIManagement pkiMan,
-			VaadinLogoImageLoader imageAccessService)
+	public void fromProperties(String properties, MessageSource msg, PKIManagement pkiMan, 
+			ImageAccessService imageAccessService)
 	{
 		Properties raw = new Properties();
 		try

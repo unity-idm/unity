@@ -5,30 +5,31 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import com.vaadin.data.Binder;
-import com.vaadin.server.Resource;
-import com.vaadin.server.UserError;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
-import io.imunity.webelements.clipboard.CopyToClipboardButton;
+import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
+import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
+import io.imunity.vaadin.elements.CopyToClipboardButton;
+import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -37,49 +38,45 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.oauth.client.ResponseConsumerServlet;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FileStreamResource;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GridWithActionColumn;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
-import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 
 class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private PKIManagement pkiMan;
-	private FileStorageService fileStorageService;
-	private URIAccessService uriAccessService;
-	private UnityServerConfiguration serverConfig;
-	private InputTranslationProfileFieldFactory profileFieldFactory;
-	private RegistrationsManagement registrationMan;
+	private final PKIManagement pkiMan;
+	private final FileStorageService fileStorageService;
+	private final InputTranslationProfileFieldFactory profileFieldFactory;
+	private final RegistrationsManagement registrationMan;
 	private ProvidersComponent providersComponent;
 	private Binder<OAuthConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
-	private AdvertisedAddressProvider advertisedAddrProvider;
-	private ImageAccessService imageAccessService;
+	private final AdvertisedAddressProvider advertisedAddrProvider;
+	private final VaadinLogoImageLoader imageAccessService;
+	private final UnityServerConfiguration serverConfig;
+	private final NotificationPresenter notificationPresenter;
 
 	OAuthAuthenticatorEditor(MessageSource msg,
-			UnityServerConfiguration serverConfig,
 			PKIManagement pkiMan,
 			FileStorageService fileStorageService,
-			URIAccessService uriAccessService,
-			ImageAccessService imageAccessService,
+			VaadinLogoImageLoader imageAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan,
-			AdvertisedAddressProvider advertisedAddrProvider)
+			AdvertisedAddressProvider advertisedAddrProvider,
+			UnityServerConfiguration serverConfig,
+			NotificationPresenter notificationPresenter)
 	{
 		super(msg);
 		this.pkiMan = pkiMan;
@@ -87,9 +84,9 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
 		this.fileStorageService = fileStorageService;
-		this.uriAccessService = uriAccessService;
-		this.serverConfig = serverConfig;
 		this.advertisedAddrProvider = advertisedAddrProvider;
+		this.serverConfig = serverConfig;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
@@ -103,40 +100,37 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 		configBinder = new Binder<>(OAuthConfiguration.class);
 
-		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
-		header.setMargin(true);
-		header.addComponent(name);
-		CheckBox accountAssociation = new CheckBox(
+		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		header.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
+		Checkbox accountAssociation = new Checkbox(
 				msg.getMessage("OAuthAuthenticatorEditor.accountAssociation"));
-		header.addComponent(accountAssociation);
+		header.addFormItem(accountAssociation, "");
 		
 		TextField returnURLInfo = new TextField();
 		returnURLInfo.setValue(buildReturnURL());
 		returnURLInfo.setReadOnly(true);
-		returnURLInfo.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH,
-				FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		CopyToClipboardButton copy = new CopyToClipboardButton(msg, returnURLInfo);
-		HorizontalLayout hr = new HorizontalLayout(returnURLInfo, copy);
-		hr.setComponentAlignment(copy, Alignment.MIDDLE_LEFT);
-		hr.setCaption(msg.getMessage("OAuthAuthenticatorEditor.returnURLInfo"));
-		header.addComponent(hr);
+		returnURLInfo.setWidth(TEXT_FIELD_BIG.value());
+		CopyToClipboardButton copy = new CopyToClipboardButton(msg::getMessage, returnURLInfo);
+		HorizontalLayout field = new HorizontalLayout(returnURLInfo, copy);
+		field.setAlignItems(FlexComponent.Alignment.CENTER);
+		field.addClassName(SMALL_GAP.getName());
+		header.addFormItem(field, msg.getMessage("OAuthAuthenticatorEditor.returnURLInfo"));
 		
 		configBinder.forField(accountAssociation).bind("defAccountAssociation");
 
 		providersComponent = new ProvidersComponent();
-		providersComponent.setCaption(msg.getMessage("OAuthAuthenticatorEditor.providers"));
 		configBinder.forField(providersComponent).bind("providers");
-		header.addComponent(providersComponent);
+		header.addFormItem(providersComponent, msg.getMessage("OAuthAuthenticatorEditor.providers"));
 
 		VerticalLayout mainView = new VerticalLayout();
-		mainView.setMargin(false);
-		mainView.addComponent(header);
+		mainView.setPadding(false);
+		mainView.add(header);
 
 		OAuthConfiguration config = new OAuthConfiguration();
 		if (editMode)
-		{
 			config.fromProperties(toEdit.configuration, msg, pkiMan, imageAccessService);
-		}
 
 		configBinder.setBean(config);
 
@@ -150,7 +144,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 	}
 	
 	@Override
-	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
+	public AuthenticatorDefinition getAuthenticatorDefinition() throws FormValidationException
 	{
 		return new AuthenticatorDefinition(getName(), OAuth2Verificator.NAME, getConfiguration(), null);
 	}
@@ -164,8 +158,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 		if (providersConfigs.isEmpty())
 		{
-			providersComponent.setComponentError(
-					new UserError(msg.getMessage("OAuthAuthenticatorEditor.emptyProvidersError")));
+			providersComponent.setErrorMessage(msg.getMessage("OAuthAuthenticatorEditor.emptyProvidersError"));
 			throw new FormValidationException();
 		}
 
@@ -182,64 +175,63 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 	private class ProvidersComponent extends CustomField<List<OAuthProviderConfiguration>>
 	{
 		private GridWithActionColumn<OAuthProviderConfiguration> providersList;
-		private VerticalLayout main;
+		private GridListDataView<OAuthProviderConfiguration> dataView;
 
 		public ProvidersComponent()
 		{
 			initUI();
 		}
 
-		private void initUI()
+		@Override
+		protected List<OAuthProviderConfiguration> generateModelValue()
 		{
-			main = new VerticalLayout();
-			main.setMargin(false);
-
-			Button add = new Button(msg.getMessage("ProvidersComponent.addProvider"));
-			add.addClickListener(e -> {
-				setComponentError(null);
-				gotoNew();
-			});
-			add.setIcon(Images.add.getResource());
-			main.addComponent(add);
-			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
-
-			providersList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-			providersList.addComponentColumn(p -> getLogo(p.getLogo()),
-					msg.getMessage("ProvidersComponent.logo"), 2);
-			providersList.addComponentColumn(p -> StandardButtonsHelper
-					.buildLinkButton(p.getName().getValue(msg), e -> gotoEdit(p)),
-					msg.getMessage("ProvidersComponent.id"), 30);
-			providersList.addColumn(p -> p.getName().getValue(msg),
-					msg.getMessage("ProvidersComponent.name"), 50);
-
-			main.addComponent(providersList);
+			return dataView.getItems().toList();
 		}
 
-		private Image getLogo(LocalOrRemoteResource res)
+		@Override
+		protected void setPresentationValue(List<OAuthProviderConfiguration> oAuthProviderConfigurations)
 		{
-			Resource logo;
-			try
-			{
-				logo = res == null ? Images.empty.getResource()
-						: res.getLocal() != null
-								? new FileStreamResource(res.getLocal()).getResource()
-								: new FileStreamResource(uriAccessService.readImageURI(
-										URIHelper.parseURI(res.getRemote()),
-										UI.getCurrent().getTheme())
-										.getContents()).getResource();
-			} catch (Exception e)
-			{
-				logo = Images.error.getResource();
-			}
-			Image img = new Image("", logo);
-			img.setHeight(25, Unit.PIXELS);
-			return img;
+			dataView = providersList.setItems(oAuthProviderConfigurations);
+		}
+
+		private void initUI()
+		{
+			VerticalLayout main = new VerticalLayout();
+			main.setMargin(false);
+			main.setAlignItems(FlexComponent.Alignment.END);
+
+			Button add = new Button(msg.getMessage("ProvidersComponent.addProvider"));
+			add.addClickListener(e -> gotoNew());
+			add.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
+			main.add(add);
+
+			providersList = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
+			providersList.addComponentColumn(oAuthProviderConfiguration ->
+					{
+						Image logo = oAuthProviderConfiguration.getLogo();
+						logo.setClassName(LOGO_GRID_IMAGE.getName());
+						return logo;
+					})
+					.setHeader(msg.getMessage("ProvidersComponent.logo"))
+					.setAutoWidth(true);
+			providersList.addComponentColumn(p -> new LinkButton(p.getName().getValue(msg), e -> gotoEdit(p)))
+					.setHeader(msg.getMessage("ProvidersComponent.id"))
+					.setAutoWidth(true);
+			providersList.addColumn(p -> p.getName().getValue(msg))
+					.setHeader(msg.getMessage("ProvidersComponent.name"))
+					.setAutoWidth(true);
+
+			setWidth("40em");
+			setHeight("23em");
+			providersList.setHeight("17em");
+			main.add(providersList);
+			add(main);
 		}
 
 		private List<SingleActionHandler<OAuthProviderConfiguration>> getActionsHandlers()
 		{
 			SingleActionHandler<OAuthProviderConfiguration> edit = SingleActionHandler
-					.builder4Edit(msg, OAuthProviderConfiguration.class).withHandler(r -> {
+					.builder4Edit(msg::getMessage, OAuthProviderConfiguration.class).withHandler(r -> {
 						OAuthProviderConfiguration edited = r.iterator().next();
 						gotoEdit(edited);
 					}
@@ -247,7 +239,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 					).build();
 
 			SingleActionHandler<OAuthProviderConfiguration> remove = SingleActionHandler
-					.builder4Delete(msg, OAuthProviderConfiguration.class).withHandler(r -> {
+					.builder4Delete(msg::getMessage, OAuthProviderConfiguration.class).withHandler(r -> {
 						providersList.removeElement(r.iterator().next());
 						fireChange();
 					}).build();
@@ -257,7 +249,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 		private void gotoNew()
 		{
-			gotoEditSubView(null, providersList.getElements().stream().map(p -> p.getId())
+			gotoEditSubView(null, providersList.getElements().stream().map(OAuthProviderConfiguration::getId)
 					.collect(Collectors.toSet()), c -> {
 						subViewSwitcher.exitSubViewAndShowUpdateInfo();
 						providersList.addElement(c);
@@ -268,8 +260,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		private void gotoEdit(OAuthProviderConfiguration edited)
 		{
 			gotoEditSubView(edited,
-					providersList.getElements().stream().filter(p -> p.getId() != edited.getId())
-							.map(p -> p.getId()).collect(Collectors.toSet()),
+					providersList.getElements().stream().map(OAuthProviderConfiguration::getId)
+							.filter(id -> !Objects.equals(id, edited.getId())).collect(Collectors.toSet()),
 					c -> {
 						providersList.replaceElement(edited, c);
 						subViewSwitcher.exitSubViewAndShowUpdateInfo();
@@ -289,13 +281,13 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 			} catch (EngineException e)
 			{
-				NotificationPopup.showError(msg, "Can not init OAuth provider editor", e);
+				notificationPresenter.showError("Can not init OAuth provider editor", e.getMessage());
 				return;
 			}
 
-			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, serverConfig, pkiMan,
-					uriAccessService, imageAccessService, profileFieldFactory, edited, usedIds, subViewSwitcher, forms,
-					validators, r -> {
+			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, pkiMan, notificationPresenter,
+					imageAccessService, profileFieldFactory, edited, usedIds, subViewSwitcher, forms,
+					validators, serverConfig, r -> {
 						onConfirm.accept(r);
 						fireChange();
 						providersList.focus();
@@ -308,7 +300,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 		private Set<String> getRegistrationForms() throws EngineException
 		{
-			return registrationMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toSet());
+			return registrationMan.getForms().stream().map(DescribedObjectROImpl::getName).collect(Collectors.toSet());
 		}
 
 		@Override
@@ -317,22 +309,9 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			return providersList.getElements();
 		}
 
-		@Override
-		protected Component initContent()
-		{
-			return main;
-		}
-
-		@Override
-		protected void doSetValue(List<OAuthProviderConfiguration> value)
-		{
-			providersList.setItems(value);
-
-		}
-
 		private void fireChange()
 		{
-			fireEvent(new ValueChangeEvent<List<OAuthProviderConfiguration>>(this,
+			fireEvent(new ComponentValueChangeEvent<>(this, this,
 					providersList.getElements(), true));
 		}
 

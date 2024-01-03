@@ -5,76 +5,87 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.Validator;
-import com.vaadin.ui.*;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import io.imunity.vaadin.auth.binding.NameValuePairBinding;
+import io.imunity.vaadin.auth.binding.ToggleWithDefault;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import io.imunity.vaadin.elements.NoSpaceValidator;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.grid.EditableGrid;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.api.UnitySubView;
+import io.imunity.vaadin.endpoint.common.file.FileField;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.oauth.client.config.*;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import pl.edu.icm.unity.webui.common.*;
-import pl.edu.icm.unity.webui.common.binding.NameValuePairBinding;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.common.file.ImageField;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
-import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-/**
- * SubView for editing oauth authenticator provider
- * 
- * @author P.Piernik
- *
- */
-class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
+
+class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 {
 	private static final String TMP_CONFIG_KEY = "tmp.";
 
-	private MessageSource msg;
-	private PKIManagement pkiMan;
-	private URIAccessService uriAccessService;
-	private UnityServerConfiguration serverConfig;
+	private final MessageSource msg;
+	private final PKIManagement pkiMan;
+	private final UnityServerConfiguration serverConfig;
 	private Map<String, CustomProviderProperties> templates;
 
-	private Binder<OAuthProviderConfiguration> configBinder;
-	private ComboBox<String> templateCombo;
+	private final Binder<OAuthProviderConfiguration> configBinder;
+	private Select<String> templateCombo;
 
-	private boolean editMode = false;
+	private boolean editMode;
 
-	EditOAuthProviderSubView(MessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan, 
-			URIAccessService uriAccessService, ImageAccessService imageAccessService,
+	EditOAuthProviderSubView(MessageSource msg, PKIManagement pkiMan, NotificationPresenter notificationPresenter,
+			VaadinLogoImageLoader imageAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			OAuthProviderConfiguration toEdit, Set<String> providersIds, SubViewSwitcher subViewSwitcher,
 			Set<String> registrationForms, Set<String> validators,
+			UnityServerConfiguration serverConfig,
 			Consumer<OAuthProviderConfiguration> onConfirm, Runnable onCancel)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
-		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
-		
 		editMode = toEdit != null;
 
 		configBinder = new Binder<>(OAuthProviderConfiguration.class);
 
 		FormLayout header = buildHeaderSection(providersIds);
-		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
+		AccordionPanel remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
 				configBinder, "translationProfile");
-		CollapsibleLayout advanced = buildAdvancedSection(validators, registrationForms);
+		remoteDataMapping.setWidthFull();
+		AccordionPanel advanced = buildAdvancedSection(validators, registrationForms);
+		advanced.setWidthFull();
 
 		configBinder.setBean(editMode ? toEdit.clone() : new OAuthProviderConfiguration());
 
@@ -88,26 +99,29 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
-		mainView.addComponent(header);
-		mainView.addComponent(remoteDataMapping);
-		mainView.addComponent(advanced);
+		mainView.add(header);
+		mainView.add(remoteDataMapping, advanced);
 
-		Runnable onConfirmR = () -> {
+		Button cancelButton = new Button(msg.getMessage("cancel"), event -> onCancel.run());
+		cancelButton.setWidthFull();
+		Button updateButton = new Button(editMode ? msg.getMessage("update") :  msg.getMessage("create"), event ->
+		{
 			try
 			{
 				onConfirm.accept(getProvider());
 			} catch (FormValidationException e)
 			{
-				NotificationPopup.showError(msg,
-						msg.getMessage("EditOAuthProviderSubView.invalidConfiguration"), e);
+				notificationPresenter.showError(
+						msg.getMessage("EditOAuthProviderSubView.invalidConfiguration"), e.getMessage());
 			}
-		};
+		});
+		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		updateButton.setWidthFull();
+		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
+		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		mainView.add(buttonsLayout);
 
-		mainView.addComponent(editMode
-				? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
-				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));
-
-		setCompositionRoot(mainView);
+		add(mainView);
 	}
 
 	private OAuthProviderConfiguration getProvider() throws FormValidationException
@@ -118,174 +132,174 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		return configBinder.getBean();
 	}
 
-	private FormLayoutWithFixedCaptionWidth buildHeaderSection(Set<String> providersIds)
+	private FormLayout buildHeaderSection(Set<String> providersIds)
 	{
-		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
-		header.setMargin(true);
+		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		loadTemplates();
 
-		templateCombo = new ComboBox<>();
-		templateCombo.setCaption(msg.getMessage("EditOAuthProviderSubView.template"));
-		templateCombo.setItems(templates.keySet().stream().sorted());
-		templateCombo.setEmptySelectionAllowed(false);
-
-		configBinder.forField(templateCombo).asRequired(msg.getMessage("fieldRequired")).bind("type");
-
+		templateCombo = new Select<>();
+		templateCombo.setItems(templates.keySet().stream().sorted().toList());
+		configBinder.forField(templateCombo).asRequired(msg.getMessage("fieldRequired"))
+				.bind(OAuthProviderConfiguration::getType, OAuthProviderConfiguration::setType);
 		if (!editMode)
-		{
-			header.addComponent(templateCombo);
-		}
+			header.addFormItem(templateCombo, msg.getMessage("EditOAuthProviderSubView.template"));
 
-		TextField id = new TextField(msg.getMessage("EditOAuthProviderSubView.id"));
+
+		TextField id = new TextField();
 		configBinder.forField(id).asRequired(msg.getMessage("fieldRequired")).withValidator((s, c) -> {
 			if (providersIds.contains(s))
-			{
 				return ValidationResult.error(msg.getMessage("EditOAuthProviderSubView.idExists"));
-			} else
-			{
+			else
 				return ValidationResult.ok();
-			}
-
-		}).withValidator(new NoSpaceValidator(msg)).bind("id");
+		}).withValidator(new NoSpaceValidator(msg::getMessage))
+				.bind(OAuthProviderConfiguration::getId, OAuthProviderConfiguration::setId);
 		id.setReadOnly(editMode);
-		header.addComponent(id);
+		header.addFormItem(id, msg.getMessage("EditOAuthProviderSubView.id"));
 
-		I18nTextField name = new I18nTextField(msg, msg.getMessage("EditOAuthProviderSubView.name"));
-		configBinder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
-		header.addComponent(name);
+		LocalizedTextFieldDetails name = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		configBinder.forField(name)
+				.asRequired(msg.getMessage("fieldRequired"))
+				.withConverter(I18nString::new, I18nString::getLocalizedMap)
+				.withValidator(item -> !item.getMap().isEmpty(), msg.getMessage("fieldRequired"))
+				.bind(OAuthProviderConfiguration::getName, OAuthProviderConfiguration::setName);
+		header.addFormItem(name, msg.getMessage("EditOAuthProviderSubView.name"));
 
-		TextField clientId = new TextField(msg.getMessage("EditOAuthProviderSubView.clientId"));
-		clientId.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(clientId).asRequired(msg.getMessage("fieldRequired")).bind("clientId");
-		header.addComponent(clientId);
+		TextField clientId = new TextField();
+		clientId.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(clientId).asRequired(msg.getMessage("fieldRequired"))
+				.bind(OAuthProviderConfiguration::getClientId, OAuthProviderConfiguration::setClientId);
+		header.addFormItem(clientId, msg.getMessage("EditOAuthProviderSubView.clientId"));
 
-		TextField clientSecret = new TextField(msg.getMessage("EditOAuthProviderSubView.clientSecret"));
-		clientSecret.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
-		header.addComponent(clientSecret);
+		TextField clientSecret = new TextField();
+		clientSecret.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired"))
+				.bind(OAuthProviderConfiguration::getClientSecret, OAuthProviderConfiguration::setClientSecret);
+		header.addFormItem(clientSecret, msg.getMessage("EditOAuthProviderSubView.clientSecret"));
 
-		ChipsWithTextfield requestedScopes = new ChipsWithTextfield(msg);
-		requestedScopes.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		requestedScopes.setCaption(msg.getMessage("EditOAuthProviderSubView.requestedScopes"));
-		header.addComponent(requestedScopes);
-		configBinder.forField(requestedScopes).bind("requestedScopes");
+		MultiSelectComboBox<String> requestedScopes = new CustomValuesMultiSelectComboBox();
+		requestedScopes.setWidth(TEXT_FIELD_BIG.value());
+		requestedScopes.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		header.addFormItem(requestedScopes, msg.getMessage("EditOAuthProviderSubView.requestedScopes"));
+		configBinder.forField(requestedScopes)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(OAuthProviderConfiguration::getRequestedScopes, OAuthProviderConfiguration::setRequestedScopes);
 			
-		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
-		logo.setCaption(msg.getMessage("EditOAuthProviderSubView.logo"));
-		logo.configureBinding(configBinder, "logo");
-		header.addComponent(logo);
+		FileField logo = new FileField(msg, "image/*", "logo.jpg", serverConfig.getFileSizeLimit());
+		configBinder.forField(logo)
+				.bind(OAuthProviderConfiguration::getLogo, OAuthProviderConfiguration::setLogo);
+		header.addFormItem(logo, msg.getMessage("EditOAuthProviderSubView.logo"));
 		
-		CheckBox openIdConnect = new CheckBox(msg.getMessage("EditOAuthProviderSubView.openIdConnect"));
-		configBinder.forField(openIdConnect).bind("openIdConnect");
-		header.addComponent(openIdConnect);
+		Checkbox openIdConnect = new Checkbox(msg.getMessage("EditOAuthProviderSubView.openIdConnect"));
+		configBinder.forField(openIdConnect)
+				.bind(OAuthProviderConfiguration::isOpenIdConnect, OAuthProviderConfiguration::setOpenIdConnect);
+		header.addFormItem(openIdConnect, "");
 
-		TextField openIdDiscovery = new TextField(
-				msg.getMessage("EditOAuthProviderSubView.openIdDiscoverEndpoint"));
-		openIdDiscovery.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
+		TextField openIdDiscovery = new TextField();
+		openIdDiscovery.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(openIdDiscovery).asRequired(getOpenIdFieldValidator(openIdConnect, true))
-				.bind("openIdDiscoverEndpoint");
+				.bind(OAuthProviderConfiguration::getOpenIdDiscoverEndpoint, OAuthProviderConfiguration::setOpenIdDiscoverEndpoint);
 		openIdDiscovery.setVisible(false);
 		openIdDiscovery.setRequiredIndicatorVisible(false);
-		header.addComponent(openIdDiscovery);
+		header.addFormItem(openIdDiscovery, msg.getMessage("EditOAuthProviderSubView.openIdDiscoverEndpoint"));
 
 		openIdConnect.addValueChangeListener(e -> openIdDiscovery.setVisible(e.getValue()));
 
-		TextField authenticationEndpoint = new TextField(
-				msg.getMessage("EditOAuthProviderSubView.authenticationEndpoint"));
+		TextField authenticationEndpoint = new TextField();
+		authenticationEndpoint.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(authenticationEndpoint).asRequired(getOpenIdFieldValidator(openIdConnect, false))
-				.bind("authenticationEndpoint");
-		authenticationEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		authenticationEndpoint.setRequiredIndicatorVisible(false);
-		header.addComponent(authenticationEndpoint);
+				.bind(OAuthProviderConfiguration::getAuthenticationEndpoint, OAuthProviderConfiguration::setAuthenticationEndpoint);
+		header.addFormItem(authenticationEndpoint, msg.getMessage("EditOAuthProviderSubView.authenticationEndpoint"));
 
-		TextField accessTokenEndpoint = new TextField(
-				msg.getMessage("EditOAuthProviderSubView.accessTokenEndpoint"));
-		accessTokenEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
+		TextField accessTokenEndpoint = new TextField();
+		accessTokenEndpoint.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(accessTokenEndpoint).asRequired(getOpenIdFieldValidator(openIdConnect, false))
-				.bind("accessTokenEndpoint");
-		accessTokenEndpoint.setRequiredIndicatorVisible(false);
-		header.addComponent(accessTokenEndpoint);
+				.bind(OAuthProviderConfiguration::getAccessTokenEndpoint, OAuthProviderConfiguration::setAccessTokenEndpoint);
+		header.addFormItem(accessTokenEndpoint, msg.getMessage("EditOAuthProviderSubView.accessTokenEndpoint"));
 
-		TextField profileEndpoint = new TextField(msg.getMessage("EditOAuthProviderSubView.profileEndpoint"));
-		profileEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		configBinder.forField(profileEndpoint).bind("profileEndpoint");
-		header.addComponent(profileEndpoint);
+		TextField profileEndpoint = new TextField();
+		configBinder.forField(profileEndpoint)
+				.bind(OAuthProviderConfiguration::getProfileEndpoint, OAuthProviderConfiguration::setProfileEndpoint);
+		header.addFormItem(profileEndpoint, msg.getMessage("EditOAuthProviderSubView.profileEndpoint"));
 
 		return header;
 	}
 
-	private CollapsibleLayout buildAdvancedSection(Set<String> validators, Set<String> registrationForms)
+	private AccordionPanel buildAdvancedSection(Set<String> validators, Set<String> registrationForms)
 	{
-		FormLayoutWithFixedCaptionWidth advanced = new FormLayoutWithFixedCaptionWidth();
-		advanced.setMargin(false);
+		FormLayout advanced = new FormLayout();
+		advanced.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		advanced.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		ComboBox<String> registrationForm = new ComboBox<>(
-				msg.getMessage("EditOAuthProviderSubView.registrationForm"));
+		ComboBox<String> registrationForm = new ComboBox<>();
 		registrationForm.setItems(registrationForms);
-		configBinder.forField(registrationForm).bind("registrationForm");
-		advanced.addComponent(registrationForm);
+		configBinder.forField(registrationForm)
+				.bind(OAuthProviderConfiguration::getRegistrationForm, OAuthProviderConfiguration::setRegistrationForm);
+		advanced.addFormItem(registrationForm, msg.getMessage("EditOAuthProviderSubView.registrationForm"));
 
-		ComboBox<AccessTokenFormat> accessTokenFormat = new ComboBox<>(
-				msg.getMessage("EditOAuthProviderSubView.accessTokenFormat"));
+		Select<AccessTokenFormat> accessTokenFormat = new Select<>();
 		accessTokenFormat.setItems(AccessTokenFormat.values());
-		accessTokenFormat.setEmptySelectionAllowed(false);
-		configBinder.forField(accessTokenFormat).bind("accessTokenFormat");
-		advanced.addComponent(accessTokenFormat);
+		configBinder.forField(accessTokenFormat)
+				.bind(OAuthProviderConfiguration::getAccessTokenFormat, OAuthProviderConfiguration::setAccessTokenFormat);
+		advanced.addFormItem(accessTokenFormat, msg.getMessage("EditOAuthProviderSubView.accessTokenFormat"));
 
-		ComboBox<ClientAuthnMode> clientAuthenticationMode = new ComboBox<>(
-				msg.getMessage("EditOAuthProviderSubView.clientAuthenticationMode"));
+		Select<ClientAuthnMode> clientAuthenticationMode = new Select<>();
 		clientAuthenticationMode.setItems(ClientAuthnMode.values());
-		clientAuthenticationMode.setEmptySelectionAllowed(false);
-		configBinder.forField(clientAuthenticationMode).bind("clientAuthenticationMode");
-		advanced.addComponent(clientAuthenticationMode);
+		configBinder.forField(clientAuthenticationMode)
+				.bind(OAuthProviderConfiguration::getClientAuthenticationMode, OAuthProviderConfiguration::setClientAuthenticationMode);
+		advanced.addFormItem(clientAuthenticationMode, msg.getMessage("EditOAuthProviderSubView.clientAuthenticationMode"));
 
-		ComboBox<ClientAuthnMode> clientAuthenticationModeForProfile = new ComboBox<>(
-				msg.getMessage("EditOAuthProviderSubView.clientAuthenticationModeForProfile"));
+		Select<ClientAuthnMode> clientAuthenticationModeForProfile = new Select<>();
 		clientAuthenticationModeForProfile.setItems(ClientAuthnMode.values());
-		clientAuthenticationModeForProfile.setEmptySelectionAllowed(false);
-		configBinder.forField(clientAuthenticationModeForProfile).bind("clientAuthenticationModeForProfile");
-		advanced.addComponent(clientAuthenticationModeForProfile);
+		configBinder.forField(clientAuthenticationModeForProfile)
+				.bind(OAuthProviderConfiguration::getClientAuthenticationModeForProfile, OAuthProviderConfiguration::setClientAuthenticationModeForProfile);
+		advanced.addFormItem(clientAuthenticationModeForProfile, msg.getMessage("EditOAuthProviderSubView.clientAuthenticationModeForProfile"));
 
-		EnableDisableCombo accountAssociation = new EnableDisableCombo(
-				msg.getMessage("EditOAuthProviderSubView.accountAssociation"), msg);
-		configBinder.forField(accountAssociation).bind("accountAssociation");
-		advanced.addComponent(accountAssociation);
+		Select<ToggleWithDefault> accountAssociation = new Select<>();
+		accountAssociation.setItemLabelGenerator(item -> msg.getMessage("EnableDisableCombo." + item));
+		accountAssociation.setItems(ToggleWithDefault.values());
+		accountAssociation.setValue(ToggleWithDefault.bydefault);
+		configBinder.forField(accountAssociation)
+				.bind(OAuthProviderConfiguration::getAccountAssociation, OAuthProviderConfiguration::setAccountAssociation);
+		advanced.addFormItem(accountAssociation, msg.getMessage("EditOAuthProviderSubView.accountAssociation"));
 		
-		GridWithEditor<NameValuePairBinding> extraAuthorizationParameters = new GridWithEditor<>(msg, NameValuePairBinding.class);
-		extraAuthorizationParameters.setCaption(msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameters"));
-		advanced.addComponent(extraAuthorizationParameters);
-		extraAuthorizationParameters.addTextColumn(s -> s.getName(), (t, v) -> t.setName(v),
-				msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameter.name"), 30, true);
+		EditableGrid<NameValuePairBinding> extraAuthorizationParameters = new EditableGrid<>(msg::getMessage, NameValuePairBinding::new);
+		extraAuthorizationParameters.setWidth("30em");
+		extraAuthorizationParameters.setHeight("20em");
+		advanced.addFormItem(extraAuthorizationParameters, msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameters"));
+		extraAuthorizationParameters.addColumn(NameValuePairBinding::getName, NameValuePairBinding::setName, true)
+				.setHeader(msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameter.name"))
+				.setAutoWidth(true);
+		extraAuthorizationParameters.addColumn(NameValuePairBinding::getValue, NameValuePairBinding::setValue, true)
+				.setHeader(msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameter.value"))
+				.setAutoWidth(true);
 
-		extraAuthorizationParameters.addTextColumn(s -> s.getValue(), (t, v) -> t.setValue(v),
-				msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameter.value"), 30, true);
-
-		extraAuthorizationParameters.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(extraAuthorizationParameters).bind("extraAuthorizationParameters");
+		configBinder.forField(extraAuthorizationParameters)
+				.bind(OAuthProviderConfiguration::getExtraAuthorizationParameters, OAuthProviderConfiguration::setExtraAuthorizationParameters);
 		
-		ComboBox<ServerHostnameCheckingMode> clientHostnameChecking = new ComboBox<>(
-				msg.getMessage("EditOAuthProviderSubView.clientHostnameChecking"));
+		Select<ServerHostnameCheckingMode> clientHostnameChecking = new Select<>();
 		clientHostnameChecking.setItems(ServerHostnameCheckingMode.values());
 		clientHostnameChecking.setEmptySelectionAllowed(false);
-		configBinder.forField(clientHostnameChecking).bind("clientHostnameChecking");
-		advanced.addComponent(clientHostnameChecking);
+		configBinder.forField(clientHostnameChecking)
+				.bind(OAuthProviderConfiguration::getClientHostnameChecking, OAuthProviderConfiguration::setClientHostnameChecking);
+		advanced.addFormItem(clientHostnameChecking, msg.getMessage("EditOAuthProviderSubView.clientHostnameChecking"));
 
-		ComboBox<String> clientTrustStore = new ComboBox<>(
-				msg.getMessage("EditOAuthProviderSubView.clientTrustStore"));
+		Select<String> clientTrustStore = new Select<>();
 		clientTrustStore.setItems(validators);
 		clientTrustStore.setEmptySelectionCaption(msg.getMessage("TrustStore.default"));
-		configBinder.forField(clientTrustStore).bind("clientTrustStore");
-		advanced.addComponent(clientTrustStore);
+		configBinder.forField(clientTrustStore)
+				.bind(OAuthProviderConfiguration::getClientTrustStore, OAuthProviderConfiguration::setClientTrustStore);
+		advanced.addFormItem(clientTrustStore, msg.getMessage("EditOAuthProviderSubView.clientTrustStore"));
 
-		ComboBox<ClientHttpMethod> clientHttpMethodForProfileAccess = new ComboBox<>(
-				msg.getMessage("EditOAuthProviderSubView.clientHttpMethodForProfileAccess"));
+		Select<ClientHttpMethod> clientHttpMethodForProfileAccess = new Select<>();
 		clientHttpMethodForProfileAccess.setItems(ClientHttpMethod.values());
-		clientHttpMethodForProfileAccess.setEmptySelectionAllowed(false);
-		configBinder.forField(clientHttpMethodForProfileAccess).bind("clientHttpMethodForProfileAccess");
-		advanced.addComponent(clientHttpMethodForProfileAccess);
+		configBinder.forField(clientHttpMethodForProfileAccess)
+				.bind(OAuthProviderConfiguration::getClientHttpMethodForProfileAccess, OAuthProviderConfiguration::setClientHttpMethodForProfileAccess);
+		advanced.addFormItem(clientHttpMethodForProfileAccess, msg.getMessage("EditOAuthProviderSubView.clientHttpMethodForProfileAccess"));
 
-		return new CollapsibleLayout(msg.getMessage("EditOAuthProviderSubView.advanced"), advanced);
+		return new AccordionPanel(msg.getMessage("EditOAuthProviderSubView.advanced"), advanced);
 	}
 
 	private Properties addEmptyProviderConfig(Properties raw, String key)
@@ -346,7 +360,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 				OAuthClientProperties.PROVIDERS + TMP_CONFIG_KEY, pkiMan));
 	}
 
-	private Validator<String> getOpenIdFieldValidator(CheckBox openIdConnect, boolean toCheck)
+	private Validator<String> getOpenIdFieldValidator(Checkbox openIdConnect, boolean toCheck)
 	{
 		return (v, c) -> {
 			if (openIdConnect.getValue() == toCheck && v.isEmpty())
@@ -360,7 +374,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 	}
 
 	@Override
-	public List<String> getBredcrumbs()
+	public List<String> getBreadcrumbs()
 	{
 		if (editMode)
 			return Arrays.asList(msg.getMessage("EditOAuthProviderSubView.provider"),

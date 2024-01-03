@@ -3,22 +3,17 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.client.console;
+package pl.edu.icm.unity.oauth.client.console.v8;
 
 import com.google.common.base.Strings;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import io.imunity.vaadin.auth.CommonWebAuthnProperties;
-import io.imunity.vaadin.auth.binding.NameValuePairBinding;
-import io.imunity.vaadin.auth.binding.ToggleWithDefault;
-import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
-import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.hc.core5.http.NameValuePair;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
@@ -26,6 +21,12 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthn
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.binding.NameValuePairBinding;
+import pl.edu.icm.unity.webui.common.binding.ToggleWithDefault;
+import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,14 +55,11 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		super();
 		setType(Providers.custom.toString());
 		setAccessTokenFormat(AccessTokenFormat.standard);
-		accountAssociation = ToggleWithDefault.bydefault;
-		logo = new LocalOrRemoteResource();
-		name = new I18nString();
 		extraAuthorizationParameters = new ArrayList<>();
-		requestedScopes = new ArrayList<>();
+		accountAssociation = ToggleWithDefault.bydefault;
 	}
 
-	public void fromTemplate(MessageSource msg,  VaadinLogoImageLoader imageAccessService,
+	public void fromTemplate(MessageSource msg,  ImageAccessService imageAccessService,
 			CustomProviderProperties source, String idFromTemplate, String orgId)
 	{
 		String profile = source.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE);
@@ -71,7 +69,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		fromProperties(msg, imageAccessService, source, orgId != null ? orgId : idFromTemplate);
 	}
 
-	public void fromProperties(MessageSource msg, VaadinLogoImageLoader imageAccessService,
+	public void fromProperties(MessageSource msg, ImageAccessService imageAccessService,
 			CustomProviderProperties source, String id)
 	{
 		setId(id);
@@ -85,7 +83,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		{
 			String logoUri = source.getLocalizedString(msg, CustomProviderProperties.ICON_URL)
 					.getDefaultValue();
-			setLogo(imageAccessService.loadImageFromUri(logoUri).orElseGet(LocalOrRemoteResource::new));
+			setLogo(imageAccessService.getEditableImageResourceFromUriWithUnknownTheme(logoUri).orElse(null));
 		}
 
 		setClientId(source.getValue(CustomProviderProperties.CLIENT_ID));
@@ -101,6 +99,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		if (source.isSet(CustomProviderProperties.SCOPES))
 		{	
 			setRequestedScopes(Arrays.asList(source.getValue(CustomProviderProperties.SCOPES).split(" ")));
+	
 		}
 		
 		setAccessTokenFormat(source.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT,
@@ -163,7 +162,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		if (getLogo() != null)
 		{
 			FileFieldUtils.saveInProperties(getLogo(), prefix + CustomProviderProperties.ICON_URL, raw, fileStorageService,
-					FileStorageService.StandardOwner.AUTHENTICATOR.toString(), authName + "." + getId());
+					StandardOwner.AUTHENTICATOR.toString(), authName + "." + getId());
 		}
 
 		raw.put(prefix + CustomProviderProperties.CLIENT_ID, getClientId());
@@ -188,7 +187,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 					getClientHttpMethodForProfileAccess().toString());
 		}
 
-		if (getRequestedScopes() != null && !getRequestedScopes().isEmpty())
+		if (getRequestedScopes() != null)
 		{
 			raw.put(prefix + CustomProviderProperties.SCOPES, String.join(" ", getRequestedScopes()));
 		}
