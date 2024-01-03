@@ -1,0 +1,23 @@
+<!--
+  ~ Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+  ~ See LICENCE.txt file for licensing information.
+  -->
+
+<assembly>
+	<id>i18n</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	
+	<includeBaseDirectory>false</includeBaseDirectory>
+	
+	<fileSets>
+		<fileSet>
+			<directory>src/main/resources/messages</directory>
+			<includes>
+				<include>**</include>
+			</includes>
+			<outputDirectory>/i18n/</outputDirectory>
+		</fileSet>
+	</fileSets>
+</assembly>

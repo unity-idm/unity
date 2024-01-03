@@ -95,7 +95,8 @@
 		<module>vaadin-account-association</module>
 		<module>console</module>
 		<module>vaadin-styles</module>
-	</modules>
+        <module>console-utils</module>
+    </modules>
 
 	<developers>
 		<developer>
