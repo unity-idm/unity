@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.console.views.directory_setup.automation.mvel;
+package io.imunity.vaadin.endpoint.common.mvel;
 
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.data.binder.Binder;

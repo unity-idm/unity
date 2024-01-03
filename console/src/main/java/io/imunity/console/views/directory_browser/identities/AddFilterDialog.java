@@ -10,7 +10,7 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import io.imunity.console.components.NonEmptyComboBox;
+import io.imunity.vaadin.elements.NonEmptyComboBox;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.Collection;

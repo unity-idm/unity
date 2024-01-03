@@ -9,7 +9,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -17,6 +16,7 @@ import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
@@ -163,7 +163,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 		authenticationMainLayout.getStyle().set("gap", "0");
 
 		String logoUri = config.getAuthnLogo();
-		Optional<Image> image = imageAccessService.loadImageFromUri(logoUri);
+		Optional<LocalOrRemoteResource> image = imageAccessService.loadImageFromUri(logoUri);
 		if (image.isPresent())
 		{
 			image.get().addClassName("u-authn-logo");

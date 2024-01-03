@@ -178,6 +178,7 @@ class UnityAppLayoutComponentsHolder
 	private Tabs createLeftMenuTabs(List<MenuComponent> menuContent)
 	{
 		Tabs tabs = new Tabs();
+		tabs.addClassName("u-menu-tabs");
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
 		tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
 		Tab[] items = menuContent.stream()

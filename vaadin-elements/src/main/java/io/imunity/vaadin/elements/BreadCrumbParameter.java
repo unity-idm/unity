@@ -14,12 +14,19 @@ public class BreadCrumbParameter
 	public final String id;
 	public final String name;
 	public final String parameter;
+	public final boolean disable;
 
 	public BreadCrumbParameter(String id, String name, String parameter)
+	{
+		this(id, name, parameter, false);
+	}
+
+	public BreadCrumbParameter(String id, String name, String parameter, boolean disable)
 	{
 		this.id = id;
 		this.name = name;
 		this.parameter = parameter;
+		this.disable = disable;
 	}
 
 	public BreadCrumbParameter(String id, String name)

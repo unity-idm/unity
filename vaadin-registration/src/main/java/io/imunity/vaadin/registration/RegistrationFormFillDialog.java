@@ -8,14 +8,13 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationRequest;
@@ -92,7 +91,8 @@ public class RegistrationFormFillDialog extends Dialog
 		setSizeFull();
 		add(wrapper);
 
-		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, imageAccessService.loadImageFromUri(config.logoURL).orElse(new Image()));
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, imageAccessService.loadImageFromUri(config.logoURL)
+				.orElse(new LocalOrRemoteResource()));
 		wrapper.add(finalScreen);
 		wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
 	}

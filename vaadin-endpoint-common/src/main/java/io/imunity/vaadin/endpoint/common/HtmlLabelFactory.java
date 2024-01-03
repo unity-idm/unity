@@ -14,7 +14,9 @@ public class HtmlLabelFactory
 	public static Html getHtmlLabel(MessageSource msg, String name, String msgKey, Object... unsafeArgs)
 	{
 		Object[] escapedArgs = escapeArgs(unsafeArgs);
-		return new Html("<div><label>" + name + "</label>" + msg.getMessageNullArg(msgKey, escapedArgs) + "</div>");
+		Html html = new Html(msg.getMessageNullArg(msgKey, escapedArgs));
+		html.getElement().setProperty("label", name);
+		return html;
 	}
 
 	private static Object[] escapeArgs(Object... unsafeArgs)

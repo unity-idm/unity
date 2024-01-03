@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static io.imunity.vaadin.elements.BreadCrumbParameter.BREAD_CRUMB_SEPARATOR;
+import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
 
 public class BreadCrumbComponent extends Composite<Div>
 {
@@ -130,9 +131,13 @@ public class BreadCrumbComponent extends Composite<Div>
 	private Stream<RouterLink> getRouterLink(Class<? extends UnityViewComponent> routeClass, BreadCrumbParameter p)
 	{
 		RouterLink basicRoute = new RouterLink(p.name, routeClass, p.id);
+		if(p.disable)
+			basicRoute.addClassName(DISABLED_ICON.getName());
 		if(p.parameter != null)
 		{
 			RouterLink routerLink = new RouterLink(p.parameter, routeClass, p.id);
+			if(p.disable)
+				routerLink.addClassName(DISABLED_ICON.getName());
 			routerLink.setQueryParameters(QueryParameters.simple(Map.of("tab", p.parameter)));
 			return Stream.of(basicRoute, routerLink);
 		}

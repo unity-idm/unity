@@ -13,6 +13,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
 
 public class BaseAuthenticatorEditor
 {
@@ -24,12 +26,17 @@ public class BaseAuthenticatorEditor
 	{
 		this.msg = msg;
 		name = new TextField();
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		nameBinder = new Binder<>(StringBindingValue.class);
-		nameBinder.forField(name).withValidator((value, context) -> {
-			if (value != null && value.contains(" "))
-				return ValidationResult.error(msg.getMessage("NoSpaceValidator.noSpace"));
-			return ValidationResult.ok();
-		}).asRequired(msg.getMessage("fieldRequired")).bind("value");
+		nameBinder.forField(name)
+				.withValidator((value, context) ->
+				{
+					if (value != null && value.contains(" "))
+						return ValidationResult.error(msg.getMessage("NoSpaceValidator.noSpace"));
+					return ValidationResult.ok();
+				}
+				).asRequired(msg.getMessage("fieldRequired"))
+				.bind(StringBindingValue::getValue, StringBindingValue::setValue);
 	}
 
 	protected String getName() throws FormValidationException 
@@ -48,7 +55,7 @@ public class BaseAuthenticatorEditor
 	
 	protected boolean init(String defaultName, AuthenticatorDefinition toEdit, boolean forceNameEditable)
 	{
-		boolean editMode = toEdit != null;
+		boolean editMode = toEdit != null && !toEdit.id.isBlank();
 		setName(editMode ? toEdit.id : defaultName);
 		name.setReadOnly(editMode && !forceNameEditable);
 		name.focus();

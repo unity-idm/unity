@@ -7,7 +7,7 @@ package io.imunity.console.views.directory_browser.identities;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import io.imunity.console.components.NonEmptyComboBox;
+import io.imunity.vaadin.elements.NonEmptyComboBox;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.*;

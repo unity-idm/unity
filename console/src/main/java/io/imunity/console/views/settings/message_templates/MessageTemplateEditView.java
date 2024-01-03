@@ -175,15 +175,7 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 		body.setWidthFull();
 		body.addValuesChangeListener(focussedField::set);
 
-		customVariablesPicker = new MultiSelectComboBox<>(msg.getMessage("MessageTemplatesEditor.externalTemplateInfo"));
-		customVariablesPicker.setAllowCustomValue(true);
-		customVariablesPicker.addCustomValueSetListener(event ->
-		{
-			HashSet<String> values = new HashSet<>(customVariablesPicker.getValue());
-			values.add(event.getDetail());
-			customVariablesPicker.setItems(values);
-			customVariablesPicker.setValue(values);
-		});
+		customVariablesPicker = new CustomValuesMultiSelectComboBox(msg.getMessage("MessageTemplatesEditor.externalTemplateInfo"));
 		customVariablesPicker.setWidth(TEXT_FIELD_BIG.value());
 
 		FormLayout formLayout = createFormLayout(name, description, subject, messageType, body);

@@ -6,16 +6,16 @@
 package io.imunity.vaadin.auth.authenticators.cert;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.BaseLocalAuthenticatorEditor;
-import io.imunity.vaadin.auth.authenticators.SubViewSwitcher;
 import io.imunity.vaadin.auth.extensions.TLSRetrievalProperties;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -30,10 +30,12 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
 
 class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	private Binder<CertConfiguration> configBinder;
 
 	CertificateAuthenticatorEditor(MessageSource msg, Collection<CredentialDefinition> credentialDefinitions)
@@ -52,11 +54,13 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 		configBinder = new Binder<>(CertConfiguration.class);
 
 		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		header.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
 		header.addFormItem(localCredential, msg.getMessage("BaseLocalAuthenticatorEditor.localCredential"));
 
-		Accordion interactiveLoginSettings = buildInteractiveLoginSettingsSection();
+		AccordionPanel interactiveLoginSettings = buildInteractiveLoginSettingsSection();
+		interactiveLoginSettings.setWidthFull();
 
 		VerticalLayout main = new VerticalLayout();
 		main.setPadding(false);
@@ -73,10 +77,10 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 		return main;
 	}
 
-	private Accordion buildInteractiveLoginSettingsSection()
+	private AccordionPanel buildInteractiveLoginSettingsSection()
 	{
-		Accordion interactiveLoginSettings = new Accordion();
 		FormLayout formLayout = new FormLayout();
+		formLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(),
@@ -86,9 +90,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 						(configuration, value) -> configuration.setRetrievalName(new I18nString(value)));
 		formLayout.addFormItem(retrievalName, msg.getMessage("CertificateAuthenticatorEditor.displayedName"));
 
-		interactiveLoginSettings.add(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"), formLayout);
-		interactiveLoginSettings.close();
-		return interactiveLoginSettings;
+		return new AccordionPanel(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"), formLayout);
 	}
 
 	@Override
@@ -115,7 +117,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 
 	public static class CertConfiguration
 	{
-		private I18nString retrievalName;
+		private I18nString retrievalName = new I18nString();
 
 		public CertConfiguration()
 		{

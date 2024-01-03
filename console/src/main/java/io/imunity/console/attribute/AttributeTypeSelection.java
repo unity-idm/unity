@@ -8,7 +8,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.shared.HasTooltip;
-import io.imunity.console.tprofile.AttributeSelectionComboBox;
+import io.imunity.console_utils.tprofile.AttributeSelectionComboBox;
 import io.imunity.vaadin.elements.TooltipFactory;
 import org.apache.commons.lang3.StringUtils;
 import pl.edu.icm.unity.base.attribute.AttributeType;

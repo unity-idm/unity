@@ -2,14 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.console.views.directory_setup.automation.mvel;
-
-import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
-
-import java.util.Optional;
+package io.imunity.vaadin.endpoint.common.mvel;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -23,12 +16,17 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
-
-import io.imunity.console.components.TooltipFactory;
-import io.imunity.console.tprofile.DragDropBean;
 import io.imunity.vaadin.elements.FormItemRequiredIndicatorHandler;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+
+import java.util.Optional;
+
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 /**
  * Plain text field allowing for editing an MVEL expression
@@ -42,7 +40,7 @@ public class MVELExpressionField extends CustomField<String>
 	private boolean mandatory;
 	private MVELExpressionContext context;
 
-	public MVELExpressionField(MessageSource msg, String description, MVELExpressionContext context)
+	public MVELExpressionField(MessageSource msg, String description, MVELExpressionContext context, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.field = new TextField();
 		field.setWidth(TEXT_FIELD_BIG.value());
@@ -58,7 +56,7 @@ public class MVELExpressionField extends CustomField<String>
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setWidthFull();
 		layout.setSpacing(false);
-		Component tooltip = TooltipFactory.getWithHtmlContent(description);
+		Component tooltip = htmlTooltipFactory.get(description);
 		HorizontalLayout iconsLayout = new HorizontalLayout(editorButton, tooltip);
 		iconsLayout.setSpacing(false);
 		iconsLayout.getStyle().set("margin-top", BASE_MARGIN.value());
@@ -72,7 +70,12 @@ public class MVELExpressionField extends CustomField<String>
 		});
 		add(layout);
 		addDropHandler();
-		
+	}
+
+	public MVELExpressionField(MessageSource msg, String caption, String description, MVELExpressionContext context, HtmlTooltipFactory htmlTooltipFactory)
+	{
+		this(msg, description, context, htmlTooltipFactory);
+		setLabel(caption);
 	}
 	
 	private void addDropHandler()
@@ -101,12 +104,6 @@ public class MVELExpressionField extends CustomField<String>
 	public void removeClassNameFromField(String name)
 	{
 		field.removeClassName(name);
-	}
-	
-	public MVELExpressionField(MessageSource msg, String caption, String description, MVELExpressionContext context)
-	{
-		this(msg, description, context);
-		setLabel(caption);
 	}
 
 	public void configureBinding(Binder<?> binder, String fieldName, boolean mandatory)

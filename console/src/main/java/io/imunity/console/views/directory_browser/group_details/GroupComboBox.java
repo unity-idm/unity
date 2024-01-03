@@ -4,7 +4,7 @@
  */
 package io.imunity.console.views.directory_browser.group_details;
 
-import io.imunity.console.components.NonEmptyComboBox;
+import io.imunity.vaadin.elements.NonEmptyComboBox;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 
 import java.util.ArrayList;

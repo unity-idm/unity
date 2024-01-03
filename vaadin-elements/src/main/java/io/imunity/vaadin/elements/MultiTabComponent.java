@@ -36,9 +36,10 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		content.setOrientation(Tabs.Orientation.VERTICAL);
 		content.addThemeVariants(TabsVariant.LUMO_MINIMAL);
 		content.setSelectedTab(null);
+		content.addClassName("u-menu-tabs");
 		details.setContent(content);
 		details.addThemeVariants(DetailsVariant.REVERSE);
-		details.setClassName("u-multi-tab-details");
+		details.addClassName("u-multi-tab-details");
 		details.setWidthFull();
 		add(details);
 		setClassName("u-multi-tab");

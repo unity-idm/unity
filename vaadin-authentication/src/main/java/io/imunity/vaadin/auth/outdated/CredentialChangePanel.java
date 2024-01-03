@@ -9,12 +9,12 @@ import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
@@ -88,7 +88,7 @@ class CredentialChangePanel extends VerticalLayout
 				.build());
 		setMargin(false);
 		
-		Optional<Image> logo = imageAccessService.loadImageFromUri(uiConfig.logoURL);
+		Optional<LocalOrRemoteResource> logo = imageAccessService.loadImageFromUri(uiConfig.logoURL);
 		logo.ifPresent(logoImg -> logoImg.addClassName(LOGO_IMAGE.getName()));
 		logo.ifPresent(this::add);
 

@@ -27,9 +27,10 @@ public class BaseLocalAuthenticatorEditor extends BaseAuthenticatorEditor
 		this.allCredentials = allCredentials;
 		localCredential = new ComboBox<>();
 		localCredential.setItems(allCredentials);
-
 		localCredentialBinder = new Binder<>(StringBindingValue.class);
-		localCredentialBinder.forField(localCredential).asRequired(msg.getMessage("fieldRequired")).bind("value");
+		localCredentialBinder.forField(localCredential)
+				.asRequired(msg.getMessage("fieldRequired"))
+				.bind(StringBindingValue::getValue, StringBindingValue::setValue);
 	}
 
 	protected String getLocalCredential() throws FormValidationException

@@ -7,7 +7,7 @@ package io.imunity.console.attribute;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
-import io.imunity.console.tprofile.AttributeSelectionComboBox;
+import io.imunity.console_utils.tprofile.AttributeSelectionComboBox;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;

@@ -6,18 +6,17 @@
 package io.imunity.vaadin.auth.authenticators.password;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.BaseLocalAuthenticatorEditor;
-import io.imunity.vaadin.auth.authenticators.SubViewSwitcher;
 import io.imunity.vaadin.auth.extensions.PasswordRetrievalProperties;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
-import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -31,14 +30,15 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
 
 class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	private Binder<PasswordConfiguration> configBinder;
 
 	PasswordAuthenticatorEditor(MessageSource msg, Collection<CredentialDefinition> credentialDefinitions)
-			throws EngineException
 	{
 		super(msg, credentialDefinitions.stream().filter(c -> c.getTypeId().equals(PasswordVerificator.NAME))
 				.map(CredentialDefinition::getName).collect(Collectors.toList()));
@@ -53,11 +53,13 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 		configBinder = new Binder<>(PasswordConfiguration.class);
 
 		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		header.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
 		header.addFormItem(localCredential, msg.getMessage("BaseLocalAuthenticatorEditor.localCredential"));
 
-		Accordion interactiveLoginSettings = buildInteractiveLoginSettingsSection();
+		AccordionPanel interactiveLoginSettings = buildInteractiveLoginSettingsSection();
+		interactiveLoginSettings.setWidthFull();
 
 		VerticalLayout main = new VerticalLayout();
 		main.setPadding(false);
@@ -77,10 +79,10 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 		return main;
 	}
 
-	private Accordion buildInteractiveLoginSettingsSection()
+	private AccordionPanel buildInteractiveLoginSettingsSection()
 	{
-		Accordion interactiveLoginSettings = new Accordion();
 		FormLayout formLayout = new FormLayout();
+		formLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
@@ -88,9 +90,7 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 				(configuration, value) -> configuration.setRetrievalName(new I18nString(value)));
 		formLayout.addFormItem(retrievalName, msg.getMessage("PasswordAuthenticatorEditor.passwordName"));
 		
-		interactiveLoginSettings.add(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"), formLayout);
-		interactiveLoginSettings.close();
-		return interactiveLoginSettings;
+		return new AccordionPanel(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"), formLayout);
 	}
 
 	@Override
@@ -117,7 +117,7 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 
 	public static class PasswordConfiguration
 	{
-		private I18nString retrievalName;
+		private I18nString retrievalName = new I18nString();
 		private String localCredential;
 
 		public PasswordConfiguration()

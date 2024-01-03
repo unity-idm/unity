@@ -15,9 +15,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import io.imunity.console.attribute.AttributeFieldWithEdit;
-import io.imunity.console.tprofile.AttributeSelectionComboBox;
-import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
+import io.imunity.console.components.TooltipFactory;
+import io.imunity.console_utils.tprofile.AttributeSelectionComboBox;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -112,12 +113,13 @@ class AttributeStatementComponent extends VerticalLayout
 		if (groups.isEmpty())
 			extraAttributesGroupCB.setEnabled(false);
 
+		TooltipFactory tooltipFactory = new TooltipFactory();
 		MVELExpressionField condition = new MVELExpressionField(msg, "",
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder()
 						.withTitleKey("AttributeStatementComponent.conditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean")
-						.withVars(AttributeStatementMVELContextKey.toMap()).build());
+						.withVars(AttributeStatementMVELContextKey.toMap()).build(), tooltipFactory);
 		condition.setValue("true");
 
 		assignMode = new RadioButtonGroup<>();
@@ -136,7 +138,7 @@ class AttributeStatementComponent extends VerticalLayout
 				MVELExpressionContext.builder()
 						.withTitleKey("AttributeStatementComponent.dynamicAttrValueTitle")
 						.withEvalToKey("AttributeStatementComponent.evalToListOfAttributeValues")
-						.withVars(AttributeStatementMVELContextKey.toMap()).build());
+						.withVars(AttributeStatementMVELContextKey.toMap()).build(), tooltipFactory);
 
 		AttributeFieldWithEdit fixedAttribute = new AttributeFieldWithEdit(msg, "",
 				attrHandlerRegistry, attributeTypes, group, null, true, notificationPresenter);

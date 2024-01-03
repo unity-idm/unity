@@ -5,18 +5,14 @@
 
 package io.imunity.vaadin.elements.grid;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.grid.dnd.GridDropLocation;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -24,8 +20,13 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
-
 import io.imunity.vaadin.elements.ActionIconBuilder;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Grid with actions column.
@@ -39,6 +40,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private List<T> contents;
 	private GridListDataView<T> dataProvider;
 	private Column<T> actionColumn;
+	private T draggedItem;
 
 	private Collection<SerializablePredicate<T>> filters;
 	private List<SingleActionHandler<T>> actionHandlers;
@@ -56,6 +58,31 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		dataProvider = setItems(contents);
 		addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		refreshActionColumn();
+	}
+
+	public void enableRowReordering(Runnable update)
+	{
+		setDropMode(GridDropMode.BETWEEN);
+		setRowsDraggable(true);
+
+		addDragStartListener(e -> draggedItem = e.getDraggedItems().get(0));
+
+		addDropListener(e ->
+		{
+			T targetPerson = e.getDropTargetItem().orElse(null);
+			GridDropLocation dropLocation = e.getDropLocation();
+			if (targetPerson == null || draggedItem.equals(targetPerson))
+				return;
+
+			dataProvider.removeItem(draggedItem);
+
+			if (dropLocation == GridDropLocation.BELOW)
+				dataProvider.addItemAfter(draggedItem, targetPerson);
+			else
+				dataProvider.addItemBefore(draggedItem, targetPerson);
+			update.run();
+		});
+		addDragEndListener(e -> draggedItem = null);
 	}
 
 	public void setMultiSelect(boolean multi)
@@ -233,7 +260,15 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		refreshActionColumn();
 		return addComponentColumn;
 	}
-	
+
+	@Override
+	public Column<T> addColumn(ValueProvider<T, ?> valueProvider)
+	{
+		Column<T> tColumn = super.addColumn(valueProvider);
+		refreshActionColumn();
+		return tColumn;
+	}
+
 	public <V extends Component> Column<T> addBooleanColumn(Function<T, Boolean> checkBox)
 	{
 		Column<T> addComponentColumn = super.addComponentColumn(v -> getBoolIcon(checkBox.apply(v))).setResizable(true).setFlexGrow(2);

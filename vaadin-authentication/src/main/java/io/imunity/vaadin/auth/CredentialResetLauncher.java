@@ -5,7 +5,7 @@
 package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Image;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 
 import java.util.Optional;
 
@@ -27,13 +27,13 @@ public interface CredentialResetLauncher
 	
 	class CredentialResetUIConfig
 	{
-		public final Optional<Image> logo;
+		public final Optional<LocalOrRemoteResource> logo;
 		public final Runnable finishCallback;
 		public final float infoWidth;
 		public final float contentsWidth;
 		public final boolean compactLayout;
 		
-		public CredentialResetUIConfig(Optional<Image> logo, Runnable finishCallback, float infoWidth,
+		public CredentialResetUIConfig(Optional<LocalOrRemoteResource> logo, Runnable finishCallback, float infoWidth,
 				float contentsWidth, boolean compactLayout)
 		{
 			this.logo = logo;

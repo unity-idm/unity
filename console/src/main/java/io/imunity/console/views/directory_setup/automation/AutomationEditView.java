@@ -15,9 +15,9 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.components.TooltipFactory;
-import io.imunity.console.tprofile.ActionEditor;
+import io.imunity.console_utils.tprofile.ActionEditor;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
+import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
@@ -90,7 +90,7 @@ public class AutomationEditView extends ConsoleViewComponent
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder().withTitleKey("RuleEditor.conditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(EntityMVELContextKey.toMap())
-						.build());
+						.build(), new TooltipFactory());
 		actionEditor = controller.getActionEditor(translationRule);
 		binder = new Binder<>(ScheduledProcessingRuleParam.class);
 		condition.configureBinding(binder, "condition", true);

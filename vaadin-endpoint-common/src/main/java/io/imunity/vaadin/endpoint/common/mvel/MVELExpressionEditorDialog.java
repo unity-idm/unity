@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.directory_setup.automation.mvel;
+package io.imunity.vaadin.endpoint.common.mvel;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;

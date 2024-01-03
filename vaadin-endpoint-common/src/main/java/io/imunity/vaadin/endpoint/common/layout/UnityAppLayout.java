@@ -6,7 +6,9 @@
 package io.imunity.vaadin.endpoint.common.layout;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -17,6 +19,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
+import io.imunity.vaadin.elements.AfterSubNavigationEvent;
 import io.imunity.vaadin.elements.ExtraLayoutPanel;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.elements.UnityViewComponent;
@@ -117,6 +120,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 		verticalLayout.setHeightFull();
 		verticalLayout.setClassName("u-main-layout-left-minimization-container");
 		leftContainerContent.add(verticalLayout);
+		ComponentUtil.addListener(UI.getCurrent(), AfterSubNavigationEvent.class, event -> appLayoutComponents.reloadBreadCrumb(event.getSource()));
 	}
 
 	@Override

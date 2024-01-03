@@ -86,6 +86,7 @@ public class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScre
 		sandboxConfig.setProperty(PREFIX + AUTHN_TITLE, title);
 		sandboxConfig.setProperty(PREFIX + AUTHN_SHOW_LAST_OPTION_ONLY, "false");
 		sandboxConfig.setProperty(PREFIX + AUTHN_ADD_ALL, "true");
+		sandboxConfig.setProperty(PREFIX + AUTHN_SHOW_SEARCH, "true");
 
 		String gridAuthnsSpec = getGridFlowsSpec(authenticators);
 		String nonGridAuthnsSpec = getNonGridFlowsSpec(authenticators);
@@ -130,6 +131,7 @@ public class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScre
 		stripDown.putAll(reduced);
 		stripDown.setProperty(PREFIX + AUTHN_TITLE, title);
 		stripDown.setProperty(PREFIX + AUTHN_SHOW_LAST_OPTION_ONLY, "false");
+		stripDown.setProperty(PREFIX + AUTHN_SHOW_SEARCH, "true");
 		return new VaadinEndpointProperties(stripDown);
 	}
 

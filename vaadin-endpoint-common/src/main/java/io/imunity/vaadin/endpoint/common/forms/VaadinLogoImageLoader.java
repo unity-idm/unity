@@ -5,8 +5,8 @@
 
 package io.imunity.vaadin.endpoint.common.forms;
 
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.server.StreamResource;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -25,7 +25,7 @@ public class VaadinLogoImageLoader
 		this.uriAccessService = uriAccessService;
 	}
 
-	public Optional<Image> loadImageFromUri(String url)
+	public Optional<LocalOrRemoteResource> loadImageFromUri(String url)
 	{
 		if(url == null || url.isEmpty())
 			return Optional.empty();
@@ -34,9 +34,9 @@ public class VaadinLogoImageLoader
 			FileData fileData = uriAccessService.readURI(URI.create(url));
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileData.getContents());
 			StreamResource streamResource = new StreamResource(fileData.getName(), () -> byteArrayInputStream);
-			return Optional.of(new Image(streamResource, ""));
+			return Optional.of(new LocalOrRemoteResource(streamResource, "", fileData.getContents()));
 		}
 		else
-			return Optional.of(new Image(url, ""));
+			return Optional.of(new LocalOrRemoteResource(url, ""));
 	}
 }

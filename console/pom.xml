@@ -41,6 +41,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.imunity</groupId>
+            <artifactId>unity-server-console-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
             <exclusions>

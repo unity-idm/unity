@@ -90,6 +90,10 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: var(--unity-font-weight);
 }
 
+code {
+    background-color: unset;
+}
+
 vaadin-button[theme=primary]:hover {
     background-color: var(--unity-hover-button-color);
 }
@@ -98,18 +102,18 @@ vaadin-icon[disabled] {
     color: var(--lumo-disabled-text-color);
 }
 
-vaadin-tab {
+.u-menu-tabs > vaadin-tab {
     font-size: var(--lumo-font-size-l);
     height: var(--lumo-size-l);
     font-weight: var(--unity-font-weight);
     color: var(--unity-font-primary-color);
 }
 
-vaadin-tab:hover {
+.u-menu-tabs > vaadin-tab:hover {
     background-color: var(--unity-tab-hover-color);
 }
 
-vaadin-tab[selected] {
+.u-menu-tabs > vaadin-tab[selected] {
     background-color: var(--unity-selected-tab-color);
     color: var(--unity-font-primary-color);
 }
@@ -183,6 +187,10 @@ vaadin-context-menu-item.hr, vaadin-context-menu-list-box.hr {
 }
 
 vaadin-grid-cell-content > vaadin-text-field[invalid] {
+    margin-top: 1.8em;
+}
+
+vaadin-grid-cell-content > vaadin-integer-field[invalid] {
     margin-top: 1.8em;
 }
 
@@ -349,6 +357,10 @@ vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
     max-height: 5rem;
     margin-left: auto;
     margin-right: auto;
+}
+
+.u-logo-grid-image {
+    max-height: 2rem;
 }
 
 .u-breadcrumb {
@@ -678,6 +690,18 @@ vaadin-details.u-multi-tab-details {
 	display: flow-root;
 	background-color: var(--unity-contrast);
 	border-radius: var(--unity-border-radius);
+}
+
+.u-unsaved-banner {
+    background-color: var(--unity-warning-icon-color);
+    padding: var(--unity-small-padding)
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.u-unsaved-banner > h4 {
+    color: var(--unity-font-primary-color);
 }
 
 vaadin-combo-box-overlay.u-combobox-hidden-checkmark > * ::part(checkmark){

@@ -25,6 +25,7 @@ import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormsService;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -294,7 +295,7 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 					config.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT));
 		}
 
-		private Optional<Image> getLogo()
+		private Optional<LocalOrRemoteResource> getLogo()
 		{
 			String logoURL = config.getAuthnLogo();
 			return imageAccessService.loadImageFromUri(logoURL);

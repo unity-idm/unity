@@ -16,12 +16,12 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
-import io.imunity.console.tprofile.ActionEditor;
+import io.imunity.console.components.TooltipFactory;
+import io.imunity.console_utils.tprofile.ActionEditor;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.console.views.directory_setup.automation.mvel.MVELExpressionField;
+import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
@@ -73,7 +73,7 @@ public class AutomationRunView extends ConsoleViewComponent
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder().withTitleKey("RuleEditor.conditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(EntityMVELContextKey.toMap())
-						.build());
+						.build(), new TooltipFactory());
 		actionEditor = controller.getActionEditor(translationRule);
 		binder = new Binder<>(TranslationRule.class);
 		condition.configureBinding(binder, "condition", true);

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.components;
+package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.combobox.ComboBox;
 
