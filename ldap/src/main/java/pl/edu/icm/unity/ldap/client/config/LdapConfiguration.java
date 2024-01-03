@@ -5,18 +5,7 @@
 
 package pl.edu.icm.unity.ldap.client.config;
 
-import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.unboundid.ldap.sdk.LDAPException;
-
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -33,6 +22,13 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalProperties;
 import pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
 
 /**
  * Ldap configuration. Used by {@link AuthenticatorEditor} binder.
@@ -72,6 +68,8 @@ public class LdapConfiguration extends LDAPCommonConfiguration
 				.generateIncludeInputProfile(LdapProperties.DEFAULT_TRANSLATION_PROFILE));
 		searchSpecifications = new ArrayList<>();
 		groupSpecifications = new ArrayList<>();
+		retrievalLdapAttributes = new ArrayList<>();
+		retrievalName = new I18nString();
 		setDelegateGroupFiltering(LdapProperties.DEFAULT_GROUPS_SEARCH_IN_LDAP);
 		setResultEntriesLimit(LdapProperties.DEFAULT_RESULT_ENTRIES_LIMIT);
 	}

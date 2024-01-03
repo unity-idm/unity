@@ -5,28 +5,33 @@
 
 package pl.edu.icm.unity.ldap.client.console;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.Validator;
-import com.vaadin.data.converter.StringToIntegerConverter;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
-import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
+import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
+import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.elements.grid.EditableGrid;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
@@ -34,48 +39,43 @@ import pl.edu.icm.unity.ldap.client.LdapCertVerificator;
 import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
 import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
 import pl.edu.icm.unity.ldap.client.config.LdapConfiguration;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
 import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
 import pl.edu.icm.unity.ldap.client.config.ServerSpecification;
-import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonConfiguration.UserDNResolving;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.ConnectionMode;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GridWithEditor;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
-/**
- * LDAP Authenticator editor
- * 
- * @author P.Piernik
- *
- */
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
+
 class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private PKIManagement pkiMan;
-	private InputTranslationProfileFieldFactory profileFieldFactory;
+	private final PKIManagement pkiMan;
+	private final InputTranslationProfileFieldFactory profileFieldFactory;
+	private final Set<String> validators;
 	private Binder<LdapConfiguration> configBinder;
-	private Set<String> validators;
 
-	private ComboBox<BindAs> bindAsCombo;
+	private Select<BindAs> bindAsCombo;
 	private RadioButtonGroup<UserDNResolving> userDNResolvingMode;
 
 	private TextField systemDN;
 	private TextField systemPassword;
 
-	private CollapsibleLayout remoteDataMapping;
-	private CollapsibleLayout groupRetrievalSettings;
-	private CollapsibleLayout advandcedAttrSearchSettings;
+	private AccordionPanel remoteDataMapping;
+	private AccordionPanel groupRetrievalSettings;
+	private AccordionPanel advancedAttrSearchSettings;
 
-	private String forType;
-	private List<String> registrationForms;
+	private final String forType;
+	private final List<String> registrationForms;
 
 	LdapAuthenticatorEditor(MessageSource msg, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory, List<String> registrationForms,
@@ -101,21 +101,28 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		configBinder = new Binder<>(LdapConfiguration.class);
 
-		FormLayoutWithFixedCaptionWidth header = buildHeaderSection();
-		CollapsibleLayout userDNresolvingSettings = buildUserDNResolvingSection();
-		userDNresolvingSettings.expand();
+		FormLayout header = buildHeaderSection();
 
-		CollapsibleLayout serverConnectionConfiguration = buildServersConnectionConfigurationSection();
-		serverConnectionConfiguration.expand();
+		AccordionPanel userDResolvingSettings = buildUserDNResolvingSection();
+		userDResolvingSettings.setOpened(true);
+		userDResolvingSettings.setWidthFull();
+
+		AccordionPanel serverConnectionConfiguration = buildServersConnectionConfigurationSection();
+		serverConnectionConfiguration.setOpened(true);
+		serverConnectionConfiguration.setWidthFull();
 
 		remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher, configBinder,
 				"translationProfile");
+		remoteDataMapping.setWidthFull();
 
 		groupRetrievalSettings = buildGroupRetrievalSettingsSection();
+		groupRetrievalSettings.setWidthFull();
 
-		advandcedAttrSearchSettings = buildAdvancedAttributeSearchSettingsSection();
+		advancedAttrSearchSettings = buildAdvancedAttributeSearchSettingsSection();
+		advancedAttrSearchSettings.setWidthFull();
 
-		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
+		AccordionPanel interactiveLoginSettings = buildInteractiveLoginSettingsSection();
+		interactiveLoginSettings.setWidthFull();
 
 		LdapConfiguration config = new LdapConfiguration();
 		if (editMode)
@@ -132,69 +139,70 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		refreshUserDNResolvingSection();
 
 		VerticalLayout mainView = new VerticalLayout();
-		mainView.setMargin(false);
-		mainView.addComponent(header);
-		mainView.addComponent(userDNresolvingSettings);
-		mainView.addComponent(serverConnectionConfiguration);
-		mainView.addComponent(remoteDataMapping);
-		mainView.addComponent(groupRetrievalSettings);
-		mainView.addComponent(advandcedAttrSearchSettings);
-		mainView.addComponent(interactiveLoginSettings);
+		mainView.setPadding(false);
+		mainView.add(header, userDResolvingSettings, serverConnectionConfiguration, remoteDataMapping,
+				groupRetrievalSettings, advancedAttrSearchSettings, interactiveLoginSettings);
 
 		return mainView;
 	}
 
-	private FormLayoutWithFixedCaptionWidth buildHeaderSection()
+	private FormLayout buildHeaderSection()
 	{
-		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
-		header.setMargin(true);
-		header.addComponent(name);
+		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		header.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
 
-		CheckBox authenticationOnly = new CheckBox(
+		Checkbox authenticationOnly = new Checkbox(
 				msg.getMessage("LdapAuthenticatorEditor.authenticationOnly"));
-		configBinder.forField(authenticationOnly).bind("bindOnly");
-		header.addComponent(authenticationOnly);
-		authenticationOnly.addValueChangeListener(e -> {
+		configBinder.forField(authenticationOnly).bind(LdapConfiguration::isBindOnly, LdapConfiguration::setBindOnly);
+		header.addFormItem(authenticationOnly, "");
+		authenticationOnly.addValueChangeListener(e ->
+		{
 			boolean value = e.getValue();
 			remoteDataMapping.setVisible(!value);
 			groupRetrievalSettings.setVisible(!value);
-			advandcedAttrSearchSettings.setVisible(!value);
+			advancedAttrSearchSettings.setVisible(!value);
 		});
 
-		bindAsCombo = new ComboBox<>(msg.getMessage("LdapAuthenticatorEditor.bindAs"));
+		bindAsCombo = new Select<>();
 		bindAsCombo.setItems(Arrays.asList(BindAs.system, BindAs.user));
 		bindAsCombo.setEmptySelectionAllowed(false);
-		configBinder.forField(bindAsCombo).bind("bindAs");
-		header.addComponent(bindAsCombo);
+		configBinder.forField(bindAsCombo).bind(LdapConfiguration::getBindAs, LdapConfiguration::setBindAs);
+		header.addFormItem(bindAsCombo, msg.getMessage("LdapAuthenticatorEditor.bindAs"));
 		if (forType.equals(LdapCertVerificator.NAME))
 		{
 			bindAsCombo.setReadOnly(true);
 		}
 
-		TextField systemDN = new TextField(msg.getMessage("LdapAuthenticatorEditor.systemDN"));
-		systemDN.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(systemDN).asRequired(getSystemBindRequiredValidator()).bind("systemDN");
-		header.addComponent(systemDN);
+		TextField systemDN = new TextField();
+		systemDN.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(systemDN)
+				.asRequired(getSystemBindRequiredValidator())
+				.bind(LdapConfiguration::getSystemDN, LdapConfiguration::setSystemDN);
+		header.addFormItem(systemDN, msg.getMessage("LdapAuthenticatorEditor.systemDN"));
 
-		TextField systemPassword = new TextField(msg.getMessage("LdapAuthenticatorEditor.systemPassword"));
-		systemPassword.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
+		TextField systemPassword = new TextField();
+		systemPassword.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(systemPassword).asRequired(getSystemBindRequiredValidator())
-				.bind("systemPassword");
-		header.addComponent(systemPassword);
+				.bind(LdapConfiguration::getSystemPassword, LdapConfiguration::setSystemPassword);
+		header.addFormItem(systemPassword, msg.getMessage("LdapAuthenticatorEditor.systemPassword"));
 
-		bindAsCombo.addValueChangeListener(e -> {
+		bindAsCombo.addValueChangeListener(e ->
+		{
 			BindAs v = e.getValue();
 			if (v == null)
 				return;
-			systemDN.setVisible(v.equals(BindAs.system));
-			systemPassword.setVisible(v.equals(BindAs.system));
+			systemDN.getParent().get().setVisible(v.equals(BindAs.system));
+			systemPassword.getParent().get().setVisible(v.equals(BindAs.system));
 			setSystemDNAndPasswordField(systemDN, systemPassword);
 			refreshUserDNResolvingSection();
 		});
 
-		TextField validUserFilter = new TextField(msg.getMessage("LdapAuthenticatorEditor.validUserFilter"));
-		validUserFilter.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(validUserFilter).withValidator((v, c) -> {
+		TextField validUserFilter = new TextField();
+		validUserFilter.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(validUserFilter).withValidator((v, c) ->
+		{
 			try
 			{
 				Filter.create(v);
@@ -206,8 +214,8 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 			return ValidationResult.ok();
 
-		}).bind("validUserFilter");
-		header.addComponent(validUserFilter);
+		}).bind(LdapConfiguration::getValidUserFilter, LdapConfiguration::setValidUserFilter);
+		header.addFormItem(validUserFilter, msg.getMessage("LdapAuthenticatorEditor.validUserFilter"));
 
 		return header;
 	}
@@ -219,8 +227,8 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		if (bindAs != null && userDNRes != null)
 		{
 			boolean visable = userDNRes.equals(UserDNResolving.ldapSearch) && !bindAs.equals(BindAs.system);
-			systemDN.setVisible(visable);
-			systemPassword.setVisible(visable);
+			systemDN.getParent().get().setVisible(visable);
+			systemPassword.getParent().get().setVisible(visable);
 			setSystemDNAndPasswordField(systemDN, systemPassword);
 		}
 	}
@@ -231,95 +239,88 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		if (bean != null)
 		{
 			if (bean.getSystemDN() != null)
-			{
 				systemDN.setValue(bean.getSystemDN());
-			}
 			if (bean.getSystemPassword() != null)
-			{
 				systemPassword.setValue(bean.getSystemPassword());
-			}
 		}
 	}
 
-	private CollapsibleLayout buildUserDNResolvingSection()
+	private AccordionPanel buildUserDNResolvingSection()
 	{
-		FormLayoutWithFixedCaptionWidth userDNResolvingLayout = new FormLayoutWithFixedCaptionWidth();
-		userDNResolvingLayout.setMargin(false);
+		FormLayout userDNResolvingLayout = new FormLayout();
+		userDNResolvingLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		userDNResolvingLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		userDNResolvingMode = new RadioButtonGroup<>();
-		userDNResolvingMode.setItemCaptionGenerator(
+		userDNResolvingMode.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+		userDNResolvingMode.setItemLabelGenerator(
 				v -> msg.getMessage("LdapAuthenticatorEditor.userDNResolvingMode." + v.toString()));
 		userDNResolvingMode.setItems(UserDNResolving.values());
-		configBinder.forField(userDNResolvingMode).bind("userDNResolving");
-		userDNResolvingLayout.addComponent(userDNResolvingMode);
+		configBinder.forField(userDNResolvingMode).bind(LdapConfiguration::getUserDNResolving,
+				LdapConfiguration::setUserDNResolving);
+		userDNResolvingLayout.addFormItem(userDNResolvingMode, "");
 
-		TextField userDNtemplate = new TextField(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate"));
+		TextField userDNtemplate = new TextField();
+		userDNtemplate.setWidth(TEXT_FIELD_BIG.value());
+
 		userDNtemplate.setPlaceholder("uid={USERNAME},dc=myorg,dc=global");
-		userDNtemplate.setDescription(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate.desc"));
-		
-		userDNtemplate.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(userDNtemplate).withValidator((v, c) -> {
 
+		configBinder.forField(userDNtemplate).withValidator((v, c) ->
+		{
 			if (v != null && v.contains("{USERNAME}")
 					|| !userDNResolvingMode.getValue().equals(UserDNResolving.template))
-			{
 				return ValidationResult.ok();
-			} else
-			{
+			else
 				return ValidationResult
 						.error(msg.getMessage("LdapAuthenticatorEditor.invalidUserDNtemplate"));
-			}
-		}).bind("userDNTemplate");
+		}).bind(LdapConfiguration::getUserDNTemplate, LdapConfiguration::setUserDNTemplate);
 
-		userDNResolvingLayout.addComponent(userDNtemplate);
+		userDNResolvingLayout.addFormItem(userDNtemplate, msg.getMessage("LdapAuthenticatorEditor.userDNtemplate"))
+			.add(TooltipFactory.get(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate.desc")));
 
-		systemDN = new TextField(msg.getMessage("LdapAuthenticatorEditor.systemDN"));
-		systemDN.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(systemDN).asRequired(getLdapSearchRequiredValidator()).bind("systemDN");
-		userDNResolvingLayout.addComponent(systemDN);
+		systemDN = new TextField();
+		configBinder.forField(systemDN).asRequired(getLdapSearchRequiredValidator()).bind(
+				LdapConfiguration::getSystemDN, LdapConfiguration::setSystemDN);
+		userDNResolvingLayout.addFormItem(systemDN, msg.getMessage("LdapAuthenticatorEditor.systemDN"));
 
-		systemPassword = new TextField(msg.getMessage("LdapAuthenticatorEditor.systemPassword"));
-		systemPassword.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
+		systemPassword = new TextField();
 		configBinder.forField(systemPassword).asRequired(getLdapSearchRequiredValidator())
-				.bind("systemPassword");
-		userDNResolvingLayout.addComponent(systemPassword);
+				.bind(LdapConfiguration::getSystemPassword, LdapConfiguration::setSystemPassword);
+		userDNResolvingLayout.addFormItem(systemPassword, msg.getMessage("LdapAuthenticatorEditor.systemPassword"));
 
-		TextField ldapSearchBaseName = new TextField(
-				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.baseName"));
-		ldapSearchBaseName.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
+		TextField ldapSearchBaseName = new TextField();
+		ldapSearchBaseName.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(ldapSearchBaseName).asRequired(getLdapSearchRequiredValidator())
-				.bind("ldapSearchBaseName");
-		userDNResolvingLayout.addComponent(ldapSearchBaseName);
+				.bind(LdapConfiguration::getLdapSearchBaseName, LdapConfiguration::setLdapSearchBaseName);
+		userDNResolvingLayout.addFormItem(ldapSearchBaseName,
+				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.baseName"));
 
-		TextField ldapSearchFilter = new TextField(
-				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.filter"));
-		ldapSearchFilter.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(ldapSearchFilter).withValidator((v, c) -> {
+		TextField ldapSearchFilter = new TextField();
+		ldapSearchFilter.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(ldapSearchFilter).withValidator((v, c) ->
+		{
 			if (userDNResolvingMode.getValue().equals(UserDNResolving.ldapSearch))
-			{
 				return getFilterValidator().apply(v, c);
-			} else
-			{
-
+			else
 				return ValidationResult.ok();
-			}
+		}).bind(LdapConfiguration::getLdapSearchFilter, LdapConfiguration::setLdapSearchFilter);
+		userDNResolvingLayout.addFormItem(ldapSearchFilter,
+				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.filter"));
 
-		}).bind("ldapSearchFilter");
-		userDNResolvingLayout.addComponent(ldapSearchFilter);
-
-		ComboBox<SearchScope> ldapSearchScope = new ComboBox<>(
-				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.scope"));
-		ldapSearchScope.setEmptySelectionAllowed(false);
+		Select<SearchScope> ldapSearchScope = new Select<>();
 		ldapSearchScope.setItems(SearchScope.values());
-		configBinder.forField(ldapSearchScope).bind("ldapSearchScope");
-		userDNResolvingLayout.addComponent(ldapSearchScope);
+		configBinder.forField(ldapSearchScope).bind(LdapConfiguration::getLdapSearchScope,
+				LdapConfiguration::setLdapSearchScope);
+		userDNResolvingLayout.addFormItem(ldapSearchScope,
+				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.scope"));
 
-		userDNResolvingMode.addValueChangeListener(e -> {
+		userDNResolvingMode.addValueChangeListener(e ->
+		{
 			UserDNResolving v = userDNResolvingMode.getValue();
-			userDNtemplate.setVisible(v.equals(UserDNResolving.template));
-			ldapSearchBaseName.setVisible(v.equals(UserDNResolving.ldapSearch));
-			ldapSearchFilter.setVisible(v.equals(UserDNResolving.ldapSearch));
-			ldapSearchScope.setVisible(v.equals(UserDNResolving.ldapSearch));
+			userDNtemplate.getParent().get().setVisible(v.equals(UserDNResolving.template));
+			ldapSearchBaseName.getParent().get().setVisible(v.equals(UserDNResolving.ldapSearch));
+			ldapSearchFilter.getParent().get().setVisible(v.equals(UserDNResolving.ldapSearch));
+			ldapSearchScope.getParent().get().setVisible(v.equals(UserDNResolving.ldapSearch));
 			if (v.equals(UserDNResolving.template))
 			{
 				ldapSearchBaseName.clear();
@@ -328,30 +329,32 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			} else
 			{
 				userDNtemplate.clear();
-			}		
+			}
 			refreshUserDNResolvingSection();
 		});
 
-		return new CollapsibleLayout(msg.getMessage("LdapAuthenticatorEditor.userDNResolving"),
-				userDNResolvingLayout);
+		return new AccordionPanel(msg.getMessage("LdapAuthenticatorEditor.userDNResolving"), userDNResolvingLayout);
 	}
 
-	private CollapsibleLayout buildServersConnectionConfigurationSection()
+	private AccordionPanel buildServersConnectionConfigurationSection()
 	{
-		FormLayoutWithFixedCaptionWidth serverConnectionLayout = new FormLayoutWithFixedCaptionWidth();
-		serverConnectionLayout.setMargin(false);
+		FormLayout serverConnectionLayout = new FormLayout();
+		serverConnectionLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		serverConnectionLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		GridWithEditor<ServerSpecification> serverConfig = new GridWithEditor<>(msg, ServerSpecification.class);
-		serverConnectionLayout.addComponent(serverConfig);
-		serverConfig.addTextColumn(s -> s.getServer(), (t, v) -> t.setServer(v),
-				msg.getMessage("LdapAuthenticatorEditor.server"), 40, true);
+		EditableGrid<ServerSpecification> serverConfig = new EditableGrid<>(msg::getMessage, ServerSpecification::new);
+		serverConfig.setWidth("35em");
+		serverConfig.setHeight("20em");
+		serverConnectionLayout.addFormItem(serverConfig, "");
+		serverConfig.addColumn(ServerSpecification::getServer, ServerSpecification::setServer, true)
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.server"))
+				.setAutoWidth(true);
+		serverConfig.addIntColumn(ServerSpecification::getPort, ServerSpecification::setPort)
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.port"))
+				.setAutoWidth(true);
 
-		serverConfig.addIntColumn(s -> s.getPort(), (t, v) -> t.setPort(v),
-				msg.getMessage("LdapAuthenticatorEditor.port"), 10,
-				Optional.of(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, 65535)));
-
-		serverConfig.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(serverConfig).withValidator((v, c) -> {
+		configBinder.forField(serverConfig).withValidator((v, c) ->
+		{
 			if (v == null || v.isEmpty())
 			{
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
@@ -359,183 +362,205 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			{
 				return ValidationResult.ok();
 			}
-		}).bind("servers");
+		}).bind(LdapConfiguration::getServers, LdapConfiguration::setServers);
 
-		ComboBox<ConnectionMode> connectionMode = new ComboBox<>(
-				msg.getMessage("LdapAuthenticatorEditor.connectionMode"));
+		Select<ConnectionMode> connectionMode = new Select<>();
 		connectionMode.setItems(ConnectionMode.values());
 		connectionMode.setEmptySelectionAllowed(false);
-		configBinder.forField(connectionMode).bind("connectionMode");
-		serverConnectionLayout.addComponent(connectionMode);
+		configBinder.forField(connectionMode).bind(LdapConfiguration::getConnectionMode,
+				LdapConfiguration::setConnectionMode);
+		serverConnectionLayout.addFormItem(connectionMode, msg.getMessage("LdapAuthenticatorEditor.connectionMode"));
 
-		TextField followReferrals = new TextField(msg.getMessage("LdapAuthenticatorEditor.followReferrals"));
+		IntegerField followReferrals = new IntegerField();
+		followReferrals.setMin(0);
 		configBinder.forField(followReferrals).asRequired(msg.getMessage("notAPositiveNumber"))
-				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
-				.bind("followReferrals");
-		serverConnectionLayout.addComponent(followReferrals);
+				.bind(LdapConfiguration::getFollowReferrals, LdapConfiguration::setFollowReferrals);
+		serverConnectionLayout.addFormItem(followReferrals, msg.getMessage("LdapAuthenticatorEditor.followReferrals"));
 
-		TextField searchTimeLimit = new TextField(msg.getMessage("LdapAuthenticatorEditor.searchTimeLimit"));
+		IntegerField searchTimeLimit = new IntegerField();
+		searchTimeLimit.setMin(0);
 		configBinder.forField(searchTimeLimit).asRequired(msg.getMessage("notAPositiveNumber"))
-				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
-				.bind("searchTimeLimit");
-		serverConnectionLayout.addComponent(searchTimeLimit);
+				.bind(LdapConfiguration::getSearchTimeLimit, LdapConfiguration::setSearchTimeLimit);
+		serverConnectionLayout.addFormItem(searchTimeLimit, msg.getMessage("LdapAuthenticatorEditor.searchTimeLimit"));
 
-		TextField socketTimeout = new TextField(msg.getMessage("LdapAuthenticatorEditor.socketTimeout"));
+		IntegerField socketTimeout = new IntegerField();
+		socketTimeout.setMin(0);
 		configBinder.forField(socketTimeout).asRequired(msg.getMessage("notAPositiveNumber"))
-				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
-				.bind("socketTimeout");
-		serverConnectionLayout.addComponent(socketTimeout);
+				.bind(LdapConfiguration::getSocketTimeout, LdapConfiguration::setSocketTimeout);
+		serverConnectionLayout.addFormItem(socketTimeout, msg.getMessage("LdapAuthenticatorEditor.socketTimeout"));
 
-		CheckBox trustAllCerts = new CheckBox(msg.getMessage("LdapAuthenticatorEditor.trustAllCerts"));
-		configBinder.forField(trustAllCerts).bind("trustAllCerts");
-		serverConnectionLayout.addComponent(trustAllCerts);		
-		
-		ComboBox<String> clientTrustStore = new ComboBox<>(
-				msg.getMessage("LdapAuthenticatorEditor.clientTrustStore"));
+		Checkbox trustAllCerts = new Checkbox(msg.getMessage("LdapAuthenticatorEditor.trustAllCerts"));
+		configBinder.forField(trustAllCerts).bind(LdapConfiguration::isTrustAllCerts,
+				LdapConfiguration::setTrustAllCerts);
+		serverConnectionLayout.addFormItem(trustAllCerts, "");
+
+		ComboBox<String> clientTrustStore = new ComboBox<>();
 		clientTrustStore.setItems(validators);
-		configBinder.forField(clientTrustStore).bind("clientTrustStore");
-		serverConnectionLayout.addComponent(clientTrustStore);
+		configBinder.forField(clientTrustStore).bind(LdapConfiguration::getClientTrustStore,
+				LdapConfiguration::setClientTrustStore);
+		serverConnectionLayout.addFormItem(clientTrustStore,
+				msg.getMessage("LdapAuthenticatorEditor.clientTrustStore"));
 
-		trustAllCerts.addValueChangeListener(e -> {
-			clientTrustStore.setEnabled(!e.getValue());
-		});		
-		
-		TextField resultEntriesLimit = new TextField(
-				msg.getMessage("LdapAuthenticatorEditor.resultEntriesLimit"));
+		trustAllCerts.addValueChangeListener(e -> clientTrustStore.setEnabled(!e.getValue()));
+
+		IntegerField resultEntriesLimit = new IntegerField();
 		configBinder.forField(resultEntriesLimit).asRequired(msg.getMessage("notAPositiveNumber"))
-				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
-				.bind("resultEntriesLimit");
-		serverConnectionLayout.addComponent(resultEntriesLimit);
+				.bind(LdapConfiguration::getResultEntriesLimit, LdapConfiguration::setResultEntriesLimit);
+		serverConnectionLayout.addFormItem(resultEntriesLimit,
+				msg.getMessage("LdapAuthenticatorEditor.resultEntriesLimit"));
 
-		return new CollapsibleLayout(msg.getMessage("LdapAuthenticatorEditor.serverConnectionConfiguration"),
+		return new AccordionPanel(msg.getMessage("LdapAuthenticatorEditor.serverConnectionConfiguration"),
 				serverConnectionLayout);
 	}
 
-	private CollapsibleLayout buildGroupRetrievalSettingsSection()
+	private AccordionPanel buildGroupRetrievalSettingsSection()
 	{
-		FormLayoutWithFixedCaptionWidth groupRetSettingsLayout = new FormLayoutWithFixedCaptionWidth();
-		groupRetSettingsLayout.setMargin(false);
+		FormLayout groupRetSettingsLayout = new FormLayout();
+		groupRetSettingsLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		groupRetSettingsLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		CheckBox delegateGroupFiltering = new CheckBox(
+		Checkbox delegateGroupFiltering = new Checkbox(
 				msg.getMessage("LdapAuthenticatorEditor.delegateGroupFiltering"));
-		configBinder.forField(delegateGroupFiltering).bind("delegateGroupFiltering");
-		groupRetSettingsLayout.addComponent(delegateGroupFiltering);
+		configBinder.forField(delegateGroupFiltering).bind(LdapConfiguration::isDelegateGroupFiltering,
+				LdapConfiguration::setDelegateGroupFiltering);
+		groupRetSettingsLayout.addFormItem(delegateGroupFiltering, "");
 
-		TextField groupsBaseName = new TextField(msg.getMessage("LdapAuthenticatorEditor.groupsBaseName"));
-		groupsBaseName.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(groupsBaseName).bind("groupsBaseName");
-		groupRetSettingsLayout.addComponent(groupsBaseName);
+		TextField groupsBaseName = new TextField();
+		groupsBaseName.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(groupsBaseName).bind(LdapConfiguration::getGroupsBaseName,
+				LdapConfiguration::setGroupsBaseName);
+		groupRetSettingsLayout.addFormItem(groupsBaseName, msg.getMessage("LdapAuthenticatorEditor.groupsBaseName"));
 
-		TextField memberOfAttribute = new TextField(
+		TextField memberOfAttribute = new TextField();
+		memberOfAttribute.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(memberOfAttribute).bind(LdapConfiguration::getMemberOfAttribute,
+				LdapConfiguration::setMemberOfAttribute);
+		groupRetSettingsLayout.addFormItem(memberOfAttribute,
 				msg.getMessage("LdapAuthenticatorEditor.memberOfAttribute"));
-		memberOfAttribute.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(memberOfAttribute).bind("memberOfAttribute");
-		groupRetSettingsLayout.addComponent(memberOfAttribute);
 
-		TextField memberOfGroupAttribute = new TextField(
+		TextField memberOfGroupAttribute = new TextField();
+		memberOfGroupAttribute.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(memberOfGroupAttribute).bind(LdapConfiguration::getMemberOfGroupAttribute,
+				LdapConfiguration::setMemberOfGroupAttribute);
+		groupRetSettingsLayout.addFormItem(memberOfGroupAttribute,
 				msg.getMessage("LdapAuthenticatorEditor.memberOfGroupAttribute"));
-		memberOfGroupAttribute.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(memberOfGroupAttribute).bind("memberOfGroupAttribute");
-		groupRetSettingsLayout.addComponent(memberOfGroupAttribute);
 
-		GridWithEditor<GroupSpecification> groupConfig = new GridWithEditor<>(msg, GroupSpecification.class);
-		groupConfig.setCaption(msg.getMessage("LdapAuthenticatorEditor.groupSpecifications"));
-		groupRetSettingsLayout.addComponent(groupConfig);
-		groupConfig.addTextColumn(s -> s.getMatchByMemberAttribute(), (t, v) -> t.setMatchByMemberAttribute(v),
-				msg.getMessage("LdapAuthenticatorEditor.groupSpecification.matchByMemberAttribute"), 20,
-				false);
+		EditableGrid<GroupSpecification> groupConfig = new EditableGrid<>(msg::getMessage, GroupSpecification::new);
+		groupConfig.setWidth("52em");
+		groupConfig.setHeight("20em");
 
-		groupConfig.addTextColumn(s -> s.getMemberAttribute(), (t, v) -> t.setMemberAttribute(v),
-				msg.getMessage("LdapAuthenticatorEditor.groupSpecification.memberAttribute"), 20, true);
+		groupRetSettingsLayout.addFormItem(groupConfig, msg.getMessage("LdapAuthenticatorEditor.groupSpecifications"));
 
-		groupConfig.addTextColumn(s -> s.getGroupNameAttribute(), (t, v) -> t.setGroupNameAttribute(v),
-				msg.getMessage("LdapAuthenticatorEditor.groupSpecification.nameAttribute"), 20, false);
+		groupConfig.addColumn(GroupSpecification::getMatchByMemberAttribute,
+						GroupSpecification::setMatchByMemberAttribute, false)
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.groupSpecification.matchByMemberAttribute"))
+				.setFlexGrow(2)
+				.setAutoWidth(true);
+		groupConfig.addColumn(GroupSpecification::getMemberAttribute, GroupSpecification::setMemberAttribute, true)
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.groupSpecification.memberAttribute"))
+				.setFlexGrow(1)
+				.setAutoWidth(true);
+		groupConfig.addColumn(GroupSpecification::getGroupNameAttribute, GroupSpecification::setGroupNameAttribute, false)
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.groupSpecification.nameAttribute"))
+				.setAutoWidth(true);
+		groupConfig.addColumn(GroupSpecification::getObjectClass, GroupSpecification::setObjectClass, true)
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.groupSpecification.objectClass"))
+				.setAutoWidth(true);
 
-		groupConfig.addTextColumn(s -> s.getObjectClass(), (t, v) -> t.setObjectClass(v),
-				msg.getMessage("LdapAuthenticatorEditor.groupSpecification.objectClass"), 20, true);
+		configBinder.forField(groupConfig).bind(LdapConfiguration::getGroupSpecifications,
+				LdapConfiguration::setGroupSpecifications);
 
-		groupConfig.setWidth(100, Unit.PERCENTAGE);
-
-		configBinder.forField(groupConfig).bind("groupSpecifications");
-
-		return new CollapsibleLayout(msg.getMessage("LdapAuthenticatorEditor.groupRetrievalSettings"),
+		return new AccordionPanel(msg.getMessage("LdapAuthenticatorEditor.groupRetrievalSettings"),
 				groupRetSettingsLayout);
+
 	}
 
-	private CollapsibleLayout buildAdvancedAttributeSearchSettingsSection()
+	private AccordionPanel buildAdvancedAttributeSearchSettingsSection()
 	{
+		FormLayout advancedAttrSearchLayout = new FormLayout();
+		advancedAttrSearchLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		advancedAttrSearchLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		FormLayoutWithFixedCaptionWidth advancedAttrSearchLayout = new FormLayoutWithFixedCaptionWidth();
-		advancedAttrSearchLayout.setMargin(false);
+		MultiSelectComboBox<String> retrievalLdapAttr = new CustomValuesMultiSelectComboBox();
+		retrievalLdapAttr.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		retrievalLdapAttr.setWidth(TEXT_FIELD_BIG.value());
+		advancedAttrSearchLayout.addFormItem(retrievalLdapAttr,
+				msg.getMessage("LdapAuthenticatorEditor.retrievedAttributes"));
+		configBinder.forField(retrievalLdapAttr)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(LdapConfiguration::getRetrievalLdapAttributes, LdapConfiguration::setRetrievalLdapAttributes);
 
-		ChipsWithTextfield retrievalLdapAttr = new ChipsWithTextfield(msg);
-		retrievalLdapAttr.setCaption(msg.getMessage("LdapAuthenticatorEditor.retrievedAttributes"));
-		advancedAttrSearchLayout.addComponent(retrievalLdapAttr);
-		configBinder.forField(retrievalLdapAttr).bind("retrievalLdapAttributes");
+		EditableGrid<SearchSpecification> searchConfig = new EditableGrid<>(msg::getMessage, SearchSpecification::new);
+		searchConfig.setWidth("52em");
+		searchConfig.setHeight("20em");
+		advancedAttrSearchLayout.addFormItem(searchConfig,
+				msg.getMessage("LdapAuthenticatorEditor.searchSpecifications"));
 
-		GridWithEditor<SearchSpecification> searchConfig = new GridWithEditor<>(msg, SearchSpecification.class);
-		searchConfig.setCaption(msg.getMessage("LdapAuthenticatorEditor.searchSpecifications"));
-		advancedAttrSearchLayout.addComponent(searchConfig);
-		searchConfig.addTextColumn(s -> s.getBaseDN(), (t, v) -> t.setBaseDN(v),
-				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.baseName"), 30, true);
+		searchConfig.addColumn(SearchSpecification::getBaseDN, SearchSpecification::setBaseDN, true)
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.searchSpecification.baseName"))
+				.setAutoWidth(true);
+		searchConfig.addColumn(SearchSpecification::getFilter, SearchSpecification::setFilter, getFilterValidator())
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.searchSpecification.filter"))
+				.setAutoWidth(true);
+		searchConfig.addColumn(SearchSpecification::getAttributes, SearchSpecification::setAttributes, true)
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.searchSpecification.attributes"))
+				.setAutoWidth(true);
+		searchConfig.addComboBoxColumn(
+						searchSpecification -> searchSpecification.getScope().name(),
+						(searchSpecification, scope) -> searchSpecification.setScope(SearchScope.valueOf(scope)),
+						Stream.of(SearchScope.values()).map(Enum::name).toList())
+				.setHeader(msg.getMessage("LdapAuthenticatorEditor.searchSpecification.scope"))
+				.setAutoWidth(true);
 
-		searchConfig.addTextColumn(s -> s.getFilter(), (t, v) -> t.setFilter(v),
-				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.filter"), 30, true,
-				Optional.of(getFilterValidator()));
-		searchConfig.addTextColumn(s -> s.getAttributes(), (t, v) -> t.setAttributes(v),
-				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.attributes"), 20, true);
+		configBinder.forField(searchConfig).bind(LdapConfiguration::getSearchSpecifications,
+				LdapConfiguration::setSearchSpecifications);
 
-		searchConfig.addComboColumn(s -> s.getScope(), (t, v) -> t.setScope(v), SearchScope.class,
-				msg.getMessage("LdapAuthenticatorEditor.searchSpecification.scope"), 10);
-
-		searchConfig.setWidth(100, Unit.PERCENTAGE);
-		configBinder.forField(searchConfig).bind("searchSpecifications");
-
-		TextField usernameExtractorRegexp = new TextField(
+		TextField usernameExtractorRegexp = new TextField();
+		usernameExtractorRegexp.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(usernameExtractorRegexp).bind(LdapConfiguration::getUsernameExtractorRegexp,
+				LdapConfiguration::setUsernameExtractorRegexp);
+		advancedAttrSearchLayout.addFormItem(usernameExtractorRegexp,
 				msg.getMessage("LdapAuthenticatorEditor.usernameExtractorRegexp"));
-		usernameExtractorRegexp.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(usernameExtractorRegexp).bind("usernameExtractorRegexp");
-		advancedAttrSearchLayout.addComponent(usernameExtractorRegexp);
 
-		return new CollapsibleLayout(msg.getMessage("LdapAuthenticatorEditor.advancedAttributeSearchSettings"),
+		return new AccordionPanel(msg.getMessage("LdapAuthenticatorEditor.advancedAttributeSearchSettings"),
 				advancedAttrSearchLayout);
-
 	}
 
-	private CollapsibleLayout buildInteractiveLoginSettingsSection()
+	private AccordionPanel buildInteractiveLoginSettingsSection()
 	{
-		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
-		interactiveLoginSettings.setMargin(false);
+		FormLayout interactiveLoginSettings = new FormLayout();
+		interactiveLoginSettings.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		interactiveLoginSettings.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		I18nTextField retrievalName = new I18nTextField(msg);
-		retrievalName.setCaption(forType.equals(LdapPasswordVerificator.NAME)
+		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(),
+				msg.getLocale());
+		configBinder.forField(retrievalName)
+				.withConverter(I18nString::new, I18nString::getLocalizedMap)
+				.bind(LdapConfiguration::getRetrievalName, LdapConfiguration::setRetrievalName);
+		interactiveLoginSettings.addFormItem(retrievalName, forType.equals(LdapPasswordVerificator.NAME)
 				? msg.getMessage("LdapAuthenticatorEditor.passwordName")
 				: msg.getMessage("LdapAuthenticatorEditor.displayedName"));
-		configBinder.forField(retrievalName).bind("retrievalName");
-		interactiveLoginSettings.addComponent(retrievalName);
 
-		CheckBox accountAssociation = new CheckBox(
+		Checkbox accountAssociation = new Checkbox(
 				msg.getMessage("LdapAuthenticatorEditor.accountAssociation"));
-		configBinder.forField(accountAssociation).bind("accountAssociation");
-		interactiveLoginSettings.addComponent(accountAssociation);
+		configBinder.forField(accountAssociation).bind(LdapConfiguration::isAccountAssociation,
+				LdapConfiguration::setAccountAssociation);
+		interactiveLoginSettings.addFormItem(accountAssociation, "");
 
-		ComboBox<String> registrationForm = new ComboBox<>(
-				msg.getMessage("LdapAuthenticatorEditor.registrationForm"));
+		ComboBox<String> registrationForm = new ComboBox<>();
 		registrationForm.setItems(registrationForms);
-		configBinder.forField(registrationForm).bind("registrationForm");
-		interactiveLoginSettings.addComponent(registrationForm);
+		configBinder.forField(registrationForm).bind(LdapConfiguration::getRegistrationForm,
+				LdapConfiguration::setRegistrationForm);
+		interactiveLoginSettings.addFormItem(registrationForm, msg.getMessage("LdapAuthenticatorEditor.registrationForm"));
 
-		return new CollapsibleLayout(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
+		return new AccordionPanel(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
 	}
 
 	private Validator<String> getSystemBindRequiredValidator()
 	{
-		return (v, c) -> {
+		return (v, c) ->
+		{
 			if (bindAsCombo.getValue().equals(BindAs.system) && (v == null || v.isEmpty()))
 			{
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
@@ -548,7 +573,8 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 	private Validator<String> getLdapSearchRequiredValidator()
 	{
-		return (v, c) -> {
+		return (v, c) ->
+		{
 			if (userDNResolvingMode.getValue().equals(UserDNResolving.ldapSearch)
 					&& (v == null || v.isEmpty()))
 			{
@@ -562,7 +588,8 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 	private Validator<String> getFilterValidator()
 	{
-		return (v, c) -> {
+		return (v, c) ->
+		{
 
 			try
 			{
@@ -578,7 +605,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	}
 
 	@Override
-	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
+	public AuthenticatorDefinition getAuthenticatorDefinition() throws FormValidationException
 	{
 
 		return new AuthenticatorDefinition(getName(), forType, getConfiguration(), null);
