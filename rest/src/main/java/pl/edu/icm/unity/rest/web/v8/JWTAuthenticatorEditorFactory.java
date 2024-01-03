@@ -1,25 +1,29 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.rest.web;
+package pl.edu.icm.unity.rest.web.v8;
 
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.rest.jwt.authn.JWTVerificator;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
-
-@Component
+/**
+ * Factory for {@link JWTAuthenticatorEditor}
+ * @author P.Piernik
+ *
+ */
+@Component("JWTAuthenticatorEditorFactoryV8")
 class JWTAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private final MessageSource msg;
-	private final PKIManagement pkiMan;
+	private MessageSource msg;
+	private PKIManagement pkiMan;
 
 	@Autowired
 	JWTAuthenticatorEditorFactory(MessageSource msg, PKIManagement pkiMan)

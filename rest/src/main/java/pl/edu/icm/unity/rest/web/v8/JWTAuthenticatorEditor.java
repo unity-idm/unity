@@ -1,38 +1,42 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.rest.web;
+package pl.edu.icm.unity.rest.web.v8;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.data.Binder;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.TextField;
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
-import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
 import pl.edu.icm.unity.rest.jwt.authn.JWTVerificator;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
+import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Properties;
 import java.util.Set;
 
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
-
-
+/**
+ * JWT authenticator editor
+ * 
+ * @author P.Piernik
+ *
+ */
 class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private final Set<String> credentials;
+	private Set<String> credentials;
 	private Binder<JWTConfiguration> configBinder;
 
 	JWTAuthenticatorEditor(MessageSource msg, Set<String> credentials)
@@ -47,28 +51,27 @@ class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 		boolean editMode = init(msg.getMessage("JWTAuthenticatorEditor.defaultName"), toEdit,
 				forceNameEditable);
 
-		FormLayout formLayout = new FormLayout();
-		formLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
-		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		formLayout.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
-
-		Select<String> credential = new Select<>();
-		formLayout.addFormItem(credential, msg.getMessage("JWTAuthenticatorEditor.signingCredential"));
+		ComboBox<String> credential = new ComboBox<>();
+		credential.setCaption(msg.getMessage("JWTAuthenticatorEditor.signingCredential"));
+		credential.setEmptySelectionAllowed(false);
 		credential.setItems(credentials);
 
-		IntegerField ttl = new IntegerField();
-		ttl.setMin(0);
-		formLayout.addFormItem(ttl, msg.getMessage("JWTAuthenticatorEditor.tokenTTL"));
+		TextField ttl = new TextField();
+		ttl.setCaption(msg.getMessage("JWTAuthenticatorEditor.tokenTTL"));
 
 		configBinder = new Binder<>(JWTConfiguration.class);
 		configBinder.forField(credential).asRequired(msg.getMessage("fieldRequired")).bind("credential");
 		configBinder.forField(ttl).asRequired(msg.getMessage("fieldRequired"))
+				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
+				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
 				.bind("ttl");
 
 
-		VerticalLayout main = new VerticalLayout();
-		main.setPadding(false);
-		main.add(formLayout);
+		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
+		main.setMargin(true);
+		main.addComponents(name);
+		main.addComponent(credential);
+		main.addComponent(ttl);
 		
 		JWTConfiguration config = new JWTConfiguration();
 		if (!credentials.isEmpty())
@@ -87,7 +90,7 @@ class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 	}
 
 	@Override
-	public AuthenticatorDefinition getAuthenticatorDefinition() throws FormValidationException
+	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
 	{
 		return new AuthenticatorDefinition(getName(), JWTVerificator.NAME, getConfiguration(), null);
 	}
