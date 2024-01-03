@@ -33,12 +33,12 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 @PrototypeComponent
-class FidoAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
+class FidoAuthenticatorEditorV8 extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
 	private Binder<FidoConfigurationBean> configBinder;
 	
 	@Autowired
-	FidoAuthenticatorEditor(MessageSource msg, CredentialManagement credMan) throws EngineException
+	FidoAuthenticatorEditorV8(MessageSource msg, CredentialManagement credMan) throws EngineException
 	{
 		super(msg, credMan.getCredentialDefinitions().stream().filter(c -> c.getTypeId().equals(FidoCredentialVerificator.NAME))
 				.map(CredentialDefinition::getName).collect(Collectors.toList()));
@@ -154,10 +154,10 @@ class FidoAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Au
 	@org.springframework.stereotype.Component
 	static class FidoAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	{
-		private ObjectFactory<FidoAuthenticatorEditor> factory;
+		private ObjectFactory<FidoAuthenticatorEditorV8> factory;
 
 		@Autowired
-		FidoAuthenticatorEditorFactory(ObjectFactory<FidoAuthenticatorEditor> factory)
+		FidoAuthenticatorEditorFactory(ObjectFactory<FidoAuthenticatorEditorV8> factory)
 		{
 			this.factory = factory;
 		}
