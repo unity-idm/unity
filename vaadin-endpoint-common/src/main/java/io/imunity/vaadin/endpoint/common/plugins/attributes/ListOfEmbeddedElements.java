@@ -34,7 +34,6 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 			int min, int max, boolean showLine)
 	{
 		stub = new ListOfEmbeddedElementsStub<T>(msg, editorProvider, min, max, showLine);
-		//setWidthFull();
 		setSpacing(false);
 		setPadding(false);
 		setMargin(false);

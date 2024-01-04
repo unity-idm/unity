@@ -132,7 +132,7 @@ class EnquiryInvitationEditor extends VerticalLayout implements InvitationParamE
 
 			reloadEntities();
 		});
-		forms.setItems(formsByName.keySet());
+		forms.setItems(formsByName.keySet().stream().sorted().collect(Collectors.toList()));
 		if (!formsByName.keySet()
 				.isEmpty())
 		{

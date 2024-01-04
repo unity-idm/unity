@@ -43,7 +43,7 @@ class ViewerUtils
 			return regMan.getForm(id);
 		} catch (EngineException e)
 		{
-			log.warn("Unable to list registration forms for invitations", e);
+			log.warn("Unable to get registration form " + id + " for invitations", e);
 			return null;
 		}
 	}
@@ -56,7 +56,7 @@ class ViewerUtils
 			forms = enqMan.getEnquires();
 		} catch (EngineException e)
 		{
-			log.warn("Unable to list enquiry forms for invitations", e);
+			log.warn("Unable to get enquiry forms for invitations", e);
 			return null;
 		}
 		Optional<EnquiryForm> found = forms.stream().filter(form -> form.getName().equals(id)).findAny();
@@ -72,6 +72,7 @@ class ViewerUtils
 
 		} catch (Exception e)
 		{
+			log.debug("Unable to get message template for invitations", e);
 			return "";
 		}
 	}

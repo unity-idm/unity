@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -25,12 +26,6 @@ public class GroupMultiComboBox extends MultiSelectComboBox<GroupTreeNode>
 {
 	private final MessageSource msg;
 	private boolean multiselect = true;
-	
-	public GroupMultiComboBox(MessageSource msg, boolean multiselect)
-	{
-		this(msg);
-		this.multiselect = multiselect;
-	}
 	
 	public GroupMultiComboBox(MessageSource msg)
 	{
@@ -67,22 +62,21 @@ public class GroupMultiComboBox extends MultiSelectComboBox<GroupTreeNode>
 			
 		});
 	}
+	
+//	GroupTreeNode getSelected(String path)
+//	{
+//		ListDataProvider<GroupTreeNode> dataProvider = (ListDataProvider<GroupTreeNode>) getDataProvider();
+//		return dataProvider.getItems().stream().filter(g -> g.group.getPathEncoded().equals(path)).findFirst().get();
+//	}
 
 	public List<String> getSelectedGroupsWithoutParents()
 	{
-		List<String> paths = new ArrayList<>();
-		Set<GroupTreeNode> values = getValue();
-		for (GroupTreeNode value : values)
-		{
-			boolean match = values.stream()
-					.filter(node -> !node.equals(value))
-					.anyMatch(node -> value.parent.map(parent -> parent.equals(node)).orElse(false));
-			if(match)
-			{
-				paths.add(value.getPath());
-			}
-		}
-		return paths;
+		return Group.getOnlyChildrenOfSet(getValue().stream()
+				.map(g -> g.group)
+				.collect(Collectors.toSet()))
+				.stream()
+				.map(Group::getPathEncoded)
+				.collect(Collectors.toList());
 	}
 	
 	public List<String> getSelectedGroupsWithParents()
@@ -91,14 +85,8 @@ public class GroupMultiComboBox extends MultiSelectComboBox<GroupTreeNode>
 		Set<GroupTreeNode> values = getValue();
 		for (GroupTreeNode value : values)
 		{
-			boolean match = values.stream()
-					.filter(node -> !node.equals(value))
-					.anyMatch(node -> value.parent.map(parent -> parent.equals(node)).orElse(false));
-			if(match)
-			{
-				addParent(paths, value.parent);
-				paths.add(value.getPath());
-			}
+			addParent(paths, value.parent);
+			paths.add(value.getPath());
 		}
 		return paths;
 	}

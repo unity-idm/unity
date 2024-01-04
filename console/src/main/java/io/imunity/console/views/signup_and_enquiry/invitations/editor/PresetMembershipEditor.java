@@ -66,7 +66,8 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 		wrapper = new FormLayout();
 		wrapper.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		GroupRegistrationParam groupRegistrationParam = formParams.get(position);
-		selection = new GroupMultiComboBox(msg, groupRegistrationParam.isMultiSelect());
+		selection = new GroupMultiComboBox(msg);
+		selection.setMultiSelect(groupRegistrationParam.isMultiSelect());
 		selection.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
 		setEditedComponentPosition(position);
 		return wrapper;

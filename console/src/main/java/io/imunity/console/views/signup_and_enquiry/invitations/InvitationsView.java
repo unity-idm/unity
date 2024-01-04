@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout.Orientation;
 import com.vaadin.flow.router.Route;
@@ -76,8 +77,12 @@ public class InvitationsView extends ConsoleViewComponent
 		splitLayout.setSplitterPosition(40);
 		
 		List<Button> buttons = getButtonsBar();
-		getContent().add(ShowViewActionLayoutFactory.buildTopButtonsBar(buttons.toArray(new Button[buttons.size()])));
 		
+		
+		VerticalLayout wrapper = new VerticalLayout(ShowViewActionLayoutFactory.buildTopButtonsBar(buttons.toArray(new Button[buttons.size()])));
+		wrapper.setPadding(true);
+		wrapper.setMargin(false);
+		getContent().add(wrapper);
 		getContent().add(splitLayout);
 		getContent().setSizeFull();
 	}

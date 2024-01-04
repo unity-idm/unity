@@ -102,7 +102,7 @@ class ComboInvitationEditor extends VerticalLayout implements InvitationParamEdi
 				regChannel.setText("");
 
 		});
-		regForms.setItems(regFormsByName.keySet());
+		regForms.setItems(regFormsByName.keySet().stream().sorted().collect(Collectors.toList()));
 
 		enqForms = new ComboBox<>();
 		enqForms.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
@@ -112,7 +112,7 @@ class ComboInvitationEditor extends VerticalLayout implements InvitationParamEdi
 		{
 			setEnqPerFormUI(enqFormsByName.get(enqForms.getValue()));
 		});
-		enqForms.setItems(enqFormsByName.keySet());
+		enqForms.setItems(enqFormsByName.keySet().stream().sorted().collect(Collectors.toList()));
 
 		if (!regFormsByName.keySet().isEmpty())
 		{
@@ -155,7 +155,6 @@ class ComboInvitationEditor extends VerticalLayout implements InvitationParamEdi
 		
 		AccordionPanel enqPanel = new AccordionPanel(msg.getMessage("InvitationEditor.enquiryPrefillInfo"),
 				enqPrefillEntryEditor);
-	//	enqPanel.setWidthFull();
 		enqPanel.setOpened(true);
 		add(enqPanel);
 	}
