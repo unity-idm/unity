@@ -136,7 +136,9 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		resetEmailMsgTemplateCombo = new CompatibleTemplatesComboBox(
 				EmailPasswordResetTemplateDef.NAME, msgTplManagement);
 		resetEmailMsgTemplateCombo.setDefaultValue();
-		formLayout.addFormItem(resetEmailMsgTemplateCombo, msg.getMessage("OTPCredentialDefinitionEditor.emailResetTemaplate"));
+		formLayout.addFormItem(resetEmailMsgTemplateCombo,
+						msg.getMessage("OTPCredentialDefinitionEditor.emailResetTemaplate"))
+				.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.emailResetTemaplate.tooltip")));
 		binder.forField(resetEmailMsgTemplateCombo)
 			.asRequired(Validator.from(arg -> !(isNullOrEmpty(arg) && enableReset.getValue()
 						&& confirmationMode.getValue().requiresEmailConfirmation()), 
@@ -147,7 +149,9 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		resetSMSCodeTemplateCombo = new CompatibleTemplatesComboBox(
 				MobilePasswordResetTemplateDef.NAME, msgTplManagement);
 		resetSMSCodeTemplateCombo.setDefaultValue();
-		formLayout.addFormItem(resetSMSCodeTemplateCombo, msg.getMessage("OTPCredentialDefinitionEditor.mobileResetTemaplate"));
+		formLayout.addFormItem(resetSMSCodeTemplateCombo,
+						msg.getMessage("OTPCredentialDefinitionEditor.mobileResetTemaplate"))
+				.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.mobileResetTemaplate.tooltip")));
 		binder.forField(resetSMSCodeTemplateCombo)
 			.asRequired(Validator.from(arg -> !(isNullOrEmpty(arg) && enableReset.getValue() 
 					&& confirmationMode.getValue().requiresMobileConfirmation()), 
