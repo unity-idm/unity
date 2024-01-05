@@ -162,7 +162,7 @@ class PrefilledEntriesViewer extends VerticalLayout
 			return groupMan.getContents(path, GroupContents.METADATA).getGroup().getDisplayedName().getValue(msg);
 		} catch (Exception e)
 		{
-			log.warn("Can not get group displayed name for group " + path);
+			log.warn("Can not get group displayed name for group {} " + path, e);
 			return path;
 		}
 	}

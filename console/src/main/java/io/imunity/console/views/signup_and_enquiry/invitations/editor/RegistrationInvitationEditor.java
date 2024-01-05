@@ -107,7 +107,7 @@ class RegistrationInvitationEditor extends VerticalLayout implements InvitationP
 				channel.setText("");
 
 		});
-		forms.setItems(formsByName.keySet());
+		forms.setItems(formsByName.keySet().stream().sorted().collect(Collectors.toList()));
 		if (!formsByName.keySet().isEmpty())
 		{
 			forms.setValue(formsByName.keySet().iterator().next());

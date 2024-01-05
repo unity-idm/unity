@@ -63,6 +63,11 @@ class InvitationsGrid extends VerticalLayout
 		invitationsGrid.addHamburgerActions(getHamburgerActionsHandlers());
 		invitationsGrid.setMultiSelect(true);
 		invitationsGrid.setSizeFull();
+		invitationsGrid.addItemClickListener(e ->
+		{
+			invitationsGrid.deselectAll();
+			invitationsGrid.select(e.getItem());
+		});
 		ActionMenuWithHandlerSupport<InvitationEntry> hamburgerMenu = new ActionMenuWithHandlerSupport<>();
 		hamburgerMenu.addActionHandlers(getHamburgerActionsHandlers());
 		invitationsGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
@@ -75,6 +80,7 @@ class InvitationsGrid extends VerticalLayout
 		invGridWithToolbar.setSizeFull();
 		add(invGridWithToolbar);
 		setSizeFull();
+		setPadding(true);
 		refresh();
 	}
 
