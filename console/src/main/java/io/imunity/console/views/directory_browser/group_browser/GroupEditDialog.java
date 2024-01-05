@@ -231,9 +231,9 @@ class GroupEditDialog extends ConfirmDialog
 			callback.onConfirm(group);
 		} catch (Exception e)
 		{
+			LOG.error(e);
 			path.setInvalid(true);
 			path.setErrorMessage(msg.getMessage("GroupEditDialog.invalidGroup"));
-			LOG.error(e);
 		}
 	}
 

@@ -11,6 +11,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -149,6 +150,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		addThemeVariants(GridVariant.LUMO_NO_BORDER);
+		addClassName("u-directory-browser-members-grid");
 		createBaseColumns();
 		setSelectionMode(SelectionMode.MULTI);
 		GridSelectionSupport.installClickListener(this);
@@ -185,11 +187,16 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	private void createBaseColumns()
 	{
-		addHierarchyColumn(ie -> ie.getBaseValue(BaseColumn.entity))
+		addComponentHierarchyColumn(ie ->
+		{
+			Div div = new Div(new Span(ie.getBaseValue(BaseColumn.entity)));
+			div.getElement().setAttribute("onclick", "event.stopPropagation();");
+			div.addSingleClickListener(event -> select(ie));
+			return div;
+		})
 				.setHeader(msg.getMessage(BaseColumn.entity.captionKey))
-				.setFlexGrow(BaseColumn.entity.defWidth)
+				.setWidth(BaseColumn.entity.defWidth + "px")
 				.setResizable(true)
-				.setAutoWidth(true)
 				.setKey(BaseColumn.entity.name());
 		for (BaseColumn column : BaseColumn.values())
 		{
@@ -197,7 +204,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 				continue;
 			Column<IdentityEntry> baseColumn = addColumn(ie -> ie.getBaseValue(column))
 					.setHeader(msg.getMessage(column.captionKey))
-					.setFlexGrow(column.defWidth)
+					.setWidth(column.defWidth + "px")
 					.setResizable(true)
 					.setSortable(true)
 					.setKey(column.name());
@@ -248,7 +255,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	private void refresh()
 	{
-		bus.fireEvent(new GroupChangedEvent(getGroup()));
+		bus.fireEvent(new GroupChangedEvent(getGroup(), false));
 	}
 
 	public void setMode(boolean groupByEntity)
@@ -421,6 +428,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 						.setHeader(cd.getValue().getName())
 						.setSortable(true)
 						.setResizable(true)
+						.setWidth(IdentitiesGridColumnConstants.ATTR_COL_RATIO + "px")
 						.setKey(colKey);
 				entryColumn.setVisible(false);
 				columnToggleMenu.addColumn(cd.getValue().getName(), entryColumn);
@@ -448,7 +456,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 		Column<IdentityEntry> entryColumn = addColumn(ie -> ie.getAttribute(key))
 				.setHeader(attribute + (group == null ? "@" + this.group : "@/"))
-				.setFlexGrow(IdentitiesGridColumnConstants.ATTR_COL_RATIO)
+				.setWidth(IdentitiesGridColumnConstants.ATTR_COL_RATIO + "px")
 				.setResizable(true)
 				.setSortable(true)
 				.setKey(key);

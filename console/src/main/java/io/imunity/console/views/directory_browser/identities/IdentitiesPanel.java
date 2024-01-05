@@ -114,7 +114,7 @@ public class IdentitiesPanel extends VerticalLayout
 
 		bus = WebSession.getCurrent().getEventBus();
 
-		bus.addListener(event -> setGroup(event.group()), GroupChangedEvent.class);
+		bus.addListener(event -> setGroup(event.group(), event.multi()), GroupChangedEvent.class);
 		
 		bus.addListener(event -> refreshGroupAndSelectIfNeeded(), RefreshAndSelectEvent.class);
 		
@@ -271,8 +271,12 @@ public class IdentitiesPanel extends VerticalLayout
 		setGroup(currentGroup == null ? new Group("/") : currentGroup);
 	}
 
-	
 	private void setGroup(Group group)
+	{
+		setGroup(group, false);
+	}
+	
+	private void setGroup(Group group, boolean multi)
 	{
 		removeAll();
 		main.removeAll();
@@ -290,8 +294,12 @@ public class IdentitiesPanel extends VerticalLayout
 				// ignored, shouldn't happen anyway
 			}
 			add(new H5(msg.getMessage("Identities.captionNoGroup")));
-			add(new HorizontalLayout(VaadinIcon.EXCLAMATION_CIRCLE_O.create(),
-					new Span(msg.getMessage("Identities.noGroupSelected"))));
+			if(multi)
+				add(new HorizontalLayout(VaadinIcon.EXCLAMATION_CIRCLE_O.create(),
+						new Span(msg.getMessage("Identities.multiGroupSelected"))));
+			else
+				add(new HorizontalLayout(VaadinIcon.EXCLAMATION_CIRCLE_O.create(),
+						new Span(msg.getMessage("Identities.noGroupSelected"))));
 			return;
 		}
 		try
@@ -318,7 +326,7 @@ public class IdentitiesPanel extends VerticalLayout
 
 	private void refresh()
 	{
-		bus.fireEvent(new GroupChangedEvent(identitiesTable.getGroup()));
+		bus.fireEvent(new GroupChangedEvent(identitiesTable.getGroup(), false));
 	}
 
 	private void addFilterInfo(EntityFilter filter, String description)

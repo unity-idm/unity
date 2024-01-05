@@ -8,7 +8,8 @@ import io.imunity.vaadin.endpoint.common.bus.Event;
 import pl.edu.icm.unity.base.group.Group;
 
 public record GroupChangedEvent(
-		Group group) implements Event
+		Group group,
+		boolean multi) implements Event
 {
 
 }

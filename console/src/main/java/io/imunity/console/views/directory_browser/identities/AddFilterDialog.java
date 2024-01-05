@@ -10,7 +10,7 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import io.imunity.vaadin.elements.NonEmptyComboBox;
+import io.imunity.vaadin.elements.NotEmptyComboBox;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.Collection;
@@ -46,7 +46,7 @@ class AddFilterDialog extends ConfirmDialog
 	private Component getContents()
 	{
 		Span info = new Span(msg.getMessage("AddFilterDialog.column"));
-		column = new NonEmptyComboBox<>();
+		column = new NotEmptyComboBox<>();
 		if (!columns.isEmpty())
 		{
 			column.setItems(
@@ -63,7 +63,7 @@ class AddFilterDialog extends ConfirmDialog
 				return msg.getMessage("Identities." + i);
 		});
 
-		operand = new NonEmptyComboBox<>();
+		operand = new NotEmptyComboBox<>();
 		operand.setItems(Operand.values());
 		operand.setItemLabelGenerator(item -> msg.getMessage("AddFilterDialog.operand." + item));
 		operand.setValue(Operand.contain);

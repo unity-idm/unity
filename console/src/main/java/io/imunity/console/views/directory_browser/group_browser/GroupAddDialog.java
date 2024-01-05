@@ -89,11 +89,11 @@ class GroupAddDialog extends ConfirmDialog
 		}
 		catch (Exception e)
 		{
+			LOG.debug(e);
 			name.setInvalid(true);
 			name.setErrorMessage(msg.getMessage("GroupEditDialog.invalidGroup"));
 			open();
 			nameFormItem.getElement().setAttribute("invalid", true);
-			LOG.debug(e);
 		}
 	}
 	

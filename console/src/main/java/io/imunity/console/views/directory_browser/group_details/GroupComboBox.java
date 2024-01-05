@@ -4,14 +4,14 @@
  */
 package io.imunity.console.views.directory_browser.group_details;
 
-import io.imunity.vaadin.elements.NonEmptyComboBox;
+import io.imunity.vaadin.elements.NotEmptyComboBox;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class GroupComboBox extends NonEmptyComboBox<String>
+public class GroupComboBox extends NotEmptyComboBox<String>
 {
 	private Collection<String> groups;
 	private GroupsManagement groupsMan;

@@ -308,7 +308,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 			groupHelper.addToGroup(missing, created.getEntityId(), toGroup -> 
 			{
 				if (toGroup.equals(initialGroup.getPathEncoded()))
-					bus.fireEvent(new GroupChangedEvent(initialGroup));
+					bus.fireEvent(new GroupChangedEvent(initialGroup, false));
 			});
 		}
 		setupCredentials(created);

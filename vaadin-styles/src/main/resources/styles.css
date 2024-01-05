@@ -49,6 +49,11 @@ html {
   --unity-true-condition-color: LightGreen;
   --unity-false-condition-color: LightCoral;
 
+  --unity-directory-browser-groups-grid-font-size: unset;
+  --unity-directory-browser-groups-grid-row-height: unset;
+  --unity-directory-browser-members-grid-font-size: unset;
+  --unity-directory-browser-members-grid-row-height: unset;
+
   --unity-base-margin: 1em;
   --unity-small-margin: calc(0.5 * var(--unity-base-margin));
   --unity-medium-margin: calc(1.5 * var(--unity-base-margin));
@@ -209,6 +214,14 @@ vaadin-grid-cell-content > vaadin-checkbox {
 /*
     Styling based on part selector
 */
+
+vaadin-grid.u-directory-browser-groups-grid::part(row) {
+    max-height: var(--unity-directory-browser-groups-grid-row-height);
+}
+
+vaadin-grid.u-directory-browser-members-grid::part(row) {
+    max-height: var(--unity-directory-browser-members-grid-row-height);
+}
 
 vaadin-combo-box.project-combo-box::part(input-field) {
     background-color: var(--unity-font-primary-color);
@@ -402,6 +415,14 @@ vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
     color: var(--unity-warning-icon-color);
     width: var(--lumo-icon-size-l);
     height: var(--lumo-icon-size-l);
+}
+
+.u-directory-browser-groups-grid {
+    font-size: var(--unity-directory-browser-groups-grid-font-size);
+}
+
+.u-directory-browser-members-grid {
+    font-size: var(--unity-directory-browser-members-grid-font-size);
 }
 
 .u-details-icon {

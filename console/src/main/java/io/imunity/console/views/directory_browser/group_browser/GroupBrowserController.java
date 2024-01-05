@@ -192,6 +192,6 @@ class GroupBrowserController
 	GroupAttributesClassesDialog getGroupAttributesClassesDialog(Group group, EventsBus bus)
 	{
 		return new GroupAttributesClassesDialog(msg, group.getPathEncoded(), acMan, groupsMan,
-				g -> bus.fireEvent(new GroupChangedEvent(group)), notificationPresenter);
+				g -> bus.fireEvent(new GroupChangedEvent(group, false)), notificationPresenter);
 	}
 }

@@ -7,7 +7,7 @@ package io.imunity.console.views.directory_browser.identities;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import io.imunity.vaadin.elements.NonEmptyComboBox;
+import io.imunity.vaadin.elements.NotEmptyComboBox;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.*;
@@ -42,7 +42,7 @@ class RemoveAttributeColumnDialog extends ConfirmDialog
 	private FormLayout getContents()
 	{
 		labelsToAttr = new HashMap<>();
-		attributeType = new NonEmptyComboBox<>(msg.getMessage("RemoveAttributeColumnDialog.info"));
+		attributeType = new NotEmptyComboBox<>(msg.getMessage("RemoveAttributeColumnDialog.info"));
 		attributeType.setWidthFull();
 		List<String> values = new ArrayList<>();
 		for (String at: alreadyUsedInRoot)

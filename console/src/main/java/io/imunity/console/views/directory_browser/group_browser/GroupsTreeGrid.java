@@ -5,7 +5,6 @@
 package io.imunity.console.views.directory_browser.group_browser;
 
 import com.google.common.collect.Sets;
-import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
@@ -63,6 +62,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		GridSelectionSupport.installClickListener(this);
 		addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
+		addClassName("u-directory-browser-groups-grid");
 
 		SearchField search = new SearchField(msg.getMessage("search"), event -> {
 			deselectAll();
@@ -90,17 +90,16 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		hamburgerMenu.addActionHandler(deleteAction);
 
 		toolbar.addHamburger(hamburgerMenu, FlexComponent.Alignment.END);
-		ToggleButton toggle = new ToggleButton(msg.getMessage("GroupDetails.multiselect"));
-		toggle.addValueChangeListener(event ->
+		hamburgerMenu.addItem(msg.getMessage("GroupDetails.multiselect"), event ->
 		{
 			multiselectHasClicked = true;
-			if(event.getValue())
+			if(event.getSource().isChecked())
 				setSelectionMode(SelectionMode.MULTI);
 			else
 				setSelectionMode(SelectionMode.SINGLE);
 			getDataProvider().refreshAll();
-		});
-		VerticalLayout searchLayout = new VerticalLayout(toggle, search);
+		}).setCheckable(true);
+		VerticalLayout searchLayout = new VerticalLayout(search);
 		searchLayout.setPadding(false);
 		searchLayout.setSpacing(false);
 		searchLayout.setAlignItems(FlexComponent.Alignment.END);
@@ -234,8 +233,9 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	private void selectionChanged()
 	{
-		final TreeNode node = getSingleSelection();
-		bus.fireEvent(new GroupChangedEvent(node == null ? null : node.getGroup()));
+		TreeNode node = getSingleSelection();
+		boolean multi = getSelectedItems().size() > 1;
+		bus.fireEvent(new GroupChangedEvent(node == null ? null : node.getGroup(), multi));
 	}
 
 	Toolbar<TreeNode> getToolbar()
@@ -355,7 +355,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			else
 				refresh();
 			if (node.equals(getSingleSelection()))
-				bus.fireEvent(new GroupChangedEvent(node.getGroup()));
+				bus.fireEvent(new GroupChangedEvent(node.getGroup(), getSelectedItems().size() > 1));
 		}).open();
 
 	}

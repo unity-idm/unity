@@ -182,8 +182,8 @@ public class GroupManagementHelper
 			required = getRequiredAttributes(allACsMap, currentGroup);
 		} catch (EngineException e)
 		{
-			showSummary(notMember, added, currentGroup);
 			LOG.error(e);
+			showSummary(notMember, added, currentGroup);
 			return;
 		}
 				

@@ -4,7 +4,7 @@
  */
 package io.imunity.console_utils.tprofile;
 
-import io.imunity.vaadin.elements.NonEmptyComboBox;
+import io.imunity.vaadin.elements.NotEmptyComboBox;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * Allows to select an attribute name
  */
-public class AttributeSelectionComboBox extends NonEmptyComboBox<AttributeType>
+public class AttributeSelectionComboBox extends NotEmptyComboBox<AttributeType>
 {
 	protected Map<String, AttributeType> attributeTypesByName;
 	private boolean filterImmutable = true;

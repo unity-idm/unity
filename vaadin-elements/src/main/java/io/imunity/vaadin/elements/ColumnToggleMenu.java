@@ -40,7 +40,14 @@ public class ColumnToggleMenu extends ContextMenu
 			column.setVisible(event.getSource().isChecked());
 			Optional.ofNullable(clickListener).ifPresent(Runnable::run);
 		});
-		//prevent close on click
+		preventCloseOnClick(menuItem);
+		menuItem.setCheckable(true);
+		menuItem.setChecked(column.isVisible());
+		columns.put(column, menuItem);
+	}
+
+	private void preventCloseOnClick(MenuItem menuItem)
+	{
 		menuItem.getElement().addEventListener("click", event ->
 		{
 			if (menuItem.isChecked())
@@ -48,9 +55,6 @@ public class ColumnToggleMenu extends ContextMenu
 			else
 				menuItem.getElement().executeJs("this.removeAttribute('menu-item-checked')");
 		}).addEventData("event.preventDefault()");
-		menuItem.setCheckable(true);
-		menuItem.setChecked(column.isVisible());
-		columns.put(column, menuItem);
 	}
 
 	public void setChecked(Grid.Column<?> column, boolean checked)

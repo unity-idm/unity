@@ -101,7 +101,7 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 	{
 		Map<AuthenticatorTypeDescription, String> authnTypesSorted = getAuthenticatorTypes();
 
-		authenticatorTypeCombo = new NonEmptyComboBox<>();
+		authenticatorTypeCombo = new NotEmptyComboBox<>();
 		authenticatorTypeCombo.addValueChangeListener(e -> reloadEditor(entry));
 
 		authenticatorTypeCombo.setItemLabelGenerator(authnTypesSorted::get);

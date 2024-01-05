@@ -60,20 +60,26 @@ public class GroupDetailsPanel extends VerticalLayout
 
 		EventsBus eventBus = WebSession.getCurrent().getEventBus();
 		eventBus.addListener(event -> refreshAndEnsureSelection(), RefreshAndSelectEvent.class);
-		eventBus.addListener(event -> setGroup(event.group()), GroupChangedEvent.class);
-		setGroup(null);
+		eventBus.addListener(event -> setGroup(event.group(), event.multi()), GroupChangedEvent.class);
+		setGroup(null, false);
 	}
 
 	private void refreshAndEnsureSelection()
 	{
-		setGroup(group == null ? new Group("/") : group);
+		setGroup(group == null ? new Group("/") : group, false);
 	}
 
-	private void setGroup(Group group)
+	private void setGroup(Group group, boolean multi)
 	{
 		removeAll();
 		main.removeAll();
 		this.group = group;
+		if (multi)
+		{
+			add(new HorizontalLayout(VaadinIcon.EXCLAMATION_CIRCLE_O.create(),
+					new Span(msg.getMessage("GroupDetails.multiGroup"))));
+			return;
+		}
 		if (group == null)
 		{
 			add(new HorizontalLayout(VaadinIcon.EXCLAMATION_CIRCLE_O.create(),

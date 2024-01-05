@@ -7,14 +7,14 @@ package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.combobox.ComboBox;
 
-public class NonEmptyComboBox<T> extends ComboBox<T>
+public class NotEmptyComboBox<T> extends ComboBox<T>
 {
-	public NonEmptyComboBox()
+	public NotEmptyComboBox()
 	{
 		init();
 	}
 
-	public NonEmptyComboBox(String label)
+	public NotEmptyComboBox(String label)
 	{
 		super(label);
 		init();

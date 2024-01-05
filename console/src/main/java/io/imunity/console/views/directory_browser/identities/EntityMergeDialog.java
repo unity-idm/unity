@@ -104,7 +104,7 @@ class EntityMergeDialog extends ConfirmDialog
 		{
 			identitiesMan.mergeEntities(new EntityParam(target.getId()), new EntityParam(merged.getId()), 
 					safeMode.getValue());
-			bus.fireEvent(new GroupChangedEvent(group));
+			bus.fireEvent(new GroupChangedEvent(group, false));
 		} catch (Exception e)
 		{
 			notificationPresenter.showError(msg.getMessage("EntityMergeDialog.mergeError"), e.getMessage());
