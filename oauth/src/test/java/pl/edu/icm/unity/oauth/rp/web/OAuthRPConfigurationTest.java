@@ -4,16 +4,14 @@
  */
 package pl.edu.icm.unity.oauth.rp.web;
 
-import java.util.Collections;
-
+import com.google.common.collect.ImmutableList;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import com.google.common.collect.ImmutableList;
-
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
+
+import java.util.Collections;
 
 public class OAuthRPConfigurationTest
 {
@@ -123,7 +121,7 @@ public class OAuthRPConfigurationTest
 		String configStr = config.toProperties();
 		
 		// then
-		Assertions.assertThat(configStr).contains("unity.oauth2-rp.requiredScopes.1=scope\n");
+		Assertions.assertThat(configStr).contains("unity.oauth2-rp.requiredScopes.1=scope" + System.lineSeparator());
 	}
 	
 	@Test
@@ -138,8 +136,8 @@ public class OAuthRPConfigurationTest
 		
 		// then
 		Assertions.assertThat(configStr)
-			.contains("unity.oauth2-rp.requiredScopes.1=scope\n")
-			.contains("unity.oauth2-rp.requiredScopes.2=scope3\n");
+			.contains("unity.oauth2-rp.requiredScopes.1=scope" + System.lineSeparator())
+			.contains("unity.oauth2-rp.requiredScopes.2=scope3" + System.lineSeparator());
 	}
 
 	

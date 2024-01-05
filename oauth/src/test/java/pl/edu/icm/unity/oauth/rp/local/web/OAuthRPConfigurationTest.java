@@ -4,12 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.rp.local.web;
 
-import java.util.Collections;
-
+import com.google.common.collect.ImmutableList;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 
 public class OAuthRPConfigurationTest
 {
@@ -119,7 +118,7 @@ public class OAuthRPConfigurationTest
 		String configStr = config.toProperties();
 		
 		// then
-		Assertions.assertThat(configStr).contains("unity.oauth2-local-rp.requiredScopes.1=scope\n");
+		Assertions.assertThat(configStr).contains("unity.oauth2-local-rp.requiredScopes.1=scope" + System.lineSeparator());
 	}
 	
 	@Test
@@ -134,8 +133,8 @@ public class OAuthRPConfigurationTest
 		
 		// then
 		Assertions.assertThat(configStr)
-			.contains("unity.oauth2-local-rp.requiredScopes.1=scope\n")
-			.contains("unity.oauth2-local-rp.requiredScopes.2=scope3\n");
+			.contains("unity.oauth2-local-rp.requiredScopes.1=scope" + System.lineSeparator())
+			.contains("unity.oauth2-local-rp.requiredScopes.2=scope3" + System.lineSeparator());
 	}
 
 	
