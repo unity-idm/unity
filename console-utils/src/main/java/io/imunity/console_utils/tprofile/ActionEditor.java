@@ -5,12 +5,25 @@
 
 package io.imunity.console_utils.tprofile;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.ERROR_BACKGROUND;
+import static io.imunity.vaadin.elements.CssClassNames.FALSE_CONDITION_BACKGROUND;
+import static io.imunity.vaadin.elements.CssClassNames.TRUE_CONDITION_BACKGROUND;
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.html.Span;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationAction;
@@ -18,15 +31,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Styles;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Responsible for editing of a single {@link TranslationAction}
@@ -227,32 +231,38 @@ public class ActionEditor extends FormLayoutEmbeddable
 			if (c instanceof ExpressionActionParameterComponent extension)
 			{
 				extension.setErrorMessage(ExceptionMessageHumanizer.getHumanReadableMessage(e));
-				break;
+				extension.addClassNameToField(ERROR_BACKGROUND.getName());
 			}
 		}	
 	}
 	
-	
-	public void setStyle(String style)
+	public void setEvaluationStyle(String style)
 	{
-		actions.addClassName(style);
-		for (ActionParameterComponent c: paramComponents)
-			((HasStyle)c).addClassName(style);
+		for (ActionParameterComponent c : paramComponents)
+		{
+			if (c instanceof ExpressionActionParameterComponent extension)
+			{
+				extension.addClassNameToField(style);
+			}
+		}
 	}
 	
 	public void removeComponentEvaluationStyle()
 	{
-		actions.removeClassName(Styles.falseConditionBackground.toString());
-		actions.removeClassName(Styles.trueConditionBackground.toString());
+		actions.removeClassName(FALSE_CONDITION_BACKGROUND.getName());
+		actions.removeClassName(TRUE_CONDITION_BACKGROUND.getName());
 		
 		for (ActionParameterComponent c: paramComponents)
 		{
-			((HasStyle)c).removeClassName(Styles.falseConditionBackground.toString());
-			((HasStyle)c).removeClassName(Styles.trueConditionBackground.toString());
-			((HasStyle)c).removeClassName(Styles.errorBackground.toString());
+			((HasStyle)c).removeClassName(FALSE_CONDITION_BACKGROUND.getName());
+			((HasStyle)c).removeClassName(TRUE_CONDITION_BACKGROUND.getName());
+			((HasStyle)c).removeClassName(ERROR_BACKGROUND.getName());
 			if (c instanceof ExpressionActionParameterComponent extension)
 			{
-				extension.setErrorMessage(null);
+				extension.setErrorMessage(null);	
+				extension.removeClassNameFromField(FALSE_CONDITION_BACKGROUND.getName());
+				extension.removeClassNameFromField(TRUE_CONDITION_BACKGROUND.getName());
+				extension.removeClassNameFromField(ERROR_BACKGROUND.getName());
 			}			
 		}	
 	}

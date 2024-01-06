@@ -48,8 +48,11 @@ public class MVELExpressionField extends CustomField<String>
 		this.editorButton = VaadinIcon.COGS.create();
 		this.context = context;
 
-		editorButton.addClickListener(e -> new MVELExpressionEditorDialog(msg, this.context, mandatory,
-				field.getValue(), field::setValue).open());
+		editorButton.addClickListener(e ->
+		{
+			if (!field.isReadOnly())
+				new MVELExpressionEditorDialog(msg, this.context, mandatory, field.getValue(), field::setValue).open();
+		});
 		editorButton.setClassName(POINTER.getName());
 		this.editor = new MVELExpressionEditor(this, msg);
 
@@ -137,6 +140,13 @@ public class MVELExpressionField extends CustomField<String>
 		field.focus();
 	}
 
+	@Override
+	public void setErrorMessage(String errorMessage)
+	{
+		field.setInvalid(errorMessage != null);
+		field.setErrorMessage(errorMessage);
+	}
+	
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{

@@ -71,4 +71,5 @@ public class ExpressionActionParameterComponent extends MVELExpressionField impl
 	{
 		return label;
 	}
+
 }

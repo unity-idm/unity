@@ -47,7 +47,8 @@ html {
   --unity-immutable-attribute-color: gray;
   --unity-tab-hover-color: #025D6E;
   --unity-true-condition-color: LightGreen;
-  --unity-false-condition-color: LightCoral;
+  --unity-error-condition-color: LightCoral;
+  --unity-false-condition-color: gray;
 
   --unity-directory-browser-groups-grid-font-size: unset;
   --unity-directory-browser-groups-grid-row-height: unset;
@@ -667,19 +668,23 @@ vaadin-details.u-multi-tab-details {
 	border-color: var(--lumo-contrast-10pct);
 }
 
-.u-trueCondition-bg {
+.u-trueCondition-bg::part(input-field){
 	background-color: var(--unity-true-condition-color);
 	border-radius: var(--unity-border-radius);
+	
 }
 
-.u-falseCondition-bg {
+.u-falseCondition-bg::part(input-field)  {
 	background-color: var(--unity-false-condition-color);
 	border-radius: var(--unity-border-radius);
+	
 }
 
-.u-error-bg {
-	background-color: var(--unity-false-condition-color);
-}
+.u-error-bg::part(input-field) {
+	background-color: var(--unity-error-condition-color);
+	border-radius: var(--unity-border-radius);
+	
+}`
 
 .u-margin-vertical {
 	margin-top: var(--unity-small-margin);

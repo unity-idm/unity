@@ -7,12 +7,12 @@ package io.imunity.vaadin.endpoint.common.mvel;
 import java.io.Serializable;
 
 
-class DragDropBean implements Serializable
+public class DragDropBean implements Serializable
 {
 	private String value;
 	private String expression;
 
-	DragDropBean(String expression, String value)
+	public DragDropBean(String expression, String value)
 	{
 		this.value = value;
 		this.expression = expression;

@@ -346,7 +346,7 @@ public class RuleComponent extends VerticalLayout
 	private void setColorForInputComponents(String style)
 	{
 		condition.addClassNameToField(style);
-		actionEditor.setStyle(style);
+		actionEditor.setEvaluationStyle(style);
 	}
 	
 	private void removeRuleComponentEvaluationStyle()
