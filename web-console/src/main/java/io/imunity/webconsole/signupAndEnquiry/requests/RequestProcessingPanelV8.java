@@ -52,14 +52,14 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-class RequestProcessingPanel extends CustomComponent
+class RequestProcessingPanelV8 extends CustomComponent
 {
 	private MessageSource msg;
 	private RegistrationsManagement regMan;
 	
 	private EventsBus bus;
 	private RequestCommentPanel commentPanel;
-	private GenericReviewPanel requestReviewPanel;
+	private GenericReviewPanelV8 requestReviewPanel;
 	private UserRequestState<?> requestState;
 	private Button accept;
 	private Button reject;
@@ -73,8 +73,8 @@ class RequestProcessingPanel extends CustomComponent
 	private EnquiryManagement enquiryMan;
 	
 	@Autowired
-	RequestProcessingPanel(MessageSource msg, RegistrationsManagement regMan,
-			EnquiryManagement enquiryMan, GenericReviewPanel requestReviewPanel)
+	RequestProcessingPanelV8(MessageSource msg, RegistrationsManagement regMan,
+			EnquiryManagement enquiryMan, GenericReviewPanelV8 requestReviewPanel)
 	{
 		this.msg = msg;
 		this.regMan = regMan;

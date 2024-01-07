@@ -82,6 +82,12 @@ public class PolicyAgreementRepresentationBuilder
 
 		return ret;
 	}
+	
+	public String getAgreementRepresentationText(PolicyAgreementConfiguration agreementConfig)
+	{
+		List<PolicyDocumentWithRevision> resolvedDocs = resolvePolicyDoc(agreementConfig.documentsIdsToAccept);
+		return getAgreementTextRepresentation(agreementConfig.text, resolvedDocs);
+	}
 
 	private String getLink(PolicyDocumentWithRevision doc, String disp)
 	{

@@ -41,7 +41,10 @@ public enum CssClassNames
 	LOGO_GRID_IMAGE("u-logo-grid-image"),
 	WIDTH_FULL("u-width-full"),
 	HIDDEN_COMBO_CHECKMARK("u-combobox-hidden-checkmark"),
-	HIDDEN_COMBO_TOGGLE_BUTTON("u-combobox-hidden-toggle-button");
+	HIDDEN_COMBO_TOGGLE_BUTTON("u-combobox-hidden-toggle-button"),
+	SUCCESS("u-success"),
+	ERROR("u-error"),
+	TABSHEET_FULL("u-tabsheet-full");
 	
 	private final String name;
 

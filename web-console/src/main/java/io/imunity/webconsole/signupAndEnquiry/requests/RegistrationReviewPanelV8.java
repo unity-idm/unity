@@ -33,13 +33,13 @@ import pl.edu.icm.unity.webui.common.policyAgreement.PolicyAgreementRepresentati
  * @author K. Benedyczak
  */
 @PrototypeComponent
-class RegistrationReviewPanel extends RequestReviewPanelBase
+class RegistrationReviewPanelV8 extends RequestReviewPanelBase
 {
 	private RegistrationRequestState requestState;
 	private Label code;
 	
 	@Autowired
-	RegistrationReviewPanel(MessageSource msg, AttributeHandlerRegistryV8 handlersRegistry,
+	RegistrationReviewPanelV8(MessageSource msg, AttributeHandlerRegistryV8 handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan,
 			PolicyDocumentManagement policyDocMan,
 			PolicyAgreementRepresentationBuilderV8 policyAgreementRepresentationBuilder)

@@ -44,10 +44,10 @@ class RequestsView extends CustomComponent implements UnityView
 
 	private MessageSource msg;
 	private RequestsController controller;
-	private RequestProcessingPanel requestPanel;
+	private RequestProcessingPanelV8 requestPanel;
 
 	@Autowired
-	RequestsView(MessageSource msg, RequestsController controller, RequestProcessingPanel requestPanel)
+	RequestsView(MessageSource msg, RequestsController controller, RequestProcessingPanelV8 requestPanel)
 	{
 		this.msg = msg;
 		this.controller = controller;

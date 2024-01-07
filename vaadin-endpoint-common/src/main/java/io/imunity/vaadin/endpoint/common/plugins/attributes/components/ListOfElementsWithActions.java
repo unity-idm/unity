@@ -283,5 +283,10 @@ public class ListOfElementsWithActions<T> extends Div
 			this.position = position;
 		}
 	}
+	
+	public void setPadding(boolean padding)
+	{
+		main.setPadding(padding);
+	}
 
 }

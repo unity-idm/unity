@@ -29,7 +29,7 @@ public class ListOfSelectableElements extends VerticalLayout
 	protected List<Checkbox> selects;
 	public enum DisableMode {NONE, WHEN_SELECTED, WHEN_DESELECTED};
 	protected DisableMode disableMode;
-	
+	private List<Component> elements;
 	
 	public ListOfSelectableElements(Component firstHeader, Component secondHeader, DisableMode disableMode)
 	{
@@ -43,6 +43,7 @@ public class ListOfSelectableElements extends VerticalLayout
 			add(wrapWithLayout(secondHeader));
 
 		selects = new ArrayList<>();
+		elements = new ArrayList<>();
 		this.disableMode = disableMode;
 	}
 	
@@ -64,7 +65,7 @@ public class ListOfSelectableElements extends VerticalLayout
 		horizontalLayout.setPadding(false);
 		horizontalLayout.setWidthFull();
 		horizontalLayout.add(representation, checkbox);
-
+		elements.add(horizontalLayout);
 		add(horizontalLayout);
 	}
 	
@@ -73,10 +74,12 @@ public class ListOfSelectableElements extends VerticalLayout
 		VerticalLayout layout = new VerticalLayout(component);
 		layout.setMargin(false);
 		layout.setSpacing(false);
+		layout.setPadding(false);
 		layout.setWidthFull();
 		return layout;
 	}
 
+	
 	
 	public List<Checkbox> getSelection()
 	{
@@ -112,5 +115,16 @@ public class ListOfSelectableElements extends VerticalLayout
 				value = !value;
 			representation.setEnabled(value);
 		}
+	}
+
+	public void clearEntries()
+	{
+		elements.forEach(this::remove);
+		elements.clear();
+	}
+
+	public boolean isEmpty()
+	{
+		return elements.isEmpty();
 	}
 }

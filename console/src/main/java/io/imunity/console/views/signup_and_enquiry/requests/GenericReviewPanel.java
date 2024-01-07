@@ -2,11 +2,11 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.webconsole.signupAndEnquiry.requests;
+package io.imunity.console.views.signup_and_enquiry.requests;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.ui.CustomComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryResponse;
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-class GenericReviewPanel extends CustomComponent
+class GenericReviewPanel extends VerticalLayout
 {
 	private EnquiryReviewPanel enquiryPanel;
 	private RegistrationReviewPanel registrationPanel;
@@ -33,18 +33,24 @@ class GenericReviewPanel extends CustomComponent
 	{
 		this.enquiryPanel = enquiryPanel;
 		this.registrationPanel = registrationPanel;
+		
+		setPadding(false);
+		setMargin(false);
+		setSpacing(false);
 	}
 
 	void setEnquiry(EnquiryResponseState requestState, EnquiryForm form)
 	{
 		enquiryPanel.setInput(requestState, form);
-		setCompositionRoot(enquiryPanel);
+		removeAll();
+		add(enquiryPanel);
 	}
 	
 	void setRegistration(RegistrationRequestState requestState, RegistrationForm form)
 	{
 		registrationPanel.setInput(requestState, form);
-		setCompositionRoot(registrationPanel);
+		removeAll();
+		add(registrationPanel);
 	}
 	
 	RegistrationRequest getUpdatedRequest()

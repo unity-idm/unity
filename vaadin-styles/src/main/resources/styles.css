@@ -738,4 +738,31 @@ vaadin-multi-select-combo-box.u-combobox-hidden-toggle-button::part(toggle-butto
 	visibility: hidden;
 }
 
+.u-error {
+	color: var(--lumo-error-color);
+}
+
+.u-success {
+	color: var(--lumo-success-color);
+}
+
+vaadin-tabsheet.u-tabsheet-full::part(content) {
+	margin: 0;
+	padding-top: 1;
+	padding-left: 0;
+	padding-right: 0;
+	padding-bottom: 1; 
+}
+
+vaadin-tabsheet.u-tabsheet-full vaadin-tabs::part(tabs){
+	margin: 0;
+	padding: 0;
+}
+
+vaadin-tab.u-tabsheet-full {
+	margin: 0;
+	padding-right: 1em;
+	padding-left: 0;
+}
+
 

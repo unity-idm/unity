@@ -57,6 +57,7 @@ import io.imunity.console.views.settings.pki.PKIView;
 import io.imunity.console.views.settings.policy_documents.PolicyDocumentEditView;
 import io.imunity.console.views.settings.policy_documents.PolicyDocumentsView;
 import io.imunity.console.views.signup_and_enquiry.invitations.InvitationsView;
+import io.imunity.console.views.signup_and_enquiry.requests.RequestsView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
@@ -74,6 +75,10 @@ public class ConsoleMenu extends UnityAppLayout
 								.icon(VaadinIcon.GROUP)
 								.build(),
 						MenuComponent.builder(
+								MenuComponent.builder(RequestsView.class)
+								.tabName(msg.getMessage("WebConsoleMenu.signup_and_enquiry.requests"))
+								.icon(VaadinIcon.USER_CARD)
+								.build(),
 								MenuComponent.builder(InvitationsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.signup_and_enquiry.invitations"))
 										.icon(VaadinIcon.TAXI)
