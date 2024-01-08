@@ -380,7 +380,7 @@ vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
 .u-breadcrumb {
     display: flex;
     align-items: center;
-    white-space: pre;
+    white-space: nowrap;
 }
 
 .u-breadcrumb a, .u-breadcrumb span {
@@ -439,9 +439,7 @@ vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
     background-color: var(--unity-grid-error-row-color);
 }
 
-.u-badge-warning {
-    color: var(--unity-warning-badge-font-color) !important;
-    background-color: var(--unity-warning-badge-color) !important;
+.u-badge-warning {    background-color: var(--unity-warning-badge-color) !important;
 }
 
 .u-consent-screen {
@@ -768,6 +766,10 @@ vaadin-tab.u-tabsheet-full {
 	margin: 0;
 	padding-right: 1em;
 	padding-left: 0;
+}
+
+.u-space-pre {
+    white-space: pre;
 }
 
 

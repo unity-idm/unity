@@ -45,7 +45,8 @@ public enum CssClassNames
 	HIDDEN_COMBO_TOGGLE_BUTTON("u-combobox-hidden-toggle-button"),
 	SUCCESS("u-success"),
 	ERROR("u-error"),
-	TABSHEET_FULL("u-tabsheet-full");
+	TABSHEET_FULL("u-tabsheet-full"),
+	SPACE_PRE("u-space-pre");
 	
 	private final String name;
 

@@ -109,6 +109,7 @@ public class BreadCrumbComponent extends Composite<Div>
 			{
 				Span span = new Span(" > ");
 				span.add(routerLink);
+				span.addClassName(CssClassNames.SPACE_PRE.getName());
 				return span;
 			});
 	}
