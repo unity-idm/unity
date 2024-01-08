@@ -4,8 +4,17 @@
  */
 package io.imunity.console_utils.tprofile;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Supplier;
-import io.imunity.vaadin.elements.CssClassNames;
+
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
@@ -16,13 +25,15 @@ import pl.edu.icm.unity.base.msg_template.UserNotificationTemplateDef;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
-import pl.edu.icm.unity.engine.api.*;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.form.DynamicGroupParam;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Responsible for creating {@link ActionParameterComponent}s.
@@ -132,12 +143,7 @@ public class ActionParameterComponentProvider
 		case UNITY_ID_TYPE:
 			return new BaseEnumActionParameterComponent(param, msg, idTypes);
 		case EXPRESSION:
-			ExpressionActionParameterComponent component = new ExpressionActionParameterComponent(param, msg, htmlTooltipFactory);
-			if (context.equals(EditorContext.WIZARD))
-			{
-				component.addClassNameToField(CssClassNames.WIDTH_FULL.getName());
-			}
-			return component;
+			return new ExpressionActionParameterComponent(param, msg, htmlTooltipFactory).applyContext(context);
 		case DAYS:
 			return new DaysActionParameterComponent(param, msg);
 		case LARGE_TEXT:

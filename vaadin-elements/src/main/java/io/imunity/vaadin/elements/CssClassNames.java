@@ -21,6 +21,7 @@ public enum CssClassNames
 	POINTER("u-pointer"),
 	FIELD_ICON_GAP("u-field-icon-gap"),
 	DROP_LAYOUT("u-drop-layout"),
+	DROP_FIELD("u-drop-field"),
 	PANEL("u-panel"),
 	NO_PADDING_TOP("u-no-padding-top"),
 	TRUE_CONDITION_BACKGROUND("u-trueCondition-bg"),

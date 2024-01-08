@@ -17,7 +17,11 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
+
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.mvel.DragDropBean;
+import io.imunity.vaadin.endpoint.common.mvel.DragStartEvent;
+import io.imunity.vaadin.endpoint.common.mvel.DragEndEvent;
 import io.imunity.console_utils.tprofile.EditorContext;
 import io.imunity.console_utils.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -150,6 +154,12 @@ class ProfileStepComponent extends HorizontalLayout
 		DragSource<Div> boxDragSource = DragSource.create(box);
 		boxDragSource.setDraggable(true);
 		boxDragSource.setDragData(text);
+		boxDragSource.addDragStartListener(e -> WebSession.getCurrent()
+				.getEventBus()
+				.fireEvent(new DragStartEvent()));
+		boxDragSource.addDragEndListener(e -> WebSession.getCurrent()
+				.getEventBus()
+				.fireEvent(new DragEndEvent()));
 		return box;
 	}
 

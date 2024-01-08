@@ -4,9 +4,11 @@
  */
 package io.imunity.console_utils.tprofile;
 
-import com.vaadin.flow.component.Unit;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
+
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
@@ -20,7 +22,7 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 	{
 		super(desc.getName() + ":");
 		setTooltipText(msg.getMessage(desc.getDescriptionKey()));
-		setWidth(70, Unit.PERCENTAGE);
+		setWidth(TEXT_FIELD_BIG.value());
 		binder = new Binder<>(StringValueBean.class);
 		if (desc.isMandatory())
 		{

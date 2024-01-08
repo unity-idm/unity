@@ -6,6 +6,7 @@ package io.imunity.console_utils.tprofile;
 
 import com.vaadin.flow.data.binder.Binder;
 
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -70,6 +71,15 @@ public class ExpressionActionParameterComponent extends MVELExpressionField impl
 	public String getLabel()
 	{
 		return label;
+	}
+	
+	public ExpressionActionParameterComponent applyContext(EditorContext editorContext)
+	{
+		if (editorContext.equals(EditorContext.WIZARD))
+		{
+			addClassNameToField(CssClassNames.WIDTH_FULL.getName());
+		}
+		return this;
 	}
 
 }

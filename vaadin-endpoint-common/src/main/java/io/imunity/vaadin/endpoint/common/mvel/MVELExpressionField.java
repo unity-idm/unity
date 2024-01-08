@@ -16,7 +16,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
+
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.FormItemRequiredIndicatorHandler;
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
@@ -95,9 +98,21 @@ public class MVELExpressionField extends CustomField<String>
 				if (next instanceof DragDropBean dragDropBean)
 					field.setValue((field.getValue() != null ? field.getValue() : "") + dragDropBean.getExpression());
 			}
-		});
+		});		
+		
+		WebSession.getCurrent()
+				.getEventBus()
+				.addListener(e -> add(), DragStartEvent.class);
+		WebSession.getCurrent()
+				.getEventBus()
+				.addListener(e -> field.removeClassName(CssClassNames.DROP_FIELD.getName()), DragEndEvent.class);
+
 	}
 	
+	private void add()
+	{
+		field.addClassName(CssClassNames.DROP_FIELD.getName());
+	}
 	
 	public void addClassNameToField(String className)
 	{

@@ -48,7 +48,7 @@ html {
   --unity-tab-hover-color: #025D6E;
   --unity-true-condition-color: LightGreen;
   --unity-error-condition-color: LightCoral;
-  --unity-false-condition-color: gray;
+  --unity-false-condition-color: LightGray;
 
   --unity-directory-browser-groups-grid-font-size: unset;
   --unity-directory-browser-groups-grid-row-height: unset;
@@ -678,6 +678,11 @@ vaadin-details.u-multi-tab-details {
 	background-color: var(--unity-false-condition-color);
 	border-radius: var(--unity-border-radius);
 	
+}
+
+.u-drop-field::part(input-field)  {
+	border-radius: var(--unity-border-radius);
+	border: 2px solid var(--lumo-primary-color);
 }
 
 .u-error-bg::part(input-field) {
