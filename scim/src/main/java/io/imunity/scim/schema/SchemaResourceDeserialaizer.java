@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import io.imunity.scim.SCIMConstants;
 import io.imunity.scim.config.AttributeDefinition;
@@ -25,12 +26,34 @@ public class SchemaResourceDeserialaizer
 	public static SchemaWithMapping deserializeUserSchemaFromFile(File file)
 			throws StreamReadException, DatabindException, IOException, EngineException
 	{
-		SCIMSchemaResource schema = SCIMConstants.MAPPER.readValue(file, SCIMSchemaResource.class);
-		return SchemaWithMapping.builder().withId(schema.id).withType(SchemaType.USER)
-				.withDescription(schema.description).withName(schema.name)
-				.withAttributesWithMapping(mapAttributes(schema.attributes)).build();
+		JsonNode node = SCIMConstants.MAPPER.readTree(file);
+		String type = node.has("type") ? node.get("type")
+				.asText() : null;
+		return type == null ? mapSCIMSchema(file) : mapSchemaWithMapping(type, file);
 	}
 
+	private static SchemaWithMapping mapSCIMSchema(File file) throws StreamReadException, DatabindException, IOException
+	{
+		SCIMSchemaResource schema = SCIMConstants.MAPPER.readValue(file, SCIMSchemaResource.class);
+		return SchemaWithMapping.builder()
+				.withId(schema.id)
+				.withType(SchemaType.USER)
+				.withDescription(schema.description)
+				.withName(schema.name)
+				.withAttributesWithMapping(mapAttributes(schema.attributes))
+				.build();
+	}
+
+	private static SchemaWithMapping mapSchemaWithMapping(String type, File file)
+			throws EngineException, StreamReadException, DatabindException, IOException
+	{
+		if (!type.equals(SchemaType.USER.name()))
+		{
+			throw new EngineException("Can not import schema with type: " + type + ". Only USER type is supported");
+		}
+		return SCIMConstants.MAPPER.readValue(file, SchemaWithMapping.class);
+	}
+	
 	private static AttributeDefinitionWithMapping mapAttribute(SCIMAttributeDefinitionResource attrDefResource)
 	{
 		return AttributeDefinitionWithMapping.builder()
