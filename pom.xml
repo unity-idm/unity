@@ -96,6 +96,7 @@
 		<module>console</module>
 		<module>vaadin-styles</module>
         <module>console-utils</module>
+        <module>unity-rest-api-docs</module>
     </modules>
 
 	<developers>
@@ -827,8 +828,11 @@
 				<artifactId>jaxb-api</artifactId>
 				<version>2.3.1</version>
 			</dependency>
-
-
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
+				<version>${cxf.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-java</artifactId>
