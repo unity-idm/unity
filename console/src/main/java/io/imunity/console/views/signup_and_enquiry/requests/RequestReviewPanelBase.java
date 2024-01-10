@@ -250,7 +250,8 @@ class RequestReviewPanelBase extends VerticalLayout
 				throw new IllegalStateException("Ups, have request in DB with unsupported id type.", e);
 			}
 		}
-		identitiesP.setVisible(identities.getComponentCount() > 0);
+		identitiesP.setVisible(!identities.getElements()
+				.isEmpty());
 
 		optins.clearContents();
 		for (int i = 0; i < request.getAgreements()
@@ -301,8 +302,8 @@ class RequestReviewPanelBase extends VerticalLayout
 					: agreementTextWithDoc;
 			policyAgreements.addEntry(info + ": " + aText);
 		}
-		policyAgreementsP.setVisible(policyAgreements.getComponentCount() > 0);
-
+		policyAgreementsP.setVisible(!policyAgreements.getElements()
+				.isEmpty());
 		attributes.clearEntries();
 		for (Attribute ap : request.getAttributes())
 		{

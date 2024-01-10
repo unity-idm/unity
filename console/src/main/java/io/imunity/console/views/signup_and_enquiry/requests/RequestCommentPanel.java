@@ -144,7 +144,6 @@ class RequestCommentPanel extends VerticalLayout
 					.append(comment.getContents());
 			NativeLabel commentL = new NativeLabel();
 			commentL.setText(sb.toString());
-	//		commentL.addStyleName(Styles.messageBox.toString());
 			contentP.add(commentL);
 		}
 	}

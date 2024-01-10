@@ -98,6 +98,5 @@ public class RequestsView extends ConsoleViewComponent
 
 		getContent().add(main);
 		getContent().setSizeFull();
-
 	}
 }
