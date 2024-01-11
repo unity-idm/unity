@@ -35,7 +35,11 @@
 					<artifactId>junit</artifactId>
 				</exclusion>
 			</exclusions>
-
+		</dependency>
+		<dependency>
+			<groupId>jakarta.xml.ws</groupId>
+			<artifactId>jakarta.xml.ws-api</artifactId>
+			<scope>test</scope>
 		</dependency>
 		
 		<!-- compile -->
