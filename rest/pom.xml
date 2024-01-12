@@ -65,11 +65,6 @@
 			<artifactId>httpclient5</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>jakarta.xml.ws</groupId>
-			<artifactId>jakarta.xml.ws-api</artifactId>
-			<scope>test</scope>
-		</dependency>
 				
 		<dependency>
 			<groupId>io.imunity</groupId>
@@ -119,6 +114,11 @@
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>jakarta.xml.ws</groupId>
+			<artifactId>jakarta.xml.ws-api</artifactId>
+		</dependency>
+		
 	</dependencies>
 	
 	<build>
