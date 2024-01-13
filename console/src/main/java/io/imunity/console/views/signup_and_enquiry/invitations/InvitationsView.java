@@ -77,13 +77,16 @@ public class InvitationsView extends ConsoleViewComponent
 		splitLayout.setSplitterPosition(40);
 		
 		List<Button> buttons = getButtonsBar();
-		
-		
 		VerticalLayout wrapper = new VerticalLayout(ShowViewActionLayoutFactory.buildTopButtonsBar(buttons.toArray(new Button[buttons.size()])));
 		wrapper.setPadding(true);
 		wrapper.setMargin(false);
-		getContent().add(wrapper);
-		getContent().add(splitLayout);
+		
+		VerticalLayout main = new VerticalLayout(wrapper, splitLayout);
+		main.setPadding(false);
+		main.setMargin(false);
+		main.setSpacing(false);
+		main.setSizeFull();
+		getContent().add(main);
 		getContent().setSizeFull();
 	}
 	protected List<Button> getButtonsBar()
