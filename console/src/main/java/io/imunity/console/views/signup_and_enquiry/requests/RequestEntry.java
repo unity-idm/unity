@@ -32,11 +32,11 @@ import pl.edu.icm.unity.stdext.identity.EmailIdentity;
  * @author P.Piernik
  *
  */
-public class RequestEntry implements FilterableEntry
+class RequestEntry implements FilterableEntry
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, RequestEntry.class);
 	
-	public UserRequestState<?> request;
+	final UserRequestState<?> request;
 	private MessageSource msg;
 	private String identity;
 

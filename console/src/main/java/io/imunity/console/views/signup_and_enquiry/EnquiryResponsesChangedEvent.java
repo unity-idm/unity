@@ -9,8 +9,5 @@ import io.imunity.vaadin.endpoint.common.bus.Event;
 
 public class EnquiryResponsesChangedEvent implements Event
 {
-	public EnquiryResponsesChangedEvent()
-	{
-		
-	}
+	
 }
