@@ -5,8 +5,10 @@
 
 package io.imunity.console.views.signup_and_enquiry.invitations.editor;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.ObjectFactory;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 
 import io.imunity.vaadin.elements.CSSVars;
@@ -55,6 +58,7 @@ class PrefillEntryEditor extends TabSheet
 	private final IdentityEditorRegistry identityEditorRegistry;
 	private final AttributeHandlerRegistry attrHandlersRegistry;
 	private final Map<String, AttributeType> attrTypes;
+	private Set<Tab> tabs;
 
 	@Autowired
 	PrefillEntryEditor(MessageSource msg, IdentityEditorRegistry identityEditorRegistry,
@@ -67,10 +71,13 @@ class PrefillEntryEditor extends TabSheet
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.attrTypes = attributeTypeManagement.getAttributeTypesAsMap();
 		this.allGroups = groupsManagement.getGroupsByWildcard("/**");
+		this.tabs = new HashSet<>();
 	}
 
 	public void setInput(BaseForm input)
 	{
+		tabs.forEach(this::remove);
+		tabs.clear();
 		
 		if (input == null)
 		{
@@ -111,7 +118,7 @@ class PrefillEntryEditor extends TabSheet
 		wrapper.setWidthFull();
 		wrapper.setSpacing(false);
 		wrapper.setPadding(false);
-		add(caption, wrapper);
+		tabs.add(add(caption, wrapper));
 	}
 
 	public void prefill(FormPrefill toSet) throws FormValidationException
