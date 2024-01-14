@@ -24,12 +24,12 @@ import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
 import io.imunity.vaadin.endpoint.common.Toolbar;
+import io.imunity.vaadin.endpoint.common.WebSession;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryResponseState;
 import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**

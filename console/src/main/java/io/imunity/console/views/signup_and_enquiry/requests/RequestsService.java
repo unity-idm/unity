@@ -14,6 +14,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.imunity.console.views.signup_and_enquiry.EnquiryResponsesChangedEvent;
+import io.imunity.console.views.signup_and_enquiry.RegistrationRequestsChangedEvent;
+import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryResponse;
@@ -24,10 +27,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
-import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponsesChangedEvent;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 
 /**
  * Controller for all registration and enquiry request views.
