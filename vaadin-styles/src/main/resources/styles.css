@@ -51,7 +51,7 @@ html {
   --unity-false-condition-color: LightGray;
 
   --unity-directory-browser-groups-grid-font-size: unset;
-  --unity-directory-browser-groups-grid-row-height: unset;
+  --unity-directory-browser-groups-grid-row-height: 32px;
   --unity-directory-browser-members-grid-font-size: unset;
   --unity-directory-browser-members-grid-row-height: unset;
 
@@ -687,7 +687,7 @@ vaadin-details.u-multi-tab-details {
 	background-color: var(--unity-error-condition-color);
 	border-radius: var(--unity-border-radius);
 	
-}`
+}
 
 .u-margin-vertical {
 	margin-top: var(--unity-small-margin);
@@ -723,7 +723,7 @@ vaadin-details.u-multi-tab-details {
 
 .u-unsaved-banner {
     background-color: var(--unity-warning-icon-color);
-    padding: var(--unity-small-padding)
+    padding: var(--unity-small-padding);
     position: sticky;
     top: 0;
     z-index: 100;
