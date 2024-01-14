@@ -7,6 +7,7 @@ package io.imunity.console.views.signup_and_enquiry.requests;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout.Orientation;
@@ -83,6 +84,7 @@ public class RequestsView extends ConsoleViewComponent
 				requestPanel.setVisible(false);
 			}
 		});
+		requestPanel.setMaxHeight(40, Unit.EM);
 
 		SplitLayout splitLayout = new SplitLayout(Orientation.VERTICAL);
 		splitLayout.addToPrimary(requestGrid);

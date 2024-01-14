@@ -116,9 +116,10 @@ class RequestProcessingPanel extends VerticalLayout
 		reject.addClickListener(e -> process(RegistrationRequestAction.reject));
 		delete = new Button(msg.getMessage("RequestProcessingPanel.drop"));
 		delete.addClickListener(e -> process(RegistrationRequestAction.drop));
+		
 		HorizontalLayout buttonsBar = new HorizontalLayout();
-		buttonsBar.setMargin(true);
-		buttonsBar.setPadding(true);
+		buttonsBar.setMargin(false);
+		buttonsBar.setPadding(false);
 		buttonsBar.setAlignItems(Alignment.END);
 		buttonsBar.setJustifyContentMode(JustifyContentMode.END);
 		buttonsBar.add(accept, reject, delete);
@@ -131,7 +132,7 @@ class RequestProcessingPanel extends VerticalLayout
 		setMargin(false);
 		setSpacing(true);
 		setVisible(false);
-
+		setSizeFull();
 	}
 
 	void setRequest(RegistrationRequestState input)

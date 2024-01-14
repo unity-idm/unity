@@ -37,6 +37,8 @@ class GenericReviewPanel extends VerticalLayout
 		setPadding(false);
 		setMargin(false);
 		setSpacing(false);
+		
+		setSizeFull();
 	}
 
 	void setEnquiry(EnquiryResponseState requestState, EnquiryForm form)

@@ -139,6 +139,7 @@ class RequestReviewPanelBase extends VerticalLayout
 			}
 		});
 		optins.setAddSeparatorLine(false);
+		optins.setPadding(true);
 		optinsP = new Panel(msg.getMessage("RequestReviewPanel.optins"));
 		optinsP.add(optins);
 		optinsP.setWidthFull();
