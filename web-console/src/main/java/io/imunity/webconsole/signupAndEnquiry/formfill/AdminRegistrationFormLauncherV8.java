@@ -50,9 +50,9 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreatorV8;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class AdminRegistrationFormLauncher extends AbstractRegistrationFormDialogProvider
+public class AdminRegistrationFormLauncherV8 extends AbstractRegistrationFormDialogProvider
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdminRegistrationFormLauncher.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdminRegistrationFormLauncherV8.class);
 	protected RegistrationsManagement registrationsManagement;
 	protected CredentialEditorRegistryV8 credentialEditorRegistry;
 	protected AttributeHandlerRegistryV8 attributeHandlerRegistry;
@@ -64,7 +64,7 @@ public class AdminRegistrationFormLauncher extends AbstractRegistrationFormDialo
 	private IdPLoginController idpLoginController;
 	
 	@Autowired
-	public AdminRegistrationFormLauncher(MessageSource msg,
+	public AdminRegistrationFormLauncherV8(MessageSource msg,
 			RegistrationsManagement registrationsManagement,
 			CredentialEditorRegistryV8 credentialEditorRegistry,
 			AttributeHandlerRegistryV8 attributeHandlerRegistry,

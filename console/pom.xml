@@ -37,6 +37,16 @@
         </dependency>
         <dependency>
             <groupId>io.imunity</groupId>
+            <artifactId>unity-server-vaadin-enquiry</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+         <dependency>
+            <groupId>io.imunity</groupId>
+            <artifactId>unity-server-vaadin-registration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.imunity</groupId>
             <artifactId>unity-server-vaadin-authentication</artifactId>
             <version>${project.version}</version>
         </dependency>

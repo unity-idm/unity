@@ -45,9 +45,9 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class AdminEnquiryFormLauncher
+public class AdminEnquiryFormLauncherV8
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdminEnquiryFormLauncher.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdminEnquiryFormLauncherV8.class);
 	private MessageSource msg;
 	private EnquiryManagement enquiryManagement;
 	private EnquiryResponseEditorControllerV8 responseController;
@@ -56,7 +56,7 @@ public class AdminEnquiryFormLauncher
 	private IdPLoginController idpLoginController;
 	
 	@Autowired
-	public AdminEnquiryFormLauncher(MessageSource msg,
+	public AdminEnquiryFormLauncherV8(MessageSource msg,
 			EnquiryManagement enquiryManagement,
 			IdPLoginController idpLoginController,
 			EnquiryResponseEditorControllerV8 responseController)

@@ -18,8 +18,8 @@ import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.signupAndEnquiry.SignupAndEnquiryNavigationInfoProvider;
 import io.imunity.webconsole.signupAndEnquiry.enquiry.EnquiryFormsComponent;
 import io.imunity.webconsole.signupAndEnquiry.enquiry.EnquiryFormsController;
-import io.imunity.webconsole.signupAndEnquiry.formfill.AdminEnquiryFormLauncher;
-import io.imunity.webconsole.signupAndEnquiry.formfill.AdminRegistrationFormLauncher;
+import io.imunity.webconsole.signupAndEnquiry.formfill.AdminEnquiryFormLauncherV8;
+import io.imunity.webconsole.signupAndEnquiry.formfill.AdminRegistrationFormLauncherV8;
 import io.imunity.webconsole.signupAndEnquiry.registration.RegistrationFormsComponent;
 import io.imunity.webconsole.signupAndEnquiry.registration.RegistrationFormsController;
 import io.imunity.webelements.navigation.NavigationInfo;
@@ -43,14 +43,14 @@ public class SignupAndEnquiryFormsView extends CustomComponent implements UnityV
 	private MessageSource msg;
 	private RegistrationFormsController regController;
 	private EnquiryFormsController enqController;
-	private AdminRegistrationFormLauncher adminRegistrationFormLauncher;
-	private AdminEnquiryFormLauncher adminEnquiryFormLauncher;
+	private AdminRegistrationFormLauncherV8 adminRegistrationFormLauncher;
+	private AdminEnquiryFormLauncherV8 adminEnquiryFormLauncher;
 
 	@Autowired
 	SignupAndEnquiryFormsView(MessageSource msg, RegistrationFormsController regController,
 			EnquiryFormsController enqController,
-			AdminRegistrationFormLauncher adminRegistrationFormLauncher,
-			AdminEnquiryFormLauncher adminEnquiryFormLauncher)
+			AdminRegistrationFormLauncherV8 adminRegistrationFormLauncher,
+			AdminEnquiryFormLauncherV8 adminEnquiryFormLauncher)
 	{
 		this.msg = msg;
 		this.regController = regController;

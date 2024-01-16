@@ -38,7 +38,7 @@ import java.util.function.Consumer;
 
 
 @PrototypeComponent
-class RequestEditorCreator
+public class RequestEditorCreator
 {
 	private final MessageSource msg;
 	private final IdentityEditorRegistry identityEditorRegistry;

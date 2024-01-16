@@ -58,7 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
+public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 {
 	private static final String INVITATION_EMAIL_VAR = "invitationEmail";
 	

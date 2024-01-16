@@ -18,7 +18,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.signupAndEnquiry.formfill.AdminRegistrationFormLauncher;
+import io.imunity.webconsole.signupAndEnquiry.formfill.AdminRegistrationFormLauncherV8;
 import io.imunity.webconsole.signupAndEnquiry.invitations.NewInvitationView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
@@ -48,10 +48,10 @@ public class RegistrationFormsComponent extends CustomComponent
 	private MessageSource msg;
 	private RegistrationFormsController controller;
 	private GridWithActionColumn<RegistrationForm> registrationFormsList;
-	private AdminRegistrationFormLauncher adminRegistrationFormLauncher;
+	private AdminRegistrationFormLauncherV8 adminRegistrationFormLauncher;
 
 	public RegistrationFormsComponent(MessageSource msg, RegistrationFormsController controller,
-			AdminRegistrationFormLauncher adminRegistrationFormLauncher)
+			AdminRegistrationFormLauncherV8 adminRegistrationFormLauncher)
 
 	{
 		this.msg = msg;

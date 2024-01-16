@@ -13,6 +13,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
+
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
@@ -35,6 +37,7 @@ import java.util.List;
  * Responsible for showing a given registration form dialog. This version is intended for general use.
  */
 @PrototypeComponent
+@Primary
 public class InsecureRegistrationFormLauncher extends AbstractRegistrationFormDialogProvider
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InsecureRegistrationFormLauncher.class);

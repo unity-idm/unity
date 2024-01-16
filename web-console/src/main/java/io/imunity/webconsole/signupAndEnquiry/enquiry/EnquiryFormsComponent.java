@@ -18,7 +18,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.signupAndEnquiry.formfill.AdminEnquiryFormLauncher;
+import io.imunity.webconsole.signupAndEnquiry.formfill.AdminEnquiryFormLauncherV8;
 import io.imunity.webconsole.signupAndEnquiry.invitations.NewInvitationView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
@@ -46,12 +46,12 @@ public class EnquiryFormsComponent extends CustomComponent
 {
 	private MessageSource msg;
 	private EnquiryFormsController controller;
-	private AdminEnquiryFormLauncher adminEnquiryFormLauncher;
+	private AdminEnquiryFormLauncherV8 adminEnquiryFormLauncher;
 
 	private GridWithActionColumn<EnquiryForm> enquiryFormsList;
 
 	public EnquiryFormsComponent(MessageSource msg, EnquiryFormsController controller,
-			AdminEnquiryFormLauncher adminEnquiryFormLauncher)
+			AdminEnquiryFormLauncherV8 adminEnquiryFormLauncher)
 	{
 		this.msg = msg;
 		this.controller = controller;

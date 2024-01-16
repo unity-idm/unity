@@ -47,7 +47,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-class EnquiryResponseEditorController
+public class EnquiryResponseEditorController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryResponseEditorController.class);
 	
