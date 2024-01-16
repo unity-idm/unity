@@ -78,7 +78,7 @@ class PrefillEntryEditor extends TabSheet
 	{
 		tabs.forEach(this::remove);
 		tabs.clear();
-		
+
 		if (input == null)
 		{
 			return;

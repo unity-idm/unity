@@ -5,21 +5,11 @@
 
 package io.imunity.console;
 
-import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
-import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
-import static java.util.stream.Collectors.toList;
-
-import java.util.List;
-import java.util.stream.Stream;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-
 import io.imunity.console.views.ServicesEditView;
 import io.imunity.console.views.ServicesView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsEditView;
@@ -56,12 +46,22 @@ import io.imunity.console.views.settings.pki.PKIEditView;
 import io.imunity.console.views.settings.pki.PKIView;
 import io.imunity.console.views.settings.policy_documents.PolicyDocumentEditView;
 import io.imunity.console.views.settings.policy_documents.PolicyDocumentsView;
+import io.imunity.console.views.signup_and_enquiry.forms.FormsView;
+import io.imunity.console.views.signup_and_enquiry.forms.RegistrationView;
 import io.imunity.console.views.signup_and_enquiry.invitations.InvitationsView;
 import io.imunity.console.views.signup_and_enquiry.requests.RequestsView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
+import static java.util.stream.Collectors.toList;
 
 public class ConsoleMenu extends UnityAppLayout
 {
@@ -75,10 +75,15 @@ public class ConsoleMenu extends UnityAppLayout
 								.icon(VaadinIcon.GROUP)
 								.build(),
 						MenuComponent.builder(
+								MenuComponent.builder(FormsView.class)
+										.tabName(msg.getMessage("WebConsoleMenu.signupAndEnquiry.forms"))
+										.icon(VaadinIcon.FORM)
+										.subViews(RegistrationView.class)
+										.build(),
 								MenuComponent.builder(RequestsView.class)
-								.tabName(msg.getMessage("WebConsoleMenu.signup_and_enquiry.requests"))
-								.icon(VaadinIcon.USER_CARD)
-								.build(),
+										.tabName(msg.getMessage("WebConsoleMenu.signup_and_enquiry.requests"))
+										.icon(VaadinIcon.USER_CARD)
+										.build(),
 								MenuComponent.builder(InvitationsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.signup_and_enquiry.invitations"))
 										.icon(VaadinIcon.TAXI)
