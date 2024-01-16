@@ -29,7 +29,9 @@ public class RegistrationTranslationProfileEditor extends TranslationProfileEdit
 	protected void initUI()
 	{
 		super.initUI();
-		name.setVisible(false);
-		description.setVisible(false);
+		name.getParent()
+				.ifPresent(parent -> parent.setVisible(false));
+		description.getParent()
+				.ifPresent(parent -> parent.setVisible(false));
 	}
 }

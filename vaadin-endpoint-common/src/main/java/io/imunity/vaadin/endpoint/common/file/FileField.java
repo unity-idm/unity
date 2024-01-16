@@ -58,6 +58,10 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 		upload.setMaxFiles(0);
 		upload.setAcceptedFileTypes(mimeType);
 		upload.setMaxFileSize(maxFileSize);
+		upload.addFileRejectedListener(e -> {
+			setInvalid(true);
+			setErrorMessage(e.getErrorMessage());
+		});
 		upload.addSucceededListener(event ->
 		{
 			FileData fileData = memoryBuffer.getFileData();
@@ -92,7 +96,15 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 		tab = new TabSheet();
 		tab.addThemeVariants(TabSheetVariant.LUMO_TABS_MINIMAL, TabSheetVariant.LUMO_TABS_HIDE_SCROLL_BUTTONS);
 		localTab = new Tab(msg.getMessage("FileField.local"));
-		remoteTab = new Tab(msg.getMessage("FileField.remote"));
+		remoteTab = new Tab(msg.getMessage("FileField.remote"))
+		{
+			//fix strange vaadin error, which disable this tab
+			@Override
+			public boolean isEnabled()
+			{
+				return true;
+			}
+		};
 		tab.add(localTab, local);
 		tab.add(remoteTab, remote);
 
@@ -198,12 +210,12 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 			setPreview();
 			return;
 		}
-
 		if (value.getLocal() != null)
 		{
 			tab.setSelectedTab(localTab);
 			setPreview();
-		} else
+		}
+		else
 		{
 			tab.setSelectedTab(remoteTab);
 			remoteUrl.setValue(value.getSrc());

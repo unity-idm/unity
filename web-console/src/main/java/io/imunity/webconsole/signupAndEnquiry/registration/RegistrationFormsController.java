@@ -5,13 +5,10 @@
 
 package io.imunity.webconsole.signupAndEnquiry.registration;
 
-import java.util.Collection;
-
+import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditorV8;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import io.imunity.webconsole.signupAndEnquiry.forms.RegistrationFormEditorV8;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
@@ -19,13 +16,15 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.util.Collection;
+
 /**
  * Controller for all registration form views.
  * 
  * @author P.Piernik
  *
  */
-@Component
+@Component("RegistrationFormsControllerV8")
 public class RegistrationFormsController
 {
 	private final MessageSource msg;

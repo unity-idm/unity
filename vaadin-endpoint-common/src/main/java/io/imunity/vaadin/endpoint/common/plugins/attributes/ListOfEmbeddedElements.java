@@ -4,14 +4,13 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
-import java.util.Collection;
-import java.util.List;
-
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-
+import com.vaadin.flow.component.formlayout.FormLayout;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -20,7 +19,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  *  
  * @author K. Benedyczak
  */
-public class ListOfEmbeddedElements<T> extends VerticalLayout
+public class ListOfEmbeddedElements<T> extends FormLayout
 {
 	private ListOfEmbeddedElementsStub<T> stub;
 	
@@ -33,10 +32,8 @@ public class ListOfEmbeddedElements<T> extends VerticalLayout
 	public ListOfEmbeddedElements(String caption, MessageSource msg, EditorProvider<T> editorProvider,
 			int min, int max, boolean showLine)
 	{
+		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		stub = new ListOfEmbeddedElementsStub<T>(msg, editorProvider, min, max, showLine);
-		setSpacing(false);
-		setPadding(false);
-		setMargin(false);
 		new CompositeLayoutAdapter(this, stub.getComponentsGroup());
 	}
 	

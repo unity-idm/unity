@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+
 public class ListOfEmbeddedElementsStub<T>
 {
 	private MessageSource msg;
@@ -45,9 +47,9 @@ public class ListOfEmbeddedElementsStub<T>
 		this.group = new ComponentsGroup();
 
 		components = new ArrayList<>();
-		
-		Button lonelyAdd = new Button();
-		lonelyAdd.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
+
+		Icon lonelyAdd = VaadinIcon.PLUS_CIRCLE_O.create();
+		lonelyAdd.addClassName(POINTER.name());
 		lonelyAdd.setTooltipText(msg.getMessage("add"));
 		lonelyAdd.addClickListener(event -> addEntry(null, null));
 		

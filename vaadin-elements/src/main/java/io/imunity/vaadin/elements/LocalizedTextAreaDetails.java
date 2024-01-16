@@ -30,6 +30,7 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 {
 	private final Map<Locale, LocalizedTextArea> fields = new LinkedHashMap<>();
 	private final Binder<Map<Locale, String>> binder = new Binder<>();
+	private final LocalizedTextArea defaultField;
 	private Validator<String> validator = (val, context) -> ValidationResult.ok();
 
 	public LocalizedTextAreaDetails(Collection<Locale> enabledLocales, Locale currentLocale)
@@ -62,7 +63,7 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 			content.setVisible(false);
 		});
 
-		LocalizedTextArea defaultField = new LocalizedTextArea(currentLocale);
+		defaultField = new LocalizedTextArea(currentLocale);
 		defaultField.setLabel(label);
 		fields.put(currentLocale, defaultField);
 
@@ -182,5 +183,17 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 			else
 				return ValidationResult.error("");
 		};
+	}
+
+	@Override
+	public void setLabel(String label)
+	{
+		defaultField.setLabel(label);
+	}
+
+	@Override
+	public String getLabel()
+	{
+		return defaultField.getLabel();
 	}
 }

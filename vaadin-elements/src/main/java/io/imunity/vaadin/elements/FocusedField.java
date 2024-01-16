@@ -3,37 +3,42 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.settings.message_templates;
+package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.HasValue;
 
-class FocusedField
+public class FocusedField
 {
 	private HasValue<?, String> field;
 	private int cursorPosition;
 
-	void set(HasValue<?, String> field, int cursorPosition)
+	public void set(HasValue<?, String> field, int cursorPosition)
 	{
 		this.field = field;
 		this.cursorPosition = cursorPosition;
 	}
 
-	boolean isSet()
+	public boolean isSet()
 	{
 		return field != null;
 	}
 
-	String getValue()
+	public String getValue()
 	{
 		return field.getValue();
 	}
 
-	void setValue(String value)
+	public String getLocale()
+	{
+		return ((LocalizedTextField)field).locale.getLanguage();
+	}
+
+	public void setValue(String value)
 	{
 		field.setValue(value);
 	}
 
-	int getCursorPosition()
+	public int getCursorPosition()
 	{
 		return cursorPosition;
 	}

@@ -6,6 +6,12 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.HasLabel;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.shared.SlotUtils;
+import com.vaadin.flow.dom.ElementConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,17 +51,65 @@ public class CompositeLayoutAdapter
 	
 	private void addToLayout(Element element)
 	{
+		if(layout instanceof FormLayout formLayout)
+		{
+			for (Component component: element.getComponents())
+			{
+				if(component instanceof Checkbox checkbox)
+				{
+					formLayout.addFormItem(checkbox, "")
+							.setVisible(component.isVisible());
+					continue;
+				}
+				if(component instanceof HasLabel hasLabel)
+				{
+					formLayout.addFormItem(component, hasLabel.getLabel())
+							.setVisible(component.isVisible());
+					hasLabel.setLabel("");
+				}
+				else
+					formLayout.add(component);
+			}
+			return;
+		}
 		layout.add(element.getComponents());
 	}
 
 	private void removeFromLayout(Component component)
 	{
-		layout.remove(component);
+		if(layout instanceof FormLayout formLayout)
+		{
+			formLayout.getChildren()
+					.filter(formItem -> formItem.getChildren().anyMatch(child -> child.equals(component)))
+					.forEach(layout::remove);
+		}
+		if(layout.getElement().getChildren().anyMatch(child -> child.equals(component.getElement())))
+			layout.remove(component);
 	}
 
 	private void addToLayout(Element element, Component component, Integer index)
 	{
 		int elmentStart = findElementStart(element);
+		if(layout instanceof FormLayout)
+		{
+			if(component instanceof Checkbox checkbox)
+			{
+				FormLayout.FormItem formItem = new FormLayout.FormItem(checkbox);
+				formItem.setVisible(component.isVisible());
+				layout.addComponentAtIndex(index + elmentStart, formItem);
+				return;
+			}
+			if(component instanceof HasLabel hasLabel)
+			{
+				String label = hasLabel.getLabel();
+				FormLayout.FormItem formItem = new FormLayout.FormItem(component);
+				SlotUtils.addToSlot(formItem, ElementConstants.LABEL_PROPERTY_NAME, new Span(label));
+				formItem.setVisible(component.isVisible());
+				layout.addComponentAtIndex(index + elmentStart, formItem);
+				hasLabel.setLabel("");
+				return;
+			}
+		}
 		layout.addComponentAtIndex(index + elmentStart, component);
 	}
 
@@ -72,14 +126,14 @@ public class CompositeLayoutAdapter
 		throw new IllegalStateException("Can't find element " + element);
 	}
 
-	public static interface ComposableComponents
+	public interface ComposableComponents
 	{
 		List<Component> getComponents();
 		void setComponentInsertionListener(BiConsumer<Component, Integer> listener);
 		void setComponentRemovalListener(Consumer<Component> listener);
 	}
 
-	private static interface Element
+	private interface Element
 	{
 		Component[] getComponents();
 	}

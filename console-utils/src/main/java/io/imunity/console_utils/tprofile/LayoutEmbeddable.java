@@ -6,6 +6,7 @@ package io.imunity.console_utils.tprofile;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
@@ -42,6 +43,11 @@ public class LayoutEmbeddable
 			if(component instanceof Label label)
 			{
 				layout.addFormItem(new Div(), label);
+				continue;
+			}
+			if(component instanceof Checkbox checkbox)
+			{
+				layout.addFormItem(checkbox, "");
 				continue;
 			}
 			layout.addFormItem(component, component.getElement().getProperty("label"));
