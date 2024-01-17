@@ -14,6 +14,7 @@ public enum CssClassNames
 	EMPTY_DETAILS_ICON("u-empty-details-icon"),
 	GRID_DETAILS_FORM_ITEM("u-grid-details-vaadin-form-item"),
 	BOLD("u-bold"),
+	ITALIC("u-italic"),
 	UNDERLINE("u-underline"),
 	IMMUTABLE_ATTRIBUTE("u-immutableAttribute"),
 	GRID_DETAILS_FORM("u-grid-details-vaadin-form"),

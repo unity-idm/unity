@@ -5,26 +5,7 @@
 
 package io.imunity.console.views.directory_browser.group_browser;
 
-import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.ObjectFactory;
-
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -38,15 +19,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-
-import io.imunity.console.views.signup_and_enquiry.EnquiryFormChangedEvent;
-import io.imunity.console.views.signup_and_enquiry.EnquiryFormEditDialog;
-import io.imunity.console.views.signup_and_enquiry.EnquiryFormEditor;
-import io.imunity.console.views.signup_and_enquiry.RegistrationFormChangedEvent;
-import io.imunity.console.views.signup_and_enquiry.RegistrationFormEditDialog;
-import io.imunity.console.views.signup_and_enquiry.RegistrationFormEditor;
+import io.imunity.console.views.signup_and_enquiry.*;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
+import org.springframework.beans.factory.ObjectFactory;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -64,6 +40,14 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 
 class GroupDelegationEditConfigDialog extends ConfirmDialog
@@ -494,7 +478,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 					msg.getMessage("GroupDelegationEditConfigDialog.errorInFormEdit"), e.getMessage());
 			return;
 		}
-		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, caption, this::updateRegistrationForm, editor);
+		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, caption, this::updateRegistrationForm, editor, notificationPresenter);
 		dialog.open();
 	}
 
@@ -542,7 +526,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 					msg.getMessage("GroupDelegationEditConfigDialog.errorInFormEdit"), e.getMessage());
 			return;
 		}
-		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, caption, this::updateEnquiryForm, editor);
+		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, caption, this::updateEnquiryForm, editor, notificationPresenter);
 		dialog.open();
 	}
 

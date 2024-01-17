@@ -3,9 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.signupAndEnquiry.enquiry;
+package io.imunity.console.views.signup_and_enquiry.forms;
 
-import io.imunity.webconsole.signupAndEnquiry.forms.EnquiryFormEditorV8;
+import io.imunity.console.views.signup_and_enquiry.EnquiryFormEditor;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,23 +18,17 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 import java.util.Collection;
 
-/**
- * Controller for all enquiry form views
- * 
- * @author P.Piernik
- *
- */
-@Component("EnquiryFormsControllerV8")
+@Component
 public class EnquiryFormsController
 {
 	private final MessageSource msg;
 	private final EnquiryManagement enqMan;
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
-	private final ObjectFactory<EnquiryFormEditorV8> editorFactory;
+	private final ObjectFactory<EnquiryFormEditor> editorFactory;
 
 	@Autowired
 	EnquiryFormsController(MessageSource msg, EnquiryManagement enqMan,
-			PublicRegistrationURLSupport publicRegistrationURLSupport, ObjectFactory<EnquiryFormEditorV8> editorFactory)
+			PublicRegistrationURLSupport publicRegistrationURLSupport, ObjectFactory<EnquiryFormEditor> editorFactory)
 	{
 		this.msg = msg;
 		this.enqMan = enqMan;
@@ -109,11 +103,11 @@ public class EnquiryFormsController
 		return publicRegistrationURLSupport.getWellknownEnquiryLink(form.getName());
 	}
 
-	EnquiryFormEditorV8 getEditor(EnquiryForm form, boolean copyMode) throws ControllerException
+	EnquiryFormEditor getEditor(EnquiryForm form, boolean copyMode) throws ControllerException
 	{
 		try
 		{
-			EnquiryFormEditorV8 editor = editorFactory.getObject().init(copyMode);
+			EnquiryFormEditor editor = editorFactory.getObject().init(copyMode);
 			if (form != null)
 			{
 				editor.setForm(form);

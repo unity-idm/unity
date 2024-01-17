@@ -23,7 +23,6 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 
 import java.util.stream.Stream;
 
@@ -36,21 +35,18 @@ import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_L
  */
 public class RegistrationFormLayoutSettingsEditor extends VerticalLayout
 {
-	private MessageSource msg;
-	private FileStorageService fileStorageService;
-	private URIAccessService uriAccessService;
-	private UnityServerConfiguration serverConfig;
+	private final MessageSource msg;
+	private final FileStorageService fileStorageService;
+	private final UnityServerConfiguration serverConfig;
+	private final VaadinLogoImageLoader imageAccessService;
 
 	private Binder<FormLayoutSettingsWithLogo> binder;
-	private VaadinLogoImageLoader imageAccessService;
 
 	public RegistrationFormLayoutSettingsEditor(MessageSource msg, UnityServerConfiguration serverConfig,
-			FileStorageService fileStorageService, URIAccessService uriAccessService,
-			VaadinLogoImageLoader imageAccessService)
+			FileStorageService fileStorageService, VaadinLogoImageLoader imageAccessService)
 	{
 		this.msg = msg;
 		this.fileStorageService = fileStorageService;
-		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
 		this.imageAccessService = imageAccessService;
 		initUI();

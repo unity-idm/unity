@@ -46,6 +46,7 @@ import io.imunity.console.views.settings.pki.PKIEditView;
 import io.imunity.console.views.settings.pki.PKIView;
 import io.imunity.console.views.settings.policy_documents.PolicyDocumentEditView;
 import io.imunity.console.views.settings.policy_documents.PolicyDocumentsView;
+import io.imunity.console.views.signup_and_enquiry.forms.EnquiryView;
 import io.imunity.console.views.signup_and_enquiry.forms.FormsView;
 import io.imunity.console.views.signup_and_enquiry.forms.RegistrationView;
 import io.imunity.console.views.signup_and_enquiry.invitations.InvitationsView;
@@ -78,7 +79,7 @@ public class ConsoleMenu extends UnityAppLayout
 								MenuComponent.builder(FormsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.signupAndEnquiry.forms"))
 										.icon(VaadinIcon.FORM)
-										.subViews(RegistrationView.class)
+										.subViews(RegistrationView.class, EnquiryView.class)
 										.build(),
 								MenuComponent.builder(RequestsView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.signup_and_enquiry.requests"))

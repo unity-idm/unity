@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.imunity.console_utils.tprofile.Constants.FORM_PROFILE;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
@@ -215,7 +216,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 
 	public void setForm(RegistrationForm toEdit)
 	{
-		//todo remember to use FORM_PROFILE var
 		super.setValue(toEdit);
 		publiclyAvailable.setValue(toEdit.isPubliclyAvailable());
 		byInvitationOnly.setValue(toEdit.isByInvitationOnly());
@@ -362,7 +362,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addFormItem(localSignupEmbeddedAsButton, "");
 
 		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService,
-				uriAccessService, imageAccessService);
+				imageAccessService);
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setPadding(false);
 		wrapper.setSpacing(false);
@@ -455,7 +455,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		credentialRequirementAssignment.setValue(credentialReqirementNames.iterator().next());
 
 		profileEditor = new RegistrationTranslationProfileEditor(msg, actionsRegistry, actionComponentProvider, notificationPresenter, htmlTooltipFactory);
-		profileEditor.setValue(new TranslationProfile("form profile", "", ProfileType.REGISTRATION,
+		profileEditor.setValue(new TranslationProfile(FORM_PROFILE, "", ProfileType.REGISTRATION,
 				new ArrayList<>()));
 		main.addFormItem(credentialRequirementAssignment, msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
 		wrapper.add(profileEditor);

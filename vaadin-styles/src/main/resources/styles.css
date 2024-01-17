@@ -660,6 +660,10 @@ vaadin-details.u-multi-tab-details {
 	font-weight: var(--unity-bold-font-weight);
 }
 
+.u-italic {
+	font-style: italic;
+}
+
 .u-panel {
 	border-width: 0.15em;
 	border-left-style: solid;

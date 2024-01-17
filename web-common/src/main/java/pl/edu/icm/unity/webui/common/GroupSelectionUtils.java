@@ -4,15 +4,14 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import org.apache.logging.log4j.Logger;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.logging.log4j.Logger;
-
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 
 
 /**
@@ -23,7 +22,7 @@ public abstract class GroupSelectionUtils
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupSelectionUtils.class);
 
-	static List<String> establishGroups(String rootGroup, boolean inclusive, GroupsManagement groupsMan,
+	public static List<String> establishGroups(String rootGroup, boolean inclusive, GroupsManagement groupsMan,
 			Collection<String> presetGroups)
 	{
 		List<String> fixedGroups = new ArrayList<String>();
