@@ -14,6 +14,7 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -61,7 +62,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		this.authzError = false;
 
 		GridSelectionSupport.installClickListener(this);
-		addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
+		addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_COMPACT);
 		addClassName("u-directory-browser-groups-grid");
 
 		SearchField search = new SearchField(msg.getMessage("search"), event -> {
@@ -89,7 +90,8 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		hamburgerMenu.addActionHandler(refreshAction);
 		hamburgerMenu.addActionHandler(deleteAction);
 
-		toolbar.addHamburger(hamburgerMenu, FlexComponent.Alignment.END);
+		toolbar.addCompactHamburger(hamburgerMenu, FlexComponent.Alignment.CENTER);
+		hamburgerMenu.add(new Hr());
 		hamburgerMenu.addItem(msg.getMessage("GroupDetails.multiselect"), event ->
 		{
 			multiselectHasClicked = true;
@@ -116,6 +118,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		addComponentHierarchyColumn(n ->
 		{
 			Div div = new Div(getIcon(n), new Span(" " + n.toString()));
+			div.getStyle().set("display", "flex");
 			div.getElement().setAttribute("onclick", "event.stopPropagation();");
 			div.addSingleClickListener(event -> select(n));
 			return div;

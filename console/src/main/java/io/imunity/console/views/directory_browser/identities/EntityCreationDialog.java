@@ -9,6 +9,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import io.imunity.console.views.directory_browser.group_browser.GroupChangedEvent;
@@ -43,6 +44,8 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import java.util.*;
 import java.util.function.Consumer;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 class EntityCreationDialog extends IdentityCreationDialog
 {
@@ -87,12 +90,20 @@ class EntityCreationDialog extends IdentityCreationDialog
 		this.credentialsPanelFactory = credentialsPanelFactory;
 		this.ecredMan = ecredMan;
 		this.bus = WebSession.getCurrent().getEventBus();
+		addTitle(msg);
+		add(getContents());
 	}
 
-	protected VerticalLayout getContents()
+	private void addTitle(MessageSource msg)
 	{
-		VerticalLayout main = super.getContents();
-	
+		Span title = new Span(" " + msg.getMessage("EntityCreation.initialInfo"));
+		title.addComponentAsFirst(VaadinIcon.EXCLAMATION_CIRCLE_O.create());
+		addComponentAsFirst(title);
+	}
+
+	private VerticalLayout getContents()
+	{
+		VerticalLayout main = new VerticalLayout();
 		try
 		{
 			allTypes = attrMan.getAttributeTypes();
@@ -101,16 +112,15 @@ class EntityCreationDialog extends IdentityCreationDialog
 			notificationPresenter.showError(msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetAttrTypes"));
 		}
-
-		main.addComponentAsFirst(new Span(msg.getMessage("EntityCreation.initialInfo")));
 		
 		tabs = new TabSheet();
-
+		tabs.setWidthFull();
 		tabs.add(msg.getMessage("EntityCreation.attributesTab"), buildAttributesTab());
 		tabs.add(msg.getMessage("EntityCreation.credentialsTab"), buildCredentialsTab());
 		tabs.add(msg.getMessage("EntityCreation.advancedTab"), buildAdvancedTab());
 
 		main.add(tabs);
+		main.setPadding(false);
 		main.setSizeFull();
 		setWidth("50em");
 		setHeight("50em");
@@ -120,6 +130,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 	private Component buildAttributesTab()
 	{
 		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setPadding(false);
 		attributeEditors = new ArrayList<>();
 		getDesignatedAttributeUI(EntityNameMetadataProvider.NAME)
 			.ifPresent(editor -> attributeEditors.add(editor));
@@ -128,6 +139,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 		for (FixedAttributeEditor editor: attributeEditors)
 		{
 			FormLayout layout = new FormLayout();
+			layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 			editor.placeOnLayout(layout);
 			wrapper.add(layout);
 		}
@@ -172,10 +184,11 @@ class EntityCreationDialog extends IdentityCreationDialog
 	private Component buildCredentialsTab()
 	{
 		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
+		main.setPadding(false);
 		FormLayout formLayout = new FormLayout();
+		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		credentialRequirement = new ComboBox<>(msg.getMessage("EntityCreation.credReq"));
+		credentialRequirement = new ComboBox<>();
 		Collection<CredentialRequirements> credReqs = null;
 		try
 		{
@@ -183,11 +196,12 @@ class EntityCreationDialog extends IdentityCreationDialog
 		} catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			return main;
 		}
 		credentialRequirement.setItems(credReqs.stream().map(DescribedObjectROImpl::getName).toList());
 		credentialRequirement.setValue(credReqs.iterator().next().getName());
 
-		formLayout.add(credentialRequirement);
+		formLayout.addFormItem(credentialRequirement, msg.getMessage("EntityCreation.credReq"));
 		main.add(formLayout);
 		
 		newEntityCredentialsPanel = credentialsPanelFactory.getInstance(credentialRequirement.getValue());
@@ -204,19 +218,21 @@ class EntityCreationDialog extends IdentityCreationDialog
 	private Component buildAdvancedTab()
 	{
 		FormLayout layout = new FormLayout();
+		layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		addToGroup = new Checkbox(msg.getMessage("EntityCreation.addToGroup", initialGroup));
 		addToGroup.setValue(true);
-		if (initialGroup.isTopLevel())
-			addToGroup.setVisible(false);
 
 		entityState = new ComboBox<>();
-		entityState.setLabel(msg.getMessage("EntityCreation.initialState"));
 		entityState.setItems(EntityState.values());
-		entityState.setItemLabelGenerator(item -> "EntityState." + item);
+		entityState.setItemLabelGenerator(item -> msg.getMessage("EntityState." + item));
 		entityState.setValue(EntityState.valid);
+		entityState.setWidth(TEXT_FIELD_MEDIUM.value());
 
-		layout.add(addToGroup, entityState);
+		FormLayout.FormItem formItem = layout.addFormItem(addToGroup, "");
+		if (initialGroup.isTopLevel())
+			formItem.setVisible(false);
+		layout.addFormItem(entityState, msg.getMessage("EntityCreation.initialState"));
 		return layout;
 	}
 	
@@ -238,7 +254,8 @@ class EntityCreationDialog extends IdentityCreationDialog
 		} catch (FormValidationRTException e)
 		{
 			tabs.setSelectedIndex(1);
-			notificationPresenter.showError(msg.getMessage("EntityCreation.invalidCredential"), "");
+			notificationPresenter.showError(msg.getMessage("EntityCreation.invalidCredential"), e.getCause().getMessage());
+			open();
 			return;
 		}
 		
@@ -293,11 +310,12 @@ class EntityCreationDialog extends IdentityCreationDialog
 		Identity created;
 		try
 		{
-			created = identitiesMan.addEntity(toAdd, (String)credentialRequirement.getValue(), 
+			created = identitiesMan.addEntity(toAdd, credentialRequirement.getValue(),
 					entityState.getValue(), attributes);
 		} catch (Exception e)
 		{
 			notificationPresenter.showError(msg.getMessage("EntityCreation.entityCreateError"), e.getMessage());
+			open();
 			return;
 		}
 		
