@@ -285,6 +285,11 @@ vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
     box-shadow: unset;
 }
 
+vaadin-button.u-text-left::part(label) {
+    padding-right: 80%;
+    text-overflow: clip;
+}
+
 /*
     Styling based on vaadin and unity classes
 */
