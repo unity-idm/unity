@@ -5,6 +5,15 @@
 
 package io.imunity.console.views.signup_and_enquiry.forms;
 
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -17,8 +26,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.console.views.signup_and_enquiry.formfill.AdminEnquiryFormLauncher;
+import io.imunity.console.views.signup_and_enquiry.formfill.AdminRegistrationFormLauncher;
+import io.imunity.console.views.signup_and_enquiry.invitations.CommonViewParam;
 import io.imunity.console.views.signup_and_enquiry.invitations.NewInvitationView;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -28,13 +41,12 @@ import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
-
-import java.util.*;
-
-import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.signupAndEnquiry.forms", parent = "WebConsoleMenu.signupAndEnquiry")
@@ -45,17 +57,22 @@ public class FormsView extends ConsoleViewComponent
 	private final RegistrationFormsController registrationFormsController;
 	private final EnquiryFormsController enquiryFormsController;
 	private final NotificationPresenter notificationPresenter;
+	private final AdminEnquiryFormLauncher adminEnquiryFormLauncher;
+	private final AdminRegistrationFormLauncher adminRegistrationFormLauncher;
 	private GridWithActionColumn<RegistrationForm> registrationFormsList;
 	private GridWithActionColumn<EnquiryForm> enquiryFormsList;
 
 
 	FormsView(MessageSource msg, RegistrationFormsController registrationFormsController,
-			EnquiryFormsController enquiryFormsController, NotificationPresenter notificationPresenter)
+			EnquiryFormsController enquiryFormsController, NotificationPresenter notificationPresenter, 
+			AdminEnquiryFormLauncher adminEnquiryFormLauncher, AdminRegistrationFormLauncher adminRegistrationFormLauncher)
 	{
 		this.msg = msg;
 		this.registrationFormsController = registrationFormsController;
 		this.enquiryFormsController = enquiryFormsController;
 		this.notificationPresenter = notificationPresenter;
+		this.adminEnquiryFormLauncher = adminEnquiryFormLauncher;
+		this.adminRegistrationFormLauncher = adminRegistrationFormLauncher;
 		initRegistrationGridUI();
 		initEnquiryGridUI();
 	}
@@ -151,9 +168,21 @@ public class FormsView extends ConsoleViewComponent
 				.withIcon(VaadinIcon.ENVELOPE_OPEN)
 				.withDisabledPredicate(form -> !(form.getRegistrationCode() == null
 						&& form.isPubliclyAvailable()))
-				.withHandler(items -> UI.getCurrent().navigate(NewInvitationView.class, items.iterator().next().getName()))
+				.withHandler(items -> UI.getCurrent()
+						.navigate(NewInvitationView.class,
+								new QueryParameters(Map.of(CommonViewParam.name.name(), List.of(items.iterator()
+										.next()
+										.getName()), CommonViewParam.type.name(),
+										List.of(InvitationType.REGISTRATION.toString())))))
 				.build();
 
+		SingleActionHandler<RegistrationForm> createRequest = SingleActionHandler
+				.builder(RegistrationForm.class)
+				.withCaption(msg.getMessage("RegistrationFormsComponent.createRequest"))
+				.withIcon(VaadinIcon.FILE_ADD)
+				.withHandler(items -> createRequest(items.iterator().next())).build();
+		
+		
 		SingleActionHandler<RegistrationForm> clone = SingleActionHandler.builder(RegistrationForm.class)
 				.withCaption(msg.getMessage("RegistrationFormsComponent.clone"))
 				.withIcon(VaadinIcon.COPY)
@@ -164,17 +193,35 @@ public class FormsView extends ConsoleViewComponent
 				.builder4Delete(msg::getMessage, RegistrationForm.class)
 				.withHandler(r -> tryRemove(r.iterator().next())).build();
 
-		return Arrays.asList(invite, clone, remove);
+		return Arrays.asList(invite, createRequest, clone, remove);
 	}
+	
+	private void createRequest(RegistrationForm form)
+	{
+		adminRegistrationFormLauncher.showRegistrationDialog(form,
+				RemotelyAuthenticatedPrincipal.getLocalContext(), TriggeringMode.manualAdmin,
+				this::handleError);
+	}
+
 
 	private List<SingleActionHandler<EnquiryForm>> getEnquiryHamburgerActionsHandlers()
 	{
 		SingleActionHandler<EnquiryForm> invite = SingleActionHandler.builder(EnquiryForm.class)
 				.withCaption(msg.getMessage("EnquiryFormsComponent.invite"))
 				.withIcon(VaadinIcon.ENVELOPE_OPEN)
-				.withHandler(items -> UI.getCurrent().navigate(NewInvitationView.class, items.iterator().next().getName()))
+				.withHandler(items -> UI.getCurrent()
+						.navigate(NewInvitationView.class,
+								new QueryParameters(Map.of(CommonViewParam.name.name(), List.of(items.iterator()
+										.next()
+										.getName()), CommonViewParam.type.name(),
+										List.of(InvitationType.ENQUIRY.toString())))))
 				.build();
 
+		SingleActionHandler<EnquiryForm> createRequest = SingleActionHandler.builder(EnquiryForm.class)
+				.withCaption(msg.getMessage("EnquiryFormsComponent.createResponse"))
+				.withIcon(VaadinIcon.FILE_ADD)
+				.withHandler(items -> createResponse(items.iterator().next())).build();
+		
 		SingleActionHandler<EnquiryForm> clone = SingleActionHandler.builder(EnquiryForm.class)
 				.withCaption(msg.getMessage("EnquiryFormsComponent.clone"))
 				.withIcon(VaadinIcon.COPY)
@@ -185,9 +232,20 @@ public class FormsView extends ConsoleViewComponent
 				.builder4Delete(msg::getMessage, EnquiryForm.class)
 				.withHandler(r -> tryRemove(r.iterator().next())).build();
 
-		return Arrays.asList(invite, clone, remove);
+		return Arrays.asList(invite, createRequest, clone, remove);
 	}
 
+	private void createResponse(EnquiryForm form)
+	{
+		adminEnquiryFormLauncher.showDialog(form, RemotelyAuthenticatedPrincipal.getLocalContext(),
+				this::handleError);
+	}
+
+	private void handleError(Exception error)
+	{
+		notificationPresenter.showError(msg.getMessage("EnquiryFormsComponent.errorShowFormEdit"), error.getMessage());
+	}
+	
 	private Collection<RegistrationForm> getRegistrationForms()
 	{
 		try
