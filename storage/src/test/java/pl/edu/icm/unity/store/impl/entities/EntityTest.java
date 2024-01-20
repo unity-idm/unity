@@ -6,12 +6,13 @@ package pl.edu.icm.unity.store.impl.entities;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
@@ -137,6 +138,16 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 	@Test
 	public void insertedListIsReturned()
 	{
-		super.insertedListIsReturned();
+		tx.runInTransaction(() -> {
+			EntityInformation obj1 = getObject("name1");
+			EntityInformation obj2 = getObject("name2");
+			
+			dao.createList(Lists.newArrayList(obj1, obj2));
+
+			List<EntityInformation> ret = dao.getAll();
+
+			assertThat(ret).isNotNull();
+			assertThat(ret.size()).isEqualTo(2);
+		});
 	}
 }

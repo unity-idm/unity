@@ -18,7 +18,6 @@ import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.store.impl.StorageLimits;
-import pl.edu.icm.unity.store.rdbms.GenericDBBean;
 import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
@@ -70,7 +69,7 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 	}
 	
 	@Override
-	public List<Long> createList(List<Group> objs)
+	public void createList(List<Group> objs)
 	{
 		Set<String> parentsUsed = new HashSet<>();
 		for (Group grp: objs)
@@ -93,10 +92,6 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 			converted.add(toAdd);
 		}
 		mapper.createList(converted);
-		
-		return converted.stream()
-				.map(GenericDBBean::getId)
-				.collect(Collectors.toList());
 	}
 	
 	@Override

@@ -230,15 +230,13 @@ public abstract class AbstractBasicDAOTest<T>
 			T obj1 = getObject("name1");
 			T obj2 = getObject("name2");
 			BasicCRUDDAO<T> dao = getDAO();
-			List<Long> ids = dao.createList(Lists.newArrayList(obj1, obj2));
+			dao.createList(Lists.newArrayList(obj1, obj2));
 
 			List<T> ret = dao.getAll();
 
 			assertThat(ret).isNotNull();
 			assertThat(ret.size()).isEqualTo(2);
-			assertThat(ids.size()).isEqualTo(2);
-			assertThat(ids.get(0)).isNotNull();
-			assertThat(ids.get(1)).isNotNull();
+			assertThat(ret).contains(obj1, obj2);
 		});
 	}
 	

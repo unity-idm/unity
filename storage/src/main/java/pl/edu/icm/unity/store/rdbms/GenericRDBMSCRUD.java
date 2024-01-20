@@ -5,12 +5,10 @@
 package pl.edu.icm.unity.store.rdbms;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.store.ReferenceAwareDAO;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
@@ -65,10 +63,10 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 
 
 	@Override
-	public List<Long> createList(List<T> objs)
+	public void createList(List<T> objs)
 	{
 		if (objs.isEmpty())
-			return Collections.emptyList();
+			return;
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		List<DBT> converted = new ArrayList<>(objs.size());
 		for (T obj: objs)
@@ -78,10 +76,6 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 			converted.add(toAdd);
 		}
 		mapper.createList(converted);
-		
-		return converted.stream()
-				.map(GenericDBBean::getId)
-				.collect(Collectors.toList());
 	}
 	
 	@Override
