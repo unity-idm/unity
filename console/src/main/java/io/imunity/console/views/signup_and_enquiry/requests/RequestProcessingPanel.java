@@ -228,7 +228,7 @@ class RequestProcessingPanel extends VerticalLayout
 		} catch (EngineException e)
 		{
 			log.error("Request processing error", e);
-			notificationPresenter.showError("", msg.getMessage("RequestProcessingPanel.errorRequestProccess"));
+			notificationPresenter.showError(msg.getMessage("RequestProcessingPanel.errorRequestProccess"), e.getMessage());
 
 		}
 	}

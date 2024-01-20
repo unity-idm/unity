@@ -164,7 +164,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			actionColumn = null;
 		}
 		actionColumn = super.addComponentColumn(e -> getButtonComponent(Set.of(e))).setHeader(msg.apply("actions"))
-				.setTextAlign(ColumnTextAlign.END).setFlexGrow(1).setResizable(true);
+				.setTextAlign(ColumnTextAlign.END).setFlexGrow(1).setResizable(false);
 	}
 
 	public void addHamburgerActions(List<SingleActionHandler<T>> handlers)

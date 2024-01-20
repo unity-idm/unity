@@ -30,21 +30,33 @@ public class ListOfSelectableElements extends VerticalLayout
 	public enum DisableMode {NONE, WHEN_SELECTED, WHEN_DESELECTED};
 	protected DisableMode disableMode;
 	private List<Component> elements;
+	private List<Component> headers;
 	
 	public ListOfSelectableElements(Component firstHeader, Component secondHeader, DisableMode disableMode)
 	{
 		setWidthFull();
 		getStyle().set("gap", "0.4em");
 		setPadding(false);
-
+		headers = new ArrayList<>();
 		if (firstHeader != null)
-			add(wrapWithLayout(firstHeader));
+		{
+			addHeader(firstHeader);
+		}
 		if (secondHeader != null)
-			add(wrapWithLayout(secondHeader));
+		{
+			addHeader(secondHeader);
+		}
 
 		selects = new ArrayList<>();
 		elements = new ArrayList<>();
 		this.disableMode = disableMode;
+	}
+	
+	private void addHeader(Component headerC)
+	{
+		VerticalLayout header = wrapWithLayout(headerC);
+		add(header);
+		headers.add(header);
 	}
 	
 	public void addEntry(Component representation, boolean selected)
@@ -96,6 +108,12 @@ public class ListOfSelectableElements extends VerticalLayout
 	{
 		for (Checkbox cb : selects)
 			cb.setVisible(visible);
+	}
+	
+	public void setHeadersVisible(boolean visible)
+	{
+		for (Component c : headers)
+			c.setVisible(visible);
 	}
 	
 	private class ValueDisableHandler implements HasValue.ValueChangeListener<HasValue.ValueChangeEvent<Boolean>>

@@ -13,8 +13,11 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.SortDirection;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.SearchField;
@@ -73,7 +76,7 @@ class RequestsGrid extends VerticalLayout
 				.setHeader(msg.getMessage("RegistrationRequest.status"))
 				.setResizable(true)
 				.setSortable(true);
-		requestsGrid.addColumn(r -> r.getSubmitTime())
+		Column<RequestEntry> submitTimeColumn = requestsGrid.addColumn(r -> r.getSubmitTime())
 				.setHeader(msg.getMessage("RegistrationRequest.submitTime"))
 				.setResizable(true)
 				.setSortable(true);
@@ -85,6 +88,7 @@ class RequestsGrid extends VerticalLayout
 
 		requestsGrid.setMultiSelect(true);
 		requestsGrid.setSizeFull();
+		requestsGrid.sort(List.of(new GridSortOrder<>(submitTimeColumn, SortDirection.DESCENDING)));
 		requestsGrid.addItemClickListener(e ->
 		{
 			requestsGrid.deselectAll();
@@ -102,7 +106,7 @@ class RequestsGrid extends VerticalLayout
 		invGridWithToolbar.setSizeFull();
 		add(invGridWithToolbar);
 		setSizeFull();
-		setMargin(false);
+		setPadding(true);
 		refresh();
 	}
 
@@ -114,8 +118,8 @@ class RequestsGrid extends VerticalLayout
 	void refresh()
 	{
 		Collection<RequestEntry> requests = getRequests();
-		requestsGrid.setItems(requests);
 		RequestEntry selected = getOnlyOneSelected();
+		requestsGrid.setItems(requests);
 		if (selected != null)
 		{
 			String requestId = selected.request.getRequestId();

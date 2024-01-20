@@ -38,6 +38,7 @@ import pl.edu.icm.unity.base.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.base.registration.BaseForm;
 import pl.edu.icm.unity.base.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.base.registration.GroupSelection;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.base.registration.Selection;
 import pl.edu.icm.unity.base.registration.UserRequestState;
 import pl.edu.icm.unity.base.utils.Log;
@@ -276,7 +277,7 @@ class RequestReviewPanelBase extends VerticalLayout
 		}
 		optinsP.setVisible(!optins.getElements()
 				.isEmpty());
-
+		
 		policyAgreements.clearContents();
 		for (int i = 0; i < request.getPolicyAgreements()
 				.size(); i++)
@@ -320,6 +321,9 @@ class RequestReviewPanelBase extends VerticalLayout
 			rep.setMargin(false);
 			attributes.addEntry(rep, false);
 		}
+		attributes.setCheckBoxesVisible(requestState.getStatus() == RegistrationRequestStatus.pending);
+		attributes.setHeadersVisible(requestState.getStatus() == RegistrationRequestStatus.pending);
+
 		attributesPanel.setVisible(!attributes.isEmpty());
 	}
 
@@ -330,6 +334,8 @@ class RequestReviewPanelBase extends VerticalLayout
 		{
 			groups.addEntry(c, false);
 		}
+		groups.setCheckBoxesVisible(requestState.getStatus() == RegistrationRequestStatus.pending);
+		groups.setHeadersVisible(requestState.getStatus() == RegistrationRequestStatus.pending);
 		groupsPanel.setVisible(!groups.isEmpty());
 	}
 
@@ -367,15 +373,24 @@ class RequestReviewPanelBase extends VerticalLayout
 			wrapper.setMargin(false);
 			if (selection.getExternalIdp() != null)
 				wrapper.add(new NativeLabel("[from: " + selection.getExternalIdp() + "]"));
-			wrapper.add(getSingleGroupEntryComponent(GroupDiffUtils.getSingleGroupDiff(
+			wrapper.add(requestState.getStatus() == RegistrationRequestStatus.pending ? getSingleGroupEntryComponent(GroupDiffUtils.getSingleGroupDiff(
 					groupMan.getGroupsByWildcard("/**"), allUserGroups, selection, form.getGroupParams()
 							.get(i)),
-					showRemoved));
+					showRemoved) : getSingleGroupEntryComponent(selection));
 			groupEntries.add(wrapper);
 		}
 		return groupEntries;
 	}
 
+	private Component getSingleGroupEntryComponent(GroupSelection selection)
+	{
+		HorizontalLayout main = new HorizontalLayout();
+		main.setSpacing(true);
+		main.setMargin(false);
+		addGroupLabel(main, selection.getSelectedGroups().stream().collect(Collectors.toSet()), null);
+		return main;
+	}
+	
 	private Component getSingleGroupEntryComponent(RequestedGroupDiff diff, boolean showRemoved)
 	{
 		HorizontalLayout main = new HorizontalLayout();
@@ -403,7 +418,8 @@ class RequestReviewPanelBase extends VerticalLayout
 				.map(g -> getGroupDisplayedName(groupMan, g))
 				.collect(Collectors.toList())
 				.toString());
-		l.addClassName(style);
+		if (style != null)
+			l.addClassName(style);
 		layout.add(l);
 	}
 

@@ -138,6 +138,6 @@ class EnquiryReviewPanel extends RequestReviewPanelBase
 		}
 
 		return super.getGroupEntries(requestState, form, allUserGroups, form.getType()
-				.equals(EnquiryType.STICKY));
-	}
+						.equals(EnquiryType.STICKY));
+	}	
 }

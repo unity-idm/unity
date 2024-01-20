@@ -84,7 +84,7 @@ public class RequestsView extends ConsoleViewComponent
 				requestPanel.setVisible(false);
 			}
 		});
-		requestPanel.setMaxHeight(40, Unit.EM);
+		requestPanel.setMaxHeight(50, Unit.EM);
 
 		SplitLayout splitLayout = new SplitLayout(Orientation.VERTICAL);
 		splitLayout.addToPrimary(requestGrid);
