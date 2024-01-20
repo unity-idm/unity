@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.store.rdbms;
 
 import static pl.edu.icm.unity.store.StorageConfiguration.ALTERNATIVE_DB_CONFIG;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -30,7 +30,7 @@ public class DataSourceConfigurationTest
 	@BeforeEach
 	public void conditionalStart()
 	{
-		assertThat(System.getProperty(ALTERNATIVE_DB_CONFIG)).isNull();
+		assumeTrue(System.getProperty(ALTERNATIVE_DB_CONFIG) == null);
 	}
 	
 	@Test
