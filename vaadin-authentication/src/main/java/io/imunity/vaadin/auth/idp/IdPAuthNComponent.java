@@ -30,6 +30,7 @@ public class IdPAuthNComponent extends VerticalLayout
 		if (logo != null)
 			providerB.setIcon(logo);
 		providerB.setTooltipText(name);
+		providerB.addClassName("u-text-left");
 		add(providerB);
 		setMargin(false);
 		setPadding(false);

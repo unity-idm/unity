@@ -8,6 +8,7 @@ package io.imunity.console.views.directory_browser.group_details;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.html.Span;
@@ -52,6 +53,7 @@ class AttributeStatementsComponent extends VerticalLayout
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		attrStatementsGrid = new GridWithActionColumn<>(msg::getMessage, Collections.emptyList());
+		attrStatementsGrid.addThemeVariants(GridVariant.LUMO_COMPACT);
 		attrStatementsGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
 		attrStatementsGrid.addColumn(attrStatementWithId -> msg.getMessage("AttributeStatements.nameValue", attrStatementWithId.toShortString()))
 				.setHeader(msg.getMessage("AttributeStatements.nameCaption"))
@@ -91,7 +93,7 @@ class AttributeStatementsComponent extends VerticalLayout
 
 		Toolbar<AttrStatementWithId> toolbar = new Toolbar<>();
 		toolbar.setWidth(100, Unit.PERCENTAGE);
-		toolbar.addHamburger(hamburgerMenu, Alignment.END);
+		toolbar.addCompactHamburger(hamburgerMenu, Alignment.END);
 		ComponentWithToolbar attrStatementsGridWithToolbar = new ComponentWithToolbar(attrStatementsGrid, toolbar);
 		attrStatementsGridWithToolbar.setSizeFull();
 		attrStatementsGridWithToolbar.setClassName(SMALL_GAP.getName());

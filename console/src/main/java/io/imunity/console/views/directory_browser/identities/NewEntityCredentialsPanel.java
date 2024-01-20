@@ -102,11 +102,14 @@ class NewEntityCredentialsPanel extends VerticalLayout
 			if (last > 0 && last < credSize)
 				add(new Hr());
 			add(panel);
+			panel.setPadding(false);
+			panel.setSpacing(false);
 			last--;
 		}
 		
 		add(new Hr());
-		setMargin(false);
+		setPadding(false);
+		setSpacing(false);
 		setSizeFull();
 	}
 

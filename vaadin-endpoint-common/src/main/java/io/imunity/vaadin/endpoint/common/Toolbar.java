@@ -102,10 +102,10 @@ public class Toolbar<T> extends HorizontalLayout
 		setAlignSelf(FlexComponent.Alignment.START, menuBar.getTarget());
 	}
 
-	public void addHamburger(ActionMenuWithHandlerSupport<?> menuBar, FlexComponent.Alignment alignment)
+	public void addCompactHamburger(ActionMenuWithHandlerSupport<?> menuBar, FlexComponent.Alignment alignment)
 	{
 		add(menuBar.getTarget());
-		menuBar.getTarget().getElement().getStyle().set("margin-left", "1.3em");
+		menuBar.getTarget().getElement().getStyle().set("margin-left", "0.75em");
 		setAlignSelf(alignment, menuBar.getTarget());
 	}
 	

@@ -149,7 +149,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		this.filters = new ArrayList<>();
 		this.bus = WebSession.getCurrent().getEventBus();
 
-		addThemeVariants(GridVariant.LUMO_NO_BORDER);
+		addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_COMPACT);
 		addClassName("u-directory-browser-members-grid");
 		createBaseColumns();
 		setSelectionMode(SelectionMode.MULTI);

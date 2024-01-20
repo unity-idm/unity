@@ -42,10 +42,12 @@ public class DirectoryBrowserView extends ConsoleViewComponent
 	{
 		SplitLayout leftLayout = new SplitLayout(groupBrowserPanel, groupDetailsPanel);
 		leftLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
+		leftLayout.setSplitterPosition(60);
 		SplitLayout rightLayout = new SplitLayout(identitiesPanel, attributesPanel);
 		rightLayout.setOrientation(SplitLayout.Orientation.VERTICAL);
+		rightLayout.setSplitterPosition(60);
 		SplitLayout mainLayout = new SplitLayout(leftLayout, rightLayout);
-		mainLayout.setSplitterPosition(38);
+		mainLayout.setSplitterPosition(27);
 		mainLayout.setSizeFull();
 
 		getContent().add(mainLayout);

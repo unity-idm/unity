@@ -106,7 +106,7 @@ class IdentityCreationDialog extends ConfirmDialog
 	}
 
 
-	protected VerticalLayout getContents()
+	private VerticalLayout getContents()
 	{
 		FormLayout typeSelectionLayout = new FormLayout();
 		identityTypeSelector = new ComboBox<>();

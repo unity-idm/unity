@@ -93,7 +93,7 @@ public class IdentitiesPanel extends VerticalLayout
 
 		toolbar = new Toolbar<>();
 		toolbar.setWidthFull();
-		toolbar.addHamburger(getHamburgerMenu(removeFromGroupHandler, addToGroupHandler,
+		toolbar.addCompactHamburger(getHamburgerMenu(removeFromGroupHandler, addToGroupHandler,
 				entityCreationDialogHandler, deleteEntityHandler, confirmationResendHandler,
 				confirmHandler, entityMergeHandler), Alignment.END);
 		toolbar.addSearch(getSearchField());
@@ -201,7 +201,7 @@ public class IdentitiesPanel extends VerticalLayout
 		SingleActionHandler<IdentityEntry> entityCreationAction = entityCreationDialogHandler
 				.getAction(identitiesTable::getGroup, added -> refresh());
 		hamburgerMenu.addActionHandler(entityCreationAction);
-		hamburgerMenu.addItem(new Hr()).addClassName("hr");
+		hamburgerMenu.add(new Hr());
 
 		SingleActionHandler<IdentityEntry> addToGroupAction = addToGroupHandler.getAction();
 		hamburgerMenu.addActionHandler(addToGroupAction);
@@ -224,7 +224,7 @@ public class IdentitiesPanel extends VerticalLayout
 				.getAction(identitiesTable::removeEntity);
 		hamburgerMenu.addActionHandler(deleteEntityAction);
 
-		hamburgerMenu.addItem(new Hr()).addClassName("hr");
+		hamburgerMenu.add(new Hr());
 
 		hamburgerMenu.addItem(new MenuButton(msg.getMessage("Identities.addFilter"), VaadinIcon.FUNNEL), c -> {
 			List<String> columnIds = identitiesTable.getColumnIds();
@@ -246,6 +246,7 @@ public class IdentitiesPanel extends VerticalLayout
 											.open();
 				});
 
+		hamburgerMenu.add(new Hr());
 		MenuItem showTargeted = hamburgerMenu.addItem(msg.getMessage("Identities.showTargeted"), c -> {
 			try
 			{

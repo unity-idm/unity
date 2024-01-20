@@ -50,11 +50,6 @@ html {
   --unity-error-condition-color: LightCoral;
   --unity-false-condition-color: LightGray;
 
-  --unity-directory-browser-groups-grid-font-size: unset;
-  --unity-directory-browser-groups-grid-row-height: 32px;
-  --unity-directory-browser-members-grid-font-size: unset;
-  --unity-directory-browser-members-grid-row-height: unset;
-
   --unity-base-margin: 1em;
   --unity-small-margin: calc(0.5 * var(--unity-base-margin));
   --unity-medium-margin: calc(1.5 * var(--unity-base-margin));
@@ -184,12 +179,12 @@ hr {
     margin-bottom: var(--unity-base-padding);
 }
 
-vaadin-context-menu-item > hr, vaadin-context-menu-list-box > hr {
-    margin: 0;
+vaadin-context-menu-item {
+    color: var(--lumo-primary-text-color);
 }
 
-vaadin-context-menu-item.hr, vaadin-context-menu-list-box.hr {
-    min-height: 0;
+vaadin-context-menu-item > hr, vaadin-context-menu-list-box > hr {
+    margin: 0.2em;
 }
 
 vaadin-grid-cell-content > vaadin-text-field[invalid] {
@@ -209,20 +204,12 @@ vaadin-custom-field[invalid] > vaadin-horizontal-layout > vaadin-text-area, vaad
 }
 
 vaadin-grid-cell-content > vaadin-checkbox {
-    margin-right: -1em;
+    margin-right: -0.5em;
 }
 
 /*
     Styling based on part selector
 */
-
-vaadin-grid.u-directory-browser-groups-grid::part(row) {
-    max-height: var(--unity-directory-browser-groups-grid-row-height);
-}
-
-vaadin-grid.u-directory-browser-members-grid::part(row) {
-    max-height: var(--unity-directory-browser-members-grid-row-height);
-}
 
 vaadin-combo-box.project-combo-box::part(input-field) {
     background-color: var(--unity-font-primary-color);
@@ -296,6 +283,11 @@ vcf-tooltip[theme=light]::part(container) {
 
 vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
     box-shadow: unset;
+}
+
+vaadin-button.u-text-left::part(label) {
+    padding-right: 80%;
+    text-overflow: clip;
 }
 
 /*
@@ -418,14 +410,6 @@ vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
     height: var(--lumo-icon-size-l);
 }
 
-.u-directory-browser-groups-grid {
-    font-size: var(--unity-directory-browser-groups-grid-font-size);
-}
-
-.u-directory-browser-members-grid {
-    font-size: var(--unity-directory-browser-members-grid-font-size);
-}
-
 .u-details-icon {
     color: unset;
     cursor: pointer;
@@ -439,7 +423,8 @@ vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
     background-color: var(--unity-grid-error-row-color);
 }
 
-.u-badge-warning {    background-color: var(--unity-warning-badge-color) !important;
+.u-badge-warning {
+    background-color: var(--unity-warning-badge-color) !important;
 }
 
 .u-consent-screen {

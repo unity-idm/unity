@@ -11,6 +11,7 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -136,6 +137,7 @@ public class AttributesGrid extends VerticalLayout
 		attributesGrid.sort(GridSortOrder.asc(nameColumn).build());
 
 		attributesGrid.addHamburgerActions(getRowActionsHandlers());
+		attributesGrid.addThemeVariants(GridVariant.LUMO_COMPACT);
 		attributesGrid.setActionColumnHeader(getActions(columnToggleMenu));
 
 		attributesGrid.setMultiSelect(true);
@@ -148,7 +150,7 @@ public class AttributesGrid extends VerticalLayout
 
 		Toolbar<AttributeExt> toolbar = new Toolbar<>();
 		toolbar.setWidthFull();
-		toolbar.addHamburger(hamburgerMenu, Alignment.END);
+		toolbar.addCompactHamburger(hamburgerMenu, Alignment.END);
 		Button button = new Button(msg.getMessage("add"), VaadinIcon.PLUS_CIRCLE_O.create());
 		button.addClickListener(e -> showAddDialog());
 		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
