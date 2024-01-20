@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,6 +121,12 @@ public abstract class SecuredDBIntegrationTestBase
 		insecureServerMan.resetDatabase();
 		clearCapacityCache();
 		clearAttributeTypeCache();
+	}
+	
+	@AfterEach
+	public void clearAfter() throws Exception
+	{
+		insecureServerMan.resetDatabase();
 	}
 	
 	private void clearAttributeTypeCache()
