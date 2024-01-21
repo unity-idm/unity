@@ -19,6 +19,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
+import io.imunity.console.views.CommonViewParam;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.signup_and_enquiry.invitations.editor.InvitationEditor;
 import io.imunity.vaadin.elements.BreadCrumbParameter;

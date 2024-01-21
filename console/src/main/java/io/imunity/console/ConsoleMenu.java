@@ -10,8 +10,6 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import io.imunity.console.views.ServicesEditView;
-import io.imunity.console.views.ServicesView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsEditView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsView;
 import io.imunity.console.views.authentication.credentials.CredentialsEditView;
@@ -36,10 +34,16 @@ import io.imunity.console.views.directory_setup.identity_types.IdentityTypesView
 import io.imunity.console.views.identity_provider.released_profile.EditOutputTranslationView;
 import io.imunity.console.views.identity_provider.released_profile.NewOutputTranslationView;
 import io.imunity.console.views.identity_provider.released_profile.ReleasedDataProfilesView;
+import io.imunity.console.views.identity_provider.released_profile.endpoints.EditIdpServiceView;
+import io.imunity.console.views.identity_provider.released_profile.endpoints.IdpServicesView;
+import io.imunity.console.views.identity_provider.released_profile.endpoints.NewIdpServiceView;
 import io.imunity.console.views.maintenance.AboutView;
 import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;
 import io.imunity.console.views.maintenance.idp_usage_statistics.IdPUsageStatisticsView;
+import io.imunity.console.views.services.EditServiceView;
+import io.imunity.console.views.services.NewServiceView;
+import io.imunity.console.views.services.ServicesView;
 import io.imunity.console.views.settings.message_templates.MessageTemplateEditView;
 import io.imunity.console.views.settings.message_templates.MessageTemplatesView;
 import io.imunity.console.views.settings.pki.PKIEditView;
@@ -93,6 +97,11 @@ public class ConsoleMenu extends UnityAppLayout
 								.icon(VaadinIcon.USER_CHECK)
 								.build(),			
 						MenuComponent.builder(
+								MenuComponent.builder(IdpServicesView.class)
+								.tabName(msg.getMessage("WebConsoleMenu.identityProvider.endpoints"))
+								.icon(VaadinIcon.GLOBE)
+								.subViews(NewIdpServiceView.class, EditIdpServiceView.class)
+								.build(),
 								MenuComponent.builder(ReleasedDataProfilesView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.identityProvider.releasedProfiles"))
 										.icon(VaadinIcon.UPLOAD)
@@ -134,7 +143,7 @@ public class ConsoleMenu extends UnityAppLayout
 						MenuComponent.builder(ServicesView.class)
 								.tabName(msg.getMessage("WebConsoleMenu.services"))
 								.icon(VaadinIcon.SERVER)
-								.subViews(ServicesEditView.class)
+								.subViews(NewServiceView.class, EditServiceView.class)
 								.build(),
 						MenuComponent.builder(
 								MenuComponent.builder(AttributeTypesView.class)

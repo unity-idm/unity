@@ -28,10 +28,10 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
 import io.imunity.console.ConsoleMenu;
+import io.imunity.console.views.CommonViewParam;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.signup_and_enquiry.formfill.AdminEnquiryFormLauncher;
 import io.imunity.console.views.signup_and_enquiry.formfill.AdminRegistrationFormLauncher;
-import io.imunity.console.views.signup_and_enquiry.invitations.CommonViewParam;
 import io.imunity.console.views.signup_and_enquiry.invitations.NewInvitationView;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;

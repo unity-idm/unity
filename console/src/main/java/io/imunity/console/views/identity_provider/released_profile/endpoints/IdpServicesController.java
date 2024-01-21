@@ -3,11 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.idprovider.endpoints;
+package io.imunity.console.views.identity_provider.released_profile.endpoints;
 
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.services.base.ServiceControllerBase;
+import io.imunity.console.views.services.base.ServiceControllerBase;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceControllersRegistry;
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.console.services.idp.IdpServiceControllersRegistry
  * @author P.Piernik
  *
  */
-@Component("IdpServicesControllerV8")
+@Component
 class IdpServicesController extends ServiceControllerBase
 {
 	IdpServicesController(MessageSource msg, EndpointManagement endpointMan,

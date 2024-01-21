@@ -3,13 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.idprovider.endpoints;
+package io.imunity.console.views.identity_provider.released_profile.endpoints;
 
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.spi.services.IdpServiceAdditionalAction;
+import io.imunity.console.views.identity_provider.released_profile.endpoints.spi.IdpServiceAdditionalAction;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
 /**
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
  * @author P.Piernik
  *
  */
-@Component("IdpServiceAdditionalActionsRegistryV8")
+@Component
 public class IdpServiceAdditionalActionsRegistry extends TypesRegistryBase<IdpServiceAdditionalAction>
 {
 	public IdpServiceAdditionalActionsRegistry(List<? extends IdpServiceAdditionalAction> typeElements)

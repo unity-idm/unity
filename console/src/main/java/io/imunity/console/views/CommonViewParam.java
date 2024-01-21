@@ -3,9 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.signup_and_enquiry.invitations;
+package io.imunity.console.views;
 
 public enum CommonViewParam
 {
-	name, type
+	name, type, tab
 }
