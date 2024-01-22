@@ -20,7 +20,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import io.imunity.vaadin.auth.binding.NameValuePairBinding;
 import io.imunity.vaadin.auth.binding.ToggleWithDefault;

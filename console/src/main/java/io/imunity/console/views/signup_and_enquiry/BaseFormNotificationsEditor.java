@@ -6,7 +6,7 @@ package io.imunity.console.views.signup_and_enquiry;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import io.imunity.console.views.directory_browser.group_details.GroupComboBox;
-import io.imunity.console_utils.tprofile.LayoutEmbeddable;
+import io.imunity.console.tprofile.LayoutEmbeddable;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;

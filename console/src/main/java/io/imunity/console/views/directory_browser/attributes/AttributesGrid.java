@@ -49,7 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static io.imunity.console_utils.tprofile.Constants.FORM_PROFILE;
+import static io.imunity.console.tprofile.Constants.FORM_PROFILE;
 import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 import static io.imunity.vaadin.elements.CssClassNames.*;
 import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;

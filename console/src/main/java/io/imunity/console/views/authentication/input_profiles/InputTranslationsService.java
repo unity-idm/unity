@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.flow.component.dialog.Dialog;
 
-import io.imunity.console_utils.tprofile.ActionParameterComponentProvider;
+import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.console.views.authentication.input_profiles.wizard.ProfileWizardProvider;
 import io.imunity.console.views.translation_profiles.TranslationsServiceBase;
 import io.imunity.vaadin.elements.NotificationPresenter;

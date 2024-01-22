@@ -5,8 +5,8 @@
 
 package io.imunity.console.views.directory_setup.automation;
 
-import io.imunity.console_utils.tprofile.ActionEditor;
-import io.imunity.console_utils.tprofile.ActionParameterComponentProvider;
+import io.imunity.console.tprofile.ActionEditor;
+import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.bulkops.ScheduledProcessingRule;

@@ -7,8 +7,8 @@ package io.imunity.console.views.translation_profiles;
 
 import com.vaadin.server.StreamResource;
 import io.imunity.console.components.TooltipFactory;
-import io.imunity.console_utils.tprofile.ActionParameterComponentProvider;
-import io.imunity.console_utils.tprofile.TranslationProfileEditor;
+import io.imunity.console.tprofile.ActionParameterComponentProvider;
+import io.imunity.console.tprofile.TranslationProfileEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.simplefiledownloader.SimpleFileDownloader;

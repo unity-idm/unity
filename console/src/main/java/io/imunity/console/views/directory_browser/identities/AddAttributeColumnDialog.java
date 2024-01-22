@@ -9,7 +9,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
-import io.imunity.console_utils.tprofile.AttributeSelectionComboBox;
+import io.imunity.console.tprofile.AttributeSelectionComboBox;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;

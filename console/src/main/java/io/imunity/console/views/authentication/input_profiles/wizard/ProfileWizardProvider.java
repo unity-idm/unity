@@ -12,7 +12,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.console.views.sandbox.SandboxView;
-import io.imunity.console_utils.tprofile.TranslationProfileEditor;
+import io.imunity.console.tprofile.TranslationProfileEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.wizard.Wizard;
 import io.imunity.vaadin.elements.wizard.WizardStepPreparer;

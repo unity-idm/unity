@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.ldap.client.console;
 
-import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
 import org.springframework.beans.factory.annotation.Autowired;

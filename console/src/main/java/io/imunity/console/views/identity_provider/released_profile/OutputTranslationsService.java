@@ -6,7 +6,7 @@
 package io.imunity.console.views.identity_provider.released_profile;
 
 import io.imunity.console.views.translation_profiles.TranslationsServiceBase;
-import io.imunity.console_utils.tprofile.ActionParameterComponentProvider;
+import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
