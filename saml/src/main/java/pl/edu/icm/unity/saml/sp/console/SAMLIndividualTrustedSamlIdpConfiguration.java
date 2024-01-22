@@ -135,7 +135,8 @@ public class SAMLIndividualTrustedSamlIdpConfiguration
 			getDisplayedName().toProperties(raw, prefix + SAMLSPProperties.IDP_NAME, msg);
 		}
 
-		if (getLogo() != null)
+		LocalOrRemoteResource resource = getLogo();
+		if (resource != null && (!resource.getSrc().isEmpty() || resource.getLocal() != null))
 		{
 			FileFieldUtils.saveInProperties(getLogo(), prefix + SAMLSPProperties.IDP_LOGO, raw, fileService,
 					FileStorageService.StandardOwner.AUTHENTICATOR.toString(), authName + "." + getId());

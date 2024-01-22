@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
@@ -86,6 +87,7 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		retrievalName.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(retrievalName).bind(configuration -> configuration.getRetrievalName().getLocalizedMap(),
 				(configuration, value) -> configuration.setRetrievalName(new I18nString(value)));
 		formLayout.addFormItem(retrievalName, msg.getMessage("PasswordAuthenticatorEditor.passwordName"));

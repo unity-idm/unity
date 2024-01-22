@@ -23,7 +23,6 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.console_utils.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
-import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.TooltipFactory;
@@ -203,13 +202,27 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				.bind(SAMLAuthenticatorConfiguration::isDefSignRequest, SAMLAuthenticatorConfiguration::setDefSignRequest);
 		header.addFormItem(defSignRequest, "");
 
-		MultiSelectComboBox<String> defaultRequestedNameFormat = new CustomValuesMultiSelectComboBox();
-		defaultRequestedNameFormat.setItems(STANDART_NAME_FORMATS);
+		ComboBox<String> defaultRequestedNameFormat = new ComboBox<>();
+		Set<String> items = new HashSet<>(STANDART_NAME_FORMATS);
+		defaultRequestedNameFormat.setItems(items);
 		defaultRequestedNameFormat.setPlaceholder(msg.getMessage("typeOrSelect"));
 		defaultRequestedNameFormat.setWidth(TEXT_FIELD_BIG.value());
+		defaultRequestedNameFormat.setAllowCustomValue(true);
+		defaultRequestedNameFormat.addCustomValueSetListener(event ->
+		{
+			items.add(event.getDetail());
+			defaultRequestedNameFormat.setItems(items);
+			defaultRequestedNameFormat.setValue(event.getDetail());
+		});
 		header.addFormItem(defaultRequestedNameFormat, msg.getMessage("SAMLAuthenticatorEditor.defaultRequestedNameFormat"));
 		configBinder.forField(defaultRequestedNameFormat)
-				.withConverter(List::copyOf, HashSet::new)
+				.withConverter(item ->
+				{
+					if(item == null)
+						return List.<String>of();
+					return List.of(item);
+				},
+					names -> names.stream().findFirst().orElse(null))
 				.bind(SAMLAuthenticatorConfiguration::getDefaultRequestedNameFormat, SAMLAuthenticatorConfiguration::setDefaultRequestedNameFormat);
 
 		Checkbox defAccountAssociation = new Checkbox(
@@ -270,6 +283,15 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		metadataPath.setEnabled(false);
 		metadataPublishing.addFormItem(metadataPath, msg.getMessage("SAMLAuthenticatorEditor.metadataPath"));
 
+		TextField urlMetadataPathField = new TextField();
+		urlMetadataPathField.setWidth(TEXT_FIELD_BIG.value());
+		urlMetadataPathField.setReadOnly(true);
+		metadataPublishing.addFormItem(urlMetadataPathField, msg.getMessage("SAMLAuthenticatorEditor.metadataUrl"));
+		metadataPath.addValueChangeListener(item -> urlMetadataPathField.setValue(
+				sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + item.getValue()));
+		configBinder.forField(urlMetadataPathField)
+				.bindReadOnly(item -> sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + item.getMetadataPath());
+
 		signMetadata = new Checkbox(msg.getMessage("SAMLAuthenticatorEditor.signMetadata"));
 		configBinder.forField(signMetadata)
 				.bind(SAMLAuthenticatorConfiguration::isSignMetadata, SAMLAuthenticatorConfiguration::setSignMetadata);
@@ -282,16 +304,14 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				.bind(SAMLAuthenticatorConfiguration::isAutoGenerateMetadata, SAMLAuthenticatorConfiguration::setAutoGenerateMetadata);
 		autoGenerateMetadata.setEnabled(false);
 		metadataPublishing.addFormItem(autoGenerateMetadata, "");
-
-		TextField urlMetadataPathField = new TextField();
-		urlMetadataPathField.setWidth(TEXT_FIELD_BIG.value());
-		urlMetadataPathField.setReadOnly(true);
-		FormLayout.FormItem url = metadataPublishing.addFormItem(urlMetadataPathField, "");
-		autoGenerateMetadata.addValueChangeListener(event -> url.setVisible(event.getValue()));
-		metadataPath.addValueChangeListener(item -> urlMetadataPathField.setValue(
-				sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + item.getValue()));
-		configBinder.forField(urlMetadataPathField)
-				.bindReadOnly(item -> sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + item.getMetadataPath());
+		autoGenerateMetadata.addValueChangeListener(event ->
+		{
+			if(event.getValue())
+				urlMetadataPathField.setValue(
+						sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + metadataPath.getValue());
+			else
+				urlMetadataPathField.setValue("");
+		});
 
 		FileField metadataSource = new FileField(msg, "text/xml", "metadata.xml",
 				serverConfig.getFileSizeLimit());

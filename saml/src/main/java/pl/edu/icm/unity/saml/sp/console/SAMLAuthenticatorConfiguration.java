@@ -247,7 +247,7 @@ public class SAMLAuthenticatorConfiguration
 
 			} catch (Exception e)
 			{
-				log.error("Can not load configured metadata from uri: " + metaUri);
+				log.error("Can not load configured metadata from uri: {}", metaUri, e);
 			}
 		} else
 		{

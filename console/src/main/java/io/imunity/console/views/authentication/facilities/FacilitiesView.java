@@ -7,7 +7,6 @@ package io.imunity.console.views.authentication.facilities;
 
 import com.google.common.collect.Sets;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -39,6 +38,7 @@ import java.util.Comparator;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM;
 import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM_ITEM;
 
@@ -105,12 +105,11 @@ public class FacilitiesView extends ConsoleViewComponent
 
 		H3 authenticatorHeader = new H3(msg.getMessage("AuthenticatorsComponent.caption"));
 		H3 authenticationFlowsHeader = new H3(msg.getMessage("AuthenticationFlowsComponent.caption"));
-
+		authenticationFlowsHeader.getStyle().set("margin-top", BASE_MARGIN.value());
 		VerticalLayout main = new VerticalLayout(
 				authenticatorHeader,
 				createAuthenticatorActionLayout(),
 				authenticatorsGrid,
-				new HtmlComponent("br"),
 				authenticationFlowsHeader,
 				createHeaderActionLayout(msg, AuthenticationFlowEditView.class),
 				flowsGrid);

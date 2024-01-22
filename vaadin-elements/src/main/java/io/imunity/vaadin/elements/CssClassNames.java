@@ -46,6 +46,7 @@ public enum CssClassNames
 	HIDDEN_COMBO_TOGGLE_BUTTON("u-combobox-hidden-toggle-button"),
 	SUCCESS("u-success"),
 	ERROR("u-error"),
+	EDIT_VIEW_ACTION_BUTTONS_LAYOUT("u-edit-view-action-buttons-layout"),
 	TABSHEET_FULL("u-tabsheet-full"),
 	SPACE_PRE("u-space-pre");
 	

@@ -45,12 +45,11 @@ import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_L
 
 class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private static final int LINK_FIELD_WIDTH = 50;
 
 	private final OAuthAccessTokenRepository tokenMan;
 	private final PKIManagement pkiMan;
 	private final InputTranslationProfileFieldFactory profileFieldFactory;
-	private final Set<String> validators;
+	private final Set<String> validatorNames;
 
 	private Binder<OAuthRPConfiguration> configBinder;
 
@@ -61,7 +60,7 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 		this.tokenMan = tokenMan;
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
-		validators = pkiMan.getValidatorNames();
+		validatorNames = pkiMan.getValidatorNames();
 	}
 
 	@Override
@@ -186,7 +185,7 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 		advanced.addFormItem(clientHostnameChecking, msg.getMessage("OAuthRPAuthenticatorEditor.clientHostnameChecking"));
 
 		ComboBox<String> clientTrustStore = new ComboBox<>();
-		clientTrustStore.setItems(validators);
+		clientTrustStore.setItems(validatorNames);
 
 		configBinder.forField(clientTrustStore)
 				.bind(OAuthRPConfiguration::getClientTrustStore, OAuthRPConfiguration::setClientTrustStore);

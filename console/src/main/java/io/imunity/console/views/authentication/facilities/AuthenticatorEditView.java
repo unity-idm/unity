@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -106,7 +107,9 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 
 		authenticatorTypeCombo.setItemLabelGenerator(authnTypesSorted::get);
 		authenticatorTypeCombo.setWidth(TEXT_FIELD_BIG.value());
-		authenticatorTypeCombo.setItems(authnTypesSorted.keySet());
+		authenticatorTypeCombo.setItems(authnTypesSorted.keySet().stream()
+				.filter(item -> editorsRegistry.containByName(item.getVerificationMethod()))
+				.toList());
 
 		TextField authenticatorTypeLabel = new TextField();
 		authenticatorTypeLabel.setWidth(TEXT_FIELD_MEDIUM.value());
@@ -256,12 +259,18 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 			return;
 		}
 
-		boolean success;
-		if(edit)
-			success = authenticatorsController.updateAuthenticator(authenticatorDefinition);
-		else
-			success = authenticatorsController.addAuthenticator(authenticatorDefinition);
-		if(success)
-			UI.getCurrent().navigate(FacilitiesView.class);
+		try
+		{
+			if(edit)
+				authenticatorsController.updateAuthenticator(authenticatorDefinition);
+			else
+				authenticatorsController.addAuthenticator(authenticatorDefinition);
+		}
+		catch (ControllerException ex)
+		{
+			notificationPresenter.showError(ex.getCaption(), ex.getCause().getMessage());
+			return;
+		}
+		UI.getCurrent().navigate(FacilitiesView.class);
 	}
 }

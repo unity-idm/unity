@@ -37,6 +37,7 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Properties;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
@@ -108,6 +109,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(),
 				msg.getLocale());
+		retrievalName.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(retrievalName)
 				.withConverter(I18nString::new, I18nString::getLocalizedMap)
 				.bind(PamConfiguration::getRetrievalName, PamConfiguration::setRetrievalName);
@@ -119,6 +121,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 		interactiveLoginSettings.addFormItem(accountAssociation, "");
 
 		ComboBox<String> registrationForm = new ComboBox<>();
+		registrationForm.setWidth(TEXT_FIELD_MEDIUM.value());
 		registrationForm.setItems(registrationForms);
 		configBinder.forField(registrationForm)
 				.bind(PamConfiguration::getRegistrationForm, PamConfiguration::setRegistrationForm);

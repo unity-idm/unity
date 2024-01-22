@@ -4,21 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.client.console;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
-import static pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.META;
-import static pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.P;
-
-import java.util.Optional;
-import java.util.Properties;
-
-import org.junit.jupiter.api.Test;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import org.junit.jupiter.api.Test;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -30,15 +20,22 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
-import pl.edu.icm.unity.oauth.client.console.v8.OAuthConfiguration;
-import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+
+import java.util.Optional;
+import java.util.Properties;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
+import static pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.META;
+import static pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.P;
 
 public class OAuthConfigurationTest
 {
 	private PKIManagement pkiMan = mock(PKIManagement.class);
 	private MessageSource msg = mock(MessageSource.class);
-	private ImageAccessService imageAccessService = mock(ImageAccessService.class);
+	private VaadinLogoImageLoader imageAccessService = mock(VaadinLogoImageLoader.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 	private static final TranslationProfile DEF_PROFILE = new TranslationProfile("Embedded", "", ProfileType.INPUT, 
 			Lists.newArrayList(new TranslationRule("true", 
@@ -97,7 +94,7 @@ public class OAuthConfigurationTest
 	public void serializationIsIdempotentForCompleteNonDefaultConfig() throws EngineException
 	{
 		when(pkiMan.getValidatorNames()).thenReturn(Sets.newHashSet("foo"));
-		when(imageAccessService.getEditableImageResourceFromUriWithUnknownTheme(eq("foo"))).thenReturn(Optional.of(new LocalOrRemoteResource(null, "foo")));
+		when(imageAccessService.loadImageFromUri(eq("foo"))).thenReturn(Optional.of(new LocalOrRemoteResource("foo", "")));
 		Properties sourceProviderCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(
 				"unity.oauth2.client.providers.1.", CustomProviderProperties.META)
 				.update("embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())

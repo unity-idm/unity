@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
+
 
 public class EditTranslationProfileSubView extends VerticalLayout implements UnitySubView
 {
@@ -72,7 +74,7 @@ public class EditTranslationProfileSubView extends VerticalLayout implements Uni
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
 		main.add(buttonsLayout);
 
 		add(main);

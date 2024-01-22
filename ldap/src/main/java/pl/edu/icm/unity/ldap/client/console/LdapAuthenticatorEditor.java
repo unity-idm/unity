@@ -54,6 +54,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
@@ -343,7 +344,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		serverConnectionLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		EditableGrid<ServerSpecification> serverConfig = new EditableGrid<>(msg::getMessage, ServerSpecification::new);
-		serverConfig.setWidth("35em");
+		serverConfig.setWidth(TEXT_FIELD_BIG.value());
 		serverConfig.setHeight("20em");
 		serverConnectionLayout.addFormItem(serverConfig, "");
 		serverConfig.addColumn(ServerSpecification::getServer, ServerSpecification::setServer, true)
@@ -446,7 +447,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				msg.getMessage("LdapAuthenticatorEditor.memberOfGroupAttribute"));
 
 		EditableGrid<GroupSpecification> groupConfig = new EditableGrid<>(msg::getMessage, GroupSpecification::new);
-		groupConfig.setWidth("52em");
+		groupConfig.setWidthFull();
 		groupConfig.setHeight("20em");
 
 		groupRetSettingsLayout.addFormItem(groupConfig, msg.getMessage("LdapAuthenticatorEditor.groupSpecifications"));
@@ -491,7 +492,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				.bind(LdapConfiguration::getRetrievalLdapAttributes, LdapConfiguration::setRetrievalLdapAttributes);
 
 		EditableGrid<SearchSpecification> searchConfig = new EditableGrid<>(msg::getMessage, SearchSpecification::new);
-		searchConfig.setWidth("52em");
+		searchConfig.setWidthFull();
 		searchConfig.setHeight("20em");
 		advancedAttrSearchLayout.addFormItem(searchConfig,
 				msg.getMessage("LdapAuthenticatorEditor.searchSpecifications"));
@@ -534,6 +535,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(),
 				msg.getLocale());
+		retrievalName.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(retrievalName)
 				.withConverter(I18nString::new, I18nString::getLocalizedMap)
 				.bind(LdapConfiguration::getRetrievalName, LdapConfiguration::setRetrievalName);
@@ -549,6 +551,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 		ComboBox<String> registrationForm = new ComboBox<>();
 		registrationForm.setItems(registrationForms);
+		registrationForm.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(registrationForm).bind(LdapConfiguration::getRegistrationForm,
 				LdapConfiguration::setRegistrationForm);
 		interactiveLoginSettings.addFormItem(registrationForm, msg.getMessage("LdapAuthenticatorEditor.registrationForm"));

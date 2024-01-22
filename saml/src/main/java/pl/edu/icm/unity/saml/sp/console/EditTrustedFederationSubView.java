@@ -14,6 +14,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -34,6 +35,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
@@ -89,7 +91,7 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
 		mainView.add(buttonsLayout);
 
 		add(mainView);
@@ -126,15 +128,16 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		header.addFormItem(url, msg.getMessage("EditTrustedFederationSubView.url"));
 		
 		MultiSelectComboBox<String> excludedIdps = new CustomValuesMultiSelectComboBox();
-		excludedIdps.setWidth(TEXT_FIELD_BIG.value());
+		excludedIdps.setWidthFull();
 		excludedIdps.setPlaceholder(msg.getMessage("typeAndConfirm"));
 		binder.forField(excludedIdps)
 				.withConverter(List::copyOf, HashSet::new)
 				.bind(SAMLAuthnTrustedFederationConfiguration::getExcludedIdps, SAMLAuthnTrustedFederationConfiguration::setExcludedIdps);
 		header.addFormItem(excludedIdps, msg.getMessage("EditTrustedFederationSubView.excludedIdps"));
 
-		ComboBox<String> httpsTruststore = new ComboBox<>();
+		Select<String> httpsTruststore = new Select<>();
 		httpsTruststore.setItems(validators);
+		httpsTruststore.setEmptySelectionAllowed(true);
 		binder.forField(httpsTruststore)
 				.bind(SAMLAuthnTrustedFederationConfiguration::getHttpsTruststore, SAMLAuthnTrustedFederationConfiguration::setHttpsTruststore);
 		header.addFormItem(httpsTruststore, msg.getMessage("EditTrustedFederationSubView.httpsTruststore"));

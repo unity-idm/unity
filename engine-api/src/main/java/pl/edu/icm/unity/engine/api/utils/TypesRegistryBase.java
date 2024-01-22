@@ -46,6 +46,11 @@ public abstract class TypesRegistryBase<T>
 		return ret;
 	}
 
+	public boolean containByName(String name)
+	{
+		return elements.containsKey(name);
+	}
+
 	/**
 	 * 
 	 * @param name

@@ -130,6 +130,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		retrievalName.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(retrievalName)
 				.withConverter(I18nString::new, I18nString::getLocalizedMap)
 				.bind(CompositePasswordConfiguration::getRetrievalName, CompositePasswordConfiguration::setRetrievalName);

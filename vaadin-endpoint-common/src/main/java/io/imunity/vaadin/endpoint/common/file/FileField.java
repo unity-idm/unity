@@ -79,6 +79,7 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 		VerticalLayout remote = new VerticalLayout();
 		remote.setPadding(false);
 		remoteUrl = new TextField();
+		remoteUrl.setLabel(msg.getMessage("FileField.url"));
 		remoteUrl.setWidth(TEXT_FIELD_BIG.value());
 		remoteUrl.addValueChangeListener(e ->
 		{

@@ -7,6 +7,7 @@ package io.imunity.console.views.authentication.facilities;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinServlet;
@@ -32,6 +33,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -106,37 +108,31 @@ public class AuthenticatorsController
 		}
 	}
 
-	boolean addAuthenticator(AuthenticatorDefinition authenticator)
+	void addAuthenticator(AuthenticatorDefinition authenticator) throws ControllerException
 	{
 		try
 		{
 
 			authnMan.createAuthenticator(authenticator.id, authenticator.type, authenticator.configuration,
 					authenticator.localCredentialName);
-			return true;
 		} catch (Exception e)
 		{
 			log.error("Can not add authenticator", e);
-			notificationPresenter.showError(
-					msg.getMessage("AuthenticatorsController.addError", authenticator.id), e.getMessage());
+			throw new ControllerException(msg.getMessage("AuthenticatorsController.addError", authenticator.id), e);
 		}
-		return false;
 	}
 
-	boolean updateAuthenticator(AuthenticatorDefinition authenticator)
+	void updateAuthenticator(AuthenticatorDefinition authenticator) throws ControllerException
 	{
 		try
 		{
 			authnMan.updateAuthenticator(authenticator.id, authenticator.configuration,
 					authenticator.localCredentialName);
-			return true;
 		} catch (Exception e)
 		{
 			log.error("Can not update authenticator", e);
-			notificationPresenter.showError(
-					msg.getMessage("AuthenticatorsController.updateError", authenticator.id), e.getMessage());
+			throw new ControllerException(msg.getMessage("AuthenticatorsController.updateError", authenticator.id), e);
 		}
-		return false;
 	}
 
 	AuthenticatorEntry getAuthenticator(String id)
@@ -186,7 +182,7 @@ public class AuthenticatorsController
 				.map(ResolvedEndpoint::getName).sorted().collect(Collectors.toList());
 	}
 
-	public Wizard getWizard()
+	public Dialog getWizard()
 	{
 		String contextPath = VaadinServlet.getCurrent()
 				.getServletConfig()
@@ -201,9 +197,12 @@ public class AuthenticatorsController
 		try
 		{
 			inputProfiles = profileMan.listInputProfiles();
-		} catch (EngineException e)
+		}
+		catch (EngineException e)
 		{
-			throw new RuntimeException(e);
+			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			log.error(e);
+			return new Dialog(msg.getMessage("error"));
 		}
 		Wizard wizard = Wizard.builder()
 				.addStep(new IntroStep(msg))

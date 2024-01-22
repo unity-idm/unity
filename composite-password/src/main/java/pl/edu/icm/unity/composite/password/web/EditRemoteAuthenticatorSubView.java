@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
+
 
 class EditRemoteAuthenticatorSubView extends VerticalLayout implements UnitySubView
 {
@@ -76,7 +78,7 @@ class EditRemoteAuthenticatorSubView extends VerticalLayout implements UnitySubV
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
 		mainView.add(buttonsLayout);
 
 		add(mainView);

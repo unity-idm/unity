@@ -5,8 +5,9 @@
 package pl.edu.icm.unity.saml.sp.console;
 
 import com.google.common.collect.Lists;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.junit.jupiter.api.Test;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -19,9 +20,6 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
-import pl.edu.icm.unity.saml.sp.console.v8.SAMLAuthneticatorConfiguration;
-import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 import java.security.cert.X509Certificate;
 import java.util.Optional;
@@ -41,7 +39,7 @@ public class SAMLAuthenticatorConfigurationTest
 	private PKIManagement pkiMan = mock(PKIManagement.class);
 	private MessageSource msg = mock(MessageSource.class);
 	private URIAccessService uriAccessSrv = mock(URIAccessService.class);
-	private ImageAccessService imageAccessSrv = mock(ImageAccessService.class);
+	private VaadinLogoImageLoader imageAccessSrv = mock(VaadinLogoImageLoader.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 	private static final TranslationProfile DEF_PROFILE = new TranslationProfile("Embedded", "", ProfileType.INPUT, 
 			Lists.newArrayList(new TranslationRule("true", 
@@ -56,8 +54,8 @@ public class SAMLAuthenticatorConfigurationTest
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithoutDefaults(P, META)
 				.update("metadataPath", "foo")
 				.get();
-		
-		SAMLAuthneticatorConfiguration processor = new SAMLAuthneticatorConfiguration();
+
+		SAMLAuthenticatorConfiguration processor = new SAMLAuthenticatorConfiguration();
 		
 		processor.fromProperties(pkiMan, uriAccessSrv, imageAccessSrv, msg, ConfigurationComparator.getAsString(sourceCfg));
 		String converted = processor.toProperties(pkiMan, fileStorageSrv, msg, "authName");
@@ -83,8 +81,8 @@ public class SAMLAuthenticatorConfigurationTest
 		Properties sourceCfg = ConfigurationGenerator.generateMinimalWithDefaults(P, META)
 				.update("metadataPath", "foo")
 				.get();
-		
-		SAMLAuthneticatorConfiguration processor = new SAMLAuthneticatorConfiguration();
+
+		SAMLAuthenticatorConfiguration processor = new SAMLAuthenticatorConfiguration();
 		
 		processor.fromProperties(pkiMan, uriAccessSrv, imageAccessSrv, msg, ConfigurationComparator.getAsString(sourceCfg));
 		String converted = processor.toProperties(pkiMan, fileStorageSrv, msg, "authName");
@@ -104,7 +102,7 @@ public class SAMLAuthenticatorConfigurationTest
 	{
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
-		when(imageAccessSrv.getEditableImageResourceFromUriWithUnknownTheme(eq("foo"))).thenReturn(Optional.of(new LocalOrRemoteResource("foo")));
+		when(imageAccessSrv.loadImageFromUri(eq("foo"))).thenReturn(Optional.of(new LocalOrRemoteResource("foo", "")));
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META)
 				.remove("jwt.")
 				.update("remoteIdp.1.signRequest", "false")
@@ -112,8 +110,8 @@ public class SAMLAuthenticatorConfigurationTest
 				.update("remoteIdp.1.embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("metadataSource", "src/test/resources/metadata.switchaai.xml")
 				.get();
-		
-		SAMLAuthneticatorConfiguration processor = new SAMLAuthneticatorConfiguration();
+
+		SAMLAuthenticatorConfiguration processor = new SAMLAuthenticatorConfiguration();
 		
 		processor.fromProperties(pkiMan, uriAccessSrv, imageAccessSrv, msg, ConfigurationComparator.getAsString(sourceCfg));
 		String converted = processor.toProperties(pkiMan, fileStorageSrv, msg, "authName");

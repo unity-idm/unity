@@ -46,6 +46,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import java.util.Set;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
@@ -299,7 +300,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		serverConnectionLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		EditableGrid<ServerSpecification> serverConfig = new EditableGrid<>(msg::getMessage, ServerSpecification::new);
-		serverConfig.setWidth("25em");
+		serverConfig.setWidth(TEXT_FIELD_BIG.value());
 		serverConfig.setHeight("20em");
 		serverConfig.addColumn(ServerSpecification::getServer, ServerSpecification::setServer, true)
 				.setHeader(msg.getMessage("LdapAuthenticatorEditor.server"))
@@ -373,6 +374,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		interactiveLoginSettings.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		retrievalName.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(retrievalName)
 				.withConverter(I18nString::new, I18nString::getLocalizedMap)
 				.bind(OTPWithLDAPConfiguration::getRetrievalName, OTPWithLDAPConfiguration::setRetrievalName);

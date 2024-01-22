@@ -7,6 +7,9 @@ package io.imunity.vaadin.endpoint.common.file;
 
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.server.AbstractStreamResource;
+import com.vaadin.flow.server.StreamResource;
+
+import java.io.ByteArrayInputStream;
 
 public class LocalOrRemoteResource extends Image
 {
@@ -34,10 +37,9 @@ public class LocalOrRemoteResource extends Image
 
 	public LocalOrRemoteResource clone()
 	{
-//		if(local == null)
-//			return new LocalOrRemoteResource(getSrc(), getAlt().orElse(null));
-//		return new LocalOrRemoteResource(new StreamResource("file", () -> new ByteArrayInputStream(local)), "", local.clone());
-		return this;
+		if(local == null)
+			return new LocalOrRemoteResource(getSrc(), getAlt().orElse(null));
+		return new LocalOrRemoteResource(new StreamResource("file", () -> new ByteArrayInputStream(local)), "", local.clone());
 	}
 
 }

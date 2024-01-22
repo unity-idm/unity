@@ -48,6 +48,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
@@ -118,7 +120,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
 		mainView.add(buttonsLayout);
 
 		add(mainView);
@@ -160,6 +162,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		header.addFormItem(id, msg.getMessage("EditOAuthProviderSubView.id"));
 
 		LocalizedTextFieldDetails name = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(name)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.withConverter(I18nString::new, I18nString::getLocalizedMap)
@@ -201,11 +204,9 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		openIdDiscovery.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(openIdDiscovery).asRequired(getOpenIdFieldValidator(openIdConnect, true))
 				.bind(OAuthProviderConfiguration::getOpenIdDiscoverEndpoint, OAuthProviderConfiguration::setOpenIdDiscoverEndpoint);
-		openIdDiscovery.setVisible(false);
 		openIdDiscovery.setRequiredIndicatorVisible(false);
-		header.addFormItem(openIdDiscovery, msg.getMessage("EditOAuthProviderSubView.openIdDiscoverEndpoint"));
-
-		openIdConnect.addValueChangeListener(e -> openIdDiscovery.setVisible(e.getValue()));
+		header.addFormItem(openIdDiscovery, msg.getMessage("EditOAuthProviderSubView.openIdDiscoverEndpoint"))
+				.setVisible(false);
 
 		TextField authenticationEndpoint = new TextField();
 		authenticationEndpoint.setWidth(TEXT_FIELD_BIG.value());
@@ -219,7 +220,15 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 				.bind(OAuthProviderConfiguration::getAccessTokenEndpoint, OAuthProviderConfiguration::setAccessTokenEndpoint);
 		header.addFormItem(accessTokenEndpoint, msg.getMessage("EditOAuthProviderSubView.accessTokenEndpoint"));
 
+		openIdConnect.addValueChangeListener(e ->
+		{
+			authenticationEndpoint.setRequiredIndicatorVisible(!e.getValue());
+			accessTokenEndpoint.setRequiredIndicatorVisible(!e.getValue());
+			openIdDiscovery.getParent().get().setVisible(e.getValue());
+		});
+
 		TextField profileEndpoint = new TextField();
+		profileEndpoint.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(profileEndpoint)
 				.bind(OAuthProviderConfiguration::getProfileEndpoint, OAuthProviderConfiguration::setProfileEndpoint);
 		header.addFormItem(profileEndpoint, msg.getMessage("EditOAuthProviderSubView.profileEndpoint"));
@@ -234,6 +243,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		advanced.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		ComboBox<String> registrationForm = new ComboBox<>();
+		registrationForm.setWidth(TEXT_FIELD_MEDIUM.value());
 		registrationForm.setItems(registrationForms);
 		configBinder.forField(registrationForm)
 				.bind(OAuthProviderConfiguration::getRegistrationForm, OAuthProviderConfiguration::setRegistrationForm);
@@ -266,7 +276,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		advanced.addFormItem(accountAssociation, msg.getMessage("EditOAuthProviderSubView.accountAssociation"));
 		
 		EditableGrid<NameValuePairBinding> extraAuthorizationParameters = new EditableGrid<>(msg::getMessage, NameValuePairBinding::new);
-		extraAuthorizationParameters.setWidth("30em");
+		extraAuthorizationParameters.setWidth(TEXT_FIELD_BIG.value());
 		extraAuthorizationParameters.setHeight("20em");
 		advanced.addFormItem(extraAuthorizationParameters, msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameters"));
 		extraAuthorizationParameters.addColumn(NameValuePairBinding::getName, NameValuePairBinding::setName, true)
@@ -288,6 +298,8 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 
 		Select<String> clientTrustStore = new Select<>();
 		clientTrustStore.setItems(validators);
+		clientTrustStore.setWidth(TEXT_FIELD_MEDIUM.value());
+		clientTrustStore.setEmptySelectionAllowed(true);
 		clientTrustStore.setEmptySelectionCaption(msg.getMessage("TrustStore.default"));
 		configBinder.forField(clientTrustStore)
 				.bind(OAuthProviderConfiguration::getClientTrustStore, OAuthProviderConfiguration::setClientTrustStore);

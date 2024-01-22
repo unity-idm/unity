@@ -11,6 +11,8 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
 
+import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
+
 public class EditViewActionLayoutFactory
 {
 	public static HorizontalLayout createActionLayout(MessageSource msg, boolean editMode,
@@ -24,7 +26,7 @@ public class EditViewActionLayoutFactory
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
 		return buttonsLayout;
 	}
 	
@@ -39,7 +41,7 @@ public class EditViewActionLayoutFactory
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
 		return buttonsLayout;
 	}
 
@@ -49,7 +51,7 @@ public class EditViewActionLayoutFactory
 		cancelButton.addClickListener(event -> UI.getCurrent().navigate(closeRedirectClass));
 		cancelButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton);
-		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
 		return buttonsLayout;
 	}
 }

@@ -160,7 +160,8 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 			raw.put(prefix + CustomProviderProperties.PROFILE_ENDPOINT, getProfileEndpoint());
 		}
 
-		if (getLogo() != null)
+		LocalOrRemoteResource resource = getLogo();
+		if (resource != null && (resource.getLocal() != null || !resource.getSrc().isEmpty()))
 		{
 			FileFieldUtils.saveInProperties(getLogo(), prefix + CustomProviderProperties.ICON_URL, raw, fileStorageService,
 					FileStorageService.StandardOwner.AUTHENTICATOR.toString(), authName + "." + getId());

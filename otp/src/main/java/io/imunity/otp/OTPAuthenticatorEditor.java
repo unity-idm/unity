@@ -29,6 +29,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 @PrototypeComponent
@@ -81,6 +82,7 @@ class OTPAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 		interactiveLoginSettings.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		retrievalName.setWidth(TEXT_FIELD_MEDIUM.value());
 		interactiveLoginSettings.addFormItem(retrievalName, msg.getMessage("OTPAuthenticatorEditor.formName"));
 		configBinder.forField(retrievalName)
 				.withConverter(I18nString::new, I18nString::getLocalizedMap)

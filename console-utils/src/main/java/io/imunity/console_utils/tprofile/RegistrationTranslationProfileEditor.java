@@ -18,20 +18,19 @@ import java.util.Set;
  */
 public class RegistrationTranslationProfileEditor extends TranslationProfileEditor
 {
-	public RegistrationTranslationProfileEditor(MessageSource msg,
-												RegistrationActionsRegistry registry, ActionParameterComponentProvider actionComponentProvider,
-												NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory)
+	public RegistrationTranslationProfileEditor(MessageSource msg, RegistrationActionsRegistry registry,
+			ActionParameterComponentProvider actionComponentProvider, NotificationPresenter notificationPresenter,
+			HtmlTooltipFactory htmlTooltipFactory)
 	{
-		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider, notificationPresenter, htmlTooltipFactory, Set.of());
+		super(msg, registry, ProfileType.REGISTRATION, actionComponentProvider, notificationPresenter,
+				htmlTooltipFactory, Set.of());
 	}
 
 	@Override
 	protected void initUI()
 	{
 		super.initUI();
-		name.getParent()
-				.ifPresent(parent -> parent.setVisible(false));
-		description.getParent()
-				.ifPresent(parent -> parent.setVisible(false));
+		name.getParent().ifPresent(parent -> parent.setVisible(false));
+		description.getParent().ifPresent(parent -> parent.setVisible(false));
 	}
 }

@@ -4,21 +4,20 @@
  */
 package io.imunity.console_utils.tprofile;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.vaadin.flow.data.binder.Binder;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.vaadin.flow.data.binder.Binder;
-
-import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import pl.edu.icm.unity.base.Constants;
-import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDetails implements ActionParameterComponent
 {
@@ -68,10 +67,11 @@ public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDet
 	{
 		try
 		{	if (value != null)
-			return Constants.MAPPER.readValue(value, I18nString.class);
+				return Constants.MAPPER.readValue(value, I18nString.class);
 		else
 			return null;
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			throw new IllegalStateException("Can't deserialize I18nString from JSON", e);
 		}

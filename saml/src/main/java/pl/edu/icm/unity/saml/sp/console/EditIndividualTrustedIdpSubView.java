@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
@@ -98,7 +99,7 @@ class EditIndividualTrustedIdpSubView extends VerticalLayout implements UnitySub
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
 		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName("u-edit-view-action-buttons-layout");
+		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
 		mainView.add(buttonsLayout);
 
 		add(mainView);

@@ -20,16 +20,8 @@ class MVELExpressionEditor
 {
 	private final MessageSource msg;
 	private final CustomField<String> field;
-
-	public MVELExpressionEditor(CustomField<String> field, MessageSource msg, String caption, String description)
-	{
-		this.field = field;
-		this.msg = msg;
-		field.setLabel(caption);
-		field.setTooltipText(description);
-	}
 	
-	public MVELExpressionEditor(CustomField<String> field, MessageSource msg)
+	MVELExpressionEditor(CustomField<String> field, MessageSource msg)
 	{
 		this.field = field;
 		this.msg = msg;
@@ -65,7 +57,7 @@ class MVELExpressionEditor
 
 	}
 
-	public static Validator<String> getValidator(MessageSource msg, boolean mandatory)
+	static Validator<String> getValidator(MessageSource msg, boolean mandatory)
 	{
 		return (value, context) ->
 		{
@@ -76,17 +68,10 @@ class MVELExpressionEditor
 			try
 			{
 				MVEL.compileExpression(value);
-			} catch (Exception e)
+			}
+			catch (Exception e)
 			{
-				String info;
-				try
-				{
-					info = e.getMessage();
-				} catch (Exception ee)
-				{
-					info = "Other MVEL error";
-				}
-
+				String info = e.getMessage();
 				return ValidationResult.error(msg.getMessage(
 						"MVELExpressionField.invalidValueWithReason",
 						info));
