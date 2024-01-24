@@ -18,10 +18,10 @@ import io.imunity.console.views.services.base.ServicesViewBase;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
-import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 
 
 /**

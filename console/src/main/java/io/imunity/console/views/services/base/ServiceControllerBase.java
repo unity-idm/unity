@@ -9,11 +9,15 @@ package io.imunity.console.views.services.base;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceControllerBaseInt;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.webui.console.services.ServiceControllerBaseInt;
-import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -23,18 +27,18 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  */
 public class ServiceControllerBase
 {
-	private MessageSource msg;
-	private EndpointManagement endpointMan;
-
-	//TODO to V24
-	private TypesRegistryBase<? extends ServiceControllerBaseInt> controllersRegistry;		
-			
+	private final MessageSource msg;
+	private final EndpointManagement endpointMan;
+	private final TypesRegistryBase<? extends ServiceControllerBaseInt> controllersRegistry;		
+	private final NotificationPresenter notificationPresenter;		
+	
 	public ServiceControllerBase(MessageSource msg, EndpointManagement endpointMan,
-			TypesRegistryBase< ? extends ServiceControllerBaseInt> controllersRegistry)
+			TypesRegistryBase< ? extends ServiceControllerBaseInt> controllersRegistry, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
 		this.controllersRegistry = controllersRegistry;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	public List<ServiceDefinition> getServices() throws ControllerException
@@ -83,18 +87,18 @@ public class ServiceControllerBase
 		controllersRegistry.getByName(service.getType()).remove(service);
 	}
 
-//	public MainServiceEditor getEditor(ServiceDefinition toEdit, ServiceEditorTab initTab, SubViewSwitcher subViewSwitcher) throws ControllerException
-//	{
-//
-//		try
-//		{
-//			return new MainServiceEditor(msg, controllersRegistry, endpointMan.getEndpointTypes(), toEdit,
-//					initTab, subViewSwitcher);
-//		} catch (EngineException e)
-//		{
-//			throw new ControllerException(msg.getMessage("ServicesController.createEditorError"), e);
-//		}
-//	}
+	public MainServiceEditor getEditor(ServiceDefinition toEdit, ServiceEditorTab initTab, SubViewSwitcher subViewSwitcher) throws ControllerException
+	{
+
+		try
+		{
+			return new MainServiceEditor(msg, controllersRegistry, endpointMan.getEndpointTypes(), toEdit,
+					initTab, subViewSwitcher, notificationPresenter);
+		} catch (EngineException e)
+		{
+			throw new ControllerException(msg.getMessage("ServicesController.createEditorError"), e);
+		}
+	}
 
 	public void reload(ServiceDefinition service) throws ControllerException
 	{

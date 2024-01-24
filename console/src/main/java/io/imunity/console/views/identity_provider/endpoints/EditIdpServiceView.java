@@ -3,12 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.identity_provider.released_profile.endpoints;
+package io.imunity.console.views.identity_provider.endpoints;
 
 import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.services.base.EditServiceViewBase;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 
@@ -16,8 +17,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 @Route(value = "/idpServices/edit", layout = ConsoleMenu.class)
 public class EditIdpServiceView extends EditServiceViewBase
 {
-	public EditIdpServiceView(MessageSource msg, IdpServicesController controller)
+	public EditIdpServiceView(MessageSource msg, IdpServicesController controller, NotificationPresenter notificationPresenter)
 	{
-		super(msg, controller, IdpServicesView.class);
+		super(msg, controller, IdpServicesView.class, notificationPresenter);
 	}
 }

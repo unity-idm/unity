@@ -34,9 +34,9 @@ import io.imunity.console.views.directory_setup.identity_types.IdentityTypesView
 import io.imunity.console.views.identity_provider.released_profile.EditOutputTranslationView;
 import io.imunity.console.views.identity_provider.released_profile.NewOutputTranslationView;
 import io.imunity.console.views.identity_provider.released_profile.ReleasedDataProfilesView;
-import io.imunity.console.views.identity_provider.released_profile.endpoints.EditIdpServiceView;
-import io.imunity.console.views.identity_provider.released_profile.endpoints.IdpServicesView;
-import io.imunity.console.views.identity_provider.released_profile.endpoints.NewIdpServiceView;
+import io.imunity.console.views.identity_provider.endpoints.EditIdpServiceView;
+import io.imunity.console.views.identity_provider.endpoints.IdpServicesView;
+import io.imunity.console.views.identity_provider.endpoints.NewIdpServiceView;
 import io.imunity.console.views.maintenance.AboutView;
 import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;

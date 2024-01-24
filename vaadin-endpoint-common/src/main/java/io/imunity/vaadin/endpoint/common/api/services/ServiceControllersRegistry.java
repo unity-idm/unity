@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.idp;
+package io.imunity.vaadin.endpoint.common.api.services;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,22 +16,22 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
 /**
  * Maintains a simple registry of available
- * {@link IdpServiceController}s.
+ * {@link ServiceController}s.
  * 
  * @author P.Piernik
  *
  */
-@Component("IdpServiceControllersRegistryV8")
-public class IdpServiceControllersRegistry extends TypesRegistryBase<IdpServiceController>
+@Component("ServiceControllersRegistry")
+public class ServiceControllersRegistry extends TypesRegistryBase<ServiceController>
 {
 	@Autowired
-	public IdpServiceControllersRegistry(Optional<List<IdpServiceController>> typeElements)
+	public ServiceControllersRegistry(Optional<List<ServiceController>> typeElements)
 	{
 		super(typeElements.orElseGet(ArrayList::new));
 	}
 
 	@Override
-	protected String getId(IdpServiceController from)
+	protected String getId(ServiceController from)
 	{
 		return from.getSupportedEndpointType();
 	}
