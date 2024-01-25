@@ -4,6 +4,7 @@
  */
 package io.imunity.vaadin.elements;
 
+import com.vaadin.flow.component.ClickNotifier;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.shared.Tooltip;
@@ -16,7 +17,7 @@ import java.util.List;
 
 import static java.util.Optional.ofNullable;
 
-public class TabComponent extends Tab implements TabTextHider
+public class TabComponent extends Tab implements TabTextHider, ClickNotifier<TabComponent>
 {
 	public final String name;
 	public final List<Class<? extends Component>> componentClass;

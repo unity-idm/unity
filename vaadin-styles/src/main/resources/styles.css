@@ -25,10 +25,10 @@ html {
   --lumo-header-text-color: #006997;
   --lumo-error-color: #d11135;
   --lumo-success-color: #00B720;
-  --_lumo-button-primary-background-color: #6BBFCE;
 
   /* vaadin variables */
   --vaadin-text-field-default-width: 16em;
+  --vaadin-button-primary-background: #6BBFCE;
 
   /* unity variables */
   --unity-font-weight: 500;
@@ -114,7 +114,7 @@ vaadin-icon[disabled] {
     background-color: var(--unity-tab-hover-color);
 }
 
-.u-menu-tabs > vaadin-tab[selected] {
+.u-menu-tabs > vaadin-tab[selection] {
     background-color: var(--unity-selected-tab-color);
     color: var(--unity-font-primary-color);
 }

@@ -9,7 +9,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.apache.http.auth.BasicUserPrincipal;
+import org.apache.hc.client5.http.auth.BasicUserPrincipal;
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.ServletApiRequest;

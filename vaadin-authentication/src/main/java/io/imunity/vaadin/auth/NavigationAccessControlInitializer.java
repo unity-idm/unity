@@ -7,30 +7,31 @@ package io.imunity.vaadin.auth;
 
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
-import com.vaadin.flow.server.auth.ViewAccessChecker;
+import com.vaadin.flow.server.auth.NavigationAccessControl;
 import org.jsoup.nodes.Document;
 
-public class ViewAccessCheckerInitializer implements VaadinServiceInitListener {
+public class NavigationAccessControlInitializer implements VaadinServiceInitListener
+{
 
-	private final ViewAccessChecker viewAccessChecker;
+	private final NavigationAccessControl navigationAccessControl;
 	private final String afterSuccessLoginRedirect;
 
 
-	public ViewAccessCheckerInitializer() {
-		viewAccessChecker = new ViewAccessChecker();
-		viewAccessChecker.setLoginView(AuthenticationView.class);
+	public NavigationAccessControlInitializer() {
+		navigationAccessControl = new NavigationAccessControl();
+		navigationAccessControl.setLoginView(AuthenticationView.class);
 		afterSuccessLoginRedirect = "window.location.href";
 	}
 
-	public ViewAccessCheckerInitializer(String afterSuccessLoginRedirect) {
-		viewAccessChecker = new ViewAccessChecker();
-		viewAccessChecker.setLoginView(AuthenticationView.class);
+	public NavigationAccessControlInitializer(String afterSuccessLoginRedirect) {
+		navigationAccessControl = new NavigationAccessControl();
+		navigationAccessControl.setLoginView(AuthenticationView.class);
 		this.afterSuccessLoginRedirect = "\"" + afterSuccessLoginRedirect + "\"";
 	}
 
 	@Override
 	public void serviceInit(ServiceInitEvent serviceInitEvent) {
-		serviceInitEvent.getSource().addUIInitListener(uiInitEvent -> uiInitEvent.getUI().addBeforeEnterListener(viewAccessChecker));
+		serviceInitEvent.getSource().addUIInitListener(uiInitEvent -> uiInitEvent.getUI().addBeforeEnterListener(navigationAccessControl));
 		saveOriginalUrlRequestInSessionStorageBeforeAllRedirects(serviceInitEvent);
 	}
 

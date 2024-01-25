@@ -4,22 +4,17 @@
  */
 package pl.edu.icm.unity.oauth.as.preferences;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.webui.idpcommon.IdPPreferences;
+
+import java.time.Instant;
+import java.util.*;
 
 /**
  * User's preferences for the OAuth endpoints.
@@ -36,7 +31,7 @@ public class OAuthPreferences extends IdPPreferences
 	@Override
 	protected void serializeAll(ObjectNode main)
 	{
-		ObjectNode settingsN = main.with("spSettings");
+		ObjectNode settingsN = main.withObjectProperty("spSettings");
 		for (Map.Entry<String, OAuthClientSettings> entry : spSettings.entrySet())
 			settingsN.set(entry.getKey(), entry.getValue().serialize());
 	}
@@ -44,12 +39,12 @@ public class OAuthPreferences extends IdPPreferences
 	@Override
 	protected void deserializeAll(ObjectNode main)
 	{
-		ObjectNode spSettingsNode = main.with("spSettings");
+		ObjectNode spSettingsNode = main.withObjectProperty("spSettings");
 		Iterator<String> keys = spSettingsNode.fieldNames();
 		for (String key; keys.hasNext();)
 		{
 			key = keys.next();
-			spSettings.put(key, new OAuthClientSettings(spSettingsNode.with(key)));
+			spSettings.put(key, new OAuthClientSettings(spSettingsNode.withObjectProperty(key)));
 		}
 	}
 

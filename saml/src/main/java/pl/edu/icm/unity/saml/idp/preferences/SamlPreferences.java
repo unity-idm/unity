@@ -4,17 +4,9 @@
  */
 package pl.edu.icm.unity.saml.idp.preferences;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.base.Constants;
@@ -24,6 +16,13 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.webui.idpcommon.IdPPreferences;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 
 /**
@@ -35,12 +34,12 @@ public class SamlPreferences extends IdPPreferences
 	public static final String ID = SamlPreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
 
-	private Map<String, SPSettings> spSettings = new HashMap<String, SamlPreferences.SPSettings>();
+	private final Map<String, SPSettings> spSettings = new HashMap<>();
 	
 	@Override
 	protected void serializeAll(ObjectNode main)
 	{
-		ObjectNode settingsN = main.with("spSettings");
+		ObjectNode settingsN = main.withObjectProperty("spSettings");
 		for (Map.Entry<String, SPSettings> entry: spSettings.entrySet())
 			settingsN.set(entry.getKey(), serializeSingle(entry.getValue()));
 	}
@@ -76,12 +75,12 @@ public class SamlPreferences extends IdPPreferences
 	@Override
 	protected void deserializeAll(ObjectNode main)
 	{
-		ObjectNode spSettingsNode = main.with("spSettings");
+		ObjectNode spSettingsNode = main.withObjectProperty("spSettings");
 		Iterator<String> keys = spSettingsNode.fieldNames();
 		for (String key; keys.hasNext();)
 		{
 			key=keys.next();
-			spSettings.put(key, deserializeSingle(spSettingsNode.with(key)));
+			spSettings.put(key, deserializeSingle(spSettingsNode.withObjectProperty(key)));
 		}
 	}
 	

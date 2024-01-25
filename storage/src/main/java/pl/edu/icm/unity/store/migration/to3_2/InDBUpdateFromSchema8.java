@@ -5,19 +5,12 @@
 
 package pl.edu.icm.unity.store.migration.to3_2;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Sets;
-
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
@@ -28,6 +21,11 @@ import pl.edu.icm.unity.store.impl.tokens.TokenRDBMSStore;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Update db from 3.1 release version (DB schema version 2.8). Drops extracted attributes from identity types.
@@ -114,7 +112,7 @@ public class InDBUpdateFromSchema8 implements InDBContentsUpdater
 		{
 			JsonNode codeChallenge = objContent.remove("codeChallenge");
 			JsonNode codeChallengeMethod = objContent.remove("codeChallengeMethod");
-			ObjectNode pkcsInfo = objContent.with("pkcsInfo");
+			ObjectNode pkcsInfo = objContent.withObjectProperty("pkcsInfo");
 			pkcsInfo.set("codeChallenge", codeChallenge);
 			pkcsInfo.set("codeChallengeMethod", codeChallengeMethod);
 			return Optional.of(objContent);

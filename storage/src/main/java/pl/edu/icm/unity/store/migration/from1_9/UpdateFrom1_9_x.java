@@ -4,28 +4,14 @@
  */
 package pl.edu.icm.unity.store.migration.from1_9;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import eu.emi.security.authn.x509.impl.X500NameUtils;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.utils.Escaper;
@@ -48,6 +34,13 @@ import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
 import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * Updates a JSON dump before it is actually imported.
@@ -318,7 +311,7 @@ public class UpdateFrom1_9_x implements JsonDumpUpdate
 		target.put("name", description.get("id").asText());
 		target.put("typeId", description.get("typeName").asText());
 		target.put("contextAddress", description.get("contextAddress").asText());
-		ObjectNode targetConfig = target.with("configuration");
+		ObjectNode targetConfig = target.withObjectProperty("configuration");
 		targetConfig.set("displayedName", description.get("displayedName"));
 		targetConfig.set("description", description.get("description"));
 		targetConfig.set("realm", description.get("realmName"));
@@ -741,7 +734,7 @@ public class UpdateFrom1_9_x implements JsonDumpUpdate
 		pi.put("method", "SHA256");
 		pi.put("hash", hash);
 		
-		ObjectNode params = pi.with("methodParams");
+		ObjectNode params = pi.withObjectProperty("methodParams");
 		params.put("rehashNumber", rehashNum);
 		if (salt != null)
 			pi.put("salt", salt);

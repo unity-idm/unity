@@ -68,7 +68,7 @@ public class BaseEmailConfirmationState
 	protected ObjectNode createState()
 	{
 		ObjectNode state = mapper.createObjectNode();
-		state.with("confirmationState");
+		state.withObjectProperty("confirmationState");
 		state.put("value", getValue());
 		state.put("type", getType());
 		state.put("facilityId", getFacilityId());

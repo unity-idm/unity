@@ -8,8 +8,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +23,7 @@ import java.util.List;
 public class LayoutEmbeddable
 {
 	private HasComponents layout = null;
-	private List<Component> components = new ArrayList<>();
+	private final List<Component> components = new ArrayList<>();
 	
 	
 	public void addToLayout(HasComponents layout)
@@ -40,11 +38,6 @@ public class LayoutEmbeddable
 		this.layout = layout;
 		for (Component component: components)
 		{
-			if(component instanceof Label label)
-			{
-				layout.addFormItem(new Div(), label);
-				continue;
-			}
 			if(component instanceof Checkbox checkbox)
 			{
 				layout.addFormItem(checkbox, "");

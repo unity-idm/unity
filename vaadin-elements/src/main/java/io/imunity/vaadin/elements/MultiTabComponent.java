@@ -37,7 +37,7 @@ public class MultiTabComponent extends Tab implements TabTextHider
 		content.addThemeVariants(TabsVariant.LUMO_MINIMAL);
 		content.setSelectedTab(null);
 		content.addClassName("u-menu-tabs");
-		details.setContent(content);
+		details.add(content);
 		details.addThemeVariants(DetailsVariant.REVERSE);
 		details.addClassName("u-multi-tab-details");
 		details.setWidthFull();
@@ -47,8 +47,12 @@ public class MultiTabComponent extends Tab implements TabTextHider
 
 	public void select(TabComponent tabComponent)
 	{
+		components.forEach(item -> item.getElement().removeAttribute("selection"));
 		if(tabComponent != null)
+		{
 			details.setOpened(true);
+			tabComponent.getElement().setAttribute("selection", true);
+		}
 		content.setSelectedTab(tabComponent);
 	}
 

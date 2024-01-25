@@ -21,13 +21,13 @@
 		<log4j.version>2.20.0</log4j.version>
 		<spring.version>5.3.31</spring.version>
 		<vaadin.version>8.14.3</vaadin.version>
-		<vaadin.version.new>24.1.10</vaadin.version.new>
+		<vaadin.version.new>24.3.3</vaadin.version.new>
 		<cxf.version>4.0.3</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
 		<bc.version>1.76</bc.version>
 		<selenium.version>4.13.0</selenium.version>
 		<junit5.version>5.9.3</junit5.version>
-		<jackson.version>2.15.3</jackson.version>
+		<jackson.version>2.16.1</jackson.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -340,6 +340,11 @@
 				<groupId>com.vaadin.componentfactory</groupId>
 				<artifactId>tooltip</artifactId>
 				<version>2.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>2.15.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
