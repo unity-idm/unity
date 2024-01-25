@@ -8,9 +8,10 @@ package io.imunity.console.views.services;
 import org.springframework.stereotype.Component;
 
 import io.imunity.console.views.services.base.ServiceControllerBase;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceControllersRegistry;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.webui.console.services.ServiceControllersRegistry;
 
 /**
  * Controller for standard services
@@ -22,8 +23,8 @@ import pl.edu.icm.unity.webui.console.services.ServiceControllersRegistry;
 class ServicesController extends ServiceControllerBase
 {
 	ServicesController(MessageSource msg, EndpointManagement endpointMan,
-			ServiceControllersRegistry controllersRegistry)
+			ServiceControllersRegistry controllersRegistry, NotificationPresenter notificationPresenter)
 	{
-		super(msg, endpointMan, controllersRegistry);
+		super(msg, endpointMan, controllersRegistry, notificationPresenter);
 	}
 }

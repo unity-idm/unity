@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.identity_provider.released_profile.endpoints;
+package io.imunity.console.views.identity_provider.endpoints;
 
 import java.util.List;
 

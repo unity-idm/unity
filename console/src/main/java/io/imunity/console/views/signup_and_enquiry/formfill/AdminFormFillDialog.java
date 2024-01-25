@@ -6,6 +6,7 @@ package io.imunity.console.views.signup_and_enquiry.formfill;
 
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -46,7 +47,8 @@ class AdminFormFillDialog<T extends BaseRegistrationInput> extends Dialog
 		setHeaderTitle(caption);
 		Button submit = new Button(msg.getMessage("UserFormFillDialog.submitRequest"));
 		submit.addClickListener(e -> onConfirm(false));
-
+		submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		
 		Button cancel = new Button(msg.getMessage("cancel"));
 		cancel.addClickListener(e -> onCancel());
 

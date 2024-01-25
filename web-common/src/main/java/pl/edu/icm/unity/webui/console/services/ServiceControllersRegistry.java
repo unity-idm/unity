@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
  * @author P.Piernik
  *
  */
-@Component("ServiceControllersRegistry")
+@Component("ServiceControllersRegistryV8")
 public class ServiceControllersRegistry extends TypesRegistryBase<ServiceController>
 {
 	@Autowired

@@ -9,6 +9,7 @@ import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.services.base.EditServiceViewBase;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 
@@ -17,9 +18,9 @@ import pl.edu.icm.unity.base.message.MessageSource;
 public class EditServiceView extends EditServiceViewBase
 {
 
-	public EditServiceView(MessageSource msg, ServicesController controller)
+	public EditServiceView(MessageSource msg, ServicesController controller, NotificationPresenter notificationPresenter)
 	{
-		super(msg, controller, ServicesView.class);
+		super(msg, controller, ServicesView.class, notificationPresenter);
 	}
 
 }

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.idp;
+package io.imunity.vaadin.endpoint.common.api.services.idp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
  * @author P.Piernik
  *
  */
-@Component("IdpServiceControllersRegistryV8")
+@Component("IdpServiceControllersRegistry")
 public class IdpServiceControllersRegistry extends TypesRegistryBase<IdpServiceController>
 {
 	@Autowired
